@@ -42,14 +42,14 @@ const { créerConstellationsTest } = utilsTestConstellation;
 describe("BDs", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
-  let client: Constellation;
+  let constl: Constellation;
 
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
       n: 1,
       créerConstellation,
     }));
-    client = clients[0];
+    constl = clients[0];
   });
 
   after(async () => {
@@ -58,13 +58,13 @@ describe("BDs", function () {
 
   describe("Création bds", function () {
     it("Création", async () => {
-      const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       expect(isValidAddress(idBd)).to.be.true();
     });
     it("Accès", async () => {
-      const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       const permission = await obtenir(({ si }) =>
-        client.suivrePermissionÉcrire({
+        constl.suivrePermissionÉcrire({
           id: idBd,
           f: si((x) => !!x),
         }),
@@ -79,14 +79,14 @@ describe("BDs", function () {
 
     let fOublierClients: () => Promise<void>;
     let clients: Constellation[];
-    let client: Constellation;
+    let constl: Constellation;
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
         n: 1,
         créerConstellation,
       }));
-      client = clients[0];
+      constl = clients[0];
     });
 
     after(async () => {
@@ -94,9 +94,9 @@ describe("BDs", function () {
     });
 
     it("Une BD déjà créée est présente", async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       const mesBds = await obtenir<string[]>(({ siDéfini }) =>
-        client.bds.suivreBds({
+        constl.bds.suivreBds({
           f: siDéfini(),
         }),
       );
@@ -104,12 +104,12 @@ describe("BDs", function () {
     });
 
     it("On crée une autre BD sans l'ajouter", async () => {
-      idNouvelleBd = await client.bds.créerBd({
+      idNouvelleBd = await constl.bds.créerBd({
         licence: "ODbl-1_0",
       });
-      await client.bds.enleverDeMesBds({ idBd: idNouvelleBd });
+      await constl.bds.enleverDeMesBds({ idBd: idNouvelleBd });
       const mesBds = await obtenir<string[]>(({ si }) =>
-        client.bds.suivreBds({
+        constl.bds.suivreBds({
           f: si((x) => x.length < 2),
         }),
       );
@@ -117,9 +117,9 @@ describe("BDs", function () {
     });
 
     it("On peut l'ajouter ensuite à mes bds", async () => {
-      await client.bds.ajouterÀMesBds({ idBd: idNouvelleBd });
+      await constl.bds.ajouterÀMesBds({ idBd: idNouvelleBd });
       const mesBds = await obtenir<string[]>(({ si }) =>
-        client.bds.suivreBds({
+        constl.bds.suivreBds({
           f: si((x) => x.length > 1),
         }),
       );
@@ -130,9 +130,9 @@ describe("BDs", function () {
     });
 
     it("On peut aussi l'effacer", async () => {
-      await client.bds.effacerBd({ idBd: idNouvelleBd });
+      await constl.bds.effacerBd({ idBd: idNouvelleBd });
       const mesBds = await obtenir<string[]>(({ si }) =>
-        client.bds.suivreBds({
+        constl.bds.suivreBds({
           f: si((x) => x.length < 2),
         }),
       );
@@ -144,24 +144,24 @@ describe("BDs", function () {
     let idBd: string;
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
     });
 
     it("Pas de noms pour commencer", async () => {
       const noms = await obtenir<TraducsNom>(({ siDéfini }) =>
-        client.bds.suivreNomsBd({ idBd, f: siDéfini() }),
+        constl.bds.suivreNomsBd({ idBd, f: siDéfini() }),
       );
       expect(Object.keys(noms).length).to.equal(0);
     });
 
     it("Ajouter un nom", async () => {
-      await client.bds.sauvegarderNomBd({
+      await constl.bds.sauvegarderNomBd({
         idBd,
         langue: "fr",
         nom: "Alphabets",
       });
       const noms = await obtenir<TraducsNom>(({ si }) =>
-        client.bds.suivreNomsBd({
+        constl.bds.suivreNomsBd({
           idBd,
           f: si((n) => Object.keys(n).length > 0),
         }),
@@ -170,7 +170,7 @@ describe("BDs", function () {
     });
 
     it("Ajouter des noms", async () => {
-      await client.bds.sauvegarderNomsBd({
+      await constl.bds.sauvegarderNomsBd({
         idBd,
         noms: {
           த: "எழுத்துகள்",
@@ -178,7 +178,7 @@ describe("BDs", function () {
         },
       });
       const noms = await obtenir<TraducsNom>(({ si }) =>
-        client.bds.suivreNomsBd({
+        constl.bds.suivreNomsBd({
           idBd,
           f: si((n) => Object.keys(n).length > 2),
         }),
@@ -191,13 +191,13 @@ describe("BDs", function () {
     });
 
     it("Changer un nom", async () => {
-      await client.bds.sauvegarderNomBd({
+      await constl.bds.sauvegarderNomBd({
         idBd,
         langue: "fr",
         nom: "Systèmes d'écriture",
       });
       const noms = await obtenir<TraducsNom>(({ si }) =>
-        client.bds.suivreNomsBd({
+        constl.bds.suivreNomsBd({
           idBd,
           f: si((n) => n["fr"] !== "Alphabets"),
         }),
@@ -207,9 +207,9 @@ describe("BDs", function () {
     });
 
     it("Effacer un nom", async () => {
-      await client.bds.effacerNomBd({ idBd, langue: "fr" });
+      await constl.bds.effacerNomBd({ idBd, langue: "fr" });
       const noms = await obtenir<TraducsNom>(({ si }) =>
-        client.bds.suivreNomsBd({ idBd, f: si((n) => !n["fr"]) }),
+        constl.bds.suivreNomsBd({ idBd, f: si((n) => !n["fr"]) }),
       );
       expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
@@ -219,31 +219,31 @@ describe("BDs", function () {
     let idBd: string;
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
     });
 
     it("Aucune description pour commencer", async () => {
       const descrs = await obtenir<TraducsNom>(({ siDéfini }) =>
-        client.bds.suivreDescriptionsBd({ idBd, f: siDéfini() }),
+        constl.bds.suivreDescriptionsBd({ idBd, f: siDéfini() }),
       );
       expect(Object.keys(descrs).length).to.equal(0);
     });
 
     it("Ajouter une description", async () => {
-      await client.bds.sauvegarderDescriptionBd({
+      await constl.bds.sauvegarderDescriptionBd({
         idBd,
         langue: "fr",
         description: "Alphabets",
       });
 
       const descrs = await obtenir<TraducsNom>(({ si }) =>
-        client.bds.suivreDescriptionsBd({ idBd, f: si((x) => !!x["fr"]) }),
+        constl.bds.suivreDescriptionsBd({ idBd, f: si((x) => !!x["fr"]) }),
       );
       expect(descrs.fr).to.equal("Alphabets");
     });
 
     it("Ajouter des descriptions", async () => {
-      await client.bds.sauvegarderDescriptionsBd({
+      await constl.bds.sauvegarderDescriptionsBd({
         idBd,
         descriptions: {
           த: "எழுத்துகள்",
@@ -252,7 +252,7 @@ describe("BDs", function () {
       });
 
       const descrs = await obtenir<TraducsNom>(({ si }) =>
-        client.bds.suivreDescriptionsBd({
+        constl.bds.suivreDescriptionsBd({
           idBd,
           f: si((x) => Object.keys(x).length > 2),
         }),
@@ -265,14 +265,14 @@ describe("BDs", function () {
     });
 
     it("Changer une description", async () => {
-      await client.bds.sauvegarderDescriptionBd({
+      await constl.bds.sauvegarderDescriptionBd({
         idBd,
         langue: "fr",
         description: "Systèmes d'écriture",
       });
 
       const descrs = await obtenir<TraducsNom>(({ si }) =>
-        client.bds.suivreDescriptionsBd({
+        constl.bds.suivreDescriptionsBd({
           idBd,
           f: si((x) => x["fr"] !== "Alphabets"),
         }),
@@ -281,10 +281,10 @@ describe("BDs", function () {
     });
 
     it("Effacer une description", async () => {
-      await client.bds.effacerDescriptionBd({ idBd, langue: "fr" });
+      await constl.bds.effacerDescriptionBd({ idBd, langue: "fr" });
 
       const descrs = await obtenir<TraducsNom>(({ si }) =>
-        client.bds.suivreDescriptionsBd({ idBd, f: si((x) => !x["fr"]) }),
+        constl.bds.suivreDescriptionsBd({ idBd, f: si((x) => !x["fr"]) }),
       );
       expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
@@ -295,12 +295,12 @@ describe("BDs", function () {
     let idBd: string;
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
     });
 
     it("Pas de mots-clefs pour commencer", async () => {
       const motsClefs = await obtenir<string[]>(({ siDéfini }) =>
-        client.bds.suivreMotsClefsBd({
+        constl.bds.suivreMotsClefsBd({
           idBd,
           f: siDéfini(),
         }),
@@ -308,14 +308,14 @@ describe("BDs", function () {
       expect(motsClefs).to.be.an.empty("array");
     });
     it("Ajout d'un mot-clef", async () => {
-      idMotClef = await client.motsClefs.créerMotClef();
-      await client.bds.ajouterMotsClefsBd({
+      idMotClef = await constl.motsClefs.créerMotClef();
+      await constl.bds.ajouterMotsClefsBd({
         idBd,
         idsMotsClefs: idMotClef,
       });
 
       const motsClefs = await obtenir<string[]>(({ si }) =>
-        client.bds.suivreMotsClefsBd({
+        constl.bds.suivreMotsClefsBd({
           idBd,
           f: si((x) => x.length > 0),
         }),
@@ -324,10 +324,10 @@ describe("BDs", function () {
       expect(motsClefs.length).to.equal(1);
     });
     it("Effacer un mot-clef", async () => {
-      await client.bds.effacerMotClefBd({ idBd, idMotClef });
+      await constl.bds.effacerMotClefBd({ idBd, idMotClef });
 
       const motsClefs = await obtenir<string[]>(({ siVide }) =>
-        client.bds.suivreMotsClefsBd({
+        constl.bds.suivreMotsClefsBd({
           idBd,
           f: siVide(),
         }),
@@ -340,11 +340,11 @@ describe("BDs", function () {
     let idBd: string;
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
     });
 
     it("Licence originale présente", async () => {
-      const licence = await obtenir(({siDéfini})=>client.bds.suivreLicenceBd({
+      const licence = await obtenir(({siDéfini})=>constl.bds.suivreLicenceBd({
         idBd,
         f: siDéfini(),
       }));
@@ -353,9 +353,9 @@ describe("BDs", function () {
     });
 
     it("Changement de licence", async () => {
-      await client.bds.changerLicenceBd({ idBd, licence: "ODC-BY-1_0" });
+      await constl.bds.changerLicenceBd({ idBd, licence: "ODC-BY-1_0" });
 
-      const licence = await await obtenir(({si})=>client.bds.suivreLicenceBd({
+      const licence = await await obtenir(({si})=>constl.bds.suivreLicenceBd({
         idBd,
         f: si((l) => l !== "ODbl-1_0"),
       }));
@@ -377,9 +377,9 @@ describe("BDs", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       fsOublier.push(
-        await client.bds.suivreTableauxBd({
+        await constl.bds.suivreTableauxBd({
           idBd,
           f: (t) => attenteTableaux.mettreÀJour(t),
         }),
@@ -396,7 +396,7 @@ describe("BDs", function () {
     });
 
     it("Ajout d'un tableau", async () => {
-      idTableau = await client.bds.ajouterTableauBd({
+      idTableau = await constl.bds.ajouterTableauBd({
         idBd,
         clefTableau: "abc",
       });
@@ -415,7 +415,7 @@ describe("BDs", function () {
 
     it("Accès au tableau", async () => {
       fsOublier.push(
-        await client.suivrePermissionÉcrire({
+        await constl.suivrePermissionÉcrire({
           id: idTableau,
           f: (x) => (accèsTableau = x),
         }),
@@ -425,15 +425,15 @@ describe("BDs", function () {
 
     it("Suivre colonnes tableau", async () => {
       fsOublier.push(
-        await client.tableaux.suivreColonnesTableau({
+        await constl.tableaux.suivreColonnesTableau({
           idTableau,
           f: (t) => attenteColonnes.mettreÀJour(t),
         }),
       );
-      const idVariable = await client.variables.créerVariable({
+      const idVariable = await constl.variables.créerVariable({
         catégorie: "vidéo",
       });
-      const idColonne = await client.tableaux.ajouterColonneTableau({
+      const idColonne = await constl.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
@@ -443,7 +443,7 @@ describe("BDs", function () {
     });
 
     it("Réordonner tableaux", async () => {
-      const idTableau2 = await client.bds.ajouterTableauBd({ idBd });
+      const idTableau2 = await constl.bds.ajouterTableauBd({ idBd });
 
       const tableauxAvant = await attenteTableaux.attendreQue(
         (t) => t.length > 1,
@@ -453,7 +453,7 @@ describe("BDs", function () {
         idTableau2,
       ]);
 
-      await client.bds.réordonnerTableauBd({
+      await constl.bds.réordonnerTableauBd({
         idBd,
         idTableau: idTableau,
         position: 1,
@@ -464,11 +464,11 @@ describe("BDs", function () {
       );
       expect(tableaux.map((t) => t.id)).to.deep.equal([idTableau2, idTableau]);
 
-      await client.bds.effacerTableauBd({ idBd, idTableau: idTableau2 });
+      await constl.bds.effacerTableauBd({ idBd, idTableau: idTableau2 });
     });
 
     it("Effacer un tableau", async () => {
-      await client.bds.effacerTableauBd({ idBd, idTableau });
+      await constl.bds.effacerTableauBd({ idBd, idTableau });
 
       const tableaux = await attenteTableaux.attendreQue((t) => t.length === 0);
       expect(tableaux).to.be.an.empty("array");
@@ -485,8 +485,8 @@ describe("BDs", function () {
     const attenteVariables = new attente.AttendreRésultat<string[]>();
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      fOublier = await client.bds.suivreVariablesBd({
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      fOublier = await constl.bds.suivreVariablesBd({
         idBd,
         f: (v) => attenteVariables.mettreÀJour(v),
       });
@@ -502,12 +502,12 @@ describe("BDs", function () {
     });
 
     it("Ajout d'un tableau et d'une variable", async () => {
-      idTableau = await client.bds.ajouterTableauBd({ idBd });
-      idVariable = await client.variables.créerVariable({
+      idTableau = await constl.bds.ajouterTableauBd({ idBd });
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
 
-      idColonne = await client.tableaux.ajouterColonneTableau({
+      idColonne = await constl.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
@@ -519,7 +519,7 @@ describe("BDs", function () {
     });
 
     it("Effacer une variable", async () => {
-      await client.tableaux.effacerColonneTableau({
+      await constl.tableaux.effacerColonneTableau({
         idTableau,
         idColonne,
       });
@@ -549,70 +549,70 @@ describe("BDs", function () {
     const réfLicence = "ODbl-1_0";
 
     before(async () => {
-      idBdOrig = await client.bds.créerBd({ licence: réfLicence });
+      idBdOrig = await constl.bds.créerBd({ licence: réfLicence });
 
-      await client.bds.sauvegarderNomsBd({
+      await constl.bds.sauvegarderNomsBd({
         idBd: idBdOrig,
         noms: réfNoms,
       });
-      await client.bds.sauvegarderDescriptionsBd({
+      await constl.bds.sauvegarderDescriptionsBd({
         idBd: idBdOrig,
         descriptions: réfDescrs,
       });
 
-      idMotClef = await client.motsClefs.créerMotClef();
-      await client.bds.ajouterMotsClefsBd({
+      idMotClef = await constl.motsClefs.créerMotClef();
+      await constl.bds.ajouterMotsClefsBd({
         idBd: idBdOrig,
         idsMotsClefs: idMotClef,
       });
 
-      idTableau = await client.bds.ajouterTableauBd({ idBd: idBdOrig });
+      idTableau = await constl.bds.ajouterTableauBd({ idBd: idBdOrig });
 
-      idVariable = await client.variables.créerVariable({
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      await client.tableaux.ajouterColonneTableau({
+      await constl.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
 
-      idBdCopie = await client.bds.copierBd({ idBd: idBdOrig });
+      idBdCopie = await constl.bds.copierBd({ idBd: idBdOrig });
     });
 
     it("Les noms sont copiés", async () => {
       const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
-        client.bds.suivreNomsBd({ idBd: idBdCopie, f: siPasVide() }),
+        constl.bds.suivreNomsBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(noms).to.deep.equal(réfNoms);
     });
     it("Les descriptions sont copiées", async () => {
       const descrs = await obtenir<TraducsNom>(({ siPasVide }) =>
-        client.bds.suivreDescriptionsBd({ idBd: idBdCopie, f: siPasVide() }),
+        constl.bds.suivreDescriptionsBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(descrs).to.deep.equal(réfDescrs);
     });
     it("La licence est copiée", async () => {
       const licence = await obtenir<string>(({ siDéfini }) =>
-        client.bds.suivreLicenceBd({ idBd: idBdCopie, f: siDéfini() }),
+        constl.bds.suivreLicenceBd({ idBd: idBdCopie, f: siDéfini() }),
       );
       expect(licence).to.equal(réfLicence);
     });
     it("Les mots-clefs sont copiés", async () => {
       const motsClefs = await obtenir<string[]>(({ siPasVide }) =>
-        client.bds.suivreMotsClefsBd({ idBd: idBdCopie, f: siPasVide() }),
+        constl.bds.suivreMotsClefsBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(motsClefs).to.have.members([idMotClef]);
     });
     it("Les tableaux sont copiés", async () => {
       const tableaux = await obtenir<infoTableauAvecId[]>(({ siPasVide }) =>
-        client.bds.suivreTableauxBd({ idBd: idBdCopie, f: siPasVide() }),
+        constl.bds.suivreTableauxBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(Array.isArray(tableaux)).to.be.true();
       expect(tableaux.length).to.equal(1);
     });
     it("Les variables sont copiées", async () => {
       const variables = await obtenir<string[]>(({ siPasVide }) =>
-        client.bds.suivreVariablesBd({ idBd: idBdCopie, f: siPasVide() }),
+        constl.bds.suivreVariablesBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(variables).to.have.members([idVariable]);
     });
@@ -629,10 +629,10 @@ describe("BDs", function () {
     let idTableau2: string;
 
     before(async () => {
-      idVarClef = await client.variables.créerVariable({
+      idVarClef = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
-      idVarTrad = await client.variables.créerVariable({
+      idVarTrad = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
 
@@ -656,15 +656,15 @@ describe("BDs", function () {
         ],
       };
 
-      idBd1 = await client.bds.créerBdDeSchéma({ schéma });
-      idBd2 = await client.bds.créerBdDeSchéma({ schéma });
+      idBd1 = await constl.bds.créerBdDeSchéma({ schéma });
+      idBd2 = await constl.bds.créerBdDeSchéma({ schéma });
 
       idTableau1 = (
         await uneFois(
           async (
             fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
           ): Promise<schémaFonctionOublier> => {
-            return await client.bds.suivreTableauxBd({
+            return await constl.bds.suivreTableauxBd({
               idBd: idBd1,
               f: fSuivi,
             });
@@ -676,7 +676,7 @@ describe("BDs", function () {
           async (
             fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
           ): Promise<schémaFonctionOublier> => {
-            return await client.bds.suivreTableauxBd({
+            return await constl.bds.suivreTableauxBd({
               idBd: idBd2,
               f: fSuivi,
             });
@@ -696,7 +696,7 @@ describe("BDs", function () {
         },
       ];
       for (const élément of éléments1) {
-        await client.tableaux.ajouterÉlément({
+        await constl.tableaux.ajouterÉlément({
           idTableau: idTableau1,
           vals: élément,
         });
@@ -717,19 +717,19 @@ describe("BDs", function () {
         },
       ];
       for (const élément of éléments2) {
-        await client.tableaux.ajouterÉlément({
+        await constl.tableaux.ajouterÉlément({
           idTableau: idTableau2,
           vals: élément,
         });
       }
 
-      await client.bds.combinerBds({ idBdBase: idBd1, idBd2 });
+      await constl.bds.combinerBds({ idBdBase: idBd1, idBd2 });
     });
 
     it("Les données sont copiées", async () => {
       const données = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
         ({ si }) =>
-          client.tableaux.suivreDonnées({
+          constl.tableaux.suivreDonnées({
             idTableau: idTableau1,
             f: si(
               (x) =>
@@ -761,17 +761,17 @@ describe("BDs", function () {
     let idBd: string;
 
     before(async () => {
-      idVarClef = await client.variables.créerVariable({
+      idVarClef = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
-      idVarTrad = await client.variables.créerVariable({
+      idVarTrad = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
-      idVarLangue = await client.variables.créerVariable({
+      idVarLangue = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
 
-      idMotClef = await client.motsClefs.créerMotClef();
+      idMotClef = await constl.motsClefs.créerMotClef();
 
       const schéma: schémaSpécificationBd = {
         licence: "ODbl-1_0",
@@ -804,12 +804,12 @@ describe("BDs", function () {
         ],
       };
 
-      idBd = await client.bds.créerBdDeSchéma({ schéma });
+      idBd = await constl.bds.créerBdDeSchéma({ schéma });
     });
 
     it("Les tableaux sont créés", async () => {
       const tableaux = await obtenir<infoTableauAvecId[]>(({ siPasVide }) =>
-        client.bds.suivreTableauxBd({
+        constl.bds.suivreTableauxBd({
           idBd,
           f: siPasVide(),
         }),
@@ -821,13 +821,13 @@ describe("BDs", function () {
 
     it("Colonnes", async () => {
       const tableaux = await obtenir<infoTableauAvecId[]>(({ siDéfini }) =>
-        client.bds.suivreTableauxBd({
+        constl.bds.suivreTableauxBd({
           idBd,
           f: siDéfini(),
         }),
       );
       const colonnes = await obtenir<InfoColAvecCatégorie[]>(({ si }) =>
-        client.tableaux.suivreColonnesEtCatégoriesTableau({
+        constl.tableaux.suivreColonnesEtCatégoriesTableau({
           idTableau: tableaux[0].id,
           f: si((c) => c !== undefined && c.length > 1),
         }),
@@ -842,7 +842,7 @@ describe("BDs", function () {
 
     it("Mots clefs", async () => {
       const motsClefs = await obtenir<string[]>(({ si }) =>
-        client.bds.suivreMotsClefsBd({
+        constl.bds.suivreMotsClefsBd({
           idBd,
           f: si((x) => x.length > 0),
         }),
@@ -855,14 +855,14 @@ describe("BDs", function () {
 
     it("Index colonne", async () => {
       const tableaux = await obtenir<infoTableauAvecId[]>(({ siDéfini }) =>
-        client.bds.suivreTableauxBd({
+        constl.bds.suivreTableauxBd({
           idBd,
           f: siDéfini(),
         }),
       );
       const indexes = await obtenir<string[]>(
         ({ siPasVide }): Promise<schémaFonctionOublier> =>
-          client.tableaux.suivreIndex({
+          constl.tableaux.suivreIndex({
             idTableau: tableaux[0].id,
             f: siPasVide(),
           }),
@@ -875,7 +875,7 @@ describe("BDs", function () {
 
     it("Tableaux unique détectable", async () => {
       const idTableau = await obtenir<string>(({ siDéfini }) =>
-        client.bds.suivreIdTableauParClef({
+        constl.bds.suivreIdTableauParClef({
           idBd,
           clef: "tableau trads",
           f: siDéfini(),
@@ -888,21 +888,21 @@ describe("BDs", function () {
 
   describe("Nuées associées", async function () {
     it("Héritage des noms de bd de la nuée", async () => {
-      const idNuée = await client.nuées.créerNuée();
-      await client.nuées.sauvegarderNomNuée({
+      const idNuée = await constl.nuées.créerNuée();
+      await constl.nuées.sauvegarderNomNuée({
         idNuée,
         langue: "fra",
         nom: "Précipitation Montréal",
       });
-      const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
-      await client.bds.rejoindreNuées({ idBd, idsNuées: idNuée });
-      await client.nuées.sauvegarderNomNuée({
+      const idBd = await constl.bds.créerBd({ licence: "ODBl-1_0" });
+      await constl.bds.rejoindreNuées({ idBd, idsNuées: idNuée });
+      await constl.nuées.sauvegarderNomNuée({
         idNuée,
         langue: "తె",
         nom: "మోంరియాల్ అవపాతం",
       });
       const noms = await obtenir<{ [l: string]: string }>(({ si }) =>
-        client.bds.suivreNomsBd({
+        constl.bds.suivreNomsBd({
           idBd,
           f: si((noms) => Object.keys(noms).length > 1),
         }),
@@ -914,32 +914,32 @@ describe("BDs", function () {
     });
 
     it("Héritage des noms de tableau de la nuée", async () => {
-      const idNuée = await client.nuées.créerNuée();
-      const idTableau = await client.nuées.ajouterTableauNuée({
+      const idNuée = await constl.nuées.créerNuée();
+      const idTableau = await constl.nuées.ajouterTableauNuée({
         idNuée,
         clefTableau: "clef tableau",
       });
 
-      await client.nuées.sauvegarderNomsTableauNuée({
+      await constl.nuées.sauvegarderNomsTableauNuée({
         idTableau,
         noms: { fra: "Précipitation Montréal" },
       });
 
-      const idBd = await client.bds.créerBdDeNuée({
+      const idBd = await constl.bds.créerBdDeNuée({
         idNuée,
         licence: "ODBl-1_0",
       });
 
-      await client.nuées.sauvegarderNomsTableauNuée({
+      await constl.nuées.sauvegarderNomsTableauNuée({
         idTableau,
         noms: { తె: "మోంరియాల్ అవపాతం" },
       });
 
       const tableauxBd = await obtenir<infoTableauAvecId[]>(({ si }) =>
-        client.bds.suivreTableauxBd({ idBd, f: si((tblx) => tblx.length > 0) }),
+        constl.bds.suivreTableauxBd({ idBd, f: si((tblx) => tblx.length > 0) }),
       );
       const noms = await obtenir<{ [l: string]: string }>(({ si }) =>
-        client.bds.suivreNomsTableau({
+        constl.bds.suivreNomsTableau({
           idBd,
           idTableau: tableauxBd[0].id,
           f: si((noms) => Object.keys(noms).length > 1),
@@ -952,20 +952,20 @@ describe("BDs", function () {
     });
 
     it("Héritage des mots-clefs de la nuée", async () => {
-      const idNuée = await client.nuées.créerNuée();
-      const idMotClef = await client.motsClefs.créerMotClef();
-      await client.nuées.ajouterMotsClefsNuée({
+      const idNuée = await constl.nuées.créerNuée();
+      const idMotClef = await constl.motsClefs.créerMotClef();
+      await constl.nuées.ajouterMotsClefsNuée({
         idNuée,
         idsMotsClefs: idMotClef,
       });
 
-      const idBd = await client.bds.créerBdDeNuée({
+      const idBd = await constl.bds.créerBdDeNuée({
         idNuée,
         licence: "ODBl-1_0",
       });
 
       const motsClefsBd = await obtenir<string[]>(({ si }) =>
-        client.bds.suivreMotsClefsBd({
+        constl.bds.suivreMotsClefsBd({
           idBd: idBd,
           f: si((motsClefs) => motsClefs.length > 0),
         }),
@@ -986,17 +986,17 @@ describe("BDs", function () {
     const rés = new attente.AttendreRésultat<string>();
 
     before(async () => {
-      idVarClef = await client.variables.créerVariable({
+      idVarClef = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
-      idVarTrad = await client.variables.créerVariable({
+      idVarTrad = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
-      idVarLangue = await client.variables.créerVariable({
+      idVarLangue = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
 
-      idNuée = await client.nuées.créerNuée();
+      idNuée = await constl.nuées.créerNuée();
 
       schéma = {
         licence: "ODbl-1_0",
@@ -1028,7 +1028,7 @@ describe("BDs", function () {
         ],
       };
 
-      fOublier = await client.bds.suivreBdUnique({
+      fOublier = await constl.bds.suivreBdUnique({
         schéma,
         idNuéeUnique: idNuée,
         f: (id) => rés.mettreÀJour(id),
@@ -1041,7 +1041,7 @@ describe("BDs", function () {
     });
     it("La BD est créée lorsqu'elle n'existe pas", async () => {
       const idBd = await obtenir(({ siDéfini }) =>
-        client.bds.suivreBdUnique({
+        constl.bds.suivreBdUnique({
           schéma,
           idNuéeUnique: idNuée,
           f: siDéfini(),
@@ -1062,11 +1062,11 @@ describe("BDs", function () {
     const rés = new attente.AttendreRésultat<string>();
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
-      idTableau = await client.bds.ajouterTableauBd({ idBd });
+      idTableau = await constl.bds.ajouterTableauBd({ idBd });
 
-      fOublier = await client.bds.suivreIdTableauParClef({
+      fOublier = await constl.bds.suivreIdTableauParClef({
         idBd: idBd,
         clef: "clefUnique",
         f: (id) => rés.mettreÀJour(id),
@@ -1081,7 +1081,7 @@ describe("BDs", function () {
       expect(rés.val).to.be.undefined();
     });
     it("Ajout de clef détecté", async () => {
-      await client.bds.spécifierClefTableau({
+      await constl.bds.spécifierClefTableau({
         idBd,
         idTableau,
         clef: "clefUnique",
@@ -1098,14 +1098,14 @@ describe("BDs", function () {
     let schéma: schémaSpécificationBd;
 
     before(async () => {
-      idVarClef = await client.variables.créerVariable({
+      idVarClef = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
-      idVarTrad = await client.variables.créerVariable({
+      idVarTrad = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
 
-      idNuée = await client.nuées.créerNuée();
+      idNuée = await constl.nuées.créerNuée();
 
       schéma = {
         licence: "ODbl-1_0",
@@ -1130,7 +1130,7 @@ describe("BDs", function () {
 
     it("Tableau unique détecté", async () => {
       const idTableau = await obtenir(({ siDéfini }) =>
-        client.bds.suivreIdTableauParClefDeBdUnique({
+        constl.bds.suivreIdTableauParClefDeBdUnique({
           schémaBd: schéma,
           idNuéeUnique: idNuée,
           clefTableau: "id tableau unique",
@@ -1152,16 +1152,16 @@ describe("BDs", function () {
     let idColNumérique2: string;
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      idTableau = await client.bds.ajouterTableauBd({ idBd });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idTableau = await constl.bds.ajouterTableauBd({ idBd });
 
-      idVarNumérique = await client.variables.créerVariable({
+      idVarNumérique = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      idVarNumérique2 = await client.variables.créerVariable({
+      idVarNumérique2 = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      idVarChaîne = await client.variables.créerVariable({
+      idVarChaîne = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
     });
@@ -1173,7 +1173,7 @@ describe("BDs", function () {
     describe("Score couverture tests", function () {
       it("`undefined` lorsque aucune colonne", async () => {
         const score = await obtenir<infoScore>(({ siDéfini }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: siDéfini(),
           }),
@@ -1182,20 +1182,20 @@ describe("BDs", function () {
       });
 
       it("Ajout de colonnes", async () => {
-        idColNumérique = await client.tableaux.ajouterColonneTableau({
+        idColNumérique = await constl.tableaux.ajouterColonneTableau({
           idTableau,
           idVariable: idVarNumérique,
         });
-        idColNumérique2 = await client.tableaux.ajouterColonneTableau({
+        idColNumérique2 = await constl.tableaux.ajouterColonneTableau({
           idTableau,
           idVariable: idVarNumérique2,
         });
-        await client.tableaux.ajouterColonneTableau({
+        await constl.tableaux.ajouterColonneTableau({
           idTableau,
           idVariable: idVarChaîne,
         });
         const score = await obtenir<infoScore>(({ si }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: si((s) => s.couverture !== undefined),
           }),
@@ -1208,26 +1208,26 @@ describe("BDs", function () {
           typeRègle: "bornes",
           détails: { type: "fixe", val: 0, op: ">=" },
         };
-        await client.tableaux.ajouterRègleTableau({
+        await constl.tableaux.ajouterRègleTableau({
           idTableau,
           idColonne: idColNumérique,
           règle: règleNumérique,
         });
         let score = await obtenir<infoScore>(({ si }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: si((s) => !!s.couverture && s.couverture > 0),
           }),
         );
         expect(score.couverture).to.equal(0.5);
 
-        await client.tableaux.ajouterRègleTableau({
+        await constl.tableaux.ajouterRègleTableau({
           idTableau,
           idColonne: idColNumérique2,
           règle: règleNumérique,
         });
         score = await obtenir<infoScore>(({ si }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: si((s) => !!s.couverture && s.couverture > 0.5),
           }),
@@ -1241,7 +1241,7 @@ describe("BDs", function () {
 
       it("`undefined` pour commencer", async () => {
         const score = await obtenir<infoScore>(({ siDéfini }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: siDéfini(),
           }),
@@ -1251,7 +1251,7 @@ describe("BDs", function () {
 
       it("Ajout d'éléments", async () => {
         idÉlément = (
-          await client.tableaux.ajouterÉlément({
+          await constl.tableaux.ajouterÉlément({
             idTableau,
             vals: {
               [idColNumérique]: -1,
@@ -1260,20 +1260,20 @@ describe("BDs", function () {
           })
         )[0];
         let score = await obtenir<infoScore>(({ si }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: si((s) => !!s.valide && s.valide == 0.5),
           }),
         );
         expect(score.valide).to.equal(0.5);
-        await client.tableaux.ajouterÉlément({
+        await constl.tableaux.ajouterÉlément({
           idTableau,
           vals: {
             [idColNumérique]: 1,
           },
         });
         score = await obtenir<infoScore>(({ si }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: si((s) => !!s.valide && s.valide > 0.5),
           }),
@@ -1282,13 +1282,13 @@ describe("BDs", function () {
       });
 
       it("Correction des éléments", async () => {
-        await client.tableaux.modifierÉlément({
+        await constl.tableaux.modifierÉlément({
           idTableau,
           vals: { [idColNumérique]: 12 },
           idÉlément,
         });
         const score = await obtenir<infoScore>(({ si }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: si((s) => !!s.valide && s.valide > 2 / 3),
           }),
@@ -1300,7 +1300,7 @@ describe("BDs", function () {
     describe("Score total", function () {
       it("Calcul du score total", async () => {
         const score = await obtenir<infoScore>(({ siDéfini }) =>
-          client.bds.suivreQualitéBd({
+          constl.bds.suivreQualitéBd({
             idBd,
             f: siDéfini(),
           }),
@@ -1324,22 +1324,22 @@ describe("BDs", function () {
     const nomTableau2 = "Tableau 2";
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
-      const idTableau1 = await client.bds.ajouterTableauBd({ idBd });
-      const idTableau2 = await client.bds.ajouterTableauBd({ idBd });
+      const idTableau1 = await constl.bds.ajouterTableauBd({ idBd });
+      const idTableau2 = await constl.bds.ajouterTableauBd({ idBd });
 
-      const idVarNum = await client.variables.créerVariable({
+      const idVarNum = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      const idVarFichier = await client.variables.créerVariable({
+      const idVarFichier = await constl.variables.créerVariable({
         catégorie: "fichier",
       });
-      await client.tableaux.ajouterColonneTableau({
+      await constl.tableaux.ajouterColonneTableau({
         idTableau: idTableau1,
         idVariable: idVarNum,
       });
-      const idColFichier = await client.tableaux.ajouterColonneTableau({
+      const idColFichier = await constl.tableaux.ajouterColonneTableau({
         idTableau: idTableau2,
         idVariable: idVarFichier,
       });
@@ -1347,32 +1347,32 @@ describe("BDs", function () {
       const octets = await obtRessourceTest({
         nomFichier: "logo.svg",
       });
-      cid = await client.ajouterÀSFIP({
+      cid = await constl.ajouterÀSFIP({
         contenu: octets,
         nomFichier: "logo.svg",
       });
 
-      await client.tableaux.ajouterÉlément({
+      await constl.tableaux.ajouterÉlément({
         idTableau: idTableau2,
         vals: {
           [idColFichier]: cid,
         },
       });
 
-      await client.tableaux.sauvegarderNomsTableau({
+      await constl.tableaux.sauvegarderNomsTableau({
         idTableau: idTableau1,
         noms: {
           fr: nomTableau1,
         },
       });
-      await client.tableaux.sauvegarderNomsTableau({
+      await constl.tableaux.sauvegarderNomsTableau({
         idTableau: idTableau2,
         noms: {
           fr: nomTableau2,
         },
       });
 
-      ({ doc, fichiersSFIP, nomFichier } = await client.bds.exporterDonnées({
+      ({ doc, fichiersSFIP, nomFichier } = await constl.bds.exporterDonnées({
         idBd,
         langues: ["fr"],
       }));
@@ -1397,7 +1397,7 @@ describe("BDs", function () {
         before(async () => {
           ({ dossier: dossierZip, fEffacer } = await dossiers.dossierTempo());
 
-          await client.bds.documentDonnéesÀFichier({
+          await constl.bds.documentDonnéesÀFichier({
             données: { doc, fichiersSFIP, nomFichier },
             formatDoc: "ods",
             dossier: dossierZip,
@@ -1440,14 +1440,14 @@ describe("BDs", function () {
 
     const résultats = new attente.AttendreRésultat<string[]>();
     before(async () => {
-      idMotClef = await client.motsClefs.créerMotClef();
+      idMotClef = await constl.motsClefs.créerMotClef();
 
-      fOublier = await client.bds.rechercherBdsParMotsClefs({
+      fOublier = await constl.bds.rechercherBdsParMotsClefs({
         motsClefs: [idMotClef],
         f: (r) => résultats.mettreÀJour(r),
       });
 
-      idBdRechercheMotsClefs = await client.bds.créerBd({
+      idBdRechercheMotsClefs = await constl.bds.créerBd({
         licence: "ODbl-1_0",
       });
     });
@@ -1462,7 +1462,7 @@ describe("BDs", function () {
     });
 
     it("Ajout d'un mot-clef détecté", async () => {
-      await client.bds.ajouterMotsClefsBd({
+      await constl.bds.ajouterMotsClefsBd({
         idBd: idBdRechercheMotsClefs,
         idsMotsClefs: [idMotClef],
       });
