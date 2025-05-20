@@ -586,13 +586,13 @@ describe.only("BDs", function () {
 
     it("Les noms sont copiés", async () => {
       const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
-        client.bds.suivreNomsBd({ idBd: idBdCopie, f: siPasVide }),
+        client.bds.suivreNomsBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(noms).to.deep.equal(réfNoms);
     });
     it("Les descriptions sont copiées", async () => {
       const descrs = await obtenir<TraducsNom>(({ siPasVide }) =>
-        client.bds.suivreDescriptionsBd({ idBd: idBdCopie, f: siPasVide }),
+        client.bds.suivreDescriptionsBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(descrs).to.deep.equal(réfDescrs);
     });
