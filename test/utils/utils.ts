@@ -14,7 +14,7 @@ export const obtIdsPairs = async (): Promise<{
 export const obtenir = async <T>(
   f: (args: {
     si: (f: (x: T) => boolean) => (x: T) => void;
-    siDéfini: () => (x: T) => void;
+    siDéfini: () => (x: T|undefined) => void;
     siVide: () => (x: T) => void;
     siPasVide: () => (x: T) => void;
   }) => Promise<schémaFonctionOublier>,
@@ -28,8 +28,9 @@ export const obtenir = async <T>(
       }
     };
   };
-  const siDéfini = (): ((x: T) => void) => {
-    return si((x) => x !== undefined);
+  const siDéfini = (): ((x: T|undefined) => void) => {
+    // @ts-expect-error Je ne sais pas pourquoi
+    return si((x: T | undefined): x is T => x !== undefined);
   };
   const siVide = (): ((x: T) => void) => {
     return si((x) => {

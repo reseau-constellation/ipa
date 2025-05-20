@@ -883,7 +883,7 @@ describe.only("BDs", function () {
         client.bds.suivreIdTableauParClef({
           idBd,
           clef: "tableau trads",
-          f: siDéfini,
+          f: siDéfini(),
         }),
       );
 
