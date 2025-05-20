@@ -17,6 +17,7 @@ export const obtenir = async <T>(
     siDéfini: () => (x: T|undefined) => void;
     siVide: () => (x: T) => void;
     siPasVide: () => (x: T) => void;
+    tous: () => (x: T) => void;
   }) => Promise<schémaFonctionOublier>,
 ): Promise<T> => {
   const événements = new TypedEmitter<{ résolu: (x: T) => void }>();
@@ -48,11 +49,14 @@ export const obtenir = async <T>(
       else return false;
     });
   };
+  const tous = (): (x: T)=>void => {
+    return si(()=>true)
+  }
 
   const promesse = new Promise<T>((résoudre) =>
     événements.once("résolu", résoudre),
   );
-  const fOublier = await f({ si, siDéfini, siVide, siPasVide });
+  const fOublier = await f({ si, siDéfini, siVide, siPasVide, tous });
   after(async () => await fOublier());
 
   return promesse;

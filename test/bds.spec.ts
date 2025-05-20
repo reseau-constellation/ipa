@@ -6,7 +6,6 @@ import { isSet } from "lodash-es";
 import {
   dossiers,
   constellation as utilsTestConstellation,
-  attente,
 } from "@constl/utils-tests";
 
 import { uneFois } from "@constl/utils-ipa";
@@ -471,28 +470,21 @@ describe("BDs", function () {
   });
 
   describe("Variables", function () {
-    let fOublier: schémaFonctionOublier;
     let idTableau: string;
     let idVariable: string;
     let idColonne: string;
     let idBd: string;
 
-    const attenteVariables = new attente.AttendreRésultat<string[]>();
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-      fOublier = await constl.bds.suivreVariablesBd({
-        idBd,
-        f: (v) => attenteVariables.mettreÀJour(v),
-      });
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-      attenteVariables.toutAnnuler();
-    });
     it("Pas de variables pour commencer", async () => {
-      const variables = await attenteVariables.attendreExiste();
+      const variables = await obtenir<string[]>(({siDéfini})=>constl.bds.suivreVariablesBd({
+        idBd,
+        f: siDéfini(),
+      }));
       expect(variables).to.be.an.empty("array");
     });
 
@@ -507,7 +499,10 @@ describe("BDs", function () {
         idVariable,
       });
 
-      const variables = await attenteVariables.attendreQue((v) => v.length > 0);
+      const variables = await obtenir<string[]>(({siPasVide})=>constl.bds.suivreVariablesBd({
+        idBd,
+        f: siPasVide(),
+      }));
       expect(Array.isArray(variables)).to.be.true();
       expect(variables.length).to.equal(1);
       expect(variables[0]).to.equal(idVariable);
@@ -518,9 +513,10 @@ describe("BDs", function () {
         idTableau,
         idColonne,
       });
-      const variables = await attenteVariables.attendreQue(
-        (v) => v.length === 0,
-      );
+      const variables = await obtenir<string[]>(({siVide})=>constl.bds.suivreVariablesBd({
+        idBd,
+        f: siVide(),
+      }));
       expect(variables).to.be.an.empty("array");
     });
   });
@@ -976,10 +972,6 @@ describe("BDs", function () {
     let idNuée: string;
     let schéma: schémaSpécificationBd;
 
-    let fOublier: schémaFonctionOublier;
-
-    const rés = new attente.AttendreRésultat<string>();
-
     before(async () => {
       idVarClef = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
@@ -1023,17 +1015,8 @@ describe("BDs", function () {
         ],
       };
 
-      fOublier = await constl.bds.suivreBdUnique({
-        schéma,
-        idNuéeUnique: idNuée,
-        f: (id) => rés.mettreÀJour(id),
-      });
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-      rés.toutAnnuler();
-    });
     it("La BD est créée lorsqu'elle n'existe pas", async () => {
       const idBd = await obtenir(({ siDéfini }) =>
         constl.bds.suivreBdUnique({
@@ -1052,28 +1035,21 @@ describe("BDs", function () {
     let idBd: string;
     let idTableau: string;
 
-    let fOublier: schémaFonctionOublier;
-
-    const rés = new attente.AttendreRésultat<string>();
-
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
       idTableau = await constl.bds.ajouterTableauBd({ idBd });
 
-      fOublier = await constl.bds.suivreIdTableauParClef({
-        idBd: idBd,
-        clef: "clefUnique",
-        f: (id) => rés.mettreÀJour(id),
-      });
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-      rés.toutAnnuler();
-    });
     it("Rien pour commencer", async () => {
-      expect(rés.val).to.be.undefined();
+      const tableauUnique = await obtenir(({tous})=>constl.bds.suivreIdTableauParClef({
+        idBd: idBd,
+        clef: "clefUnique",
+        f: tous(),
+      }));
+
+      expect(tableauUnique).to.be.undefined();
     });
     it("Ajout de clef détecté", async () => {
       await constl.bds.spécifierClefTableau({
@@ -1081,8 +1057,12 @@ describe("BDs", function () {
         idTableau,
         clef: "clefUnique",
       });
-      await rés.attendreExiste();
-      expect(rés.val).to.equal(idTableau);
+      const idTableauDeClef = await obtenir<string>(({siDéfini})=>constl.bds.suivreIdTableauParClef({
+        idBd: idBd,
+        clef: "clefUnique",
+        f: siDéfini(),
+      }));
+      expect(idTableauDeClef).to.equal(idTableau);
     });
   });
 
@@ -1429,31 +1409,23 @@ describe("BDs", function () {
   });
 
   describe("Rechercher BDs par mot-clef", function () {
-    let fOublier: schémaFonctionOublier;
     let idMotClef: string;
     let idBdRechercheMotsClefs: string;
 
-    const résultats = new attente.AttendreRésultat<string[]>();
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
-
-      fOublier = await constl.bds.rechercherBdsParMotsClefs({
-        motsClefs: [idMotClef],
-        f: (r) => résultats.mettreÀJour(r),
-      });
 
       idBdRechercheMotsClefs = await constl.bds.créerBd({
         licence: "ODbl-1_0",
       });
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
-
     it("Pas de résultats pour commencer", async () => {
-      const val = await résultats.attendreExiste();
-      expect(val).to.be.an.empty("array");
+      const bds = await obtenir (({siDéfini})=>constl.bds.rechercherBdsParMotsClefs({
+        motsClefs: [idMotClef],
+        f: siDéfini(),
+      }));
+      expect(bds).to.be.an.empty("array");
     });
 
     it("Ajout d'un mot-clef détecté", async () => {
@@ -1462,10 +1434,13 @@ describe("BDs", function () {
         idsMotsClefs: [idMotClef],
       });
 
-      const val = await résultats.attendreQue((x) => x.length > 0);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(1);
-      expect(val[0]).to.equal(idBdRechercheMotsClefs);
+      const bds = await obtenir<string[]>(({siPasVide})=>constl.bds.rechercherBdsParMotsClefs({
+        motsClefs: [idMotClef],
+        f: siPasVide(),
+      }));
+      expect(Array.isArray(bds)).to.be.true();
+      expect(bds.length).to.equal(1);
+      expect(bds[0]).to.equal(idBdRechercheMotsClefs);
     });
   });
 });
