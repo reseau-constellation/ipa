@@ -16,6 +16,7 @@ import md5 from "crypto-js/md5.js";
 import { isElectronMain, isNode } from "wherearewe";
 import { Constellation } from "@/client.js";
 import {
+  TraducsNom,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStructureBdNoms,
@@ -556,6 +557,38 @@ export class Tableaux {
     await fOublier();
   }
 
+  async réordonnerColonneTableau({
+    idTableau,
+    idColonne,
+    position,
+  }: {
+    idTableau: string;
+    idColonne: string;
+    position: number;
+  }): Promise<void> {
+    await this._confirmerPermission({ idTableau });
+    const idBdColonnes = await this.client.obtIdBd({
+      nom: "colonnes",
+      racine: idTableau,
+      type: "ordered-keyvalue",
+    });
+
+    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdColonnes,
+      type: "ordered-keyvalue",
+      schéma: schémaBdInfoCol,
+    });
+
+    const colonnesExistantes = await bdColonnes.all();
+    const positionExistante = colonnesExistantes.findIndex(
+      (c) => c.key === idColonne,
+    );
+    if (position !== positionExistante)
+      await bdColonnes.move(idColonne, position);
+
+    await fOublier();
+  }
+
   @cacheSuivi
   async suivreIndex({
     idTableau,
@@ -730,7 +763,7 @@ export class Tableaux {
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsTableau?: { [clef: string]: string };
-      nomsVariables?: { [idVar: string]: { [langue: string]: string } };
+      nomsVariables?: { [idVar: string]: TraducsNom };
       colonnes?: InfoColAvecCatégorie[];
       données?: élémentDonnées<élémentBdListeDonnées>[];
     } = {};
@@ -802,9 +835,7 @@ export class Tableaux {
         }: {
           fSuivreRacine: (éléments: string[]) => Promise<void>;
         }) => this.suivreVariables({ idTableau, f: fSuivreRacine }),
-        f: async (
-          noms: { idVar: string; noms: { [langue: string]: string } }[],
-        ) => {
+        f: async (noms: { idVar: string; noms: TraducsNom }[]) => {
           info.nomsVariables = Object.fromEntries(
             noms.map((n) => [n.idVar, n.noms]),
           );
@@ -817,7 +848,7 @@ export class Tableaux {
           id: string;
           fSuivreBranche: schémaFonctionSuivi<{
             idVar: string;
-            noms: { [langue: string]: string };
+            noms: TraducsNom;
           }>;
         }): Promise<schémaFonctionOublier> => {
           return await this.client.variables.suivreNomsVariable({

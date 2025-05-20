@@ -190,6 +190,39 @@ const fOublierColonnes = await client.tableaux.suivreColonnesTableau({
 
 ```
 
+### `client.tableaux.réordonnerColonneTableau({ idTableau, idColonne, position })`
+Réordonne les colonnes d'un tableau.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idTableau` | `string` | L'identifiant du tableau. |
+| `idColonne` | `string` | L'identifiant de la colonne à déplacer. |
+| `position` | `number` | La nouvelle position de la colonne. |
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { créerConstellation, type tableaux } from "@constl/ipa";
+
+const client = créerConstellation();
+
+const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
+const idTableau = await client.tableaux.créerTableau({ idBd });
+const idVariableDate = await client.variables.créerVariable({ catégorie: "horoDatage" });
+const idVariableImage = await client.variables.créerVariable({ catégorie: "image" });
+
+const idColonneImage = await client.tableaux.ajouterColonneTableau({ idTableau, idVariable: idVariableImage });
+const idColonneDate = await client.tableaux.ajouterColonneTableau({ idTableau, idVariable: idVariableDate });
+
+const fOublierColonnes = await client.tableaux.réordonnerColonneTableau({ 
+    idTableau,
+    idColonne: idColonneDate,
+    position: 0,
+});
+
+```
+
 ## Index
 Les colonnes d'un tableau peuvent être identifiées en tant que colonnes indexes. Les valeurs de ces colonnes ne peuvent pas être dupliquées parmi les données. Par exemple, si vous spécifiez l'horodatage et le site d'échantillonnage en tant que colonnes indexes, Constellation, lors de tout fusionnement de données, s'assurera que les indexes ne soient pas dupliqués et combinera les rangées avec des sites et horodatages identiques.
 

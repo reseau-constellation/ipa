@@ -18,6 +18,7 @@ import {
 import { JSONSchemaType } from "ajv";
 import {
   RecursivePartial,
+  TraducsNom,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
@@ -481,7 +482,7 @@ export class Projets extends ComposanteClientListe<string> {
     noms,
   }: {
     idProjet: string;
-    noms: { [langue: string]: string };
+    noms: TraducsNom;
   }): Promise<void> {
     const { bd: bdNoms, fOublier } = await this._obtBdNoms({ idProjet });
     for (const lng in noms) {
@@ -819,7 +820,7 @@ export class Projets extends ComposanteClientListe<string> {
     f,
   }: {
     idProjet: string;
-    f: schémaFonctionSuivi<{ [langue: string]: string }>;
+    f: schémaFonctionSuivi<TraducsNom>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
       id: idProjet,
@@ -1012,7 +1013,7 @@ export class Projets extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<donnéesProjetExportation>;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      nomsProjet?: { [langue: string]: string };
+      nomsProjet?: TraducsNom;
       données?: donnéesBdExportation[];
     } = {};
     const fsOublier: schémaFonctionOublier[] = [];

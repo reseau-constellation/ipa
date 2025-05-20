@@ -1,6 +1,7 @@
 import { ignorerNonDéfinis, suivreFonctionImbriquée } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
 import {
+  TraducsNom,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStructureBdNoms,
@@ -283,11 +284,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     return await this.sauvegarderNoms({ noms: { [langue]: nom } });
   }
 
-  async sauvegarderNoms({
-    noms,
-  }: {
-    noms: { [langue: string]: string };
-  }): Promise<void> {
+  async sauvegarderNoms({ noms }: { noms: TraducsNom }): Promise<void> {
     const idBdProfil = await this.obtIdBd();
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",

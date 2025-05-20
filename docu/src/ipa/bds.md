@@ -801,14 +801,15 @@ const idTableau = await client.bds.ajouterTableauBd({ idBd });
 
 ```
 
-### `client.bds.réordonnerTableauxBd({ idBd, ordreIdsTableaux })`
+### `client.bds.réordonnerTableauBd({ idBd, idTableau, position })`
 Réordonner les tableaux de la base de données.
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `ordreIdsTableaux` | `string[]` | Les identifiants des tableaux dans leur nouvel ordre. Tous les tableaux de la base de donnée doivent être présents dans cette liste ; dans le cas contraire, une erreur sera soulevée. |
+| `idTableau` | `string` | L'identifiant du tableau à repositionner. |
+| `position` | `number` | La nouvelle position du tableau. |
 
 #### Exemple
 ```ts
@@ -819,9 +820,10 @@ const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.bds.ajouterTableauBd({ idBd });
 const idTableau2 = await client.bds.ajouterTableauBd({ idBd });
 
-await client.bds.réordonnerTableauxBd({ 
+await client.bds.réordonnerTableauBd({ 
   idBd, 
-  ordreIdsTableaux: [idTableau2, idTableau]
+  idTableau2,
+  position: 0
 });
 
 ```

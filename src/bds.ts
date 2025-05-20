@@ -32,6 +32,7 @@ import {
 } from "@/tableaux.js";
 import {
   RecursivePartial,
+  TraducsNom,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
@@ -418,6 +419,25 @@ export class BDs extends ComposanteClientListe<string> {
     return idBd;
   }
 
+  async créerBdDeNuée({
+    idNuée,
+    licence,
+    licenceContenu,
+    épingler = true,
+  }: {
+    idNuée: string;
+    licence: string;
+    licenceContenu?: string;
+    épingler?: boolean;
+  }): Promise<string> {
+    const schéma = await this.client.nuées.générerSchémaBdNuée({
+      idNuée,
+      licence,
+      licenceContenu,
+    });
+    return await this.créerBdDeSchéma({ schéma, épingler });
+  }
+
   async ajouterÀMesBds({ idBd }: { idBd: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: await this.obtIdBd(),
@@ -627,8 +647,10 @@ export class BDs extends ComposanteClientListe<string> {
 
   async créerBdDeSchéma({
     schéma,
+    épingler,
   }: {
     schéma: schémaSpécificationBd;
+    épingler?: boolean;
   }): Promise<string> {
     const { tableaux, motsClefs, nuées, licence, licenceContenu, statut } =
       schéma;
@@ -637,6 +659,7 @@ export class BDs extends ComposanteClientListe<string> {
     const idBd = await this.créerBd({
       licence,
       licenceContenu,
+      épingler,
     });
 
     if (motsClefs) {
@@ -844,6 +867,23 @@ export class BDs extends ComposanteClientListe<string> {
     const fFinale = async (tableaux: infoTableauAvecId[]) => {
       const infoTableau = tableaux.find((t) => t.clef === clef);
       await f(infoTableau?.id);
+    };
+    return await this.suivreTableauxBd({ idBd, f: fFinale });
+  }
+
+  @cacheSuivi
+  async suivreClefTableauParId({
+    idBd,
+    idTableau,
+    f,
+  }: {
+    idBd: string;
+    idTableau: string;
+    f: schémaFonctionSuivi<string | undefined>;
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = async (tableaux: infoTableauAvecId[]) => {
+      const infoTableau = tableaux.find((t) => t.id === idTableau);
+      await f(infoTableau?.clef);
     };
     return await this.suivreTableauxBd({ idBd, f: fFinale });
   }
@@ -1594,12 +1634,14 @@ export class BDs extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async réordonnerTableauxBd({
+  async réordonnerTableauBd({
     idBd,
-    ordreIdsTableaux,
+    idTableau,
+    position,
   }: {
     idBd: string;
-    ordreIdsTableaux: string[];
+    idTableau: string;
+    position: number;
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
     const idBdTableaux = await this.client.obtIdBd({
@@ -1615,16 +1657,11 @@ export class BDs extends ComposanteClientListe<string> {
     });
 
     const tableauxExistants = await bdTableaux.all();
-    const ordreIdsExistants = tableauxExistants.map((t) => t.key) as string[]; // Drôle d'erreur de types
-    if (
-      !(ordreIdsExistants.length === ordreIdsTableaux.length) ||
-      !ordreIdsExistants.every((t) => ordreIdsTableaux.includes(t))
-    ) {
-      throw new Error("Liste de tableaux non conforme aux tableaux originaux.");
-    }
-    for (const [i, t] of ordreIdsTableaux.entries()) {
-      if (i !== ordreIdsExistants.indexOf(t)) await bdTableaux.move(t, i);
-    }
+    const positionExistante = tableauxExistants.findIndex(
+      (t) => t.key === idTableau,
+    );
+    if (position !== positionExistante)
+      await bdTableaux.move(idTableau, position);
     await fOublier();
   }
 
@@ -1909,12 +1946,52 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
+    const noms: {
+      deNuées: TraducsNom[];
+      deBd: TraducsNom;
+    } = { deNuées: [], deBd: {} };
+    const fFinale = async () => {
+      const nomsFinaux = {};
+      for (const source of [...noms.deNuées, noms.deBd]) {
+        Object.assign(nomsFinaux, source);
+      }
+      return await f(nomsFinaux);
+    };
+    const constl = this.client;
+    const fOublierNomsNuées = await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: (éléments: string[]) => Promise<void>;
+      }) => {
+        return await constl.bds.suivreNuéesBd({ idBd, f: fSuivreRacine });
+      },
+      fBranche: async ({
+        id: idNuée,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: schémaFonctionSuivi<TraducsNom>;
+      }): Promise<schémaFonctionOublier> => {
+        return await constl.nuées.suivreNomsNuée({ idNuée, f: fSuivreBranche });
+      },
+      f: async (nomsNuées: TraducsNom[]) => {
+        noms.deNuées = nomsNuées;
+        await fFinale();
+      },
+    });
+    const fOublierNomsBd = await this.client.suivreBdDicDeClef({
       id: idBd,
       clef: "noms",
       schéma: schémaStructureBdNoms,
-      f,
+      f: async (nomsBd) => {
+        noms.deBd = nomsBd;
+        await fFinale();
+      },
     });
+    return async () => {
+      await Promise.allSettled([fOublierNomsBd(), fOublierNomsNuées()]);
+    };
   }
 
   @cacheSuivi
@@ -1941,12 +2018,57 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdListeDeClef({
+    const motsClefs: { deNuées?: string[][]; deBd?: string[] } = {};
+    const fFinale = async () => {
+      const motsClefsFinaux = [...new Set(motsClefs.deNuées?.flat() || [])];
+      for (const motClef of motsClefs.deBd || []) {
+        if (!motsClefsFinaux.includes(motClef)) motsClefsFinaux.push(motClef);
+      }
+
+      return await f(motsClefsFinaux);
+    };
+    const constl = this.client;
+    const fOublierMotsClefsNuées = await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: (éléments: string[]) => Promise<void>;
+      }) => {
+        return await constl.bds.suivreNuéesBd({ idBd, f: fSuivreRacine });
+      },
+      fBranche: async ({
+        id: idNuée,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: schémaFonctionSuivi<string[]>;
+      }): Promise<schémaFonctionOublier> => {
+        return await constl.nuées.suivreMotsClefsNuée({
+          idNuée,
+          f: fSuivreBranche,
+        });
+      },
+      f: async (motsClefsNuées: string[][]) => {
+        motsClefs.deNuées = motsClefsNuées;
+        await fFinale();
+      },
+    });
+    const fOublierMotsClefsBd = await this.client.suivreBdListeDeClef({
       id: idBd,
       clef: "motsClefs",
       schéma: { type: "string" },
-      f,
+      f: async (motsClefsBd: string[]) => {
+        motsClefs.deBd = motsClefsBd;
+        await fFinale();
+      },
     });
+
+    return async () => {
+      await Promise.allSettled([
+        fOublierMotsClefsBd(),
+        fOublierMotsClefsNuées(),
+      ]);
+    };
   }
 
   @cacheSuivi
@@ -1975,6 +2097,90 @@ export class BDs extends ComposanteClientListe<string> {
       schéma: schémaBdTableauxDeBd,
       f: fFinale,
     });
+  }
+
+  @cacheSuivi
+  async suivreNomsTableau({
+    idBd,
+    idTableau,
+    f,
+  }: {
+    idBd: string;
+    idTableau: string;
+    f: schémaFonctionSuivi<TraducsNom>;
+  }): Promise<schémaFonctionOublier> {
+    const noms: {
+      deTableau: TraducsNom;
+      deNuées: TraducsNom[];
+    } = {
+      deNuées: [],
+      deTableau: {},
+    };
+    const fFinale = async () =>
+      await f(Object.assign({}, ...noms.deNuées, noms.deTableau));
+    const fOublierTableau = await this.client.tableaux.suivreNomsTableau({
+      idTableau,
+      f: async (nomsTableau) => {
+        noms.deTableau = nomsTableau;
+        await fFinale();
+      },
+    });
+
+    const fOublierNuée = await suivreFonctionImbriquée({
+      fRacine: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: schémaFonctionSuivi<string | undefined>;
+      }) => {
+        return await this.suivreClefTableauParId({
+          idBd,
+          idTableau,
+          f: fSuivreRacine,
+        });
+      },
+      fSuivre: async ({
+        id: clefTableau,
+        fSuivreBd,
+      }: {
+        id: string;
+        fSuivreBd: schémaFonctionSuivi<TraducsNom[]>;
+      }) => {
+        return await suivreDeFonctionListe({
+          fListe: async ({
+            fSuivreRacine,
+          }: {
+            fSuivreRacine: schémaFonctionSuivi<string[]>;
+          }) => {
+            return await this.suivreNuéesBd({
+              idBd,
+              f: fSuivreRacine,
+            });
+          },
+          fBranche: async ({
+            id: idNuée,
+            fSuivreBranche,
+          }: {
+            id: string;
+            fSuivreBranche: schémaFonctionSuivi<TraducsNom>;
+          }) => {
+            return await this.client.nuées.suivreNomsTableauNuée({
+              idNuée,
+              clefTableau,
+              f: fSuivreBranche,
+            });
+          },
+          f: fSuivreBd,
+        });
+      },
+      f: async (deNuées?: TraducsNom[]) => {
+        noms.deNuées = deNuées || [];
+        return await fFinale();
+      },
+    });
+
+    return async () => {
+      await Promise.allSettled([fOublierTableau(), fOublierNuée()]);
+    };
   }
 
   @cacheSuivi
@@ -2338,7 +2544,7 @@ export class BDs extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<donnéesBdExportation>;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      nomsBd?: { [langue: string]: string };
+      nomsBd?: TraducsNom;
       données?: donnéesTableauExportation[];
     } = {};
     const fsOublier: schémaFonctionOublier[] = [];

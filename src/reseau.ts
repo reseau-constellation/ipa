@@ -158,7 +158,6 @@ export type bdDeMembre = {
   bd: string;
 };
 
-
 export type MessageDirecte =
   | MessageDirecteRequêteRejoindreCompte
   | MessageDirecteSalut
@@ -184,7 +183,6 @@ export type MessageDirecteSalut = {
   type: "Salut !";
   contenu: ContenuMessageSalut;
 };
-
 
 export type ContenuMessageRejoindreCompte = {
   idDispositif: string;
@@ -259,7 +257,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.connexionsDirectes = {};
 
     this.événements = new TypedEmitter<ÉvénementsRéseau>();
-    this.verrouFlux = new Semaphore()
+    this.verrouFlux = new Semaphore();
   }
 
   async initialiser(): Promise<void> {
@@ -315,29 +313,31 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           }),
       });
 
-      await this.suivreMessagesDirectes({
-        type: "Salut !",
-        f: ({ contenu }) =>
-          this.recevoirSalut({
-            message: contenu as ContenuMessageSalut,
-          }),
-      });
+    await this.suivreMessagesDirectes({
+      type: "Salut !",
+      f: ({ contenu }) =>
+        this.recevoirSalut({
+          message: contenu as ContenuMessageSalut,
+        }),
+    });
 
     const fSuivreConnexions = async () => {
       this.événements.emit("changementConnexions");
     };
-    const fSuivrePairConnecté = async (é: {detail: PeerId }) => {
+    const fSuivrePairConnecté = async (é: { detail: PeerId }) => {
       try {
-        await this.direSalut({idPair: é.detail.toString()});
+        await this.direSalut({ idPair: é.detail.toString() });
       } catch {
         // Tant pis
       }
-    }
-    libp2p.addEventListener("peer:connect", fSuivrePairConnecté)
+    };
+    libp2p.addEventListener("peer:connect", fSuivrePairConnecté);
     this.client.suivreIdCompte({
-      f: () =>  libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
-    })
-    
+      f: () =>
+        libp2p
+          .getPeers()
+          .forEach((p) => this.direSalut({ idPair: p.toString() })),
+    });
 
     const événements: (keyof Libp2pEvents)[] = [
       "peer:connect",
@@ -345,7 +345,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       "peer:update",
     ];
     for (const é of événements) {
-      libp2p.addEventListener(é,  fSuivreConnexions);
+      libp2p.addEventListener(é, fSuivreConnexions);
     }
     this.oublierSuiviPairs = async () => {
       await Promise.allSettled(
@@ -363,7 +363,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     idDispositif: string;
     signal?: AbortSignal;
   }): Promise<Pushable<Uint8Array>> {
-
     const idLibp2pDestinataire = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreConnexionsDispositifs({
@@ -380,8 +379,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     return await this.obtFluxPair({
       idPair: idLibp2pDestinataire,
-      signal
-    })
+      signal,
+    });
   }
 
   async obtFluxPair({
@@ -392,21 +391,20 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     signal?: AbortSignal;
   }): Promise<Pushable<Uint8Array>> {
     await this.verrouFlux.acquire(idPair);
-    if (this.connexionsDirectes[idPair]){
-      this.verrouFlux.release(idPair)
-      return this.connexionsDirectes[idPair]
-    };
+    if (this.connexionsDirectes[idPair]) {
+      this.verrouFlux.release(idPair);
+      return this.connexionsDirectes[idPair];
+    }
     try {
-
       const { sfip } = await this.client.attendreSfipEtOrbite();
-      
+
       const signalCombiné = anySignal([
         this.client.signaleurArrêt.signal,
         ...(signal ? [signal] : []),
       ]);
-  
+
       const idPairDestinataire = peerIdFromString(idPair);
-  
+
       const flux = await pRetry(async () => {
         if (signalCombiné.aborted) throw new AbortError("Opération annulée");
         return await sfip.libp2p.dialProtocol(
@@ -426,14 +424,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           });
         }
       });
-  
+
       const fluxÀÉcrire = pushable();
       this.connexionsDirectes[idPair] = fluxÀÉcrire;
       pipe(fluxÀÉcrire, flux); // Pas d'await
-      this.verrouFlux.release(idPair)
+      this.verrouFlux.release(idPair);
       return fluxÀÉcrire;
     } finally {
-      this.verrouFlux.release(idPair)
+      this.verrouFlux.release(idPair);
     }
   }
 
@@ -523,7 +521,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   async envoyerMessageAuPair({
     msg,
     idPair,
-    signal
+    signal,
   }: {
     msg: MessageDirecte;
     idPair: string;
@@ -604,7 +602,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
   }
 
-  async direSalut({idPair}: {idPair: string}): Promise<void> {
+  async direSalut({ idPair }: { idPair: string }): Promise<void> {
     const { orbite } = await this.client.attendreSfipEtOrbite();
     const contenu = {
       idLibp2p: await this.client.obtIdLibp2p(),

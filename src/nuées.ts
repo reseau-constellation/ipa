@@ -63,6 +63,7 @@ import type { objRôles } from "@/accès/types.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
 import type {
   RecursivePartial,
+  TraducsNom,
   schémaRetourFonctionRechercheParN,
   élémentsBd,
 } from "@/types.js";
@@ -826,7 +827,7 @@ export class Nuées extends ComposanteClientListe<string> {
     descriptions,
   }: {
     idNuée: string;
-    descriptions: { [langue: string]: string };
+    descriptions: TraducsNom;
   }): Promise<void> {
     await this._confirmerPermission({ idNuée });
     const idBdDescr = await this.client.obtIdBd({
@@ -1639,12 +1640,14 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
-  async réordonnerTableauxBd({
+  async réordonnerTableauNuée({
     idNuée,
-    ordreIdsTableaux,
+    idTableau,
+    position,
   }: {
     idNuée: string;
-    ordreIdsTableaux: string[];
+    idTableau: string;
+    position: number;
   }): Promise<void> {
     await this._confirmerPermission({ idNuée });
     const idBdTableaux = await this.client.obtIdBd({
@@ -1660,10 +1663,11 @@ export class Nuées extends ComposanteClientListe<string> {
     });
 
     const tableauxExistants = await bdTableaux.all();
-    const ordreIdsExistants = tableauxExistants.map((t) => t.key) as string[]; // Drôle d'erreur de types
-    for (const [i, t] of ordreIdsTableaux.entries()) {
-      if (i !== ordreIdsExistants.indexOf(t)) await bdTableaux.move(t, i);
-    }
+    const positionExistante = tableauxExistants.findIndex(
+      (t) => t.key === idTableau,
+    );
+    if (position !== positionExistante)
+      await bdTableaux.move(idTableau, position);
     await fOublier();
   }
 
@@ -1698,7 +1702,7 @@ export class Nuées extends ComposanteClientListe<string> {
   }: {
     idNuée: string;
     clefTableau: string;
-    f: schémaFonctionSuivi<{ [langue: string]: string }>;
+    f: schémaFonctionSuivi<TraducsNom>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (lNoms: { [key: string]: string }[]) => {
       await f(Object.assign({}, ...lNoms));
@@ -1799,6 +1803,22 @@ export class Nuées extends ComposanteClientListe<string> {
       idTableau,
       idColonne,
       val,
+    });
+  }
+
+  async réordonnerColonneTableauNuée({
+    idTableau,
+    idColonne,
+    position,
+  }: {
+    idTableau: string;
+    idColonne: string;
+    position: number;
+  }): Promise<void> {
+    return await this.client.tableaux.réordonnerColonneTableau({
+      idTableau,
+      idColonne,
+      position,
     });
   }
 
@@ -3062,7 +3082,7 @@ export class Nuées extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsTableau?: { [clef: string]: string };
-      nomsVariables?: { [idVar: string]: { [langue: string]: string } };
+      nomsVariables?: { [idVar: string]: TraducsNom };
       colonnes?: InfoColAvecCatégorie[];
       données?: élémentDeMembreAvecValid<élémentBdListeDonnées>[];
     } = {};
@@ -3133,9 +3153,7 @@ export class Nuées extends ComposanteClientListe<string> {
         }: {
           fSuivreRacine: (éléments: string[]) => Promise<void>;
         }) => this.suivreVariablesNuée({ idNuée, f: fSuivreRacine }),
-        f: async (
-          noms: { idVar: string; noms: { [langue: string]: string } }[],
-        ) => {
+        f: async (noms: { idVar: string; noms: TraducsNom }[]) => {
           info.nomsVariables = Object.fromEntries(
             noms.map((n) => [n.idVar, n.noms]),
           );
@@ -3148,7 +3166,7 @@ export class Nuées extends ComposanteClientListe<string> {
           id: string;
           fSuivreBranche: schémaFonctionSuivi<{
             idVar: string;
-            noms: { [langue: string]: string };
+            noms: TraducsNom;
           }>;
         }): Promise<schémaFonctionOublier> => {
           return await this.client.variables.suivreNomsVariable({
@@ -3210,7 +3228,7 @@ export class Nuées extends ComposanteClientListe<string> {
     vérifierAutorisation?: boolean;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      nomsNuée?: { [langue: string]: string };
+      nomsNuée?: TraducsNom;
       données?: donnéesTableauExportation[];
     } = {};
     const fsOublier: schémaFonctionOublier[] = [];
@@ -3530,10 +3548,12 @@ export class Nuées extends ComposanteClientListe<string> {
   async générerSchémaBdNuée({
     idNuée,
     licence,
+    licenceContenu,
     patience = 500,
   }: {
     idNuée: string;
     licence: string;
+    licenceContenu?: string;
     patience?: number;
   }): Promise<schémaSpécificationBd> {
     const [idsMotsClefs, tableaux] = await Promise.all([
@@ -3575,6 +3595,7 @@ export class Nuées extends ComposanteClientListe<string> {
 
     const schéma: schémaSpécificationBd = {
       licence,
+      licenceContenu,
       nuées: [idNuée],
       motsClefs: idsMotsClefs,
       tableaux: await Promise.all(
