@@ -1,12 +1,10 @@
 import { expect } from "aegir/chai";
 import {
-  attente,
-  attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 import { créerConstellation } from "@/index.js";
 import type { Constellation } from "@/client.js";
-import type { schémaFonctionOublier } from "@/types.js";
+import { TraducsNom } from "@/types.js";
 import type {
   règleBornes,
   règleCatégorie,
@@ -97,30 +95,19 @@ describe("Variables", function () {
 
   describe("Noms", function () {
     let idVariable: string;
-    let fOublier: schémaFonctionOublier;
-
-    const noms = new utilsTestAttente.AttendreRésultat<{
-      [clef: string]: string;
-    }>();
 
     before("Suivre noms variable", async () => {
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      fOublier = await client.variables.suivreNomsVariable({
-        idVariable,
-        f: (n) => noms.mettreÀJour(n),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-      noms.toutAnnuler();
     });
 
     it("Pas de noms pour commencer", async () => {
-      const val = await noms.attendreExiste();
-      expect(Object.keys(val)).to.have.lengthOf(0);
+      const noms = await obtenir<TraducsNom>(({siDéfini})=>client.variables.suivreNomsVariable({
+        idVariable,
+        f: siDéfini(),
+      }));
+      expect(Object.keys(noms)).to.have.lengthOf(0);
     });
 
     it("Ajouter un nom", async () => {
@@ -129,8 +116,11 @@ describe("Variables", function () {
         langue: "fr",
         nom: "Précipitation",
       });
-      const val = await noms.attendreQue((x) => !!x.fr);
-      expect(val.fr).to.equal("Précipitation");
+      const noms = await obtenir<TraducsNom>(({siPasVide})=>client.variables.suivreNomsVariable({
+        idVariable,
+        f: siPasVide(),
+      }));
+      expect(noms.fr).to.equal("Précipitation");
     });
 
     it("Ajouter des noms", async () => {
@@ -141,8 +131,11 @@ describe("Variables", function () {
           हिं: "बारिश",
         },
       });
-      const val = await noms.attendreQue((x) => Object.keys(x).length > 2);
-      expect(val).to.deep.equal({
+      const noms = await obtenir<TraducsNom>(({si})=>client.variables.suivreNomsVariable({
+        idVariable,
+        f: si((x) => Object.keys(x).length > 2),
+      }));
+      expect(noms).to.deep.equal({
         த: "மழை",
         हिं: "बारिश",
         fr: "Précipitation",
@@ -155,8 +148,11 @@ describe("Variables", function () {
         langue: "fr",
         nom: "précipitation",
       });
-      const val = await noms.attendreQue((x) => !x.fr.startsWith("P"));
-      expect(val.fr).to.equal("précipitation");
+      const noms = await obtenir<TraducsNom>(({si})=>client.variables.suivreNomsVariable({
+        idVariable,
+        f: si((x) => !x.fr.startsWith("P")),
+      }));
+      expect(noms.fr).to.equal("précipitation");
     });
 
     it("Effacer un nom", async () => {
@@ -164,36 +160,29 @@ describe("Variables", function () {
         idVariable,
         langue: "fr",
       });
-      const val = await noms.attendreQue((x) => !x["fr"]);
-      expect(val).to.deep.equal({ த: "மழை", हिं: "बारिश" });
+      const noms = await obtenir<TraducsNom>(({si})=>client.variables.suivreNomsVariable({
+        idVariable,
+        f: si(((x) => !x["fr"])),
+      }));
+      expect(noms).to.deep.equal({ த: "மழை", हिं: "बारिश" });
     });
   });
 
   describe("Descriptions", function () {
     let idVariable: string;
 
-    const descrs = new attente.AttendreRésultat<{
-      [key: string]: string;
-    }>();
-    let fOublier: schémaFonctionOublier;
-
     before("Préparer clients", async () => {
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      fOublier = await client.variables.suivreDescriptionsVariable({
-        idVariable,
-        f: (d) => descrs.mettreÀJour(d),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
     });
 
     it("Pas de descriptions pour commencer", async () => {
-      const vals = await descrs.attendreExiste();
-      expect(Object.keys(vals)).to.have.lengthOf(0);
+      const descrs = await obtenir<TraducsNom>(({siDéfini})=>client.variables.suivreDescriptionsVariable({
+        idVariable,
+        f: siDéfini(),
+      }));
+      expect(Object.keys(descrs)).to.have.lengthOf(0);
     });
 
     it("Ajouter une description", async () => {
@@ -202,8 +191,11 @@ describe("Variables", function () {
         langue: "fr",
         description: "la quantité de précipitation quotidienne",
       });
-      const val = await descrs.attendreQue((x) => !!x["fr"]);
-      expect(val.fr).to.equal("la quantité de précipitation quotidienne");
+      const descrs = await obtenir<TraducsNom>(({si})=>client.variables.suivreDescriptionsVariable({
+        idVariable,
+        f: si((x) => !!x["fr"]),
+      }));
+      expect(descrs.fr).to.equal("la quantité de précipitation quotidienne");
     });
 
     it("Ajouter des descriptions", async () => {
@@ -214,8 +206,11 @@ describe("Variables", function () {
           हिं: "दैनिक बारिश",
         },
       });
-      const val = await descrs.attendreQue((x) => Object.keys(x).length > 2);
-      expect(val).to.deep.equal({
+      const descrs = await obtenir<TraducsNom>(({si})=>client.variables.suivreDescriptionsVariable({
+        idVariable,
+        f: si((x) => Object.keys(x).length > 2),
+      }));
+      expect(descrs).to.deep.equal({
         த: "தினசரி மழை",
         हिं: "दैनिक बारिश",
         fr: "la quantité de précipitation quotidienne",
@@ -228,8 +223,11 @@ describe("Variables", function () {
         langue: "fr",
         description: "La quantité de précipitation quotidienne",
       });
-      const val = await descrs.attendreQue((x) => x["fr"].startsWith("L"));
-      expect(val.fr).to.equal("La quantité de précipitation quotidienne");
+      const descrs = await obtenir<TraducsNom>(({si})=>client.variables.suivreDescriptionsVariable({
+        idVariable,
+        f: si((x) => x["fr"].startsWith("L")),
+      }));
+      expect(descrs.fr).to.equal("La quantité de précipitation quotidienne");
     });
 
     it("Effacer une description", async () => {
@@ -237,8 +235,12 @@ describe("Variables", function () {
         idVariable,
         langue: "fr",
       });
-      const val = await descrs.attendreQue((x) => !x["fr"]);
-      expect(val).to.deep.equal({
+      const descrs = await obtenir<TraducsNom>(({si})=>client.variables.suivreDescriptionsVariable({
+        idVariable,
+        f: si((x) => !x["fr"]),
+      }));
+
+      expect(descrs).to.deep.equal({
         த: "தினசரி மழை",
         हिं: "दैनिक बारिश",
       });
@@ -248,21 +250,11 @@ describe("Variables", function () {
   describe("Catégorie", function () {
     let idVariable: string;
 
-    const catégorie = new attente.AttendreRésultat<catégorieVariables>();
-    let fOublier: schémaFonctionOublier;
 
     before("Préparer clients", async () => {
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      fOublier = await client.variables.suivreCatégorieVariable({
-        idVariable,
-        f: (c) => catégorie.mettreÀJour(c),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
     });
 
     it("Changer la catégorie", async () => {
@@ -270,10 +262,11 @@ describe("Variables", function () {
         idVariable,
         catégorie: "chaîne",
       });
-      const val = await catégorie.attendreQue(
-        (x) => x.catégorie !== "numérique",
-      );
-      expect(val).to.deep.equal({
+      const catégorie = await obtenir<catégorieVariables>(({si})=>client.variables.suivreCatégorieVariable({
+        idVariable,
+        f: si((x) => x.catégorie !== "numérique"),
+      }))
+      expect(catégorie).to.deep.equal({
         type: "simple",
         catégorie: "chaîne",
       });
@@ -282,27 +275,19 @@ describe("Variables", function () {
 
   describe("Unités", function () {
     let idVariable: string;
-    let fOublier: schémaFonctionOublier;
-    const unités = new utilsTestAttente.AttendreRésultat<string | null>();
 
     before("Préparer clients", async () => {
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      fOublier = await client.variables.suivreUnitésVariable({
-        idVariable,
-        f: (u) => unités.mettreÀJour(u),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-      unités.toutAnnuler();
     });
 
     it("Aucune unité pour commencer", async () => {
-      const val = await unités.attendreQue((x) => x !== undefined);
-      expect(val).to.be.null();
+      const unités = await obtenir(({siNul})=>client.variables.suivreUnitésVariable({
+        idVariable,
+        f: siNul(),
+      }));
+      expect(unités).to.be.null();
     });
 
     it("Changer les unités", async () => {
@@ -310,8 +295,11 @@ describe("Variables", function () {
         idVariable,
         idUnité: "mm",
       });
-      const val = await unités.attendreQue((x) => !!x);
-      expect(val).to.equal("mm");
+      const unités = await obtenir(({siPasNul})=>client.variables.suivreUnitésVariable({
+        idVariable,
+        f: siPasNul(),
+      }));
+      expect(unités).to.equal("mm");
     });
   });
 
@@ -319,28 +307,20 @@ describe("Variables", function () {
     let idVariable: string;
     let idRègle: string;
 
-    const règles = new attente.AttendreRésultat<règleVariableAvecId[]>();
-    let fOublier: schémaFonctionOublier;
-
     before("Préparer clients", async () => {
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      fOublier = await client.variables.suivreRèglesVariable({
-        idVariable,
-        f: (r) => règles.mettreÀJour(r),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
     });
 
     it("Règle générique de catégorie pour commencer", async () => {
-      const val = await règles.attendreQue((x) => !!x.length);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val).to.have.lengthOf(1);
-      expect(val[0].règle.typeRègle).to.equal("catégorie");
+      const règles = await obtenir<règleVariableAvecId[]>(({siPasVide})=>client.variables.suivreRèglesVariable({
+        idVariable,
+        f: siPasVide(),
+      }));
+      expect(Array.isArray(règles)).to.be.true();
+      expect(règles).to.have.lengthOf(1);
+      expect(règles[0].règle.typeRègle).to.equal("catégorie");
     });
 
     it("Ajouter une règle", async () => {
@@ -356,26 +336,34 @@ describe("Variables", function () {
         idVariable,
         règle,
       });
-
-      const val = await règles.attendreQue((x) => x.length > 1);
-      expect(val).to.have.lengthOf(2);
-      expect(val.filter((r) => r.id === idRègle)).to.have.lengthOf(1);
+      const règles = await obtenir<règleVariableAvecId[]>(({si})=>client.variables.suivreRèglesVariable({
+        idVariable,
+        f: si((x) => x.length > 1),
+      }));
+      expect(règles).to.have.lengthOf(2);
+      expect(règles.filter((r) => r.id === idRègle)).to.have.lengthOf(1);
     });
 
     it("Effacer une règle", async () => {
       await client.variables.effacerRègleVariable({ idVariable, idRègle });
-      const val = await règles.attendreQue((x) => x.length < 2);
-      expect(val).to.have.lengthOf(1);
+      const règles = await obtenir<règleVariableAvecId[]>(({si})=>client.variables.suivreRèglesVariable({
+        idVariable,
+        f: si((x) => x.length < 2),
+      }));
+      expect(règles).to.have.lengthOf(1);
     });
 
     it("On ne peut pas effacer une règle générique de base", async () => {
-      const val = await règles.attendreExiste();
-      const règleDeBase = val[0];
+      const règles = await obtenir<règleVariableAvecId[]>(({siPasVide})=>client.variables.suivreRèglesVariable({
+        idVariable,
+        f: siPasVide(),
+      }));
+      const règleDeBase = règles[0];
       await client.variables.effacerRègleVariable({
         idVariable,
         idRègle: règleDeBase.id,
       });
-      expect(val[0].id).to.equal(règleDeBase.id);
+      expect(règles[0].id).to.equal(règleDeBase.id);
     });
 
     it("On détecte le changement de catégorie", async () => {
@@ -383,14 +371,16 @@ describe("Variables", function () {
         idVariable,
         catégorie: "horoDatage",
       });
-      const val = await règles.attendreQue((x) =>
-        x.some(
-          (r) =>
-            r.règle.typeRègle === "catégorie" &&
-            r.règle.détails.catégorie.catégorie === "horoDatage",
-        ),
-      );
-      const règleCatégorie = val.find(
+      const règles = await obtenir<règleVariableAvecId[]>(({si})=>client.variables.suivreRèglesVariable({
+        idVariable,
+        f: si((x) =>
+          x.some(
+            (r) =>
+              r.règle.typeRègle === "catégorie" &&
+              r.règle.détails.catégorie.catégorie === "horoDatage",
+          )),
+      }));
+      const règleCatégorie = règles.find(
         (r) => r.règle.typeRègle === "catégorie",
       ) as règleVariableAvecId<règleCatégorie> | undefined;
       expect(règleCatégorie).to.exist();
@@ -402,18 +392,8 @@ describe("Variables", function () {
   });
 
   describe("Copier variable", function () {
-    const variables = new attente.AttendreRésultat<string[]>();
-    const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
-    const descrs = new attente.AttendreRésultat<{
-      [key: string]: string;
-    }>();
-    const catégorie = new attente.AttendreRésultat<catégorieVariables>();
-    const règles = new attente.AttendreRésultat<règleVariableAvecId[]>();
-    const unités = new attente.AttendreRésultat<string | null>();
-
     let idVariable2: string;
 
-    const fsOublier: schémaFonctionOublier[] = [];
     const règle: règleBornes = {
       typeRègle: "bornes",
       détails: {
@@ -424,12 +404,6 @@ describe("Variables", function () {
     };
 
     before("Préparer clients", async () => {
-      fsOublier.push(
-        await client.variables.suivreVariables({
-          f: (x) => variables.mettreÀJour(x),
-        }),
-      );
-
       const idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
@@ -457,56 +431,30 @@ describe("Variables", function () {
         idVariable,
       });
 
-      fsOublier.push(
-        await client.variables.suivreNomsVariable({
-          idVariable: idVariable2,
-          f: (x) => noms.mettreÀJour(x),
-        }),
-      );
-      fsOublier.push(
-        await client.variables.suivreDescriptionsVariable({
-          idVariable: idVariable2,
-          f: (x) => descrs.mettreÀJour(x),
-        }),
-      );
-      fsOublier.push(
-        await client.variables.suivreRèglesVariable({
-          idVariable: idVariable2,
-          f: (r) => règles.mettreÀJour(r),
-        }),
-      );
-      fsOublier.push(
-        await client.variables.suivreCatégorieVariable({
-          idVariable: idVariable2,
-          f: (c) => catégorie.mettreÀJour(c),
-        }),
-      );
-      fsOublier.push(
-        await client.variables.suivreUnitésVariable({
-          idVariable: idVariable2,
-          f: (u) => unités.mettreÀJour(u),
-        }),
-      );
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("La variable est copiée", async () => {
-      const val = await variables.attendreQue((x) => x.length > 0);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val).to.contain(idVariable2);
+      const variables = await obtenir(({siPasVide})=> client.variables.suivreVariables({
+        f: siPasVide(),
+      }),);
+      expect(Array.isArray(variables)).to.be.true();
+      expect(variables).to.contain(idVariable2);
     });
 
     it("Les noms sont copiés", async () => {
-      const val = await noms.attendreQue((x) => Object.keys(x).length > 1);
-      expect(val).to.deep.equal({ த: "மழை", हिं: "बारिश" });
+      const noms = await obtenir<TraducsNom>(({si})=> client.variables.suivreNomsVariable({
+        idVariable: idVariable2,
+        f: si((x) => Object.keys(x).length > 1),
+      }));
+      expect(noms).to.deep.equal({ த: "மழை", हिं: "बारिश" });
     });
 
     it("Les descriptions sont copiés", async () => {
-      const val = await descrs.attendreQue((x) => Object.keys(x).length > 1);
-      expect(val).to.deep.equal({
+      const descriptions = await obtenir<TraducsNom>(({si})=>client.variables.suivreDescriptionsVariable({
+        idVariable: idVariable2,
+        f: si((x) => Object.keys(x).length > 1),
+      }));
+      expect(descriptions).to.deep.equal({
         த: "தினசரி மழை",
         हिं: "दैनिक बारिश",
       });
@@ -519,20 +467,29 @@ describe("Variables", function () {
           catégorie: { type: "simple", catégorie: "numérique" },
         },
       };
-      const val = await règles.attendreQue((x) => x.length > 1);
-      expect(val.map((r) => r.règle)).to.have.deep.members([
+      const règles = await obtenir<règleVariableAvecId[]>(({si})=>client.variables.suivreRèglesVariable({
+        idVariable: idVariable2,
+        f: si((x) => x.length > 1),
+      }))
+      expect(règles.map((r) => r.règle)).to.have.deep.members([
         règle,
         règleCatégorie,
       ]);
     });
 
     it("Les unités sont copiés", async () => {
-      const val = await unités.attendreExiste();
+      const val = await obtenir(({siDéfini})=>client.variables.suivreUnitésVariable({
+        idVariable: idVariable2,
+        f: siDéfini(),
+      }),);
       expect(val).to.equal("mm");
     });
 
     it("La catégorie est copiée", async () => {
-      const val = await catégorie.attendreExiste();
+      const val = await obtenir(({siDéfini})=>client.variables.suivreCatégorieVariable({
+        idVariable: idVariable2,
+        f: siDéfini(),
+      }),);
       expect(val).to.deep.equal({
         type: "simple",
         catégorie: "numérique",
