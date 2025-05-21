@@ -5,7 +5,7 @@ import { expect } from "aegir/chai";
 import { type InfoLicence, infoLicences, licences } from "@/licences.js";
 import { créerConstellation } from "@/index.js";
 import type { Constellation } from "@/client.js";
-import { obtenir } from "./utils/utils";
+import { obtenir } from "./utils/utils.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
