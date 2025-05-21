@@ -16,7 +16,9 @@ export const obtenir = async <T>(
     si: (f: (x: T) => boolean) => (x: T) => void;
     siDéfini: () => (x: T|undefined) => void;
     siVide: () => (x: T) => void;
+    siNul: () => (x: T) => void;
     siPasVide: () => (x: T) => void;
+    siPasNul: () => (x: T) => void;
     tous: () => (x: T) => void;
   }) => Promise<schémaFonctionOublier>,
 ): Promise<T> => {
@@ -41,6 +43,9 @@ export const obtenir = async <T>(
       else return false;
     });
   };
+  const siNul = (): ((x: T) => void) => {
+    return si((x: T) => isNull(x));
+  };
   const siPasVide = (): ((x: T) => void) => {
     return si((x) => {
       if (Array.isArray(x)) return x.length > 0;
@@ -49,6 +54,9 @@ export const obtenir = async <T>(
       else return false;
     });
   };
+  const siPasNul = (): ((x: T) => void) => {
+    return si((x: T) => !isNull(x));
+  };
   const tous = (): (x: T)=>void => {
     return si(()=>true)
   }
@@ -56,7 +64,7 @@ export const obtenir = async <T>(
   const promesse = new Promise<T>((résoudre) =>
     événements.once("résolu", résoudre),
   );
-  const fOublier = await f({ si, siDéfini, siVide, siPasVide, tous });
+  const fOublier = await f({ si, siDéfini, siVide, siNul, siPasVide, siPasNul, tous });
   after(async () => await fOublier());
 
   return promesse;
