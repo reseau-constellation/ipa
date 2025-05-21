@@ -406,6 +406,46 @@ describe("Tableaux", function () {
     });
   });
 
+  describe("Réordonner colonne", function () {
+    const colonnes = new attente.AttendreRésultat<InfoCol[]>();
+    let fOublier: schémaFonctionOublier;
+
+    before(async () => {
+      fOublier = await client.tableaux.suivreColonnesTableau({
+        idTableau,
+        f: (x) => colonnes.mettreÀJour(x),
+      });
+    });
+
+    after(async () => {
+      if (fOublier) await fOublier();
+    });
+
+    it("Repositionner la colonne", async () => {
+      const idVariable = await client.variables.créerVariable({
+        catégorie: "numérique",
+      });
+      const idCol2 = await client.tableaux.ajouterColonneTableau({
+        idTableau,
+        idVariable,
+      });
+
+      const valColonnes = await colonnes.attendreExiste();
+      await client.tableaux.réordonnerColonneTableau({
+        idTableau,
+        idColonne: valColonnes[0].id,
+        position: 1,
+      });
+      const nouvellesColonnes = await colonnes.attendreQue(
+        (x) => x[0].id !== valColonnes[0].id,
+      );
+      expect(nouvellesColonnes.map((c) => c.id)).to.deep.equal([
+        idCol2,
+        valColonnes[0].id,
+      ]);
+    });
+  });
+
   describe("Règles: Fonctionnalités de base", function () {
     let idTableauRègles: string;
     let idVariableNumérique: string;

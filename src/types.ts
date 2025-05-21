@@ -40,7 +40,7 @@ export type schémaStatut = {
   idNouvelle?: string;
 };
 
-export type dicTrads = { [key: string]: string };
+export type TraducsNom = { [langue: string]: string };
 
 export type schémaFonctionSuivi<T> =
   | ((x: T) => void)

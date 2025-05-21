@@ -835,6 +835,7 @@ await client.nuées.effacerTableauNuée({
     idTableau
 });
 ```
+
 ### `client.nuées.suivreTableauxNuée({ idNuée, f })`
 Suit les tableaux associés à la nuée.
 
@@ -870,11 +871,40 @@ const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
 
 ```
 
+### `client.nuées.réordonnerTableauNuée({ idNuée, idTableau, position })`
+Réordonner les tableaux de la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `idTableau` | `string` | L'identifiant du tableau à repositionner. |
+| `position` | `number` | La nouvelle position du tableau. |
+
+#### Exemple
+```ts
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
+
+const idNuée = await client.nuées.créerNuée();
+const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
+const idTableau2 = await client.nuées.ajouterTableauNuée({ idNuée });
+
+await client.nuées.réordonnerTableauNuée({ 
+  idBd, 
+  idTableau2,
+  position: 0
+});
+
+```
+
 ### `client.nuées.sauvegarderNomsTableauNuée`
 
 ::: info NOTE
 Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
 :::
+
+
 
 ### `client.nuées.effacerNomsTableauNuée`
 ### `client.nuées.suivreNomsTableauNuée`
@@ -882,6 +912,44 @@ Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](ma
 ### `client.nuées.effacerColonneTableauNuée`
 ### `client.nuées.changerColIndexTableauNuée`
 ### `client.nuées.suivreColonnesTableauNuée`
+
+### `client.nuées.réordonnerColonneTableauNuée({ idTableau, idColonne, position })`
+Réordonne les colonnes d'un tableau de nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idTableau` | `string` | L'identifiant du tableau. |
+| `idColonne` | `string` | L'identifiant de la colonne à déplacer. |
+| `position` | `number` | La nouvelle position de la colonne. |
+
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { créerConstellation, type tableaux } from "@constl/ipa";
+
+const client = créerConstellation();
+
+const idNuée = await client.nuées.créerNuée();
+const idTableau = await client.nuées.créerTableau({ idNuée });
+const idVariableDate = await client.variables.créerVariable({ catégorie: "horoDatage" });
+const idVariableImage = await client.variables.créerVariable({ catégorie: "image" });
+
+const idColonneImage = await client.nuées.ajouterColonneTableauNuée({ 
+  idTableau, idVariable: idVariableImage 
+});
+const idColonneDate = await client.nuées.ajouterColonneTableauNuée({ 
+  idTableau, idVariable: idVariableDate 
+});
+
+const fOublierColonnes = await client.nuées.réordonnerColonneTableauNuée({ 
+    idTableau,
+    idColonne: idColonneImage,
+    position: 1,
+});
+
+```
 
 ## Règles
 Vous pouvez ajouter des règles de validation de données aux nuées. Ces règles seront appliquées pour valider les données contribuées par les différents participants. Pour plus d'information sur les possibilités de validation, voir la section [règles](./règles.md) de la documentation.

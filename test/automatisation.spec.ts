@@ -23,6 +23,7 @@ import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
 import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
+import { obtenir } from "./utils/utils.js";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   SourceDonnéesImportationFichier,
@@ -156,18 +157,11 @@ describe("Automatisation", function () {
 
     let _get: typeof axios.get;
 
-    let rés: utilsTestAttente.AttendreRésultat<
-      élémentDonnées<élémentBdListeDonnées>[]
-    >;
-    let fsOublier: schémaFonctionOublier[] = [];
+    const fsOublier: schémaFonctionOublier[] = [];
 
     beforeEach(async () => {
       _get = axios.get;
 
-      fsOublier = [];
-      rés = new utilsTestAttente.AttendreRésultat<
-        élémentDonnées<élémentBdListeDonnées>[]
-      >();
       ({ dossier, fEffacer } = await dossiers.dossierTempo());
       fsOublier.push(async () => fEffacer());
 
@@ -191,20 +185,12 @@ describe("Automatisation", function () {
         idTableau,
         idVariable: idVar2,
       });
-
-      fsOublier.push(
-        await client.tableaux.suivreDonnées({
-          idTableau,
-          f: (données) => rés.mettreÀJour(données),
-        }),
-      );
     });
 
     afterEach(async () => {
       await Promise.allSettled(fsOublier.map((f) => f()));
       if (fOublierAuto) await fOublierAuto();
 
-      rés.toutAnnuler();
       axios.get = _get;
     });
 
@@ -250,9 +236,14 @@ describe("Automatisation", function () {
           id: idAuto,
         });
 
-      const val = await rés.attendreQue((x) => !!(x && x.length === 3));
+      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
+        ({si})=>client.tableaux.suivreDonnées({
+          idTableau,
+          f: si((x) => !!(x && x.length === 3)),
+        }),
+      );
 
-      comparerDonnéesTableau(val, [
+      comparerDonnéesTableau(donnéesTableau, [
         { [idCol1]: 1, [idCol2]: "អ" },
         { [idCol1]: 2, [idCol2]: "அ" },
         { [idCol1]: 3, [idCol2]: "a" },
@@ -302,9 +293,14 @@ describe("Automatisation", function () {
       fOublierAuto = async () =>
         await client.automatisations.annulerAutomatisation({ id: idAuto });
 
-      const val = await rés.attendreQue((x) => !!(x && x.length === 3));
+      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
+        ({si})=>client.tableaux.suivreDonnées({
+          idTableau,
+          f: si((x) => x.length === 3),
+        }),
+      );
 
-      comparerDonnéesTableau(val, [
+      comparerDonnéesTableau(donnéesTableau, [
         { [idCol1]: 4, [idCol2]: "អ" },
         { [idCol1]: 5, [idCol2]: "அ" },
         { [idCol1]: 6, [idCol2]: "a" },
@@ -355,9 +351,14 @@ describe("Automatisation", function () {
       fOublierAuto = async () =>
         await client.automatisations.annulerAutomatisation({ id: idAuto });
 
-      const val = await rés.attendreQue((x) => x.length >= 10);
+      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
+        ({si})=>client.tableaux.suivreDonnées({
+          idTableau,
+          f: si((x) => !!(x && x.length >= 10)),
+        }),
+      );
 
-      comparerDonnéesTableau(val, [
+      comparerDonnéesTableau(donnéesTableau, [
         { [idCol1]: 24846678, [idCol2]: "United States" },
         { [idCol1]: 10639684, [idCol2]: "India" },
         { [idCol1]: 8753920, [idCol2]: "Brazil" },
@@ -414,16 +415,21 @@ describe("Automatisation", function () {
       fOublierAuto = async () =>
         await client.automatisations.annulerAutomatisation({ id: idAuto });
 
-      const val = await rés.attendreQue((x) => !!(x && x.length >= 8));
+      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
+        ({si})=>client.tableaux.suivreDonnées({
+          idTableau,
+          f: si((x) => x.length >= 8),
+        }),
+      );
 
       // Nom de la langue
       expect(
-        val.map((r) => r.données[idCol2]).every((n) => typeof n === "string"),
+        donnéesTableau.map((r) => r.données[idCol2]).every((n) => typeof n === "string"),
       ).to.be.true();
 
       // Longitude
       expect(
-        val
+        donnéesTableau
           .map((r) => r.données[idCol1] as number)
           .every((n: number) => -180 <= n && n <= 180),
       ).to.be.true();
@@ -474,9 +480,14 @@ describe("Automatisation", function () {
       données.données.push({ "col 1": 4, "col 2": "子" });
       fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-      const val = await rés.attendreQue((x) => x?.length === 4);
+      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
+        ({si})=>client.tableaux.suivreDonnées({
+          idTableau,
+          f: si((x) => x.length === 4),
+        }),
+      );
 
-      comparerDonnéesTableau(val, [
+      comparerDonnéesTableau(donnéesTableau, [
         { [idCol1]: 1, [idCol2]: "អ" },
         { [idCol1]: 2, [idCol2]: "அ" },
         { [idCol1]: 3, [idCol2]: "a" },
@@ -529,18 +540,28 @@ describe("Automatisation", function () {
         await client.automatisations.annulerAutomatisation({
           id: idAuto,
         });
-      await rés.attendreQue((x) => x?.length === 3);
+      await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
+        ({si})=>client.tableaux.suivreDonnées({
+          idTableau,
+          f: si((x) => x.length === 3),
+        }),
+      );
 
       const maintenant = Date.now();
       données.données.push({ "col 1": 4, "col 2": "子" });
       fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-      const val = await rés.attendreQue((x) => x?.length === 4);
+      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
+        ({si})=>client.tableaux.suivreDonnées({
+          idTableau,
+          f: si((x) => x.length === 4),
+        }),
+      );
 
       const après = Date.now();
       expect(après - maintenant).to.be.greaterThanOrEqual(300);
 
-      comparerDonnéesTableau(val, [
+      comparerDonnéesTableau(donnéesTableau, [
         { [idCol1]: 1, [idCol2]: "អ" },
         { [idCol1]: 2, [idCol2]: "அ" },
         { [idCol1]: 3, [idCol2]: "a" },

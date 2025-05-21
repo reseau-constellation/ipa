@@ -26,7 +26,7 @@ import type {
 } from "@/valid.js";
 
 import type { objRôles } from "@/accès/types.js";
-import type { RecursivePartial, dicTrads } from "@/types.js";
+import type { RecursivePartial, TraducsNom } from "@/types.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -407,7 +407,7 @@ export class Variables extends ComposanteClientListe<string> {
     noms,
   }: {
     idVariable: string;
-    noms: dicTrads;
+    noms: TraducsNom;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
     const idBdNoms = await this.client.obtIdBd({
@@ -480,7 +480,7 @@ export class Variables extends ComposanteClientListe<string> {
     descriptions,
   }: {
     idVariable: string;
-    descriptions: dicTrads;
+    descriptions: TraducsNom;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
     const idBdDescr = await this.client.obtIdBd({
