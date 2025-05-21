@@ -475,7 +475,6 @@ describe("BDs", function () {
     let idColonne: string;
     let idBd: string;
 
-
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
     });
