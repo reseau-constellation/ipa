@@ -27,7 +27,8 @@ import { type JSONSchemaType } from "ajv";
 
 import { Semaphore } from "@chriscdn/promise-semaphore";
 import { anySignal } from "any-signal";
-import { AbortError, type ServiceMap } from "@libp2p/interface";
+import { type ServiceMap } from "@libp2p/interface";
+import { AbortError } from "p-retry";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 import type { HeliaLibp2p } from "helia";
@@ -35,7 +36,7 @@ import type { Libp2p } from "libp2p";
 import type { ServicesLibp2p } from "./sfip/index.js";
 
 const pSignal = async (signal: AbortSignal): Promise<never> => {
-  if (signal.aborted) throw new AbortError();
+  if (signal.aborted) throw new AbortError(Error("Signal avorté"));
   return new Promise<never>((_résoudre, rejeter) => {
     const lorsquAvorté = () => {
       signal.removeEventListener("abort", lorsquAvorté);
@@ -66,7 +67,7 @@ export const réessayer = async <T>({
       avant = Date.now();
       return await Promise.race([f(), pSignal(signal)]);
     } catch (e) {
-      if (signal.aborted) throw new AbortError();
+      if (signal.aborted) throw new AbortError(Error("Signal avorté"));
       console.log(e);
       n++;
       const maintenant = Date.now();
@@ -79,7 +80,7 @@ export const réessayer = async <T>({
             résoudre();
           });
         });
-        if (signal.aborted) throw new AbortError();
+        if (signal.aborted) throw new AbortError(Error("Signal avorté"));
       }
       return await _interne({ f, signal, n });
     }
