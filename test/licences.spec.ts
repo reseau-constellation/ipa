@@ -1,12 +1,11 @@
 import {
-  attente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { type InfoLicence, infoLicences, licences } from "@/licences.js";
-import { schémaFonctionOublier } from "@/types.js";
 import { créerConstellation } from "@/index.js";
 import type { Constellation } from "@/client.js";
+import { obtenir } from "./utils/utils";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
@@ -21,10 +20,6 @@ describe("Licences", function () {
     let clients: Constellation[];
     let client: Constellation;
 
-    const fsOublier: schémaFonctionOublier[] = [];
-    const licencesSuivies = new attente.AttendreRésultat<{
-      [licence: string]: InfoLicence;
-    }>();
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
@@ -36,17 +31,16 @@ describe("Licences", function () {
 
     after(async () => {
       if (fOublierClients) await fOublierClients();
-      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("licences dynamiques", async () => {
-      const fOublier = await client.licences.suivreLicences({
-        f: (x) => licencesSuivies.mettreÀJour(x),
-      });
-      fsOublier.push(fOublier);
+      const licencesDynamiques = await obtenir<{
+        [licence: string]: InfoLicence;
+      }>(({siDéfini})=> client.licences.suivreLicences({
+        f: siDéfini(),
+      }));
 
-      const val = await licencesSuivies.attendreExiste();
-      expect(Object.keys(val).length).to.be.gt(0);
+      expect(Object.keys(licencesDynamiques).length).to.be.gt(0);
     });
   });
 });
