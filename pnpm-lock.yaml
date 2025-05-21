@@ -18,8 +18,8 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1
       '@chriscdn/promise-semaphore':
-        specifier: ^2.0.12
-        version: 2.0.12
+        specifier: ^3.0.1
+        version: 3.0.1
       '@constl/bohr-db':
         specifier: ^1.2.3
         version: 1.2.3(react-native@0.76.6(@babel/core@7.27.1)(@babel/preset-env@7.26.0(@babel/core@7.27.1))(react@18.3.1))
@@ -27,8 +27,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       '@constl/utils-ipa':
-        specifier: ^2.0.4
-        version: 2.0.4
+        specifier: ^2.0.6
+        version: 2.0.6
       '@helia/block-brokers':
         specifier: ^4.2.2
         version: 4.2.2
@@ -1187,8 +1187,8 @@ packages:
   '@chainsafe/netmask@2.0.0':
     resolution: {integrity: sha512-I3Z+6SWUoaljh3TBzCnCxjlUyN8tA+NAk5L6m9IxvCf1BENQTePzPMis97CoN/iMW1St3WN+AWCCRp+TTBRiDg==}
 
-  '@chriscdn/promise-semaphore@2.0.12':
-    resolution: {integrity: sha512-hgbaEg1n+q2ZKKBCrzjRK56pB+IDkj4tFHywz5aVq4sX+2nvyxmD/MuPO8ULe+xOpoCkS3djTliWnXUyGOi3Yg==}
+  '@chriscdn/promise-semaphore@3.0.1':
+    resolution: {integrity: sha512-fVlCnoYE4hDzpcYRPtmN7dmcpmd2zxyPWjyfjIKI9Y+gsI7rwZSkjtuwMi8HFtlkSmNh8L7Zr37hdqeL13sYrw==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -1200,8 +1200,8 @@ packages:
   '@constl/mandataire@3.0.3':
     resolution: {integrity: sha512-J7zWtq2EOA46EIzAGjiOP/FVYvQrjvxXT7aLyKEA6chm6i/3kJnmv5pgYSF0rofGgzIyRUwsTLuzSB23DoZNyg==}
 
-  '@constl/utils-ipa@2.0.4':
-    resolution: {integrity: sha512-Op6g67LkElx8RAaPtFOADmYrh1CgDSN8vd+Ymtw++MLHTgyCfyqOMwYEnEdFTt8z5u2HiyuXeEFVJuBR1lcc4Q==}
+  '@constl/utils-ipa@2.0.6':
+    resolution: {integrity: sha512-4XbDFuewVJD5dhATVfILEPqfef+QwIfYMjThC7f9zAFHUSbsarkm7WTI5wvQHLV4MLADzUmyh40MFE15+qPEyw==}
     engines: {node: '>=20'}
 
   '@constl/utils-tests@1.6.15':
@@ -10139,7 +10139,7 @@ snapshots:
     dependencies:
       '@chainsafe/is-ip': 2.1.0
 
-  '@chriscdn/promise-semaphore@2.0.12': {}
+  '@chriscdn/promise-semaphore@3.0.1': {}
 
   '@colors/colors@1.5.0': {}
 
@@ -10165,7 +10165,7 @@ snapshots:
       events: 3.3.0
       uuid: 11.1.0
 
-  '@constl/utils-ipa@2.0.4':
+  '@constl/utils-ipa@2.0.6':
     dependencies:
       browser-fs-access: 0.37.0
       deep-equal: 2.2.3
@@ -10992,7 +10992,7 @@ snapshots:
 
   '@lassi-js/kili@0.4.5':
     dependencies:
-      '@constl/utils-ipa': 2.0.4
+      '@constl/utils-ipa': 2.0.6
       '@orbitdb/core': 2.5.0
       deepcopy: 2.1.0
 
