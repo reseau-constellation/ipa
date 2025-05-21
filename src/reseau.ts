@@ -416,7 +416,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       const idPairDestinataire = peerIdFromString(idPair);
 
       const flux = await pRetry(async () => {
-        if (signalCombiné.aborted) throw new AbortError(Error("Opération annulée"));
+        // Double AbortError nécessaire parce que pRetry enlève l'erreur externe
+        if (signalCombiné.aborted) throw new AbortError(new AbortError(Error("Opération annulée")));
         return await sfip.libp2p.dialProtocol(
           idPairDestinataire,
           PROTOCOLE_CONSTELLATION,
@@ -628,7 +629,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         signature,
       },
     };
-    await this.envoyerMessageAuPair({ msg: valeur, idPair });
+    try {
+      await this.envoyerMessageAuPair({ msg: valeur, idPair });
+    } catch (e) {
+      if (!(e instanceof AbortError)) throw e
+    }
   }
 
   async envoyerDemandeRejoindreCompte({
