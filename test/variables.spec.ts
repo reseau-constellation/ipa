@@ -13,6 +13,7 @@ import type {
   règleVariableAvecId,
 } from "@/valid.js";
 import type { catégorieVariables } from "@/variables.js";
+import { obtenir } from "./utils/utils.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
@@ -34,74 +35,63 @@ describe("Variables", function () {
   });
 
   describe("Création", function () {
-    let fOublier: schémaFonctionOublier;
     let idVariable: string;
 
-    const variables = new utilsTestAttente.AttendreRésultat<string[]>();
-
-    before("Préparer clients", async () => {
-      fOublier = await client.variables.suivreVariables({
-        f: (x) => variables.mettreÀJour(x),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
     it("Pas de variables pour commencer", async () => {
-      const val = await variables.attendreExiste();
-      expect(val).to.be.an.empty("array");
+      const variables = await obtenir(({siDéfini})=> client.variables.suivreVariables({
+        f: siDéfini(),
+      }));
+      expect(variables).to.be.an.empty("array");
     });
     it("Créer des variables", async () => {
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      const val = await variables.attendreQue((x) => !!x.length);
-      expect(val).to.be.an("array").with.lengthOf(1);
-      expect(val).to.contain(idVariable);
+      const variables = await obtenir(({siPasVide})=> client.variables.suivreVariables({
+        f: siPasVide(),
+      }));
+      expect(variables).to.deep.equal([idVariable]);
     });
 
     it("Effacer une variable", async () => {
       await client.variables.effacerVariable({ idVariable });
-      const val = await variables.attendreQue((x) => !x.length);
-      expect(val).to.be.an.empty("array");
+      const variables = await obtenir(({siVide})=> client.variables.suivreVariables({
+        f: siVide(),
+      }));      
+      expect(variables).to.be.an.empty("array");
     });
   });
 
   describe("Mes variables", function () {
     let idVariable: string;
-    let fOublier: schémaFonctionOublier;
-
-    const mesVariables = new utilsTestAttente.AttendreRésultat<string[]>();
 
     before("Créer variable", async () => {
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      fOublier = await client.variables.suivreVariables({
-        f: (vs) => mesVariables.mettreÀJour(vs),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
     });
 
     it("La variable est déjà ajoutée", async () => {
-      const val = await mesVariables.attendreQue((x) => !!x.length);
-      expect(val).to.contain(idVariable);
+      const variables = await obtenir(({siPasVide})=>client.variables.suivreVariables({
+        f: siPasVide(),
+      }));
+      expect(variables).to.contain(idVariable);
     });
 
     it("Enlever de mes variables", async () => {
       await client.variables.enleverDeMesVariables({ idVariable });
-      const val = await mesVariables.attendreQue((x) => !x.length);
-      expect(val).not.to.contain(idVariable);
+      const variables = await obtenir(({siVide})=>client.variables.suivreVariables({
+        f: siVide(),
+      }));
+      expect(variables).not.to.contain(idVariable);
     });
 
     it("Ajouter à mes variables", async () => {
       await client.variables.ajouterÀMesVariables({ idVariable });
-      const val = await mesVariables.attendreQue((x) => !!x.length);
-      expect(val).to.contain(idVariable);
+      const variables = await obtenir(({siPasVide})=>client.variables.suivreVariables({
+        f: siPasVide(),
+      }));
+      expect(variables).to.contain(idVariable);
     });
   });
 
