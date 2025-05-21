@@ -38,7 +38,7 @@ jobs:
       - name: Préparation de Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.15.0"
+          node-version: "22.15.1"
           cache: 'pnpm'
 
       - name: Installer
@@ -74,7 +74,7 @@ jobs:
       - name: Préparation de Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.15.0"
+          node-version: "22.15.1"
           cache: 'pnpm'
 
       - name: Installer
@@ -111,7 +111,7 @@ jobs:
       - name: Préparation de Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.15.0"
+          node-version: "22.15.1"
           cache: 'pnpm'
 
       - name: Installer
