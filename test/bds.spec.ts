@@ -451,7 +451,7 @@ describe("BDs", function () {
 
       const tableaux = await obtenir<infoTableauAvecId[]>(({si})=> constl.bds.suivreTableauxBd({
         idBd,
-        f: si((t) => t[0].id !== idTableau),
+        f: si((t) => !!t.length && t[0].id !== idTableau),
       }),);
       expect(tableaux.map((t) => t.id)).to.deep.equal([idTableau2, idTableau]);
 
