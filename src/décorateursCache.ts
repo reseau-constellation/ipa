@@ -186,23 +186,22 @@ export class CacheSuivi {
     });
     const idRequête = uuidv4();
 
-    const fFinale = (val: unknown[]) => {
-      // À faire: async ?
+    const fFinale = async (val: unknown[]) => {
       if (!this._cacheRecherche[codeCache]) return; // Si on a déjà annulé la requête
       this._cacheRecherche[codeCache].val = val;
       const infoRequêtes = Object.values(
         this._cacheRecherche[codeCache].requêtes,
       );
       if (par === "profondeur") {
-        infoRequêtes.forEach((info) =>
-          info.f(
+        await Promise.allSettled(infoRequêtes.map(async (info) =>
+          await info.f(
             (val as itemRechercheProfondeur[]).filter(
               (x) => x.profondeur <= info.taille,
-            ),
-          ),
-        );
+            )
+          )
+        ));
       } else {
-        infoRequêtes.forEach((info) => info.f(val.slice(0, info.taille)));
+        await Promise.allSettled(infoRequêtes.map(async (info) => await info.f(val.slice(0, info.taille))));
       }
     };
 
@@ -246,7 +245,7 @@ export class CacheSuivi {
         this._cacheRecherche[codeCache].requêtes[idRequête] = { f, taille };
         if (Object.keys(this._cacheRecherche[codeCache]).includes("val")) {
           const { val } = this._cacheRecherche[codeCache];
-          if (val) fFinale(val);
+          if (val) await fFinale(val);
         }
       }
     } finally {
@@ -257,13 +256,13 @@ export class CacheSuivi {
       await this.oublierRecherche({ codeCache, idRequête });
     };
 
-    const fChangerTailleRequête = (taille: number) => {
+    const fChangerTailleRequête = async (taille: number) => {
       const tailleAvant =
         this._cacheRecherche[codeCache].requêtes[idRequête].taille;
       if (taille === tailleAvant) return;
       this._cacheRecherche[codeCache].requêtes[idRequête].taille = taille;
       const { val } = this._cacheRecherche[codeCache];
-      if (val) fFinale(val);
+      if (val) await fFinale(val);
 
       const maxTaille = Math.max(
         ...Object.values(this._cacheRecherche[codeCache].requêtes).map(
