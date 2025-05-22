@@ -7,6 +7,7 @@ import {
   type MessagePourIpa,
   type MessageSuivreDIpa,
   type MessageSuivrePrêtDIpa,
+  type MessageConfirmationRéceptionRetourDIpa,
   ERREUR_EXÉCUTION_IPA,
   ERREUR_FONCTION_MANQUANTE,
   ERREUR_INIT_IPA,
@@ -23,7 +24,7 @@ export class EnveloppeIpa {
   prêt: boolean;
   dicFRetourSuivi: {
     [key: string]: { fOublier: schémaFonctionOublier } & {
-      [key: string]: (...args: unknown[]) => void;
+      [key: string]: (...args: unknown[]) => Promise<void>;
     };
   };
   opts: optsConstellation;
@@ -165,7 +166,7 @@ export class EnveloppeIpa {
             | schémaFonctionOublier
             | {
                 fOublier: schémaFonctionOublier;
-                [key: string]: (...args: unknown[]) => void;
+                [key: string]: (...args: unknown[]) => Promise<void>;
               };
           const retourFinal =
             typeof retour === "function" ? { fOublier: retour } : retour;
@@ -219,11 +220,17 @@ export class EnveloppeIpa {
         break;
       }
       case "retour": {
-        const { idRequête, fonction, args } = message;
+        const { idRequête, idRetour, fonction, args } = message;
         const retour = this.dicFRetourSuivi[idRequête];
 
         if (retour) await retour[fonction](args);
         if (fonction === "fOublier") delete this.dicFRetourSuivi[idRequête];
+        const messageRéponse: MessageConfirmationRéceptionRetourDIpa = {
+          type: "confirmation",
+          idRequête,
+          idRetour,
+        }
+        this.fMessage(messageRéponse);
         break;
       }
       default: {
