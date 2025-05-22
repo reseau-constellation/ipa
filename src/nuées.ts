@@ -2778,11 +2778,11 @@ export class Nuées extends ComposanteClientListe<string> {
       fListe: async ({
         fSuivreRacine,
       }: {
-        fSuivreRacine: (éléments: string[]) => void;
+        fSuivreRacine: (éléments: string[]) => Promise<void>;
       }) => {
         const { fOublier } = await this.suivreBdsCorrespondantes({
           idNuée,
-          f: async (bds) => fSuivreRacine([idNuée, ...bds]),
+          f: async (bds) => await fSuivreRacine([idNuée, ...bds]),
           héritage,
         });
         return fOublier;
