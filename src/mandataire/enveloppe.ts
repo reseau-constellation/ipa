@@ -236,7 +236,7 @@ export class EnveloppeIpa {
           } catch (e) {
             this.fErreur({
               erreur: (e as Error).toString() + e.stack.toString(),
-              idRequête,
+              idRequête: idRetour,
               code: ERREUR_EXÉCUTION_IPA,
             });
           }
