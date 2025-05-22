@@ -223,14 +223,25 @@ export class EnveloppeIpa {
         const { idRequête, idRetour, fonction, args } = message;
         const retour = this.dicFRetourSuivi[idRequête];
 
-        if (retour) await retour[fonction](args);
         if (fonction === "fOublier") delete this.dicFRetourSuivi[idRequête];
-        const messageRéponse: MessageConfirmationRéceptionRetourDIpa = {
-          type: "confirmation",
-          idRequête,
-          idRetour,
-        };
-        this.fMessage(messageRéponse);
+        if (retour) {
+          try {
+            await retour[fonction](args);
+            const messageRéponse: MessageConfirmationRéceptionRetourDIpa = {
+              type: "confirmation",
+              idRequête,
+              idRetour,
+            };
+            this.fMessage(messageRéponse);
+          } catch (e) {
+            this.fErreur({
+              erreur: (e as Error).toString() + e.stack.toString(),
+              idRequête,
+              code: ERREUR_EXÉCUTION_IPA,
+            });
+          }
+        }
+
         break;
       }
       default: {
