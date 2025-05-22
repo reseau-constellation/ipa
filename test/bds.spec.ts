@@ -343,10 +343,12 @@ describe("BDs", function () {
     });
 
     it("Licence originale présente", async () => {
-      const licence = await obtenir(({siDéfini})=>constl.bds.suivreLicenceBd({
-        idBd,
-        f: siDéfini(),
-      }));
+      const licence = await obtenir(({ siDéfini }) =>
+        constl.bds.suivreLicenceBd({
+          idBd,
+          f: siDéfini(),
+        }),
+      );
 
       expect(licence).to.equal("ODbl-1_0");
     });
@@ -354,10 +356,12 @@ describe("BDs", function () {
     it("Changement de licence", async () => {
       await constl.bds.changerLicenceBd({ idBd, licence: "ODC-BY-1_0" });
 
-      const licence = await await obtenir(({si})=>constl.bds.suivreLicenceBd({
-        idBd,
-        f: si((l) => l !== "ODbl-1_0"),
-      }));
+      const licence = await await obtenir(({ si }) =>
+        constl.bds.suivreLicenceBd({
+          idBd,
+          f: si((l) => l !== "ODbl-1_0"),
+        }),
+      );
       expect(licence).to.equal("ODC-BY-1_0");
     });
   });
@@ -375,10 +379,12 @@ describe("BDs", function () {
     });
 
     it("Pas de tableaux pour commencer", async () => {
-      const tableaux = await obtenir<infoTableauAvecId[]>(({siDéfini})=> constl.bds.suivreTableauxBd({
-        idBd,
-        f: siDéfini(),
-      }),);
+      const tableaux = await obtenir<infoTableauAvecId[]>(({ siDéfini }) =>
+        constl.bds.suivreTableauxBd({
+          idBd,
+          f: siDéfini(),
+        }),
+      );
       expect(tableaux).to.be.an.empty("array");
     });
 
@@ -389,10 +395,12 @@ describe("BDs", function () {
       });
       expect(isValidAddress(idTableau)).to.be.true();
 
-      const tableaux = await obtenir<infoTableauAvecId[]>(({siPasVide})=> constl.bds.suivreTableauxBd({
-        idBd,
-        f: siPasVide(),
-      }),);
+      const tableaux = await obtenir<infoTableauAvecId[]>(({ siPasVide }) =>
+        constl.bds.suivreTableauxBd({
+          idBd,
+          f: siPasVide(),
+        }),
+      );
       expect(Array.isArray(tableaux)).to.be.true();
       expect(tableaux.length).to.equal(1);
       expect(tableaux).to.have.deep.members([
@@ -404,10 +412,12 @@ describe("BDs", function () {
     });
 
     it("Accès au tableau", async () => {
-      const accèsTableau = await obtenir(({siDéfini})=>constl.suivrePermissionÉcrire({
-        id: idTableau,
-        f: siDéfini(),
-      }));
+      const accèsTableau = await obtenir(({ siDéfini }) =>
+        constl.suivrePermissionÉcrire({
+          id: idTableau,
+          f: siDéfini(),
+        }),
+      );
       expect(accèsTableau).to.be.true();
     });
 
@@ -419,12 +429,12 @@ describe("BDs", function () {
         idTableau,
         idVariable,
       });
-      const colonnes = await obtenir<InfoCol[]>(
-        ({siPasVide})=>constl.tableaux.suivreColonnesTableau({
+      const colonnes = await obtenir<InfoCol[]>(({ siPasVide }) =>
+        constl.tableaux.suivreColonnesTableau({
           idTableau,
           f: siPasVide(),
-        })
-      )
+        }),
+      );
       expect(colonnes[0].id).to.eq(idColonne);
       expect(colonnes[0].variable).to.eq(idVariable);
     });
@@ -432,11 +442,12 @@ describe("BDs", function () {
     it("Réordonner tableaux", async () => {
       const idTableau2 = await constl.bds.ajouterTableauBd({ idBd });
 
-      
-      const tableauxAvant = await obtenir<infoTableauAvecId[]>(({si})=> constl.bds.suivreTableauxBd({
-        idBd,
-        f: si((t) => t.length > 1),
-      }),);
+      const tableauxAvant = await obtenir<infoTableauAvecId[]>(({ si }) =>
+        constl.bds.suivreTableauxBd({
+          idBd,
+          f: si((t) => t.length > 1),
+        }),
+      );
 
       expect(tableauxAvant.map((t) => t.id)).to.deep.equal([
         idTableau,
@@ -449,10 +460,12 @@ describe("BDs", function () {
         position: 1,
       });
 
-      const tableaux = await obtenir<infoTableauAvecId[]>(({si})=> constl.bds.suivreTableauxBd({
-        idBd,
-        f: si((t) => !!t.length && t[0].id !== idTableau),
-      }),);
+      const tableaux = await obtenir<infoTableauAvecId[]>(({ si }) =>
+        constl.bds.suivreTableauxBd({
+          idBd,
+          f: si((t) => !!t.length && t[0].id !== idTableau),
+        }),
+      );
       expect(tableaux.map((t) => t.id)).to.deep.equal([idTableau2, idTableau]);
 
       await constl.bds.effacerTableauBd({ idBd, idTableau: idTableau2 });
@@ -461,10 +474,12 @@ describe("BDs", function () {
     it("Effacer un tableau", async () => {
       await constl.bds.effacerTableauBd({ idBd, idTableau });
 
-      const tableaux = await obtenir<infoTableauAvecId[]>(({siVide})=> constl.bds.suivreTableauxBd({
-        idBd,
-        f: siVide(),
-      }),);
+      const tableaux = await obtenir<infoTableauAvecId[]>(({ siVide }) =>
+        constl.bds.suivreTableauxBd({
+          idBd,
+          f: siVide(),
+        }),
+      );
       expect(tableaux).to.be.an.empty("array");
     });
   });
@@ -480,10 +495,12 @@ describe("BDs", function () {
     });
 
     it("Pas de variables pour commencer", async () => {
-      const variables = await obtenir<string[]>(({siDéfini})=>constl.bds.suivreVariablesBd({
-        idBd,
-        f: siDéfini(),
-      }));
+      const variables = await obtenir<string[]>(({ siDéfini }) =>
+        constl.bds.suivreVariablesBd({
+          idBd,
+          f: siDéfini(),
+        }),
+      );
       expect(variables).to.be.an.empty("array");
     });
 
@@ -498,10 +515,12 @@ describe("BDs", function () {
         idVariable,
       });
 
-      const variables = await obtenir<string[]>(({siPasVide})=>constl.bds.suivreVariablesBd({
-        idBd,
-        f: siPasVide(),
-      }));
+      const variables = await obtenir<string[]>(({ siPasVide }) =>
+        constl.bds.suivreVariablesBd({
+          idBd,
+          f: siPasVide(),
+        }),
+      );
       expect(Array.isArray(variables)).to.be.true();
       expect(variables.length).to.equal(1);
       expect(variables[0]).to.equal(idVariable);
@@ -512,10 +531,12 @@ describe("BDs", function () {
         idTableau,
         idColonne,
       });
-      const variables = await obtenir<string[]>(({siVide})=>constl.bds.suivreVariablesBd({
-        idBd,
-        f: siVide(),
-      }));
+      const variables = await obtenir<string[]>(({ siVide }) =>
+        constl.bds.suivreVariablesBd({
+          idBd,
+          f: siVide(),
+        }),
+      );
       expect(variables).to.be.an.empty("array");
     });
   });
@@ -1013,7 +1034,6 @@ describe("BDs", function () {
           },
         ],
       };
-
     });
 
     it("La BD est créée lorsqu'elle n'existe pas", async () => {
@@ -1038,15 +1058,16 @@ describe("BDs", function () {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
       idTableau = await constl.bds.ajouterTableauBd({ idBd });
-
     });
 
     it("Rien pour commencer", async () => {
-      const tableauUnique = await obtenir(({tous})=>constl.bds.suivreIdTableauParClef({
-        idBd: idBd,
-        clef: "clefUnique",
-        f: tous(),
-      }));
+      const tableauUnique = await obtenir(({ tous }) =>
+        constl.bds.suivreIdTableauParClef({
+          idBd: idBd,
+          clef: "clefUnique",
+          f: tous(),
+        }),
+      );
 
       expect(tableauUnique).to.be.undefined();
     });
@@ -1056,11 +1077,13 @@ describe("BDs", function () {
         idTableau,
         clef: "clefUnique",
       });
-      const idTableauDeClef = await obtenir<string>(({siDéfini})=>constl.bds.suivreIdTableauParClef({
-        idBd: idBd,
-        clef: "clefUnique",
-        f: siDéfini(),
-      }));
+      const idTableauDeClef = await obtenir<string>(({ siDéfini }) =>
+        constl.bds.suivreIdTableauParClef({
+          idBd: idBd,
+          clef: "clefUnique",
+          f: siDéfini(),
+        }),
+      );
       expect(idTableauDeClef).to.equal(idTableau);
     });
   });
@@ -1420,10 +1443,12 @@ describe("BDs", function () {
     });
 
     it("Pas de résultats pour commencer", async () => {
-      const bds = await obtenir (({siDéfini})=>constl.bds.rechercherBdsParMotsClefs({
-        motsClefs: [idMotClef],
-        f: siDéfini(),
-      }));
+      const bds = await obtenir(({ siDéfini }) =>
+        constl.bds.rechercherBdsParMotsClefs({
+          motsClefs: [idMotClef],
+          f: siDéfini(),
+        }),
+      );
       expect(bds).to.be.an.empty("array");
     });
 
@@ -1433,10 +1458,12 @@ describe("BDs", function () {
         idsMotsClefs: [idMotClef],
       });
 
-      const bds = await obtenir<string[]>(({siPasVide})=>constl.bds.rechercherBdsParMotsClefs({
-        motsClefs: [idMotClef],
-        f: siPasVide(),
-      }));
+      const bds = await obtenir<string[]>(({ siPasVide }) =>
+        constl.bds.rechercherBdsParMotsClefs({
+          motsClefs: [idMotClef],
+          f: siPasVide(),
+        }),
+      );
       expect(Array.isArray(bds)).to.be.true();
       expect(bds.length).to.equal(1);
       expect(bds[0]).to.equal(idBdRechercheMotsClefs);

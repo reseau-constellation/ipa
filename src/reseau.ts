@@ -217,13 +217,17 @@ type ÉvénementsRéseau = {
   membreVu: () => void;
 };
 
-const attendreSuccès = async <T>(f: () => Promise<T>, n=5, t = 100): Promise<T> => {
+const attendreSuccès = async <T>(
+  f: () => Promise<T>,
+  n = 5,
+  t = 100,
+): Promise<T> => {
   const résultat = await f();
   if (résultat || n <= 0) return résultat;
 
-  await new Promise(résoudre => setTimeout(résoudre, t));
-  return await attendreSuccès(f, n-1, t*2)
-}
+  await new Promise((résoudre) => setTimeout(résoudre, t));
+  return await attendreSuccès(f, n - 1, t * 2);
+};
 
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: Constellation;
@@ -260,7 +264,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.verrouFlux = new Semaphore();
 
     this.fsOublier = [];
-
   }
 
   async initialiser(): Promise<void> {
@@ -310,17 +313,18 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           this.client.considérerRequêteRejoindreCompte({
             requête: contenu as ContenuMessageRejoindreCompte,
           }),
-      }));
-    
+      }),
+    );
 
-    this.fsOublier.push(await this.suivreMessagesDirectes({
-      type: "Salut !",
-      f: ({ contenu }) =>
-        this.recevoirSalut({
-          message: contenu as ContenuMessageSalut,
-        }),
-    }));
-
+    this.fsOublier.push(
+      await this.suivreMessagesDirectes({
+        type: "Salut !",
+        f: ({ contenu }) =>
+          this.recevoirSalut({
+            message: contenu as ContenuMessageSalut,
+          }),
+      }),
+    );
 
     const fSuivreConnexions = async () => {
       this.événements.emit("changementConnexions");
@@ -331,24 +335,33 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       } catch {
         // Tant pis
       }
+    };
+    const fSuivrePairDéconnecté = async (é: { detail: PeerId }) => {
+      delete this.connexionsDirectes[é.detail.toString()];
 
-    }
-    const fSuivrePairDéconnecté = async (é: {detail: PeerId }) => {
-      delete this.connexionsDirectes[é.detail.toString()]
-
-      const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
-      if (idDispositif)
-        this.dispositifsEnLigne[idDispositif].vuÀ = Date.now()
+      const idDispositif = Object.values(this.dispositifsEnLigne).find(
+        (info) => info.infoDispositif.idLibp2p === é.detail.toString(),
+      )?.infoDispositif.idDispositif;
+      if (idDispositif) this.dispositifsEnLigne[idDispositif].vuÀ = Date.now();
       this.événements.emit("membreVu");
-    }
+    };
 
-    libp2p.addEventListener("peer:connect", fSuivrePairConnecté)
-    libp2p.addEventListener("peer:disconnect", fSuivrePairDéconnecté)
-    this.fsOublier.push(async ()=> libp2p.removeEventListener("peer:connect", fSuivrePairConnecté))
-    this.fsOublier.push(async ()=> libp2p.removeEventListener("peer:disconnect", fSuivrePairConnecté))
-    this.fsOublier.push(await this.client.suivreIdCompte({
-      f: () => libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
-    }));
+    libp2p.addEventListener("peer:connect", fSuivrePairConnecté);
+    libp2p.addEventListener("peer:disconnect", fSuivrePairDéconnecté);
+    this.fsOublier.push(async () =>
+      libp2p.removeEventListener("peer:connect", fSuivrePairConnecté),
+    );
+    this.fsOublier.push(async () =>
+      libp2p.removeEventListener("peer:disconnect", fSuivrePairConnecté),
+    );
+    this.fsOublier.push(
+      await this.client.suivreIdCompte({
+        f: () =>
+          libp2p
+            .getPeers()
+            .forEach((p) => this.direSalut({ idPair: p.toString() })),
+      }),
+    );
 
     const événements: (keyof Libp2pEvents)[] = [
       "peer:connect",
@@ -358,7 +371,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     for (const é of événements) {
       libp2p.addEventListener(é, fSuivreConnexions);
     }
-    this.fsOublier.push( async () => {
+    this.fsOublier.push(async () => {
       await Promise.allSettled(
         événements.map((é) => {
           return libp2p.removeEventListener(é, fSuivreConnexions);
@@ -417,7 +430,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
       const flux = await pRetry(async () => {
         // Double AbortError nécessaire parce que pRetry enlève l'erreur externe
-        if (signalCombiné.aborted) throw new AbortError(new AbortError(Error("Opération annulée")));
+        if (signalCombiné.aborted)
+          throw new AbortError(new AbortError(Error("Opération annulée")));
         return await sfip.libp2p.dialProtocol(
           idPairDestinataire,
           PROTOCOLE_CONSTELLATION,
@@ -632,7 +646,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     try {
       await this.envoyerMessageAuPair({ msg: valeur, idPair });
     } catch (e) {
-      if (!(e instanceof AbortError)) throw e
+      if (!(e instanceof AbortError)) throw e;
     }
   }
 
@@ -758,7 +772,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
       const bdCompteValide = await attendreSuccès(async () => {
         if (!estUnContrôleurConstellation(bdCompte.access)) return false;
-        return await (bdCompte.access).estAutorisé(idDispositif) 
+        return await bdCompte.access.estAutorisé(idDispositif);
       });
 
       await fOublier();
@@ -2017,7 +2031,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       fSuivi: schémaFonctionSuivi<[string]>;
     }): Promise<schémaFonctionOublier> => {
       await fSuivi([idCompte]);
-      return faisRien;  // Rien à faire parce que nous ne recherchons que le compte
+      return faisRien; // Rien à faire parce que nous ne recherchons que le compte
     };
 
     const fQualité = async (
@@ -3137,6 +3151,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }
 
   async fermer(): Promise<void> {
-    await Promise.allSettled(this.fsOublier.map(f=>f()));
+    await Promise.allSettled(this.fsOublier.map((f) => f()));
   }
 }

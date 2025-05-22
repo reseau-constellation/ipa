@@ -229,7 +229,7 @@ export class EnveloppeIpa {
           type: "confirmation",
           idRequête,
           idRetour,
-        }
+        };
         this.fMessage(messageRéponse);
         break;
       }

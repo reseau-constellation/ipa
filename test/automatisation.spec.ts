@@ -236,8 +236,10 @@ describe("Automatisation", function () {
           id: idAuto,
         });
 
-      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
-        ({si})=>client.tableaux.suivreDonnées({
+      const donnéesTableau = await obtenir<
+        élémentDonnées<élémentBdListeDonnées>[]
+      >(({ si }) =>
+        client.tableaux.suivreDonnées({
           idTableau,
           f: si((x) => !!(x && x.length === 3)),
         }),
@@ -293,8 +295,10 @@ describe("Automatisation", function () {
       fOublierAuto = async () =>
         await client.automatisations.annulerAutomatisation({ id: idAuto });
 
-      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
-        ({si})=>client.tableaux.suivreDonnées({
+      const donnéesTableau = await obtenir<
+        élémentDonnées<élémentBdListeDonnées>[]
+      >(({ si }) =>
+        client.tableaux.suivreDonnées({
           idTableau,
           f: si((x) => x.length === 3),
         }),
@@ -351,8 +355,10 @@ describe("Automatisation", function () {
       fOublierAuto = async () =>
         await client.automatisations.annulerAutomatisation({ id: idAuto });
 
-      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
-        ({si})=>client.tableaux.suivreDonnées({
+      const donnéesTableau = await obtenir<
+        élémentDonnées<élémentBdListeDonnées>[]
+      >(({ si }) =>
+        client.tableaux.suivreDonnées({
           idTableau,
           f: si((x) => !!(x && x.length >= 10)),
         }),
@@ -415,8 +421,10 @@ describe("Automatisation", function () {
       fOublierAuto = async () =>
         await client.automatisations.annulerAutomatisation({ id: idAuto });
 
-      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
-        ({si})=>client.tableaux.suivreDonnées({
+      const donnéesTableau = await obtenir<
+        élémentDonnées<élémentBdListeDonnées>[]
+      >(({ si }) =>
+        client.tableaux.suivreDonnées({
           idTableau,
           f: si((x) => x.length >= 8),
         }),
@@ -424,7 +432,9 @@ describe("Automatisation", function () {
 
       // Nom de la langue
       expect(
-        donnéesTableau.map((r) => r.données[idCol2]).every((n) => typeof n === "string"),
+        donnéesTableau
+          .map((r) => r.données[idCol2])
+          .every((n) => typeof n === "string"),
       ).to.be.true();
 
       // Longitude
@@ -480,8 +490,10 @@ describe("Automatisation", function () {
       données.données.push({ "col 1": 4, "col 2": "子" });
       fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
-        ({si})=>client.tableaux.suivreDonnées({
+      const donnéesTableau = await obtenir<
+        élémentDonnées<élémentBdListeDonnées>[]
+      >(({ si }) =>
+        client.tableaux.suivreDonnées({
           idTableau,
           f: si((x) => x.length === 4),
         }),
@@ -540,8 +552,8 @@ describe("Automatisation", function () {
         await client.automatisations.annulerAutomatisation({
           id: idAuto,
         });
-      await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
-        ({si})=>client.tableaux.suivreDonnées({
+      await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(({ si }) =>
+        client.tableaux.suivreDonnées({
           idTableau,
           f: si((x) => x.length === 3),
         }),
@@ -551,8 +563,10 @@ describe("Automatisation", function () {
       données.données.push({ "col 1": 4, "col 2": "子" });
       fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-      const donnéesTableau = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
-        ({si})=>client.tableaux.suivreDonnées({
+      const donnéesTableau = await obtenir<
+        élémentDonnées<élémentBdListeDonnées>[]
+      >(({ si }) =>
+        client.tableaux.suivreDonnées({
           idTableau,
           f: si((x) => x.length === 4),
         }),

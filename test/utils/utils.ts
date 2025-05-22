@@ -14,7 +14,7 @@ export const obtIdsPairs = async (): Promise<{
 export const obtenir = async <T>(
   f: (args: {
     si: (f: (x: T) => boolean) => (x: T) => void;
-    siDéfini: () => (x: T|undefined) => void;
+    siDéfini: () => (x: T | undefined) => void;
     siVide: () => (x: T) => void;
     siNul: () => (x: T) => void;
     siPasVide: () => (x: T) => void;
@@ -31,7 +31,7 @@ export const obtenir = async <T>(
       }
     };
   };
-  const siDéfini = (): ((x: T|undefined) => void) => {
+  const siDéfini = (): ((x: T | undefined) => void) => {
     // @ts-expect-error Je ne sais pas pourquoi
     return si((x: T | undefined): x is T => x !== undefined);
   };
@@ -57,14 +57,22 @@ export const obtenir = async <T>(
   const siPasNul = (): ((x: T) => void) => {
     return si((x: T) => !isNull(x));
   };
-  const tous = (): (x: T)=>void => {
-    return si(()=>true)
-  }
+  const tous = (): ((x: T) => void) => {
+    return si(() => true);
+  };
 
   const promesse = new Promise<T>((résoudre) =>
     événements.once("résolu", résoudre),
   );
-  const fOublier = await f({ si, siDéfini, siVide, siNul, siPasVide, siPasNul, tous });
+  const fOublier = await f({
+    si,
+    siDéfini,
+    siVide,
+    siNul,
+    siPasVide,
+    siPasNul,
+    tous,
+  });
   after(async () => await fOublier());
 
   return promesse;

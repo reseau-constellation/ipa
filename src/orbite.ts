@@ -351,7 +351,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
           })) as T,
         signal: signalCombiné,
       });
-      bd.events.on('error', console.log)
+      bd.events.on("error", console.log);
       signalCombiné.clear();
 
       this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
@@ -464,7 +464,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
       ...options,
     })) as Store;
     const { address } = bd;
-    bd.events.on('error', console.log)
+    bd.events.on("error", console.log);
 
     this._bdsOrbite[address] = { bd, idsRequêtes: new Set() };
     return address;

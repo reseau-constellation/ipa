@@ -193,15 +193,22 @@ export class CacheSuivi {
         this._cacheRecherche[codeCache].requêtes,
       );
       if (par === "profondeur") {
-        await Promise.allSettled(infoRequêtes.map(async (info) =>
-          await info.f(
-            (val as itemRechercheProfondeur[]).filter(
-              (x) => x.profondeur <= info.taille,
-            )
-          )
-        ));
+        await Promise.allSettled(
+          infoRequêtes.map(
+            async (info) =>
+              await info.f(
+                (val as itemRechercheProfondeur[]).filter(
+                  (x) => x.profondeur <= info.taille,
+                ),
+              ),
+          ),
+        );
       } else {
-        await Promise.allSettled(infoRequêtes.map(async (info) => await info.f(val.slice(0, info.taille))));
+        await Promise.allSettled(
+          infoRequêtes.map(
+            async (info) => await info.f(val.slice(0, info.taille)),
+          ),
+        );
       }
     };
 
