@@ -64,7 +64,7 @@ const idsCorrespondantes = async (
     .lengthOf(nIdsDésirées);
 };
 
-describe("Nuées", function () {
+describe.only("Nuées", function () {
   describe("Tests individuels", function () {
     let fOublierClients: () => Promise<void>;
     let clients: Constellation[];
