@@ -98,10 +98,12 @@ describe("Nuées", function () {
       });
 
       it("Pas de noms pour commencer", async () => {
-        const noms = await obtenir<TraducsNom>(({siDéfini})=>client.nuées.suivreNomsNuée({
-          idNuée,
-          f: siDéfini(),
-        }));
+        const noms = await obtenir<TraducsNom>(({ siDéfini }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: siDéfini(),
+          }),
+        );
         expect(Object.keys(noms).length).to.equal(0);
       });
 
@@ -110,10 +112,12 @@ describe("Nuées", function () {
           idNuée,
           noms: { fr: "Alphabets" },
         });
-        const noms = await obtenir<TraducsNom>(({siPasVide})=>client.nuées.suivreNomsNuée({
-          idNuée,
-          f: siPasVide(),
-        }));
+        const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: siPasVide(),
+          }),
+        );
         expect(noms.fr).to.equal("Alphabets");
       });
 
@@ -125,10 +129,12 @@ describe("Nuées", function () {
             हिं: "वर्णमाला",
           },
         });
-        const noms = await obtenir<TraducsNom>(({si})=>client.nuées.suivreNomsNuée({
-          idNuée,
-          f: si((x) => !!x.हिं),
-        }));
+        const noms = await obtenir<TraducsNom>(({ si }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: si((x) => !!x.हिं),
+          }),
+        );
         expect(noms).to.deep.equal({
           fr: "Alphabets",
           த: "எழுத்துகள்",
@@ -141,19 +147,23 @@ describe("Nuées", function () {
           idNuée,
           noms: { fr: "Systèmes d'écriture" },
         });
-        const noms = await obtenir<TraducsNom>(({si})=>client.nuées.suivreNomsNuée({
-          idNuée,
-          f: si((x) => x.fr !== "Alphabets"),
-        }));
+        const noms = await obtenir<TraducsNom>(({ si }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: si((x) => x.fr !== "Alphabets"),
+          }),
+        );
         expect(noms.fr).to.equal("Systèmes d'écriture");
       });
 
       it("Effacer un nom", async () => {
         await client.nuées.effacerNomNuée({ idNuée, langue: "fr" });
-        const noms = await obtenir<TraducsNom>(({si})=>client.nuées.suivreNomsNuée({
-          idNuée,
-          f: si((x) => !x.fr),
-        }));
+        const noms = await obtenir<TraducsNom>(({ si }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: si((x) => !x.fr),
+          }),
+        );
         expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
       });
     });
@@ -1650,10 +1660,12 @@ describe("Nuées", function () {
     });
 
     it("Sans bds", async () => {
-      empreinte = await obtenir<string>(({siDéfini})=> client.nuées.suivreEmpreinteTêtesBdsNuée({
-        idNuée,
-        f: siDéfini()
-      }));
+      empreinte = await obtenir<string>(({ siDéfini }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: siDéfini(),
+        }),
+      );
       expect(empreinte).to.be.a.not.empty("string");
     });
 
@@ -1666,20 +1678,24 @@ describe("Nuées", function () {
         schéma,
       });
 
-      empreinte = await obtenir<string>(({si})=> client.nuées.suivreEmpreinteTêtesBdsNuée({
-        idNuée,
-        f: si(x=>x !== empreinte),
-      }));
+      empreinte = await obtenir<string>(({ si }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
       expect(empreinte).to.be.a.not.empty("string");
     });
 
     it("Changement nom bds détecté", async () => {
       await client.bds.sauvegarderNomBd({ idBd, langue: "fr", nom: "Ma BD" });
 
-      empreinte = await obtenir<string>(({si})=> client.nuées.suivreEmpreinteTêtesBdsNuée({
-        idNuée,
-        f: si(x=>x !== empreinte),
-      }));
+      empreinte = await obtenir<string>(({ si }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
       expect(empreinte).to.be.a.not.empty("string");
     });
 
@@ -1690,10 +1706,12 @@ describe("Nuées", function () {
         nom: "Ma nuée",
       });
 
-      empreinte = await obtenir<string>(({si})=> client.nuées.suivreEmpreinteTêtesBdsNuée({
-        idNuée,
-        f: si(x=>x !== empreinte),
-      }));
+      empreinte = await obtenir<string>(({ si }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
       expect(empreinte).to.be.a.not.empty("string");
     });
 
@@ -1703,10 +1721,12 @@ describe("Nuées", function () {
         vals: { [idCol]: 123 },
       });
 
-      empreinte = await obtenir<string>(({si})=> client.nuées.suivreEmpreinteTêtesBdsNuée({
-        idNuée,
-        f: si(x=>x !== empreinte),
-      }));
+      empreinte = await obtenir<string>(({ si }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
       expect(empreinte).to.be.a.not.empty("string");
     });
   });

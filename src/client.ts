@@ -1591,38 +1591,40 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           id,
           signal: signaleur.signal,
         });
-    promesseBd.then(({ bd, fOublier }) => {
-      fsOublier.push(fOublier);
+    promesseBd
+      .then(({ bd, fOublier }) => {
+        fsOublier.push(fOublier);
 
-      const fFinale = () => {
-        const idSuivi = uuidv4();
-        const promesse = f(bd as T);
+        const fFinale = () => {
+          const idSuivi = uuidv4();
+          const promesse = f(bd as T);
 
-        if (estUnePromesse(promesse)) {
-          promesses[idSuivi] = promesse;
-          promesse.then(() => {
-            delete promesses[idSuivi];
-          });
-        }
-      };
+          if (estUnePromesse(promesse)) {
+            promesses[idSuivi] = promesse;
+            promesse.then(() => {
+              delete promesses[idSuivi];
+            });
+          }
+        };
 
-      bd.events.on("update", fFinale);
-      fsOublier.push(async () => {
-        bd.events.off("update", fFinale);
-      });
+        bd.events.on("update", fFinale);
+        fsOublier.push(async () => {
+          bd.events.off("update", fFinale);
+        });
 
-      /* if (
+        /* if (
         bd.events.listenerCount("update") > bd.events.getMaxListeners()
       ) {
         console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("update")})
         console.log({f})
       } */
 
-      fFinale();
-    }).catch(e=>{
-      // Ignorer les erreurs dûes à l'annulation de la requête
-      if (!(e instanceof AbortError)) throw e
-    });
+        fFinale();
+      })
+      .catch((e) => {
+        // Ignorer les erreurs dûes à l'annulation de la requête
+        if (!(e instanceof AbortError)) throw e;
+      });
 
     const fOublier = async () => {
       signaleur.abort();
