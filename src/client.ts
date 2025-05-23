@@ -41,6 +41,7 @@ import {
 } from "uint8arrays";
 import { keys } from "@libp2p/crypto";
 import { anySignal } from "any-signal";
+import { AbortError } from "p-retry";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Épingles } from "@/epingles.js";
@@ -1618,6 +1619,9 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       } */
 
       fFinale();
+    }).catch(e=>{
+      // Ignorer les erreurs dûes à l'annulation de la requête
+      if (!(e instanceof AbortError)) throw e
     });
 
     const fOublier = async () => {
