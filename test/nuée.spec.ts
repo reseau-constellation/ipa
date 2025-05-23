@@ -7,10 +7,9 @@ import {
 } from "@constl/utils-tests";
 import { isSet } from "lodash-es";
 import { isElectronMain, isNode } from "wherearewe";
-import { attendreStabilité } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { créerConstellation, type Constellation } from "@/index.js";
-import { schémaFonctionOublier, schémaStatut } from "@/types.js";
+import { TraducsNom, schémaFonctionOublier, schémaStatut } from "@/types.js";
 
 import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 import { élémentDeMembreAvecValid } from "@/reseau.js";
@@ -20,6 +19,7 @@ import { donnéesNuéeExportation } from "@/nuées.js";
 import { règleColonne } from "@/valid.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
+import { obtenir } from "./utils/utils.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
@@ -92,27 +92,19 @@ describe("Nuées", function () {
 
     describe("Noms", function () {
       let idNuée: string;
-      let fOublier: schémaFonctionOublier;
-
-      const noms = new utilsTestAttente.AttendreRésultat<{
-        [key: string]: string;
-      }>();
 
       before(async () => {
         idNuée = await client.nuées.créerNuée();
-        fOublier = await client.nuées.suivreNomsNuée({
-          idNuée,
-          f: (n) => noms.mettreÀJour(n),
-        });
-      });
-
-      after(async () => {
-        if (fOublier) await fOublier();
       });
 
       it("Pas de noms pour commencer", async () => {
-        const val = await noms.attendreExiste();
-        expect(Object.keys(val).length).to.equal(0);
+        const noms = await obtenir<TraducsNom>(({ siDéfini }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: siDéfini(),
+          }),
+        );
+        expect(Object.keys(noms).length).to.equal(0);
       });
 
       it("Ajouter un nom", async () => {
@@ -120,8 +112,13 @@ describe("Nuées", function () {
           idNuée,
           noms: { fr: "Alphabets" },
         });
-        const val = await noms.attendreQue((x) => Object.keys(x).length > 0);
-        expect(val.fr).to.equal("Alphabets");
+        const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: siPasVide(),
+          }),
+        );
+        expect(noms.fr).to.equal("Alphabets");
       });
 
       it("Ajouter des noms", async () => {
@@ -132,8 +129,13 @@ describe("Nuées", function () {
             हिं: "वर्णमाला",
           },
         });
-        const val = await noms.attendreQue((x) => !!x.हिं);
-        expect(val).to.deep.equal({
+        const noms = await obtenir<TraducsNom>(({ si }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: si((x) => !!x.हिं),
+          }),
+        );
+        expect(noms).to.deep.equal({
           fr: "Alphabets",
           த: "எழுத்துகள்",
           हिं: "वर्णमाला",
@@ -145,14 +147,24 @@ describe("Nuées", function () {
           idNuée,
           noms: { fr: "Systèmes d'écriture" },
         });
-        const val = await noms.attendreQue((x) => x.fr !== "Alphabets");
-        expect(val?.fr).to.equal("Systèmes d'écriture");
+        const noms = await obtenir<TraducsNom>(({ si }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: si((x) => x.fr !== "Alphabets"),
+          }),
+        );
+        expect(noms.fr).to.equal("Systèmes d'écriture");
       });
 
       it("Effacer un nom", async () => {
         await client.nuées.effacerNomNuée({ idNuée, langue: "fr" });
-        const val = await noms.attendreQue((x) => !x.fr);
-        expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+        const noms = await obtenir<TraducsNom>(({ si }) =>
+          client.nuées.suivreNomsNuée({
+            idNuée,
+            f: si((x) => !x.fr),
+          }),
+        );
+        expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
       });
     });
 
@@ -1622,10 +1634,7 @@ describe("Nuées", function () {
     let idBd: string;
     let idTableau: string;
     let idCol: string;
-    let val: string | undefined = undefined;
-
-    const fsOublier: schémaFonctionOublier[] = [];
-    const empreinte = new utilsTestAttente.AttendreRésultat<string>();
+    let empreinte: string;
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
@@ -1644,27 +1653,20 @@ describe("Nuées", function () {
         idTableau,
         idVariable,
       });
-
-      const stable = attendreStabilité(1000);
-      const fOublierEmpreinte = await client.nuées.suivreEmpreinteTêtesBdsNuée({
-        idNuée,
-        f: async (x) => {
-          await stable(x);
-          empreinte.mettreÀJour(x);
-        },
-      });
-      fsOublier.push(fOublierEmpreinte);
-      fsOublier.push(async () => empreinte.toutAnnuler());
     });
 
     after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
       if (fOublierClients) await fOublierClients();
     });
 
     it("Sans bds", async () => {
-      val = await empreinte.attendreQue(async (x) => x !== val);
-      expect(val).to.be.a.not.empty("string");
+      empreinte = await obtenir<string>(({ siDéfini }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: siDéfini(),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
     });
 
     it("Ajout bds", async () => {
@@ -1676,15 +1678,25 @@ describe("Nuées", function () {
         schéma,
       });
 
-      val = await empreinte.attendreQue(async (x) => x !== val);
-      expect(val).to.be.a.not.empty("string");
+      empreinte = await obtenir<string>(({ si }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
     });
 
     it("Changement nom bds détecté", async () => {
       await client.bds.sauvegarderNomBd({ idBd, langue: "fr", nom: "Ma BD" });
 
-      val = await empreinte.attendreQue(async (x) => x !== val);
-      expect(val).to.be.a.not.empty("string");
+      empreinte = await obtenir<string>(({ si }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
     });
 
     it("Changement nom nuée détecté", async () => {
@@ -1694,8 +1706,13 @@ describe("Nuées", function () {
         nom: "Ma nuée",
       });
 
-      val = await empreinte.attendreQue(async (x) => x !== val);
-      expect(val).to.be.a.not.empty("string");
+      empreinte = await obtenir<string>(({ si }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
     });
 
     it("Changement données bds détecté", async () => {
@@ -1704,8 +1721,13 @@ describe("Nuées", function () {
         vals: { [idCol]: 123 },
       });
 
-      val = await empreinte.attendreQue(async (x) => x !== val);
-      expect(val).to.be.a.not.empty("string");
+      empreinte = await obtenir<string>(({ si }) =>
+        client.nuées.suivreEmpreinteTêtesBdsNuée({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
     });
   });
 
