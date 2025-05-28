@@ -238,7 +238,7 @@ if (isNode || isElectronMain) {
           idDispositif2,
           idDispositif3,
         ]);
-        expect(mesDispositifs).to.not.have.member(idDispositif4)
+        expect(mesDispositifs).to.not.have.members([idDispositif4])
       });
 
       it("Nouveau dispositif indique le nouveau compte", async () => {
