@@ -1403,6 +1403,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async ({ idCompte }: { idCompte: string }) => {
+      console.log({idCompte})
       await f(idCompte);
     };
 

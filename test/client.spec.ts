@@ -231,7 +231,7 @@ if (isNode || isElectronMain) {
         await client3.demanderEtPuisRejoindreCompte(invitation);
 
         const mesDispositifs = await obtenir<string[]>(({si})=> client.suivreDispositifs({
-          f: si((x) => x.length > 2)
+          f: si((x) => x.includes(idDispositif3))
         }));
         expect(mesDispositifs).to.have.members([
           idDispositif1,

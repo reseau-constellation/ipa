@@ -217,16 +217,21 @@ type ÉvénementsRéseau = {
   membreVu: () => void;
 };
 
-const attendreSuccès = async <T>(
-  f: () => Promise<T>,
+const attendreSuccès = async <T>({
+  f,
   n = 5,
   t = 100,
-): Promise<T> => {
+  signal
+}: {
+  f: () => Promise<T>;
+  n?: number;
+  t?: number;
+  signal?: AbortSignal;
+}): Promise<T> => {
   const résultat = await f();
-  if (résultat || n <= 0) return résultat;
-
+  if (résultat || n <= 0 || signal?.aborted) return résultat;
   await new Promise((résoudre) => setTimeout(résoudre, t));
-  return await attendreSuccès(f, n - 1, t * 2);
+  return await attendreSuccès({f, n: n - 1, t: t * 2, signal});
 };
 
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
@@ -356,10 +361,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     );
     this.fsOublier.push(
       await this.client.suivreIdCompte({
-        f: () =>
-          libp2p
+        f: async () =>{
+          console.log(`dispositif ${await this.client.obtIdDispositif()} appartient au compte ${``}`);
+          return libp2p
             .getPeers()
-            .forEach((p) => this.direSalut({ idPair: p.toString() })),
+            .forEach((p) => this.direSalut({ idPair: p.toString() }))},
       }),
     );
 
@@ -770,10 +776,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         id: idCompte,
       });
 
-      const bdCompteValide = await attendreSuccès(async () => {
+      const bdCompteValide = await attendreSuccès({f: async () => {
         if (!estUnContrôleurConstellation(bdCompte.access)) return false;
         return await bdCompte.access.estAutorisé(idDispositif);
-      });
+      }, signal: this.client.signaleurArrêt.signal});
 
       await fOublier();
       return sigIdValide && sigClefPubliqueValide && bdCompteValide;
