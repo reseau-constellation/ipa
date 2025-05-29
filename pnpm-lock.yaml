@@ -28,7 +28,7 @@ importers:
         version: 3.1.2
       '@constl/utils-ipa':
         specifier: ^2.0.8
-        version: 2.0.8
+        version: 2.0.9
       '@helia/block-brokers':
         specifier: ^4.2.2
         version: 4.2.2
@@ -1200,8 +1200,8 @@ packages:
   '@constl/mandataire@3.1.2':
     resolution: {integrity: sha512-L4N87H3ZQy8jYcZ2xxToER/VV2TPNVsbBfCFYtQvTKFHaFh/XGXXJrc0tW0Mr9CLHadaQdqQZvEfKughZmXK+Q==}
 
-  '@constl/utils-ipa@2.0.8':
-    resolution: {integrity: sha512-8iZUCU0bWfjCU6+gUhTW9E2BDS21uuT3keYikNF3HKxNY15lGPrTRhphmtwcXaBO7l8dpUCQjWgLV4OILcVaJg==}
+  '@constl/utils-ipa@2.0.9':
+    resolution: {integrity: sha512-3ht7NJ5C2nHiPoU1oy0Osk2oQHdwVdBSYG3UXVfbN4k1tsWIzGJJKBsnnn0gTmqZavVttRwgcAM0gvdfdhbFIw==}
     engines: {node: '>=20'}
 
   '@constl/utils-tests@1.6.15':
@@ -10113,7 +10113,7 @@ snapshots:
       tiny-typed-emitter: 2.1.0
       uuid: 11.1.0
 
-  '@constl/utils-ipa@2.0.8':
+  '@constl/utils-ipa@2.0.9':
     dependencies:
       browser-fs-access: 0.37.0
       deep-equal: 2.2.3
@@ -10121,6 +10121,7 @@ snapshots:
       genversion: 3.2.0
       geojson-validation: 1.0.2
       jszip: 3.10.1
+      lodash-es: 4.17.21
       multiformats: 13.3.6
       p-queue: 8.1.0
       p-retry: 6.2.1
@@ -10921,7 +10922,7 @@ snapshots:
 
   '@lassi-js/kili@0.4.5':
     dependencies:
-      '@constl/utils-ipa': 2.0.8
+      '@constl/utils-ipa': 2.0.9
       '@orbitdb/core': 2.5.0
       deepcopy: 2.1.0
 
