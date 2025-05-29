@@ -724,7 +724,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const { idDispositif } = message.contenu;
 
-    // Sauter les anciens messages
+    // Sauter les anciens messages, qui peuvent causer une régression à un ancien compte s'ils arrivent après un changement de compte
     if (
       (this.dispositifsEnLigne[idDispositif]?.infoDispositif
         .nChangementsCompte || 0) > message.contenu.nChangementsCompte
