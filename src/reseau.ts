@@ -71,7 +71,7 @@ export type infoDispositif = {
   idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
-  nChangementsCompte?: number;
+  nChangementsCompte: number;
 };
 
 export type statutDispositif = {
@@ -1561,6 +1561,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }: {
     f: schémaFonctionSuivi<statutDispositif[]>;
   }): Promise<schémaFonctionOublier> {
+    const texteNChangementsCompte = await this.client.obtDeStockageLocal({
+      clef: CLEF_N_CHANGEMENT_COMPTES,
+      parCompte: false,
+    });
+    const nChangementsCompte = Number(texteNChangementsCompte) || 0;
     const moi: statutDispositif = {
       infoDispositif: {
         idLibp2p: await this.client.obtIdLibp2p(),
@@ -1568,6 +1573,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         idCompte: await this.client.obtIdCompte(),
         clefPublique: (await this.client.obtIdentitéOrbite()).publicKey,
         signatures: (await this.client.obtIdentitéOrbite()).signatures,
+        nChangementsCompte,
       },
     };
 
