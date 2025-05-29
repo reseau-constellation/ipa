@@ -53,7 +53,7 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
-    "aegir": "^45.2.1",
+    "aegir": "^47.0.0",
     "bmp-js": "^0.1.0",
     "browserify-fs": "^1.0.0",
     "buffer": "^6.0.3",
