@@ -102,7 +102,7 @@
     "@chriscdn/promise-semaphore": "^3.0.1",
     "@constl/bohr-db": "^1.2.3",
     "@constl/mandataire": "^3.1.1",
-    "@constl/utils-ipa": "^2.0.7",
+    "@constl/utils-ipa": "^2.0.8",
     "@helia/block-brokers": "^4.2.2",
     "@helia/unixfs": "^4.0.3",
     "@ipld/dag-cbor": "^9.2.3",

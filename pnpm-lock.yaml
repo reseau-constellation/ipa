@@ -27,8 +27,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.2
       '@constl/utils-ipa':
-        specifier: ^2.0.7
-        version: 2.0.7
+        specifier: ^2.0.8
+        version: 2.0.8
       '@helia/block-brokers':
         specifier: ^4.2.2
         version: 4.2.2
@@ -1249,8 +1249,8 @@ packages:
   '@constl/mandataire@3.1.2':
     resolution: {integrity: sha512-L4N87H3ZQy8jYcZ2xxToER/VV2TPNVsbBfCFYtQvTKFHaFh/XGXXJrc0tW0Mr9CLHadaQdqQZvEfKughZmXK+Q==}
 
-  '@constl/utils-ipa@2.0.7':
-    resolution: {integrity: sha512-HK+ofwMhtQfVIkCNIUPPsBJ79Z1v5gCRo+yrz6PpL964jreBGr2Wwo5/pE2jwxVPDCLPb8Axujuk58CmgD4atg==}
+  '@constl/utils-ipa@2.0.8':
+    resolution: {integrity: sha512-8iZUCU0bWfjCU6+gUhTW9E2BDS21uuT3keYikNF3HKxNY15lGPrTRhphmtwcXaBO7l8dpUCQjWgLV4OILcVaJg==}
     engines: {node: '>=20'}
 
   '@constl/utils-tests@1.6.15':
@@ -10331,7 +10331,7 @@ snapshots:
       tiny-typed-emitter: 2.1.0
       uuid: 11.1.0
 
-  '@constl/utils-ipa@2.0.7':
+  '@constl/utils-ipa@2.0.8':
     dependencies:
       browser-fs-access: 0.37.0
       deep-equal: 2.2.3
@@ -11158,7 +11158,7 @@ snapshots:
 
   '@lassi-js/kili@0.4.5':
     dependencies:
-      '@constl/utils-ipa': 2.0.7
+      '@constl/utils-ipa': 2.0.8
       '@orbitdb/core': 2.5.0
       deepcopy: 2.1.0
 
