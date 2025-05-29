@@ -108,6 +108,7 @@ import type {
   OpenDatabaseOptions,
 } from "@orbitdb/core";
 
+export const CLEF_N_CHANGEMENT_COMPTES = "n changements compte";
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
 >;
@@ -1369,7 +1370,16 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       val: idCompte,
       parCompte: false,
     });
-
+    const texteNChangementsCompte = await this.obtDeStockageLocal({
+      clef: CLEF_N_CHANGEMENT_COMPTES,
+      parCompte: false,
+    });
+    const nChangementsCompte = Number(texteNChangementsCompte) || 0;
+    await this.sauvegarderAuStockageLocal({
+      clef: CLEF_N_CHANGEMENT_COMPTES,
+      val: (nChangementsCompte + 1).toString(),
+      parCompte: false,
+    });
     this.événements.emit("comptePrêt", { idCompte });
   }
 
