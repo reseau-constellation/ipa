@@ -121,9 +121,11 @@ if (isNode || isElectronMain) {
 
     describe("Initiale", function () {
       it("Mon dispositif est présent", async () => {
-        const mesDispositifs = await obtenir<string[]>(({siPasVide})=> client.suivreDispositifs({
-          f: siPasVide()
-        }))
+        const mesDispositifs = await obtenir<string[]>(({ siPasVide }) =>
+          client.suivreDispositifs({
+            f: siPasVide(),
+          }),
+        );
         expect(mesDispositifs).to.have.members([idDispositif1]);
       });
     });
@@ -159,16 +161,20 @@ if (isNode || isElectronMain) {
       });
 
       it("Mes dispositifs sont mis à jour", async () => {
-        const mesDispositifs = await obtenir<string[]>(({si})=> client.suivreDispositifs({
-          f: si((x) => x.length > 1)
-        }));
+        const mesDispositifs = await obtenir<string[]>(({ si }) =>
+          client.suivreDispositifs({
+            f: si((x) => x.length > 1),
+          }),
+        );
         expect(mesDispositifs).to.have.members([idDispositif1, idDispositif2]);
       });
 
       it("Le nouveau dispositif a rejoint notre compte", async () => {
-        const nouvelIdCompte2 = await obtenir(({si})=>client2.suivreIdCompte({
-          f: si((id) => id !== idCompte2),
-        }));
+        const nouvelIdCompte2 = await obtenir(({ si }) =>
+          client2.suivreIdCompte({
+            f: si((id) => id !== idCompte2),
+          }),
+        );
         expect(nouvelIdCompte2).to.equal(idCompte1);
       });
 
@@ -230,15 +236,17 @@ if (isNode || isElectronMain) {
         });
         await client3.demanderEtPuisRejoindreCompte(invitation);
 
-        const mesDispositifs = await obtenir<string[]>(({si})=> client.suivreDispositifs({
-          f: si((x) => x.includes(idDispositif3))
-        }));
+        const mesDispositifs = await obtenir<string[]>(({ si }) =>
+          client.suivreDispositifs({
+            f: si((x) => x.includes(idDispositif3)),
+          }),
+        );
         expect(mesDispositifs).to.have.members([
           idDispositif1,
           idDispositif2,
           idDispositif3,
         ]);
-        expect(mesDispositifs).to.not.have.members([idDispositif4])
+        expect(mesDispositifs).to.not.have.members([idDispositif4]);
       });
 
       it("Nouveau dispositif indique le nouveau compte", async () => {
