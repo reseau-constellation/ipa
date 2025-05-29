@@ -18,6 +18,7 @@ import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
 import pRetry, { AbortError } from "p-retry";
 import {
+  CLEF_N_CHANGEMENT_COMPTES,
   Constellation,
   Signature,
   infoAccès,
@@ -70,6 +71,7 @@ export type infoDispositif = {
   idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
+  nChangementsCompte?: number;
 };
 
 export type statutDispositif = {
@@ -165,6 +167,7 @@ export type ContenuMessageSalut = {
     idCompte: string;
     clefPublique: string;
     signatures: { id: string; publicKey: string };
+    nChangementsCompte: number;
   };
   signature: Signature;
 };
@@ -221,7 +224,7 @@ const attendreSuccès = async <T>({
   f,
   n = 5,
   t = 100,
-  signal
+  signal,
 }: {
   f: () => Promise<T>;
   n?: number;
@@ -231,7 +234,7 @@ const attendreSuccès = async <T>({
   const résultat = await f();
   if (résultat || n <= 0 || signal?.aborted) return résultat;
   await new Promise((résoudre) => setTimeout(résoudre, t));
-  return await attendreSuccès({f, n: n - 1, t: t * 2, signal});
+  return await attendreSuccès({ f, n: n - 1, t: t * 2, signal });
 };
 
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
@@ -359,13 +362,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.fsOublier.push(async () =>
       libp2p.removeEventListener("peer:disconnect", fSuivrePairConnecté),
     );
+
     this.fsOublier.push(
       await this.client.suivreIdCompte({
-        f: async () =>{
-          console.log(`dispositif ${await this.client.obtIdDispositif()} appartient au compte ${await this.client.obtIdCompte()}`);
+        f: async () => {
           return libp2p
             .getPeers()
-            .forEach((p) => this.direSalut({ idPair: p.toString() }))},
+            .forEach((p) => this.direSalut({ idPair: p.toString() }));
+        },
       }),
     );
 
@@ -632,12 +636,19 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
   async direSalut({ idPair }: { idPair: string }): Promise<void> {
     const { orbite } = await this.client.attendreSfipEtOrbite();
-    const contenu = {
+    const texteNChangementsCompte = await this.client.obtDeStockageLocal({
+      clef: CLEF_N_CHANGEMENT_COMPTES,
+      parCompte: false,
+    });
+    const nChangementsCompte = Number(texteNChangementsCompte) || 0;
+
+    const contenu: ContenuMessageSalut["contenu"] = {
       idLibp2p: await this.client.obtIdLibp2p(),
       idDispositif: orbite.identity.id,
       clefPublique: orbite.identity.publicKey,
       signatures: orbite.identity.signatures,
       idCompte: await this.client.obtIdCompte(),
+      nChangementsCompte: nChangementsCompte,
     };
     const signature = await this.client.signer({
       message: JSON.stringify(contenu),
@@ -712,6 +723,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     if (!dispositifValid) return;
 
     const { idDispositif } = message.contenu;
+
+    // Sauter les anciens messages
+    if (
+      (this.dispositifsEnLigne[idDispositif]?.infoDispositif
+        .nChangementsCompte || 0) > message.contenu.nChangementsCompte
+    ) {
+      return;
+    }
     this.dispositifsEnLigne[idDispositif] = {
       infoDispositif: message.contenu,
       vuÀ: undefined,
@@ -776,10 +795,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         id: idCompte,
       });
 
-      const bdCompteValide = await attendreSuccès({f: async () => {
-        if (!estUnContrôleurConstellation(bdCompte.access)) return false;
-        return await bdCompte.access.estAutorisé(idDispositif);
-      }, signal: this.client.signaleurArrêt.signal});
+      const bdCompteValide = await attendreSuccès({
+        f: async () => {
+          if (!estUnContrôleurConstellation(bdCompte.access)) return false;
+          return await bdCompte.access.estAutorisé(idDispositif);
+        },
+        signal: this.client.signaleurArrêt.signal,
+      });
 
       await fOublier();
       return sigIdValide && sigClefPubliqueValide && bdCompteValide;
