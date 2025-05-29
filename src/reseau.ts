@@ -362,7 +362,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.fsOublier.push(
       await this.client.suivreIdCompte({
         f: async () =>{
-          console.log(`dispositif ${await this.client.obtIdDispositif()} appartient au compte ${``}`);
+          console.log(`dispositif ${await this.client.obtIdDispositif()} appartient au compte ${await this.client.obtIdCompte()}`);
           return libp2p
             .getPeers()
             .forEach((p) => this.direSalut({ idPair: p.toString() }))},
