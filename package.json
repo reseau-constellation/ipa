@@ -136,7 +136,7 @@
     "axios": "^1.9.0",
     "blockstore-fs": "^2.0.2",
     "blockstore-idb": "^2.0.1",
-    "browser-fs-access": "^0.35.0",
+    "browser-fs-access": "^0.37.0",
     "bs58": "^6.0.0",
     "chokidar": "^4.0.3",
     "crypto-js": "^4.2.0",
