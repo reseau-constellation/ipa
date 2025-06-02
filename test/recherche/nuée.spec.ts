@@ -22,7 +22,7 @@ import type {
   schémaFonctionOublier,
 } from "@/types.js";
 
-describe("Nuées", function () {
+describe("Rechercher nuées", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;

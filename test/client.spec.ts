@@ -27,6 +27,7 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { Constellation, infoAccès } from "@/client.js";
 import { générerClientsInternes } from "./ressources/utils.js";
+import { obtenir } from "./utils/utils.js";
 import type { OrbitDbTest } from "./ressources/utils";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
@@ -84,19 +85,13 @@ if (isNode || isElectronMain) {
       client3: Constellation,
       client4: Constellation;
 
-    let fOublierDispositifs: schémaFonctionOublier;
-    let fOublierIdCompte: schémaFonctionOublier;
-
     let idDispositif1: string;
     let idDispositif2: string;
     let idDispositif3: string;
+    let idDispositif4: string;
 
     let idCompte1: string;
     let idCompte2: string;
-
-    const idClient2EnDirecte = new attente.AttendreRésultat<string>();
-
-    const mesDispositifs = new attente.AttendreRésultat<string[]>();
 
     before(async () => {
       ({
@@ -117,28 +112,21 @@ if (isNode || isElectronMain) {
       idDispositif1 = await client.obtIdDispositif();
       idDispositif2 = await client2.obtIdDispositif();
       idDispositif3 = await client3.obtIdDispositif();
-
-      fOublierDispositifs = await client.suivreDispositifs({
-        f: (dispositifs) => mesDispositifs.mettreÀJour(dispositifs),
-      });
-      fOublierIdCompte = await client2.suivreIdCompte({
-        f: (id) => idClient2EnDirecte.mettreÀJour(id),
-      });
+      idDispositif4 = await client4.obtIdDispositif();
     });
 
     after(async () => {
-      idClient2EnDirecte.toutAnnuler();
-      mesDispositifs.toutAnnuler();
-
-      if (fOublierDispositifs) await fOublierDispositifs();
-      if (fOublierIdCompte) await fOublierIdCompte();
       if (fOublierClients) await fOublierClients();
     });
 
     describe("Initiale", function () {
       it("Mon dispositif est présent", async () => {
-        const val = await mesDispositifs.attendreQue((ids) => ids?.length > 0);
-        expect(val).to.have.members([idDispositif1]);
+        const mesDispositifs = await obtenir<string[]>(({ siPasVide }) =>
+          client.suivreDispositifs({
+            f: siPasVide(),
+          }),
+        );
+        expect(mesDispositifs).to.have.members([idDispositif1]);
       });
     });
 
@@ -173,13 +161,19 @@ if (isNode || isElectronMain) {
       });
 
       it("Mes dispositifs sont mis à jour", async () => {
-        const val = await mesDispositifs.attendreQue((x) => x.length > 1);
-        expect(val).to.have.members([idDispositif1, idDispositif2]);
+        const mesDispositifs = await obtenir<string[]>(({ si }) =>
+          client.suivreDispositifs({
+            f: si((x) => x.length > 1),
+          }),
+        );
+        expect(mesDispositifs).to.have.members([idDispositif1, idDispositif2]);
       });
 
       it("Le nouveau dispositif a rejoint notre compte", async () => {
-        const nouvelIdCompte2 = await idClient2EnDirecte.attendreQue(
-          (x) => x !== idCompte2,
+        const nouvelIdCompte2 = await obtenir(({ si }) =>
+          client2.suivreIdCompte({
+            f: si((id) => id !== idCompte2),
+          }),
         );
         expect(nouvelIdCompte2).to.equal(idCompte1);
       });
@@ -242,12 +236,17 @@ if (isNode || isElectronMain) {
         });
         await client3.demanderEtPuisRejoindreCompte(invitation);
 
-        const val = await mesDispositifs.attendreQue((x) => x.length > 2);
-        expect(val).to.have.members([
+        const mesDispositifs = await obtenir<string[]>(({ si }) =>
+          client.suivreDispositifs({
+            f: si((x) => x.includes(idDispositif3)),
+          }),
+        );
+        expect(mesDispositifs).to.have.members([
           idDispositif1,
           idDispositif2,
           idDispositif3,
         ]);
+        expect(mesDispositifs).to.not.have.members([idDispositif4]);
       });
 
       it("Nouveau dispositif indique le nouveau compte", async () => {
