@@ -99,8 +99,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       '@orbitdb/core':
-        specifier: ^2.5.0
-        version: 2.5.0
+        specifier: ^3.0.0
+        version: 3.0.2
       '@orbitdb/feed-db':
         specifier: ^1.1.2
         version: 1.1.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
@@ -2173,6 +2173,10 @@ packages:
 
   '@orbitdb/core@2.5.0':
     resolution: {integrity: sha512-RE+te/z8MCLhkawby2j9J0T0hH8Mi9BgTUATWd99ih/cyU9OTbbXVuY64A64bdAQ4EZkfJ+OjO9vAMhJHwgnew==}
+    engines: {node: '>=20.0.0'}
+
+  '@orbitdb/core@3.0.2':
+    resolution: {integrity: sha512-YTJIBbe8mIDLpA0T3cOdVjWDeAyIojQLR54p0TfVyUBAjWh7N0rbKBbgQMTOrFxhUmRf/D85iFScmGnnEn5v+w==}
     engines: {node: '>=20.0.0'}
 
   '@orbitdb/feed-db@1.1.2':
@@ -11630,6 +11634,18 @@ snapshots:
   '@orbitdb/core-types@1.0.14': {}
 
   '@orbitdb/core@2.5.0':
+    dependencies:
+      '@ipld/dag-cbor': 9.2.4
+      '@libp2p/crypto': 5.1.5
+      it-pipe: 3.0.1
+      level: 8.0.1
+      lru: 3.1.0
+      multiformats: 12.1.3
+      p-queue: 8.1.0
+      timeout-abort-controller: 3.0.0
+      uint8arrays: 5.1.0
+
+  '@orbitdb/core@3.0.2':
     dependencies:
       '@ipld/dag-cbor': 9.2.4
       '@libp2p/crypto': 5.1.5
