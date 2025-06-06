@@ -2303,7 +2303,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }): Promise<string> {
     const { sfip } = await this.attendreSfipEtOrbite();
     const fs = unixfs(sfip);
-    const idc = await fs.addFile({ content: contenu });
+    const idc = await fs.addFile({ content: contenu, path: nomFichier });
+    console.log({idc})
     return idc.toString() + "/" + nomFichier;
   }
 
