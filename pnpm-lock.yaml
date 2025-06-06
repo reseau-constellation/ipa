@@ -33,8 +33,8 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       '@helia/unixfs':
-        specifier: ^4.0.3
-        version: 4.0.3
+        specifier: ^5.0.0
+        version: 5.0.3
       '@ipld/dag-cbor':
         specifier: ^9.2.3
         version: 9.2.4
@@ -60,8 +60,8 @@ importers:
         specifier: ^4.0.3
         version: 4.0.3
       '@libp2p/kad-dht':
-        specifier: ^14.2.15
-        version: 14.2.15
+        specifier: ^15.0.0
+        version: 15.1.1
       '@libp2p/mdns':
         specifier: ^11.0.37
         version: 11.0.38
@@ -1823,8 +1823,8 @@ packages:
   '@helia/routers@3.1.2':
     resolution: {integrity: sha512-Fq5mj7JkeDVHXUak+HJYIK7TGjKGErvWzyjjcOMNrCk0UyWCfLcw3iFwWWfkMOP+e8IN7bgPxXVxxyOir9iL+w==}
 
-  '@helia/unixfs@4.0.3':
-    resolution: {integrity: sha512-sbcnS64B6LCTHrGH6RPx2BuwLFjmVAoiX53RR/E0YCQMcHTDCF4bQ3I7P+7kzYkQLQkbLEekl7V2fnVOWxG7MA==}
+  '@helia/unixfs@5.0.3':
+    resolution: {integrity: sha512-Z9R1l2Dso4CtgGqavwko2nEnNSSoOB8uWnkmmOE7C47uzQ2W/d5YIDmgPkptrSkT7h/OPH2O1ctKgLqsSLIAPQ==}
 
   '@helia/utils@1.3.2':
     resolution: {integrity: sha512-epMlRqLyJ95NDem4jc6kNRUlWkW5+HOwxvgJzOn70mMdXFkyYIOx24BpZurCFi+Cg6/k9vSfKsU5V1teWxYfRQ==}
@@ -10805,12 +10805,13 @@ snapshots:
       multiformats: 13.3.6
       uint8arrays: 5.1.0
 
-  '@helia/unixfs@4.0.3':
+  '@helia/unixfs@5.0.3':
     dependencies:
       '@helia/interface': 5.3.2
       '@ipld/dag-pb': 4.1.5
       '@libp2p/interface': 2.10.2
-      '@libp2p/logger': 5.1.17
+      '@libp2p/logger': 5.1.18
+      '@libp2p/utils': 6.6.5
       '@multiformats/murmur3': 2.1.8
       hamt-sharding: 3.0.6
       interface-blockstore: 5.3.1
@@ -10818,10 +10819,10 @@ snapshots:
       ipfs-unixfs-exporter: 13.6.2
       ipfs-unixfs-importer: 15.3.2
       it-all: 3.0.8
+      it-first: 3.0.8
       it-glob: 3.0.3
       it-last: 3.0.8
       it-pipe: 3.0.1
-      merge-options: 3.0.4
       multiformats: 13.3.6
       progress-events: 1.0.1
       sparse-array: 1.3.2
@@ -11201,7 +11202,7 @@ snapshots:
       '@libp2p/peer-collections': 6.0.29
       '@libp2p/peer-id': 5.1.5
       '@libp2p/record': 4.0.6
-      '@libp2p/utils': 6.6.4
+      '@libp2p/utils': 6.6.5
       '@multiformats/multiaddr': 12.4.1
       any-signal: 4.1.1
       interface-datastore: 8.3.1
@@ -11250,7 +11251,7 @@ snapshots:
       it-protobuf-stream: 2.0.2
       it-pushable: 3.2.3
       it-take: 3.0.8
-      mortice: 3.0.6
+      mortice: 3.1.0
       multiformats: 13.3.6
       p-defer: 4.0.1
       p-event: 6.0.1
@@ -11354,7 +11355,7 @@ snapshots:
     dependencies:
       '@libp2p/interface': 2.10.2
       '@libp2p/peer-id': 5.1.5
-      '@libp2p/utils': 6.6.4
+      '@libp2p/utils': 6.6.5
       multiformats: 13.3.6
 
   '@libp2p/peer-collections@6.0.30':
