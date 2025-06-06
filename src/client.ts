@@ -2290,8 +2290,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }): Promise<AsyncIterable<Uint8Array>> {
     const { sfip } = await this.attendreSfipEtOrbite();
     const fs = unixfs(sfip);
-    const idc = id.split("/")[0];
-    return fs.cat(CID.parse(idc));
+    const [idc, nomFichier] = id.split("/");
+    return fs.cat(CID.parse(idc), { path: nomFichier });
   }
 
   async ajouterÀSFIP({
@@ -2304,7 +2304,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     const { sfip } = await this.attendreSfipEtOrbite();
     const fs = unixfs(sfip);
     const idc = await fs.addFile({ content: contenu, path: nomFichier });
-    console.log({idc})
     return idc.toString() + "/" + nomFichier;
   }
 
