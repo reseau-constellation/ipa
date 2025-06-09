@@ -92,7 +92,7 @@ describe("Profil", function () {
       if (fOublier) await fOublier();
     });
   });
-
+// nom
   describe("Noms", function () {
     const rés = new utilsTestAttente.AttendreRésultat<{
       [key: string]: string;
@@ -146,6 +146,63 @@ describe("Profil", function () {
       expect(val).to.deep.equal({ த: "ம.-ஆதான் ஜூலீஎன்" });
     });
   });
+// bio
+describe("Bios", function () {
+  const rés = new utilsTestAttente.AttendreRésultat<{
+    [key: string]: string;
+  }>();
+  let fOublier: schémaFonctionOublier;
+
+  before(async () => {
+    fOublier = await client.profil.suivreBios({
+      f: (n) => rés.mettreÀJour(n),
+    });
+  });
+
+  after(async () => {
+    if (fOublier) await fOublier();
+    rés.toutAnnuler();
+  });
+  
+
+
+  it("Pas de bios pour commencer", async () => {
+    const val = await rés.attendreExiste();
+    expect(Object.keys(val)).to.be.empty();
+  });
+  
+
+  it("Ajouter un bio", async () => {
+    await client.profil.sauvegarderBio({
+      langue: "fr",
+      bio: "Julien Malard-Adam",
+    });
+    const val = await rés.attendreQue((x) => Object.keys(x).length > 0);
+    expect(val.fr).to.equal("Julien Malard-Adam");
+
+    await client.profil.sauvegarderBio({
+      langue: "मैथिली",
+      bio: "अहाँ सिखैत रहू।",  
+    });
+    const val2 = await rés.attendreQue((x) => Object.keys(x).length > 1);
+    expect(val2.मैथिली).to.equal("अहाँ सिखैत रहू।");
+  });
+
+  it("Changer un bio", async () => {
+    await client.profil.sauvegarderBio({
+      langue: "मैथिली",
+      bio: "अहाँ सिखैत रहू।",
+    });
+    const val = await rés.attendreQue((x) => x.த !== "अहाँ सिखैत रहू।");
+    expect(val.मैथिली).to.equal("अहाँ सिखैत रहू।");
+  });
+
+  it("Effacer un bio", async () => {
+    await client.profil.effacerBio({ langue: "fr" });
+    const val = await rés.attendreQue((x) => Object.keys(x).length <= 1);
+    expect(val).to.deep.equal({ मैथिली: "अहाँ सिखैत रहू।" });
+  });
+});
 
   describe("Images", function () {
     const rés = new utilsTestAttente.AttendreRésultat<{

@@ -18,6 +18,7 @@ export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 type structureBdProfil = {
   contacts?: string;
   noms?: string;
+  bios?:string;
   image?: string;
   initialisé?: boolean;
 };
@@ -40,6 +41,10 @@ const schémaStructureBdProfil: JSONSchemaType<structureBdProfil> = {
       type: "string",
       nullable: true,
     },
+    bios:{
+      type:"string",
+      nullable: true,
+    }
   },
   required: [],
 };
@@ -85,6 +90,12 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       optionsAccès,
     });
     await bdBase.set("noms", idBdNoms);
+    // bio
+    const idBdBios = await this.client.créerBdIndépendante({
+      type: "keyvalue",
+      optionsAccès,
+    });
+    await bdBase.set("bios", idBdBios);
 
     const idBdContacts = await this.client.créerBdIndépendante({
       type: "set",
@@ -284,7 +295,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
   }): Promise<schémaFonctionOublier> {
     return await this.suivreSousBdDic({
       idCompte,
-      clef: "noms",
+      clef: "bios",
       schéma: schémaStructureBdNoms,
       f,
     });
