@@ -1479,7 +1479,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     if (typeof idNouvelleBdDic !== "string")
       throw new Error(`${idNouvelleBdDic} n'est pas une adresse Orbite.`);
 
-    // ‌‌‌@ts-ignore
     const { bd: nouvelleBdDic, fOublier: fOublierNouvelle } =
       await this.ouvrirBdTypée({
         id: idNouvelleBdDic,
