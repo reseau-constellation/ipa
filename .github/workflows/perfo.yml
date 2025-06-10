@@ -1,7 +1,4 @@
 name: Performance IPA
-permissions:
-  contents: read
-  statuses: write
 
 on:
   push:
