@@ -1,4 +1,8 @@
 name: Performance IPA
+permissions:
+  contents: read
+  statuses: write
+
 on:
   push:
     branches:
@@ -18,8 +22,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-ipa-nodejs:
-    name: IPA sur Node.js
+  test-perfo-nodejs:
+    name: Performance sur Node.js
     runs-on: ubuntu-latest
     steps:
       
@@ -44,9 +48,3 @@ jobs:
         run: pnpm perfo --historyGaCache
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Envoyer couverture à Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-  
