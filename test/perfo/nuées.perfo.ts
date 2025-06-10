@@ -12,7 +12,6 @@ describe("Nuées", () => {
   })
   afterAll(async () => {
     await fOublier();
-    console.log("Constellation fermée")
   })
   bench('Création nuée', async () => {
     await constls[0].nuées.créerNuée();

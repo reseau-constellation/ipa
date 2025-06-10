@@ -13,7 +13,6 @@ describe("Variables", () => {
   })
   afterAll(async () => {
     await fOublier();
-    console.log("Constellation fermée")
   })
   bench('Création variable', async () => {
     await constls[0].variables.créerVariable({catégorie: "audio"});

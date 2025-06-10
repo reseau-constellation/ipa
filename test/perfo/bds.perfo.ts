@@ -12,7 +12,6 @@ describe("Bds", () => {
   })
   afterAll(async () => {
     await fOublier();
-    console.log("Constellation fermée")
   })
 
   bench('Création bd', async () => {
