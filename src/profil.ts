@@ -18,6 +18,7 @@ export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 type structureBdProfil = {
   contacts?: string;
   noms?: string;
+  bios?:string;
   image?: string;
   initialisé?: boolean;
 };
@@ -40,6 +41,10 @@ const schémaStructureBdProfil: JSONSchemaType<structureBdProfil> = {
       type: "string",
       nullable: true,
     },
+    bios:{
+      type:"string",
+      nullable: true,
+    }
   },
   required: [],
 };
@@ -85,6 +90,12 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       optionsAccès,
     });
     await bdBase.set("noms", idBdNoms);
+    // bio
+    const idBdBios = await this.client.créerBdIndépendante({
+      type: "keyvalue",
+      optionsAccès,
+    });
+    await bdBase.set("bios", idBdBios);
 
     const idBdContacts = await this.client.créerBdIndépendante({
       type: "set",
@@ -257,7 +268,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
 
     await fOublier();
   }
-
+// nom
   @cacheSuivi
   async suivreNoms({
     f,
@@ -273,7 +284,23 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       f,
     });
   }
-
+  // bio
+  @cacheSuivi
+  async suivreBios({
+    f,
+    idCompte,
+  }: {
+    f: schémaFonctionSuivi<{ [key: string]: string }>;
+    idCompte?: string;
+  }): Promise<schémaFonctionOublier> {
+    return await this.suivreSousBdDic({
+      idCompte,
+      clef: "bios",
+      schéma: schémaStructureBdNoms,
+      f,
+    });
+  }
+// Nom
   async sauvegarderNom({
     langue,
     nom,
@@ -302,7 +329,37 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     }
     await fOublier();
   }
+// bio
+   async sauvegarderBio({
+    langue,
+    bio,
+  }: {
+    langue: string;
+    bio: string;
+  }): Promise<void> {
+    return await this.sauvegarderBios({ bios: { [langue]: bio } });
+  }
 
+  async sauvegarderBios({ bios }: { bios: TraducsNom }): Promise<void> {
+    const idBdProfil = await this.obtIdBd();
+    const idBdBios = await this.client.obtIdBd({
+      nom: "bios",
+      racine: idBdProfil,
+      type: "keyvalue",
+    });
+
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdBios,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
+    for (const [langue, bio] of Object.entries(bios)) {
+      await bd.set(langue, bio);
+    }
+    await fOublier();
+  }
+
+// nom
   async effacerNom({ langue }: { langue: string }): Promise<void> {
     const idBdProfil = await this.obtIdBd();
     const idBdNoms = await this.client.obtIdBd({
@@ -319,6 +376,24 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     await bd.del(langue);
     await fOublier();
   }
+// bio
+async effacerBio({ langue }: { langue: string }): Promise<void> {
+  const idBdProfil = await this.obtIdBd();
+  const idBdBios = await this.client.obtIdBd({
+    nom: "bios",
+    racine: idBdProfil,
+    type: "keyvalue",
+  });
+
+  const { bd, fOublier } = await this.client.ouvrirBdTypée({
+    id: idBdBios,
+    type: "keyvalue",
+    schéma: schémaStructureBdNoms,
+  });
+  await bd.del(langue);
+  await fOublier();
+}
+
 
   async sauvegarderImage({
     image,
