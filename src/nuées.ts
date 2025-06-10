@@ -3323,7 +3323,7 @@ export class Nuées extends ComposanteClientListe<string> {
     nRésultatsDésirés,
     héritage,
     clefTableau,
-    patience = 500,
+    patience = 100,
     vérifierAutorisation = true,
   }: {
     idNuée: string;
@@ -3379,7 +3379,7 @@ export class Nuées extends ComposanteClientListe<string> {
     nomFichier,
     nRésultatsDésirés,
     héritage,
-    patience = 500,
+    patience = 100,
     formatDoc,
     dossier = "",
     inclureDocuments = true,
@@ -3412,7 +3412,7 @@ export class Nuées extends ComposanteClientListe<string> {
 
   async générerDeBd({
     idBd,
-    patience = 500,
+    patience = 100,
   }: {
     idBd: string;
     patience?: number;
@@ -3549,7 +3549,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée,
     licence,
     licenceContenu,
-    patience = 500,
+    patience = 100,
   }: {
     idNuée: string;
     licence: string;

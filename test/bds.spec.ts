@@ -562,33 +562,40 @@ describe("BDs", function () {
     before(async () => {
       idBdOrig = await constl.bds.créerBd({ licence: réfLicence });
 
-      await constl.bds.sauvegarderNomsBd({
-        idBd: idBdOrig,
-        noms: réfNoms,
-      });
-      await constl.bds.sauvegarderDescriptionsBd({
-        idBd: idBdOrig,
-        descriptions: réfDescrs,
-      });
+      await Promise.all([
+        constl.bds.sauvegarderNomsBd({
+          idBd: idBdOrig,
+          noms: réfNoms,
+        }),
+        constl.bds.sauvegarderDescriptionsBd({
+          idBd: idBdOrig,
+          descriptions: réfDescrs,
+        }),
+        (async () => {
+          idMotClef = await constl.motsClefs.créerMotClef();
+          await constl.bds.ajouterMotsClefsBd({
+            idBd: idBdOrig,
+            idsMotsClefs: idMotClef,
+          });
+        })(),
+        (async () => {
+          idTableau = await constl.bds.ajouterTableauBd({ idBd: idBdOrig });
 
-      idMotClef = await constl.motsClefs.créerMotClef();
-      await constl.bds.ajouterMotsClefsBd({
-        idBd: idBdOrig,
-        idsMotsClefs: idMotClef,
-      });
-
-      idTableau = await constl.bds.ajouterTableauBd({ idBd: idBdOrig });
-
-      idVariable = await constl.variables.créerVariable({
-        catégorie: "numérique",
-      });
-      await constl.tableaux.ajouterColonneTableau({
-        idTableau,
-        idVariable,
-      });
-
-      idBdCopie = await constl.bds.copierBd({ idBd: idBdOrig });
+          idVariable = await constl.variables.créerVariable({
+            catégorie: "numérique",
+          });
+          await constl.tableaux.ajouterColonneTableau({
+            idTableau,
+            idVariable,
+          });
+        })(),
+      ])
     });
+
+    it("Copier la bd", async () => {
+      idBdCopie = await constl.bds.copierBd({ idBd: idBdOrig });
+      expect(idBdCopie).to.be.a("string")
+    })
 
     it("Les noms sont copiés", async () => {
       const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
@@ -733,9 +740,11 @@ describe("BDs", function () {
           vals: élément,
         });
       }
-
-      await constl.bds.combinerBds({ idBdBase: idBd1, idBd2 });
     });
+
+    it("Combiner les bds", async () => {
+      await constl.bds.combinerBds({ idBdBase: idBd1, idBd2 });
+    })
 
     it("Les données sont copiées", async () => {
       const données = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
