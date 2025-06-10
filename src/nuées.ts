@@ -3337,7 +3337,7 @@ export class Nuées extends ComposanteClientListe<string> {
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
     const fichiersSFIP: Set<string> = new Set();
-
+    const stabilité = attendreStabilité(patience)
     const données = await uneFois(
       async (
         fSuivi: schémaFonctionSuivi<donnéesNuéeExportation>,
@@ -3352,7 +3352,7 @@ export class Nuées extends ComposanteClientListe<string> {
           nRésultatsDésirés,
         });
       },
-      attendreStabilité(patience),
+      (x)=>{console.log(x); return stabilité(x)},
     );
 
     nomFichier = nomFichier || données.nomNuée;

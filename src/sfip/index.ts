@@ -1,4 +1,3 @@
-import mergeOptions from "merge-options";
 import {
   isBrowser,
   isElectronMain,
@@ -14,6 +13,7 @@ import { HeliaInit, HeliaLibp2p, createHelia } from "helia";
 import { Libp2p, createLibp2p, type Libp2pOptions } from "libp2p";
 
 import { Identify } from "@libp2p/identify";
+import { merge } from "lodash-es";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
@@ -114,7 +114,7 @@ export async function initSFIP({
   ) => new ServiceClefPrivée(components);
 
   const libp2p = (await createLibp2p(
-    mergeOptions(configParDéfaut, configLibp2p),
+    merge(configParDéfaut, configLibp2p),
   )) as Libp2p<ServicesLibp2p>;
 
   // À faire : créer un gestionnaire de pairs plus idiomatique et efficace

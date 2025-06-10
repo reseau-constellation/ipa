@@ -1,6 +1,6 @@
 import { TypedEmitter } from "tiny-typed-emitter";
 import type { ListenerSignature } from "tiny-typed-emitter";
-import type { schémaFonctionOublier, schémaFonctionSuivi } from "./types";
+import type { schémaFonctionOublier, schémaFonctionSuivi } from "./types.js";
 
 export const estUnePromesse = (x: unknown): x is Promise<void> => {
   return !!x && !!(x as Promise<void>).then && !!(x as Promise<void>).finally;

@@ -18,7 +18,7 @@ import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
-} from "@/types";
+} from "@/types.js";
 
 // https://github.com/github/choosealicense.com
 export const conditions = {

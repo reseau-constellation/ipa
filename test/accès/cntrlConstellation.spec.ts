@@ -10,7 +10,7 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { JSONSchemaType } from "ajv";
-import type { OrbitDbTest } from "../ressources/utils";
+import type { OrbitDbTest } from "../ressources/utils.js";
 
 type TypeContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

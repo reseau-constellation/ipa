@@ -1,7 +1,7 @@
 import axios from "axios";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
-import { schémaFonctionOublier } from "@/types";
+import { schémaFonctionOublier } from "@/types.js";
 
 export const obtIdsPairs = async (): Promise<{
   idPairNode: string;

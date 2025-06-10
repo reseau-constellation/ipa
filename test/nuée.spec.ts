@@ -64,7 +64,7 @@ const idsCorrespondantes = async (
     .lengthOf(nIdsDésirées);
 };
 
-describe("Nuées", function () {
+describe.only("Nuées", function () {
   describe("Tests individuels", function () {
     let fOublierClients: () => Promise<void>;
     let clients: Constellation[];
@@ -1806,7 +1806,7 @@ describe("Nuées", function () {
     });
   });
 
-  describe("Document données exportées", function () {
+  describe.only("Document données exportées", function () {
     let fOublierClients: () => Promise<void>;
     let clients: Constellation[];
     let client: Constellation;
