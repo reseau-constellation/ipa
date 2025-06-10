@@ -1479,7 +1479,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     if (typeof idNouvelleBdDic !== "string")
       throw new Error(`${idNouvelleBdDic} n'est pas une adresse Orbite.`);
 
-    // ‌‌‌@ts-ignore
     const { bd: nouvelleBdDic, fOublier: fOublierNouvelle } =
       await this.ouvrirBdTypée({
         id: idNouvelleBdDic,
@@ -2290,8 +2289,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }): Promise<AsyncIterable<Uint8Array>> {
     const { sfip } = await this.attendreSfipEtOrbite();
     const fs = unixfs(sfip);
-    const idc = id.split("/")[0];
-    return fs.cat(CID.parse(idc));
+    const [idc, nomFichier] = id.split("/");
+    return fs.cat(CID.parse(idc), { path: nomFichier });
   }
 
   async ajouterÀSFIP({
@@ -2303,7 +2302,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }): Promise<string> {
     const { sfip } = await this.attendreSfipEtOrbite();
     const fs = unixfs(sfip);
-    const idc = await fs.addFile({ content: contenu });
+    const idc = await fs.addFile({ content: contenu, path: nomFichier });
     return idc.toString() + "/" + nomFichier;
   }
 

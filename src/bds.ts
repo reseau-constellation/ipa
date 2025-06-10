@@ -819,9 +819,11 @@ export class BDs extends ComposanteClientListe<string> {
   async combinerBds({
     idBdBase,
     idBd2,
+    patience = 100,
   }: {
     idBdBase: string;
     idBd2: string;
+    patience?: number;
   }): Promise<void> {
     const obtTableaux = async (idBd: string): Promise<infoTableauAvecId[]> => {
       return await uneFois(
@@ -830,7 +832,7 @@ export class BDs extends ComposanteClientListe<string> {
         ): Promise<schémaFonctionOublier> => {
           return await this.suivreTableauxBd({ idBd, f: fSuivi });
         },
-        attendreStabilité(1000),
+        attendreStabilité(patience),
       );
     };
 

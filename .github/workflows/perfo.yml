@@ -1,0 +1,47 @@
+name: Performance IPA
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docu/**'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+        - '**.md'
+        - 'docu/**'
+
+concurrency:
+  group: perfo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-perfo-nodejs:
+    name: Performance sur Node.js
+    runs-on: ubuntu-latest
+    steps:
+      
+      - name: Ouvrir la branche
+        uses: actions/checkout@v4
+
+      - name: Installer pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Préparation de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.16.0"
+          cache: 'pnpm'
+
+      - name: Installer
+        run: pnpm install
+
+      - name: Vérifier performance
+        run: pnpm perfo --historyGaCache
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

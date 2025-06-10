@@ -6,10 +6,6 @@ node_modules
 /node_modules
 /.nyc_output
 /.vscode
-/_stockageTemp
-/src/utilsTests/_tempo
 
 docu/src/.vitepress/dist
 docu/src/.vitepress/cache
-
-**/tempo.ts

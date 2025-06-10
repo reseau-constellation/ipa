@@ -1108,21 +1108,33 @@ export class Tableaux {
   async combinerDonnées({
     idTableauBase,
     idTableau2,
+    patience = 100,
   }: {
     idTableauBase: string;
     idTableau2: string;
+    patience?: number;
   }): Promise<void> {
-    const donnéesTableauBase = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
-      ) => {
-        return await this.suivreDonnées({
-          idTableau: idTableauBase,
-          f: fSuivi,
-        });
-      },
-      attendreStabilité(1000),
-    );
+    const [donnéesTableauBase, donnéesTableau2] = await Promise.all([
+      uneFois(
+        async (
+          fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
+        ) => {
+          return await this.suivreDonnées({
+            idTableau: idTableauBase,
+            f: fSuivi,
+          });
+        },
+        attendreStabilité(patience),
+      ),
+      uneFois(
+        async (
+          fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
+        ) => {
+          return await this.suivreDonnées({ idTableau: idTableau2, f: fSuivi });
+        },
+        attendreStabilité(patience),
+      )
+    ])
 
     const colsTableauBase = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
@@ -1141,15 +1153,6 @@ export class Tableaux {
               .flat(),
           ),
         ].length <= colonnes.length,
-    );
-
-    const donnéesTableau2 = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
-      ) => {
-        return await this.suivreDonnées({ idTableau: idTableau2, f: fSuivi });
-      },
-      attendreStabilité(1000),
     );
 
     const indexes = colsTableauBase.filter((c) => c.index).map((c) => c.id);

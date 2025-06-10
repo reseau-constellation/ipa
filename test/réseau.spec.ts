@@ -142,7 +142,7 @@ if (isNode || isElectronMain) {
                 idCompte: idsComptes[i],
                 clefPublique: identitéOrbite.publicKey,
                 signatures: identitéOrbite.signatures,
-                nChangementsCompte: 0
+                nChangementsCompte: 0,
               },
             ],
           });
