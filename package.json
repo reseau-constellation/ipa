@@ -18,7 +18,7 @@
     "test:électron-principal": "pnpm compiler && pnpm aegir test -t electron-main --cov",
     "test:électron-rendu": "pnpm compiler && pnpm aegir test -t electron-renderer --cov",
     "test": "pnpm test:node && pnpm test:navig",
-    "perfo": "pnpm compiler &&  benchmark 'dist/test/perfo/**/*.perfo.js' --local --defaultBranch performance",
+    "perfo": "pnpm compiler &&  benchmark 'dist/test/perfo/**/*.perfo.js'",
     "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint . --fix",
     "publier": "pnpm compiler:prod && (git commit -a -m 'version' || true) && pnpm publish",
     "versioner": "pnpm genversion  --es6 --semi src/version.ts"
