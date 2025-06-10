@@ -1,4 +1,4 @@
-name: Tests IPA
+name: Performance IPA
 on:
   push:
     branches:
@@ -20,11 +20,7 @@ concurrency:
 jobs:
   test-ipa-nodejs:
     name: IPA sur Node.js
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       
       - name: Ouvrir la branche
@@ -54,80 +50,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
   
-  test-ipa-navig:
-    name: IPA sur le navigateur
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      
-      - name: Ouvrir la branche
-        uses: actions/checkout@v4
-
-      - name: Installer pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Préparation de Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.16.0"
-          cache: 'pnpm'
-
-      - name: Installer
-        run: pnpm install
-
-      - name: Installer playwright
-        run: npx playwright install
-
-      - name: Vérifier les tests
-        run: pnpm test:navig
-
-      - name: Envoyer couverture à Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-  test-ipa-electron-principal:
-    name: IPA sur Électron principal
-    needs: test-ipa-nodejs
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      
-      - name: Ouvrir la branche
-        uses: actions/checkout@v4
-
-      - name: Installer pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Préparation de Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.16.0"
-          cache: 'pnpm'
-
-      - name: Installer
-        run: pnpm install
-
-      - name: Installer playwright
-        run: npx playwright install
-
-      - name: Vérifier les tests
-        # De cawa-93/vite-electron-builder
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- pnpm run test:électron-principal
-        if: matrix.os == 'ubuntu-latest'
-
-      - run: pnpm run test:électron-principal
-        if: matrix.os != 'ubuntu-latest'
-
-      - name: Envoyer couverture à Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
