@@ -124,7 +124,7 @@ importers:
         version: 2.0.0
       axios:
         specifier: ^1.9.0
-        version: 1.9.0(debug@4.4.1)
+        version: 1.10.0(debug@4.4.1)
       blockstore-fs:
         specifier: ^2.0.4
         version: 2.0.4
@@ -3317,8 +3317,8 @@ packages:
     resolution: {integrity: sha512-x511uiJ/57FIsbgUe5csJ13k3uzu25uWQE+XqfBis/sB0SFoiElJWXRkgEAUh0U6n40eT3ay5Ue4oPkRMu1LYw==}
     engines: {node: '>= 10.0.0'}
 
-  axios@1.9.0:
-    resolution: {integrity: sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==}
+  axios@1.10.0:
+    resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
 
   babel-core@7.0.0-bridge.0:
     resolution: {integrity: sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg==}
@@ -4947,8 +4947,8 @@ packages:
   flow-enums-runtime@0.0.6:
     resolution: {integrity: sha512-3PYnM29RFXwvAN6Pc/scUfkI7RwhQ/xqyLUyPNlXUp9S40zI8nup9tUSrTLSVnWGBN38FNiGWbwZOB6uR4OGdw==}
 
-  flow-parser@0.273.0:
-    resolution: {integrity: sha512-KHe9AJfT0Zn0TpQ2daDFBpwaE0zqjWWiWLOANxzo/U6Xar5fRpU3Lucnk8iMVNitxo9inz2OmSnger70qHmsLw==}
+  flow-parser@0.273.1:
+    resolution: {integrity: sha512-UTTfeYIhxYJ7xuW+HL9oyx6lnUGx1+W5Cyo8hOPgMrDU49GANfONtkb9dguDvIyQ20fz8CHZwB25ZP2206bBWQ==}
     engines: {node: '>=0.4.0'}
 
   follow-redirects@1.15.9:
@@ -13189,7 +13189,7 @@ snapshots:
     dependencies:
       '@peculiar/x509': 1.12.3
       asn1js: 3.0.6
-      axios: 1.9.0(debug@4.4.1)
+      axios: 1.10.0(debug@4.4.1)
       debug: 4.4.1(supports-color@8.1.1)
       node-forge: 1.3.1
     transitivePeerDependencies:
@@ -13575,7 +13575,7 @@ snapshots:
       uuid: 8.0.0
       xml2js: 0.6.2
 
-  axios@1.9.0(debug@4.4.1):
+  axios@1.10.0(debug@4.4.1):
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.1)
       form-data: 4.0.3
@@ -15776,7 +15776,7 @@ snapshots:
 
   flow-enums-runtime@0.0.6: {}
 
-  flow-parser@0.273.0: {}
+  flow-parser@0.273.1: {}
 
   follow-redirects@1.15.9(debug@4.4.1):
     optionalDependencies:
@@ -17200,7 +17200,7 @@ snapshots:
       '@babel/register': 7.27.1(@babel/core@7.27.4)
       babel-core: 7.0.0-bridge.0(@babel/core@7.27.4)
       chalk: 4.1.2
-      flow-parser: 0.273.0
+      flow-parser: 0.273.1
       graceful-fs: 4.2.11
       micromatch: 4.0.8
       neo-async: 2.6.2
