@@ -167,7 +167,7 @@ describe("Variables", function () {
       const noms = await obtenir<TraducsNom>(({ si }) =>
         client.variables.suivreNomsVariable({
           idVariable,
-          f: si((x) => !x.fr.startsWith("P")),
+          f: si((x) => !!x.fr && !x.fr.startsWith("P")),
         }),
       );
       expect(noms.fr).to.equal("précipitation");
@@ -252,7 +252,7 @@ describe("Variables", function () {
       const descrs = await obtenir<TraducsNom>(({ si }) =>
         client.variables.suivreDescriptionsVariable({
           idVariable,
-          f: si((x) => x["fr"].startsWith("L")),
+          f: si((x) => !!x.fr && x["fr"].startsWith("L")),
         }),
       );
       expect(descrs.fr).to.equal("La quantité de précipitation quotidienne");
