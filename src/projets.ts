@@ -30,7 +30,7 @@ import { Constellation } from "@/client.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
-import { ComposanteClientListe } from "./composanteClient.js";
+import { ComposanteClientListe } from "./services.js";
 import {
   INSTALLÉ,
   TOUS,

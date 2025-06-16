@@ -12,7 +12,7 @@ import {
   schémaStructureBdNoms,
 } from "@/types.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
-import { ComposanteClientListe } from "./composanteClient.js";
+import { ComposanteClientListe } from "./services.js";
 import {
   TOUS,
   résoudreDéfauts,

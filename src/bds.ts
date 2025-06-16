@@ -43,7 +43,7 @@ import {
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { Constellation } from "@/client.js";
-import { ComposanteClientListe } from "@/composanteClient.js";
+import { ComposanteClientListe } from "@/services.js";
 import { INSTALLÉ, TOUS, résoudreDéfauts } from "./favoris.js";
 import type { ÉpingleBd, ÉpingleFavorisAvecId } from "./favoris.js";
 import type { objRôles } from "@/accès/types.js";

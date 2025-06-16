@@ -33,9 +33,9 @@ import {
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 import { schémaBdTableauxDeBd } from "@/bds.js";
-import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
+import { cacheRechercheParNRésultats, cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
 import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
-import { ComposanteClientListe } from "./composanteClient.js";
+import { ComposanteClientListe } from "./services.js";
 import {
   INSTALLÉ,
   TOUS,
@@ -2477,7 +2477,7 @@ export class Nuées extends ComposanteClientListe<string> {
     };
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParProfondeur
   async suivreBdsCorrespondantesDUneNuée({
     idNuée,
     f,
@@ -2638,7 +2638,7 @@ export class Nuées extends ComposanteClientListe<string> {
     }
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParProfondeur
   async suivreBdsCorrespondantes({
     idNuée,
     f,
@@ -2806,7 +2806,7 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParProfondeur
   async suivreDonnéesTableauNuée<T extends élémentBdListeDonnées>({
     idNuée,
     clefTableau,

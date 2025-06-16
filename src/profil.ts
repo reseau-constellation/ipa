@@ -7,7 +7,7 @@ import {
   schémaStructureBdNoms,
 } from "@/types.js";
 
-import { ComposanteClientDic } from "@/composanteClient.js";
+import { ComposanteClientDic } from "@/services.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { type Constellation } from "@/client.js";
 import type { ÉpingleFavorisAvecId, ÉpingleProfil } from "./favoris.js";

@@ -9,7 +9,7 @@ import {
 
 import { Constellation } from "@/client.js";
 
-import { ComposanteClientListe } from "@/composanteClient.js";
+import { ComposanteClientListe } from "@/services.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";

@@ -49,6 +49,7 @@ import type {
   catégorieBaseVariables,
   catégorieVariables,
 } from "@/variables.js";
+import { ServiceConstellation } from "./services.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -249,10 +250,12 @@ const schémaStructureBdTableau: JSONSchemaType<structureBdTableau> = {
   required: ["données", "colonnes", "noms", "règles", "type"],
 };
 
-export class Tableaux {
+export class Tableaux extends ServiceConstellation{
   client: Constellation;
 
   constructor({ client }: { client: Constellation }) {
+    // @ts-ignore
+    super({client, clef: "tableaux"})
     this.client = client;
   }
 

@@ -5,7 +5,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
 import PQueue from "p-queue";
-import { ComposanteClientDic } from "@/composanteClient.js";
+import { ComposanteClientDic } from "@/services.js";
 import {
   importerFeuilleCalculDURL,
   importerJSONdURL,
@@ -1001,12 +1001,12 @@ export class Automatisations extends ComposanteClientDic<{
     this.queue = new PQueue({ concurrency: 1 });
   }
 
-  async initialiser(): Promise<schémaFonctionOublier> {
+  async initialiser(): Promise<void> {
     this.fOublier = await this.suivreBdPrincipale({
       f: (autos) => this.mettreAutosÀJour(Object.values(autos)),
     });
     this.événements.emit("initialisée", { fOublier: this.fOublier });
-    return this.fOublier;
+    return;
   }
 
   async initialisée(): Promise<{ fOublier: schémaFonctionOublier }> {

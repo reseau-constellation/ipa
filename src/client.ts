@@ -107,6 +107,7 @@ import type {
   KeyValueDatabase,
   OpenDatabaseOptions,
 } from "@orbitdb/core";
+import { ServiceConstellation } from "./services.js";
 
 export const CLEF_N_CHANGEMENT_COMPTES = "n changements compte";
 type IPFSAccessController = Awaited<
@@ -157,6 +158,7 @@ export interface optsConstellation<T extends ServicesLibp2p = ServicesLibp2p> {
   protocoles?: string[];
   orbite?: optsOrbite<T>;
   messageVerrou?: string;
+  services?: ServicesConstellation
 }
 
 export type optsInitOrbite<T extends ServicesLibp2p = ServicesLibp2p> = Omit<
@@ -263,6 +265,15 @@ const join = async (...args: string[]) => {
     return args.join("/");
   }
 };
+
+export type ServicesConstellation = {
+  [clef: string]: ServiceConstellation
+}
+export type ServicesDéfautConstellation = {
+  profil: Profil;
+}
+
+export type TConstellation<T extends ServicesLibp2p = ServicesLibp2p, S extends ServicesConstellation = ServicesDéfautConstellation> = Constellation<T> & S;
 
 export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   _opts: optsConstellation<T>;

@@ -19,6 +19,7 @@ import type {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
+import { ServiceConstellation } from "./services.js";
 
 // https://github.com/github/choosealicense.com
 export const conditions = {
@@ -425,13 +426,12 @@ type ÉvénementsLicences = {
   prêt: (args: { perroquet?: கிளி<InfoLicenceAvecCode> | false }) => void;
 };
 
-export class Licences {
-  client: Constellation;
+export class Licences extends ServiceConstellation {
   événements: TypedEmitter<ÉvénementsLicences>;
   perroquet?: கிளி<InfoLicenceAvecCode> | false;
 
   constructor({ client }: { client: Constellation }) {
-    this.client = client;
+    super({client, clef: "licences"})
 
     this.événements = new TypedEmitter<ÉvénementsLicences>();
     this.initialiser();
@@ -472,7 +472,7 @@ export class Licences {
         rejeter("Configuration licences non initialisée.");
       });
     });
-  }
+  };
 
   @cacheSuivi
   async suivreLicences({

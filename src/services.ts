@@ -22,10 +22,35 @@ type KeysMatching<T, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
 
-export class ComposanteClient {
+export class ServiceConstellation {
   client: Constellation;
-  clef: KeysMatching<structureBdCompte, string | undefined>;
+  clef: string;
+  dépendences: string[];
+
+  constructor({
+    client,
+    clef,
+    dépendences,
+  }: {
+    client: Constellation;
+    clef: string
+    dépendences?: string[]
+  }) {
+    this.client = client;
+    this.clef = clef;
+    this.dépendences = dépendences || [];
+  }
+
+  async initialiser(): Promise<void> {}
+  async fermer() {}
+
+  async initialisé() {}
+
+}
+
+export class ServiceConstellationAvecBd extends ServiceConstellation {
   typeBd: "keyvalue" | "set";
+  clef: KeysMatching<structureBdCompte, string | undefined>;
 
   constructor({
     client,
@@ -36,9 +61,9 @@ export class ComposanteClient {
     clef: KeysMatching<structureBdCompte, string | undefined>;
     typeBd: "keyvalue" | "set";
   }) {
-    this.client = client;
-    this.clef = clef;
+    super({ clef, client })
     this.typeBd = typeBd;
+    this.clef = clef
   }
 
   async obtIdBd(): Promise<string> {
@@ -55,7 +80,7 @@ export class ComposanteClient {
 
 export class ComposanteClientDic<
   T extends { [clef: string]: élémentsBd },
-> extends ComposanteClient {
+> extends ServiceConstellationAvecBd {
   schémaBdPrincipale: JSONSchemaType<T>;
 
   constructor({
@@ -139,7 +164,7 @@ export class ComposanteClientDic<
     });
   }
 
-  @cacheSuivi
+  // @cacheSuivi À faire
   async suivreSousBdListe<U extends élémentsBd>({
     idCompte,
     clef,
@@ -202,7 +227,7 @@ export class ComposanteClientDic<
 
 export class ComposanteClientListe<
   T extends élémentsBd,
-> extends ComposanteClient {
+> extends ServiceConstellationAvecBd {
   schémaBdPrincipale: JSONSchemaType<T>;
 
   constructor({

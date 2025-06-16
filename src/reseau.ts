@@ -25,13 +25,12 @@ import {
   schémaStructureBdCompte,
 } from "@/client.js";
 import {
-  cacheRechercheParNRésultats,
   cacheRechercheParProfondeur,
   cacheSuivi,
 } from "@/décorateursCache.js";
 import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
-import { ComposanteClientDic } from "./composanteClient.js";
+import { ComposanteClientDic } from "./services.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque, dépunicodifier } from "./utils.js";
@@ -3026,7 +3025,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     return { fOublier, fChangerProfondeur };
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParProfondeur
   async suivreBdsDeNuée({
     idNuée,
     f,

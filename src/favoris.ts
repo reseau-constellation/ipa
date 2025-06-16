@@ -6,7 +6,7 @@ import deepEqual from "deep-equal";
 import deepcopy from "deepcopy";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { ComposanteClientDic } from "./composanteClient.js";
+import { ComposanteClientDic } from "./services.js";
 import type { Constellation } from "@/client.js";
 import type {
   RecursivePartial,
