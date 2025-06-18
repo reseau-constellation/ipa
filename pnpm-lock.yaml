@@ -272,7 +272,7 @@ importers:
         version: 12.4.4
       '@orbitdb/core-types':
         specifier: ^1.0.14
-        version: 1.0.14
+        version: 1.0.15
       '@types/crypto-js':
         specifier: ^4.2.2
         version: 4.2.2
@@ -2309,8 +2309,8 @@ packages:
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
 
-  '@orbitdb/core-types@1.0.14':
-    resolution: {integrity: sha512-Mq+o9zMw8n1kD3eMOQZZ/XG9TnQ8HqUInmduBfMidPXFSQVrvVtTAxyFpHk+2+FMf6BTj1xhrAUCEZlcvYebeQ==}
+  '@orbitdb/core-types@1.0.15':
+    resolution: {integrity: sha512-rf1ZJTYsPw/x+lu/hNtwFIU4Dyo1S+UI9X8BqwDhPCw+D+HTb3gM0eut+XRDLUuzfeBwIIWaHJbPkWJ8Zk22yQ==}
 
   '@orbitdb/core@2.5.0':
     resolution: {integrity: sha512-RE+te/z8MCLhkawby2j9J0T0hH8Mi9BgTUATWd99ih/cyU9OTbbXVuY64A64bdAQ4EZkfJ+OjO9vAMhJHwgnew==}
@@ -10625,7 +10625,7 @@ snapshots:
   '@constl/bohr-db@1.2.7(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))':
     dependencies:
       '@orbitdb/core': 3.0.2
-      '@orbitdb/core-types': 1.0.14
+      '@orbitdb/core-types': 1.0.15
       '@orbitdb/feed-db': 1.1.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
       '@orbitdb/nested-db': 1.0.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
       '@orbitdb/ordered-keyvalue-db': 1.1.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
@@ -12213,7 +12213,7 @@ snapshots:
 
   '@opentelemetry/api@1.9.0': {}
 
-  '@orbitdb/core-types@1.0.14': {}
+  '@orbitdb/core-types@1.0.15': {}
 
   '@orbitdb/core@2.5.0':
     dependencies:
