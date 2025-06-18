@@ -13,7 +13,7 @@ import type { catégorieVariables } from "@/variables.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
-describe("Variables", function () {
+describe.only("Variables", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;

@@ -36,8 +36,6 @@ import {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
-  schémaStructureBdMétadonnées,
-  schémaStructureBdNoms,
   élémentsBd,
 } from "@/types.js";
 
@@ -102,28 +100,33 @@ export type structureBdBd = {
   licence: string;
   licenceContenu?: string;
   image?: string;
-  métadonnées?: string;
-  noms: string;
-  descriptions: string;
+  métadonnées: {[clef: string]: élémentsBd};
+  noms: TraducsNom;
+  descriptions: TraducsNom;
   tableaux: string;
   motsClefs: string;
   nuées: string;
   statut: schémaStatut;
   copiéDe?: schémaCopiéDe;
 };
-const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
+const schémaStructureBdBd: JSONSchemaType<Partial<structureBdBd>> = {
   type: "object",
   properties: {
-    type: { type: "string" },
-    métadonnées: { type: "string", nullable: true },
-    licence: { type: "string" },
+    type: { type: "string", nullable: true },
+    métadonnées: { type: "object",oneOf:[], additionalProperties: {
+    }, required: [], nullable: true },
+    licence: { type: "string", nullable: true },
     licenceContenu: { type: "string", nullable: true },
     image: { type: "string", nullable: true },
-    noms: { type: "string" },
-    descriptions: { type: "string" },
-    tableaux: { type: "string" },
-    motsClefs: { type: "string" },
-    nuées: { type: "string" },
+    noms: { type: "object", additionalProperties: {
+      type: "string",
+    }, required: [], nullable: true },
+    descriptions: { type: "object", additionalProperties: {
+      type: "string",
+    }, required: [], nullable: true },
+    tableaux: { type: "string", nullable: true },
+    motsClefs: { type: "string", nullable: true },
+    nuées: { type: "string", nullable: true },
     statut: {
       type: "object",
       properties: {
@@ -131,6 +134,7 @@ const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
         idNouvelle: { type: "string", nullable: true },
       },
       required: ["statut"],
+      nullable: true 
     },
     copiéDe: {
       type: "object",
@@ -141,16 +145,6 @@ const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
       nullable: true,
     },
   },
-  required: [
-    "type",
-    "licence",
-    "noms",
-    "descriptions",
-    "tableaux",
-    "motsClefs",
-    "nuées",
-    "statut",
-  ],
 };
 
 export type différenceBds =
@@ -247,7 +241,7 @@ export class BDs extends ComposanteClientListe<string> {
     if (épinglerBase) {
       const fOublierBase = await this.client.suivreBd({
         id: épingle.idObjet,
-        type: "keyvalue",
+        type: "nested",
         schéma: schémaStructureBdBd,
         f: async (bd) => {
           try {
@@ -255,12 +249,9 @@ export class BDs extends ComposanteClientListe<string> {
             if (épinglerBase)
               info.base = [
                 épingle.idObjet,
-                contenuBd.descriptions,
-                contenuBd.noms,
                 contenuBd.tableaux,
                 contenuBd.motsClefs,
                 contenuBd.nuées,
-                contenuBd.métadonnées,
                 contenuBd.image,
               ];
           } catch {
@@ -347,7 +338,7 @@ export class BDs extends ComposanteClientListe<string> {
     épingler?: boolean;
   }): Promise<string> {
     const idBd = await this.client.créerBdIndépendante({
-      type: "keyvalue",
+      type: "nested",
       optionsAccès: {
         address: undefined,
         write: await this.client.obtIdCompte(),
@@ -357,33 +348,13 @@ export class BDs extends ComposanteClientListe<string> {
 
     const { bd: bdBD, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
-    await bdBD.set("type", "bd");
-    await bdBD.set("licence", licence);
-    if (licenceContenu) await bdBD.set("licenceContenu", licenceContenu);
+    await bdBD.putNested({type: "bd", licence, licenceContenu});
 
     const accès = bdBD.access as ContrôleurConstellation;
     const optionsAccès = { write: accès.address };
-
-    const idBdMétadonnées = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdBD.set("métadonnées", idBdMétadonnées);
-
-    const idBdNoms = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdBD.set("noms", idBdNoms);
-
-    const idBdDescr = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdBD.set("descriptions", idBdDescr);
 
     const idBdTableaux = await this.client.créerBdIndépendante({
       type: "ordered-keyvalue",
@@ -504,7 +475,7 @@ export class BDs extends ComposanteClientListe<string> {
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     const licence = await bdBase.get("licence");
@@ -518,46 +489,22 @@ export class BDs extends ComposanteClientListe<string> {
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
       await this.client.ouvrirBdTypée({
         id: idNouvelleBd,
-        type: "keyvalue",
+        type: "nested",
         schéma: schémaStructureBdBd,
       });
 
-    const idBdMétadonnées = await bdBase.get("métadonnées");
-    if (idBdMétadonnées) {
-      const { bd: bdMétadonnées, fOublier: fOublierBdNoms } =
-        await this.client.ouvrirBdTypée({
-          id: idBdMétadonnées,
-          type: "keyvalue",
-          schéma: schémaStructureBdMétadonnées,
-        });
-      const métadonnées = await bdMétadonnées.allAsJSON();
-      await fOublierBdNoms();
+    const métadonnées = await bdBase.get("métadonnées");
+    if (métadonnées) {    
       await this.sauvegarderMétadonnéesBd({ idBd: idNouvelleBd, métadonnées });
     }
 
-    const idBdNoms = await bdBase.get("noms");
-    if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierBdNoms } =
-        await this.client.ouvrirBdTypée({
-          id: idBdNoms,
-          type: "keyvalue",
-          schéma: schémaStructureBdNoms,
-        });
-      const noms = await bdNoms.allAsJSON();
-      await fOublierBdNoms();
+    const noms = await bdBase.get("noms");
+    if (noms) {
       await this.sauvegarderNomsBd({ idBd: idNouvelleBd, noms });
     }
 
-    const idBdDescr = await bdBase.get("descriptions");
-    if (idBdDescr) {
-      const { bd: bdDescr, fOublier: fOublierBdDescr } =
-        await this.client.ouvrirBdTypée({
-          id: idBdDescr,
-          type: "keyvalue",
-          schéma: schémaStructureBdNoms,
-        });
-      const descriptions = await bdDescr.allAsJSON();
-      await fOublierBdDescr();
+    const descriptions = await bdBase.get("descriptions");
+    if (descriptions) {
       await this.sauvegarderDescriptionsBd({
         idBd: idNouvelleBd,
         descriptions,
@@ -728,7 +675,7 @@ export class BDs extends ComposanteClientListe<string> {
         const copiéDe = await bd.get("copiéDe");
         await f(copiéDe);
       },
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
   }
@@ -1267,21 +1214,13 @@ export class BDs extends ComposanteClientListe<string> {
     métadonnées: { [key: string]: élémentsBd };
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdMétadonnées = await this.client.obtIdBd({
-      nom: "métadonnées",
-      racine: idBd,
-      type: "keyvalue",
-    });
 
-    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdMétadonnées,
-      type: "keyvalue",
-      schéma: schémaStructureBdMétadonnées,
+    const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
-
-    for (const clef in métadonnées) {
-      await bdMétadonnées.set(clef, métadonnées[clef]);
-    }
+    await bdBd.set(`métadonnées`, métadonnées);
     await fOublier();
   }
 
@@ -1295,18 +1234,12 @@ export class BDs extends ComposanteClientListe<string> {
     métadonnée: string;
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdMétadonnées = await this.client.obtIdBd({
-      nom: "métadonnées",
-      racine: idBd,
-      type: "keyvalue",
+    const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
-
-    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdMétadonnées,
-      type: "keyvalue",
-      schéma: schémaStructureBdMétadonnées,
-    });
-    await bdMétadonnées.set(clef, métadonnée);
+    await bdBd.set(`métadonnées/${clef}`, métadonnée);
     await fOublier();
   }
 
@@ -1318,18 +1251,13 @@ export class BDs extends ComposanteClientListe<string> {
     clef: string;
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdMétadonnées = await this.client.obtIdBd({
-      nom: "métadonnées",
-      racine: idBd,
-      type: "keyvalue",
-    });
 
-    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdMétadonnées,
-      type: "keyvalue",
-      schéma: schémaStructureBdMétadonnées,
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
-    await bdMétadonnées.del(clef);
+    await bd.del(`métadonnées/${clef}`);
     await fOublier();
   }
 
@@ -1341,11 +1269,13 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     f: schémaFonctionSuivi<{ [key: string]: élémentsBd }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
+    return await this.client.suivreBd({
       id: idBd,
-      clef: "métadonnées",
-      schéma: schémaStructureBdMétadonnées,
-      f,
+      type: "nested",
+      schéma: schémaStructureBdBd,
+      f: async bd => {
+        await f(await bd.get("métadonnées") || {})
+      },
     });
   }
 
@@ -1357,21 +1287,14 @@ export class BDs extends ComposanteClientListe<string> {
     noms: { [key: string]: string };
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idBd,
-      type: "keyvalue",
+
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-
-    for (const lng in noms) {
-      await bdNoms.set(lng, noms[lng]);
-    }
+    await bd.putNested("noms", noms);
     await fOublier();
   }
 
@@ -1385,18 +1308,13 @@ export class BDs extends ComposanteClientListe<string> {
     nom: string;
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idBd,
-      type: "keyvalue",
+    
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
-
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    await bdNoms.set(langue, nom);
+    await bd.set(`noms/${langue}`, nom);
     await fOublier();
   }
 
@@ -1408,18 +1326,13 @@ export class BDs extends ComposanteClientListe<string> {
     langue: string;
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idBd,
-      type: "keyvalue",
-    });
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
-    await bdNoms.del(langue);
+    await bd.del(`noms/${langue}`);
     await fOublier();
   }
 
@@ -1431,20 +1344,12 @@ export class BDs extends ComposanteClientListe<string> {
     descriptions: { [key: string]: string };
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdDescr = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idBd,
-      type: "keyvalue",
+    const { bd: bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
-
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescr,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    for (const lng in descriptions) {
-      await bdDescr.set(lng, descriptions[lng]);
-    }
+    await bd.putNested("descriptions", descriptions);
     await fOublier();
   }
 
@@ -1458,18 +1363,13 @@ export class BDs extends ComposanteClientListe<string> {
     description: string;
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdDescr = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idBd,
-      type: "keyvalue",
-    });
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescr,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
-    await bdDescr.set(langue, description);
+    await bdDescr.set(`descriptions/${langue}`, description);
     await fOublier();
   }
 
@@ -1481,18 +1381,13 @@ export class BDs extends ComposanteClientListe<string> {
     langue: string;
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    const idBdDescr = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idBd,
-      type: "keyvalue",
-    });
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescr,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
+      id: idBd,
+      type: "nested",
+      schéma: schémaStructureBdBd,
     });
-    await bdDescr.del(langue);
+    await bdDescr.del(`descriptions/${langue}`);
     await fOublier();
   }
 
@@ -1503,12 +1398,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     licence: string;
   }): Promise<void> {
-    const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
-    await bdBd.set("licence", licence);
+    await bd.set("licence", licence);
     await fOublier();
   }
 
@@ -1519,15 +1414,15 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     licenceContenu?: string;
   }): Promise<void> {
-    const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     if (licenceContenu) {
-      await bdBd.set("licenceContenu", licenceContenu);
+      await bd.set("licenceContenu", licenceContenu);
     } else {
-      await bdBd.del("licenceContenu");
+      await bd.del("licenceContenu");
     }
     await fOublier();
   }
@@ -1764,7 +1659,7 @@ export class BDs extends ComposanteClientListe<string> {
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     bd.set("statut", statut);
@@ -1796,7 +1691,7 @@ export class BDs extends ComposanteClientListe<string> {
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     bd.set("statut", { statut: "obsolète", idNouvelle });
@@ -1806,7 +1701,7 @@ export class BDs extends ComposanteClientListe<string> {
   async marquerActive({ idBd }: { idBd: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     bd.set("statut", { statut: "active" });
@@ -1816,7 +1711,7 @@ export class BDs extends ComposanteClientListe<string> {
   async marquerJouet({ idBd }: { idBd: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     bd.set("statut", { statut: "jouet" });
@@ -1826,7 +1721,7 @@ export class BDs extends ComposanteClientListe<string> {
   async marquerInterne({ idBd }: { idBd: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     bd.set("statut", { statut: "interne" });
@@ -1843,7 +1738,7 @@ export class BDs extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
       f: async (bd) => {
         const licence = await bd.get("licence");
@@ -1862,7 +1757,7 @@ export class BDs extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
       f: async (bd) => {
         const licenceContenu = await bd.get("licenceContenu");
@@ -1896,7 +1791,7 @@ export class BDs extends ComposanteClientListe<string> {
     const idImage = await this.client.ajouterÀSFIP(image);
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     await bd.set("image", idImage);
@@ -1906,7 +1801,7 @@ export class BDs extends ComposanteClientListe<string> {
   async effacerImage({ idBd }: { idBd: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     await bd.del("image");
@@ -1923,7 +1818,7 @@ export class BDs extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
       f: async (bd) => {
         const idImage = await bd.get("image");
@@ -1982,12 +1877,12 @@ export class BDs extends ComposanteClientListe<string> {
         await fFinale();
       },
     });
-    const fOublierNomsBd = await this.client.suivreBdDicDeClef({
+    const fOublierNomsBd = await this.client.suivreBd({
       id: idBd,
-      clef: "noms",
-      schéma: schémaStructureBdNoms,
-      f: async (nomsBd) => {
-        noms.deBd = nomsBd;
+      type: "nested",
+      schéma: schémaStructureBdBd,
+      f: async (bd) => {
+        noms.deBd = await bd.get("noms") || {};
         await fFinale();
       },
     });
@@ -2004,11 +1899,13 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
+    return await this.client.suivreBd({
       id: idBd,
-      clef: "descriptions",
-      schéma: schémaStructureBdNoms,
-      f,
+      type: "nested",
+      schéma: schémaStructureBdBd,
+      f: async bd => {
+        await f(await bd.get("descriptions") || {})
+      },
     });
   }
 
@@ -2773,10 +2670,11 @@ export class BDs extends ComposanteClientListe<string> {
     // Et puis maintenant aussi effacer les données et la BD elle-même
     const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdBd,
     });
     const contenuBd = await bdBd.all();
+
     for (const item of contenuBd) {
       if (item.key === "tableaux") continue;
       if (typeof item.value === "string" && adresseOrbiteValide(item.value))
@@ -2784,11 +2682,7 @@ export class BDs extends ComposanteClientListe<string> {
     }
     await fOublier();
 
-    const idBdTableaux = await this.client.obtIdBd({
-      nom: "tableaux",
-      racine: idBd,
-      type: "ordered-keyvalue",
-    });
+    const idBdTableaux = await bdBd.get("tableaux")
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =
         await this.client.ouvrirBdTypée({

@@ -18,6 +18,7 @@ import {
 import {
   TypedFeed,
   TypedKeyValue,
+  TypedNested,
   TypedOrderedKeyValue,
   TypedSet,
 } from "@constl/bohr-db";
@@ -42,6 +43,7 @@ import {
 import { keys } from "@libp2p/crypto";
 import { anySignal } from "any-signal";
 import { AbortError } from "p-retry";
+import { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Épingles } from "@/epingles.js";
@@ -89,6 +91,7 @@ import {
 import { initSFIP } from "@/sfip/index.js";
 import { Protocoles } from "./protocoles.js";
 import { appelerLorsque, estUnePromesse } from "./utils.js";
+import { ServiceConstellation } from "./services.js";
 import type { PrivateKey } from "@libp2p/interface";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type {
@@ -107,7 +110,6 @@ import type {
   KeyValueDatabase,
   OpenDatabaseOptions,
 } from "@orbitdb/core";
-import { ServiceConstellation } from "./services.js";
 
 export const CLEF_N_CHANGEMENT_COMPTES = "n changements compte";
 type IPFSAccessController = Awaited<
@@ -922,6 +924,17 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<T extends NestedDatabaseType>({
+    id,
+    type,
+    signal,
+    options,
+  }: {
+    id: string;
+    type: "nested";
+    signal?: AbortSignal;
+    options?: Omit<OpenDatabaseOptions, "type">;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
     signal,
@@ -937,7 +950,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     options,
   }: {
     id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue" | "nested";
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
@@ -948,7 +961,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     options,
   }: {
     id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue" | "nested";
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{
@@ -1032,6 +1045,19 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBdTypée<U extends NestedValue, T = TypedNested<U>>({
+    id,
+    type,
+    schéma,
+    signal,
+    options,
+  }: {
+    id: string;
+    type: "nested";
+    schéma: JSONSchemaType<Partial<U>>;
+    signal?: AbortSignal;
+    options?: Omit<OpenDatabaseOptions, "type">;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T>({
     id,
     type,
@@ -1040,7 +1066,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     options,
   }: {
     id: string;
-    type: "ordered-keyvalue" | "set" | "keyvalue" | "feed";
+    type: "ordered-keyvalue" | "set" | "keyvalue" | "feed" | "nested";
     schéma: JSONSchemaType<U>;
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
@@ -1550,6 +1576,20 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     type: "ordered-keyvalue";
     schéma?: JSONSchemaType<U>;
   }): schémaFonctionOublier;
+  suivreBd<
+    U extends NestedValue,
+    T = TypedNested<U>,
+  >({
+    id,
+    f,
+    type,
+    schéma,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<T>;
+    type: "nested";
+    schéma?: JSONSchemaType<U>;
+  }): schémaFonctionOublier;
   suivreBd({
     id,
     f,
@@ -1565,7 +1605,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
-    type?: "keyvalue" | "set" | "ordered-keyvalue";
+    type?: "keyvalue" | "set" | "ordered-keyvalue" | "nested";
     schéma?: JSONSchemaType<U>;
   }): schémaFonctionOublier {
     if (!adresseOrbiteValide(id))
@@ -2426,7 +2466,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     optionsAccès,
     nom,
   }: {
-    type: "feed" | "set" | "keyvalue" | "ordered-keyvalue";
+    type: "feed" | "set" | "keyvalue" | "ordered-keyvalue" | "nested";
     optionsAccès?: OptionsContrôleurConstellation;
     nom?: string;
   }): Promise<string> {

@@ -1,17 +1,13 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { JSONSchemaType } from "ajv";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { Constellation } from "@/client.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
-  schémaStructureBdNoms,
 } from "@/types.js";
-import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { ComposanteClientListe } from "./services.js";
 import {
   TOUS,
@@ -27,10 +23,6 @@ import type {
 
 import type { objRôles } from "@/accès/types.js";
 import type { RecursivePartial, TraducsNom } from "@/types.js";
-
-type ContrôleurConstellation = Awaited<
-  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
->;
 
 export type catégorieBaseVariables =
   | "numérique"
@@ -62,10 +54,10 @@ const schémaBdPrincipale: JSONSchemaType<string> = {
 export type structureBdVariable = {
   type: string;
   catégorie: Partial<catégorieVariables>;
-  noms: string;
+  noms: TraducsNom;
   unités?: string;
-  descriptions: string;
-  règles: string;
+  descriptions: TraducsNom;
+  règles: structureBdRèglesVariable;
   statut: Partial<schémaStatut>;
 };
 
@@ -83,10 +75,30 @@ const schémaStructureBdVariable: JSONSchemaType<Partial<structureBdVariable>> =
         required: [],
         nullable: true,
       },
-      noms: { type: "string", nullable: true },
-      descriptions: { type: "string", nullable: true },
+      noms: { type: "object", additionalProperties: {
+        type: "string",
+      }, required: [], nullable: true },
+      descriptions: { type: "object", additionalProperties: {
+        type: "string",
+      }, required: [], nullable: true },
       unités: { type: "string", nullable: true },
-      règles: { type: "string", nullable: true },
+      règles: {
+        type: "object",
+        additionalProperties: {
+          type: "object",
+          properties: {
+            typeRègle: { type: "string" },
+            détails: {
+              type: "object",
+              required: [],
+              additionalProperties: true,
+            },
+          },
+          required: ["détails", "typeRègle"],
+        },
+        required: [],
+        nullable: true,
+      },
       statut: {
         type: "object",
         properties: {
@@ -136,7 +148,7 @@ export class Variables extends ComposanteClientListe<string> {
     });
     const fOublier = await this.client.suivreBd({
       id: épingle.idObjet,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
         try {
@@ -180,7 +192,7 @@ export class Variables extends ComposanteClientListe<string> {
     épingler?: boolean;
   }): Promise<string> {
     const idVariable = await this.client.créerBdIndépendante({
-      type: "keyvalue",
+      type: "nested",
       optionsAccès: {
         address: undefined,
         write: await this.client.obtIdCompte(),
@@ -192,35 +204,11 @@ export class Variables extends ComposanteClientListe<string> {
     const { bd: bdVariable, fOublier: fOublierVariable } =
       await this.client.ouvrirBdTypée({
         id: idVariable,
-        type: "keyvalue",
+        type: "nested",
         schéma: schémaStructureBdVariable,
       });
 
-    const accès = bdVariable.access as ContrôleurConstellation;
-    if (!estUnContrôleurConstellation(accès))
-      throw Error("Contrôleur de type non reconnu.");
-    const optionsAccès = { write: accès.address };
-
-    await bdVariable.set("type", "variable");
-
-    const idBdNoms = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdVariable.set("noms", idBdNoms);
-
-    const idBdDescr = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdVariable.set("descriptions", idBdDescr);
-
-    const idBdRègles = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdVariable.set("règles", idBdRègles);
-
+    
     await bdVariable.set(
       "catégorie",
       this.standardiserCatégorieVariable(catégorie),
@@ -297,7 +285,7 @@ export class Variables extends ComposanteClientListe<string> {
     const { bd: bdBase, fOublier: fOublierBase } =
       await this.client.ouvrirBdTypée({
         id: idVariable,
-        type: "keyvalue",
+        type: "nested",
         schéma: schémaStructureBdVariable,
       });
     const catégorie = (await bdBase.get("catégorie")) as
@@ -306,54 +294,28 @@ export class Variables extends ComposanteClientListe<string> {
 
     const idNouvelleBd = await this.créerVariable({ catégorie });
     const { bd: bdNouvelle, fOublier: fOublierNouvelle } =
-      await this.client.ouvrirBdTypée({
-        id: idNouvelleBd,
-        type: "keyvalue",
-        schéma: schémaStructureBdVariable,
-      });
+    await this.client.ouvrirBdTypée({
+      id: idNouvelleBd,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
+    });
 
-    const idBdNoms = await bdBase.get("noms");
-    if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierBdNoms } =
-        await this.client.ouvrirBdTypée({
-          id: idBdNoms,
-          type: "keyvalue",
-          schéma: schémaStructureBdNoms,
-        });
-      const noms = await bdNoms.allAsJSON();
-      await fOublierBdNoms();
+    const noms = await bdBase.get("noms");
+    if (noms)
       await this.sauvegarderNomsVariable({ idVariable: idNouvelleBd, noms });
-    }
 
-    const idBdDescr = await bdBase.get("descriptions");
-    if (idBdDescr) {
-      const { bd: bdDescr, fOublier: fOublierBdDescr } =
-        await this.client.ouvrirBdTypée({
-          id: idBdDescr,
-          type: "keyvalue",
-          schéma: schémaStructureBdNoms,
-        });
-      const descriptions = await bdDescr.allAsJSON();
-      await fOublierBdDescr();
+    const descriptions = await bdBase.get("descriptions");
+    if (descriptions)
       await this.sauvegarderDescriptionsVariable({
         idVariable: idNouvelleBd,
         descriptions,
       });
-    }
 
     const unités = await bdBase.get("unités");
     if (unités) await bdNouvelle.put("unités", unités);
 
-    const idBdRègles = await bdBase.get("règles");
-    if (idBdRègles) {
-      const { bd: bdRègles, fOublier: fOublierBdRègles } =
-        await this.client.ouvrirBdTypée({
-          id: idBdRègles,
-          type: "keyvalue",
-          schéma: schémaBdRèglesVariable,
-        });
-      const règles = await bdRègles.allAsJSON();
-      await fOublierBdRègles();
+    const règles = await bdBase.get("règles");
+    if (règles) {
       await Promise.allSettled(
         Object.entries(règles).map(async ([id, r]) => {
           await this.ajouterRègleVariable({
@@ -410,19 +372,14 @@ export class Variables extends ComposanteClientListe<string> {
     noms: TraducsNom;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idVariable,
-      type: "keyvalue",
-    });
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
     });
     for (const lng in noms) {
-      await bdNoms.set(lng, noms[lng]);
+      await bdVariable.set(`noms/${lng}`, noms[lng]);
     }
     await fOublier();
   }
@@ -437,18 +394,14 @@ export class Variables extends ComposanteClientListe<string> {
     nom: string;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idVariable,
-      type: "keyvalue",
-    });
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
+      id: idVariable,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
     });
-    await bdNoms.set(langue, nom);
+
+    await bdNoms.put(`noms/${langue}`, nom);
     await fOublier();
   }
 
@@ -460,18 +413,14 @@ export class Variables extends ComposanteClientListe<string> {
     langue: string;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idVariable,
-      type: "keyvalue",
+
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
     });
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    await bdNoms.del(langue);
+    await bdVariable.del(`noms/${langue}`);
     await fOublier();
   }
 
@@ -483,19 +432,14 @@ export class Variables extends ComposanteClientListe<string> {
     descriptions: TraducsNom;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
-    const idBdDescr = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idVariable,
-      type: "keyvalue",
-    });
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescr,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
     });
     for (const lng in descriptions) {
-      await bdDescr.set(lng, descriptions[lng]);
+      await bdVariable.set(`descriptions/${lng}`, descriptions[lng]);
     }
     await fOublier();
   }
@@ -510,18 +454,13 @@ export class Variables extends ComposanteClientListe<string> {
     description: string;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
-    const idBdDescr = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idVariable,
-      type: "keyvalue",
-    });
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescr,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
+      id: idVariable,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
     });
-    await bdDescr.set(langue, description);
+    await bdDescr.set(`descriptions/${langue}`, description);
 
     await fOublier();
   }
@@ -534,18 +473,13 @@ export class Variables extends ComposanteClientListe<string> {
     langue: string;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
-    const idBdDescr = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idVariable,
-      type: "keyvalue",
-    });
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescr,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
     });
-    await bdDescr.del(langue);
+    await bdVariable.del(`descriptions/${langue}`);
 
     await fOublier();
   }
@@ -559,13 +493,12 @@ export class Variables extends ComposanteClientListe<string> {
   }): Promise<void> {
     const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
       id: idVariable,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdVariable,
     });
-    await bdVariable.set(
-      "catégorie",
-      this.standardiserCatégorieVariable(catégorie),
-    );
+    await bdVariable.putNested({
+      "catégorie": this.standardiserCatégorieVariable(catégorie),
+    });
 
     await fOublier();
   }
@@ -587,7 +520,7 @@ export class Variables extends ComposanteClientListe<string> {
   }): Promise<void> {
     const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
       id: idVariable,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdVariable,
     });
     await bdVariable.set("unités", idUnité);
@@ -605,20 +538,15 @@ export class Variables extends ComposanteClientListe<string> {
     idRègle?: string;
   }): Promise<string> {
     await this._confirmerPermission({ idVariable });
-    const idBdRègles = await this.client.obtIdBd({
-      nom: "règles",
-      racine: idVariable,
-      type: "keyvalue",
-    });
 
     idRègle = idRègle || uuidv4();
 
-    const { bd: bdRègles, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdRègles,
-      type: "keyvalue",
-      schéma: schémaBdRèglesVariable,
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
     });
-    await bdRègles.put(idRègle, règle);
+    await bdVariable.putNested({ règles: { idRègle: règle }});
 
     await fOublier();
 
@@ -633,19 +561,13 @@ export class Variables extends ComposanteClientListe<string> {
     idRègle: string;
   }): Promise<void> {
     await this._confirmerPermission({ idVariable });
-    const idBdRègles = await this.client.obtIdBd({
-      nom: "règles",
-      racine: idVariable,
-      type: "keyvalue",
-    });
 
-    const { bd: bdRègles, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdRègles,
-      type: "keyvalue",
-      schéma: schémaBdRèglesVariable,
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
     });
-
-    await bdRègles.del(idRègle);
+    await bdVariable.del(`règles/${idRègle}`);
 
     await fOublier();
   }
@@ -675,11 +597,14 @@ export class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
+    return await this.client.suivreBd({
       id: idVariable,
-      clef: "noms",
-      schéma: schémaStructureBdNoms,
-      f,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
+      f: async bd => {
+        const noms = await bd.get("noms")
+        await f(noms || {})
+      },
     });
   }
 
@@ -691,11 +616,14 @@ export class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
+    return await this.client.suivreBd({
       id: idVariable,
-      clef: "descriptions",
-      schéma: schémaStructureBdNoms,
-      f,
+      type: "nested",
+      schéma: schémaStructureBdVariable,
+      f: async bd => {
+        const desciptions = await bd.get("descriptions");
+        await f(desciptions || {})
+      },
     });
   }
 
@@ -709,7 +637,7 @@ export class Variables extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idVariable,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
         const catégorie = await bd.get("catégorie");
@@ -731,7 +659,7 @@ export class Variables extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idVariable,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
         const unités = await bd.get("unités");
@@ -896,7 +824,7 @@ export class Variables extends ComposanteClientListe<string> {
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdVariable,
     });
     await bd.set("statut", statut);
@@ -912,10 +840,10 @@ export class Variables extends ComposanteClientListe<string> {
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id,
-      type: "keyvalue",
+      type: "nested",
       schéma: schémaStructureBdVariable,
     });
-    bd.set("statut", { statut: "obsolète", idNouvelle });
+    bd.putNested({ statut: { statut: "obsolète", idNouvelle }});
     await fOublier();
   }
 
@@ -923,19 +851,6 @@ export class Variables extends ComposanteClientListe<string> {
     // Effacer l'entrée dans notre liste de variables
     await this.enleverDeMesVariables({ idVariable });
     await this.client.favoris.désépinglerFavori({ idObjet: idVariable });
-
-    // Effacer la variable elle-même
-    const { bd: bdMotClef, fOublier } = await this.client.ouvrirBdTypée({
-      id: idVariable,
-      type: "keyvalue",
-      schéma: schémaStructureBdVariable,
-    });
-    const contenuBd = await bdMotClef.all();
-    for (const item of contenuBd) {
-      if (typeof item.value === "string" && adresseOrbiteValide(item.value))
-        await this.client.effacerBd({ id: item.value });
-    }
-    await fOublier();
 
     await this.client.effacerBd({ id: idVariable });
   }

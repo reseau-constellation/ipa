@@ -7,6 +7,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 import { type FeedDatabaseType, registerFeed } from "@orbitdb/feed-db";
+import { type NestedDatabaseType, registerNested } from "@orbitdb/nested-db";
 import {
   type OrderedKeyValueDatabaseType,
   registerOrderedKeyValue,
@@ -18,6 +19,8 @@ import {
   TypedFeed,
   typedKeyValue,
   TypedKeyValue,
+  typedNested,
+  TypedNested,
   typedOrderedKeyValue,
   TypedOrderedKeyValue,
   typedSet,
@@ -92,13 +95,15 @@ export type Store =
   | FeedDatabaseType
   | SetDatabaseType
   | KeyValueDatabase
-  | OrderedKeyValueDatabaseType;
+  | OrderedKeyValueDatabaseType
+  | NestedDatabaseType;
 
 type TypesBdsOrbites = {
   keyvalue: KeyValueDatabase;
   feed: FeedDatabaseType;
   set: SetDatabaseType;
-  "ordered-keyvalue": OrderedKeyValueDatabaseType;
+  "ordered-keyvalue": OrderedKeyValueDatabaseType
+  nested: NestedDatabaseType;
 };
 
 // https://stackoverflow.com/questions/56863875/typescript-how-do-you-filter-a-types-properties-to-those-of-a-certain-type
@@ -110,6 +115,7 @@ export const préparerOrbite = () => {
   registerFeed();
   registerSet();
   registerOrderedKeyValue();
+  registerNested();
   enregistrerContrôleurs();
 };
 
@@ -144,7 +150,9 @@ type Typer<
       ? TypedSet<U>
       : T extends OrderedKeyValueDatabaseType
         ? TypedOrderedKeyValue<Extract<U, { [clef: string]: élémentsBd }>>
-        : never;
+        : T extends NestedDatabaseType
+          ? TypedNested<Extract<U, { [clef: string]: élémentsBd }>>
+          : never;
 
 const typerBd = <
   T extends Store,
@@ -180,6 +188,13 @@ const typerBd = <
 
     case "ordered-keyvalue":
       return typedOrderedKeyValue({
+        db: bd,
+        // @ts-expect-error Je ne sais pas pourquoi
+        schema: schéma as JSONSchemaType<U>,
+      }) as unknown as Typer<T, U>;
+
+    case "nested":
+      return typedNested({
         db: bd,
         // @ts-expect-error Je ne sais pas pourquoi
         schema: schéma as JSONSchemaType<U>,
@@ -263,6 +278,17 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<T extends NestedDatabaseType>({
+    id,
+    type,
+    signal,
+    options,
+  }: {
+    id: string;
+    type: "nested";
+    signal?: AbortSignal;
+    options?: Omit<OpenDatabaseOptions, "type">;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
     signal,
@@ -278,7 +304,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     options,
   }: {
     id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue" | "nested";
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
@@ -289,7 +315,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     options,
   }: {
     id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue" | "nested";
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{
@@ -333,8 +359,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
 
         if (type && !vérifierTypeBd(existante.bd, type, false))
           throw new Error(
-            // @ts-expect-error Je ne comprends pas complètement
-            `La bd est de type ${existante.bd.type}, et non ${type}.`,
+            `La bd est de type ${(existante.bd as Store).type}, et non ${type}.`,
           );
         this.verrouOuvertureBd.release(id);
         return {
@@ -455,7 +480,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     options,
     nom,
   }: {
-    type: "set" | "ordered-keyvalue" | "keyvalue" | "feed";
+    type: "set" | "ordered-keyvalue" | "keyvalue" | "feed" | "nested";
     options: Omit<OpenDatabaseOptions, "type">;
     nom?: string;
   }): Promise<string> {
