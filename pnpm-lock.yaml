@@ -106,7 +106,7 @@ importers:
         version: 2.5.0
       '@orbitdb/feed-db':
         specifier: ^1.1.2
-        version: 1.1.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
+        version: 1.1.4(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
       '@orbitdb/ordered-keyvalue-db':
         specifier: ^1.1.2
         version: 1.1.3(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
@@ -2340,8 +2340,8 @@ packages:
     resolution: {integrity: sha512-YTJIBbe8mIDLpA0T3cOdVjWDeAyIojQLR54p0TfVyUBAjWh7N0rbKBbgQMTOrFxhUmRf/D85iFScmGnnEn5v+w==}
     engines: {node: '>=20.0.0'}
 
-  '@orbitdb/feed-db@1.1.2':
-    resolution: {integrity: sha512-o+9SBiVWdbvBWQyGRXUajTq75uDQqRzLafbn2dGMshsU8ibWAllxpOhHXojaDyJRUGXxjt25LkbLFQGQQGiBEQ==}
+  '@orbitdb/feed-db@1.1.4':
+    resolution: {integrity: sha512-/j3j5VLpcoUue/4nBYhC5MnC5n4CXy4tsOmhNuhdKxFsr+xVu0SGSmU2HRzsSS5rGWb1c1rbJias8qcM4gDowg==}
 
   '@orbitdb/nested-db@1.0.2':
     resolution: {integrity: sha512-9+LjPG4xB7kN8wWHAs+qvK1zhZFQdy2BL2ghh+AzcYBJtq2M8+rqpGRLqxSbQiqi5Xr8Fi3GNKoksmggP2NkYA==}
@@ -10752,7 +10752,7 @@ snapshots:
     dependencies:
       '@orbitdb/core': 3.0.2
       '@orbitdb/core-types': 1.0.15
-      '@orbitdb/feed-db': 1.1.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
+      '@orbitdb/feed-db': 1.1.4(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
       '@orbitdb/nested-db': 1.0.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
       '@orbitdb/ordered-keyvalue-db': 1.1.3(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
       '@orbitdb/set-db': 1.1.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
@@ -12424,7 +12424,7 @@ snapshots:
       timeout-abort-controller: 3.0.0
       uint8arrays: 5.1.0
 
-  '@orbitdb/feed-db@1.1.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))':
+  '@orbitdb/feed-db@1.1.4(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))':
     dependencies:
       '@orbitdb/core': 2.5.0
       helia: 5.4.2(react-native@0.76.6(@babel/core@7.27.4)(@babel/preset-env@7.26.0(@babel/core@7.27.4))(react@18.3.1))
