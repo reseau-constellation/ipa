@@ -75,12 +75,22 @@ const schémaStructureBdVariable: JSONSchemaType<Partial<structureBdVariable>> =
         required: [],
         nullable: true,
       },
-      noms: { type: "object", additionalProperties: {
-        type: "string",
-      }, required: [], nullable: true },
-      descriptions: { type: "object", additionalProperties: {
-        type: "string",
-      }, required: [], nullable: true },
+      noms: {
+        type: "object",
+        additionalProperties: {
+          type: "string",
+        },
+        required: [],
+        nullable: true,
+      },
+      descriptions: {
+        type: "object",
+        additionalProperties: {
+          type: "string",
+        },
+        required: [],
+        nullable: true,
+      },
       unités: { type: "string", nullable: true },
       règles: {
         type: "object",
@@ -208,7 +218,6 @@ export class Variables extends ComposanteClientListe<string> {
         schéma: schémaStructureBdVariable,
       });
 
-    
     await bdVariable.set(
       "catégorie",
       this.standardiserCatégorieVariable(catégorie),
@@ -294,11 +303,11 @@ export class Variables extends ComposanteClientListe<string> {
 
     const idNouvelleBd = await this.créerVariable({ catégorie });
     const { bd: bdNouvelle, fOublier: fOublierNouvelle } =
-    await this.client.ouvrirBdTypée({
-      id: idNouvelleBd,
-      type: "nested",
-      schéma: schémaStructureBdVariable,
-    });
+      await this.client.ouvrirBdTypée({
+        id: idNouvelleBd,
+        type: "nested",
+        schéma: schémaStructureBdVariable,
+      });
 
     const noms = await bdBase.get("noms");
     if (noms)
@@ -497,7 +506,7 @@ export class Variables extends ComposanteClientListe<string> {
       schéma: schémaStructureBdVariable,
     });
     await bdVariable.putNested({
-      "catégorie": this.standardiserCatégorieVariable(catégorie),
+      catégorie: this.standardiserCatégorieVariable(catégorie),
     });
 
     await fOublier();
@@ -546,7 +555,7 @@ export class Variables extends ComposanteClientListe<string> {
       type: "nested",
       schéma: schémaStructureBdVariable,
     });
-    await bdVariable.putNested({ règles: { idRègle: règle }});
+    await bdVariable.putNested({ règles: { idRègle: règle } });
 
     await fOublier();
 
@@ -601,9 +610,9 @@ export class Variables extends ComposanteClientListe<string> {
       id: idVariable,
       type: "nested",
       schéma: schémaStructureBdVariable,
-      f: async bd => {
-        const noms = await bd.get("noms")
-        await f(noms || {})
+      f: async (bd) => {
+        const noms = await bd.get("noms");
+        await f(noms || {});
       },
     });
   }
@@ -620,9 +629,9 @@ export class Variables extends ComposanteClientListe<string> {
       id: idVariable,
       type: "nested",
       schéma: schémaStructureBdVariable,
-      f: async bd => {
+      f: async (bd) => {
         const desciptions = await bd.get("descriptions");
-        await f(desciptions || {})
+        await f(desciptions || {});
       },
     });
   }
@@ -843,7 +852,7 @@ export class Variables extends ComposanteClientListe<string> {
       type: "nested",
       schéma: schémaStructureBdVariable,
     });
-    bd.putNested({ statut: { statut: "obsolète", idNouvelle }});
+    bd.putNested({ statut: { statut: "obsolète", idNouvelle } });
     await fOublier();
   }
 

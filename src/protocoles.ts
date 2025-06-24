@@ -37,7 +37,7 @@ export class Protocoles extends ComposanteClientDic<structureBdProtocoles> {
     this.protocoles_init = protocoles;
   }
 
-  async initialiser(): Promise<void> {
+  async démarrer(): Promise<void> {
     await this.établirProtocoles({ protocoles: this.protocoles_init });
   }
 

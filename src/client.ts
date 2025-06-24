@@ -59,7 +59,11 @@ import {
 import { Licences } from "@/licences.js";
 import { MotsClefs } from "@/motsClefs.js";
 import { Nuées } from "@/nuées.js";
-import { Profil } from "@/profil.js";
+import {
+  Profil,
+  schémaStructureBdProfil,
+  structureBdProfil,
+} from "@/profil.js";
 import { Projets } from "@/projets.js";
 import { Recherche } from "@/recherche/index.js";
 import { Réseau } from "@/reseau.js";
@@ -160,7 +164,7 @@ export interface optsConstellation<T extends ServicesLibp2p = ServicesLibp2p> {
   protocoles?: string[];
   orbite?: optsOrbite<T>;
   messageVerrou?: string;
-  services?: ServicesConstellation
+  services?: ServicesConstellation;
 }
 
 export type optsInitOrbite<T extends ServicesLibp2p = ServicesLibp2p> = Omit<
@@ -176,28 +180,30 @@ export type optsOrbite<T extends ServicesLibp2p = ServicesLibp2p> =
   | optsInitOrbite<T>;
 
 export type structureBdCompte = {
-  protocoles?: string;
-  nomsDispositifs?: string;
+  protocoles: string;
+  nomsDispositifs: string;
 
-  profil?: string;
-  motsClefs?: string;
-  variables?: string;
-  bds?: string;
-  projets?: string;
-  nuées?: string;
-  favoris?: string;
+  profil: structureBdProfil;
+  motsClefs: string;
+  variables: string;
+  bds: string;
+  projets: string;
+  nuées: string;
+  favoris: string;
 
   réseau?: string;
   automatisations?: string;
 };
 
-export const schémaStructureBdCompte: JSONSchemaType<structureBdCompte> = {
+export const schémaStructureBdCompte: JSONSchemaType<
+  RecursivePartial<structureBdCompte>
+> = {
   type: "object",
   properties: {
     protocoles: { type: "string", nullable: true },
     nomsDispositifs: { type: "string", nullable: true },
 
-    profil: { type: "string", nullable: true },
+    profil: schémaStructureBdProfil,
     motsClefs: { type: "string", nullable: true },
     variables: { type: "string", nullable: true },
     bds: { type: "string", nullable: true },
@@ -269,15 +275,16 @@ const join = async (...args: string[]) => {
 };
 
 export type ServicesConstellation = {
-  [clef: string]: ServiceConstellation
-}
+  [clef: string]: ServiceConstellation;
+};
 export type ServicesDéfautConstellation = {
   profil: Profil;
-}
+};
 
-export type TConstellation<T extends ServicesLibp2p = ServicesLibp2p, S extends ServicesConstellation = ServicesDéfautConstellation> = Constellation<T> & S;
-
-export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
+export class Constellation<
+  S extends ServicesConstellation = ServicesDéfautConstellation,
+  T extends ServicesLibp2p = ServicesLibp2p,
+> {
   _opts: optsConstellation<T>;
   événements: TypedEmitter<ÉvénementsClient<T>>;
 
@@ -480,7 +487,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       });
       await bdCompte.set(clef, idBd);
     }
-    await this.profil.créerBdsInternes({ idCompte });
     await fOublier();
     return idCompte;
   }
@@ -1576,10 +1582,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     type: "ordered-keyvalue";
     schéma?: JSONSchemaType<U>;
   }): schémaFonctionOublier;
-  suivreBd<
-    U extends NestedValue,
-    T = TypedNested<U>,
-  >({
+  suivreBd<U extends NestedValue, T = TypedNested<U>>({
     id,
     f,
     type,

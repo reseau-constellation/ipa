@@ -1,15 +1,16 @@
 import { ignorerNonDéfinis, suivreFonctionImbriquée } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
 import {
+  RecursivePartial,
   TraducsNom,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStructureBdNoms,
 } from "@/types.js";
 
-import { ComposanteClientDic } from "@/services.js";
+import { ServiceConstellation, ServiceConstellationDic } from "@/services.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { type Constellation } from "@/client.js";
+import { ServicesConstellation, type Constellation } from "@/client.js";
 import type { ÉpingleFavorisAvecId, ÉpingleProfil } from "./favoris.js";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
@@ -22,7 +23,9 @@ type structureBdProfil = {
   image?: string;
   initialisé?: boolean;
 };
-const schémaStructureBdProfil: JSONSchemaType<structureBdProfil> = {
+export const schémaStructureBdProfil: JSONSchemaType<
+  RecursivePartial<structureBdProfil>
+> = {
   type: "object",
   properties: {
     initialisé: {
@@ -38,7 +41,11 @@ const schémaStructureBdProfil: JSONSchemaType<structureBdProfil> = {
       nullable: true,
     },
     noms: {
-      type: "string",
+      type: "object",
+      additionalProperties: {
+        type: "string",
+        nullable: true,
+      },
       nullable: true,
     },
     bios: {
@@ -62,48 +69,12 @@ const schémaContactProfil: JSONSchemaType<structureContactProfil> = {
   required: ["contact", "type"],
 };
 
-export class Profil extends ComposanteClientDic<structureBdProfil> {
-  constructor({ client }: { client: Constellation }) {
+export class Profil extends ServiceConstellationDic {
+  constructor({ constl }: { constl: Constellation }) {
     super({
-      client,
+      constl,
       clef: "profil",
-      schémaBdPrincipale: schémaStructureBdProfil,
     });
-  }
-
-  async créerBdsInternes({ idCompte }: { idCompte: string }): Promise<void> {
-    const idProfil = await this.client.obtIdBd({
-      nom: this.clef,
-      racine: idCompte,
-      type: "keyvalue",
-    });
-    const { bd: bdBase, fOublier } = await this.client.ouvrirBdTypée({
-      id: idProfil,
-      type: "keyvalue",
-      schéma: schémaStructureBdProfil,
-    });
-    const optionsAccès = await this.client.obtOpsAccès({
-      idBd: bdBase.address,
-    });
-    const idBdNoms = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdBase.set("noms", idBdNoms);
-    // bio
-    const idBdBios = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdBase.set("bios", idBdBios);
-
-    const idBdContacts = await this.client.créerBdIndépendante({
-      type: "set",
-      optionsAccès,
-    });
-    await bdBase.set("contacts", idBdContacts);
-
-    await fOublier();
   }
 
   async suivreRésolutionÉpingle({
@@ -113,16 +84,16 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     épingle: ÉpingleFavorisAvecId<ÉpingleProfil>;
     f: schémaFonctionSuivi<Set<string>>;
   }): Promise<schémaFonctionOublier> {
-    const épinglerBase = await this.client.favoris.estÉpingléSurDispositif({
+    const épinglerBase = await this.constl.favoris.estÉpingléSurDispositif({
       dispositifs: épingle.épingle.base || "TOUS",
     });
-    const épinglerFichiers = await this.client.favoris.estÉpingléSurDispositif({
+    const épinglerFichiers = await this.constl.favoris.estÉpingléSurDispositif({
       dispositifs: épingle.épingle.base || "TOUS",
     });
 
     const fsOublier: schémaFonctionOublier[] = [];
     if (épinglerBase || épinglerFichiers) {
-      const fOublierBase = await this.client.suivreBd({
+      const fOublierBase = await this.constl.suivreBd({
         id: épingle.idObjet,
         type: "keyvalue",
         schéma: schémaStructureBdProfil,
@@ -154,14 +125,8 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
   }
 
   async initialiser(): Promise<void> {
-    const idBdProfil = await this.obtIdBd();
-    const { bd: bdProfil, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdProfil,
-      type: "keyvalue",
-      schéma: schémaStructureBdProfil,
-    });
-    await bdProfil.set("initialisé", true);
-    await fOublier();
+    const bdConstl = await this.bdConstl();
+    await bdConstl.set(this.clefBd("initialisé"), true);
   }
 
   async suivreInitialisé({
@@ -224,13 +189,13 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     contact: string;
   }): Promise<void> {
     const idBdProfil = await this.obtIdBd();
-    const idBdContacts = await this.client.obtIdBd({
+    const idBdContacts = await this.constl.obtIdBd({
       nom: "contacts",
       racine: idBdProfil,
       type: "set",
     });
 
-    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+    const { bd, fOublier } = await this.constl.ouvrirBdTypée({
       id: idBdContacts,
       type: "set",
       schéma: schémaContactProfil,
@@ -247,13 +212,13 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     contact?: string;
   }): Promise<void> {
     const idBdProfil = await this.obtIdBd();
-    const idBdContacts = await this.client.obtIdBd({
+    const idBdContacts = await this.constl.obtIdBd({
       nom: "contacts",
       racine: idBdProfil,
       type: "set",
     });
 
-    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+    const { bd, fOublier } = await this.constl.ouvrirBdTypée({
       id: idBdContacts,
       type: "set",
       schéma: schémaContactProfil,
@@ -313,13 +278,13 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
 
   async sauvegarderNoms({ noms }: { noms: TraducsNom }): Promise<void> {
     const idBdProfil = await this.obtIdBd();
-    const idBdNoms = await this.client.obtIdBd({
+    const idBdNoms = await this.constl.obtIdBd({
       nom: "noms",
       racine: idBdProfil,
       type: "keyvalue",
     });
 
-    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+    const { bd, fOublier } = await this.constl.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -342,13 +307,13 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
 
   async sauvegarderBios({ bios }: { bios: TraducsNom }): Promise<void> {
     const idBdProfil = await this.obtIdBd();
-    const idBdBios = await this.client.obtIdBd({
+    const idBdBios = await this.constl.obtIdBd({
       nom: "bios",
       racine: idBdProfil,
       type: "keyvalue",
     });
 
-    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+    const { bd, fOublier } = await this.constl.ouvrirBdTypée({
       id: idBdBios,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -362,13 +327,13 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
   // nom
   async effacerNom({ langue }: { langue: string }): Promise<void> {
     const idBdProfil = await this.obtIdBd();
-    const idBdNoms = await this.client.obtIdBd({
+    const idBdNoms = await this.constl.obtIdBd({
       nom: "noms",
       racine: idBdProfil,
       type: "keyvalue",
     });
 
-    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+    const { bd, fOublier } = await this.constl.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -403,7 +368,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       throw new Error("Taille maximale excédée");
     }
 
-    const idImage = await this.client.ajouterÀSFIP(image);
+    const idImage = await this.constl.ajouterÀSFIP(image);
     const { bd, fOublier } = await this.obtBd();
     await bd.set("image", idImage);
     await fOublier();
@@ -429,7 +394,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBd({
+        return await this.constl.suivreBd({
           id,
           type: "keyvalue",
           schéma: schémaStructureBdProfil,
@@ -438,7 +403,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
             if (!idImage) {
               return await fSuivreBd(null);
             } else {
-              const image = await this.client.obtFichierSFIP({
+              const image = await this.constl.obtFichierSFIP({
                 id: idImage,
                 max: MAX_TAILLE_IMAGE_VIS,
               });

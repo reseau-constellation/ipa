@@ -14,12 +14,12 @@ import {
 } from "@/const.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { mandatairifier } from "./mandataire/index.js";
+import { ServiceConstellation } from "./services.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
-import { ServiceConstellation } from "./services.js";
 
 // https://github.com/github/choosealicense.com
 export const conditions = {
@@ -431,13 +431,13 @@ export class Licences extends ServiceConstellation {
   perroquet?: கிளி<InfoLicenceAvecCode> | false;
 
   constructor({ client }: { client: Constellation }) {
-    super({client, clef: "licences"})
+    super({ client, clef: "licences" });
 
     this.événements = new TypedEmitter<ÉvénementsLicences>();
     this.initialiser();
   }
 
-  async initialiser() {
+  async démarrer() {
     if (
       SCHÉMA_BD_LICENCES &&
       CLEF_TABLEAU_LICENCES_APPROUVÉES &&
@@ -472,7 +472,7 @@ export class Licences extends ServiceConstellation {
         rejeter("Configuration licences non initialisée.");
       });
     });
-  };
+  }
 
   @cacheSuivi
   async suivreLicences({

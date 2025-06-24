@@ -273,7 +273,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.fsOublier = [];
   }
 
-  async initialiser(): Promise<void> {
+  async démarrer(): Promise<void> {
     const texteDispositifsVus = await this.client.obtDeStockageLocal({
       clef: "dispositifsEnLigne",
     });

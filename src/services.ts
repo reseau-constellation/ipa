@@ -3,14 +3,26 @@ import {
   faisRien,
   ignorerNonDéfinis,
 } from "@constl/utils-ipa";
-import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
+import { TypedKeyValue, TypedNested, TypedSet } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
 import {
+  NestedDatabaseType,
+  NestedKey,
+  joinKey,
+  splitKey,
+} from "@orbitdb/nested-db";
+import { ExtractKeys } from "node_modules/@constl/bohr-db/dist/types.js";
+import { DefaultLibp2pServices } from "helia";
+import {
+  ServicesConstellation,
+  ServicesDéfautConstellation,
   schémaStructureBdCompte,
   type Constellation,
   type structureBdCompte,
 } from "@/client.js";
+import { ServicesLibp2p } from "./sfip/index.js";
 import { cacheSuivi } from "./décorateursCache.js";
+import { Profil } from "./profil.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
@@ -22,35 +34,85 @@ type KeysMatching<T, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
 
-export class ServiceConstellation {
-  client: Constellation;
+export class ServiceConstellation<
+  S extends ServicesConstellation,
+  L extends ServicesLibp2p,
+> {
+  constl: Constellation;
   clef: string;
-  dépendences: string[];
+  dépendences: (keyof S)[];
+  signaleur: AbortController;
 
   constructor({
-    client,
+    constl,
     clef,
     dépendences,
   }: {
-    client: Constellation;
-    clef: string
-    dépendences?: string[]
+    constl: Constellation<S, L>;
+    clef: string;
+    dépendences?: (keyof S)[];
   }) {
-    this.client = client;
+    this.constl = constl;
     this.clef = clef;
     this.dépendences = dépendences || [];
+
+    this.signaleur = new AbortController();
   }
 
-  async initialiser(): Promise<void> {}
-  async fermer() {}
+  async démarrer(): Promise<void> {}
+  async fermer() {
+    this.signaleur.abort();
+    // Attendre démarré
+  }
 
-  async initialisé() {}
-
+  async démarré() {}
 }
+
+export class ServiceConstellationDic<
+  S extends ServicesConstellation = ServicesDéfautConstellation,
+  L extends ServicesLibp2p = ServicesLibp2p,
+> extends ServiceConstellation<S, L> {
+  constructor({
+    constl,
+    clef,
+    dépendences,
+  }: {
+    constl: Constellation<S, L>;
+    clef: string;
+    dépendences?: (keyof S)[];
+  }) {
+    super({ constl, clef, dépendences });
+  }
+
+  // À faire: types pour `clef`
+  clefBd(clef: NestedKey = []): ExtractKeys<structureBdCompte> {
+    const composantesClef = typeof clef === "string" ? splitKey(clef) : clef;
+    return joinKey([
+      this.clef,
+      ...composantesClef,
+    ]) as ExtractKeys<structureBdCompte>;
+  }
+
+  async bdConstl(): Promise<TypedNested<structureBdCompte>> {
+    const { idCompte } = await this.constl.attendreInitialisée();
+    return await this.constl.ouvrirBdTypée({
+      id: idCompte,
+      type: "nested",
+      schéma: schémaStructureBdCompte,
+    });
+  }
+
+  async fermer() {
+    await super.fermer();
+  }
+}
+
+const x = new ServiceConstellationDic<{ a: Profil }>({});
 
 export class ServiceConstellationAvecBd extends ServiceConstellation {
   typeBd: "keyvalue" | "set";
-  clef: KeysMatching<structureBdCompte, string | undefined>;
+  clef: keyof structureBdCompte;
+  client: Constellation;
 
   constructor({
     client,
@@ -58,12 +120,13 @@ export class ServiceConstellationAvecBd extends ServiceConstellation {
     typeBd,
   }: {
     client: Constellation;
-    clef: KeysMatching<structureBdCompte, string | undefined>;
+    clef: keyof structureBdCompte;
     typeBd: "keyvalue" | "set";
   }) {
-    super({ clef, client })
+    super({ clef, constl: client });
+    this.client = this.constl;
     this.typeBd = typeBd;
-    this.clef = clef
+    this.clef = clef;
   }
 
   async obtIdBd(): Promise<string> {
@@ -89,7 +152,7 @@ export class ComposanteClientDic<
     schémaBdPrincipale,
   }: {
     client: Constellation;
-    clef: KeysMatching<structureBdCompte, string | undefined>;
+    clef: keyof structureBdCompte;
     schémaBdPrincipale: JSONSchemaType<T>;
   }) {
     super({
@@ -217,7 +280,7 @@ export class ComposanteClientDic<
           schéma: schémaStructureBdCompte,
           f: async (données) => {
             const idBdComposante = données[this.clef];
-            await fSuivreBd(idBdComposante);
+            await fSuivreBd(idBdComposante as string);
           },
         });
       },
@@ -308,7 +371,7 @@ export class ComposanteClientListe<
           schéma: schémaStructureBdCompte,
           f: async (données) => {
             const idBdComposante = données[this.clef];
-            await fSuivreBd(idBdComposante);
+            await fSuivreBd(idBdComposante as string);
           },
         });
       },

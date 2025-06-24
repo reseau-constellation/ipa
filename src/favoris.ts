@@ -247,7 +247,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     this.événements = new TypedEmitter<ÉvénementsFavoris>();
   }
 
-  async initialiser() {
+  async démarrer() {
     const fFinale = async (
       résolutions: { idObjet: string; épingles: string[] }[],
     ) => {

@@ -100,7 +100,7 @@ export type structureBdBd = {
   licence: string;
   licenceContenu?: string;
   image?: string;
-  métadonnées: {[clef: string]: élémentsBd};
+  métadonnées: { [clef: string]: élémentsBd };
   noms: TraducsNom;
   descriptions: TraducsNom;
   tableaux: string;
@@ -113,17 +113,32 @@ const schémaStructureBdBd: JSONSchemaType<Partial<structureBdBd>> = {
   type: "object",
   properties: {
     type: { type: "string", nullable: true },
-    métadonnées: { type: "object",oneOf:[], additionalProperties: {
-    }, required: [], nullable: true },
+    métadonnées: {
+      type: "object",
+      oneOf: [],
+      additionalProperties: {},
+      required: [],
+      nullable: true,
+    },
     licence: { type: "string", nullable: true },
     licenceContenu: { type: "string", nullable: true },
     image: { type: "string", nullable: true },
-    noms: { type: "object", additionalProperties: {
-      type: "string",
-    }, required: [], nullable: true },
-    descriptions: { type: "object", additionalProperties: {
-      type: "string",
-    }, required: [], nullable: true },
+    noms: {
+      type: "object",
+      additionalProperties: {
+        type: "string",
+      },
+      required: [],
+      nullable: true,
+    },
+    descriptions: {
+      type: "object",
+      additionalProperties: {
+        type: "string",
+      },
+      required: [],
+      nullable: true,
+    },
     tableaux: { type: "string", nullable: true },
     motsClefs: { type: "string", nullable: true },
     nuées: { type: "string", nullable: true },
@@ -134,7 +149,7 @@ const schémaStructureBdBd: JSONSchemaType<Partial<structureBdBd>> = {
         idNouvelle: { type: "string", nullable: true },
       },
       required: ["statut"],
-      nullable: true 
+      nullable: true,
     },
     copiéDe: {
       type: "object",
@@ -351,7 +366,7 @@ export class BDs extends ComposanteClientListe<string> {
       type: "nested",
       schéma: schémaStructureBdBd,
     });
-    await bdBD.putNested({type: "bd", licence, licenceContenu});
+    await bdBD.putNested({ type: "bd", licence, licenceContenu });
 
     const accès = bdBD.access as ContrôleurConstellation;
     const optionsAccès = { write: accès.address };
@@ -494,7 +509,7 @@ export class BDs extends ComposanteClientListe<string> {
       });
 
     const métadonnées = await bdBase.get("métadonnées");
-    if (métadonnées) {    
+    if (métadonnées) {
       await this.sauvegarderMétadonnéesBd({ idBd: idNouvelleBd, métadonnées });
     }
 
@@ -1273,8 +1288,8 @@ export class BDs extends ComposanteClientListe<string> {
       id: idBd,
       type: "nested",
       schéma: schémaStructureBdBd,
-      f: async bd => {
-        await f(await bd.get("métadonnées") || {})
+      f: async (bd) => {
+        await f((await bd.get("métadonnées")) || {});
       },
     });
   }
@@ -1308,7 +1323,7 @@ export class BDs extends ComposanteClientListe<string> {
     nom: string;
   }): Promise<void> {
     await this._confirmerPermission({ idBd });
-    
+
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
       type: "nested",
@@ -1882,7 +1897,7 @@ export class BDs extends ComposanteClientListe<string> {
       type: "nested",
       schéma: schémaStructureBdBd,
       f: async (bd) => {
-        noms.deBd = await bd.get("noms") || {};
+        noms.deBd = (await bd.get("noms")) || {};
         await fFinale();
       },
     });
@@ -1903,8 +1918,8 @@ export class BDs extends ComposanteClientListe<string> {
       id: idBd,
       type: "nested",
       schéma: schémaStructureBdBd,
-      f: async bd => {
-        await f(await bd.get("descriptions") || {})
+      f: async (bd) => {
+        await f((await bd.get("descriptions")) || {});
       },
     });
   }
@@ -2682,7 +2697,7 @@ export class BDs extends ComposanteClientListe<string> {
     }
     await fOublier();
 
-    const idBdTableaux = await bdBd.get("tableaux")
+    const idBdTableaux = await bdBd.get("tableaux");
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =
         await this.client.ouvrirBdTypée({

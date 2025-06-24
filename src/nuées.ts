@@ -33,7 +33,11 @@ import {
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 import { schémaBdTableauxDeBd } from "@/bds.js";
-import { cacheRechercheParNRésultats, cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
+import {
+  cacheRechercheParNRésultats,
+  cacheRechercheParProfondeur,
+  cacheSuivi,
+} from "@/décorateursCache.js";
 import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
 import { ComposanteClientListe } from "./services.js";
 import {

@@ -912,7 +912,7 @@ class AutomatisationActive extends TypedEmitter<{ misÀJour: () => void }> {
     this.initialiser({ spéc, idSpéc });
   }
 
-  async initialiser({
+  async démarrer({
     spéc,
     idSpéc,
   }: {
@@ -1001,7 +1001,7 @@ export class Automatisations extends ComposanteClientDic<{
     this.queue = new PQueue({ concurrency: 1 });
   }
 
-  async initialiser(): Promise<void> {
+  async démarrer(): Promise<void> {
     this.fOublier = await this.suivreBdPrincipale({
       f: (autos) => this.mettreAutosÀJour(Object.values(autos)),
     });

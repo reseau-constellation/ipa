@@ -1,34 +1,81 @@
+import { TypedNested } from "@constl/bohr-db";
+import {
+  NestedDatabaseType,
+  NestedKey,
+  NestedValue,
+  joinKey,
+  splitKey,
+} from "@orbitdb/nested-db";
+import { ExtractKeys, GetValueFromKey } from "node_modules/@constl/bohr-db/dist/types.js";
 import { TypedEmitter } from "tiny-typed-emitter";
+import { RecursivePartial } from "./types.js";
+import type { JSONSchemaType } from "ajv";
+
+const envelopperNested = <T extends NestedValue, K extends ExtractKeys<T>>(
+  clef: K,
+  bd: TypedNested<T>,
+): T[K] extends NestedValue ? TypedNested<T[K]> : never => {
+  return new Proxy(bd, {
+    get(cible, prop) {
+      if (prop === "put") {
+        const putFinal: NestedDatabaseType["put"] = async (
+          ...args: Parameters<NestedDatabaseType["put"]>
+        ) => {
+          const [key, valeur] = args;
+          const clefFinale = joinKey([
+            clef,
+            ...(typeof key === "string" ? splitKey(key) : key),
+          ]);
+          // @ts-expect-error  Sera réglé après mise à jour
+          return await cible.put(clefFinale, valeur);
+        };
+        // À faire : autres fonctions
+        return putFinal;
+      }
+      return cible[prop as keyof typeof cible];
+    },
+  }) as unknown as T[K] extends NestedValue ? TypedNested<T[K]> : never;
+};
 
 type ÉvénementsServiceNébuleuse = {
   démarré: () => void;
 };
 
 export class ServiceNébuleuse<
-  T extends string = string,
+  T extends string,
   D extends ServicesDéfautNébuleuse = ServicesDéfautNébuleuse,
+  S extends StructureNébuleuse = StructureNébuleuse,
 > {
   type: T;
   nébuleuse: Nébuleuse<D>;
   dépendances: (keyof D)[];
+  structure: T extends ExtractKeys<S> ? JSONSchemaType<RecursivePartial<S>> : undefined;
+
   estDémarré: boolean;
   événements: TypedEmitter<ÉvénementsServiceNébuleuse>;
+
+  bd: T extends ExtractKeys<S> ? GetValueFromKey<S, T> extends NestedValue ? GetValueFromKey<S, T> : undefined : undefined;
 
   constructor({
     type,
     nébuleuse,
     dépendances = [],
+    structure,
   }: {
     type: T;
     nébuleuse: Nébuleuse<D>;
     dépendances?: (keyof D)[];
+    structure?: T extends ExtractKeys<S> ? GetValueFromKey<S, T> extends NestedValue ? JSONSchemaType<RecursivePartial<GetValueFromKey<S, T> >> : undefined : undefined;
   }) {
     this.type = type;
     this.nébuleuse = nébuleuse;
     this.dépendances = dépendances;
+    this.structure = structure || undefined;
 
     this.estDémarré = false;
     this.événements = new TypedEmitter<ÉvénementsServiceNébuleuse>();
+
+    this.bd = extractKeys(structure).includes(this.type) ? envelopperNested(this.type, nébuleuse.bd) : undefined;
   }
 
   async démarrer() {
@@ -43,28 +90,57 @@ export class ServiceNébuleuse<
   async fermer(): Promise<void> {
     await this.démarré();
   }
+
+  clef(clef: NestedKey): string {
+    return joinKey([
+      this.type,
+      ...(typeof clef === "string" ? splitKey(clef) : clef),
+    ]);
+  }
 }
 
 type ClasseServiceNébuleuse<
-  S extends ServiceNébuleuse = ServiceNébuleuse,
-  D extends ServicesDéfautNébuleuse = ServicesDéfautNébuleuse,
-> = new (args: { nébuleuse: Nébuleuse<D> }) => S;
-export type ServicesNébuleuse = { [clef: string]: ClasseServiceNébuleuse };
+  C extends ExtractKeys<S>,
+  D extends ServicesDéfautNébuleuse,
+  S extends StructureNébuleuse,
+> = new (args: { nébuleuse: Nébuleuse<D> }) => ServiceNébuleuse<C, D, S>;
+export type ServicesNébuleuse = { [clef: string]: ClasseServiceNébuleuse<ExtractKeys<StructureNébuleuse>> };
 export type InstancesServicesNébuleuse<T extends ServicesNébuleuse> = {
   [clef in keyof T]: InstanceType<T[clef]>;
 };
 
-class Profil extends ServiceNébuleuse<"profil"> {
+type StructureProfil = {
+  noms: { [langue: string]: string }
+}
+const structureProfil: JSONSchemaType<RecursivePartial<StructureProfil>> = {
+  type: "object",
+  properties: {
+    noms: {
+      type: "object",
+      additionalProperties: {
+        type: "string"
+      },
+      required: [],
+      nullable: true,
+    },
+  },
+  required: []
+}
+
+class Profil extends ServiceNébuleuse<"profil", ServicesDéfautNébuleuse, StructureNébuleuse> {
   constructor({
     nébuleuse,
   }: {
     nébuleuse: Nébuleuse<ServicesDéfautNébuleuse>;
   }) {
-    super({ type: "profil", nébuleuse, dépendances: ["réseau"] });
+    super({ type: "profil", nébuleuse, dépendances: ["réseau"], structure: structureProfil });
   }
+  async sauvegarderNom({ langue, nom }: { langue: string; nom: string }) {
+    await this.bd.put(`noms/${langue}`, nom);
+  };
 }
 
-class Réseau extends ServiceNébuleuse<"réseau"> {
+class Réseau extends ServiceNébuleuse<"réseau", ServicesDéfautNébuleuse, StructureNébuleuse> {
   constructor({
     nébuleuse,
   }: {
@@ -149,8 +225,25 @@ const obtServicesConstellation = (): ServicesConstellation => {
   };
 };
 
-export class Nébuleuse<S extends ServicesDéfautNébuleuse> {
+type StructureNébuleuse = {
+  profil: {
+    noms: { [langue: string]: string };
+  }
+}
+const schémaStructureNébuleuse: JSONSchemaType<RecursivePartial<StructureNébuleuse>> = {
+  type: "object",
+  properties: {
+    profil: {
+      ...structureProfil,
+      nullable: true,
+    },
+  }
+}
+
+export class Nébuleuse<S extends ServicesDéfautNébuleuse, T extends NestedValue = StructureNébuleuse> {
+  bd: TypedNested<T>;
   services: InstancesServicesNébuleuse<S>;
+
   constructor({ services }: { services?: S }) {
     services = services ?? (obtServicesDéfautNébuleuse() as S);
     this.services = Object.fromEntries(
@@ -171,11 +264,16 @@ export class Nébuleuse<S extends ServicesDéfautNébuleuse> {
     );
     if (!servicesÀDémarrer.length) return;
 
-    const prêtsÀDémarrer = servicesÀDémarrer.filter(s=>s.dépendances.every(d=>this.services[d].démarré));
-    if (!prêtsÀDémarrer.length) throw new Error(`Dépendances récursives ou non-existantes parmi ${prêtsÀDémarrer.join(", ")}`)
-    
-    await Promise.all(prêtsÀDémarrer.map(s=>s.démarrer()));
-    
+    const prêtsÀDémarrer = servicesÀDémarrer.filter((s) =>
+      s.dépendances.every((d) => this.services[d].démarré),
+    );
+    if (!prêtsÀDémarrer.length)
+      throw new Error(
+        `Dépendances récursives ou non-existantes parmi ${prêtsÀDémarrer.join(", ")}`,
+      );
+
+    await Promise.all(prêtsÀDémarrer.map((s) => s.démarrer()));
+
     await this.initialiserServices();
   }
 
@@ -189,11 +287,16 @@ export class Nébuleuse<S extends ServicesDéfautNébuleuse> {
     );
     if (!servicesÀFermer.length) return;
 
-    const prêtsÀFermer = servicesÀFermer.filter(s=>!servicesÀFermer.some(d=>!d.dépendances.includes(s.type)));
-    if (!prêtsÀFermer.length) throw new Error(`Dépendances récursives ou non-existantes parmi ${prêtsÀFermer.join(", ")}`)
-    
-    await Promise.all(prêtsÀFermer.map(s=>s.fermer()));
-    
+    const prêtsÀFermer = servicesÀFermer.filter(
+      (s) => !servicesÀFermer.some((d) => !d.dépendances.includes(s.type)),
+    );
+    if (!prêtsÀFermer.length)
+      throw new Error(
+        `Dépendances récursives ou non-existantes parmi ${prêtsÀFermer.join(", ")}`,
+      );
+
+    await Promise.all(prêtsÀFermer.map((s) => s.fermer()));
+
     await this.fermerServices();
   }
 }
@@ -201,14 +304,20 @@ export class Nébuleuse<S extends ServicesDéfautNébuleuse> {
 export class Constellation<
   S extends ServicesConstellation,
 > extends Nébuleuse<S> {
-  bds: Bds;
   profil: Profil;
+  réseau: Réseau;
+  bds: Bds;
+  tableaux: Tableaux;
 
   constructor({ services }: { services?: S }) {
     services = services ?? (obtServicesConstellation() as S);
     super({ services });
 
-    this.bds = this.services["bds"];
+    // Pour garder l'IPA d'avant que j'aime bien...
+    this.réseau = this.services["réseau"];
+
     this.profil = this.services["profil"];
+    this.bds = this.services["bds"];
+    this.tableaux = this.services["tableaux"];
   }
 }

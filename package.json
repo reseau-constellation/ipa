@@ -34,6 +34,7 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
+    "@chainsafe/benchmark": "^2.0.1",
     "@constl/utils-tests": "^1.6.15",
     "@eslint/js": "^9.30.1",
     "@libp2p/crypto": "next",
@@ -98,7 +99,6 @@
     "uint8arraylist": "^2.4.8"
   },
   "dependencies": {
-    "@chainsafe/benchmark": "^2.0.1",
     "@chainsafe/libp2p-gossipsub": "14.1.1",
     "@chainsafe/libp2p-noise": "^16.1.4",
     "@chainsafe/libp2p-yamux": "^7.0.4",

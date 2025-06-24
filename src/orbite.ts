@@ -102,7 +102,7 @@ type TypesBdsOrbites = {
   keyvalue: KeyValueDatabase;
   feed: FeedDatabaseType;
   set: SetDatabaseType;
-  "ordered-keyvalue": OrderedKeyValueDatabaseType
+  "ordered-keyvalue": OrderedKeyValueDatabaseType;
   nested: NestedDatabaseType;
 };
 
