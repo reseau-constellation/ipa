@@ -589,13 +589,13 @@ describe("BDs", function () {
             idVariable,
           });
         })(),
-      ])
+      ]);
     });
 
     it("Copier la bd", async () => {
       idBdCopie = await constl.bds.copierBd({ idBd: idBdOrig });
-      expect(idBdCopie).to.be.a("string")
-    })
+      expect(idBdCopie).to.be.a("string");
+    });
 
     it("Les noms sont copiés", async () => {
       const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
@@ -744,7 +744,7 @@ describe("BDs", function () {
 
     it("Combiner les bds", async () => {
       await constl.bds.combinerBds({ idBdBase: idBd1, idBd2 });
-    })
+    });
 
     it("Les données sont copiées", async () => {
       const données = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(

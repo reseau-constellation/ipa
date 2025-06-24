@@ -3,7 +3,6 @@ import { multiaddr } from "@multiformats/multiaddr";
 import { ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
 import type { AddrInfo } from "@chainsafe/libp2p-gossipsub/types";
 
-
 export const résoudreInfoAdresses = (adresses: string[]): AddrInfo[] => {
   const infos: AddrInfo[] = [];
   for (const adresse of adresses) {

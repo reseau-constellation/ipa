@@ -18,7 +18,7 @@ export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 type structureBdProfil = {
   contacts?: string;
   noms?: string;
-  bios?:string;
+  bios?: string;
   image?: string;
   initialisé?: boolean;
 };
@@ -41,10 +41,10 @@ const schémaStructureBdProfil: JSONSchemaType<structureBdProfil> = {
       type: "string",
       nullable: true,
     },
-    bios:{
-      type:"string",
+    bios: {
+      type: "string",
       nullable: true,
-    }
+    },
   },
   required: [],
 };
@@ -268,7 +268,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
 
     await fOublier();
   }
-// nom
+  // nom
   @cacheSuivi
   async suivreNoms({
     f,
@@ -300,7 +300,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       f,
     });
   }
-// Nom
+  // Nom
   async sauvegarderNom({
     langue,
     nom,
@@ -329,8 +329,8 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     }
     await fOublier();
   }
-// bio
-   async sauvegarderBio({
+  // bio
+  async sauvegarderBio({
     langue,
     bio,
   }: {
@@ -359,7 +359,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     await fOublier();
   }
 
-// nom
+  // nom
   async effacerNom({ langue }: { langue: string }): Promise<void> {
     const idBdProfil = await this.obtIdBd();
     const idBdNoms = await this.client.obtIdBd({
@@ -376,24 +376,23 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     await bd.del(langue);
     await fOublier();
   }
-// bio
-async effacerBio({ langue }: { langue: string }): Promise<void> {
-  const idBdProfil = await this.obtIdBd();
-  const idBdBios = await this.client.obtIdBd({
-    nom: "bios",
-    racine: idBdProfil,
-    type: "keyvalue",
-  });
+  // bio
+  async effacerBio({ langue }: { langue: string }): Promise<void> {
+    const idBdProfil = await this.obtIdBd();
+    const idBdBios = await this.client.obtIdBd({
+      nom: "bios",
+      racine: idBdProfil,
+      type: "keyvalue",
+    });
 
-  const { bd, fOublier } = await this.client.ouvrirBdTypée({
-    id: idBdBios,
-    type: "keyvalue",
-    schéma: schémaStructureBdNoms,
-  });
-  await bd.del(langue);
-  await fOublier();
-}
-
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdBios,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
+    await bd.del(langue);
+    await fOublier();
+  }
 
   async sauvegarderImage({
     image,

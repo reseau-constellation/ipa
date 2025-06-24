@@ -1133,8 +1133,8 @@ export class Tableaux {
           return await this.suivreDonnées({ idTableau: idTableau2, f: fSuivi });
         },
         attendreStabilité(patience),
-      )
-    ])
+      ),
+    ]);
 
     const colsTableauBase = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
