@@ -46,7 +46,6 @@ describe("Profil", function () {
   });
 
   describe("Courriels", function () {
-
     const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
     it("Pas de courriel pour commencer", async () => {
@@ -77,7 +76,6 @@ describe("Profil", function () {
       );
       expect(courriel).to.be.null();
     });
-
   });
   // nom
   describe("Noms", function () {
