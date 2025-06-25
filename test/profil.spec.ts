@@ -1,10 +1,10 @@
 import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-ipa";
 import { type Constellation, créerConstellation } from "@/index.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import type { TraducsNom, schémaFonctionOublier } from "@/types.js";
-import { obtenir } from "@constl/utils-ipa";
+import type { TraducsNom } from "@/types.js";
 
 describe("Profil", function () {
   let fOublierClients: () => Promise<void>;
@@ -25,8 +25,6 @@ describe("Profil", function () {
   });
 
   describe("Initialiser profil", function () {
-    let fOublier: schémaFonctionOublier;
-
     it("Pas initialisé pour commencer", async () => {
       const initialisé = await obtenir(({ siDéfini }) =>
         client.profil.suivreInitialisé({
@@ -45,14 +43,9 @@ describe("Profil", function () {
       );
       expect(initialisé).to.be.true();
     });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
   });
 
   describe("Courriels", function () {
-    let fOublier: schémaFonctionOublier;
 
     const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
@@ -85,9 +78,6 @@ describe("Profil", function () {
       expect(courriel).to.be.null();
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
   });
   // nom
   describe("Noms", function () {
