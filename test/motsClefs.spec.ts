@@ -7,7 +7,7 @@ import { TraducsNom } from "@/types.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
-describe.only("Mots-clefs", function () {
+describe("Mots-clefs", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
