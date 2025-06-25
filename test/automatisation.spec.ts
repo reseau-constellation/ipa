@@ -582,7 +582,71 @@ describe("Automatisation", function () {
         { [idCol1]: 4, [idCol2]: "子" },
       ]);
     });
-    it.skip("Effacer automatisation");
+
+    it.skip("Effacer automatisation", async function () {
+      if (isBrowser || isElectronRenderer) this.skip();
+
+      const fichierJSON = path.join(dossier, "données.json");
+      const données = {
+        données: [
+          { "col 1": 1, "col 2": "អ" },
+          { "col 1": 2, "col 2": "அ" },
+          { "col 1": 3, "col 2": "a" },
+        ],
+      };
+
+      fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+      const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+        typeSource: "fichier",
+        adresseFichier: fichierJSON,
+        info: {
+          formatDonnées: "json",
+          clefsRacine: ["données"],
+          clefsÉléments: [],
+          cols: {
+            [idCol1]: ["col 1"],
+            [idCol2]: ["col 2"],
+          },
+        },
+      };
+
+      const idAuto = await client.automatisations.ajouterAutomatisationImporter(
+        {
+          idTableau,
+          source,
+          fréquence: {
+            type: "dynamique",
+          },
+        },
+      );
+
+      données.données.push({ "col 1": 4, "col 2": "子" });
+      fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+      await client.automatisations.annulerAutomatisation({
+        id: idAuto,
+      });
+
+      données.données.push({ "col 1": 5, "col 2": "ક" });
+      fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+      const donnéesTableau = await obtenir<
+        élémentDonnées<élémentBdListeDonnées>[]
+      >(({ si }) =>
+        client.tableaux.suivreDonnées({
+          idTableau,
+          f: si((x) => x.length >= 3),
+        }),
+      );
+
+      comparerDonnéesTableau(donnéesTableau, [
+        { [idCol1]: 1, [idCol2]: "អ" },
+        { [idCol1]: 2, [idCol2]: "அ" },
+        { [idCol1]: 3, [idCol2]: "a" },
+        { [idCol1]: 4, [idCol2]: "子" },
+      ]);
+    });
   });
 
   describe("Exportation", function () {
@@ -950,31 +1014,11 @@ describe("Automatisation", function () {
     let dossier: string;
     let fEffacer: () => void;
 
-    const résÉtats = new utilsTestAttente.AttendreRésultat<{
-      [key: string]: ÉtatAutomatisation;
-    }>();
-    const résAutos = new utilsTestAttente.AttendreRésultat<
-      SpécificationAutomatisation[]
-    >();
-
     const fsOublier: (schémaFonctionOublier | (() => void))[] = [];
 
     before(async () => {
       ({ dossier, fEffacer } = await dossiers.dossierTempo());
       fsOublier.push(fEffacer);
-
-      fsOublier.push(
-        await client.automatisations.suivreÉtatAutomatisations({
-          f: (états) => {
-            résÉtats.mettreÀJour(états);
-          },
-        }),
-      );
-      fsOublier.push(
-        await client.automatisations.suivreAutomatisations({
-          f: (autos) => résAutos.mettreÀJour(autos),
-        }),
-      );
 
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
       await client.bds.sauvegarderNomsBd({
@@ -1012,9 +1056,6 @@ describe("Automatisation", function () {
     });
 
     after(async () => {
-      résÉtats.toutAnnuler();
-      résAutos.toutAnnuler();
-
       await Promise.allSettled(fsOublier.map((f) => f()));
       const automatisations = await uneFois(
         async (fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>) =>
@@ -1053,16 +1094,22 @@ describe("Automatisation", function () {
         },
       );
       await attendreFichierExiste.attendre();
-      await résÉtats.attendreQue((x) => !!(x && x[idAuto]?.type !== "sync"));
+      const états = await obtenir<{
+        [key: string]: ÉtatAutomatisation;
+      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
+        f: si((x) => !!(x && x[idAuto]?.type !== "sync")),
+      }),)
 
-      expect(résÉtats.val![idAuto]).to.deep.equal({
+      expect(états[idAuto]).to.deep.equal({
         type: "écoute",
       });
 
       const avantAjout = Date.now();
-      const attendre = résÉtats.attendreQue(
-        (x) => !!(x && x[idAuto]?.type === "sync"),
-      );
+      const attendre = obtenir<{
+        [key: string]: ÉtatAutomatisation;
+      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
+        f: si((x) => !!(x && x[idAuto]?.type === "sync"),),
+      }))
       await client.tableaux.ajouterÉlément({
         idTableau,
         vals: { [idCol]: 4 },
@@ -1101,11 +1148,13 @@ describe("Automatisation", function () {
 
       await attendreFichierExiste.attendre();
 
-      const val = await résÉtats.attendreQue(
-        (x) => !!(x && x[idAuto]?.type === "programmée"),
-      );
+      const états = await obtenir<{
+        [key: string]: ÉtatAutomatisation;
+      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
+        f: si((x) => !!(x && x[idAuto]?.type === "programmée"),),
+      }));
 
-      const état = val[idAuto] as ÉtatProgrammée;
+      const état = états[idAuto] as ÉtatProgrammée;
 
       expect(état.type).to.equal("programmée");
 
@@ -1135,14 +1184,16 @@ describe("Automatisation", function () {
         },
       );
 
-      const val = await résÉtats.attendreQue(
-        (x) => x[idAuto]?.type === "erreur",
-      );
+      const états = await obtenir<{
+        [key: string]: ÉtatAutomatisation;
+      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
+        f: si((x) => x[idAuto]?.type === "erreur",),
+      }));
 
       const après = Date.now();
 
-      expect(val[idAuto].type).to.equal("erreur");
-      const état = val[idAuto] as ÉtatErreur;
+      expect(états[idAuto].type).to.equal("erreur");
+      const état = états[idAuto] as ÉtatErreur;
 
       expect(JSON.parse(état.erreur).message).to.equal(
         "Unrecognized bookType |ods!|",
@@ -1163,28 +1214,8 @@ describe("Automatisation", function () {
     let dossier: string;
     let fEffacer: () => void;
 
-    const résÉtats = new utilsTestAttente.AttendreRésultat<{
-      [key: string]: ÉtatAutomatisation;
-    }>();
-    const résAutos = new utilsTestAttente.AttendreRésultat<
-      SpécificationAutomatisation[]
-    >();
-    const fsOublier: schémaFonctionOublier[] = [];
-
     before(async () => {
-      fsOublier.push(
-        await client.automatisations.suivreÉtatAutomatisations({
-          f: (états) => résÉtats.mettreÀJour(états),
-        }),
-      );
-      fsOublier.push(
-        await client.automatisations.suivreAutomatisations({
-          f: (autos) => résAutos.mettreÀJour(autos),
-        }),
-      );
-
       ({ dossier, fEffacer } = await dossiers.dossierTempo());
-      fsOublier.push(async () => fEffacer());
 
       const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
       idTableau = await client.tableaux.créerTableau({ idBd });
@@ -1206,9 +1237,7 @@ describe("Automatisation", function () {
     });
 
     after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-      résÉtats.toutAnnuler();
-      résAutos.toutAnnuler();
+      fEffacer();
     });
 
     it("sync et écoute", async function () {
@@ -1249,25 +1278,29 @@ describe("Automatisation", function () {
         },
       );
 
-      const val = await résÉtats.attendreQue(
-        (x) => !!(x && x[idAuto]?.type === "écoute"),
-      );
+      const états = await obtenir<{
+        [key: string]: ÉtatAutomatisation;
+      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
+        f: si((x) => (x && x[idAuto]?.type === "écoute")),
+      }));
 
-      expect(val[idAuto]).to.deep.equal({
+      expect(états[idAuto]).to.deep.equal({
         type: "écoute",
       });
 
       données.données.push({ "col 1": 4, "col 2": "子" });
 
       const avantAjout = Date.now();
-      const attendre = résÉtats.attendreQue(
-        (x) => !!(x && x[idAuto]?.type === "sync"),
-      );
+      const attendre = obtenir<{
+        [key: string]: ÉtatAutomatisation;
+      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
+        f: si((x) => !!(x && x[idAuto]?.type === "sync")),
+      }));
       fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-      const états = await attendre;
-      expect(états![idAuto].type).to.equal("sync");
-      const étatSync = états![idAuto] as ÉtatEnSync;
+      const étatsAprès = await attendre;
+      expect(étatsAprès![idAuto].type).to.equal("sync");
+      const étatSync = étatsAprès![idAuto] as ÉtatEnSync;
       expect(étatSync.depuis).to.be.greaterThanOrEqual(avantAjout);
     });
 
@@ -1313,15 +1346,17 @@ describe("Automatisation", function () {
         },
       );
 
-      const val = await résÉtats.attendreQue(
-        (x) => !!(x && x[idAuto]?.type === "programmée"),
-      );
+      const états = await obtenir<{
+        [key: string]: ÉtatAutomatisation;
+      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
+        f: si((x) => (x && x[idAuto]?.type === "programmée"),),
+      }));
 
       const maintenant = Date.now();
 
-      expect(val[idAuto].type).to.equal("programmée");
+      expect(états[idAuto].type).to.equal("programmée");
 
-      const état = val[idAuto] as ÉtatProgrammée;
+      const état = états[idAuto] as ÉtatProgrammée;
       expect(état.à).to.be.lessThanOrEqual(maintenant + 1000 * 60 * 3);
     });
 
@@ -1369,12 +1404,16 @@ describe("Automatisation", function () {
         },
       );
 
-      await résÉtats.attendreQue((x) => !!(x && x[idAuto]?.type === "erreur"));
+      const états = await obtenir<{
+        [key: string]: ÉtatAutomatisation;
+      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
+        f: si((x) => (x && x[idAuto]?.type === "erreur")),
+      }));
 
       const après = Date.now();
 
-      expect(résÉtats.val![idAuto].type).to.equal("erreur");
-      const état = résÉtats.val![idAuto] as ÉtatErreur;
+      expect(états[idAuto].type).to.equal("erreur");
+      const état = états[idAuto] as ÉtatErreur;
 
       expect(état.erreur).to.contain("introuvable.");
       expect(état.prochaineProgramméeÀ).to.be.lessThanOrEqual(
