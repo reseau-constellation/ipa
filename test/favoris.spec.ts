@@ -1,11 +1,8 @@
 import { isElectron, isElectronMain, isNode } from "wherearewe";
 
-import {
-  attente,
-  attente as utilsTestAttente,
-  constellation as utilsTestConstellation,
-} from "@constl/utils-tests";
+import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-ipa";
 import { créerConstellation, type Constellation } from "@/index.js";
 import {
   INSTALLÉ,
@@ -16,7 +13,6 @@ import {
   type ÉpingleFavoris,
   type ÉpingleFavorisAvecId,
 } from "@/favoris.js";
-import type { schémaFonctionOublier } from "@/types.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
@@ -82,37 +78,16 @@ describe("Favoris", function () {
   describe("Épingler BDs", function () {
     let idBd: string;
 
-    const favoris = new utilsTestAttente.AttendreRésultat<
-      ÉpingleFavorisAvecId[]
-    >();
-    const épingleBd = new attente.AttendreRésultat<
-      BooléenniserPropriétés<ÉpingleFavoris>
-    >();
-
-    const fsOublier: schémaFonctionOublier[] = [];
-
     before(async () => {
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0", épingler: false });
-
-      fsOublier.push(
-        await client.favoris.suivreFavoris({
-          f: (favs) => favoris.mettreÀJour(favs),
-        }),
-      );
-      fsOublier.push(
-        await client.favoris.suivreEstÉpingléSurDispositif({
-          idObjet: idBd,
-          f: (épingle) => épingleBd.mettreÀJour(épingle),
-        }),
-      );
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Juste un favori (notre propre compte) pour commencer", async () => {
-      const val = await favoris.attendreExiste();
+      const val = await obtenir<ÉpingleFavorisAvecId[]>(({ siDéfini }) =>
+        client.favoris.suivreFavoris({
+          f: siDéfini(),
+        }),
+      );
 
       const monCompte = await client.obtIdCompte();
       const ref: ÉpingleFavorisAvecId<ÉpingleCompte> = {
@@ -133,8 +108,10 @@ describe("Favoris", function () {
 
     it("Ajouter un favori", async () => {
       await client.bds.épinglerBd({ idBd });
-      const val = await favoris.attendreQue(
-        (x) => !!x.find((fv) => fv.idObjet === idBd),
+      const favoris = await obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        client.favoris.suivreFavoris({
+          f: si((x) => !!x.find((fv) => fv.idObjet === idBd)),
+        }),
       );
 
       const réf: ÉpingleFavorisAvecId<ÉpingleBd> = {
@@ -148,9 +125,16 @@ describe("Favoris", function () {
           },
         },
       };
-      expect(val.find((fv) => fv.idObjet === idBd)).to.deep.equal(réf);
+      expect(favoris.find((fv) => fv.idObjet === idBd)).to.deep.equal(réf);
 
-      const valÉpingleBd = await épingleBd.attendreExiste();
+      const valÉpingleBd = await obtenir<
+        BooléenniserPropriétés<ÉpingleFavoris> | undefined
+      >(({ siDéfini }) =>
+        client.favoris.suivreEstÉpingléSurDispositif({
+          idObjet: idBd,
+          f: siDéfini(),
+        }),
+      );
 
       const réfÉpingle: BooléenniserPropriétés<ÉpingleBd> = {
         base: true,
@@ -166,12 +150,20 @@ describe("Favoris", function () {
     it("Enlever un favori", async () => {
       await client.favoris.désépinglerFavori({ idObjet: idBd });
 
-      const val = await favoris.attendreQue(
-        (x) => !x.find((fv) => fv.idObjet === idBd),
+      const favoris = await obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        client.favoris.suivreFavoris({
+          f: si((x) => !x.find((fv) => fv.idObjet === idBd)),
+        }),
       );
-      expect(val.length).to.equal(1);
+      expect(favoris.length).to.equal(1);
 
-      épingleBd.attendreNexistePas();
+      await obtenir<BooléenniserPropriétés<ÉpingleFavoris> | undefined>(
+        ({ si }) =>
+          client.favoris.suivreEstÉpingléSurDispositif({
+            idObjet: idBd,
+            f: si((x) => x === undefined),
+          }),
+      );
     });
 
     it("Ajouter un favori avec fichiers", async () => {
