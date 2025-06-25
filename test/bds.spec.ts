@@ -8,7 +8,7 @@ import {
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 
-import { uneFois , obtenir } from "@constl/utils-ipa";
+import { uneFois, obtenir } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 
 import { expect } from "aegir/chai";
