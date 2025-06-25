@@ -16,14 +16,13 @@ import {
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 
-import { uneFois } from "@constl/utils-ipa";
+import { uneFois , obtenir } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
 import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir } from "@constl/utils-ipa";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   SourceDonnéesImportationFichier,
@@ -1096,9 +1095,11 @@ describe("Automatisation", function () {
       await attendreFichierExiste.attendre();
       const états = await obtenir<{
         [key: string]: ÉtatAutomatisation;
-      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
-        f: si((x) => !!(x && x[idAuto]?.type !== "sync")),
-      }),)
+      }>(({ si }) =>
+        client.automatisations.suivreÉtatAutomatisations({
+          f: si((x) => !!(x && x[idAuto]?.type !== "sync")),
+        }),
+      );
 
       expect(états[idAuto]).to.deep.equal({
         type: "écoute",
@@ -1107,9 +1108,11 @@ describe("Automatisation", function () {
       const avantAjout = Date.now();
       const attendre = obtenir<{
         [key: string]: ÉtatAutomatisation;
-      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
-        f: si((x) => !!(x && x[idAuto]?.type === "sync"),),
-      }))
+      }>(({ si }) =>
+        client.automatisations.suivreÉtatAutomatisations({
+          f: si((x) => !!(x && x[idAuto]?.type === "sync")),
+        }),
+      );
       await client.tableaux.ajouterÉlément({
         idTableau,
         vals: { [idCol]: 4 },
@@ -1150,9 +1153,11 @@ describe("Automatisation", function () {
 
       const états = await obtenir<{
         [key: string]: ÉtatAutomatisation;
-      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
-        f: si((x) => !!(x && x[idAuto]?.type === "programmée"),),
-      }));
+      }>(({ si }) =>
+        client.automatisations.suivreÉtatAutomatisations({
+          f: si((x) => !!(x && x[idAuto]?.type === "programmée")),
+        }),
+      );
 
       const état = états[idAuto] as ÉtatProgrammée;
 
@@ -1186,9 +1191,11 @@ describe("Automatisation", function () {
 
       const états = await obtenir<{
         [key: string]: ÉtatAutomatisation;
-      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
-        f: si((x) => x[idAuto]?.type === "erreur",),
-      }));
+      }>(({ si }) =>
+        client.automatisations.suivreÉtatAutomatisations({
+          f: si((x) => x[idAuto]?.type === "erreur"),
+        }),
+      );
 
       const après = Date.now();
 
@@ -1280,9 +1287,11 @@ describe("Automatisation", function () {
 
       const états = await obtenir<{
         [key: string]: ÉtatAutomatisation;
-      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
-        f: si((x) => (x && x[idAuto]?.type === "écoute")),
-      }));
+      }>(({ si }) =>
+        client.automatisations.suivreÉtatAutomatisations({
+          f: si((x) => x && x[idAuto]?.type === "écoute"),
+        }),
+      );
 
       expect(états[idAuto]).to.deep.equal({
         type: "écoute",
@@ -1293,9 +1302,11 @@ describe("Automatisation", function () {
       const avantAjout = Date.now();
       const attendre = obtenir<{
         [key: string]: ÉtatAutomatisation;
-      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
-        f: si((x) => !!(x && x[idAuto]?.type === "sync")),
-      }));
+      }>(({ si }) =>
+        client.automatisations.suivreÉtatAutomatisations({
+          f: si((x) => !!(x && x[idAuto]?.type === "sync")),
+        }),
+      );
       fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
       const étatsAprès = await attendre;
@@ -1348,9 +1359,11 @@ describe("Automatisation", function () {
 
       const états = await obtenir<{
         [key: string]: ÉtatAutomatisation;
-      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
-        f: si((x) => (x && x[idAuto]?.type === "programmée"),),
-      }));
+      }>(({ si }) =>
+        client.automatisations.suivreÉtatAutomatisations({
+          f: si((x) => x && x[idAuto]?.type === "programmée"),
+        }),
+      );
 
       const maintenant = Date.now();
 
@@ -1406,9 +1419,11 @@ describe("Automatisation", function () {
 
       const états = await obtenir<{
         [key: string]: ÉtatAutomatisation;
-      }>(({si})=>client.automatisations.suivreÉtatAutomatisations({
-        f: si((x) => (x && x[idAuto]?.type === "erreur")),
-      }));
+      }>(({ si }) =>
+        client.automatisations.suivreÉtatAutomatisations({
+          f: si((x) => x && x[idAuto]?.type === "erreur"),
+        }),
+      );
 
       const après = Date.now();
 

@@ -6,7 +6,7 @@ import {
   faisRien,
   suivreFonctionImbriquée,
   suivreDeFonctionListe,
-} from "@constl/utils-ipa";
+ obtenir } from "@constl/utils-ipa";
 
 import {
   attente,
@@ -27,7 +27,6 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { Constellation, infoAccès } from "@/client.js";
 import { générerClientsInternes } from "./ressources/utils.js";
-import { obtenir } from "@constl/utils-ipa";
 import type { OrbitDbTest } from "./ressources/utils.js";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 

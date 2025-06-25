@@ -8,6 +8,7 @@ import {
 import { isSet } from "lodash-es";
 import { isElectronMain, isNode } from "wherearewe";
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-ipa";
 import { créerConstellation, type Constellation } from "@/index.js";
 import { TraducsNom, schémaFonctionOublier, schémaStatut } from "@/types.js";
 
@@ -19,7 +20,6 @@ import { donnéesNuéeExportation } from "@/nuées.js";
 import { règleColonne } from "@/valid.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir } from "@constl/utils-ipa";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 

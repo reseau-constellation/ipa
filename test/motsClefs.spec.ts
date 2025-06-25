@@ -3,7 +3,7 @@ import { expect } from "aegir/chai";
 import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { obtenir } from "@constl/utils-ipa";
 import { créerConstellation, type Constellation } from "@/index.js";
-import { TraducsNom, type schémaFonctionOublier } from "@/types.js";
+import { TraducsNom } from "@/types.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 

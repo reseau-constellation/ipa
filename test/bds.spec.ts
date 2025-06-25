@@ -8,7 +8,7 @@ import {
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 
-import { uneFois } from "@constl/utils-ipa";
+import { uneFois , obtenir } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 
 import { expect } from "aegir/chai";
@@ -21,7 +21,6 @@ import {
 } from "@/types.js";
 import { créerConstellation, type Constellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir } from "@constl/utils-ipa";
 import type { règleBornes } from "@/valid.js";
 import type {
   InfoCol,
