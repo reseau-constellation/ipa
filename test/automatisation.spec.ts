@@ -16,7 +16,7 @@ import {
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 
-import { uneFois , obtenir } from "@constl/utils-ipa";
+import { uneFois, obtenir } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
