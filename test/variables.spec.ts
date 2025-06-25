@@ -2,7 +2,7 @@ import { expect } from "aegir/chai";
 import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { créerConstellation } from "@/index.js";
 import { TraducsNom } from "@/types.js";
-import { obtenir } from "./utils/utils.js";
+import { obtenir } from "@constl/utils-ipa";
 import type { Constellation } from "@/client.js";
 import type {
   règleBornes,

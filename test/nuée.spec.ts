@@ -19,7 +19,7 @@ import { donnéesNuéeExportation } from "@/nuées.js";
 import { règleColonne } from "@/valid.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir } from "./utils/utils.js";
+import { obtenir } from "@constl/utils-ipa";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 

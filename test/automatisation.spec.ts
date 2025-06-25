@@ -23,7 +23,7 @@ import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
 import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir } from "./utils/utils.js";
+import { obtenir } from "@constl/utils-ipa";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   SourceDonnéesImportationFichier,

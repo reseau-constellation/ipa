@@ -21,7 +21,7 @@ import {
 } from "@/types.js";
 import { créerConstellation, type Constellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir } from "./utils/utils.js";
+import { obtenir } from "@constl/utils-ipa";
 import type { règleBornes } from "@/valid.js";
 import type {
   InfoCol,
