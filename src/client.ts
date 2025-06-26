@@ -1682,7 +1682,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     schéma?: JSONSchemaType<T>;
     f: schémaFonctionSuivi<T>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: KeyValueDatabase) => {
+    const fFinale = async (bd: TypedKeyValue<JSONSchemaType<T>>) => {
       const valeurs = (
         bd
           ? Object.fromEntries((await bd.all()).map((x) => [x.key, x.value]))
@@ -2121,6 +2121,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     }): Promise<schémaFonctionOublier> => {
       return await this.suivreBd({
         id,
+        type: "keyvalue",
         f: async (bd) => {
           return await fSuivreRacine(
             (await bd.all()).map((x) => x.value) as T[],
