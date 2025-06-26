@@ -6,7 +6,8 @@ import {
   faisRien,
   suivreFonctionImbriquée,
   suivreDeFonctionListe,
- obtenir } from "@constl/utils-ipa";
+  obtenir,
+} from "@constl/utils-ipa";
 
 import {
   attente,
