@@ -2,7 +2,7 @@ import { multiaddr } from "@multiformats/multiaddr"
 import { expect } from "aegir/chai";
 import { dépunicodifier } from "@/utils.js"
 
-describe.only("utils", function () {
+describe("utils", function () {
   describe("Dépunycodifier", function () {
     it("Convertir à Unicode", () => {
       const converti = dépunicodifier(multiaddr("/dns4/relai-ws-libp2p.xn--rseau-constellation-bzb.ca/tcp/443/wss/p2p/12D3KooWGVYEgCLYwMSa1hDFW93fiCxhN2V2QUuMGCEfmG5ZuM9m"))
