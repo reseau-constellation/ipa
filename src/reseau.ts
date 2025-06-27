@@ -34,7 +34,7 @@ import { rechercherTous } from "@/recherche/utils.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
-import { appelerLorsque } from "./utils.js";
+import { appelerLorsque, dépunicodifier } from "./utils.js";
 import type { Pushable } from "it-pushable";
 
 import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
@@ -1544,7 +1544,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
             .filter(
               (c) => c.remotePeer.toString() === pair && c.status !== "closed",
             )
-            .map((a) => a.remoteAddr.toString());
+            .map(c=>dépunicodifier(c.remoteAddr).toString());
           return { pair, adresses };
         }),
       );

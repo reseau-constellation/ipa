@@ -224,6 +224,9 @@ importers:
       prom-client:
         specifier: ^15.1.3
         version: 15.1.3
+      punycode:
+        specifier: ^2.3.1
+        version: 2.3.1
       ssim:
         specifier: ^0.0.0
         version: 0.0.0
@@ -297,6 +300,9 @@ importers:
       '@types/platform':
         specifier: ^1.3.6
         version: 1.3.6
+      '@types/punycode':
+        specifier: ^2.1.4
+        version: 2.1.4
       '@types/tmp':
         specifier: ^0.2.6
         version: 0.2.6
@@ -2752,6 +2758,9 @@ packages:
 
   '@types/platform@1.3.6':
     resolution: {integrity: sha512-ZmSaqHuvzv+jC232cFoz2QqPUkaj6EvMmCrWcx3WRr7xTPVFCMUOTcOq8m2d+Zw1iKRc1kDiaA+jtNrV0hkVew==}
+
+  '@types/punycode@2.1.4':
+    resolution: {integrity: sha512-trzh6NzBnq8yw5e35f8xe8VTYjqM3NE7bohBtvDVf/dtUer3zYTLK1Ka3DG3p7bdtoaOHZucma6FfVKlQ134pQ==}
 
   '@types/responselike@1.0.3':
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
@@ -12884,6 +12893,8 @@ snapshots:
   '@types/parse-json@4.0.2': {}
 
   '@types/platform@1.3.6': {}
+
+  '@types/punycode@2.1.4': {}
 
   '@types/responselike@1.0.3':
     dependencies:
