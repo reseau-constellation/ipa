@@ -282,6 +282,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       ? JSON.parse(texteDispositifsVus)
       : {};
 
+    // Si jamais le moment de la dernière connexion n'avait pas été notée, noter maintenant
+    Object.values(this.dispositifsEnLigne).forEach(d=>{
+      if (d.vuÀ === undefined) d.vuÀ = Date.now()
+    })
+
     const { sfip } = await this.client.attendreSfipEtOrbite();
 
     const libp2p = sfip.libp2p;
@@ -3186,5 +3191,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
   async fermer(): Promise<void> {
     await Promise.allSettled(this.fsOublier.map((f) => f()));
+
+    // Si nous nous déconnectons, il faut noter le moment comme la dernière connexion avec les autres pairs
+    Object.values(this.dispositifsEnLigne).map(d=>d.vuÀ=Date.now());
+    await this._sauvegarderDispositifsEnLigne()
   }
 }
