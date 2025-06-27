@@ -282,7 +282,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       ? JSON.parse(texteDispositifsVus)
       : {};
 
-    // Si jamais le moment de la dernière connexion n'avait pas été notée, noter maintenant
+    // Si jamais le moment de la dernière connexion n'avait pas été noté, utiliser maintenant
     Object.values(this.dispositifsEnLigne).forEach(d=>{
       if (d.vuÀ === undefined) d.vuÀ = Date.now()
     })
@@ -348,6 +348,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       } catch {
         // Tant pis
       }
+      const idDispositif = Object.values(this.dispositifsEnLigne).find(
+        (info) => info.infoDispositif.idLibp2p === é.detail.toString(),
+      )?.infoDispositif.idDispositif;
+      if (idDispositif) this.dispositifsEnLigne[idDispositif].vuÀ = undefined;
     };
     const fSuivrePairDéconnecté = async (é: { detail: PeerId }) => {
       delete this.connexionsDirectes[é.detail.toString()];
@@ -1629,11 +1633,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           }
           const { infoMembre, vuÀ } = membres[idCompte];
           infoMembre.dispositifs.push(d.infoDispositif);
-          membres[idCompte].vuÀ = vuÀ
-            ? d.vuÀ
-              ? Math.max(vuÀ, d.vuÀ)
-              : vuÀ
-            : d.vuÀ;
+          membres[idCompte].vuÀ = vuÀ === undefined ? undefined : d.vuÀ === undefined ? undefined : Math.max(vuÀ, d.vuÀ);
         }
         return await fSuivreRacine(Object.values(membres));
       };
