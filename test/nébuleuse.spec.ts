@@ -259,7 +259,9 @@ describe.only("Nébuleuse", function () {
           });
         }
         async démarrer() {
-          expect(await this.service("a").démarré()).to.equal("une valeur spéciale");
+          expect(await this.service("a").démarré()).to.equal(
+            "une valeur spéciale",
+          );
           return super.démarrer();
         }
       }
@@ -280,20 +282,26 @@ describe.only("Nébuleuse", function () {
         a: ServiceA;
         b: ServiceB;
       };
-      type OptionsServiceA = { a?: number }
-      type OptionsServiceB = { b?: number }
+      type OptionsServiceA = { a?: number };
+      type OptionsServiceB = { b?: number };
 
       class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
         opts: { a?: number };
 
-        constructor({ nébuleuse, opts }: { nébuleuse: Nébuleuse<ServicesTest>, opts?: OptionsServiceA }) {
+        constructor({
+          nébuleuse,
+          opts,
+        }: {
+          nébuleuse: Nébuleuse<ServicesTest>;
+          opts?: OptionsServiceA;
+        }) {
           super({
             type: "a",
             nébuleuse,
           });
-          this.opts = opts || {}
+          this.opts = opts || {};
         }
-        
+
         async démarrer() {
           expect(this.opts.a).to.equal(8);
           return super.démarrer();
@@ -303,35 +311,40 @@ describe.only("Nébuleuse", function () {
       class ServiceB extends ServiceNébuleuse<"b", ServicesTest> {
         opts: { b?: number };
 
-        constructor({ nébuleuse, opts }: { nébuleuse: Nébuleuse<ServicesTest>; opts?: OptionsServiceB }) {
+        constructor({
+          nébuleuse,
+          opts,
+        }: {
+          nébuleuse: Nébuleuse<ServicesTest>;
+          opts?: OptionsServiceB;
+        }) {
           super({
             type: "b",
             nébuleuse,
             dépendances: ["a"],
           });
-          this.opts = opts || {  }
+          this.opts = opts || {};
         }
         async démarrer() {
-            expect(this.opts.b).to.equal(7);
-            return super.démarrer();
-          }
+          expect(this.opts.b).to.equal(7);
+          return super.démarrer();
+        }
       }
       const opts: OptsNébuleuse<ServicesTest> = {
         services: {
           a: { a: 8 },
-          b: { b: 7 }
-        }
-      }
+          b: { b: 7 },
+        },
+      };
       const nébuleuse = new Nébuleuse({
         services: {
           a: ServiceA,
           b: ServiceB,
         },
-        opts
+        opts,
       });
 
       await nébuleuse.démarrer();
     });
-
   });
 });
