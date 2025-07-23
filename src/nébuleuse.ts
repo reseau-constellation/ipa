@@ -6,7 +6,7 @@ type ÉvénementsNébuleuse = {
 export type ConstructeurServiceNébuleuse<
   T,
   S extends ServicesNébuleuse,
-> = new (args: { nébuleuse: Nébuleuse<S> }) => T;
+> = new (args: { nébuleuse: Nébuleuse<S>, opts?: T extends ServiceNébuleuse<infer Types, infer Services, infer R, infer Opts> ? Opts : never}) => T;
 
 export type ServicesNébuleuse = {
   [clef: string]: ServiceNébuleuse<typeof clef>;
@@ -16,19 +16,27 @@ export type ConstructeursServicesNébuleuse<T extends ServicesNébuleuse> = {
   [clef in keyof T]: ConstructeurServiceNébuleuse<T[clef], T>;
 };
 
+export type OptsNébuleuse<T extends ServicesNébuleuse> = {
+  services?: { [clef in keyof T]?: T[clef] extends ServiceNébuleuse<infer _Type, infer _Services, infer _R, infer Opts> ? Opts | undefined : never }
+}
+
 export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
+  opts: OptsNébuleuse<S>;
   services: S;
   événements: TypedEmitter<ÉvénementsNébuleuse>;
   estDémarrée: boolean;
 
   constructor({
     services,
-  }: { services?: ConstructeursServicesNébuleuse<S> } = {}) {
+    opts,
+  }: { services?: ConstructeursServicesNébuleuse<S>, opts?: OptsNébuleuse<S> } = {}) {
     services = services ?? ({} as ConstructeursServicesNébuleuse<S>);
+
+    this.opts = opts || {};
     this.services = Object.fromEntries(
       Object.entries(services).map(([clef, service]) => [
         clef,
-        new service({ nébuleuse: this }),
+        new service({ nébuleuse: this, opts: opts?.services?.[clef] }),
       ]),
     ) as S;
 
@@ -107,10 +115,12 @@ export class ServiceNébuleuse<
   T extends string,
   S extends ServicesNébuleuse = ServicesNébuleuse,
   RetourDémarré = unknown,
+  Opts = unknown,
 > {
   type: T;
   nébuleuse: Nébuleuse<S>;
   dépendances: (keyof S)[];
+  opts: Opts | undefined;
 
   événements: TypedEmitter<ÉvénementsServiceNébuleuse<RetourDémarré>>;
   estDémarré: RetourDémarré | false;
@@ -119,14 +129,17 @@ export class ServiceNébuleuse<
     type,
     nébuleuse,
     dépendances = [],
+    opts,
   }: {
     type: T;
     nébuleuse: Nébuleuse<S>;
     dépendances?: (keyof S)[];
+    opts?: Opts;
   }) {
     this.type = type;
     this.nébuleuse = nébuleuse;
     this.dépendances = dépendances;
+    this.opts = opts
 
     this.événements = new TypedEmitter<
       ÉvénementsServiceNébuleuse<RetourDémarré>
