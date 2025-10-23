@@ -4,10 +4,9 @@ import md5 from "crypto-js/md5.js";
 import { v4 as uuidv4 } from "uuid";
 
 import deepEqual from "deep-equal";
+import { Oublier, Suivi } from "./v2/crabe/types.js";
 import type { itemRechercheProfondeur } from "@/reseau.js";
 import type {
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
   schémaRetourFonctionRechercheParN,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
@@ -17,8 +16,8 @@ export class CacheSuivi {
   _cacheSuivi: {
     [clef: string]: {
       val?: unknown;
-      requêtes: { [clef: string]: schémaFonctionSuivi<unknown> };
-      fOublier?: schémaFonctionOublier;
+      requêtes: { [clef: string]: Suivi<unknown> };
+      fOublier?: Oublier;
     };
   };
   _cacheRecherche: {
@@ -26,11 +25,11 @@ export class CacheSuivi {
       val?: unknown[];
       taillePrésente: number;
       requêtes: {
-        [clef: string]: { f: schémaFonctionSuivi<unknown>; taille: number };
+        [clef: string]: { f: Suivi<unknown>; taille: number };
       };
       fs?: {
         fChangerTaille: (n: number) => void;
-        fOublier: schémaFonctionOublier;
+        fOublier: Oublier;
       };
     };
   };
@@ -41,10 +40,20 @@ export class CacheSuivi {
     this._cacheRecherche = {};
   }
 
+  vérifierArgs({ args, adresseFonction }: {args: [{ [clef: string]: unknown }]; adresseFonction: string }): { [clef: string]: unknown } {
+    if (args.length < 1) {
+      throw new Error(`La fonction ${adresseFonction} n'a pas d'arguments.`)
+    }
+
+    if (args.length > 1)
+      throw new Error(
+        `Les arguments de ${adresseFonction} doivent être regroupés dans un seul objet {}.`,
+      );
+    return args[0]
+  }
+
   async suivre<
-    T extends (args: {
-      [key: string]: unknown;
-    }) => Promise<schémaFonctionOublier>,
+    T extends (args: { [key: string]: unknown }) => Promise<Oublier>,
     U,
   >({
     adresseFonction,
@@ -56,24 +65,29 @@ export class CacheSuivi {
     adresseFonction: string;
     idClient: string;
     fOriginale: T;
-    args: { [clef: string]: unknown };
+    args:  [{ [clef: string]: unknown }];
     ceciOriginal: U;
-  }): Promise<schémaFonctionOublier> {
+  }): Promise<Oublier> {
+    const argsFinaux = this.vérifierArgs({ args, adresseFonction })
+
     // Extraire la fonction de suivi
-    const nomArgFonction = Object.entries(args).find(
+    const nomArgFonction = Object.entries(argsFinaux).find(
       (x) => typeof x[1] === "function",
     )?.[0];
-    if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`);
-    const f = args[nomArgFonction] as schémaFonctionSuivi<unknown>;
+    if (!nomArgFonction)
+      throw new Error(
+        `Aucun argument pour ${adresseFonction} n'est une fonction.`,
+      );
+    const f = argsFinaux[nomArgFonction] as Suivi<unknown>;
     const argsSansF = Object.fromEntries(
-      Object.entries(args).filter((x) => typeof x[1] !== "function"),
+      Object.entries(argsFinaux).filter((x) => typeof x[1] !== "function"),
     );
-    if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
+    if (Object.keys(argsFinaux).length !== Object.keys(argsSansF).length + 1) {
       throw new Error(
         "Plus d'un argument pour " +
           adresseFonction +
           " est une fonction : " +
-          JSON.stringify(args),
+          Object.keys(argsFinaux).filter(a=>!Object.keys(argsSansF).includes(a)).join(", "),
       );
     }
 
@@ -147,32 +161,34 @@ export class CacheSuivi {
     nomArgTaille: string;
     idClient: string;
     fOriginale: T;
-    args: { [clef: string]: unknown };
+    args: [{ [clef: string]: unknown }];
     ceciOriginal: U;
     par: W;
   }): Promise<V> {
+    const argsFinaux = this.vérifierArgs({args, adresseFonction});
+
     // Extraire la fonction de suivi
-    const nomArgFonction = Object.entries(args).find(
+    const nomArgFonction = Object.entries(argsFinaux).find(
       (x) => typeof x[1] === "function",
     )?.[0];
     if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`);
-    const f = args[nomArgFonction] as schémaFonctionSuivi<unknown>;
+    const f = argsFinaux[nomArgFonction] as Suivi<unknown>;
     const argsSansF = Object.fromEntries(
-      Object.entries(args).filter((x) => typeof x[1] !== "function"),
+      Object.entries(argsFinaux).filter((x) => typeof x[1] !== "function"),
     );
-    if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
+    if (Object.keys(argsFinaux).length !== Object.keys(argsSansF).length + 1) {
       throw new Error(
         "Plus d'un argument pour " +
           adresseFonction +
           " est une fonction : " +
-          JSON.stringify(args),
+          Object.keys(argsFinaux).filter(a=>!Object.keys(argsSansF).includes(a)).join(", ")
       );
     }
     const argsSansFOuTaille = Object.fromEntries(
-      Object.entries(args).filter((x) => x[0] !== nomArgTaille),
+      Object.entries(argsFinaux).filter((x) => x[0] !== nomArgTaille),
     );
 
-    let taille = args[nomArgTaille];
+    let taille = argsFinaux[nomArgTaille];
     if (taille === undefined) taille = Infinity;
     if (typeof taille !== "number")
       throw new Error(
@@ -300,6 +316,7 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     await this.verrou.acquire(codeCache);
+
     if (this._cacheSuivi[codeCache] === undefined) {
       this.verrou.release(codeCache);
       return;
@@ -396,7 +413,7 @@ export const envelopper = ({
 
   if (typeof original === "function") {
     descripteur.value = function (...args: [{ [clef: string]: unknown }]) {
-      if (args.length > 1) throw new Error("Args trop longs");
+      const adresseFonction = this.constructor.name + "." + nom;
 
       const client = this.client ? this.client : this;
 
@@ -408,20 +425,20 @@ export const envelopper = ({
               ? "profondeur"
               : "nRésultatsDésirés";
           return cache.suivreRecherche({
-            adresseFonction: this.constructor.name + "." + nom,
+            adresseFonction,
             idClient: client.idCompte,
             fOriginale: original,
-            args: args[0],
+            args,
             ceciOriginal: this,
             par: recherche,
             nomArgTaille,
           });
         } else {
           return cache.suivre({
-            adresseFonction: this.constructor.name + "." + nom,
+            adresseFonction,
             idClient: client.idCompte,
             fOriginale: original,
-            args: args[0],
+            args,
             ceciOriginal: this,
           });
         }
