@@ -4,22 +4,15 @@ import md5 from "crypto-js/md5.js";
 import { v4 as uuidv4 } from "uuid";
 
 import deepEqual from "deep-equal";
-import { Oublier, Suivi } from "./v2/crabe/types.js";
-import type { itemRechercheProfondeur } from "@/reseau.js";
-import type {
-  schémaRetourFonctionRechercheParN,
-  schémaRetourFonctionRechercheParProfondeur,
-} from "@/types.js";
+import { Oublier, RetourRecherche, Suivi } from "./v2/crabe/types.js";
 
 export class CacheSuivi {
   verrou: Semaphore;
-  _cacheSuivi: {
-    [clef: string]: {
+  suivis: Map<string, {
       val?: unknown;
       requêtes: { [clef: string]: Suivi<unknown> };
       fOublier?: Oublier;
-    };
-  };
+    }>;
   _cacheRecherche: {
     [clef: string]: {
       val?: unknown[];
@@ -27,16 +20,13 @@ export class CacheSuivi {
       requêtes: {
         [clef: string]: { f: Suivi<unknown>; taille: number };
       };
-      fs?: {
-        fChangerTaille: (n: number) => void;
-        fOublier: Oublier;
-      };
+      fs?: RetourRecherche;
     };
   };
 
   constructor() {
     this.verrou = new Semaphore();
-    this._cacheSuivi = {};
+    this.suivis = new Map();
     this._cacheRecherche = {};
   }
 
@@ -57,13 +47,13 @@ export class CacheSuivi {
     U,
   >({
     adresseFonction,
-    idClient,
+    idInstance,
     fOriginale,
     args,
     ceciOriginal,
   }: {
     adresseFonction: string;
-    idClient: string;
+    idInstance: string;
     fOriginale: T;
     args:  [{ [clef: string]: unknown }];
     ceciOriginal: U;
@@ -93,7 +83,7 @@ export class CacheSuivi {
 
     const codeCache = this.générerCodeCache({
       adresseFonction,
-      idClient,
+      idInstance,
       argsClefs: argsSansF,
     });
     const idRequête = uuidv4();
@@ -101,27 +91,28 @@ export class CacheSuivi {
     await this.verrou.acquire(codeCache);
 
     // Vérifier si déjà en cache
-    if (!this._cacheSuivi[codeCache]) {
+    if (!this.suivis.has(codeCache)) {
       try {
         // Si pas en cache, générer
-        this._cacheSuivi[codeCache] = {
+        this.suivis.set(codeCache, {
           requêtes: { [idRequête]: f },
-        };
+        });
         const fFinale = async (x: unknown) => {
-          if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requête
+          const infoSuivi = this.suivis.get(codeCache);
+          if (!infoSuivi) return; // Si on a déjà annulé la requête
           if (
-            Object.keys(this._cacheSuivi[codeCache]).includes("val") &&
-            deepEqual(this._cacheSuivi[codeCache].val, x, { strict: true })
+            Object.keys(infoSuivi).includes("val") &&
+            deepEqual(infoSuivi.val, x, { strict: true })
           )
             return; // Ignorer si c'est la même valeur qu'avant
-          this._cacheSuivi[codeCache].val = x;
-          const fsSuivis = Object.values(this._cacheSuivi[codeCache].requêtes);
+          infoSuivi.val = x;
+          const fsSuivis = Object.values(infoSuivi.requêtes);
           await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
         };
         const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
 
         const fOublier = await fOriginale.apply(ceciOriginal, [argsAvecF]);
-        this._cacheSuivi[codeCache].fOublier = fOublier;
+        this.suivis.get(codeCache)!.fOublier = fOublier;
       } finally {
         this.verrou.release(codeCache);
       }
@@ -129,9 +120,9 @@ export class CacheSuivi {
       this.verrou.release(codeCache);
 
       // Sinon, ajouter f à la liste de fonctions de rappel
-      this._cacheSuivi[codeCache].requêtes[idRequête] = f;
-      if (Object.keys(this._cacheSuivi[codeCache]).includes("val"))
-        f(this._cacheSuivi[codeCache].val);
+      this.suivis.get(codeCache)!.requêtes[idRequête] = f;
+      if (Object.keys(this.suivis.get(codeCache)!).includes("val"))
+        f(this.suivis.get(codeCache)!.val);
     }
 
     const fOublierRequête = async () => {
@@ -142,36 +133,34 @@ export class CacheSuivi {
   }
 
   async suivreRecherche<
-    T extends (...args: unknown[]) => Promise<V>,
+    T extends (...args: unknown[]) => Promise<RetourRecherche>,
+    R,
     U,
-    W extends "profondeur" | "nRésultats",
-    V extends W extends "profondeur"
-      ? schémaRetourFonctionRechercheParProfondeur
-      : schémaRetourFonctionRechercheParN,
   >({
     adresseFonction,
     nomArgTaille,
-    idClient,
+    idInstance,
     fOriginale,
     args,
     ceciOriginal,
-    par,
+    sélection,
   }: {
     adresseFonction: string;
     nomArgTaille: string;
-    idClient: string;
+    idInstance: string;
     fOriginale: T;
     args: [{ [clef: string]: unknown }];
     ceciOriginal: U;
-    par: W;
-  }): Promise<V> {
+    sélection: (n: number, résultats: R[]) => R[];
+  }): Promise<RetourRecherche> {
     const argsFinaux = this.vérifierArgs({args, adresseFonction});
 
     // Extraire la fonction de suivi
     const nomArgFonction = Object.entries(argsFinaux).find(
       (x) => typeof x[1] === "function",
     )?.[0];
-    if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`);
+
+    if (!nomArgFonction) throw new Error(`Aucun argument pour ${adresseFonction} n'est une fonction.`);
     const f = argsFinaux[nomArgFonction] as Suivi<unknown>;
     const argsSansF = Object.fromEntries(
       Object.entries(argsFinaux).filter((x) => typeof x[1] !== "function"),
@@ -197,38 +186,57 @@ export class CacheSuivi {
 
     const codeCache = this.générerCodeCache({
       adresseFonction,
-      idClient,
+      idInstance,
       argsClefs: argsSansFOuTaille,
     });
     const idRequête = uuidv4();
 
-    const fFinale = async (val: unknown[]) => {
+    const fFinale = async (val: R[]) => {
       if (!this._cacheRecherche[codeCache]) return; // Si on a déjà annulé la requête
       this._cacheRecherche[codeCache].val = val;
       const infoRequêtes = Object.values(
         this._cacheRecherche[codeCache].requêtes,
       );
-      if (par === "profondeur") {
-        await Promise.allSettled(
-          infoRequêtes.map(
-            async (info) =>
-              await info.f(
-                (val as itemRechercheProfondeur[]).filter(
-                  (x) => x.profondeur <= info.taille,
-                ),
-              ),
-          ),
-        );
-      } else {
-        await Promise.allSettled(
-          infoRequêtes.map(
-            async (info) => await info.f(val.slice(0, info.taille)),
-          ),
-        );
+      await Promise.allSettled(
+        infoRequêtes.map(
+          async (info) =>
+            await info.f(
+              sélection(info.taille, val)
+            ),
+        ));
+    };
+
+    const actualiserTaille = async () => {
+      const maxTaille = Math.max(
+        ...Object.values(this._cacheRecherche[codeCache].requêtes).map(
+          (r) => r.taille,
+        ),
+      );
+      const { taillePrésente } = this._cacheRecherche[codeCache];
+      const { n } = this._cacheRecherche[codeCache].fs!;
+
+      if (maxTaille !== taillePrésente) {
+        this._cacheRecherche[codeCache].taillePrésente = maxTaille;
+        n(maxTaille);
       }
+    }
+
+
+    const fChangerTailleRequête = async (taille: number) => {
+
+      const tailleAvant =
+        this._cacheRecherche[codeCache].requêtes[idRequête].taille;
+
+      if (taille === tailleAvant) return;
+      this._cacheRecherche[codeCache].requêtes[idRequête].taille = taille;
+      const { val } = this._cacheRecherche[codeCache];
+      if (val) await fFinale(val as R[]);
+      actualiserTaille();
+      
     };
 
     await this.verrou.acquire(codeCache);
+    
     try {
       // Vérifier si déjà en cache
       if (!this._cacheRecherche[codeCache]) {
@@ -244,31 +252,18 @@ export class CacheSuivi {
           [nomArgTaille]: taille,
         };
 
-        if (par === "profondeur") {
-          const { fOublier, fChangerProfondeur } = (await fOriginale.apply(
-            ceciOriginal,
-            [argsComplets],
-          )) as schémaRetourFonctionRechercheParProfondeur;
-          this._cacheRecherche[codeCache].fs = {
-            fOublier,
-            fChangerTaille: fChangerProfondeur,
-          };
-        } else {
-          const { fOublier, fChangerN } = (await fOriginale.apply(
-            ceciOriginal,
-            [argsComplets],
-          )) as schémaRetourFonctionRechercheParN;
-          this._cacheRecherche[codeCache].fs = {
-            fOublier,
-            fChangerTaille: fChangerN,
-          };
-        }
+        this._cacheRecherche[codeCache].fs = await fOriginale.apply(
+          ceciOriginal,
+          [argsComplets],
+        );
       } else {
         // Sinon, ajouter f à la liste de fonctions de rappel
         this._cacheRecherche[codeCache].requêtes[idRequête] = { f, taille };
         if (Object.keys(this._cacheRecherche[codeCache]).includes("val")) {
+          await actualiserTaille()
           const { val } = this._cacheRecherche[codeCache];
-          if (val) await fFinale(val);
+
+          if (val) await fFinale(val as R[]);
         }
       }
     } finally {
@@ -279,33 +274,10 @@ export class CacheSuivi {
       await this.oublierRecherche({ codeCache, idRequête });
     };
 
-    const fChangerTailleRequête = async (taille: number) => {
-      const tailleAvant =
-        this._cacheRecherche[codeCache].requêtes[idRequête].taille;
-      if (taille === tailleAvant) return;
-      this._cacheRecherche[codeCache].requêtes[idRequête].taille = taille;
-      const { val } = this._cacheRecherche[codeCache];
-      if (val) await fFinale(val);
-
-      const maxTaille = Math.max(
-        ...Object.values(this._cacheRecherche[codeCache].requêtes).map(
-          (r) => r.taille,
-        ),
-      );
-      const { taillePrésente } = this._cacheRecherche[codeCache];
-      const { fChangerTaille } = this._cacheRecherche[codeCache].fs!;
-
-      if (maxTaille !== taillePrésente) {
-        this._cacheRecherche[codeCache].taillePrésente = maxTaille;
-        fChangerTaille(maxTaille);
-      }
-    };
-
     return {
-      fOublier: fOublierRequête,
-      [par === "profondeur" ? "fChangerProfondeur" : "fChangerN"]:
-        fChangerTailleRequête,
-    } as V;
+      oublier: fOublierRequête,
+      n: fChangerTailleRequête,
+    };
   }
 
   async oublierSuivi({
@@ -317,17 +289,17 @@ export class CacheSuivi {
   }) {
     await this.verrou.acquire(codeCache);
 
-    if (this._cacheSuivi[codeCache] === undefined) {
+    if (!this.suivis.has(codeCache)) {
       this.verrou.release(codeCache);
       return;
     }
     try {
-      const { requêtes, fOublier } = this._cacheSuivi[codeCache];
+      const { requêtes, fOublier } = this.suivis.get(codeCache)!;
       delete requêtes[idRequête];
 
       if (!Object.keys(requêtes).length) {
         await fOublier?.();
-        delete this._cacheSuivi[codeCache];
+        this.suivis.delete(codeCache);
       }
     } finally {
       this.verrou.release(codeCache);
@@ -351,7 +323,7 @@ export class CacheSuivi {
       delete requêtes[idRequête];
 
       if (!Object.keys(requêtes).length) {
-        await fs?.fOublier();
+        await fs?.oublier();
         delete this._cacheRecherche[codeCache];
       }
     } finally {
@@ -361,15 +333,15 @@ export class CacheSuivi {
 
   générerCodeCache({
     adresseFonction,
-    idClient,
+    idInstance,
     argsClefs,
   }: {
     adresseFonction: string;
-    idClient: string;
+    idInstance: string;
     argsClefs: { [clef: string]: unknown };
   }): string {
     const texte =
-      adresseFonction + "-" + idClient + "-" + JSON.stringify(argsClefs);
+      adresseFonction + "-" + idInstance + "-" + JSON.stringify(argsClefs);
     return Base64.stringify(md5(texte));
   }
 }
@@ -382,31 +354,42 @@ export const cacheSuivi = (
   return envelopper({ nom, descripteur });
 };
 
-export const cacheRechercheParNRésultats = (
+export const cacheRechercheParN = <T>(
   _cible: unknown,
   nom: string,
   descripteur: unknown,
 ) => {
-  return envelopper({ nom, descripteur, recherche: "nRésultats" });
+  return envelopper({ nom, descripteur, recherche: (n: number, résultats: T[]) => résultats.slice(0, n) });
 };
 
-export const cacheRechercheParProfondeur = (
+export type RésultatProfondeur<T> = { profondeur: number, val: T }
+
+export const cacheRechercheParProfondeur = <T>(
   _cible: unknown,
   nom: string,
   descripteur: unknown,
 ) => {
-  return envelopper({ nom, descripteur, recherche: "profondeur" });
+  return envelopper({ nom, descripteur, recherche:  (n: number, résultats: RésultatProfondeur<T>[]) => résultats.filter(r => r.profondeur <= n) });
 };
 
-export const envelopper = ({
+const map = new WeakMap();
+
+const idUnique = (object: WeakKey) => {
+  if (!map.has(object)) {
+    map.set(object, uuidv4());
+  }
+
+  return map.get(object);
+};
+
+export const envelopper = <T>({
   nom,
   descripteur,
   recherche,
-  nomArgTaille,
 }: {
   nom: string;
   descripteur: any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  recherche?: "profondeur" | "nRésultats";
+  recherche?: (n: number, résultats: T[]) => T[];
   nomArgTaille?: string;
 }) => {
   const original = descripteur.value;
@@ -415,28 +398,23 @@ export const envelopper = ({
     descripteur.value = function (...args: [{ [clef: string]: unknown }]) {
       const adresseFonction = this.constructor.name + "." + nom;
 
-      const client = this.client ? this.client : this;
-
       try {
+        const idInstance = idUnique(this)
+
         if (recherche) {
-          nomArgTaille = nomArgTaille
-            ? nomArgTaille
-            : recherche === "profondeur"
-              ? "profondeur"
-              : "nRésultatsDésirés";
           return cache.suivreRecherche({
             adresseFonction,
-            idClient: client.idCompte,
+            idInstance,
             fOriginale: original,
             args,
             ceciOriginal: this,
-            par: recherche,
-            nomArgTaille,
+            nomArgTaille: "n",
+            sélection: recherche,
           });
         } else {
           return cache.suivre({
             adresseFonction,
-            idClient: client.idCompte,
+            idInstance,
             fOriginale: original,
             args,
             ceciOriginal: this,
@@ -448,7 +426,7 @@ export const envelopper = ({
       }
     };
   } else {
-    throw new Error("L'objet décoré n'est pas une fonction");
+    throw new Error("L'objet décoré n'est pas une fonction.");
   }
   return descripteur;
 };
