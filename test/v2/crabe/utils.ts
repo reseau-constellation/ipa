@@ -26,10 +26,10 @@ export class CrabeTest<
     options,
   }: {
     services: ConstructeursServicesNébuleuse<
-      ServicesDonnées<T, ServicesLibp2pTest>
+      ServicesDonnées<T, ServicesLibp2pTest> & S
     >;
     options: { dossier: string } & OptionsNébuleuse<
-      ServicesDonnées<T, ServicesLibp2pTest> &
+      ServicesDonnées<T, ServicesLibp2pTest> & S &
         ServicesCrabe<T & StructureCrabe, ServicesLibp2pTest>
     >;
   }) {
@@ -37,9 +37,7 @@ export class CrabeTest<
       services: {
         ...services,
         libp2p: ServiceLibp2pTest,
-      } as ConstructeursServicesNébuleuse<
-        ServicesDonnées<T, ServicesLibp2pTest>
-      >,
+      },
       options,
     });
   }
@@ -60,27 +58,26 @@ export const connecterCrabes = async <
 
 export const créerCrabesTest = async <
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,
+  S extends ServicesNébuleuse = ServicesNébuleuse,
 >({
   n,
   services,
 }: {
   n: number;
   services: ConstructeursServicesNébuleuse<
-    ServicesDonnées<T, ServicesLibp2pTest>
+    ServicesDonnées<T, ServicesLibp2pTest> & S
   >;
 }): Promise<{
-  crabes: CrabeTest<T>[];
+  crabes: CrabeTest<T, S>[];
   fermer: Oublier;
 }> => {
   const { dossier, effacer } = await dossierTempo();
 
-  const crabes: CrabeTest<T>[] = [];
+  const crabes: CrabeTest<T, S>[] = [];
 
   for (const i in [...Array(n).entries()]) {
-    const crabe = new CrabeTest<T>({
-      services: services as ConstructeursServicesNébuleuse<
-        ServicesDonnées<T, ServicesLibp2pTest>
-      >,
+    const crabe = new CrabeTest<T, S>({
+      services,
       options: { dossier: path.join(dossier, i) },
     });
     crabes.push(crabe);
