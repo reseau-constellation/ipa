@@ -3,7 +3,11 @@ import { merge } from "lodash-es";
 import { TypedNested, typedNested } from "@constl/bohr-db";
 import { NestedObjectToMap, NestedValueObject } from "@orbitdb/nested-db";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { adresseOrbiteValide, suivreFonctionImbriquée, uneFois } from "@constl/utils-ipa";
+import {
+  adresseOrbiteValide,
+  suivreFonctionImbriquée,
+  uneFois,
+} from "@constl/utils-ipa";
 import { Nébuleuse, ServiceNébuleuse } from "@/v2/nébuleuse/index.js";
 import { PartielRécursif, RequisRécursif } from "@/v2/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
@@ -193,9 +197,9 @@ export class ServiceCompte<
       événement: "changementCompte",
       f: async ({ idCompte }) => await f(idCompte),
     });
-    
+
     await f(await this.obtIdCompte());
-    return oublier
+    return oublier;
   }
 
   // Dispositifs
@@ -239,12 +243,12 @@ export class ServiceCompte<
       throw new Error(`Adresse compte "${idCompte}" non valide`);
     }
 
-    console.log("on va rejoindre le compte")
+    console.log("on va rejoindre le compte");
     // Attendre de recevoir la permission d'écrire au nouveau compte
     const { bd: bdNouveauCompte, oublier } = await this.service(
       "orbite",
     ).ouvrirBd({ id: idCompte, type: "nested", signal });
-    console.log("bd ouverte")
+    console.log("bd ouverte");
     const accès = bdNouveauCompte.access;
     if (!estContrôleurConstellation(accès))
       throw new Error(
@@ -252,10 +256,13 @@ export class ServiceCompte<
       );
 
     const moi = await this.obtIdDispositif();
-    console.log({moi})
+    console.log({ moi });
     await uneFois<AccèsDispositif[]>(
       async (f) => accès.suivreDispositifsAutorisées(f),
-      (autorisés) => {console.log({autorisés}); return !!autorisés?.find((a) => a.idDispositif === moi)},
+      (autorisés) => {
+        console.log({ autorisés });
+        return !!autorisés?.find((a) => a.idDispositif === moi);
+      },
     );
     await oublier();
 
@@ -289,29 +296,38 @@ export class ServiceCompte<
     return bd;
   }
 
-  async suivreBd({ f, idCompte }: { f: Suivi<TypedNested<T> | undefined>, idCompte?: string }): Promise<Oublier> {
+  async suivreBd({
+    f,
+    idCompte,
+  }: {
+    f: Suivi<TypedNested<T> | undefined>;
+    idCompte?: string;
+  }): Promise<Oublier> {
     const orbite = this.service("orbite");
     const schéma = compilerSchémaCompte(this);
 
     if (idCompte) {
-      return await orbite.suivreBdTypée({
+      return (await orbite.suivreBdTypée({
         id: idCompte,
         type: "nested",
         schéma,
         f,
-      }) as Oublier;
+      })) as Oublier;
     } else {
       return await suivreFonctionImbriquée({
-        fRacine: async ({ fSuivreRacine }) => await this.suivreIdCompte({ f: fSuivreRacine }),
+        fRacine: async ({ fSuivreRacine }) =>
+          await this.suivreIdCompte({ f: fSuivreRacine }),
         f,
-        fSuivre: async ({id, fSuivreBd}) => await orbite.suivreBdTypée({
-          id,
-          type: "nested",
-          schéma,
-          f: fSuivreBd,
-        }),
-        journal: async m => await this.service("journal").écrire(m.toString())
-      })
+        fSuivre: async ({ id, fSuivreBd }) =>
+          await orbite.suivreBdTypée({
+            id,
+            type: "nested",
+            schéma,
+            f: fSuivreBd,
+          }),
+        journal: async (m) =>
+          await this.service("journal").écrire(m.toString()),
+      });
     }
   }
 

@@ -56,7 +56,7 @@ export type OptionsNébuleuse<T extends ServicesNébuleuse> = {
 };
 
 export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
-  statut: typeof STATUTS[keyof typeof STATUTS];
+  statut: (typeof STATUTS)[keyof typeof STATUTS];
   options: OptionsNébuleuse<S>;
   services: S;
   événements: TypedEmitter<ÉvénementsNébuleuse>;
@@ -88,7 +88,7 @@ export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
   // Cycle de vie
 
   get estDémarrée(): boolean {
-    return this.statut === STATUTS.DÉMARRÉE
+    return this.statut === STATUTS.DÉMARRÉE;
   }
 
   async démarrée(): Promise<void> {
@@ -145,7 +145,7 @@ export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
 
     this.statut = STATUTS.FERMETURE_EN_COURS;
     await this.fermerServices();
-    
+
     this.statut = STATUTS.FERMÉE;
   }
 

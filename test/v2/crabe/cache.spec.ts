@@ -535,7 +535,7 @@ describe.only("Cache", function () {
       n(3);
       await attendreQue(() => val.length === 6);
 
-      expect(val.every(v=>v.profondeur <= 3));
+      expect(val.every((v) => v.profondeur <= 3));
     });
 
     it("erreur si plus qu'un argument est une fonction", async () => {

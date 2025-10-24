@@ -40,7 +40,11 @@ export class CacheSuivi {
   }: {
     args: [{ [clef: string]: unknown }];
     adresseFonction: string;
-  }): { argsSansF: { [clef: string]: unknown }, f: Suivi<unknown>, nomArgFonction: string } {
+  }): {
+    argsSansF: { [clef: string]: unknown };
+    f: Suivi<unknown>;
+    nomArgFonction: string;
+  } {
     if (args.length < 1) {
       throw new Error(`La fonction ${adresseFonction} n'a pas d'arguments.`);
     }
@@ -49,8 +53,8 @@ export class CacheSuivi {
       throw new Error(
         `Les arguments de ${adresseFonction} doivent être regroupés dans un seul objet {}.`,
       );
-    
-    const objArgs = args[0]
+
+    const objArgs = args[0];
 
     const nomArgFonction = Object.entries(objArgs).find(
       (x) => typeof x[1] === "function",
@@ -60,20 +64,20 @@ export class CacheSuivi {
         `Aucun argument pour ${adresseFonction} n'est une fonction.`,
       );
 
-      const f = objArgs[nomArgFonction] as Suivi<unknown>;
-      const argsSansF = Object.fromEntries(
-        Object.entries(objArgs).filter((x) => typeof x[1] !== "function"),
+    const f = objArgs[nomArgFonction] as Suivi<unknown>;
+    const argsSansF = Object.fromEntries(
+      Object.entries(objArgs).filter((x) => typeof x[1] !== "function"),
+    );
+    if (Object.keys(objArgs).length !== Object.keys(argsSansF).length + 1) {
+      throw new Error(
+        "Plus d'un argument pour " +
+          adresseFonction +
+          " est une fonction : " +
+          Object.keys(objArgs)
+            .filter((a) => !Object.keys(argsSansF).includes(a))
+            .join(", "),
       );
-      if (Object.keys(objArgs).length !== Object.keys(argsSansF).length + 1) {
-        throw new Error(
-          "Plus d'un argument pour " +
-            adresseFonction +
-            " est une fonction : " +
-            Object.keys(objArgs)
-              .filter((a) => !Object.keys(argsSansF).includes(a))
-              .join(", "),
-        );
-      }
+    }
 
     return { argsSansF, f, nomArgFonction };
   }
@@ -95,7 +99,10 @@ export class CacheSuivi {
     ceciOriginal: U;
   }): Promise<Oublier> {
     // Extraire la fonction de suivi et les autres arguments
-    const { f, argsSansF, nomArgFonction } = this.vérifierArgs({ args, adresseFonction });
+    const { f, argsSansF, nomArgFonction } = this.vérifierArgs({
+      args,
+      adresseFonction,
+    });
 
     const codeCache = this.générerCodeCache({
       adresseFonction,
@@ -107,21 +114,20 @@ export class CacheSuivi {
     await this.verrou.acquire(codeCache);
 
     // Vérifier si déjà en cache
-    const suivi = this.suivis.get(codeCache)
+    const suivi = this.suivis.get(codeCache);
     if (suivi) {
       this.verrou.release(codeCache);
 
       // Ajouter f à la liste de fonctions de rappel
       suivi.requêtes[idRequête] = f;
-      if (Object.keys(suivi).includes("val"))
-        f(suivi.val);
+      if (Object.keys(suivi).includes("val")) f(suivi.val);
     } else {
       try {
         // Si pas en cache, générer
         this.suivis.set(codeCache, {
           requêtes: { [idRequête]: f },
         });
-        
+
         const fFinale = async (x: unknown) => {
           const suivi = this.suivis.get(codeCache);
           if (!suivi) return; // Si on a déjà annulé la requête
@@ -130,13 +136,15 @@ export class CacheSuivi {
             deepEqual(suivi.val, x, { strict: true })
           )
             return; // Ignorer si c'est la même valeur qu'avant
-            suivi.val = x;
+          suivi.val = x;
           const fsSuivis = Object.values(suivi.requêtes);
           await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
         };
         const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
-        this.suivis.get(codeCache)!.oublier = await fOriginale.apply(ceciOriginal, [argsAvecF]);
-
+        this.suivis.get(codeCache)!.oublier = await fOriginale.apply(
+          ceciOriginal,
+          [argsAvecF],
+        );
       } finally {
         this.verrou.release(codeCache);
       }
@@ -171,7 +179,10 @@ export class CacheSuivi {
     sélection: (n: number, résultats: R[]) => R[];
   }): Promise<RetourRecherche> {
     // Extraire la fonction de suivi et les autres arguments
-    const { argsSansF, f, nomArgFonction } = this.vérifierArgs({ args, adresseFonction });
+    const { argsSansF, f, nomArgFonction } = this.vérifierArgs({
+      args,
+      adresseFonction,
+    });
 
     const argsSansFOuTaille = Object.fromEntries(
       Object.entries(argsSansF).filter((x) => x[0] !== nomArgTaille),
@@ -192,12 +203,10 @@ export class CacheSuivi {
     const idRequête = uuidv4();
 
     const fFinale = async (val: R[]) => {
-      const recherche = this.recherches.get(codeCache)
+      const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
       recherche.val = val;
-      const infoRequêtes = Object.values(
-        recherche.requêtes,
-      );
+      const infoRequêtes = Object.values(recherche.requêtes);
       await Promise.allSettled(
         infoRequêtes.map(
           async (info) => await info.f(sélection(info.taille, val)),
@@ -206,13 +215,11 @@ export class CacheSuivi {
     };
 
     const actualiserTaille = async () => {
-      const recherche = this.recherches.get(codeCache)
+      const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
 
       const maxTaille = Math.max(
-        ...Object.values(recherche.requêtes).map(
-          (r) => r.taille,
-        ),
+        ...Object.values(recherche.requêtes).map((r) => r.taille),
       );
       const { n } = recherche.fs!;
 
@@ -223,11 +230,10 @@ export class CacheSuivi {
     };
 
     const fChangerTailleRequête = async (taille: number) => {
-      const recherche = this.recherches.get(codeCache)
+      const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
 
-      const tailleAvant =
-        recherche.requêtes[idRequête].taille;
+      const tailleAvant = recherche.requêtes[idRequête].taille;
 
       if (taille === tailleAvant) return;
       recherche.requêtes[idRequête].taille = taille;
@@ -239,7 +245,7 @@ export class CacheSuivi {
     await this.verrou.acquire(codeCache);
 
     try {
-      const recherche = this.recherches.get(codeCache)
+      const recherche = this.recherches.get(codeCache);
       // Vérifier si déjà en cache
       if (!recherche) {
         // Si pas en cache, générer

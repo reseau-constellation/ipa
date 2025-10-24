@@ -5,12 +5,15 @@ import { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import { estContrôleurConstellation } from "@/v2/crabe/services/compte/accès/contrôleurConstellation.js";
 import { attendreQue } from "./nébuleuse/utils/fonctions.js";
 
-export const journalifier = <T extends (...args: unknown[])=>unknown>(f: T, étiquette?: string): T => {
+export const journalifier = <T extends (...args: unknown[]) => unknown>(
+  f: T,
+  étiquette?: string,
+): T => {
   return (...args) => {
-    console.log(étiquette || "", args)
-    return f(...args)
-  }
-}
+    console.log(étiquette || "", args);
+    return f(...args);
+  };
+};
 
 export const attendreInvité = async (
   bd: BaseDatabase,

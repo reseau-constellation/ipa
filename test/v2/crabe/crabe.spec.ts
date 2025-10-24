@@ -131,13 +131,13 @@ describe.only("Crabe", function () {
 
       // @ts-expect-error  Clef inexistante dans la structure
       await expect(bd.set("n/existe/pas", 1)).to.eventually.be.rejectedWith(
-        "Unsupported key n/existe/pas."
+        "Unsupported key n/existe/pas.",
       );
 
       // @ts-expect-error Service inexistant
-      await expect(bd.set("service/inexistant", 1)).to.eventually.be.rejectedWith(
-        "Unsupported key service/inexistant."
-      );
+      await expect(
+        bd.set("service/inexistant", 1),
+      ).to.eventually.be.rejectedWith("Unsupported key service/inexistant.");
     });
   });
 
@@ -165,9 +165,11 @@ describe.only("Crabe", function () {
         }),
       );
       const idCompteAntérieur = await crabes[1].compte.obtIdCompte();
-      const promesseIdCompte = obtenir(({ si }) => 
-        crabes[1].compte.suivreIdCompte({ f: si(x => x !== idCompteAntérieur) })
-      )
+      const promesseIdCompte = obtenir(({ si }) =>
+        crabes[1].compte.suivreIdCompte({
+          f: si((x) => x !== idCompteAntérieur),
+        }),
+      );
       await crabes[0].compte.ajouterDispositif({
         idDispositif: await crabes[1].compte.obtIdDispositif(),
       });
@@ -176,11 +178,11 @@ describe.only("Crabe", function () {
       });
       // À faire : Pour une drôle de raison, il faut modifier la BD avant qu'elle ne s'actualise...
       await crabes[0].profil.effacerNom({ langue: "de" });
-      console.log("profil modifié")
+      console.log("profil modifié");
 
       const nouvelId = await promesseIdCompte;
-      expect(nouvelId).to.equal(await crabes[0].compte.obtIdCompte())
-      console.log("id compte bien ajusté")
+      expect(nouvelId).to.equal(await crabes[0].compte.obtIdCompte());
+      console.log("id compte bien ajusté");
 
       const noms = await promesseNoms;
       expect(noms?.fr).to.equal("Julien Malard-Adam");

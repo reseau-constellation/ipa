@@ -167,7 +167,7 @@ const ContrôleurConstellation =
       ];
 
       await Promise.all(autorisations.map((x) => accès.autoriser(x)));
-    }
+    };
 
     const oublierBdAccès = appelerLorsque({
       émetteur: bdAccès.events,
@@ -263,8 +263,8 @@ const ContrôleurConstellation =
         f: async () => await f(utilisateursAutorisés()),
       });
 
-      await f(utilisateursAutorisés())
-      return oublier
+      await f(utilisateursAutorisés());
+      return oublier;
     };
 
     const dispositifsAutorisés = (): AccèsDispositif[] => accès.dispositifs;

@@ -9,8 +9,8 @@ export const attendreQue = async (
           clearTimeout(chrono);
           résoudre();
         } else {
-          t *= 1.5
-          setTimeout(fFinale, t)
+          t *= 1.5;
+          setTimeout(fFinale, t);
         }
       } catch {
         clearTimeout(chrono);

@@ -2,6 +2,7 @@ import { expect } from "aegir/chai";
 import { ServicesLibp2pTest, dossierTempo } from "@constl/utils-tests";
 import { NestedValueObject } from "@orbitdb/nested-db";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
+import { TypedNested, TypedNested } from "@constl/bohr-db";
 import {
   ServiceCompte,
   ServiceHélia,
@@ -17,13 +18,12 @@ import { ServiceDonnéesNébuleuse } from "@/v2/crabe/services/services.js";
 import { PartielRécursif } from "@/v2/types.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
+import { Oublier } from "@/v2/crabe/types.js";
+import { obtenir } from "test/utils/utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
 import { créerNébuleusesTest } from "./../../../nébuleuse/utils/nébuleuse.js";
 import { attendreInvité } from "./../../../utils.js";
 import type { JSONSchemaType } from "ajv";
-import { Oublier } from "@/v2/crabe/types.js";
-import { TypedNested, TypedNested } from "@constl/bohr-db";
-import { obtenir } from "test/utils/utils.js";
 
 describe.only("Service Compte", function () {
   describe("gestion compte", async () => {
@@ -195,11 +195,11 @@ describe.only("Service Compte", function () {
     let nébuleuse2: Nébuleuse<
       ServicesNécessairesCompte<ServicesLibp2pTest> & ServicesDonnéesTest
     >;
-    
+
     let oublier: Oublier;
 
     before(async () => {
-      const {nébuleuses, fermer } = await créerNébuleusesTest({
+      const { nébuleuses, fermer } = await créerNébuleusesTest({
         n: 2,
         services: {
           journal: ServiceJournal,
@@ -218,7 +218,7 @@ describe.only("Service Compte", function () {
         },
       });
       oublier = fermer;
-      ([nébuleuse, nébuleuse2] = nébuleuses)
+      [nébuleuse, nébuleuse2] = nébuleuses;
     });
 
     after(async () => {
@@ -252,9 +252,13 @@ describe.only("Service Compte", function () {
 
     it("suivi bd compte", async () => {
       const bd = await nébuleuse.services.compte.bd();
-      const promesseValeur = obtenir<TypedNested<{test1: { a: number; b: number }}> | undefined>(({si})=>nébuleuse.services.compte.suivreBd({
-        f: si(async x => !!x && !!((await x.all()).get("test1")?.get("a")))
-      }));
+      const promesseValeur = obtenir<
+        TypedNested<{ test1: { a: number; b: number } }> | undefined
+      >(({ si }) =>
+        nébuleuse.services.compte.suivreBd({
+          f: si(async (x) => !!x && !!(await x.all()).get("test1")?.get("a")),
+        }),
+      );
 
       await bd.put("test1/a", 2);
       const valeur = await promesseValeur;
@@ -266,18 +270,21 @@ describe.only("Service Compte", function () {
       const idCompte = await nébuleuse.services.compte.obtIdCompte();
       const idCompte2 = await nébuleuse2.services.compte.obtIdCompte();
 
-      const promesseValeur = obtenir<TypedNested<{ test1: { a: number; b: number } }>|undefined>(({si})=>nébuleuse.services.compte.suivreBd({
-        f: si(bd => bd?.address !== idCompte2)
-      }));
+      const promesseValeur = obtenir<
+        TypedNested<{ test1: { a: number; b: number } }> | undefined
+      >(({ si }) =>
+        nébuleuse.services.compte.suivreBd({
+          f: si((bd) => bd?.address !== idCompte2),
+        }),
+      );
 
       await nébuleuse2.services.compte.rejoindreCompte({
-        idCompte
+        idCompte,
       });
 
       const nouvelIdBd = await promesseValeur;
       expect(nouvelIdBd).to.equal(idCompte);
     });
-
   });
 
   describe("gestion dispositifs", function () {
@@ -414,5 +421,4 @@ describe.only("Service Compte", function () {
       });
     });
   });
-
 });

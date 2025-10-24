@@ -50,7 +50,7 @@ class AccèsCompte {
     const oublier = appelerLorsque({
       émetteur: accèsCompte.bd.events,
       événement: "update",
-      f: suiviCompte
+      f: suiviCompte,
     });
     await suiviCompte();
 

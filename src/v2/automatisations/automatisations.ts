@@ -383,14 +383,13 @@ export class Automatisations<
       await f(étatsAuto);
     };
 
-    
     const oublier = appelerLorsque({
       émetteur: this.événements,
       événement: "autos",
       f: fFinale,
     });
     await fFinale();
-    
+
     return oublier;
   }
 

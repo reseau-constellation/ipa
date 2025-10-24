@@ -316,12 +316,12 @@ describe.only("Nébuleuse", function () {
 
       // Fermer à nouveau
       await nébuleuse.fermer();
-      
+
       expect(
         Object.values(nébuleuse.services).every((s) => !s.estDémarré),
       ).to.be.true();
       expect(nébuleuse.estDémarrée).to.be.false();
-    })
+    });
 
     it("erreur de fermeture service", async () => {
       type ServicesTest = {
@@ -335,7 +335,7 @@ describe.only("Nébuleuse", function () {
           });
         }
         fermer(): Promise<void> {
-          throw new Error("erreur de fermeture")
+          throw new Error("erreur de fermeture");
         }
       }
       const nébuleuse = new Nébuleuse<ServicesTest>({
@@ -345,7 +345,7 @@ describe.only("Nébuleuse", function () {
       });
       await nébuleuse.démarrer();
       await nébuleuse.fermer();
-      expect("à faire").to.be.false()
+      expect("à faire").to.be.false();
       expect(
         Object.values(nébuleuse.services).every((s) => !s.estDémarré),
       ).to.be.true();
@@ -363,7 +363,7 @@ describe.only("Nébuleuse", function () {
           });
         }
         démarrer(): Promise<void> {
-          throw new Error("erreur de démarrage")
+          throw new Error("erreur de démarrage");
         }
       }
       const nébuleuse = new Nébuleuse<ServicesTest>({
@@ -376,11 +376,11 @@ describe.only("Nébuleuse", function () {
       } catch {
         await nébuleuse.fermer();
       }
-      expect("à faire").to.be.false()
+      expect("à faire").to.be.false();
       expect(
         Object.values(nébuleuse.services).every((s) => !s.estDémarré),
       ).to.be.true();
-    })
+    });
   });
 
   describe("Communication entre services", function () {

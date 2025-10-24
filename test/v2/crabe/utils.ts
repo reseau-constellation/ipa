@@ -1,4 +1,10 @@
-import { ServicesLibp2pTest, dossierTempo, obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
+import path from "path";
+import {
+  ServicesLibp2pTest,
+  dossierTempo,
+  obtenirAdresseRelai,
+  toutesConnectées,
+} from "@constl/utils-tests";
 import { NestedValueObject } from "@orbitdb/nested-db";
 import { Crabe, ServicesCrabe, StructureCrabe } from "@/v2/crabe/crabe.js";
 import {
@@ -7,10 +13,9 @@ import {
   ServicesNébuleuse,
 } from "@/v2/nébuleuse/nébuleuse.js";
 import { ServicesDonnées } from "@/v2/crabe/services/compte/compte.js";
+import { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
 import { ServiceLibp2pTest } from "./services/utils.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import path from "path";
-import { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
 
 export class CrabeTest<
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,
@@ -44,10 +49,14 @@ export const connecterCrabes = async <
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,
   S extends ServicesNébuleuse = ServicesNébuleuse,
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
->(crabes: Crabe<T, S, L>[]) => {
-  const libp2ps = await Promise.all(crabes.map(async c=> await c.services.libp2p.libp2p()))
-  await toutesConnectées(libp2ps, { adresseRelai: obtenirAdresseRelai() })
-}
+>(
+  crabes: Crabe<T, S, L>[],
+) => {
+  const libp2ps = await Promise.all(
+    crabes.map(async (c) => await c.services.libp2p.libp2p()),
+  );
+  await toutesConnectées(libp2ps, { adresseRelai: obtenirAdresseRelai() });
+};
 
 export const créerCrabesTest = async <
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,

@@ -18,9 +18,9 @@ import {
 import { PartielRécursif } from "@/v2/types.js";
 import { Oublier, Suivi } from "../types.js";
 import { mapÀObjet } from "../utils.js";
+import { journalifier } from "../../../../test/v2/utils.js";
 import { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import { ServicesNécessairesCompte } from "./compte/compte.js";
-import { journalifier } from "../../../../test/v2/utils.js";
 
 export type ClefDeBranche<T extends NestedValueObject> = keyof {
   [C in ExtractKeys<T> as GetValueFromKey<T, C> extends NestedValueObject
@@ -173,10 +173,12 @@ export class ServiceDonnéesNébuleuse<
         f: async (x) => await f(mapÀObjet(await x.get(clef))),
       });
     } else {
-      console.log("id compte dynamique")
+      console.log("id compte dynamique");
       return await suivreFonctionImbriquée({
         fRacine: ({ fSuivreRacine }) =>
-          this.service("compte").suivreIdCompte({ f: journalifier(fSuivreRacine, "idCompte") }),
+          this.service("compte").suivreIdCompte({
+            f: journalifier(fSuivreRacine, "idCompte"),
+          }),
         f,
         fSuivre: ({ id, fSuivreBd }) =>
           this.service("orbite").suivreBdTypée({

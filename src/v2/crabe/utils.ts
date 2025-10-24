@@ -49,7 +49,7 @@ export const réessayer = async <T>(
       return await Promise.race([f(), pSignal(signal)]);
     } catch (e) {
       if (signal.aborted) throw new AbortError(Error("Signal avorté"));
-      console.log(e)
+      console.log(e);
       n++;
       const maintenant = Date.now();
       const tempsÀAttendre = n * 1000 - (maintenant - avant);
