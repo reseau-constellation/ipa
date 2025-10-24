@@ -8,11 +8,14 @@ import { Oublier, RetourRecherche, Suivi } from "./v2/crabe/types.js";
 
 export class CacheSuivi {
   verrou: Semaphore;
-  suivis: Map<string, {
+  suivis: Map<
+    string,
+    {
       val?: unknown;
       requêtes: { [clef: string]: Suivi<unknown> };
       fOublier?: Oublier;
-    }>;
+    }
+  >;
   _cacheRecherche: {
     [clef: string]: {
       val?: unknown[];
@@ -30,16 +33,22 @@ export class CacheSuivi {
     this._cacheRecherche = {};
   }
 
-  vérifierArgs({ args, adresseFonction }: {args: [{ [clef: string]: unknown }]; adresseFonction: string }): { [clef: string]: unknown } {
+  vérifierArgs({
+    args,
+    adresseFonction,
+  }: {
+    args: [{ [clef: string]: unknown }];
+    adresseFonction: string;
+  }): { [clef: string]: unknown } {
     if (args.length < 1) {
-      throw new Error(`La fonction ${adresseFonction} n'a pas d'arguments.`)
+      throw new Error(`La fonction ${adresseFonction} n'a pas d'arguments.`);
     }
 
     if (args.length > 1)
       throw new Error(
         `Les arguments de ${adresseFonction} doivent être regroupés dans un seul objet {}.`,
       );
-    return args[0]
+    return args[0];
   }
 
   async suivre<
@@ -55,10 +64,10 @@ export class CacheSuivi {
     adresseFonction: string;
     idInstance: string;
     fOriginale: T;
-    args:  [{ [clef: string]: unknown }];
+    args: [{ [clef: string]: unknown }];
     ceciOriginal: U;
   }): Promise<Oublier> {
-    const argsFinaux = this.vérifierArgs({ args, adresseFonction })
+    const argsFinaux = this.vérifierArgs({ args, adresseFonction });
 
     // Extraire la fonction de suivi
     const nomArgFonction = Object.entries(argsFinaux).find(
@@ -77,7 +86,9 @@ export class CacheSuivi {
         "Plus d'un argument pour " +
           adresseFonction +
           " est une fonction : " +
-          Object.keys(argsFinaux).filter(a=>!Object.keys(argsSansF).includes(a)).join(", "),
+          Object.keys(argsFinaux)
+            .filter((a) => !Object.keys(argsSansF).includes(a))
+            .join(", "),
       );
     }
 
@@ -153,14 +164,17 @@ export class CacheSuivi {
     ceciOriginal: U;
     sélection: (n: number, résultats: R[]) => R[];
   }): Promise<RetourRecherche> {
-    const argsFinaux = this.vérifierArgs({args, adresseFonction});
+    const argsFinaux = this.vérifierArgs({ args, adresseFonction });
 
     // Extraire la fonction de suivi
     const nomArgFonction = Object.entries(argsFinaux).find(
       (x) => typeof x[1] === "function",
     )?.[0];
 
-    if (!nomArgFonction) throw new Error(`Aucun argument pour ${adresseFonction} n'est une fonction.`);
+    if (!nomArgFonction)
+      throw new Error(
+        `Aucun argument pour ${adresseFonction} n'est une fonction.`,
+      );
     const f = argsFinaux[nomArgFonction] as Suivi<unknown>;
     const argsSansF = Object.fromEntries(
       Object.entries(argsFinaux).filter((x) => typeof x[1] !== "function"),
@@ -170,7 +184,9 @@ export class CacheSuivi {
         "Plus d'un argument pour " +
           adresseFonction +
           " est une fonction : " +
-          Object.keys(argsFinaux).filter(a=>!Object.keys(argsSansF).includes(a)).join(", ")
+          Object.keys(argsFinaux)
+            .filter((a) => !Object.keys(argsSansF).includes(a))
+            .join(", "),
       );
     }
     const argsSansFOuTaille = Object.fromEntries(
@@ -199,11 +215,9 @@ export class CacheSuivi {
       );
       await Promise.allSettled(
         infoRequêtes.map(
-          async (info) =>
-            await info.f(
-              sélection(info.taille, val)
-            ),
-        ));
+          async (info) => await info.f(sélection(info.taille, val)),
+        ),
+      );
     };
 
     const actualiserTaille = async () => {
@@ -219,11 +233,9 @@ export class CacheSuivi {
         this._cacheRecherche[codeCache].taillePrésente = maxTaille;
         n(maxTaille);
       }
-    }
-
+    };
 
     const fChangerTailleRequête = async (taille: number) => {
-
       const tailleAvant =
         this._cacheRecherche[codeCache].requêtes[idRequête].taille;
 
@@ -232,11 +244,10 @@ export class CacheSuivi {
       const { val } = this._cacheRecherche[codeCache];
       if (val) await fFinale(val as R[]);
       actualiserTaille();
-      
     };
 
     await this.verrou.acquire(codeCache);
-    
+
     try {
       // Vérifier si déjà en cache
       if (!this._cacheRecherche[codeCache]) {
@@ -260,7 +271,7 @@ export class CacheSuivi {
         // Sinon, ajouter f à la liste de fonctions de rappel
         this._cacheRecherche[codeCache].requêtes[idRequête] = { f, taille };
         if (Object.keys(this._cacheRecherche[codeCache]).includes("val")) {
-          await actualiserTaille()
+          await actualiserTaille();
           const { val } = this._cacheRecherche[codeCache];
 
           if (val) await fFinale(val as R[]);
@@ -359,17 +370,26 @@ export const cacheRechercheParN = <T>(
   nom: string,
   descripteur: unknown,
 ) => {
-  return envelopper({ nom, descripteur, recherche: (n: number, résultats: T[]) => résultats.slice(0, n) });
+  return envelopper({
+    nom,
+    descripteur,
+    recherche: (n: number, résultats: T[]) => résultats.slice(0, n),
+  });
 };
 
-export type RésultatProfondeur<T> = { profondeur: number, val: T }
+export type RésultatProfondeur<T> = { profondeur: number; val: T };
 
 export const cacheRechercheParProfondeur = <T>(
   _cible: unknown,
   nom: string,
   descripteur: unknown,
 ) => {
-  return envelopper({ nom, descripteur, recherche:  (n: number, résultats: RésultatProfondeur<T>[]) => résultats.filter(r => r.profondeur <= n) });
+  return envelopper({
+    nom,
+    descripteur,
+    recherche: (n: number, résultats: RésultatProfondeur<T>[]) =>
+      résultats.filter((r) => r.profondeur <= n),
+  });
 };
 
 const map = new WeakMap();
@@ -399,7 +419,7 @@ export const envelopper = <T>({
       const adresseFonction = this.constructor.name + "." + nom;
 
       try {
-        const idInstance = idUnique(this)
+        const idInstance = idUnique(this);
 
         if (recherche) {
           return cache.suivreRecherche({
