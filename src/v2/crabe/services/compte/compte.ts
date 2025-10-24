@@ -289,7 +289,7 @@ export class ServiceCompte<
     return bd;
   }
 
-  async suivreBd({ f, idCompte }: { f: Suivi<NestedObjectToMap<T> | undefined>, idCompte?: string }): Promise<Oublier> {
+  async suivreBd({ f, idCompte }: { f: Suivi<TypedNested<T> | undefined>, idCompte?: string }): Promise<Oublier> {
     const orbite = this.service("orbite");
     const schéma = compilerSchémaCompte(this);
 
@@ -298,8 +298,8 @@ export class ServiceCompte<
         id: idCompte,
         type: "nested",
         schéma,
-        f: async bd => await f(await bd.all()),
-      })
+        f,
+      }) as Oublier;
     } else {
       return await suivreFonctionImbriquée({
         fRacine: async ({ fSuivreRacine }) => await this.suivreIdCompte({ f: fSuivreRacine }),
