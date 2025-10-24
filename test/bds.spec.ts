@@ -15,7 +15,7 @@ import { expect } from "aegir/chai";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 import {
-  TraducsNom,
+  TraducsTexte,
   schémaFonctionOublier,
   schémaFonctionSuivi,
 } from "@/types.js";
@@ -37,107 +37,7 @@ import type XLSX from "xlsx";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
-describe.only("BDs", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let constl: Constellation;
-
-  before(async () => {
-    ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
-      n: 1,
-      créerConstellation,
-    }));
-    constl = clients[0];
-  });
-
-  after(async () => {
-    if (fOublierClients) await fOublierClients();
-  });
-
-  describe("Création bds", function () {
-    it("Création", async () => {
-      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-      expect(isValidAddress(idBd)).to.be.true();
-    });
-    it("Accès", async () => {
-      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-      const permission = await obtenir(({ si }) =>
-        constl.suivrePermissionÉcrire({
-          id: idBd,
-          f: si((x) => !!x),
-        }),
-      );
-      expect(permission).to.be.true();
-    });
-  });
-
-  describe("Mes BDs", () => {
-    let idBd: string;
-    let idNouvelleBd: string;
-
-    let fOublierClients: () => Promise<void>;
-    let clients: Constellation[];
-    let constl: Constellation;
-
-    before(async () => {
-      ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
-        n: 1,
-        créerConstellation,
-      }));
-      constl = clients[0];
-    });
-
-    after(async () => {
-      if (fOublierClients) await fOublierClients();
-    });
-
-    it("Une BD déjà créée est présente", async () => {
-      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-      const mesBds = await obtenir<string[]>(({ siDéfini }) =>
-        constl.bds.suivreBds({
-          f: siDéfini(),
-        }),
-      );
-      expect(mesBds).to.be.an("array").and.to.contain(idBd);
-    });
-
-    it("On crée une autre BD sans l'ajouter", async () => {
-      idNouvelleBd = await constl.bds.créerBd({
-        licence: "ODbl-1_0",
-      });
-      await constl.bds.enleverDeMesBds({ idBd: idNouvelleBd });
-      const mesBds = await obtenir<string[]>(({ si }) =>
-        constl.bds.suivreBds({
-          f: si((x) => x.length < 2),
-        }),
-      );
-      expect(mesBds).to.be.an("array").and.not.contain(idNouvelleBd);
-    });
-
-    it("On peut l'ajouter ensuite à mes bds", async () => {
-      await constl.bds.ajouterÀMesBds({ idBd: idNouvelleBd });
-      const mesBds = await obtenir<string[]>(({ si }) =>
-        constl.bds.suivreBds({
-          f: si((x) => x.length > 1),
-        }),
-      );
-      expect(mesBds)
-        .to.be.an("array")
-        .with.length(2)
-        .to.have.members([idNouvelleBd, idBd]);
-    });
-
-    it("On peut aussi l'effacer", async () => {
-      await constl.bds.effacerBd({ idBd: idNouvelleBd });
-      const mesBds = await obtenir<string[]>(({ si }) =>
-        constl.bds.suivreBds({
-          f: si((x) => x.length < 2),
-        }),
-      );
-      expect(mesBds).to.be.an("array").with.length(1).and.to.contain(idBd);
-    });
-  });
-
+describe("BDs", function () {
   describe("Noms", function () {
     let idBd: string;
 
@@ -146,7 +46,7 @@ describe.only("BDs", function () {
     });
 
     it("Pas de noms pour commencer", async () => {
-      const noms = await obtenir<TraducsNom>(({ siDéfini }) =>
+      const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
         constl.bds.suivreNomsBd({ idBd, f: siDéfini() }),
       );
       expect(Object.keys(noms).length).to.equal(0);
@@ -158,7 +58,7 @@ describe.only("BDs", function () {
         langue: "fr",
         nom: "Alphabets",
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreNomsBd({
           idBd,
           f: si((n) => Object.keys(n).length > 0),
@@ -175,7 +75,7 @@ describe.only("BDs", function () {
           हिं: "वर्णमाला",
         },
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreNomsBd({
           idBd,
           f: si((n) => Object.keys(n).length > 2),
@@ -194,7 +94,7 @@ describe.only("BDs", function () {
         langue: "fr",
         nom: "Systèmes d'écriture",
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreNomsBd({
           idBd,
           f: si((n) => n["fr"] !== "Alphabets"),
@@ -206,7 +106,7 @@ describe.only("BDs", function () {
 
     it("Effacer un nom", async () => {
       await constl.bds.effacerNomBd({ idBd, langue: "fr" });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreNomsBd({ idBd, f: si((n) => !n["fr"]) }),
       );
       expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
@@ -221,7 +121,7 @@ describe.only("BDs", function () {
     });
 
     it("Aucune description pour commencer", async () => {
-      const descrs = await obtenir<TraducsNom>(({ siDéfini }) =>
+      const descrs = await obtenir<TraducsTexte>(({ siDéfini }) =>
         constl.bds.suivreDescriptionsBd({ idBd, f: siDéfini() }),
       );
       expect(Object.keys(descrs).length).to.equal(0);
@@ -234,7 +134,7 @@ describe.only("BDs", function () {
         description: "Alphabets",
       });
 
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreDescriptionsBd({ idBd, f: si((x) => !!x["fr"]) }),
       );
       expect(descrs.fr).to.equal("Alphabets");
@@ -249,7 +149,7 @@ describe.only("BDs", function () {
         },
       });
 
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreDescriptionsBd({
           idBd,
           f: si((x) => Object.keys(x).length > 2),
@@ -269,7 +169,7 @@ describe.only("BDs", function () {
         description: "Systèmes d'écriture",
       });
 
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreDescriptionsBd({
           idBd,
           f: si((x) => x["fr"] !== "Alphabets"),
@@ -281,7 +181,7 @@ describe.only("BDs", function () {
     it("Effacer une description", async () => {
       await constl.bds.effacerDescriptionBd({ idBd, langue: "fr" });
 
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreDescriptionsBd({ idBd, f: si((x) => !x["fr"]) }),
       );
       expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
@@ -597,13 +497,13 @@ describe.only("BDs", function () {
     });
 
     it("Les noms sont copiés", async () => {
-      const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
+      const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
         constl.bds.suivreNomsBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(noms).to.deep.equal(réfNoms);
     });
     it("Les descriptions sont copiées", async () => {
-      const descrs = await obtenir<TraducsNom>(({ siPasVide }) =>
+      const descrs = await obtenir<TraducsTexte>(({ siPasVide }) =>
         constl.bds.suivreDescriptionsBd({ idBd: idBdCopie, f: siPasVide() }),
       );
       expect(descrs).to.deep.equal(réfDescrs);

@@ -29,17 +29,17 @@ import {
   isReactNative,
   isWebWorker,
 } from "wherearewe";
-import {
-  générerMandataireProc,
-  générerMandataireTravailleur,
-} from "@/mandataire/index.js";
-import { confirmerOptsTravailleur } from "@/mandataire/ipaTravailleur.js";
 import { préparerOrbite } from "./orbite.js";
 import type {
   optsConstellation,
   Constellation as _Constellation,
 } from "@/client.js";
 import type { MandataireConstellation } from "@constl/mandataire";
+import { confirmerOptsTravailleur } from "@/mandataire/ipaTravailleur.js";
+import {
+  générerMandataireProc,
+  générerMandataireTravailleur,
+} from "@/mandataire/index.js";
 
 export type Constellation = MandataireConstellation<_Constellation>;
 

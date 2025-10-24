@@ -651,7 +651,7 @@ const nouvellesDonnées = [
   {
     [idsCols[idVarEndroit]]: "ici",
     [idsCols[idVarDate]]: "2023-01-01",
-    [idsCols[idVarTempMin]]: 101,  // Ouach! Fahrenheit...
+    [idsCols[idVarTempMin]]: 101,  // Ouach ! Fahrenheit...
   },
   {
     [idsCols[idVarEndroit]]: "là",

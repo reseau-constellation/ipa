@@ -14,7 +14,7 @@ import {
 } from "@/const.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { mandatairifier } from "./mandataire/index.js";
-import { ServiceConstellation } from "./services.js";
+import { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,

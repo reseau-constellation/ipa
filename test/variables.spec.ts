@@ -13,7 +13,7 @@ import type { catégorieVariables } from "@/variables.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
-describe.only("Variables", function () {
+describe("Variables", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
@@ -113,7 +113,7 @@ describe.only("Variables", function () {
     });
 
     it("Pas de noms pour commencer", async () => {
-      const noms = await obtenir<TraducsNom>(({ siDéfini }) =>
+      const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
         client.variables.suivreNomsVariable({
           idVariable,
           f: siDéfini(),
@@ -128,7 +128,7 @@ describe.only("Variables", function () {
         langue: "fr",
         nom: "Précipitation",
       });
-      const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
+      const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
         client.variables.suivreNomsVariable({
           idVariable,
           f: siPasVide(),
@@ -145,7 +145,7 @@ describe.only("Variables", function () {
           हिं: "बारिश",
         },
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreNomsVariable({
           idVariable,
           f: si((x) => Object.keys(x).length > 2),
@@ -164,7 +164,7 @@ describe.only("Variables", function () {
         langue: "fr",
         nom: "précipitation",
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreNomsVariable({
           idVariable,
           f: si((x) => !!x.fr && !x.fr.startsWith("P")),
@@ -178,7 +178,7 @@ describe.only("Variables", function () {
         idVariable,
         langue: "fr",
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreNomsVariable({
           idVariable,
           f: si((x) => !x["fr"]),
@@ -198,7 +198,7 @@ describe.only("Variables", function () {
     });
 
     it("Pas de descriptions pour commencer", async () => {
-      const descrs = await obtenir<TraducsNom>(({ siDéfini }) =>
+      const descrs = await obtenir<TraducsTexte>(({ siDéfini }) =>
         client.variables.suivreDescriptionsVariable({
           idVariable,
           f: siDéfini(),
@@ -213,7 +213,7 @@ describe.only("Variables", function () {
         langue: "fr",
         description: "la quantité de précipitation quotidienne",
       });
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreDescriptionsVariable({
           idVariable,
           f: si((x) => !!x["fr"]),
@@ -230,7 +230,7 @@ describe.only("Variables", function () {
           हिं: "दैनिक बारिश",
         },
       });
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreDescriptionsVariable({
           idVariable,
           f: si((x) => Object.keys(x).length > 2),
@@ -249,7 +249,7 @@ describe.only("Variables", function () {
         langue: "fr",
         description: "La quantité de précipitation quotidienne",
       });
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreDescriptionsVariable({
           idVariable,
           f: si((x) => !!x.fr && x["fr"].startsWith("L")),
@@ -263,7 +263,7 @@ describe.only("Variables", function () {
         idVariable,
         langue: "fr",
       });
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreDescriptionsVariable({
           idVariable,
           f: si((x) => !x["fr"]),
@@ -489,7 +489,7 @@ describe.only("Variables", function () {
     });
 
     it("Les noms sont copiés", async () => {
-      const noms = await obtenir<TraducsNom>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreNomsVariable({
           idVariable: idVariable2,
           f: si((x) => Object.keys(x).length > 1),
@@ -499,7 +499,7 @@ describe.only("Variables", function () {
     });
 
     it("Les descriptions sont copiés", async () => {
-      const descriptions = await obtenir<TraducsNom>(({ si }) =>
+      const descriptions = await obtenir<TraducsTexte>(({ si }) =>
         client.variables.suivreDescriptionsVariable({
           idVariable: idVariable2,
           f: si((x) => Object.keys(x).length > 1),

@@ -17,8 +17,8 @@ import {
 } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
 import {
-  RecursivePartial,
-  TraducsNom,
+  PartielRécursif,
+  TraducsTexte,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
@@ -27,10 +27,9 @@ import {
 } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { Constellation } from "@/client.js";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
-import { ComposanteClientListe } from "./services.js";
+import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
 import {
   INSTALLÉ,
   TOUS,
@@ -40,6 +39,7 @@ import {
 } from "./favoris.js";
 import type xlsx from "xlsx";
 import type { objRôles } from "@/accès/types.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
   type: "string",
@@ -396,7 +396,7 @@ export class Projets extends ComposanteClientListe<string> {
     options = {},
   }: {
     idProjet: string;
-    options?: RecursivePartial<ÉpingleProjet>;
+    options?: PartielRécursif<ÉpingleProjet>;
   }) {
     const épingle: ÉpingleProjet = résoudreDéfauts(options, {
       type: "projet",
@@ -482,7 +482,7 @@ export class Projets extends ComposanteClientListe<string> {
     noms,
   }: {
     idProjet: string;
-    noms: TraducsNom;
+    noms: TraducsTexte;
   }): Promise<void> {
     const { bd: bdNoms, fOublier } = await this._obtBdNoms({ idProjet });
     for (const lng in noms) {
@@ -820,7 +820,7 @@ export class Projets extends ComposanteClientListe<string> {
     f,
   }: {
     idProjet: string;
-    f: schémaFonctionSuivi<TraducsNom>;
+    f: schémaFonctionSuivi<TraducsTexte>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
       id: idProjet,
@@ -1013,7 +1013,7 @@ export class Projets extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<donnéesProjetExportation>;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      nomsProjet?: TraducsNom;
+      nomsProjet?: TraducsTexte;
       données?: donnéesBdExportation[];
     } = {};
     const fsOublier: schémaFonctionOublier[] = [];

@@ -30,16 +30,14 @@ import {
   schémaStructureBdNoms,
 } from "@/types.js";
 
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-
 import { schémaBdTableauxDeBd } from "@/bds.js";
 import {
-  cacheRechercheParNRésultats,
+  cacheRechercheParN,
   cacheRechercheParProfondeur,
   cacheSuivi,
 } from "@/décorateursCache.js";
 import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
-import { ComposanteClientListe } from "./services.js";
+import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
 import {
   INSTALLÉ,
   TOUS,
@@ -66,12 +64,13 @@ import type {
 import type { objRôles } from "@/accès/types.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
 import type {
-  RecursivePartial,
-  TraducsNom,
+  PartielRécursif,
+  TraducsTexte,
   schémaRetourFonctionRechercheParN,
   élémentsBd,
 } from "@/types.js";
 import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -370,7 +369,7 @@ export class Nuées extends ComposanteClientListe<string> {
     options = {},
   }: {
     idNuée: string;
-    options?: RecursivePartial<ÉpingleNuée>;
+    options?: PartielRécursif<ÉpingleNuée>;
   }) {
     const épingle: ÉpingleNuée = résoudreDéfauts(options, {
       type: "nuée",
@@ -831,7 +830,7 @@ export class Nuées extends ComposanteClientListe<string> {
     descriptions,
   }: {
     idNuée: string;
-    descriptions: TraducsNom;
+    descriptions: TraducsTexte;
   }): Promise<void> {
     await this._confirmerPermission({ idNuée });
     const idBdDescr = await this.client.obtIdBd({
@@ -1706,7 +1705,7 @@ export class Nuées extends ComposanteClientListe<string> {
   }: {
     idNuée: string;
     clefTableau: string;
-    f: schémaFonctionSuivi<TraducsNom>;
+    f: schémaFonctionSuivi<TraducsTexte>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (lNoms: { [key: string]: string }[]) => {
       await f(Object.assign({}, ...lNoms));
@@ -2347,7 +2346,7 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesDéscendantes({
     idNuée,
     f,
@@ -3086,7 +3085,7 @@ export class Nuées extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsTableau?: { [clef: string]: string };
-      nomsVariables?: { [idVar: string]: TraducsNom };
+      nomsVariables?: { [idVar: string]: TraducsTexte };
       colonnes?: InfoColAvecCatégorie[];
       données?: élémentDeMembreAvecValid<élémentBdListeDonnées>[];
     } = {};
@@ -3157,7 +3156,7 @@ export class Nuées extends ComposanteClientListe<string> {
         }: {
           fSuivreRacine: (éléments: string[]) => Promise<void>;
         }) => this.suivreVariablesNuée({ idNuée, f: fSuivreRacine }),
-        f: async (noms: { idVar: string; noms: TraducsNom }[]) => {
+        f: async (noms: { idVar: string; noms: TraducsTexte }[]) => {
           info.nomsVariables = Object.fromEntries(
             noms.map((n) => [n.idVar, n.noms]),
           );
@@ -3170,7 +3169,7 @@ export class Nuées extends ComposanteClientListe<string> {
           id: string;
           fSuivreBranche: schémaFonctionSuivi<{
             idVar: string;
-            noms: TraducsNom;
+            noms: TraducsTexte;
           }>;
         }): Promise<schémaFonctionOublier> => {
           return await this.client.variables.suivreNomsVariable({
@@ -3232,7 +3231,7 @@ export class Nuées extends ComposanteClientListe<string> {
     vérifierAutorisation?: boolean;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      nomsNuée?: TraducsNom;
+      nomsNuée?: TraducsTexte;
       données?: donnéesTableauExportation[];
     } = {};
     const fsOublier: schémaFonctionOublier[] = [];

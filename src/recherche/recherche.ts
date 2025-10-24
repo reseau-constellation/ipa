@@ -6,7 +6,7 @@ import * as projet from "@/recherche/projet.js";
 import * as utils from "@/recherche/utils.js";
 import * as variable from "@/recherche/variable.js";
 
-import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
+import { cacheRechercheParN } from "@/décorateursCache.js";
 import type { Constellation } from "@/client.js";
 import type {
   infoRésultatRecherche,
@@ -24,7 +24,7 @@ export class Recherche {
     this.client = client;
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherVariables({
     f,
     nRésultatsDésirés,
@@ -41,7 +41,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherVariablesSelonId({
     idVariable,
     f,
@@ -62,7 +62,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherVariablesSelonNom({
     nomVariable,
     f,
@@ -83,7 +83,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherVariablesSelonDescr({
     descrVariable,
     f,
@@ -104,7 +104,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherVariablesSelonTexte({
     texte,
     f,
@@ -127,7 +127,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherMotsClefs({
     f,
     nRésultatsDésirés,
@@ -144,7 +144,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherMotsClefsSelonId({
     idMotClef,
     f,
@@ -165,7 +165,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherMotsClefsSelonNom({
     nomMotClef,
     f,
@@ -186,7 +186,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherMotsClefsSelonDescr({
     descrMotClef,
     f,
@@ -207,7 +207,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherMotsClefsSelonTexte({
     texte,
     f,
@@ -230,7 +230,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBds({
     f,
     nRésultatsDésirés,
@@ -247,7 +247,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonId({
     idBd,
     f,
@@ -268,7 +268,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonNom({
     nomBd,
     f,
@@ -289,7 +289,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonDescr({
     descrBd,
     f,
@@ -310,7 +310,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonIdMotClef({
     idMotClef,
     f,
@@ -333,7 +333,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonIdVariable({
     idVariable,
     f,
@@ -356,7 +356,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonNomMotClef({
     nomMotClef,
     f,
@@ -379,7 +379,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonNomVariable({
     nomVariable,
     f,
@@ -402,7 +402,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonMotClef({
     texte,
     f,
@@ -425,7 +425,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonVariable({
     texte,
     f,
@@ -448,7 +448,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherBdsSelonTexte({
     texte,
     f,
@@ -475,7 +475,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProfilsSelonId({
     idCompte,
     f,
@@ -493,7 +493,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProfilsSelonNom({
     nom,
     f,
@@ -511,7 +511,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProfilsSelonImage({
     image,
     f,
@@ -529,7 +529,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProfilsSelonActivité({
     f,
     nRésultatsDésirés,
@@ -545,7 +545,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProfilsSelonCourriel({
     courriel,
     f,
@@ -563,7 +563,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProfilsSelonTexte({
     texte,
     f,
@@ -583,7 +583,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjets({
     f,
     nRésultatsDésirés,
@@ -600,7 +600,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonId({
     idProjet,
     f,
@@ -621,7 +621,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonNom({
     nomProjet,
     f,
@@ -642,7 +642,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonDescr({
     descrProjet,
     f,
@@ -663,7 +663,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonIdVariable({
     idVariable,
     f,
@@ -686,7 +686,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonNomVariable({
     nomVariable,
     f,
@@ -709,7 +709,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonVariable({
     texte,
     f,
@@ -734,7 +734,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonIdMotClef({
     idMotClef,
     f,
@@ -757,7 +757,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonNomMotClef({
     nomMotClef,
     f,
@@ -780,7 +780,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonMotClef({
     texte,
     f,
@@ -805,7 +805,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonIdBd({
     idBd,
     f,
@@ -828,7 +828,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonBd({
     texte,
     f,
@@ -857,7 +857,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherProjetsSelonTexte({
     texte,
     f,
@@ -888,7 +888,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuées({
     f,
     nRésultatsDésirés,
@@ -905,7 +905,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonId({
     idNuée,
     f,
@@ -926,7 +926,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonNom({
     nomNuée,
     f,
@@ -947,7 +947,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonDescr({
     descrNuée,
     f,
@@ -968,7 +968,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonIdMotClef({
     idMotClef,
     f,
@@ -991,7 +991,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonIdVariable({
     idVariable,
     f,
@@ -1014,7 +1014,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonNomMotClef({
     nomMotClef,
     f,
@@ -1037,7 +1037,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonNomVariable({
     nomVariable,
     f,
@@ -1060,7 +1060,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonMotClef({
     texte,
     f,
@@ -1083,7 +1083,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonVariable({
     texte,
     f,
@@ -1106,7 +1106,7 @@ export class Recherche {
     });
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParN
   async rechercherNuéesSelonTexte({
     texte,
     f,

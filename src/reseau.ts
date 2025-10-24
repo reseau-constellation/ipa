@@ -24,13 +24,10 @@ import {
   infoAccès,
   schémaStructureBdCompte,
 } from "@/client.js";
-import {
-  cacheRechercheParProfondeur,
-  cacheSuivi,
-} from "@/décorateursCache.js";
+import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
 import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
-import { ComposanteClientDic } from "./services.js";
+import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque, dépunicodifier } from "./utils.js";
@@ -2655,6 +2652,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       f,
     });
   }
+
   async suivreAuteursNuée({
     idNuée,
     f,
@@ -2668,6 +2666,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       f,
     });
   }
+
   async suivreObjetsMembre({
     idCompte,
     fListeObjets,

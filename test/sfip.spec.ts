@@ -12,7 +12,7 @@ import pRetry from 'p-retry'
 import { Constellation, créerConstellation } from "@/index.js";
 import { ServicesLibp2p, initSFIP } from "../src/sfip/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
-import type { HeliaLibp2p } from "helia";
+import type { Helia } from "helia";
 
 const attendre = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -21,7 +21,7 @@ const attendreConnecté = async ({
   sfip,
   idPair,
 }: {
-  sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+  sfip: Helia<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
   await new Promise<void>((résoudre) => {
@@ -47,7 +47,7 @@ const testerGossipSub = async ({
   sfip,
   idPair,
 }: {
-  sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+  sfip: Helia<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
   const CANAL_TEST = "test:gossipsub";
@@ -93,7 +93,7 @@ describe.skip("Connectivité SFIP", function () {
   let idPairNavig: string;
   let idPairNode: string;
 
-  let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+  let sfip: Helia<Libp2p<ServicesLibp2p>>;
   let dossier: string;
   let fEffacer: () => void;
 

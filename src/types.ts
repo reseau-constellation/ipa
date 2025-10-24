@@ -1,15 +1,7 @@
 import { JSONSchemaType } from "ajv";
+import { Oublier } from "./v2/crabe/types.js";
 import type { objRôles } from "@/accès/types.js";
 import type { Constellation } from "@/client.js";
-
-// https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript
-export type RecursivePartial<T> = {
-  [P in keyof T]?: T[P] extends (infer U)[]
-    ? RecursivePartial<U>[]
-    : T[P] extends object | undefined
-      ? RecursivePartial<T[P]>
-      : T[P];
-};
 
 // https://hackernoon.com/mastering-type-safe-json-serialization-in-typescript
 type PrimitifJson = string | number | boolean | null | undefined;
@@ -33,28 +25,13 @@ export type élémentsBd =
   | { [clef: string]: élémentsBd }
   | Array<élémentsBd>;
 
-export type TYPES_STATUT = "interne" | "jouet" | "active" | "obsolète";
-
-export type schémaStatut = {
-  statut: TYPES_STATUT;
-  idNouvelle?: string;
-};
-
-export type TraducsNom = { [langue: string]: string };
-
-export type schémaFonctionSuivi<T> =
-  | ((x: T) => void)
-  | ((x: T) => Promise<void>);
-
-export type schémaFonctionOublier = () => Promise<void>;
-
 export type schémaRetourFonctionRechercheParProfondeur = {
-  fOublier: schémaFonctionOublier;
+  fOublier: Oublier;
   fChangerProfondeur: (p: number) => Promise<void>;
 };
 
 export type schémaRetourFonctionRechercheParN = {
-  fOublier: schémaFonctionOublier;
+  fOublier: Oublier;
   fChangerN: (n: number) => Promise<void>;
 };
 
