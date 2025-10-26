@@ -44,7 +44,7 @@ describe.only("Journal", function () {
 
         const fs = await import("fs");
         expect(fs.existsSync(fichier)).to.be.true();
-        expect(fs.readFileSync(fichier)).to.equal("a\nb\n");
+        expect(new TextDecoder().decode(fs.readFileSync(fichier))).to.equal("a\nb\n");
       });
     });
 
@@ -86,7 +86,7 @@ describe.only("Journal", function () {
       await journal.écrire("a");
       await journal.écrire("b");
 
-      expect(val).to.equal("ab");
+      expect(val).to.equal("a\nb\n");
     });
   });
 });

@@ -44,11 +44,11 @@ export class ServiceJournal extends ServiceNébuleuse<
       }
       this.estDémarré = {
         f: (m: string) =>
-          this.queue.add(async () => await fs.promises.appendFile(f, m)),
+          this.queue.add(async () => await fs.promises.appendFile(f, m + "\n")),
       };
     } else {
       this.estDémarré = {
-        f: (m: string) => this.queue.add(async () => await f(m)),
+        f: (m: string) => this.queue.add(async () => await f(m + "\n")),
       };
     }
 
