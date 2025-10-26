@@ -307,14 +307,14 @@ export class ServiceCompte<
     const schéma = compilerSchémaCompte(this);
 
     if (idCompte) {
-      return (await orbite.suivreBdTypée({
+      return await orbite.suivreBdTypée({
         id: idCompte,
         type: "nested",
         schéma,
         f,
-      })) as Oublier;
+      });
     } else {
-      return await suivreFonctionImbriquée({
+      return await suivreFonctionImbriquée<TypedNested<T>>({
         fRacine: async ({ fSuivreRacine }) =>
           await this.suivreIdCompte({ f: fSuivreRacine }),
         f,
