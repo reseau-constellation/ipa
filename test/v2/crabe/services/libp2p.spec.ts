@@ -453,9 +453,12 @@ describe.only("Service Libp2p", function () {
         const optionsLibp2p = obtenirOptionsLibp2p({
           domaines: ["mon.domaine.ca"],
         });
-        
+
         const clefPrivée = privateKeyFromRaw(
-          uint8ArrayFromString("d9GNJt37AWXVa1D6R2Hl920vkAVmkcWHZp9wpDybKj83ieBThCjIPh5rbu+GIYYSHg9l8tF9hpnTJ2byXfA6bQ", "base64"),
+          uint8ArrayFromString(
+            "d9GNJt37AWXVa1D6R2Hl920vkAVmkcWHZp9wpDybKj83ieBThCjIPh5rbu+GIYYSHg9l8tF9hpnTJ2byXfA6bQ",
+            "base64",
+          ),
         );
 
         const adressesÉcouteDomaine = (
@@ -555,7 +558,12 @@ describe.only("Service Libp2p", function () {
         const libp2p = await nébuleuse.services.libp2p.libp2p();
         const pairsÀReconnecter = libp2p.services.reconnecteur["liste"];
 
-        expect(pairsÀReconnecter).to.include(pairParDéfaut);
+        expect(
+          pairsÀReconnecter
+            .map((p) => p.multiaddrs)
+            .flat()
+            .map((m) => m.toString()),
+        ).to.include(pairParDéfaut);
       });
 
       it("libp2p externe", async () => {

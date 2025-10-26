@@ -106,7 +106,7 @@ export class ServiceLibp2p<
 
       // Il faut accéder configLibp2p.privateKey *avant* d'appeler `createLibp2p` parce que ce dernier
       // modifie l'objet `configLibp2p` et lui ajoute la clef générée.
-      const clefPrivéeExistante = configLibp2p.privateKey
+      const clefPrivéeExistante = configLibp2p.privateKey;
 
       libp2p = await createLibp2p<L>(configLibp2p);
 
@@ -114,8 +114,7 @@ export class ServiceLibp2p<
       this.estDémarré = { libp2p };
 
       // Sauvegarder la clef privée si elle a été générée automatiquement par libp2p
-      if (!clefPrivéeExistante)
-        await this.sauvegarderClefPrivée({ libp2p });
+      if (!clefPrivéeExistante) await this.sauvegarderClefPrivée({ libp2p });
     }
 
     // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
