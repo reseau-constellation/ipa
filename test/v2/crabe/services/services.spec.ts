@@ -7,12 +7,10 @@ import { TypedNested, typedNested } from "@constl/bohr-db";
 import { v4 as uuidv4 } from "uuid";
 import { JSONSchemaType } from "ajv";
 import { NestedDatabaseType } from "@orbitdb/nested-db";
-import { obtenir } from "@constl/utils-ipa";
 import { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
 import { Crabe, validerOptionsServicesCrabe } from "@/v2/crabe/crabe.js";
 import { Oublier } from "@/v2/crabe/types.js";
 import {
-  ServiceDonnéesNébuleuse,
   ServiceDonnéesNébuleuse,
   brancheBd,
 } from "@/v2/crabe/services/services.js";
@@ -21,6 +19,7 @@ import { mapÀObjet } from "@/v2/crabe/utils.js";
 import { Nébuleuse } from "@/v2/nébuleuse/index.js";
 import { ServicesNécessairesCompte } from "@/v2/crabe/services/compte/index.js";
 import { créerCrabesTest } from "../utils.js";
+import { obtenir } from "../../../utils/utils.js";
 
 const ERREUR_DUPLIQUÉS =
   "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
@@ -188,7 +187,10 @@ describe.only("Services Crabe", function () {
         b: StructureB;
       };
 
-      let crabe: Crabe<Structure>;
+      let crabe: Crabe<
+        Structure,
+        { A: ServiceDonnéesTestA; B: ServiceDonnéesTestB }
+      >;
       let oublier: Oublier;
 
       class ServiceDonnéesTestA extends ServiceDonnéesNébuleuse<
@@ -262,7 +264,7 @@ describe.only("Services Crabe", function () {
       });
 
       it("accès bd branche", async () => {
-        const bdA = await crabe.services["donnéesA"].bd();
+        const bdA = await crabe.services["A"].bd();
         await bdA.put("a", 3);
 
         const val = await bdA.get("a");
@@ -270,14 +272,26 @@ describe.only("Services Crabe", function () {
       });
 
       it("suivi bd branche", async () => {
-        const bdB = await crabe.services["donnéesB"].bd();
+        const bdB = await crabe.services["B"].bd();
 
         await bdB.put("b/c", 1);
-        const val = await obtenir(({ siDéfini }) =>
-          bdB.suivreBd({ f: siDéfini() }),
+        const val = await obtenir<PartielRécursif<StructureB> | undefined>(
+          ({ si }) =>
+            crabe.services["B"].suivreBd({ f: si((x) => x?.b !== undefined) }),
         );
 
-        expect(val).to.equal(1);
+        expect(val).to.deep.equal({ c: 1 });
+      });
+
+      it("suivi bd branche avec clef", async () => {
+        const bdB = await crabe.services["B"].bd();
+
+        await bdB.put("b/c", 2);
+        const val = await obtenir<number | undefined>(({ si }) =>
+          crabe.services["B"].suivreBd({ clef: "b/c", f: si((x) => x !== 1) }),
+        );
+
+        expect(val).to.deep.equal(2);
       });
     });
   });
