@@ -104,13 +104,17 @@ export class ServiceLibp2p<
         clefPrivée,
       });
 
+      // Il faut accéder configLibp2p.privateKey *avant* d'appeler `createLibp2p` parce que ce dernier
+      // modifie l'objet `configLibp2p` et lui ajoute la clef générée.
+      const clefPrivéeExistante = configLibp2p.privateKey
+
       libp2p = await createLibp2p<L>(configLibp2p);
 
       // Uniquement rendre `libp2p` s'il a été créé ici.
       this.estDémarré = { libp2p };
 
       // Sauvegarder la clef privée si elle a été générée automatiquement par libp2p
-      if (!configLibp2p.privateKey)
+      if (!clefPrivéeExistante)
         await this.sauvegarderClefPrivée({ libp2p });
     }
 
@@ -150,6 +154,7 @@ export class ServiceLibp2p<
       clefPrivéeGénérée.raw,
       "base64",
     );
+
     await this.service("stockage").sauvegarderItem(
       "idPairLibp2p",
       texteNouvelleClefPrivée,

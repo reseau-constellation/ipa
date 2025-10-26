@@ -248,9 +248,9 @@ describe.only("Service Libp2p", function () {
       it("clef privée configuration", async () => {
         // Utilisé pour fournir une clef privée externe
         const texteClefPrivée =
-          "08011240821cb6bc3d4547fcccb513e82e4d718089f8a166b23ffcd4a436754b6b0774cf07447d1693cd10ce11ef950d7517bad6e9472b41a927cd17fc3fb23f8c70cd99";
+          "d9GNJt37AWXVa1D6R2Hl920vkAVmkcWHZp9wpDybKj83ieBThCjIPh5rbu+GIYYSHg9l8tF9hpnTJ2byXfA6bQ";
         const clefPrivée = privateKeyFromRaw(
-          uint8ArrayFromString(texteClefPrivée, "hex"),
+          uint8ArrayFromString(texteClefPrivée, "base64"),
         );
         const générateur = obtenirOptionsLibp2p({ clefPrivée });
         const options = await générateur({
@@ -260,7 +260,7 @@ describe.only("Service Libp2p", function () {
         expect(options.privateKey).to.exist();
         const clefPrivéeFinale = uint8ArrayToString(
           options.privateKey!.raw,
-          "hex",
+          "base64",
         );
         expect(clefPrivéeFinale).to.equal(texteClefPrivée);
       });
@@ -268,9 +268,9 @@ describe.only("Service Libp2p", function () {
       it("clef privée générateur", async () => {
         // Utilisé pour fournir une clef privée sauvegardée par l'application
         const texteClefPrivée =
-          "08011240821cb6bc3d4547fcccb513e82e4d718089f8a166b23ffcd4a436754b6b0774cf07447d1693cd10ce11ef950d7517bad6e9472b41a927cd17fc3fb23f8c70cd99";
+          "d9GNJt37AWXVa1D6R2Hl920vkAVmkcWHZp9wpDybKj83ieBThCjIPh5rbu+GIYYSHg9l8tF9hpnTJ2byXfA6bQ";
         const clefPrivée = privateKeyFromRaw(
-          uint8ArrayFromString(texteClefPrivée, "hex"),
+          uint8ArrayFromString(texteClefPrivée, "base64"),
         );
 
         const générateur = obtenirOptionsLibp2p();
@@ -282,7 +282,7 @@ describe.only("Service Libp2p", function () {
         expect(options.privateKey).to.exist();
         const clefPrivéeFinale = uint8ArrayToString(
           options.privateKey!.raw,
-          "hex",
+          "base64",
         );
         expect(clefPrivéeFinale).to.equal(texteClefPrivée);
       });
@@ -290,15 +290,15 @@ describe.only("Service Libp2p", function () {
       it("clef privée configuration priorisée", async () => {
         // On priorise la clef privée fournie de manière externe à celle sauvegardée par l'application
         const texteClefPrivée1 =
-          "08011240821cb6bc3d4547fcccb513e82e4d718089f8a166b23ffcd4a436754b6b0774cf07447d1693cd10ce11ef950d7517bad6e9472b41a927cd17fc3fb23f8c70cd99";
+          "d9GNJt37AWXVa1D6R2Hl920vkAVmkcWHZp9wpDybKj83ieBThCjIPh5rbu+GIYYSHg9l8tF9hpnTJ2byXfA6bQ";
         const texteClefPrivée2 =
-          "08011240821cb6bc3d4547fcccb513e82e4d718089f8a166b23ffcd4a436754b6b0774cf07447d1693cd10ce11ef950d7517bad6e9472b41a927cd17fc3fb23f8c70cd88";
+          "obBlEikoGtavEidoelb9xnQ5WCTwBAK4I63iO9EBEYmviXZOOMnCuJtDu3LGt46CeGRZ9+trDlORCA10GHuffw";
 
         const clefPrivée = privateKeyFromRaw(
-          uint8ArrayFromString(texteClefPrivée1, "hex"),
+          uint8ArrayFromString(texteClefPrivée1, "base64"),
         );
         const clefPrivée2 = privateKeyFromRaw(
-          uint8ArrayFromString(texteClefPrivée2, "hex"),
+          uint8ArrayFromString(texteClefPrivée2, "base64"),
         );
 
         const générateur = obtenirOptionsLibp2p({ clefPrivée });
@@ -310,7 +310,7 @@ describe.only("Service Libp2p", function () {
         expect(options.privateKey).to.exist();
         const clefPrivéeFinale = uint8ArrayToString(
           options.privateKey!.raw,
-          "hex",
+          "base64",
         );
         expect(clefPrivéeFinale).to.equal(texteClefPrivée1);
       });
@@ -453,10 +453,14 @@ describe.only("Service Libp2p", function () {
         const optionsLibp2p = obtenirOptionsLibp2p({
           domaines: ["mon.domaine.ca"],
         });
+        
+        const clefPrivée = privateKeyFromRaw(
+          uint8ArrayFromString("d9GNJt37AWXVa1D6R2Hl920vkAVmkcWHZp9wpDybKj83ieBThCjIPh5rbu+GIYYSHg9l8tF9hpnTJ2byXfA6bQ", "base64"),
+        );
 
         const adressesÉcouteDomaine = (
-          await optionsLibp2p({ dossier })
-        ).addresses?.announce?.some((a) =>
+          await optionsLibp2p({ dossier, clefPrivée })
+        ).addresses?.announce?.filter((a) =>
           multiaddr(a)
             .getComponents()
             .find(
@@ -467,7 +471,7 @@ describe.only("Service Libp2p", function () {
         if (isNode) {
           expect(adressesÉcouteDomaine).to.not.be.empty();
         } else {
-          expect(adressesÉcouteDomaine).to.be.empty();
+          expect(adressesÉcouteDomaine).to.be.empty("array");
         }
       });
 
