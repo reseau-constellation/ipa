@@ -33,8 +33,8 @@ import { Oublier } from "@/v2/crabe/types.js";
 import { ORIGINALE, mandatOrbite } from "@/v2/crabe/services/orbite/mandat.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { obtenir } from "../../../utils/utils.js";
-import { ServiceLibp2pTest } from "./utils.js";
 import { attendreQue } from "../../nébuleuse/utils/fonctions.js";
+import { ServiceLibp2pTest } from "./utils.js";
 
 describe.only("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pTest>[];
@@ -59,11 +59,9 @@ describe.only("Mandataire OrbitDB", function () {
       await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
     ).address;
 
-    await expect(Promise.all([
-      orbites[1].open(idBd),
-      orbites[1].open(idBd),
-    ])).to.eventually.be.rejected();
-
+    await expect(
+      Promise.all([orbites[1].open(idBd), orbites[1].open(idBd)]),
+    ).to.eventually.be.rejected();
   });
 
   it("sans concurrence avec le mandataire", async () => {
@@ -163,14 +161,12 @@ describe.only("Mandataire OrbitDB", function () {
   });
 
   it("effacer bd", async () => {
-    const bd = (
-      await orbites[0].open("bd test" + uuidv4(), {
-        type: "keyvalue",
-        AccessController: IPFSAccessController({
-          write: [orbites[0].identity.id, orbites[1].identity.id],
-        }),
-      })
-    ) as KeyValueDatabase;
+    const bd = (await orbites[0].open("bd test" + uuidv4(), {
+      type: "keyvalue",
+      AccessController: IPFSAccessController({
+        write: [orbites[0].identity.id, orbites[1].identity.id],
+      }),
+    })) as KeyValueDatabase;
 
     const idBd = bd.address;
     await bd.put("a", 1);
@@ -181,7 +177,9 @@ describe.only("Mandataire OrbitDB", function () {
       mandat.open(idBd),
     ])) as [KeyValueDatabase, KeyValueDatabase];
 
-    await attendreQue(async () => (await bd1.all()).length > 0 && (await bd2.all()).length > 0)
+    await attendreQue(
+      async () => (await bd1.all()).length > 0 && (await bd2.all()).length > 0,
+    );
 
     await bd1.drop();
 
@@ -460,17 +458,20 @@ describe.only("Service Orbite", function () {
 
       const { bd, oublier } = await orbite.créerBd({ type: "keyvalue" });
       const idBd = bd.address;
-      
+
       await bd.put("a", 2);
-      
+
       await oublier();
 
       await orbite.effacerBd({ id: idBd });
-      
-      const { bd: bdRouverte, oublier: roublier } = await orbite.ouvrirBd({ id: idBd, type: "keyvalue" });
-      const valeurs = await bdRouverte.all()
+
+      const { bd: bdRouverte, oublier: roublier } = await orbite.ouvrirBd({
+        id: idBd,
+        type: "keyvalue",
+      });
+      const valeurs = await bdRouverte.all();
       expect(valeurs.length).to.equal(0);
-      
+
       await roublier();
     });
   });
@@ -507,8 +508,9 @@ describe.only("Service Orbite", function () {
       const orbite = nébuleuse.services["orbite"];
       await nébuleuse.fermer();
 
-      await orbite.créerBd({ type: "keyvalue" });
+      await expect(
+        orbite.créerBd({ type: "keyvalue" }),
+      ).to.eventually.be.rejectedWith("Service orbite déjà fermé.");
     });
   });
 });
-
