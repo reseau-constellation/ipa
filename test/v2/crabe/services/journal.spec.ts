@@ -44,7 +44,9 @@ describe.only("Journal", function () {
 
         const fs = await import("fs");
         expect(fs.existsSync(fichier)).to.be.true();
-        expect(new TextDecoder().decode(fs.readFileSync(fichier))).to.equal("a\nb\n");
+        expect(new TextDecoder().decode(fs.readFileSync(fichier))).to.equal(
+          "a\nb\n",
+        );
       });
     });
 
