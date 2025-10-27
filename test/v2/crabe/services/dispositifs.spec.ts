@@ -77,11 +77,12 @@ describe.only("Dispositifs", function () {
       const dispositifs = nébuleuse.services["dispositifs"];
       await dispositifs.sauvegarderTypeDispositif({ type: "Fairphone" });
 
-      const { type } = await obtenir<{ nom?: string; type?: string } | undefined>(
-        ({ si }) =>
-          dispositifs.suivreInfoDispositif({
-            f: si(x=>!!x?.type),
-          }),
+      const { type } = await obtenir<
+        { nom?: string; type?: string } | undefined
+      >(({ si }) =>
+        dispositifs.suivreInfoDispositif({
+          f: si((x) => !!x?.type),
+        }),
       );
 
       expect(type).to.equal("Fairphone");
