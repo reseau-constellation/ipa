@@ -243,12 +243,11 @@ export class ServiceCompte<
       throw new Error(`Adresse compte "${idCompte}" non valide`);
     }
 
-    console.log("on va rejoindre le compte");
     // Attendre de recevoir la permission d'écrire au nouveau compte
     const { bd: bdNouveauCompte, oublier } = await this.service(
       "orbite",
     ).ouvrirBd({ id: idCompte, type: "nested", signal });
-    console.log("bd ouverte");
+
     const accès = bdNouveauCompte.access;
     if (!estContrôleurConstellation(accès))
       throw new Error(
@@ -256,13 +255,10 @@ export class ServiceCompte<
       );
 
     const moi = await this.obtIdDispositif();
-    console.log({ moi });
+
     await uneFois<AccèsDispositif[]>(
       async (f) => accès.suivreDispositifsAutorisées(f),
-      (autorisés) => {
-        console.log({ autorisés });
-        return !!autorisés?.find((a) => a.idDispositif === moi);
-      },
+      (autorisés) => !!autorisés?.find((a) => a.idDispositif === moi),
     );
     await oublier();
 
