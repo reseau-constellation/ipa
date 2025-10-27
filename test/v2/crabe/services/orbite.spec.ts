@@ -7,6 +7,7 @@ import {
   que,
 } from "@constl/utils-tests";
 import {
+  BaseDatabase,
   IPFSAccessController,
   KeyValueDatabase,
   OrbitDB,
@@ -29,10 +30,166 @@ import {
   ServiceOrbite,
 } from "@/v2/crabe/index.js";
 import { Oublier } from "@/v2/crabe/types.js";
-import { mandatOrbite } from "@/v2/crabe/services/orbite/mandat.js";
+import { ORIGINALE, mandatOrbite } from "@/v2/crabe/services/orbite/mandat.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { obtenir } from "../../../utils/utils.js";
 import { ServiceLibp2pTest } from "./utils.js";
+import { attendreQue } from "../../nébuleuse/utils/fonctions.js";
+
+describe.only("Mandataire OrbitDB", function () {
+  let orbites: OrbitDB<ServicesLibp2pTest>[];
+  let fermer: Oublier;
+
+  const mêmeBd = (bd1: BaseDatabase, bd2: BaseDatabase): boolean => {
+    // @ts-expect-error Les mandataires des bds orbite ont la propriété `ORIGINALE`
+    return bd1[ORIGINALE] === bd2[ORIGINALE];
+  };
+
+  before(async () => {
+    ({ orbites, fermer } = await créerOrbitesTest({ n: 2 }));
+  });
+
+  after(async () => {
+    await fermer();
+  });
+
+  it("condition concurrence sans mandataire", async () => {
+    // Si un jour ce test ne passe plus, c'est que OrbitDB réglé le problème et que le mandataire n'est plus nécessaire !
+    const idBd = (
+      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
+    ).address;
+
+    await expect(Promise.all([
+      orbites[1].open(idBd),
+      orbites[1].open(idBd),
+    ])).to.eventually.be.rejected();
+
+  });
+
+  it("sans concurrence avec le mandataire", async () => {
+    const idBd = (
+      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
+    ).address;
+    const mandat = mandatOrbite(orbites[1]);
+    const bd1 = await mandat.open(idBd);
+    const bd2 = await mandat.open(idBd);
+
+    expect(mêmeBd(bd1, bd2)).to.be.true();
+  });
+
+  it("pas de concurrence avec le mandataire", async () => {
+    const idBd = (
+      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
+    ).address;
+    const mandat = mandatOrbite(orbites[1]);
+    const [bd1, bd2] = await Promise.all([
+      mandat.open(idBd),
+      mandat.open(idBd),
+    ]);
+
+    expect(mêmeBd(bd1, bd2)).to.be.true();
+  });
+
+  it("multiples instances du mandataire", async () => {
+    const idBd = (
+      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
+    ).address;
+
+    // Ici on appelle le mandataire séparément sur la même base de données
+    const [bd1, bd2] = await Promise.all([
+      mandatOrbite(orbites[1]).open(idBd),
+      mandatOrbite(orbites[1]).open(idBd),
+    ]);
+
+    expect(mêmeBd(bd1, bd2)).to.be.true();
+  });
+
+  it("fermeture bd", async () => {
+    const idBd = (
+      await orbites[0].open("bd test" + uuidv4(), {
+        type: "keyvalue",
+        AccessController: IPFSAccessController({
+          write: [orbites[0].identity.id, orbites[1].identity.id],
+        }),
+      })
+    ).address;
+
+    const mandat = mandatOrbite(orbites[1]);
+    const [bd1, bd2] = (await Promise.all([
+      mandat.open(idBd),
+      mandat.open(idBd),
+    ])) as [KeyValueDatabase, KeyValueDatabase];
+    await bd1.close();
+
+    // Toujours ouverte
+    await bd1.put("a", 1);
+    await bd2.put("b", 2);
+
+    await bd2.close();
+
+    // Bien fermée
+    await expect(bd1.put("c", 3)).to.eventually.be.rejected();
+    await expect(bd2.put("c", 3)).to.eventually.be.rejected();
+  });
+
+  it("réouvrir bd", async () => {
+    const idBd = (
+      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
+    ).address;
+
+    const mandat = mandatOrbite(orbites[0]);
+    const bd = (await mandat.open(idBd)) as KeyValueDatabase;
+    await bd.put("a", 1);
+
+    // Fermer
+    await bd.close();
+
+    // Bien fermée
+    await expect(bd.put("a", 0)).to.eventually.be.rejected();
+
+    // Réouvrir
+    const bdRéouverte = (await mandat.open(idBd)) as KeyValueDatabase;
+
+    // Bien ouverte
+    await bdRéouverte.put("b", 2);
+    const val = await bdRéouverte.all();
+
+    expect(
+      val.map((é) => ({ key: é.key, value: é.value })),
+    ).to.have.deep.members([
+      { key: "a", value: 1 },
+      { key: "b", value: 2 },
+    ]);
+  });
+
+  it("effacer bd", async () => {
+    const bd = (
+      await orbites[0].open("bd test" + uuidv4(), {
+        type: "keyvalue",
+        AccessController: IPFSAccessController({
+          write: [orbites[0].identity.id, orbites[1].identity.id],
+        }),
+      })
+    ) as KeyValueDatabase;
+
+    const idBd = bd.address;
+    await bd.put("a", 1);
+
+    const mandat = mandatOrbite(orbites[1]);
+    const [bd1, bd2] = (await Promise.all([
+      mandat.open(idBd),
+      mandat.open(idBd),
+    ])) as [KeyValueDatabase, KeyValueDatabase];
+
+    await attendreQue(async () => (await bd1.all()).length > 0 && (await bd2.all()).length > 0)
+
+    await bd1.drop();
+
+    // Bien fermée
+    expect((await bd1.all()).length).to.equal(0);
+    expect((await bd2.all()).length).to.equal(0);
+  });
+});
 
 describe.only("Service Orbite", function () {
   describe("démarrer", function () {
@@ -216,13 +373,15 @@ describe.only("Service Orbite", function () {
 
       const { bd, oublier } = await orbite.créerBd({ type: "keyvalue" });
       const idBd = bd.address;
-      await oublier();
+
+      await bd.put("a", 2);
 
       const val = await obtenir<KeyValueDatabase>(({ siDéfini }) =>
         orbite.suivreBd({ id: idBd, type: "keyvalue", f: siDéfini() }),
       );
+      await oublier();
 
-      expect(await val.all()).to.deep.equal({ a: 2 });
+      expect(await val.get("a")).to.equal(2);
     });
 
     it("erreur suivi bd si mauvais type", async () => {
@@ -274,6 +433,8 @@ describe.only("Service Orbite", function () {
 
       const { bd, oublier } = await orbite.créerBd({ type: "nested" });
       const idBd = bd.address;
+
+      await bd.put("a", 2);
       await oublier();
 
       const schéma: JSONSchemaType<{ a?: number }> = {
@@ -299,146 +460,55 @@ describe.only("Service Orbite", function () {
 
       const { bd, oublier } = await orbite.créerBd({ type: "keyvalue" });
       const idBd = bd.address;
+      
+      await bd.put("a", 2);
+      
       await oublier();
 
       await orbite.effacerBd({ id: idBd });
-      await expect(orbite.ouvrirBd({ id: idBd })).to.eventually.be.rejected();
+      
+      const { bd: bdRouverte, oublier: roublier } = await orbite.ouvrirBd({ id: idBd, type: "keyvalue" });
+      const valeurs = await bdRouverte.all()
+      expect(valeurs.length).to.equal(0);
+      
+      await roublier();
     });
   });
 
-  it("erreur si annulée", async () => {
-    throw new Error("à faire");
+  describe("fermeture", function () {
+    let dossier: string;
+    let effacer: () => void;
+
+    let nébuleuse: Nébuleuse<ServicesNécessairesOrbite>;
+
+    before(async () => {
+      ({ dossier, effacer } = await dossierTempo());
+      nébuleuse = new Nébuleuse<ServicesNécessairesOrbite>({
+        services: {
+          journal: ServiceJournal,
+          libp2p: ServiceLibp2pTest,
+          hélia: ServiceHélia,
+          stockage: ServiceStockage,
+          orbite: ServiceOrbite,
+        },
+        options: {
+          dossier,
+        },
+      });
+      await nébuleuse.démarrer();
+    });
+
+    after(async () => {
+      await nébuleuse.fermer();
+      effacer();
+    });
+
+    it("erreur ouverture si annulée", async () => {
+      const orbite = nébuleuse.services["orbite"];
+      await nébuleuse.fermer();
+
+      await orbite.créerBd({ type: "keyvalue" });
+    });
   });
 });
 
-describe.only("Mandataire OrbitDB", function () {
-  let orbites: OrbitDB<ServicesLibp2pTest>[];
-  let fermer: Oublier;
-
-  before(async () => {
-    ({ orbites, fermer } = await créerOrbitesTest({ n: 2 }));
-  });
-
-  after(async () => {
-    await fermer();
-  });
-
-  it("condition concurrence sans mandataire", async () => {
-    // Si un jour ce test ne passe plus, c'est que OrbitDB réglé le problème et que le mandataire n'est plus nécessaire !
-    const idBd = (
-      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
-    ).address;
-    const [bd1, bd2] = await Promise.all([
-      () => orbites[1].open(idBd),
-      () => orbites[1].open(idBd),
-    ]);
-
-    expect(bd1 === bd2).to.be.false();
-  });
-
-  it("pas de concurrence avec le mandataire", async () => {
-    const idBd = (
-      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
-    ).address;
-    const mandat = mandatOrbite(orbites[1]);
-    const [bd1, bd2] = await Promise.all([
-      mandat.open(idBd),
-      mandat.open(idBd),
-    ]);
-
-    expect(bd1 === bd2).to.be.true();
-  });
-
-  it("multiples instances du mandataire", async () => {
-    const idBd = (
-      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
-    ).address;
-
-    // Ici on appelle le mandataire séparément sur la même base de données
-    const [bd1, bd2] = await Promise.all([
-      mandatOrbite(orbites[1]).open(idBd),
-      mandatOrbite(orbites[1]).open(idBd),
-    ]);
-
-    expect(bd1 === bd2).to.be.true();
-  });
-
-  it("fermeture bd", async () => {
-    const idBd = (
-      await orbites[0].open("bd test" + uuidv4(), {
-        type: "keyvalue",
-        AccessController: IPFSAccessController({
-          write: [orbites[0].identity.id, orbites[1].identity.id],
-        }),
-      })
-    ).address;
-
-    const mandat = mandatOrbite(orbites[1]);
-    const [bd1, bd2] = (await Promise.all([
-      mandat.open(idBd),
-      mandat.open(idBd),
-    ])) as [KeyValueDatabase, KeyValueDatabase];
-    await bd1.close();
-
-    // Toujours ouverte
-    await bd1.put("a", 1);
-    await bd2.put("b", 2);
-
-    await bd2.close();
-
-    // Bien fermée
-    expect(async () => await bd1.put("c", 3)).to.eventually.be.rejected();
-    expect(async () => await bd2.put("c", 3)).to.eventually.be.rejected();
-  });
-
-  it("réouvrir bd", async () => {
-    const idBd = (
-      await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
-    ).address;
-
-    const mandat = mandatOrbite(orbites[0]);
-    const bd = (await mandat.open(idBd)) as KeyValueDatabase;
-    await bd.put("a", 1);
-
-    // Fermer
-    await bd.close();
-
-    // Bien fermée
-    expect(() => bd.put("a", 0)).to.eventually.be.rejected();
-
-    // Réouvrir
-    const bdRéouverte = (await mandat.open(idBd)) as KeyValueDatabase;
-
-    // Bien ouverte
-    await bdRéouverte.put("b", 2);
-    const val = await bdRéouverte.all();
-
-    expect(val).to.have.deep.members([
-      { key: "a", value: 1 },
-      { key: "b", value: 2 },
-    ]);
-  });
-
-  it("effacer bd", async () => {
-    const idBd = (
-      await orbites[0].open("bd test" + uuidv4(), {
-        type: "keyvalue",
-        AccessController: IPFSAccessController({
-          write: [orbites[0].identity.id, orbites[1].identity.id],
-        }),
-      })
-    ).address;
-
-    const mandat = mandatOrbite(orbites[1]);
-    const [bd1, bd2] = (await Promise.all([
-      mandat.open(idBd),
-      mandat.open(idBd),
-    ])) as [KeyValueDatabase, KeyValueDatabase];
-
-    await bd1.drop();
-
-    // Bien fermée
-    expect(async () => await bd1.put("c", 3)).to.eventually.be.rejected();
-    expect(async () => await bd2.put("c", 3)).to.eventually.be.rejected();
-  });
-});

@@ -8,6 +8,8 @@ import { ServiceMap } from "@libp2p/interface";
 // Ceci doit être commun pour que les contrôleurs d'accès puissent aussi envelopper leur instance d'Orbite
 const verrous = new Map<string, Semaphore>();
 
+export const ORIGINALE = Symbol("orbite originale");
+
 export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   orbite: OrbitDB<L>,
 ) => {
@@ -15,6 +17,7 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   const verrouOuverture = verrous.get(orbite.id);
 
   const requêtes = new Map<string, Set<string>>();
+  const cacheBds = new Map<string, BaseDatabase>();
 
   return new Proxy(orbite, {
     get(target, prop) {
@@ -23,12 +26,13 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           const adresse = args[0];
 
           await verrouOuverture.acquire(adresse);
+
           try {
             if (!requêtes.has(adresse)) requêtes.set(adresse, new Set());
-            const résultat = mandatBd(
-              await target.open(...args),
-              requêtes.get(adresse)!,
-            );
+
+            const bd = cacheBds.get(adresse) || (await target.open(...args));
+            const résultat = mandatBd(bd, requêtes.get(adresse)!, cacheBds);
+            cacheBds.set(adresse, bd);
             verrouOuverture.release(adresse);
             return résultat;
           } finally {
@@ -44,21 +48,32 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 };
 
 // Ce mandataire-ci s'assure que la base de données n'est fermée que lorsque la dernière copie est fermée
-const mandatBd = (bd: BaseDatabase, requêtes: Set<string>) => {
+const mandatBd = (
+  bd: BaseDatabase,
+  requêtes: Set<string>,
+  cache: Map<string, BaseDatabase>,
+) => {
   const id = uuidv4();
   requêtes.add(id);
 
   return new Proxy(bd, {
     get(target, prop) {
+      if (prop === ORIGINALE) return target;
+
       if (prop === "close") {
         const fermer: BaseDatabase["close"] = async () => {
           requêtes.delete(id);
-          if (!requêtes.size) return await target.close();
+          if (!requêtes.size) {
+            cache.delete(target.address);
+            return await target.close();
+          }
         };
         return fermer;
       } else if (prop === "drop") {
         const effacer: BaseDatabase["drop"] = async () => {
           requêtes.clear();
+          cache.delete(target.address);
+
           return await target.drop();
         };
         return effacer;

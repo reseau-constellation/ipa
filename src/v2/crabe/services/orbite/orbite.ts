@@ -8,6 +8,7 @@ import {
   useDatabaseType,
   useAccessController,
 } from "@orbitdb/core";
+import drain from "it-drain";
 
 import {
   Nested,
@@ -39,6 +40,7 @@ import { anySignal } from "any-signal";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { suivreDeFonctionListe } from "@constl/utils-ipa";
+import { CID } from "multiformats";
 import { PartielRécursif } from "@/v2/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { Nébuleuse, ServiceNébuleuse } from "../../../nébuleuse/index.js";
@@ -217,6 +219,8 @@ export class ServiceOrbite<
   }
 
   async orbite(): Promise<OrbitDB<L>> {
+    if (this.statut === FERMÉ || this.statut === EN_FERMETURE) throw new Error("Service orbite déjà fermé.")
+
     // Si `orbite` n'est pas défini dans les options, il sera rendu par `this.démarré`
     return (await this.démarré()).orbite || this.options.orbite!;
   }
@@ -265,6 +269,7 @@ export class ServiceOrbite<
     nom?: string;
   }): Promise<{ bd: BdsOrbite[T]; oublier: Oublier }> {
     const orbite = await this.orbite();
+
     options = {
       AccessController: ContrôleurConstellation(),
       ...options,
@@ -282,7 +287,18 @@ export class ServiceOrbite<
 
   async effacerBd({ id }: { id: string }): Promise<void> {
     const { bd } = await this.ouvrirBd({ id });
+
+    const hélia = await this.service("hélia").hélia();
+
+    const àDésépingler: CID[] = [];
+    for (const élément of await bd.log.values()) {
+      const idc = CID.parse(élément.hash);
+      àDésépingler.push(idc);
+    }
+    for (const idc of àDésépingler) await drain(hélia.pins.rm(idc));
+
     await bd.drop();
+    await hélia.gc();
   }
 
   async ouvrirBd({
@@ -369,6 +385,8 @@ export class ServiceOrbite<
     };
 
     bd.events.on("update", fFinale);
+    await fFinale();
+
     return async () => {
       bd.events.off("update", fFinale);
       await oublier();
