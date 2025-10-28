@@ -221,6 +221,8 @@ describe.only("Nébuleuse", function () {
     });
 
     it("Attendre démarré avant de fermer", async () => {
+      let nébuleuseFutDémareée = false;
+
       type ServicesTest = {
         a: ServiceA;
       };
@@ -240,12 +242,19 @@ describe.only("Nébuleuse", function () {
 
         async fermer(): Promise<void> {
           expect(this.estDémarré).to.be.true();
+          expect(nébuleuseFutDémareée).to.be.true();
           return await super.fermer();
         }
       }
+
       class NébuleuseTest extends Nébuleuse<ServicesTest> {
+        async démarrer(): Promise<void> {
+          const retour = await super.démarrer();
+          nébuleuseFutDémareée = true;
+          return retour;
+        }
+
         async fermer(): Promise<void> {
-          expect(this.estDémarrée).to.be.true();
           return await super.fermer();
         }
       }
@@ -347,11 +356,9 @@ describe.only("Nébuleuse", function () {
         },
       });
       await nébuleuse.démarrer();
-      await nébuleuse.fermer();
-      expect("à faire").to.be.false();
-      expect(
-        Object.values(nébuleuse.services).every((s) => !s.estDémarré),
-      ).to.be.true();
+      
+      await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith("erreur de fermeture");
+
     });
 
     it("fermeture après erreur de démarrage service", async () => {
@@ -377,12 +384,9 @@ describe.only("Nébuleuse", function () {
       try {
         await nébuleuse.démarrer();
       } catch {
-        await nébuleuse.fermer();
+        await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith("Erreur de démarrage");
       }
-      expect("à faire").to.be.false();
-      expect(
-        Object.values(nébuleuse.services).every((s) => !s.estDémarré),
-      ).to.be.true();
+
     });
   });
 

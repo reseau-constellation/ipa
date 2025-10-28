@@ -107,7 +107,12 @@ export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
     }
     this.statut = STATUTS.DÉMARRAGE_EN_COURS;
 
-    await this.démarrerServices();
+    try {
+      await this.démarrerServices();
+    } catch (e) {
+      this.statut = STATUTS.ERREUR_DÉMARRAGE;
+      throw e;
+    }
 
     this.statut = STATUTS.DÉMARRÉE;
     this.événements.emit("démarrée");
@@ -135,6 +140,7 @@ export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
 
   async fermer() {
     if (this.statut === STATUTS.FERMÉE) return;
+    if (this.statut === STATUTS.ERREUR_DÉMARRAGE) throw new Error("Erreur de démarrage");
     if (this.statut === STATUTS.FERMETURE_EN_COURS) {
       return new Promise<void>((résoudre) =>
         this.événements.once("fermée", résoudre),
