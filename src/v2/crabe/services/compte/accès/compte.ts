@@ -94,7 +94,7 @@ export class AccèsParComptes {
   }
 
   async autoriser({ id, rôle }: { id: string; rôle: Rôle }) {
-    const tâche = () => {
+    const tâche = async () => {
       if (isValidAddress(id)) {
         let utilisateur = this._comptes.get(id);
         if (!utilisateur) {
@@ -103,6 +103,7 @@ export class AccèsParComptes {
             accès: accèsCompte,
             rôles: new Set([rôle]),
           };
+          await accèsCompte.démarrer();
           this._comptes.set(id, utilisateur);
 
           const oublierUtilisateur = appelerLorsque({
