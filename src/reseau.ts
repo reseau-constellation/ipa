@@ -2550,7 +2550,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       };
 
       let fOublierBranche: schémaFonctionOublier | undefined = undefined;
-      // On doit appeler ça ici pour avanncer même si l'autre compte'est pas disponible.
+      // On doit appeler ça ici pour avancer même si l'autre compte'est pas disponible.
       await fFinaleSuivreBranche();
 
       switch (clef) {
