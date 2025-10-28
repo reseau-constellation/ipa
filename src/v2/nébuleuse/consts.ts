@@ -4,4 +4,5 @@ export const STATUTS = {
   DÉMARRÉE: "démarrée",
   FERMETURE_EN_COURS: "fermeture en cours",
   FERMÉE: "fermée",
+  ERREUR_DÉMARRAGE: "erreur démarrage",
 } as const;
