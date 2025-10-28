@@ -1,4 +1,9 @@
-import { NestedValueObject, asSplitKey, joinKey } from "@orbitdb/nested-db";
+import {
+  NestedValueObject,
+  asSplitKey,
+  joinKey,
+  splitKey,
+} from "@orbitdb/nested-db";
 import { TypedNested } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
 import {
@@ -90,6 +95,18 @@ export const brancheBd = <
           return await target.get(clefFinale);
         };
         return getBranche;
+      } else if (prop === "move") {
+        const moveBranche = async (
+          sousClef: ExtractKeys<T[C]> | ExtractKeysAsList<T[C]>,
+          position: number,
+        ) => {
+          const clefFinale = joinKey([
+            clef,
+            ...asSplitKey(sousClef),
+          ]) as ExtractKeys<T>;
+          return await target.move(clefFinale, position);
+        };
+        return moveBranche;
       } else if (prop === "all") {
         const allBranche = async () => {
           return (await target.all()).get(clef);
@@ -165,29 +182,22 @@ export class ServiceDonnéesNébuleuse<
     clef?: T;
     idCompte?: string;
   }): Promise<Oublier> {
-    if (idCompte) {
-      return await this.service("orbite").suivreBdTypée({
-        id: idCompte,
-        type: "nested",
-        schéma: this.schéma,
-        f: async (x) => await f(mapÀObjet(await x.get(clef))),
-      });
-    } else {
-      console.log("id compte dynamique");
-      return await suivreFonctionImbriquée({
-        fRacine: ({ fSuivreRacine }) =>
-          this.service("compte").suivreIdCompte({
-            f: journalifier(fSuivreRacine, "idCompte"),
-          }),
-        f,
-        fSuivre: ({ id, fSuivreBd }) =>
-          this.service("orbite").suivreBdTypée({
-            id,
-            type: "nested",
-            schéma: this.schéma,
-            f: async (x) => await fSuivreBd(await x.get(clef)),
-          }),
-      });
-    }
+    return this.service("compte").suivreBd({
+      f: async (bd) => {
+        if (!bd) {
+          await f(undefined);
+          return;
+        }
+        let données = mapÀObjet(await bd.all());
+        for (const k of asSplitKey(
+          clef ? joinKey([this.clef, ...splitKey(clef)]) : this.clef,
+        )) {
+          données = données[k];
+          if (données === undefined) break;
+        }
+        await f(données);
+      },
+      idCompte,
+    });
   }
 }
