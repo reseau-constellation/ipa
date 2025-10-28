@@ -2,7 +2,6 @@ import fs from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
-import { createSandbox } from "sinon";
 import { dossierTempo } from "@constl/utils-tests";
 import {
   Nébuleuse,
@@ -10,8 +9,6 @@ import {
   ServiceNébuleuse,
   ServicesNébuleuse,
 } from "@/v2/nébuleuse/nébuleuse.js";
-
-const boîteÀSable = createSandbox();
 
 describe.only("Nébuleuse", function () {
   describe("Démarrage", function () {
@@ -672,22 +669,25 @@ describe.only("Nébuleuse", function () {
   });
 
   describe("Dossier", function () {
+    let quibble: typeof import("quibble");
+
     let nébuleuse: Nébuleuse;
     let dossier: string;
     let effacer: () => void;
-    let envPathsTest: sinon.SinonStub;
 
     beforeEach(async () => {
       ({ dossier, effacer } = await dossierTempo());
-      const quibble = await import("quibble");
-      envPathsTest = boîteÀSable.stub().returns(join(dossier, "appli"));
-      quibble("env-paths", {}, envPathsTest);
+
+      quibble = await import("quibble");
+
+      const envPathsTest = (name: string) => ({data: join(dossier, name)});
+      await quibble.default.esm("env-paths", {}, envPathsTest);
     });
 
     afterEach(async () => {
       if (nébuleuse) await nébuleuse.fermer();
       if (effacer) effacer();
-      envPathsTest.restore();
+      quibble?.default.reset();
     });
 
     it("valeur par défaut", async () => {
@@ -718,7 +718,7 @@ describe.only("Nébuleuse", function () {
       const val = await nébuleuse.dossier();
       expect(val).to.be.a("string");
       if (isElectronMain || isNode)
-        expect(val).to.equal(join(dossier, "appli", "Mon appli"));
+        expect(val).to.equal(join(dossier, "Mon appli", "Mon appli"));
       else expect(val).to.equal(`./Mon appli`);
     });
 
@@ -731,7 +731,7 @@ describe.only("Nébuleuse", function () {
       const val = await nébuleuse.dossier();
       expect(val).to.be.a("string");
       if (isElectronMain || isNode)
-        expect(val).to.equal(join(dossier, "appli", "Mon appli-dév"));
+        expect(val).to.equal(join(dossier, "Mon appli", "Mon appli-dév"));
       else expect(val).to.equal(`./Mon appli`);
     });
   });
