@@ -33,20 +33,20 @@ describe.only("Stockage", function () {
   });
 
   it("mettre et obtenir valeur", async () => {
-    await stockage.sauvegarderItem("a", "text");
+    await stockage.sauvegarderItem("a", "texte");
     const val = await stockage.obtenirItem("a");
-    expect(val).to.equal("a");
+    expect(val).to.equal("texte");
   });
 
   it("effacer valeur", async () => {
-    await stockage.sauvegarderItem("a", "text");
+    await stockage.sauvegarderItem("a", "texte");
     await stockage.effacerItem("a");
     const val = await stockage.obtenirItem("a");
     expect(val).to.be.null();
   });
 
   it("persistance", async () => {
-    await stockage.sauvegarderItem("a", "text");
+    await stockage.sauvegarderItem("a", "texte");
     await nébuleuse.fermer();
 
     // Ouvrir la nébuleuse à nouveau
@@ -62,7 +62,7 @@ describe.only("Stockage", function () {
     stockage = nébuleuse.services["stockage"];
 
     const val = await stockage.obtenirItem("a");
-    expect(val).to.equal("a");
+    expect(val).to.equal("texte");
   });
 
   it("fichier malformé", async () => {
@@ -105,6 +105,7 @@ describe.only("Stockage", function () {
         dossier: path.join(dossier, "sous-dossier"),
       },
     });
+    await nébuleuse2.démarrer()
 
     await nébuleuse2.services["stockage"].sauvegarderItem(clef, "test");
     const valDeStockage1 = await stockage.obtenirItem(clef);
@@ -117,5 +118,7 @@ describe.only("Stockage", function () {
     expect(await nébuleuse2.services["stockage"].obtenirItem(clef)).to.equal(
       "test",
     );
+
+    await nébuleuse2.fermer();
   });
 });
