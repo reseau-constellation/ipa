@@ -1,9 +1,6 @@
 import { expect } from "aegir/chai";
 import { ServicesLibp2pTest, dossierTempo } from "@constl/utils-tests";
-import {
-  NestedObjectToMap,
-  NestedValueObject,
-} from "@orbitdb/nested-db";
+import { NestedObjectToMap, NestedValueObject } from "@orbitdb/nested-db";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { TypedNested } from "@constl/bohr-db";
 import {
@@ -324,178 +321,140 @@ describe.only("Service Compte", function () {
   });
 
   describe("gestion dispositifs", function () {
-    describe("ajouter dispositif manuellement", function () {
-      let crabes: CrabeTest[];
-      let comptes: ServiceCompte[];
-      let fermer: () => Promise<void>;
+    let crabes: CrabeTest[];
+    let comptes: ServiceCompte[];
+    let fermer: () => Promise<void>;
 
-      let idsDispositifs: string[];
-      let idsComptes: string[];
+    let idObjet: string;
 
-      before(async () => {
-        ({ crabes, fermer } = await créerCrabesTest({
-          n: 2,
-          services: {
-            journal: ServiceJournal,
-            stockage: ServiceStockage,
-            libp2p: ServiceLibp2pTest,
-            hélia: ServiceHélia<ServicesLibp2pTest>,
-            orbite: ServiceOrbite<ServicesLibp2pTest>,
-            compte: ServiceCompte<
-              NestedObjectToMap<NestedValueObject>,
-              ServicesLibp2pTest
-            >,
-          },
-        }));
-        comptes = crabes.map((n) => n.services["compte"]);
+    let idsDispositifs: string[];
+    let idsComptes: string[];
 
-        idsDispositifs = await Promise.all(
-          comptes.map(async (compte) => await compte.obtIdDispositif()),
-        );
-        idsComptes = await Promise.all(
-          comptes.map((compte) => compte.obtIdCompte()),
-        );
+    before(async () => {
+      ({ crabes, fermer } = await créerCrabesTest({
+        n: 2,
+        services: {
+          journal: ServiceJournal,
+          stockage: ServiceStockage,
+          libp2p: ServiceLibp2pTest,
+          hélia: ServiceHélia<ServicesLibp2pTest>,
+          orbite: ServiceOrbite<ServicesLibp2pTest>,
+          compte: ServiceCompte<
+            NestedObjectToMap<NestedValueObject>,
+            ServicesLibp2pTest
+          >,
+        },
+      }));
+      comptes = crabes.map((n) => n.services["compte"]);
 
-        const { bd, oublier } = await comptes[0].créerObjet({
-          type: "keyvalue",
-        });
-        idBd = bd.address;
-        await oublier();
-
-      });
-
-      after(async () => {
-        if (fermer) await fermer();
-      });
-
-      let idBd: string;
-
-      it("le dispositif initial est présent", async () => {
-        const mesDispositifs = await obtenir<string[]>(({ siPasVide }) =>
-          comptes[0].suivreMesDispositifs({
-            f: siPasVide(),
-          }),
-        );
-
-        expect(mesDispositifs).to.have.members([idsDispositifs[0]]);
-      });
-
-      it("les dispositifs sont mis à jour", async () => {
-        await comptes[0].ajouterDispositif({
-          idDispositif: await comptes[1].obtIdDispositif(),
-        });
-
-        const mesDispositifs = await obtenir<string[]>(({ si }) =>
-          comptes[0].suivreMesDispositifs({
-            f: si((x) => !!x && x.length > 1),
-          }),
-        );
-
-        expect(mesDispositifs).to.have.members([
-          idsDispositifs[0],
-          idsDispositifs[1],
-        ]);
-      });
-
-      it("le nouveau dispositif a bien rejoint le compte", async () => {
-        await comptes[1].rejoindreCompte({
-          idCompte: await comptes[0].obtIdCompte(),
-        });
-        const nouvelIdCompte = await obtenir(({ si }) =>
-          comptes[1].suivreIdCompte({
-            f: si((id) => id !== idsComptes[1]),
-          }),
-        );
-        expect(nouvelIdCompte).to.equal(idsComptes[0]);
-      });
-
-      it("l'id du dispositif ne change pas", async () => {
-        const idDispositifAprès = await comptes[1].obtIdDispositif();
-        expect(idDispositifAprès).to.equal(idsDispositifs[1]);
-      });
-
-      it.skip("le nouveau dispositif peut modifier les donnnées du compte", async () => {
-        const { bd: bd_orbite2, oublier } = await crabes[1].services[
-          "orbite"
-        ].ouvrirBd({
-          id: idBd,
-          type: "keyvalue",
-        });
-        await attendreInvité(
-          bd_orbite2,
-          await crabes[1].services["compte"].obtIdDispositif(),
-        );
-        await bd_orbite2.put("a", 1);
-        const val = await bd_orbite2.get("a");
-        await oublier();
-
-        expect(val).to.equal(1);
-      });
+      idsDispositifs = await Promise.all(
+        comptes.map(async (compte) => await compte.obtIdDispositif()),
+      );
+      idsComptes = await Promise.all(
+        comptes.map((compte) => compte.obtIdCompte()),
+      );
     });
 
-    describe("données orbite", function () {
-      let crabes: CrabeTest[];
-      let comptes: ServiceCompte[];
-      let fermer: () => Promise<void>;
+    after(async () => {
+      if (fermer) await fermer();
+    });
 
-      let idsDispositifs: string[];
-      let idsComptes: string[];
+    it("le dispositif initial est présent", async () => {
+      const mesDispositifs = await obtenir<string[]>(({ siPasVide }) =>
+        comptes[0].suivreMesDispositifs({
+          f: siPasVide(),
+        }),
+      );
 
-      before(async () => {
-        ({ crabes, fermer } = await créerCrabesTest({
-          n: 2,
-          services: {
-            journal: ServiceJournal,
-            stockage: ServiceStockage,
-            libp2p: ServiceLibp2pTest,
-            hélia: ServiceHélia<ServicesLibp2pTest>,
-            orbite: ServiceOrbite<ServicesLibp2pTest>,
-            compte: ServiceCompte<
-              NestedObjectToMap<NestedValueObject>,
-              ServicesLibp2pTest
-            >,
-          },
-        }));
-        comptes = crabes.map((n) => n.services["compte"]);
+      expect(mesDispositifs).to.have.members([idsDispositifs[0]]);
+    });
 
-        idsDispositifs = await Promise.all(
-          comptes.map(async (compte) => await compte.obtIdDispositif()),
-        );
-        idsComptes = await Promise.all(
-          comptes.map((compte) => compte.obtIdCompte()),
-        );
+    it("créer objet", async () => {
+      const { bd, oublier } = await comptes[0].créerObjet({
+        type: "keyvalue",
+      });
+      idObjet = bd.address;
+      await oublier();
+      expect(adresseOrbiteValide(idObjet)).to.be.true();
+    });
+
+    it("permission initiale objet", async () => {
+      const permission = await comptes[0].permission({ idObjet });
+      expect(permission).to.equal(MODÉRATRICE);
+
+      const permissionSurSecondDispositif = await comptes[1].permission({
+        idObjet,
+      });
+      expect(permissionSurSecondDispositif).to.equal(undefined);
+    });
+
+    it("les dispositifs sont mis à jour", async () => {
+      await comptes[0].ajouterDispositif({
+        idDispositif: await comptes[1].obtIdDispositif(),
       });
 
-      after(async () => {
-        if (fermer) await fermer();
-      });
-      let idObjet: string;
+      const mesDispositifs = await obtenir<string[]>(({ si }) =>
+        comptes[0].suivreMesDispositifs({
+          f: si((x) => !!x && x.length > 1),
+        }),
+      );
 
-      it("créer objet", async () => {
-        const { bd, oublier } = await comptes[0].créerObjet({
-          type: "keyvalue",
-        });
-        idObjet = bd.address;
-        await oublier();
-        expect(adresseOrbiteValide(idObjet)).to.be.true();
-      });
+      expect(mesDispositifs).to.have.members([
+        idsDispositifs[0],
+        idsDispositifs[1],
+      ]);
+    });
 
-      it("obtenir permission objet", async () => {
-        const permission = await comptes[0].permission({ idObjet });
-        expect(permission).to.equal(MODÉRATRICE);
-
-        const permissionSurSecondDispositif = await comptes[1].permission({
-          idObjet,
-        });
-        expect(permissionSurSecondDispositif).to.equal(MODÉRATRICE);
+    it("le nouveau dispositif a bien rejoint le compte", async () => {
+      await comptes[1].rejoindreCompte({
+        idCompte: await comptes[0].obtIdCompte(),
       });
+      const nouvelIdCompte = await obtenir(({ si }) =>
+        comptes[1].suivreIdCompte({
+          f: si((id) => id !== idsComptes[1]),
+        }),
+      );
+      expect(nouvelIdCompte).to.equal(idsComptes[0]);
+    });
 
-      it("suivre permission objet", async () => {
-        const permission = await obtenir(({ siDéfini }) =>
-          comptes[0].suivrePermission({ idObjet, f: siDéfini() }),
-        );
-        expect(permission).to.equal(MODÉRATRICE);
+    it("l'id du dispositif ne change pas", async () => {
+      const idDispositifAprès = await comptes[1].obtIdDispositif();
+      expect(idDispositifAprès).to.equal(idsDispositifs[1]);
+    });
+
+    it("permission objet mise à jour", async () => {
+      const permission = await comptes[0].permission({ idObjet });
+      expect(permission).to.equal(MODÉRATRICE);
+
+      const permissionSurSecondDispositif = await comptes[1].permission({
+        idObjet,
       });
+      expect(permissionSurSecondDispositif).to.equal(MODÉRATRICE);
+    });
+
+    it("suivre permission objet", async () => {
+      const permission = await obtenir(({ siDéfini }) =>
+        comptes[0].suivrePermission({ idObjet, f: siDéfini() }),
+      );
+      expect(permission).to.equal(MODÉRATRICE);
+    });
+
+    it("le nouveau dispositif peut modifier les objets crées par le compte", async () => {
+      const { bd: bd_orbite2, oublier } = await crabes[1].services[
+        "orbite"
+      ].ouvrirBd({
+        id: idObjet,
+        type: "keyvalue",
+      });
+      await attendreInvité(
+        bd_orbite2,
+        await crabes[1].services["compte"].obtIdDispositif(),
+      );
+      await bd_orbite2.put("a", 1);
+      const val = await bd_orbite2.get("a");
+      await oublier();
+
+      expect(val).to.equal(1);
     });
   });
 });

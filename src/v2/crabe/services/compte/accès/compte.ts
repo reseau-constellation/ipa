@@ -42,6 +42,7 @@ class AccèsCompte {
 
     const suiviCompte = async () => {
       const tous = await accèsCompte.bd.all();
+      console.log("suivi compte", tous);
       // On ne différencie pas entre les membres et les modératrices pour les dispositifs d'un compte
       this.dispositifs = [accèsCompte.écriture, ...tous.map((x) => x.key)];
       this.événements.emit("misÀJour");
@@ -121,8 +122,8 @@ export class AccèsParComptes {
           this._dispositifs.set(id, dispositif);
         }
         dispositif.add(rôle);
-        this.événements.emit("misÀJour");
       }
+      this.événements.emit("misÀJour");
     };
     this.queue.add(tâche);
   }
@@ -161,10 +162,11 @@ export class AccèsParComptes {
 
   async estUnMembre(id: string): Promise<boolean> {
     await this.àJour();
+
     if (isValidAddress(id)) {
       return !!this._comptes.get(id)?.rôles.has(MEMBRE);
     } else {
-      return !!this._dispositifs.get(id)?.has(MEMBRE);
+      return !!this.dispositifs.find(d=>d.idDispositif === id && d.rôle === MEMBRE);
     }
   }
 
@@ -174,7 +176,7 @@ export class AccèsParComptes {
     if (isValidAddress(id)) {
       return !!this._comptes.get(id)?.rôles.has(MODÉRATRICE);
     } else {
-      return !!this._dispositifs.get(id)?.has(MODÉRATRICE);
+      return !!this.dispositifs.find(d=>d.idDispositif === id && d.rôle === MODÉRATRICE);
     }
   }
 

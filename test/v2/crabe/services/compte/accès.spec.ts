@@ -13,8 +13,9 @@ import {
 } from "@/v2/crabe/services/compte/accès/index.js";
 import { Oublier } from "@/v2/crabe/types.js";
 import { attendreInvité, peutÉcrire } from "./../../../utils.js";
+import { attendreQue } from "../../../nébuleuse/utils/fonctions.js";
 
-describe("Accès", function () {
+describe.only("Accès", function () {
   describe("par identités orbite", function () {
     let orbites: OrbitDB[];
     let orbite1: OrbitDB;
@@ -38,13 +39,13 @@ describe("Accès", function () {
     beforeEach(async () => {
       bd = (await orbite1.open(uuidv4(), {
         AccessController: ContrôleurConstellation(),
-        type: "kevvalue",
+        type: "keyvalue",
       })) as KeyValueDatabase;
       accès = bd.access as InstanceContrôleurConstellation;
     });
 
     afterEach(async () => {
-      await bd.drop();
+      await bd?.close();
     });
 
     it("la créatrice est une modératrice", async () => {
@@ -61,6 +62,7 @@ describe("Accès", function () {
       await accès.autoriser(MEMBRE, orbite2.identity.id);
 
       // Effectué sur l'instance originale
+      await attendreInvité(bd, orbite2.identity.id);
       const membre = await accès.estUnMembre(orbite2.identity.id);
       expect(membre).to.be.true();
 
@@ -91,7 +93,9 @@ describe("Accès", function () {
 
       await expect(
         accès2.autoriser(MEMBRE, orbite3.identity.id),
-      ).to.eventually.be.rejectedWith("n'est pas autorisé");
+      ).to.eventually.be.rejectedWith(
+        `Le rôle ${MEMBRE} ne peut pas être octroyé à ${orbite3.identity.id}.`,
+      );
     });
 
     it("une modératrice peut ajouter un membre", async () => {
@@ -129,8 +133,8 @@ describe("Accès", function () {
     });
 
     it("utilisateurs autorisés", async () => {
-      const promesseUtilisateurs = obtenir<AccèsUtilisateur[]>(({ si }) =>
-        accès.suivreUtilisateursAutorisés(si((x) => x.length > 1)),
+      const promesseUtilisateurs = obtenir<AccèsUtilisateur[]>(({ siDéfini }) =>
+        accès.suivreUtilisateursAutorisés(siDéfini()),
       );
       await accès.autoriser(MEMBRE, orbite2.identity.id);
 
@@ -175,12 +179,15 @@ describe("Accès", function () {
 
       await expect(
         accès2.autoriser(MEMBRE, orbite3.identity.id),
-      ).to.eventually.be.rejectedWith("n'est pas autorisé");
+      ).to.eventually.be.rejectedWith(
+        `Le rôle ${MEMBRE} ne peut pas être octroyé à ${orbite3.identity.id}.`,
+      );
     });
 
     it("multiples bds partageant le même contrôleur", async () => {
       const adresseContrôleur1 = accès.address;
       const bd2 = await orbite1.open(uuidv4(), {
+        type: "keyvalue",
         AccessController: ContrôleurConstellation({
           écriture: adresseContrôleur1,
         }),
@@ -198,9 +205,12 @@ describe("Accès", function () {
       const bd2SurOrbite2 = (await orbite2.open(
         bd2.address,
       )) as KeyValueDatabase;
+      // On attend que les permissions se propagent
+      await attendreInvité(bd2SurOrbite2, orbite2.identity.id)
       await bd2SurOrbite2.set("a", 1);
 
       expect(await bd2SurOrbite2.get("a")).to.equal(1);
+      await bd2.close();
     });
 
     it("Invitations transitives après fermeture de la bd", async () => {
@@ -216,7 +226,7 @@ describe("Accès", function () {
 
       // Attendre que la base de donées originale reçoive la dernière modification
       await obtenir<AccèsDispositif[]>(({ si }) =>
-        accès.suivreDispositifsAutorisées(
+        (bd.access as InstanceContrôleurConstellation).suivreDispositifsAutorisées(
           si((x) => !!x.find((d) => d.idDispositif === orbite4.identity.id)),
         ),
       );
@@ -260,30 +270,35 @@ describe("Accès", function () {
       idCompte1 = (
         await orbite1.open(uuidv4(), {
           AccessController: ContrôleurConstellation(),
-          type: "kevvalue",
+          type: "keyvalue",
         })
       ).address;
       idCompte2 = (
         await orbite2.open(uuidv4(), {
           AccessController: ContrôleurConstellation(),
-          type: "kevvalue",
+          type: "keyvalue",
         })
       ).address;
 
       bd = (await orbite1.open(uuidv4(), {
         AccessController: ContrôleurConstellation({ écriture: idCompte1 }),
-        type: "kevvalue",
+        type: "keyvalue",
       })) as KeyValueDatabase;
       accès = bd.access as InstanceContrôleurConstellation;
     });
 
     afterEach(async () => {
-      await bd.drop();
+      await bd?.close();
     });
 
     it("la créatrice est une modératrice", async () => {
-      expect(await accès.estUneModératrice(orbite1.identity.id)).to.be.true();
       expect(await accès.estUneModératrice(idCompte1)).to.be.true();
+
+      await attendreQue(() => accès.estUneModératrice(orbite1.identity.id))
+      expect(await accès.estUneModératrice(orbite1.identity.id)).to.be.true();
+
+      expect(await accès.estAutorisé(orbite1.identity.id)).to.be.true();
+      expect(await accès.estAutorisé(idCompte1)).to.be.true();
     });
 
     it("les autres ne sont pas des modératrice", async () => {
@@ -326,7 +341,9 @@ describe("Accès", function () {
 
       await expect(
         accès2.autoriser(MEMBRE, orbite3.identity.id),
-      ).to.eventually.be.rejectedWith("n'est pas autorisé");
+      ).to.eventually.be.rejectedWith(
+        `Le rôle ${MEMBRE} ne peut pas être octroyé à ${orbite3.identity.id}.`,
+      );
     });
 
     it("une modératrice peut ajouter un membre", async () => {
