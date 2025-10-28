@@ -134,8 +134,8 @@ describe.only("Crabe", function () {
         "Unsupported key n/existe/pas.",
       );
 
-      // @ts-expect-error Service inexistant
       await expect(
+        // @ts-expect-error Service inexistant
         bd.set("service/inexistant", 1),
       ).to.eventually.be.rejectedWith("Unsupported key service/inexistant.");
     });
@@ -182,7 +182,6 @@ describe.only("Crabe", function () {
 
       const nouvelId = await promesseIdCompte;
       expect(nouvelId).to.equal(await crabes[0].compte.obtIdCompte());
-      console.log("id compte bien ajusté");
 
       const noms = await promesseNoms;
       expect(noms?.fr).to.equal("Julien Malard-Adam");
