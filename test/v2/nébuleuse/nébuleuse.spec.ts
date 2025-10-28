@@ -162,7 +162,9 @@ describe.only("Nébuleuse", function () {
         }
         async fermer(): Promise<void> {
           expect(this.service("a").estDémarré).to.be.true();
-          expect(this.service("c").estDémarré).to.be.false();
+
+          // Accéder services["c"] qui n'est pas dans les dépendances de b
+          expect(this.nébuleuse.services["c"].estDémarré).to.be.false();
           return await super.fermer();
         }
       }
