@@ -147,8 +147,9 @@ describe.only("Nébuleuse", function () {
           });
         }
         async fermer(): Promise<void> {
-          expect(this.service("b").estDémarré).to.be.false();
-          expect(this.service("c").estDémarré).to.be.false();
+          // Accéder services b et c qui ne sont pas dans les dépendances de a
+          expect(this.nébuleuse.services["b"].estDémarré).to.be.false();
+          expect(this.nébuleuse.services["c"].estDémarré).to.be.false();
           return await super.fermer();
         }
       }
