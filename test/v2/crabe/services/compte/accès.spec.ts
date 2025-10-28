@@ -258,7 +258,7 @@ describe.only("Accès", function () {
     let accès: InstanceContrôleurConstellation;
 
     before(async () => {
-      ({ fermer, orbites } = await créerOrbitesTest({ n: 2 }));
+      ({ fermer, orbites } = await créerOrbitesTest({ n: 3 }));
       [orbite1, orbite2, orbite3] = orbites;
     });
 
@@ -310,6 +310,7 @@ describe.only("Accès", function () {
       await accès.autoriser(MEMBRE, idCompte2);
 
       // Effectué sur l'instance originale
+      await attendreQue(() => accès.estUnMembre(idCompte2))
       const membre = await accès.estUnMembre(idCompte2);
       expect(membre).to.be.true();
 
