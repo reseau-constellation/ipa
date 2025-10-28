@@ -157,6 +157,7 @@ const ContrôleurConstellation =
     const accès = new AccèsParComptes(orbitdb);
 
     const mettreAccèsÀJour = async () => {
+      console.log("mettreAccèsÀJour");
       const dynamiques = (await bdAccès.all()).map(({ key, value }) => ({
         rôle: value as Rôle,
         id: key,
@@ -165,7 +166,7 @@ const ContrôleurConstellation =
         { rôle: MODÉRATRICE, id: écriture! },
         ...dynamiques,
       ];
-
+      console.log({ autorisations });
       await Promise.all(autorisations.map((x) => accès.autoriser(x)));
     };
 
@@ -239,7 +240,11 @@ const ContrôleurConstellation =
 
     const close = async () => {
       await oublierBdAccès();
-      await bdAccès.close();
+
+      // Désactivée pour l'instant. Si nous avons plus qu'une bd qui partage le même contrôleur,
+      // la fermeture de la bd du contrôleur pourrait nous causer des ennuis.
+      // À faire : peut-être contourner avec le mandataire orbite ?
+      // await bdAccès.close();
 
       await accès.fermer();
     };
