@@ -140,7 +140,8 @@ export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
 
   async fermer() {
     if (this.statut === STATUTS.FERMÉE) return;
-    if (this.statut === STATUTS.ERREUR_DÉMARRAGE) throw new Error("Erreur de démarrage");
+    if (this.statut === STATUTS.ERREUR_DÉMARRAGE)
+      throw new Error("Erreur de démarrage");
     if (this.statut === STATUTS.FERMETURE_EN_COURS) {
       return new Promise<void>((résoudre) =>
         this.événements.once("fermée", résoudre),
