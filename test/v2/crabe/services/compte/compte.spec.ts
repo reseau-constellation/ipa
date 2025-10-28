@@ -1,8 +1,8 @@
 import { expect } from "aegir/chai";
 import { ServicesLibp2pTest, dossierTempo } from "@constl/utils-tests";
-import { NestedValueObject } from "@orbitdb/nested-db";
+import { NestedValueObject, toObject } from "@orbitdb/nested-db";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
-import { TypedNested, TypedNested } from "@constl/bohr-db";
+import { TypedNested } from "@constl/bohr-db";
 import {
   ServiceCompte,
   ServiceHélia,
@@ -19,8 +19,17 @@ import { PartielRécursif } from "@/v2/types.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Oublier } from "@/v2/crabe/types.js";
-import { obtenir } from "test/utils/utils.js";
+import { StructureCrabe } from "@/v2/crabe/crabe.js";
+import {
+  StructureDispositifs,
+  schémaDispositifs,
+} from "@/v2/crabe/services/dispositifs.js";
+import { StructureProfil, schémaProfil } from "@/v2/crabe/services/profil.js";
+import { StructureRéseau, schémaRéseau } from "@/v2/crabe/services/réseau.js";
+import { mapÀObjet } from "@/v2/crabe/utils.js";
+import { obtenir } from "../../../../utils/utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
+import { CrabeTest, créerCrabesTest } from "../../utils.js";
 import { créerNébuleusesTest } from "./../../../nébuleuse/utils/nébuleuse.js";
 import { attendreInvité } from "./../../../utils.js";
 import type { JSONSchemaType } from "ajv";
@@ -94,7 +103,7 @@ describe.only("Service Compte", function () {
 
     it("suivre id compte", async () => {
       const serviceCompte = nébuleuse.services["compte"];
-      const idCompte = obtenir<string>(({ siDéfini }) =>
+      const idCompte = await obtenir<string>(({ siDéfini }) =>
         serviceCompte.suivreIdCompte({ f: siDéfini() }),
       );
       expect(idCompte).to.equal(await nébuleuse.services.compte.obtIdCompte());
@@ -130,14 +139,18 @@ describe.only("Service Compte", function () {
     });
 
     it("erreur lors d'accès données", async () => {
+      const bd = await nébuleuse.services["compte"].bd();
+
       // @ts-expect-error La structure est vide
-      expect(bd.put("données", 1)).to.eventually.be.rejectedWith(
+      expect(bd.set("données", 1)).to.eventually.be.rejectedWith(
         "Unsupported key",
       );
     });
   });
 
   describe("structure compte", function () {
+    type StructureTest = { test1: { a: number }; test2: { b: number } };
+
     class ServiceTest1 extends ServiceDonnéesNébuleuse<
       "test1",
       { a: number },
@@ -146,7 +159,7 @@ describe.only("Service Compte", function () {
       constructor({
         nébuleuse,
       }: {
-        nébuleuse: Nébuleuse<ServicesNécessairesCompte<ServicesLibp2pTest>>;
+        nébuleuse: CrabeTest<StructureTest, ServicesDonnéesTest>;
       }) {
         super({
           clef: "test1",
@@ -155,6 +168,7 @@ describe.only("Service Compte", function () {
             schéma: {
               type: "object",
               properties: { a: { type: "number", nullable: true } },
+              nullable: true,
             },
           },
         });
@@ -178,6 +192,7 @@ describe.only("Service Compte", function () {
             schéma: {
               type: "object",
               properties: { b: { type: "number", nullable: true } },
+              nullable: true,
             },
           },
         });
@@ -189,17 +204,16 @@ describe.only("Service Compte", function () {
       test2: ServiceTest2;
     };
 
-    let nébuleuse: Nébuleuse<
-      ServicesNécessairesCompte<ServicesLibp2pTest> & ServicesDonnéesTest
-    >;
-    let nébuleuse2: Nébuleuse<
-      ServicesNécessairesCompte<ServicesLibp2pTest> & ServicesDonnéesTest
-    >;
+    let nébuleuse: CrabeTest<StructureTest, ServicesDonnéesTest>;
+    let nébuleuse2: CrabeTest<StructureTest, ServicesDonnéesTest>;
 
     let oublier: Oublier;
 
     before(async () => {
-      const { nébuleuses, fermer } = await créerNébuleusesTest({
+      const { crabes, fermer } = await créerCrabesTest<
+        StructureTest,
+        ServicesDonnéesTest
+      >({
         n: 2,
         services: {
           journal: ServiceJournal,
@@ -217,8 +231,9 @@ describe.only("Service Compte", function () {
           test2: ServiceTest2,
         },
       });
+
       oublier = fermer;
-      [nébuleuse, nébuleuse2] = nébuleuses;
+      [nébuleuse, nébuleuse2] = crabes;
     });
 
     after(async () => {
@@ -229,13 +244,29 @@ describe.only("Service Compte", function () {
       const serviceCompte = nébuleuse.services["compte"];
       const schéma = compilerSchémaCompte(serviceCompte);
 
-      const réf: JSONSchemaType<PartielRécursif<{ a: number; b: number }>> = {
+      const réf: JSONSchemaType<
+        PartielRécursif<
+          StructureTest & { profil: StructureProfil } & {
+            dispositifs: StructureDispositifs;
+          } & { réseau: StructureRéseau }
+        >
+      > = {
         type: "object",
         properties: {
-          a: { type: "number", nullable: true },
-          b: { type: "number", nullable: true },
+          dispositifs: schémaDispositifs,
+          profil: schémaProfil,
+          réseau: schémaRéseau,
+          test1: {
+            type: "object",
+            properties: { a: { type: "number", nullable: true } },
+            nullable: true,
+          },
+          test2: {
+            type: "object",
+            properties: { b: { type: "number", nullable: true } },
+            nullable: true,
+          },
         },
-        required: [],
       };
 
       expect(schéma).to.deep.equal(réf);
@@ -247,13 +278,13 @@ describe.only("Service Compte", function () {
       await bd.set("test1/a", 1);
       const valeur = await bd.get("test1");
 
-      expect(valeur).to.deep.equal({ a: 1 });
+      expect(mapÀObjet(valeur)).to.deep.equal({ a: 1 });
     });
 
     it("suivi bd compte", async () => {
       const bd = await nébuleuse.services.compte.bd();
       const promesseValeur = obtenir<
-        TypedNested<{ test1: { a: number; b: number } }> | undefined
+        TypedNested<StructureCrabe & StructureTest> | undefined
       >(({ si }) =>
         nébuleuse.services.compte.suivreBd({
           f: si(async (x) => !!x && !!(await x.all()).get("test1")?.get("a")),
@@ -261,9 +292,9 @@ describe.only("Service Compte", function () {
       );
 
       await bd.put("test1/a", 2);
-      const valeur = await promesseValeur;
+      await promesseValeur;
 
-      expect(valeur).to.deep.equal({ test1: { a: 1 } });
+      expect(mapÀObjet(await bd.all())).to.deep.equal({ test1: { a: 2 } });
     });
 
     it("suivi bd compte lorsque le compte change d'identité", async () => {
@@ -271,19 +302,22 @@ describe.only("Service Compte", function () {
       const idCompte2 = await nébuleuse2.services.compte.obtIdCompte();
 
       const promesseValeur = obtenir<
-        TypedNested<{ test1: { a: number; b: number } }> | undefined
+        TypedNested<StructureCrabe & StructureTest> | undefined
       >(({ si }) =>
-        nébuleuse.services.compte.suivreBd({
+        nébuleuse2.services.compte.suivreBd({
           f: si((bd) => bd?.address !== idCompte2),
         }),
       );
 
+      await nébuleuse.services.compte.ajouterDispositif({
+        idDispositif: await nébuleuse2.services.compte.obtIdDispositif(),
+      });
       await nébuleuse2.services.compte.rejoindreCompte({
         idCompte,
       });
 
-      const nouvelIdBd = await promesseValeur;
-      expect(nouvelIdBd).to.equal(idCompte);
+      const bd = await promesseValeur;
+      expect(bd?.address).to.equal(idCompte);
     });
   });
 
@@ -310,6 +344,7 @@ describe.only("Service Compte", function () {
         },
       }));
       comptes = nébuleuses.map((n) => n.services["compte"]);
+      console.log({nébuleuses, comptes})
       idsDispositifs = await Promise.all(
         comptes.map(async (compte) => await compte.obtIdDispositif()),
       );
