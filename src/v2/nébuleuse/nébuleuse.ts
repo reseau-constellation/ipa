@@ -217,6 +217,7 @@ export class ServiceNébuleuse<
   options: Options;
 
   événements: TypedEmitter<ÉvénementsServiceNébuleuse<RetourDémarré>>;
+  statut: (typeof STATUTS)[keyof typeof STATUTS];
   estDémarré: RetourDémarré | false;
 
   constructor({
@@ -238,6 +239,7 @@ export class ServiceNébuleuse<
     this.événements = new TypedEmitter<
       ÉvénementsServiceNébuleuse<RetourDémarré>
     >();
+    this.statut = STATUTS.NON_INITIALISÉE;
     this.estDémarré = false;
   }
 
@@ -254,6 +256,7 @@ export class ServiceNébuleuse<
     if (this.estDémarré === false) this.estDémarré = true as RetourDémarré;
 
     this.événements.emit("démarré", this.estDémarré);
+    this.statut = STATUTS.DÉMARRÉE;
     return this.estDémarré;
   }
 
@@ -264,6 +267,7 @@ export class ServiceNébuleuse<
 
   async fermer(): Promise<void> {
     await this.démarré();
+    this.statut = STATUTS.FERMÉE;
     this.estDémarré = false;
   }
 

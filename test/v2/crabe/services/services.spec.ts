@@ -183,8 +183,8 @@ describe.only("Services Crabe", function () {
       type StructureA = { a: number };
       type StructureB = { b: { c: number; d: number } };
       type Structure = {
-        a: StructureA;
-        b: StructureB;
+        A: StructureA;
+        B: StructureB;
       };
 
       let crabe: Crabe<
@@ -251,8 +251,8 @@ describe.only("Services Crabe", function () {
         const { crabes, fermer } = await créerCrabesTest<Structure>({
           n: 1,
           services: {
-            donnéesA: ServiceDonnéesTestA,
-            donnéesB: ServiceDonnéesTestB,
+            A: ServiceDonnéesTestA,
+            B: ServiceDonnéesTestB,
           },
         });
         crabe = crabes[0];
@@ -280,7 +280,7 @@ describe.only("Services Crabe", function () {
             crabe.services["B"].suivreBd({ f: si((x) => x?.b !== undefined) }),
         );
 
-        expect(val).to.deep.equal({ c: 1 });
+        expect(val).to.deep.equal({ b: { c: 1 } });
       });
 
       it("suivi bd branche avec clef", async () => {
