@@ -364,13 +364,24 @@ export class ServiceCompte<
       throw new Error(`Type d'accès ${bd.access} non reconnu.`);
 
     let monCompte: string | undefined = undefined;
-    const fFinale = (utilisateurs: AccèsUtilisateur[]) =>
-      f(utilisateurs.find((x) => x.idCompte === monCompte)?.rôle);
-    const oublierAccès = await accès.suivreUtilisateursAutorisés(fFinale);
+    let utilisateurs: AccèsUtilisateur[] | undefined = undefined;
+
+    const fFinale = async () => {
+      console.log({ monCompte, utilisateurs });
+      await f(utilisateurs?.find((x) => x.idCompte === monCompte)?.rôle);
+    };
+
+    const oublierAccès = await accès.suivreUtilisateursAutorisés(
+      async (utilis: AccèsUtilisateur[]) => {
+        utilisateurs = utilis;
+        await fFinale();
+      },
+    );
 
     const oublierIdCompte = await this.suivreIdCompte({
-      f: (id) => {
+      f: async (id) => {
         monCompte = id;
+        await fFinale();
       },
     });
 
