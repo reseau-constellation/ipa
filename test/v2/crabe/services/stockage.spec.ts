@@ -105,7 +105,7 @@ describe.only("Stockage", function () {
         dossier: path.join(dossier, "sous-dossier"),
       },
     });
-    await nébuleuse2.démarrer()
+    await nébuleuse2.démarrer();
 
     await nébuleuse2.services["stockage"].sauvegarderItem(clef, "test");
     const valDeStockage1 = await stockage.obtenirItem(clef);

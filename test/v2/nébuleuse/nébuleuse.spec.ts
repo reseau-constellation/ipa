@@ -353,9 +353,10 @@ describe.only("Nébuleuse", function () {
         },
       });
       await nébuleuse.démarrer();
-      
-      await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith("erreur de fermeture");
 
+      await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith(
+        "erreur de fermeture",
+      );
     });
 
     it("fermeture après erreur de démarrage service", async () => {
@@ -381,9 +382,10 @@ describe.only("Nébuleuse", function () {
       try {
         await nébuleuse.démarrer();
       } catch {
-        await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith("Erreur de démarrage");
+        await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith(
+          "Erreur de démarrage",
+        );
       }
-
     });
   });
 
@@ -680,7 +682,7 @@ describe.only("Nébuleuse", function () {
 
       quibble = await import("quibble");
 
-      const envPathsTest = (name: string) => ({data: join(dossier, name)});
+      const envPathsTest = (name: string) => ({ data: join(dossier, name) });
       await quibble.default.esm("env-paths", {}, envPathsTest);
     });
 

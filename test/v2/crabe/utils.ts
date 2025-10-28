@@ -29,7 +29,8 @@ export class CrabeTest<
       ServicesDonnées<T, ServicesLibp2pTest> & S
     >;
     options: { dossier: string } & OptionsNébuleuse<
-      ServicesDonnées<T, ServicesLibp2pTest> & S &
+      ServicesDonnées<T, ServicesLibp2pTest> &
+        S &
         ServicesCrabe<T & StructureCrabe, ServicesLibp2pTest>
     >;
   }) {
