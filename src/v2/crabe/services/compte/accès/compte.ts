@@ -168,7 +168,9 @@ export class AccèsParComptes {
     if (isValidAddress(id)) {
       return !!this._comptes.get(id)?.rôles.has(MEMBRE);
     } else {
-      return !!this.dispositifs.find(d=>d.idDispositif === id && d.rôle === MEMBRE);
+      return !!this.dispositifs.find(
+        (d) => d.idDispositif === id && d.rôle === MEMBRE,
+      );
     }
   }
 
@@ -178,7 +180,9 @@ export class AccèsParComptes {
     if (isValidAddress(id)) {
       return !!this._comptes.get(id)?.rôles.has(MODÉRATRICE);
     } else {
-      return !!this.dispositifs.find(d=>d.idDispositif === id && d.rôle === MODÉRATRICE);
+      return !!this.dispositifs.find(
+        (d) => d.idDispositif === id && d.rôle === MODÉRATRICE,
+      );
     }
   }
 

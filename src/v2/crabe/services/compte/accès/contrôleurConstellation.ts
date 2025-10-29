@@ -41,6 +41,7 @@ import {
 } from "@orbitdb/core";
 
 import { v4 as uuidv4 } from "uuid";
+import PQueue from "p-queue";
 import { Oublier, Suivi } from "@/v2/crabe/types.js";
 import { mandatOrbite } from "../../orbite/mandat.js";
 import { appelerLorsque } from "../../utils.js";
@@ -48,7 +49,6 @@ import { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
 import { MODÉRATRICE, rôles } from "./consts.js";
 import { ContrôleurAccès } from "./contrôleurModératrices.js";
 import { AccèsParComptes } from "./compte.js";
-import PQueue from "p-queue";
 
 export const nomType = "contrôleur-constellation";
 
@@ -181,9 +181,9 @@ const ContrôleurConstellation =
     queue.add(mettreAccèsÀJour);
 
     const àJour = async () => {
-      await queue.onIdle(); 
+      await queue.onIdle();
       await accès.àJour();
-    }
+    };
 
     const estAutorisé = async (id: string): Promise<boolean> => {
       await àJour();
@@ -212,12 +212,11 @@ const ContrôleurConstellation =
 
       // Pour implémenter la révocation des permissions, garder compte ici
       // des entrées approuvées par utilisatrice
-      const x= (
+      const x =
         (await identities.verifyIdentity(writerIdentity)) &&
-        (await estAutorisé(id))
-      );
+        (await estAutorisé(id));
 
-      return x
+      return x;
     };
 
     const autoriser = async (rôle: Rôle, id: string): Promise<void> => {
@@ -286,7 +285,7 @@ const ContrôleurConstellation =
 
     const dispositifsAutorisés = async (): Promise<AccèsDispositif[]> => {
       await àJour();
-      return accès.dispositifs
+      return accès.dispositifs;
     };
 
     const suivreDispositifsAutorisées = async (
