@@ -680,10 +680,12 @@ describe.only("Nébuleuse", function () {
     beforeEach(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
 
-      quibble = await import("quibble");
-
-      const envPathsTest = (name: string) => ({ data: join(dossier, name) });
-      await quibble.default.esm("env-paths", {}, envPathsTest);
+      if (isNode || isElectronMain) {
+        quibble = await import("quibble");
+  
+        const envPathsTest = (name: string) => ({ data: join(dossier, name) });
+        await quibble.default.esm("env-paths", {}, envPathsTest);
+      }
     });
 
     afterEach(async () => {
