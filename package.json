@@ -13,7 +13,7 @@
     "nettoyer": "rimraf dist",
     "compiler": "pnpm versioner && pnpm nettoyer && pnpm tspc -p tsconfig.json",
     "compiler:prod": "pnpm versioner && pnpm formatter && pnpm nettoyer && pnpm tspc -p tsconfig.build.json",
-    "test:node": "pnpm compiler || pnpm aegir test -t node --cov -f dist/test/v2/**/*.spec.js -- --exit",
+    "test:node": "pnpm compiler || pnpm aegir test -t node -f dist/test/v2/**/*.spec.js --cov -- --exit",
     "test:navig": "pnpm compiler || pnpm aegir test -t browser -f dist/test/v2/**/*.spec.js --cov",
     "test:électron-principal": "pnpm compiler || pnpm aegir test -t electron-main -f dist/test/v2/**/*.spec.js --cov",
     "test:électron-rendu": "pnpm compiler || pnpm aegir test -t -f dist/test/v2/**/*.spec.js electron-renderer --cov",
