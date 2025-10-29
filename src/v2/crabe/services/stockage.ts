@@ -55,6 +55,7 @@ export class StockageLocal implements Storage {
 const localStorageDossier = ({ dossier }: { dossier: string }) => {
   const résoudreClef = (clef: string) => `${dossier}/${clef}`;
   const clefCorrespond = (clef: string) => clef.startsWith(`${dossier}/`);
+  const clefOriginale = (clef: string) => clef.replace(`${dossier}/`, "");
 
   return new Proxy(localStorage, {
     get: (target, prop) => {
@@ -79,6 +80,18 @@ const localStorageDossier = ({ dossier }: { dossier: string }) => {
           };
         case "length":
           return Object.keys(target).filter(clefCorrespond).length;
+        case "tous": {
+          return () => {
+            const données = JSON.parse(JSON.stringify(target));
+            return JSON.stringify(
+              Object.fromEntries(
+                Object.entries(données)
+                  .filter(([c, _v]) => clefCorrespond(c))
+                  .map(([c, v]) => [clefOriginale(c), v]),
+              ),
+            );
+          };
+        }
         default:
           return target[prop as keyof typeof target];
       }
@@ -132,6 +145,8 @@ export class ServiceStockage extends ServiceNébuleuse<
     const { stockageLocal } = await this.démarré();
     if (stockageLocal instanceof StockageLocal) {
       return stockageLocal.jsonifier();
-    } else return JSON.stringify(stockageLocal);
+    } else {
+      return JSON.stringify(stockageLocal.tous());
+    }
   }
 }
