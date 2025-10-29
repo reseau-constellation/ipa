@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
-import { isBrowser } from "wherearewe";
 import { ServiceStockage } from "@/v2/crabe/index.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { StockageLocal } from "@/v2/crabe/services/stockage.js";
