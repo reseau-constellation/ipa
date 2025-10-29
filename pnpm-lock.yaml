@@ -149,9 +149,6 @@ importers:
       deep-equal:
         specifier: ^2.2.3
         version: 2.2.3
-      deepcopy:
-        specifier: ^2.1.0
-        version: 2.1.0
       detect-browser:
         specifier: ^5.3.0
         version: 5.3.0
@@ -294,9 +291,6 @@ importers:
       '@types/tmp':
         specifier: ^0.2.6
         version: 0.2.6
-      '@types/uuid':
-        specifier: ^10.0.0
-        version: 10.0.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.46.2
         version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@9.38.0)(typescript@5.9.2))(eslint@9.38.0)(typescript@5.9.2)
@@ -2341,9 +2335,6 @@ packages:
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
-
-  '@types/uuid@10.0.0':
-    resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -11512,8 +11503,6 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
-  '@types/uuid@10.0.0': {}
-
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 24.9.2
@@ -11938,9 +11927,9 @@ snapshots:
       strong-log-transformer: 2.1.0
       tempy: 3.1.0
       typedoc: 0.28.14(typescript@5.8.3)
-      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.9.2))
-      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.9.2))
-      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.9.2))
+      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.8.3))
+      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.8.3))
+      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.8.3))
       typescript: 5.8.3
       typescript-docs-verifier: 3.0.1(typescript@5.8.3)
       wherearewe: 2.0.1
@@ -19039,16 +19028,16 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.9.2)):
+  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.8.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.9.2)):
+  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.8.3)):
     dependencies:
       html-escaper: 3.0.3
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.9.2)):
+  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.8.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
