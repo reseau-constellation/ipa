@@ -1,5 +1,4 @@
 import deepEqual from "deep-equal";
-import deepcopy from "deepcopy";
 import { JSONSchemaType } from "ajv";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
@@ -56,7 +55,7 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
   épingle: PartielRécursif<T>,
   défauts: T,
 ): T => {
-  const copieDéfauts = deepcopy(défauts);
+  const copieDéfauts = structuredClone(défauts);
   for (const [clef, val] of Object.entries(épingle)) {
     if (typeof val === "string" || Array.isArray(val)) {
       copieDéfauts[clef as keyof T] = val as T[keyof T];

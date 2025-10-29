@@ -4,7 +4,6 @@ import { Ajv } from "ajv";
 import deepEqual from "deep-equal";
 import { v4 as uuidv4 } from "uuid";
 import { effacerPropriétésNonDéfinies } from "@constl/utils-ipa";
-import deepcopy from "deepcopy";
 import { Constellation, ServicesConstellation } from "../constellation.js";
 import { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
@@ -325,7 +324,7 @@ export class Automatisations<
       const autosFinales = await Promise.all(
         Object.values(autos).map(async (a) => {
           if (!a) return;
-          const autoFinale = deepcopy(a);
+          const autoFinale = structuredClone(a);
           if (
             autoFinale.type === "importation" &&
             autoFinale.source?.typeSource === "fichier"
