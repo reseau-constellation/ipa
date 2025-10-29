@@ -129,7 +129,7 @@
     "@multiformats/mafmt": "^12.1.6",
     "@multiformats/multiaddr-matcher": "^1.8.0",
     "@noble/hashes": "^1.8.0",
-    "@orbitdb/core": "^2.5.0",
+    "@orbitdb/core": "^3.0.0",
     "@orbitdb/feed-db": "^1.2.1",
     "@orbitdb/ordered-keyvalue-db": "^1.2.2",
     "@orbitdb/set-db": "^1.2.1",
