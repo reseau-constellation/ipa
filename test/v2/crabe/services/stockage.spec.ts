@@ -16,7 +16,6 @@ describe.only("Stockage", function () {
 
   beforeEach(async () => {
     ({ dossier, effacer } = await dossierTempoPropre());
-    if (isBrowser) window.localStorage.clear();
 
     nébuleuse = new Nébuleuse({
       services: {
