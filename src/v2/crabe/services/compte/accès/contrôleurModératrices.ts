@@ -1,4 +1,3 @@
-import { join } from "path";
 import {
   ComposedStorage,
   Entry,
@@ -85,7 +84,7 @@ const ContrôleurAccès =
         type,
         params: { écriture },
       });
-      address = join("/", type, address);
+      address = `${type}/${address}`;
     }
 
     // Ajouter la première modératrice

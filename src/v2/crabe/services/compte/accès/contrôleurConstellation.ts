@@ -152,7 +152,7 @@ const ContrôleurConstellation =
         type: nomType,
         params: { écriture, nom, adresseBdAccès },
       });
-      address = join("/", nomType, address);
+      address = `${nomType}/${address}`;
     }
 
     const accès = new AccèsParComptes(orbitdb);
