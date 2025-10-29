@@ -84,7 +84,7 @@ const ContrôleurAccès =
         type,
         params: { écriture },
       });
-      address = `${type}/${address}`;
+      address = `/${type}/${address}`;
     }
 
     // Ajouter la première modératrice
