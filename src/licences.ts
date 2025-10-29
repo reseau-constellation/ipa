@@ -14,6 +14,7 @@ import {
 } from "@/const.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { mandatairifier } from "./mandataire/index.js";
+import { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
@@ -425,19 +426,18 @@ type ÉvénementsLicences = {
   prêt: (args: { perroquet?: கிளி<InfoLicenceAvecCode> | false }) => void;
 };
 
-export class Licences {
-  client: Constellation;
+export class Licences extends ServiceConstellation {
   événements: TypedEmitter<ÉvénementsLicences>;
   perroquet?: கிளி<InfoLicenceAvecCode> | false;
 
   constructor({ client }: { client: Constellation }) {
-    this.client = client;
+    super({ client, clef: "licences" });
 
     this.événements = new TypedEmitter<ÉvénementsLicences>();
     this.initialiser();
   }
 
-  async initialiser() {
+  async démarrer() {
     if (
       SCHÉMA_BD_LICENCES &&
       CLEF_TABLEAU_LICENCES_APPROUVÉES &&

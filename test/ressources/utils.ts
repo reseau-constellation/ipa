@@ -2,9 +2,9 @@ import { orbite } from "@constl/utils-tests";
 
 import { isBrowser } from "wherearewe";
 import { Constellation as ConstellationInterne } from "@/client.js";
-import { préparerOrbite } from "@/orbite.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { libp2p as libp2pTest } from "@constl/utils-tests";
+import { préparerOrbite } from "@/orbite.js";
 
 export const générerClientsInternes = async ({
   n,

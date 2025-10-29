@@ -5,12 +5,12 @@ import { orbite } from "@constl/utils-tests";
 import { typedKeyValue } from "@constl/bohr-db";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
+import { MEMBRE, MODÉRATEUR } from "@/v2/crabe/services/compte/accès/consts.js";
 
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { JSONSchemaType } from "ajv";
 import type { OrbitDbTest } from "../ressources/utils.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import { enregistrerContrôleurs } from "@/accès/index.js";
 
 type TypeContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

@@ -10,9 +10,6 @@ export type élémentListe = valsJSON[];
 export type élément = élémentDic | élémentListe;
 export type DonnéesJSON = élément | élément[];
 
-export type clefsExtractionNonNul = (string | number)[];
-export type clefsExtraction = (string | number | -1)[];
-
 const copieProfonde = (données: DonnéesJSON) => {
   return JSON.parse(JSON.stringify(données));
 };

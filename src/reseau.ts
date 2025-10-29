@@ -24,14 +24,10 @@ import {
   infoAccès,
   schémaStructureBdCompte,
 } from "@/client.js";
-import {
-  cacheRechercheParNRésultats,
-  cacheRechercheParProfondeur,
-  cacheSuivi,
-} from "@/décorateursCache.js";
+import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
 import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
-import { ComposanteClientDic } from "./composanteClient.js";
+import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque, dépunicodifier } from "./utils.js";
@@ -274,7 +270,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.fsOublier = [];
   }
 
-  async initialiser(): Promise<void> {
+  async démarrer(): Promise<void> {
     const texteDispositifsVus = await this.client.obtDeStockageLocal({
       clef: "dispositifsEnLigne",
     });
@@ -283,9 +279,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       : {};
 
     // Si jamais le moment de la dernière connexion n'avait pas été noté, utiliser maintenant
-    Object.values(this.dispositifsEnLigne).forEach(d=>{
-      if (d.vuÀ === undefined) d.vuÀ = Date.now()
-    })
+    Object.values(this.dispositifsEnLigne).forEach((d) => {
+      if (d.vuÀ === undefined) d.vuÀ = Date.now();
+    });
 
     const { sfip } = await this.client.attendreSfipEtOrbite();
 
@@ -1548,7 +1544,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
             .filter(
               (c) => c.remotePeer.toString() === pair && c.status !== "closed",
             )
-            .map(c=>dépunicodifier(c.remoteAddr).toString());
+            .map((c) => dépunicodifier(c.remoteAddr).toString());
           return { pair, adresses };
         }),
       );
@@ -1633,7 +1629,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           }
           const { infoMembre, vuÀ } = membres[idCompte];
           infoMembre.dispositifs.push(d.infoDispositif);
-          membres[idCompte].vuÀ = vuÀ === undefined ? undefined : d.vuÀ === undefined ? undefined : Math.max(vuÀ, d.vuÀ);
+          membres[idCompte].vuÀ =
+            vuÀ === undefined
+              ? undefined
+              : d.vuÀ === undefined
+                ? undefined
+                : Math.max(vuÀ, d.vuÀ);
         }
         return await fSuivreRacine(Object.values(membres));
       };
@@ -2554,7 +2555,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       };
 
       let fOublierBranche: schémaFonctionOublier | undefined = undefined;
-      // On doit appeler ça ici pour avanncer même si l'autre compte'est pas disponible.
+      // On doit appeler ça ici pour avancer même si l'autre compte'est pas disponible.
       await fFinaleSuivreBranche();
 
       switch (clef) {
@@ -2656,6 +2657,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       f,
     });
   }
+
   async suivreAuteursNuée({
     idNuée,
     f,
@@ -2669,6 +2671,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       f,
     });
   }
+
   async suivreObjetsMembre({
     idCompte,
     fListeObjets,
@@ -3026,7 +3029,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     return { fOublier, fChangerProfondeur };
   }
 
-  @cacheRechercheParNRésultats
+  @cacheRechercheParProfondeur
   async suivreBdsDeNuée({
     idNuée,
     f,
@@ -3193,7 +3196,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     await Promise.allSettled(this.fsOublier.map((f) => f()));
 
     // Si nous nous déconnectons, il faut noter le moment comme la dernière connexion avec les autres pairs
-    Object.values(this.dispositifsEnLigne).map(d=>d.vuÀ=Date.now());
-    await this._sauvegarderDispositifsEnLigne()
+    Object.values(this.dispositifsEnLigne).map((d) => (d.vuÀ = Date.now()));
+    await this._sauvegarderDispositifsEnLigne();
   }
 }

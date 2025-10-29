@@ -1,6 +1,6 @@
 import { JSONSchemaType } from "ajv";
 import { Constellation } from "./client.js";
-import { ComposanteClientDic } from "./composanteClient.js";
+import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
 import { cacheSuivi } from "./décorateursCache.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "./types.js";
 
@@ -37,7 +37,7 @@ export class Protocoles extends ComposanteClientDic<structureBdProtocoles> {
     this.protocoles_init = protocoles;
   }
 
-  async initialiser(): Promise<void> {
+  async démarrer(): Promise<void> {
     await this.établirProtocoles({ protocoles: this.protocoles_init });
   }
 

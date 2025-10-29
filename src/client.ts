@@ -1,5 +1,4 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
-import { unixfs } from "@helia/unixfs";
 import { Libp2p } from "@libp2p/interface";
 import { எண்ணிக்கை } from "ennikkai";
 import indexedDbStream from "indexed-db-stream";
@@ -12,26 +11,24 @@ import {
   faisRien,
   ignorerNonDéfinis,
   sauvegarderFichierZip,
-  toBuffer,
   uneFois,
 } from "@constl/utils-ipa";
 import {
   TypedFeed,
   TypedKeyValue,
+  TypedNested,
   TypedOrderedKeyValue,
   TypedSet,
 } from "@constl/bohr-db";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
 import { JSONSchemaType } from "ajv";
-import Base64 from "crypto-js/enc-base64.js";
-import md5 from "crypto-js/md5.js";
+
 import sha256 from "crypto-js/sha256.js";
 import { randomBytes } from "@noble/hashes/utils";
 import bs58 from "bs58";
 
-import { HeliaLibp2p } from "helia";
+import { Helia } from "helia";
 import JSZip from "jszip";
-import { CID } from "multiformats";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import { isValidAddress } from "@orbitdb/core";
 import { TypedEmitter } from "tiny-typed-emitter";
@@ -42,9 +39,9 @@ import {
 import { keys } from "@libp2p/crypto";
 import { anySignal } from "any-signal";
 import { AbortError } from "p-retry";
+import { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
-import { Épingles } from "@/epingles.js";
 import {
   Favoris,
   INSTALLÉ,
@@ -55,47 +52,37 @@ import {
   ÉpingleFavorisAvecId,
 } from "@/favoris.js";
 import { Licences } from "@/licences.js";
-import { MotsClefs } from "@/motsClefs.js";
 import { Nuées } from "@/nuées.js";
-import { Profil } from "@/profil.js";
 import { Projets } from "@/projets.js";
 import { Recherche } from "@/recherche/index.js";
 import { Réseau } from "@/reseau.js";
 import { Tableaux } from "@/tableaux.js";
-import { Variables } from "@/variables.js";
 
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import {
-  type OptionsContrôleurConstellation,
-  ContrôleurConstellation as générerContrôleurConstellation,
-  nomType as nomTypeContrôleurConstellation,
-} from "@/accès/cntrlConstellation.js";
-import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
-import {
   Jsonifiable,
-  RecursivePartial,
+  PartielRécursif,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
   élémentsBd,
 } from "@/types.js";
-import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import {
-  type GestionnaireOrbite,
-  gestionnaireOrbiteGénéral,
-  Store,
-} from "@/orbite.js";
-import { initSFIP } from "@/sfip/index.js";
+  MEMBRE,
+  MODÉRATEUR,
+  rôles,
+} from "@/v2/crabe/services/compte/accès/consts.js";
 import { Protocoles } from "./protocoles.js";
 import { appelerLorsque, estUnePromesse } from "./utils.js";
+import { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type { PrivateKey } from "@libp2p/interface";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type {
   ContenuMessageRejoindreCompte,
   statutDispositif,
 } from "@/reseau.js";
-import type { infoUtilisateur, objRôles } from "@/accès/types.js";
+import type { AccèsUtilisateur, objRôles } from "@/accès/types.js";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
@@ -107,23 +94,34 @@ import type {
   KeyValueDatabase,
   OpenDatabaseOptions,
 } from "@orbitdb/core";
-
-export const CLEF_N_CHANGEMENT_COMPTES = "n changements compte";
-type IPFSAccessController = Awaited<
-  ReturnType<ReturnType<typeof générerIPFSAccessController>>
->;
+import {
+  Profil,
+  schémaStructureBdProfil,
+  structureBdProfil,
+} from "@/profil.js";
+import { Variables } from "@/variables.js";
+import { MotsClefs } from "@/motsClefs.js";
+import { Épingles } from "@/epingles.js";
+import {
+  type OptionsContrôleurConstellation,
+  ContrôleurConstellation as générerContrôleurConstellation,
+  nomType as nomTypeContrôleurConstellation,
+} from "@/accès/cntrlConstellation.js";
+import {
+  type GestionnaireOrbite,
+  gestionnaireOrbiteGénéral,
+  Store,
+} from "@/orbite.js";
+import { initSFIP } from "@/sfip/index.js";
+import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
-
-type ContrôleurConstellation = Awaited<
-  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
->;
 
 type ÉvénementsClient<T extends ServicesLibp2p = ServicesLibp2p> = {
   comptePrêt: (args: { idCompte: string }) => void;
   erreurInitialisation: (args: Error) => void;
   sfipEtOrbitePrêts: (args: {
-    sfip: HeliaLibp2p<Libp2p<T>>;
+    sfip: Helia<Libp2p<T>>;
     orbite: GestionnaireOrbite;
   }) => void;
 };
@@ -164,7 +162,7 @@ export type optsInitOrbite<T extends ServicesLibp2p = ServicesLibp2p> = Omit<
   "ipfs" | "directory"
 > & {
   directory?: string;
-  ipfs?: HeliaLibp2p<Libp2p<T>>;
+  ipfs?: Helia<Libp2p<T>>;
 };
 
 export type optsOrbite<T extends ServicesLibp2p = ServicesLibp2p> =
@@ -172,28 +170,30 @@ export type optsOrbite<T extends ServicesLibp2p = ServicesLibp2p> =
   | optsInitOrbite<T>;
 
 export type structureBdCompte = {
-  protocoles?: string;
-  nomsDispositifs?: string;
+  protocoles: string;
+  nomsDispositifs: string;
 
-  profil?: string;
-  motsClefs?: string;
-  variables?: string;
-  bds?: string;
-  projets?: string;
-  nuées?: string;
-  favoris?: string;
+  profil: structureBdProfil;
+  motsClefs: string;
+  variables: string;
+  bds: string;
+  projets: string;
+  nuées: string;
+  favoris: string;
 
   réseau?: string;
   automatisations?: string;
 };
 
-export const schémaStructureBdCompte: JSONSchemaType<structureBdCompte> = {
+export const schémaStructureBdCompte: JSONSchemaType<
+  PartielRécursif<structureBdCompte>
+> = {
   type: "object",
   properties: {
     protocoles: { type: "string", nullable: true },
     nomsDispositifs: { type: "string", nullable: true },
 
-    profil: { type: "string", nullable: true },
+    profil: schémaStructureBdProfil,
     motsClefs: { type: "string", nullable: true },
     variables: { type: "string", nullable: true },
     bds: { type: "string", nullable: true },
@@ -264,12 +264,22 @@ const join = async (...args: string[]) => {
   }
 };
 
-export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
+export type ServicesConstellation = {
+  [clef: string]: ServiceConstellation;
+};
+export type ServicesDéfautConstellation = {
+  profil: Profil;
+};
+
+export class Constellation<
+  S extends ServicesConstellation = ServicesDéfautConstellation,
+  T extends ServicesLibp2p = ServicesLibp2p,
+> {
   _opts: optsConstellation<T>;
   événements: TypedEmitter<ÉvénementsClient<T>>;
 
   orbite?: GestionnaireOrbite;
-  sfip?: HeliaLibp2p<Libp2p<T>>;
+  sfip?: Helia<Libp2p<T>>;
 
   épingles: Épingles;
   profil: Profil;
@@ -467,7 +477,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       });
       await bdCompte.set(clef, idBd);
     }
-    await this.profil.créerBdsInternes({ idCompte });
     await fOublier();
     return idCompte;
   }
@@ -477,7 +486,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     options = {},
   }: {
     idCompte: string;
-    options?: RecursivePartial<ÉpingleCompte>;
+    options?: PartielRécursif<ÉpingleCompte>;
   }) {
     const épingle: ÉpingleCompte = résoudreDéfauts(options, {
       type: "compte",
@@ -538,7 +547,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
   async attendreSfipEtOrbite(): Promise<{
     orbite: GestionnaireOrbite;
-    sfip: HeliaLibp2p<Libp2p<T>>;
+    sfip: Helia<Libp2p<T>>;
   }> {
     if (this.sfip && this.orbite) {
       return {
@@ -555,7 +564,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     if (this.erreurInitialisation) throw this.erreurInitialisation;
     if (this.idCompte) {
       return {
-        idCompte: this.idCompte as string,
+        idCompte: this.idCompte,
       };
     } else {
       return new Promise((résoudre, rejeter) => {
@@ -643,14 +652,14 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }
 
   async _générerSFIPetOrbite(): Promise<{
-    sfip: HeliaLibp2p<Libp2p<T>>;
+    sfip: Helia<Libp2p<T>>;
     orbite: OrbitDB<T>;
   }> {
     const dossier = await this.dossier();
 
     const { orbite } = this._opts;
 
-    let sfipFinale: HeliaLibp2p<Libp2p<T>>;
+    let sfipFinale: Helia<Libp2p<T>>;
     let orbiteFinale: OrbitDB<T>;
 
     let clefPrivée: PrivateKey | undefined = undefined;
@@ -681,7 +690,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
             domaines: this._opts.domaines,
             pairsParDéfaut: this._opts.pairsParDéfaut,
             clefPrivée,
-          })) as unknown as HeliaLibp2p<Libp2p<T>>;
+          })) as unknown as Helia<Libp2p<T>>;
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
@@ -695,7 +704,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         domaines: this._opts.domaines,
         pairsParDéfaut: this._opts.pairsParDéfaut,
         clefPrivée,
-      })) as unknown as HeliaLibp2p<Libp2p<T>>;
+      })) as unknown as Helia<Libp2p<T>>;
 
       const { initOrbite } = await import("@/orbite.js");
       orbiteFinale = await initOrbite({
@@ -911,6 +920,17 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<T extends NestedDatabaseType>({
+    id,
+    type,
+    signal,
+    options,
+  }: {
+    id: string;
+    type: "nested";
+    signal?: AbortSignal;
+    options?: Omit<OpenDatabaseOptions, "type">;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
     signal,
@@ -926,7 +946,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     options,
   }: {
     id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue" | "nested";
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
@@ -937,7 +957,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     options,
   }: {
     id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue" | "nested";
     signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{
@@ -961,89 +981,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     };
     signalCombiné.clear();
     return bd;
-  }
-
-  async ouvrirBdTypée<
-    U extends { [clef: string]: élémentsBd },
-    T = TypedKeyValue<U>,
-  >({
-    id,
-    type,
-    schéma,
-    signal,
-    options,
-  }: {
-    id: string;
-    type: "keyvalue";
-    schéma: JSONSchemaType<U>;
-    signal?: AbortSignal;
-    options?: Omit<OpenDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBdTypée<U extends élémentsBd, T = TypedFeed<U>>({
-    id,
-    type,
-    schéma,
-    signal,
-    options,
-  }: {
-    id: string;
-    type: "feed";
-    schéma: JSONSchemaType<U>;
-    signal?: AbortSignal;
-    options?: Omit<OpenDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBdTypée<U extends élémentsBd, T = TypedSet<U>>({
-    id,
-    type,
-    schéma,
-    signal,
-    options,
-  }: {
-    id: string;
-    type: "set";
-    schéma: JSONSchemaType<U>;
-    signal?: AbortSignal;
-    options?: Omit<OpenDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBdTypée<
-    U extends { [clef: string]: élémentsBd },
-    T = TypedOrderedKeyValue<U>,
-  >({
-    id,
-    type,
-    schéma,
-    signal,
-    options,
-  }: {
-    id: string;
-    type: "ordered-keyvalue";
-    schéma: JSONSchemaType<U>;
-    signal?: AbortSignal;
-    options?: Omit<OpenDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBdTypée<U extends élémentsBd, T>({
-    id,
-    type,
-    schéma,
-    signal,
-    options,
-  }: {
-    id: string;
-    type: "ordered-keyvalue" | "set" | "keyvalue" | "feed";
-    schéma: JSONSchemaType<U>;
-    signal?: AbortSignal;
-    options?: Omit<OpenDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
-    const { orbite } = await this.attendreSfipEtOrbite();
-    return await orbite.ouvrirBdTypée({
-      id,
-      // @ts-expect-error Va donc comprendre
-      type,
-      // @ts-expect-error Va donc comprendre
-      schéma,
-      signal,
-      options,
-    });
   }
 
   async signer({ message }: { message: string }): Promise<Signature> {
@@ -1070,171 +1007,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       signature.clefPublique,
       message,
     );
-  }
-
-  @cacheSuivi
-  async suivreDispositifs({
-    f,
-    idCompte,
-  }: {
-    f: schémaFonctionSuivi<string[]>;
-    idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    const info: {
-      autorisés: string[];
-      infos: statutDispositif[];
-      idCompte?: string;
-    } = { autorisés: [], infos: [] };
-
-    const fSuivi = async ({
-      id,
-      fSuivreBd,
-    }: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<string[] | undefined>;
-    }): Promise<schémaFonctionOublier> => {
-      info.idCompte = id;
-      const { orbite } = await this.attendreSfipEtOrbite();
-      const { bd, fOublier } = await orbite.ouvrirBdTypée({
-        id,
-        type: "keyvalue",
-        schéma: schémaStructureBdCompte,
-      });
-      const accès = bd.access;
-
-      const typeAccès = (accès as AccessController).type;
-      if (typeAccès === "ipfs") {
-        await fSuivreBd((accès as IPFSAccessController).write);
-        await fOublier();
-        return faisRien;
-      } else if (typeAccès === "contrôleur-constellation") {
-        const contrôleurConstellation = accès as ContrôleurConstellation;
-        const fFinaleSuiviCompte = async () => {
-          const mods = contrôleurConstellation.gestRôles._rôles[MODÉRATEUR];
-          await fSuivreBd([...mods]);
-        };
-        fFinaleSuiviCompte();
-        return appelerLorsque({
-          émetteur: contrôleurConstellation.gestRôles,
-          événement: "misÀJour",
-          f: fFinaleSuiviCompte,
-        });
-      } else {
-        await fOublier();
-        return faisRien;
-      }
-    };
-
-    const fFinale = async () => {
-      if (!info.idCompte) return;
-      const autorisésEtAcceptés = info.autorisés.filter(
-        (idDispositif) =>
-          info.infos.find((i) => i.infoDispositif.idDispositif === idDispositif)
-            ?.infoDispositif?.idCompte === info.idCompte,
-      );
-      return await f(autorisésEtAcceptés);
-    };
-
-    const fOublierDispositifsAutorisés = await suivreFonctionImbriquée({
-      fRacine: async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: (nouvelIdBdCible?: string | undefined) => Promise<void>;
-      }): Promise<schémaFonctionOublier> => {
-        if (idCompte) {
-          await fSuivreRacine(idCompte);
-          return faisRien;
-        } else {
-          return await this.suivreIdCompte({ f: fSuivreRacine });
-        }
-      },
-      f: ignorerNonDéfinis(async (x: string[]) => {
-        info.autorisés = x;
-        return await fFinale();
-      }),
-      fSuivre: fSuivi,
-    });
-    const fOublierInfosDispositifs =
-      await this.réseau.suivreConnexionsDispositifs({
-        f: async (x) => {
-          info.infos = x;
-          return await fFinale();
-        },
-      });
-    return async () => {
-      await Promise.allSettled([
-        fOublierDispositifsAutorisés(),
-        fOublierInfosDispositifs(),
-      ]);
-    };
-  }
-
-  async nommerDispositif({
-    idDispositif,
-    nom,
-    type,
-  }: {
-    idDispositif?: string;
-    nom?: string;
-    type?: string;
-  }): Promise<void> {
-    const idDispositifFinal = idDispositif || (await this.obtIdDispositif());
-
-    const idBdNomsDispositifs = await this.obtIdBd({
-      nom: "nomsDispositifs",
-      racine: await this.obtIdCompte(),
-      type: "keyvalue",
-    });
-    const { bd: bdNomsDispositifs, fOublier } = await this.ouvrirBdTypée({
-      id: idBdNomsDispositifs!,
-      type: "keyvalue",
-      schéma: schémaStructureNomsDispositifs,
-    });
-    if (nom || type) {
-      const val: { nom?: string; type?: string } = {};
-      if (nom) val.nom = nom;
-      if (type) val.type = type;
-      await bdNomsDispositifs.set(idDispositifFinal, val);
-    } else {
-      await bdNomsDispositifs.del(idDispositifFinal);
-    }
-    await fOublier();
-  }
-
-  async suivreNomsDispositifs({
-    idCompte,
-    f,
-  }: {
-    idCompte?: string;
-    f: schémaFonctionSuivi<structureNomsDispositifs>;
-  }): Promise<schémaFonctionOublier> {
-    const idCompteFinal = idCompte || (await this.obtIdCompte());
-    return await this.suivreBdDicDeClef({
-      id: idCompteFinal,
-      schéma: schémaStructureNomsDispositifs,
-      clef: "nomsDispositifs",
-      f,
-    });
-  }
-
-  async suivreNomDispositif({
-    idCompte,
-    idDispositif,
-    f,
-  }: {
-    idDispositif: string;
-    idCompte?: string;
-    f: schémaFonctionSuivi<{ type?: string; nom?: string }>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.suivreNomsDispositifs({
-      idCompte,
-      f: async (noms) => {
-        const nomsDispositif = noms[idDispositif];
-        if (nomsDispositif) {
-          return await f(nomsDispositif);
-        }
-      },
-    });
   }
 
   async générerInvitationRejoindreCompte(): Promise<{
@@ -1310,99 +1082,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     await this.rejoindreCompte({
       idCompte,
     });
-  }
-
-  async ajouterDispositif({
-    idDispositif,
-  }: {
-    idDispositif: string;
-  }): Promise<void> {
-    const { idCompte } = await this.attendreInitialisée();
-
-    const { bd: bdCompte, fOublier } = await this.ouvrirBd({
-      id: idCompte,
-    });
-    const accès = bdCompte.access as ContrôleurConstellation;
-    accès.grant(MODÉRATEUR, idDispositif);
-    await fOublier();
-  }
-
-  async enleverDispositif({
-    idDispositif,
-  }: {
-    idDispositif: string;
-  }): Promise<void> {
-    const { idCompte } = await this.attendreInitialisée();
-
-    const { bd: bdCompte, fOublier } = await this.ouvrirBd({
-      id: idCompte,
-    });
-    const accès = bdCompte.access as ContrôleurConstellation;
-    await accès.revoke(MODÉRATEUR, idDispositif);
-    await fOublier();
-  }
-
-  async rejoindreCompte({ idCompte }: { idCompte: string }): Promise<void> {
-    if (!isValidAddress(idCompte)) {
-      throw new Error(`Adresse compte "${idCompte}" non valide`);
-    }
-
-    // Attendre de recevoir la permission d'écrire à idCompte
-    const { bd, fOublier } = await this.ouvrirBdTypée({
-      id: idCompte,
-      type: "keyvalue",
-      schéma: schémaStructureBdCompte,
-    });
-    const accès = bd.access as ContrôleurConstellation;
-    const moi = await this.obtIdDispositif();
-
-    await uneFois(
-      async (fSuivi: schémaFonctionSuivi<string[]>) =>
-        accès.suivreIdsOrbiteAutoriséesÉcriture(fSuivi),
-      (autorisés) => !!autorisés && autorisés.includes(moi),
-    );
-    fOublier();
-
-    // Là on peut y aller
-    this.idCompte = idCompte;
-    await this.sauvegarderAuStockageLocal({
-      clef: "idCompte",
-      val: idCompte,
-      parCompte: false,
-    });
-    const texteNChangementsCompte = await this.obtDeStockageLocal({
-      clef: CLEF_N_CHANGEMENT_COMPTES,
-      parCompte: false,
-    });
-    const nChangementsCompte = Number(texteNChangementsCompte) || 0;
-    await this.sauvegarderAuStockageLocal({
-      clef: CLEF_N_CHANGEMENT_COMPTES,
-      val: (nChangementsCompte + 1).toString(),
-      parCompte: false,
-    });
-    this.événements.emit("comptePrêt", { idCompte });
-  }
-
-  async donnerAccès({
-    idBd,
-    identité,
-    rôle = MEMBRE,
-  }: {
-    idBd: string;
-    identité: string;
-    rôle: keyof objRôles;
-  }): Promise<void> {
-    if (!isValidAddress(identité)) {
-      throw new Error(`Identité "${identité}" non valide.`);
-    }
-
-    const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
-    const accès = bd.access;
-    const typeAccès = (accès as AccessController).type;
-    if (typeAccès === nomTypeContrôleurConstellation) {
-      await (accès as ContrôleurConstellation).grant(rôle, identité);
-    }
-    await fOublier();
   }
 
   @cacheSuivi
@@ -1539,6 +1218,17 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     type: "ordered-keyvalue";
     schéma?: JSONSchemaType<U>;
   }): schémaFonctionOublier;
+  suivreBd<U extends NestedValue, T = TypedNested<U>>({
+    id,
+    f,
+    type,
+    schéma,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<T>;
+    type: "nested";
+    schéma?: JSONSchemaType<U>;
+  }): schémaFonctionOublier;
   suivreBd({
     id,
     f,
@@ -1554,7 +1244,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
-    type?: "keyvalue" | "set" | "ordered-keyvalue";
+    type?: "keyvalue" | "set" | "ordered-keyvalue" | "nested";
     schéma?: JSONSchemaType<U>;
   }): schémaFonctionOublier {
     if (!adresseOrbiteValide(id))
@@ -2009,59 +1699,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     return fOublier;
   }
 
-  @cacheSuivi
-  async suivreEmpreinteTêtesBdRécursive({
-    idBd,
-    f,
-  }: {
-    idBd: string;
-    f: schémaFonctionSuivi<string>;
-  }): Promise<schémaFonctionOublier> {
-    const obtTêteBd = async (bd: Store): Promise<string> => {
-      const éléments = await bd.log.heads();
-      const tête = éléments[éléments.length - 1]?.hash || "";
-      return tête;
-    };
-    const calculerEmpreinte = (texte: string) => Base64.stringify(md5(texte));
-
-    const fFinale = async (têtes: string[]) => {
-      await f(calculerEmpreinte(têtes.sort().join()));
-    };
-
-    const fListe = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: schémaFonctionSuivi<string[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdsRécursives({
-        idBd,
-        f: async (bds) => await fSuivreRacine(bds),
-      });
-    };
-
-    const fBranche = async ({
-      id,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<string>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreBd({
-        id,
-        f: async (bd) => {
-          const tête = await obtTêteBd(bd);
-          await fSuivreBranche(tête);
-        },
-      });
-    };
-
-    return await suivreDeFonctionListe({
-      fListe,
-      f: fFinale,
-      fBranche,
-    });
-  }
-
   async suivreBdsDeBdListe<T extends élémentsBd, U, V>({
     id,
     f,
@@ -2273,40 +1910,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     });
   }
 
-  async obtFichierSFIP({
-    id,
-    max,
-  }: {
-    id: string;
-    max?: number;
-  }): Promise<Uint8Array | null> {
-    return await toBuffer(await this.obtItérableAsyncSFIP({ id }), max);
-  }
-
-  async obtItérableAsyncSFIP({
-    id,
-  }: {
-    id: string;
-  }): Promise<AsyncIterable<Uint8Array>> {
-    const { sfip } = await this.attendreSfipEtOrbite();
-    const fs = unixfs(sfip);
-    const [idc, nomFichier] = id.split("/");
-    return fs.cat(CID.parse(idc), { path: nomFichier });
-  }
-
-  async ajouterÀSFIP({
-    contenu,
-    nomFichier,
-  }: {
-    contenu: Uint8Array;
-    nomFichier: string;
-  }): Promise<string> {
-    const { sfip } = await this.attendreSfipEtOrbite();
-    const fs = unixfs(sfip);
-    const idc = await fs.addFile({ content: contenu, path: nomFichier });
-    return idc.toString() + "/" + nomFichier;
-  }
-
   async obtClefStockageClient({
     clef,
     parCompte = true,
@@ -2415,7 +2018,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     optionsAccès,
     nom,
   }: {
-    type: "feed" | "set" | "keyvalue" | "ordered-keyvalue";
+    type: "feed" | "set" | "keyvalue" | "ordered-keyvalue" | "nested";
     optionsAccès?: OptionsContrôleurConstellation;
     nom?: string;
   }): Promise<string> {
@@ -2471,7 +2074,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       await fOublier();
       return faisRien;
     } else if (typeAccès === nomTypeContrôleurConstellation) {
-      const fFinale = async (utilisateurs: infoUtilisateur[]) => {
+      const fFinale = async (utilisateurs: AccèsUtilisateur[]) => {
         const mesRôles = utilisateurs
           .filter((u) => u.idCompte === this.idCompte)
           .map((u) => u.rôle);

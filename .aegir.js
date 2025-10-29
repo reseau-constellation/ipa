@@ -2,7 +2,11 @@ import { copyFileSync, mkdtempSync } from "fs";
 import os from "os";
 import path, { dirname } from "path";
 import url, { fileURLToPath } from "url";
-import { config, dossiers } from "@constl/utils-tests";
+import {
+  obtConfigEsbuild,
+  générerConfigÆgir,
+  dossierTempo,
+} from "@constl/utils-tests";
 import cors from "cors";
 import esbuildCmd from "esbuild";
 import { $ } from "execa";
@@ -58,7 +62,7 @@ const générerServeurRessourcesTests = async (opts, idsPairs) => {
 };
 
 const lancerSfipDansNode = async (_opts) => {
-  const { dossier, fEffacer } = await dossiers.dossierTempo();
+  const { dossier, fEffacer } = await dossierTempo();
   const args = ["--dossier", dossier];
 
   const processusNode = $`node dist/test/utils/lancerNœud.js ${args} &`; // $({stdio: 'inherit'})`...` pour écrire à la console
@@ -113,7 +117,7 @@ const lancerSfipDansNavigateur = async (_opts) => {
     const globalName = "testnavigsfip";
     const umdPre = `(function (root, factory) {(typeof module === 'object' && module.exports) ? module.exports = factory() : root.${globalName} = factory()}(typeof self !== 'undefined' ? self : this, function () {`;
     const umdPost = `return ${globalName}}));`;
-    const configEsbuild = await config.obtConfigEsbuild();
+    const configEsbuild = await obtConfigEsbuild();
     await esbuildCmd.build({
       entryPoints: ["dist/test/utils/lancerNœud.js"],
       bundle: true,
@@ -193,7 +197,7 @@ const aprèsTest = async (_, avant) => {
 };
 
 const générerConfigÆgirFinal = async () => {
-  const configÆgir = await config.générerConfigÆgir();
+  const configÆgir = await générerConfigÆgir();
   configÆgir.test.browser.config.buildConfig.external.push("@constl/serveur");
 
   const avantTestDéfaut = configÆgir.test.before;
@@ -216,6 +220,8 @@ const générerConfigÆgirFinal = async () => {
     };
   };
 
+  configÆgir.test.browser.config.buildConfig.external.push("quibble");
+  configÆgir.build.config.external.push("quibble");
   return configÆgir;
 };
 

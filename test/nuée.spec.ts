@@ -10,7 +10,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-ipa";
 import { créerConstellation, type Constellation } from "@/index.js";
-import { TraducsNom, schémaFonctionOublier, schémaStatut } from "@/types.js";
+import { TraducsTexte, schémaFonctionOublier, schémaStatut } from "@/types.js";
 
 import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 import { élémentDeMembreAvecValid } from "@/reseau.js";
@@ -98,7 +98,7 @@ describe("Nuées", function () {
       });
 
       it("Pas de noms pour commencer", async () => {
-        const noms = await obtenir<TraducsNom>(({ siDéfini }) =>
+        const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
           client.nuées.suivreNomsNuée({
             idNuée,
             f: siDéfini(),
@@ -112,7 +112,7 @@ describe("Nuées", function () {
           idNuée,
           noms: { fr: "Alphabets" },
         });
-        const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
+        const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
           client.nuées.suivreNomsNuée({
             idNuée,
             f: siPasVide(),
@@ -129,7 +129,7 @@ describe("Nuées", function () {
             हिं: "वर्णमाला",
           },
         });
-        const noms = await obtenir<TraducsNom>(({ si }) =>
+        const noms = await obtenir<TraducsTexte>(({ si }) =>
           client.nuées.suivreNomsNuée({
             idNuée,
             f: si((x) => !!x.हिं),
@@ -147,7 +147,7 @@ describe("Nuées", function () {
           idNuée,
           noms: { fr: "Systèmes d'écriture" },
         });
-        const noms = await obtenir<TraducsNom>(({ si }) =>
+        const noms = await obtenir<TraducsTexte>(({ si }) =>
           client.nuées.suivreNomsNuée({
             idNuée,
             f: si((x) => x.fr !== "Alphabets"),
@@ -158,7 +158,7 @@ describe("Nuées", function () {
 
       it("Effacer un nom", async () => {
         await client.nuées.effacerNomNuée({ idNuée, langue: "fr" });
-        const noms = await obtenir<TraducsNom>(({ si }) =>
+        const noms = await obtenir<TraducsTexte>(({ si }) =>
           client.nuées.suivreNomsNuée({
             idNuée,
             f: si((x) => !x.fr),
