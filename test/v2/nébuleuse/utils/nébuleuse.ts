@@ -9,8 +9,8 @@ import {
 } from "@/v2/nébuleuse/nébuleuse.js";
 import { Oublier } from "@/v2/crabe/types.js";
 import { ServicesNécessairesLibp2p } from "@/v2/crabe/services/libp2p/libp2p.js";
-import { obtenirOptionsLibp2pTest } from "./../../crabe/services/utils.js";
 import { dossierTempoPropre } from "../../utils.js";
+import { obtenirOptionsLibp2pTest } from "./../../crabe/services/utils.js";
 
 export const créerNébuleusesTest = async <T extends ServicesNébuleuse>({
   n,

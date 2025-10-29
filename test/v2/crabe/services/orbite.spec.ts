@@ -33,8 +33,8 @@ import { ORIGINALE, mandatOrbite } from "@/v2/crabe/services/orbite/mandat.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { obtenir } from "../../../utils/utils.js";
 import { attendreQue } from "../../nébuleuse/utils/fonctions.js";
-import { ServiceLibp2pTest } from "./utils.js";
 import { dossierTempoPropre } from "../../utils.js";
+import { ServiceLibp2pTest } from "./utils.js";
 
 describe.only("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pTest>[];

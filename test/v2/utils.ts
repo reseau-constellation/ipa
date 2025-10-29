@@ -2,10 +2,10 @@ import { BaseDatabase, KeyValueDatabase } from "@orbitdb/core";
 import { SetDatabaseType } from "@orbitdb/set-db";
 import { FeedDatabaseType } from "@orbitdb/feed-db";
 import { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
-import { estContrôleurConstellation } from "@/v2/crabe/services/compte/accès/contrôleurConstellation.js";
-import { attendreQue } from "./nébuleuse/utils/fonctions.js";
 import { isBrowser } from "wherearewe";
 import { dossierTempo } from "@constl/utils-tests";
+import { estContrôleurConstellation } from "@/v2/crabe/services/compte/accès/contrôleurConstellation.js";
+import { attendreQue } from "./nébuleuse/utils/fonctions.js";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,
@@ -82,4 +82,4 @@ export const peutÉcrire = async (
 export const dossierTempoPropre = () => {
   if (isBrowser) window.localStorage.clear();
   return dossierTempo();
-}
+};

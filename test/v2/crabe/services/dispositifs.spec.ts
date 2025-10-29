@@ -15,8 +15,8 @@ import {
 } from "@/v2/crabe/services/dispositifs.js";
 import { Nébuleuse } from "@/v2/nébuleuse/index.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
-import { ServiceLibp2pTest } from "./utils.js";
 import { dossierTempoPropre } from "../../utils.js";
+import { ServiceLibp2pTest } from "./utils.js";
 
 describe.only("Dispositifs", function () {
   describe("infos dispositifs", function () {

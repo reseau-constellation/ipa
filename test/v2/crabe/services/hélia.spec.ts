@@ -4,7 +4,6 @@ import {
   ServicesLibp2pTest,
   créerOrbitesTest,
 } from "@constl/utils-tests";
-import { dossierTempoPropre } from "../../utils.js";
 
 import { OrbitDB } from "@orbitdb/core";
 import { expect } from "aegir/chai";
@@ -22,6 +21,7 @@ import {
 } from "@/v2/crabe/services/hélia.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { ServiceStockage } from "@/v2/crabe/index.js";
+import { dossierTempoPropre } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";
 
 describe.only("Service Hélia", function () {

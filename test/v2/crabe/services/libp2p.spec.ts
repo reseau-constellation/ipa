@@ -15,7 +15,6 @@ import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
 } from "uint8arrays";
-import { dossierTempoPropre } from "../../utils.js";
 
 import { IDBDatastore } from "datastore-idb";
 import { FsDatastore } from "datastore-fs";
@@ -32,6 +31,7 @@ import {
 } from "@/v2/crabe/services/libp2p/libp2p.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { ServicesLibp2pCrabeDéfaut } from "@/v2/crabe/services/libp2p/config/utils.js";
+import { dossierTempoPropre } from "../../utils.js";
 import {
   ServiceLibp2pTest,
   obtenirOptionsLibp2pLocal,
