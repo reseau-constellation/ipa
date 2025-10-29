@@ -1,7 +1,6 @@
 import path from "path";
 import {
   ServicesLibp2pTest,
-  dossierTempo,
   obtenirAdresseRelai,
   toutesConnectées,
 } from "@constl/utils-tests";
@@ -16,6 +15,7 @@ import { ServicesDonnées } from "@/v2/crabe/services/compte/compte.js";
 import { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
 import { ServiceLibp2pTest } from "./services/utils.js";
 import type { Oublier } from "@/v2/crabe/types.js";
+import { dossierTempoPropre } from "../utils.js";
 
 export class CrabeTest<
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,
@@ -72,7 +72,7 @@ export const créerCrabesTest = async <
   crabes: CrabeTest<T, S>[];
   fermer: Oublier;
 }> => {
-  const { dossier, effacer } = await dossierTempo();
+  const { dossier, effacer } = await dossierTempoPropre();
 
   const crabes: CrabeTest<T, S>[] = [];
 
@@ -89,7 +89,13 @@ export const créerCrabesTest = async <
   await connecterCrabes(crabes);
 
   const fermer = async () => {
-    await Promise.all(crabes.map((c) => c.fermer()));
+    // à faire : await Promise.all(crabes.map((c) => c.fermer())) reste aussi coincée si les différentes instances
+    // ont souscrit à la même base de données
+    for (const crabe of crabes) {
+      console.log(`On ferme ${await crabe.compte.obtIdLibp2p()}`);
+      await crabe.fermer();
+    }
+    console.log("tous fermés");
     effacer();
   };
 

@@ -1,5 +1,5 @@
 import { expect } from "aegir/chai";
-import { ServicesLibp2pTest, dossierTempo } from "@constl/utils-tests";
+import { ServicesLibp2pTest } from "@constl/utils-tests";
 import { obtenir } from "@constl/utils-ipa";
 import { ServicesNécessairesCompte } from "@/v2/crabe/services/compte/compte.js";
 import { ServiceDonnéesNébuleuse } from "@/v2/crabe/services/services.js";
@@ -7,6 +7,7 @@ import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { TraducsTexte } from "@/v2/types.js";
 import { CrabeTest, créerCrabesTest } from "./utils.js";
 import type { Oublier } from "@/v2/crabe/types.js";
+import { dossierTempoPropre } from "../utils.js";
 
 describe.only("Crabe", function () {
   describe("création", function () {
@@ -15,7 +16,7 @@ describe.only("Crabe", function () {
     let effacer: () => void;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
     });
 
     after(async () => {
@@ -93,7 +94,7 @@ describe.only("Crabe", function () {
     let effacer: () => void;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
 
       crabe = new CrabeTest<StructureDonnées>({
         services: {
@@ -177,8 +178,7 @@ describe.only("Crabe", function () {
         idCompte: await crabes[0].compte.obtIdCompte(),
       });
       // À faire : Pour une drôle de raison, il faut modifier la BD avant qu'elle ne s'actualise...
-      await crabes[0].profil.effacerNom({ langue: "de" });
-      console.log("profil modifié");
+      // await crabes[0].profil.effacerNom({ langue: "de" });
 
       const nouvelId = await promesseIdCompte;
       expect(nouvelId).to.equal(await crabes[0].compte.obtIdCompte());

@@ -1,9 +1,9 @@
 import { join } from "path";
 import { expect } from "aegir/chai";
-import { dossierTempo } from "@constl/utils-tests";
 import { isElectronMain, isNode } from "wherearewe";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
+import { dossierTempoPropre } from "../../utils.js";
 
 describe.only("Journal", function () {
   if (isNode || isElectronMain)
@@ -16,7 +16,7 @@ describe.only("Journal", function () {
       let effacer: () => void;
 
       before(async () => {
-        ({ dossier, effacer } = await dossierTempo());
+        ({ dossier, effacer } = await dossierTempoPropre());
         fichier = join(dossier, "journal.txt");
         nébuleuse = new Nébuleuse<{ journal: ServiceJournal }>({
           services: {
@@ -59,7 +59,7 @@ describe.only("Journal", function () {
     let val = "";
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
       nébuleuse = new Nébuleuse<{ journal: ServiceJournal }>({
         services: {
           journal: ServiceJournal,

@@ -1,5 +1,5 @@
 import path from "path";
-import { ServicesLibp2pTest, dossierTempo } from "@constl/utils-tests";
+import { ServicesLibp2pTest } from "@constl/utils-tests";
 import { ServiceLibp2p, ServiceStockage } from "@/v2/crabe/index.js";
 import {
   ConstructeursServicesNébuleuse,
@@ -10,6 +10,7 @@ import {
 import { Oublier } from "@/v2/crabe/types.js";
 import { ServicesNécessairesLibp2p } from "@/v2/crabe/services/libp2p/libp2p.js";
 import { obtenirOptionsLibp2pTest } from "./../../crabe/services/utils.js";
+import { dossierTempoPropre } from "test/v2/utils.js";
 
 export const créerNébuleusesTest = async <T extends ServicesNébuleuse>({
   n,
@@ -21,7 +22,7 @@ export const créerNébuleusesTest = async <T extends ServicesNébuleuse>({
   nébuleuses: Nébuleuse<T & ServicesNécessairesLibp2p<ServicesLibp2pTest>>[];
   fermer: Oublier;
 }> => {
-  const { dossier, effacer } = await dossierTempo();
+  const { dossier, effacer } = await dossierTempoPropre();
 
   const nébuleuses: Nébuleuse<
     T & ServicesNécessairesLibp2p<ServicesLibp2pTest>

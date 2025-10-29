@@ -9,13 +9,13 @@ import {
   OptionsDéfautLibp2pNode,
   ServicesLibp2pTest,
   créerOrbitesTest,
-  dossierTempo,
 } from "@constl/utils-tests";
 import { isBrowser, isNode } from "wherearewe";
 import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
 } from "uint8arrays";
+import { dossierTempoPropre } from "../../utils.js";
 
 import { IDBDatastore } from "datastore-idb";
 import { FsDatastore } from "datastore-fs";
@@ -95,7 +95,7 @@ describe.only("Service Libp2p", function () {
     let effacer: () => void;
 
     beforeEach(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
     });
 
     this.afterEach(async () => {
@@ -160,7 +160,7 @@ describe.only("Service Libp2p", function () {
     let effacer: () => void;
 
     beforeEach(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
     });
 
     afterEach(async () => {
@@ -222,7 +222,7 @@ describe.only("Service Libp2p", function () {
       let effacer: () => void;
 
       beforeEach(async () => {
-        ({ dossier, effacer } = await dossierTempo());
+        ({ dossier, effacer } = await dossierTempoPropre());
       });
 
       afterEach(async () => {
@@ -349,7 +349,7 @@ describe.only("Service Libp2p", function () {
       let effacer: () => void;
 
       beforeEach(async () => {
-        ({ dossier, effacer } = await dossierTempo());
+        ({ dossier, effacer } = await dossierTempoPropre());
       });
 
       afterEach(async () => {

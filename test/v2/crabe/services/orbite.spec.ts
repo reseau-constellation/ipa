@@ -3,7 +3,6 @@ import {
   OptionsDéfautLibp2pNode,
   ServicesLibp2pTest,
   créerOrbitesTest,
-  dossierTempo,
   que,
 } from "@constl/utils-tests";
 import {
@@ -35,6 +34,7 @@ import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { obtenir } from "../../../utils/utils.js";
 import { attendreQue } from "../../nébuleuse/utils/fonctions.js";
 import { ServiceLibp2pTest } from "./utils.js";
+import { dossierTempoPropre } from "../../utils.js";
 
 describe.only("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pTest>[];
@@ -196,7 +196,7 @@ describe.only("Service Orbite", function () {
     let nébuleuse: Nébuleuse<ServicesNécessairesOrbite>;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
     });
 
     after(async () => {
@@ -233,7 +233,7 @@ describe.only("Service Orbite", function () {
     let effacer: () => void;
 
     beforeEach(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
     });
 
     afterEach(async () => {
@@ -310,7 +310,7 @@ describe.only("Service Orbite", function () {
     let nébuleuse: Nébuleuse<ServicesNécessairesOrbite>;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
       nébuleuse = new Nébuleuse<ServicesNécessairesOrbite>({
         services: {
           journal: ServiceJournal,
@@ -483,7 +483,7 @@ describe.only("Service Orbite", function () {
     let nébuleuse: Nébuleuse<ServicesNécessairesOrbite>;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
       nébuleuse = new Nébuleuse<ServicesNécessairesOrbite>({
         services: {
           journal: ServiceJournal,

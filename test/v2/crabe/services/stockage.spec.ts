@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
 import { expect } from "aegir/chai";
-import { dossierTempo } from "@constl/utils-tests";
 import { v4 as uuidv4 } from "uuid";
+import { isBrowser } from "wherearewe";
 import { ServiceStockage } from "@/v2/crabe/index.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { StockageLocal } from "@/v2/crabe/services/stockage.js";
+import { dossierTempoPropre } from "test/v2/utils.js";
 
 describe.only("Stockage", function () {
   let nébuleuse: Nébuleuse<{ stockage: ServiceStockage }>;
@@ -14,7 +15,9 @@ describe.only("Stockage", function () {
   let effacer: () => void;
 
   beforeEach(async () => {
-    ({ dossier, effacer } = await dossierTempo());
+    ({ dossier, effacer } = await dossierTempoPropre());
+    if (isBrowser) window.localStorage.clear();
+
     nébuleuse = new Nébuleuse({
       services: {
         stockage: ServiceStockage,
@@ -91,6 +94,10 @@ describe.only("Stockage", function () {
   it("exporter", async () => {
     await stockage.sauvegarderItem("a", "texte");
     const exporté = await stockage.exporter();
+    const x = JSON.parse(exporté)
+    console.log("ici", x, typeof x)
+    console.log(Object.keys(x))
+    console.log(Object.keys({ a: "texte" }))
     expect(JSON.parse(exporté)).to.deep.equal({ a: "texte" });
   });
 

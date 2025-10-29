@@ -12,8 +12,8 @@ import {
   MODÉRATRICE,
 } from "@/v2/crabe/services/compte/accès/index.js";
 import { Oublier } from "@/v2/crabe/types.js";
-import { attendreInvité, peutÉcrire } from "./../../../utils.js";
 import { attendreQue } from "../../../nébuleuse/utils/fonctions.js";
+import { attendreInvité, peutÉcrire } from "./../../../utils.js";
 
 describe.only("Accès", function () {
   describe("par identités orbite", function () {
@@ -206,7 +206,7 @@ describe.only("Accès", function () {
         bd2.address,
       )) as KeyValueDatabase;
       // On attend que les permissions se propagent
-      await attendreInvité(bd2SurOrbite2, orbite2.identity.id)
+      await attendreInvité(bd2SurOrbite2, orbite2.identity.id);
       await bd2SurOrbite2.set("a", 1);
 
       expect(await bd2SurOrbite2.get("a")).to.equal(1);
@@ -226,7 +226,9 @@ describe.only("Accès", function () {
 
       // Attendre que la base de donées originale reçoive la dernière modification
       await obtenir<AccèsDispositif[]>(({ si }) =>
-        (bd.access as InstanceContrôleurConstellation).suivreDispositifsAutorisées(
+        (
+          bd.access as InstanceContrôleurConstellation
+        ).suivreDispositifsAutorisées(
           si((x) => !!x.find((d) => d.idDispositif === orbite4.identity.id)),
         ),
       );
@@ -328,7 +330,7 @@ describe.only("Accès", function () {
       const modératriceSurBd2 = await accès2.estUneModératrice(idCompte2);
       expect(modératriceSurBd2).to.be.false();
 
-      const autorisé = await peutÉcrire(bdSurOrbite2)
+      const autorisé = await peutÉcrire(bdSurOrbite2);
       expect(autorisé).to.be.true();
     });
 
@@ -349,10 +351,10 @@ describe.only("Accès", function () {
 
     it("une modératrice peut ajouter un membre", async () => {
       await accès.autoriser(MODÉRATRICE, idCompte2);
-      
+
       const bdSurOrbite2 = await orbite2.open(bd.address);
       const accès2 = bdSurOrbite2.access as InstanceContrôleurConstellation;
-      await attendreQue(() => accès2.estUneModératrice(orbite2.identity.id))
+      await attendreQue(() => accès2.estUneModératrice(orbite2.identity.id));
 
       await accès2.autoriser(MEMBRE, orbite3.identity.id);
       const bdSurOrbite3 = (await orbite3.open(bd.address)) as KeyValueDatabase;
@@ -384,7 +386,7 @@ describe.only("Accès", function () {
         accès.suivreUtilisateursAutorisés(si((x) => x.length > 1)),
       );
       await accès.autoriser(MEMBRE, idCompte2);
-      
+
       const autorisés = await promesseUtilisateurs;
 
       const réf: AccèsUtilisateur[] = [
@@ -406,11 +408,13 @@ describe.only("Accès", function () {
         {
           idDispositif: orbite2.identity.id,
           rôle: MEMBRE,
-        }
-      ]
+        },
+      ];
 
       expect(autorisés).to.have.deep.members(réf);
-      expect(await accès.dispositifsAutorisés()).to.have.deep.members(réfDispositifs);
+      expect(await accès.dispositifsAutorisés()).to.have.deep.members(
+        réfDispositifs,
+      );
     });
 
     it("dispositifs autorisés", async () => {

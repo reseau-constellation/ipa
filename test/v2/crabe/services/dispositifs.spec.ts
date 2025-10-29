@@ -16,6 +16,7 @@ import {
 import { Nébuleuse } from "@/v2/nébuleuse/index.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { ServiceLibp2pTest } from "./utils.js";
+import { dossierTempoPropre } from "../../utils.js";
 
 describe.only("Dispositifs", function () {
   describe("infos dispositifs", function () {
@@ -26,7 +27,7 @@ describe.only("Dispositifs", function () {
     let effacer: () => void;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
       nébuleuse = new Nébuleuse<
         ServicesNécessairesDispositifs<ServicesLibp2pTest>
       >({

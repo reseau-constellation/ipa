@@ -2,13 +2,13 @@ import fs from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
-import { dossierTempo } from "@constl/utils-tests";
 import {
   Nébuleuse,
   OptionsNébuleuse,
   ServiceNébuleuse,
   ServicesNébuleuse,
 } from "@/v2/nébuleuse/nébuleuse.js";
+import { dossierTempoPropre } from "../utils.js";
 
 describe.only("Nébuleuse", function () {
   describe("Démarrage", function () {
@@ -678,7 +678,7 @@ describe.only("Nébuleuse", function () {
     let effacer: () => void;
 
     beforeEach(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
 
       quibble = await import("quibble");
 

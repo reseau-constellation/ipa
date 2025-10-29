@@ -1,5 +1,5 @@
 import { expect } from "aegir/chai";
-import { ServicesLibp2pTest, dossierTempo } from "@constl/utils-tests";
+import { ServicesLibp2pTest } from "@constl/utils-tests";
 import { NestedObjectToMap, NestedValueObject } from "@orbitdb/nested-db";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { TypedNested } from "@constl/bohr-db";
@@ -30,7 +30,7 @@ import { mapÀObjet } from "@/v2/crabe/utils.js";
 import { obtenir } from "../../../../utils/utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
 import { CrabeTest, créerCrabesTest } from "../../utils.js";
-import { attendreInvité } from "./../../../utils.js";
+import { attendreInvité, dossierTempoPropre } from "./../../../utils.js";
 import type { JSONSchemaType } from "ajv";
 
 describe.only("Service Compte", function () {
@@ -40,7 +40,7 @@ describe.only("Service Compte", function () {
     let effacer: () => void;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
       nébuleuse = new Nébuleuse<ServicesNécessairesCompte<ServicesLibp2pTest>>({
         services: {
           journal: ServiceJournal,
@@ -115,7 +115,7 @@ describe.only("Service Compte", function () {
     let effacer: () => void;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
       nébuleuse = new Nébuleuse<ServicesNécessairesCompte<ServicesLibp2pTest>>({
         services: {
           journal: ServiceJournal,

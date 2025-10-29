@@ -3,8 +3,8 @@ import {
   OptionsDéfautLibp2pNode,
   ServicesLibp2pTest,
   créerOrbitesTest,
-  dossierTempo,
 } from "@constl/utils-tests";
+import { dossierTempoPropre } from "../../utils.js";
 
 import { OrbitDB } from "@orbitdb/core";
 import { expect } from "aegir/chai";
@@ -75,7 +75,7 @@ describe.only("Service Hélia", function () {
     let effacer: () => void;
 
     beforeEach(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
     });
 
     afterEach(async () => {
@@ -115,7 +115,7 @@ describe.only("Service Hélia", function () {
     let effacer: () => void;
 
     beforeEach(async () => {
-      ({ dossier, effacer } = await dossierTempo());
+      ({ dossier, effacer } = await dossierTempoPropre());
     });
 
     this.afterEach(async () => {
