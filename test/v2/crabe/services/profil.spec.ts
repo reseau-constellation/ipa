@@ -3,7 +3,7 @@ import { expect } from "aegir/chai";
 import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "@/v2/crabe/services/consts.js";
 import { TraducsTexte } from "@/v2/types.js";
 import { créerConstellation } from "@/v2/index.js";
-import { obtenir } from "../../../utils/utils.js";
+import { obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../../ressources/index.js";
 import type { Constellation } from "@/v2/constellation.js";
 

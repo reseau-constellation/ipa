@@ -27,7 +27,7 @@ import {
 import { StructureProfil, schémaProfil } from "@/v2/crabe/services/profil.js";
 import { StructureRéseau, schémaRéseau } from "@/v2/crabe/services/réseau.js";
 import { mapÀObjet } from "@/v2/crabe/utils.js";
-import { obtenir } from "../../../../utils/utils.js";
+import { obtenir } from "../../../utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
 import { CrabeTest, créerCrabesTest } from "../../utils.js";
 import { attendreInvité, dossierTempoPropre } from "./../../../utils.js";

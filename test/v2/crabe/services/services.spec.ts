@@ -19,7 +19,7 @@ import { mapÀObjet } from "@/v2/crabe/utils.js";
 import { Nébuleuse } from "@/v2/nébuleuse/index.js";
 import { ServicesNécessairesCompte } from "@/v2/crabe/services/compte/index.js";
 import { créerCrabesTest } from "../utils.js";
-import { obtenir } from "../../../utils/utils.js";
+import { obtenir } from "../../utils.js";
 
 const ERREUR_DUPLIQUÉS =
   "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
