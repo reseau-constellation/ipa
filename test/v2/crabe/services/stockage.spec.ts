@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ServiceStockage } from "@/v2/crabe/index.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { StockageLocal } from "@/v2/crabe/services/stockage.js";
-import { dossierTempoPropre } from "test/v2/utils.js";
+import { dossierTempoPropre } from "../../utils.js";
 
 describe.only("Stockage", function () {
   let nébuleuse: Nébuleuse<{ stockage: ServiceStockage }>;
