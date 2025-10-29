@@ -279,7 +279,6 @@ describe.only("Accès", function () {
           type: "keyvalue",
         })
       ).address;
-      console.log({idCompte1, idCompte2})
 
       bd = (await orbite1.open(uuidv4(), {
         AccessController: ContrôleurConstellation({ écriture: idCompte1 }),
@@ -310,7 +309,6 @@ describe.only("Accès", function () {
 
     it("ajout d'un membre", async () => {
       await accès.autoriser(MEMBRE, idCompte2);
-      console.log("membre autorisé")
 
       // Effectué sur l'instance originale
       const membre = await accès.estUnMembre(idCompte2);
@@ -323,7 +321,6 @@ describe.only("Accès", function () {
       const bdSurOrbite2 = (await orbite2.open(bd.address)) as KeyValueDatabase;
       const accès2 = bdSurOrbite2.access as InstanceContrôleurConstellation;
       await attendreInvité(bdSurOrbite2, idCompte2);
-      console.log("accès sur bd2 détecté")
 
       const membreSurBd2 = await accès2.estUnMembre(idCompte2);
       expect(membreSurBd2).to.be.true();
@@ -331,8 +328,7 @@ describe.only("Accès", function () {
       const modératriceSurBd2 = await accès2.estUneModératrice(idCompte2);
       expect(modératriceSurBd2).to.be.false();
 
-      const autorisé = await peutÉcrire(bdSurOrbite2);
-      console.log("peut êcrire")
+      const autorisé = await peutÉcrire(bdSurOrbite2)
       expect(autorisé).to.be.true();
     });
 
@@ -353,55 +349,44 @@ describe.only("Accès", function () {
 
     it("une modératrice peut ajouter un membre", async () => {
       await accès.autoriser(MODÉRATRICE, idCompte2);
-      console.log("ici 1")
       
       const bdSurOrbite2 = await orbite2.open(bd.address);
       const accès2 = bdSurOrbite2.access as InstanceContrôleurConstellation;
       await attendreQue(() => accès2.estUneModératrice(orbite2.identity.id))
-      console.log("ici 2")
 
       await accès2.autoriser(MEMBRE, orbite3.identity.id);
-      console.log("ici 2.1")
       const bdSurOrbite3 = (await orbite3.open(bd.address)) as KeyValueDatabase;
-      console.log("ici 2.2")
       await attendreInvité(bdSurOrbite3, orbite3.identity.id);
-      console.log("ici 3")
+
       const autorisé = await peutÉcrire(bdSurOrbite3);
       expect(autorisé).to.be.true();
     });
 
     it("un membre peut ajouter son propre dispositif", async () => {
       await accès.autoriser(MEMBRE, idCompte2);
-      console.log("dispo membre ici 0")
 
       const bdSurOrbite2 = await orbite2.open(bd.address);
       await attendreInvité(bdSurOrbite2, orbite2.identity.id);
-      console.log("dispo membre ici 1")
 
       const compte2 = await orbite2.open(idCompte2);
       const accèsCompte2 = compte2.access as InstanceContrôleurConstellation;
       await accèsCompte2.autoriser(MODÉRATRICE, orbite3.identity.id);
-      console.log("dispo membre ici 2")
 
       const bdSurOrbite3 = (await orbite3.open(bd.address)) as KeyValueDatabase;
       await attendreInvité(bdSurOrbite3, orbite3.identity.id);
-      console.log("dispo membre ici 3")
 
       const autorisé = await peutÉcrire(bdSurOrbite3);
-      console.log("dispo membre ici 4")
       expect(autorisé).to.be.true();
     });
 
     it("utilisateurs autorisés", async () => {
-      console.log("utilisateurs autorisés ici 0")
       const promesseUtilisateurs = obtenir<AccèsUtilisateur[]>(({ si }) =>
         accès.suivreUtilisateursAutorisés(si((x) => x.length > 1)),
       );
       await accès.autoriser(MEMBRE, idCompte2);
-      console.log("utilisateurs autorisés ici 1")
       
       const autorisés = await promesseUtilisateurs;
-      console.log("utilisateurs autorisés ici 2")
+
       const réf: AccèsUtilisateur[] = [
         {
           idCompte: idCompte1,

@@ -103,11 +103,10 @@ const ContrôleurAccès =
 
       const rôleValide = rôles.includes(rôle as Rôle);
 
-      if (!rôleValide) {console.log(entry, {rôleValide}); return false};
+      if (!rôleValide) return false;
 
       const identitéSignataire = await identities.getIdentity(entry.identity);
       if (!identitéSignataire) {
-        console.log(entry, {identitéSignataire});
         return false;
       }
       const { id } = identitéSignataire;
@@ -126,7 +125,7 @@ const ContrôleurAccès =
         // Qu'il s'agisse d'un membre ou d'une modératrice, on accepte la demande d'édition des données
         return true;
       }
-      console.log("c mod", entry, id)
+
       return false;
     };
 

@@ -180,7 +180,10 @@ const ContrôleurConstellation =
     // Actualiser avec les accès initiaux
     queue.add(mettreAccèsÀJour);
 
-    const àJour = async () => {console.log("à jour ?") ; await queue.onIdle(); await accès.àJour(); console.log("à jour")}
+    const àJour = async () => {
+      await queue.onIdle(); 
+      await accès.àJour();
+    }
 
     const estAutorisé = async (id: string): Promise<boolean> => {
       await àJour();
@@ -202,7 +205,6 @@ const ContrôleurConstellation =
     ): Promise<boolean> => {
       const writerIdentity = await identities.getIdentity(entry.identity);
       if (!writerIdentity) {
-        console.log("ici", entry)
         return false;
       }
 
@@ -214,7 +216,7 @@ const ContrôleurConstellation =
         (await identities.verifyIdentity(writerIdentity)) &&
         (await estAutorisé(id))
       );
-      if (!x) console.log(entry)
+
       return x
     };
 

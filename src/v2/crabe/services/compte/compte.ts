@@ -366,7 +366,6 @@ export class ServiceCompte<
     let utilisateurs: AccèsUtilisateur[] | undefined = undefined;
 
     const fFinale = async () => {
-      console.log({ monCompte, utilisateurs });
       await f(utilisateurs?.find((x) => x.idCompte === monCompte)?.rôle);
     };
 
