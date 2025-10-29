@@ -279,9 +279,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       : {};
 
     // Si jamais le moment de la dernière connexion n'avait pas été noté, utiliser maintenant
-    Object.values(this.dispositifsEnLigne).forEach(d=>{
-      if (d.vuÀ === undefined) d.vuÀ = Date.now()
-    })
+    Object.values(this.dispositifsEnLigne).forEach((d) => {
+      if (d.vuÀ === undefined) d.vuÀ = Date.now();
+    });
 
     const { sfip } = await this.client.attendreSfipEtOrbite();
 
@@ -1544,7 +1544,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
             .filter(
               (c) => c.remotePeer.toString() === pair && c.status !== "closed",
             )
-            .map(c=>dépunicodifier(c.remoteAddr).toString());
+            .map((c) => dépunicodifier(c.remoteAddr).toString());
           return { pair, adresses };
         }),
       );
@@ -1629,7 +1629,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           }
           const { infoMembre, vuÀ } = membres[idCompte];
           infoMembre.dispositifs.push(d.infoDispositif);
-          membres[idCompte].vuÀ = vuÀ === undefined ? undefined : d.vuÀ === undefined ? undefined : Math.max(vuÀ, d.vuÀ);
+          membres[idCompte].vuÀ =
+            vuÀ === undefined
+              ? undefined
+              : d.vuÀ === undefined
+                ? undefined
+                : Math.max(vuÀ, d.vuÀ);
         }
         return await fSuivreRacine(Object.values(membres));
       };
@@ -3191,7 +3196,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     await Promise.allSettled(this.fsOublier.map((f) => f()));
 
     // Si nous nous déconnectons, il faut noter le moment comme la dernière connexion avec les autres pairs
-    Object.values(this.dispositifsEnLigne).map(d=>d.vuÀ=Date.now());
-    await this._sauvegarderDispositifsEnLigne()
+    Object.values(this.dispositifsEnLigne).map((d) => (d.vuÀ = Date.now()));
+    await this._sauvegarderDispositifsEnLigne();
   }
 }

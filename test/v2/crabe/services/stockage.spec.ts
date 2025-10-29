@@ -91,7 +91,7 @@ describe.only("Stockage", function () {
 
   it("exporter", async () => {
     await stockage.sauvegarderItem("a", "texte");
-    
+
     const exporté = await stockage.exporter();
     expect(JSON.parse(exporté)).to.deep.equal({ a: "texte" });
   });

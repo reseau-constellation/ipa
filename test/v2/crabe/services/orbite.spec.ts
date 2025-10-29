@@ -31,9 +31,8 @@ import {
 import { Oublier } from "@/v2/crabe/types.js";
 import { ORIGINALE, mandatOrbite } from "@/v2/crabe/services/orbite/mandat.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
-import { obtenir } from "../../utils.js";
+import { obtenir , dossierTempoPropre } from "../../utils.js";
 import { attendreQue } from "../../nébuleuse/utils/fonctions.js";
-import { dossierTempoPropre } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";
 
 describe.only("Mandataire OrbitDB", function () {

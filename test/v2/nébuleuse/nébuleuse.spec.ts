@@ -682,7 +682,7 @@ describe.only("Nébuleuse", function () {
 
       if (isNode || isElectronMain) {
         quibble = await import("quibble");
-  
+
         const envPathsTest = (name: string) => ({ data: join(dossier, name) });
         await quibble.default.esm("env-paths", {}, envPathsTest);
       }
