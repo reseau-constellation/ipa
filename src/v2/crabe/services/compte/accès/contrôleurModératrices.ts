@@ -24,7 +24,7 @@ const codec = dagCbor;
 const hasher = sha256;
 const hashStringEncoding = base58btc;
 
-const PremierModérateur = async ({
+const premierModérateur = async ({
   stockage,
   type,
   params,
@@ -80,7 +80,7 @@ const ContrôleurAccès =
       });
       ({ écriture } = value as { écriture: string });
     } else {
-      address = await PremierModérateur({
+      address = await premierModérateur({
         stockage: stockageFinal,
         type,
         params: { écriture },
@@ -90,6 +90,7 @@ const ContrôleurAccès =
 
     // Ajouter la première modératrice
     await accès.autoriser({ id: écriture, rôle: MODÉRATRICE });
+    await accès.àJour();
 
     const canAppend = async (entry: LogEntry): Promise<boolean> => {
       // Pour l'instant, on ne peut qu'ajouter (et non révoquer) des membres
@@ -102,10 +103,11 @@ const ContrôleurAccès =
 
       const rôleValide = rôles.includes(rôle as Rôle);
 
-      if (!rôleValide) return false;
+      if (!rôleValide) {console.log(entry, {rôleValide}); return false};
 
       const identitéSignataire = await identities.getIdentity(entry.identity);
       if (!identitéSignataire) {
+        console.log(entry, {identitéSignataire});
         return false;
       }
       const { id } = identitéSignataire;
@@ -124,6 +126,7 @@ const ContrôleurAccès =
         // Qu'il s'agisse d'un membre ou d'une modératrice, on accepte la demande d'édition des données
         return true;
       }
+      console.log("c mod", entry, id)
       return false;
     };
 

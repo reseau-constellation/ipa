@@ -48,6 +48,7 @@ import { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
 import { MODÉRATRICE, rôles } from "./consts.js";
 import { ContrôleurAccès } from "./contrôleurModératrices.js";
 import { AccèsParComptes } from "./compte.js";
+import PQueue from "p-queue";
 
 export const nomType = "contrôleur-constellation";
 
@@ -155,9 +156,9 @@ const ContrôleurConstellation =
     }
 
     const accès = new AccèsParComptes(orbitdb);
+    const queue = new PQueue({ concurrency: 1 });
 
     const mettreAccèsÀJour = async () => {
-      console.log("mettreAccèsÀJour");
       const dynamiques = (await bdAccès.all()).map(({ key, value }) => ({
         rôle: value as Rôle,
         id: key,
@@ -166,28 +167,33 @@ const ContrôleurConstellation =
         { rôle: MODÉRATRICE, id: écriture! },
         ...dynamiques,
       ];
-      console.log({ autorisations });
+
       await Promise.all(autorisations.map((x) => accès.autoriser(x)));
     };
 
     const oublierBdAccès = appelerLorsque({
       émetteur: bdAccès.events,
       événement: "update",
-      f: async () => await mettreAccèsÀJour(),
+      f: () => queue.add(mettreAccèsÀJour),
     });
 
     // Actualiser avec les accès initiaux
-    await mettreAccèsÀJour();
+    queue.add(mettreAccèsÀJour);
+
+    const àJour = async () => {console.log("à jour ?") ; await queue.onIdle(); await accès.àJour(); console.log("à jour")}
 
     const estAutorisé = async (id: string): Promise<boolean> => {
+      await àJour();
       return await accès.estAutorisé(id);
     };
 
     const estUneModératrice = async (id: string): Promise<boolean> => {
+      await àJour();
       return await accès.estUneModératrice(id);
     };
 
     const estUnMembre = async (id: string): Promise<boolean> => {
+      await àJour();
       return await accès.estUnMembre(id);
     };
 
@@ -196,6 +202,7 @@ const ContrôleurConstellation =
     ): Promise<boolean> => {
       const writerIdentity = await identities.getIdentity(entry.identity);
       if (!writerIdentity) {
+        console.log("ici", entry)
         return false;
       }
 
@@ -203,10 +210,12 @@ const ContrôleurConstellation =
 
       // Pour implémenter la révocation des permissions, garder compte ici
       // des entrées approuvées par utilisatrice
-      return (
+      const x= (
         (await identities.verifyIdentity(writerIdentity)) &&
         (await estAutorisé(id))
       );
+      if (!x) console.log(entry)
+      return x
     };
 
     const autoriser = async (rôle: Rôle, id: string): Promise<void> => {
@@ -255,7 +264,8 @@ const ContrôleurConstellation =
       // await bd.drop();
     };
 
-    const utilisateursAutorisés = (): AccèsUtilisateur[] => {
+    const utilisateursAutorisés = async (): Promise<AccèsUtilisateur[]> => {
+      await àJour();
       return accès.utilisateurs;
     };
 
@@ -265,14 +275,16 @@ const ContrôleurConstellation =
       const oublier = appelerLorsque({
         émetteur: accès.événements,
         événement: "misÀJour",
-        f: async () => await f(utilisateursAutorisés()),
+        f: async () => await f(await utilisateursAutorisés()),
       });
 
-      await f(utilisateursAutorisés());
+      await f(await utilisateursAutorisés());
       return oublier;
     };
 
-    const dispositifsAutorisés = (): AccèsDispositif[] => accès.dispositifs;
+    const dispositifsAutorisés = (): AccèsDispositif[] => {
+      return accès.dispositifs
+    };
 
     const suivreDispositifsAutorisées = async (
       f: Suivi<AccèsDispositif[]>,

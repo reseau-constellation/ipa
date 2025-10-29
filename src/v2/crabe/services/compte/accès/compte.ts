@@ -42,7 +42,7 @@ class AccèsCompte {
 
     const suiviCompte = async () => {
       const tous = await accèsCompte.bd.all();
-      console.log("suivi compte", tous);
+
       // On ne différencie pas entre les membres et les modératrices pour les dispositifs d'un compte
       this.dispositifs = [accèsCompte.écriture, ...tous.map((x) => x.key)];
       this.événements.emit("misÀJour");
@@ -54,6 +54,7 @@ class AccèsCompte {
       f: suiviCompte,
     });
     await suiviCompte();
+    console.log("c mod compte suivi première fois", this.dispositifs)
 
     this.estDémarré = { oublier };
 
@@ -104,6 +105,7 @@ export class AccèsParComptes {
             rôles: new Set([rôle]),
           };
           await accèsCompte.démarrer();
+          console.log("accès compte démarré", accèsCompte.dispositifs)
           this._comptes.set(id, utilisateur);
 
           const oublierUtilisateur = appelerLorsque({
@@ -149,7 +151,7 @@ export class AccèsParComptes {
       })
       .flat()
       .filter((x) => x.rôle) as AccèsDispositif[];
-
+    console.log({dispositifsCompte})
     const dispositifsDirectes = [...this._dispositifs.entries()]
       .map(([idDispositif, rôles]) => {
         return {
@@ -177,6 +179,7 @@ export class AccèsParComptes {
     if (isValidAddress(id)) {
       return !!this._comptes.get(id)?.rôles.has(MODÉRATRICE);
     } else {
+      console.log(this.dispositifs, id)
       return !!this.dispositifs.find(d=>d.idDispositif === id && d.rôle === MODÉRATRICE);
     }
   }
