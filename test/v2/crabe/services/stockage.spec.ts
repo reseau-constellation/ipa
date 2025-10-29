@@ -91,11 +91,8 @@ describe.only("Stockage", function () {
 
   it("exporter", async () => {
     await stockage.sauvegarderItem("a", "texte");
+    
     const exporté = await stockage.exporter();
-    const x = JSON.parse(exporté)
-    console.log("ici", x, typeof x)
-    console.log(Object.keys(x))
-    console.log(Object.keys({ a: "texte" }))
     expect(JSON.parse(exporté)).to.deep.equal({ a: "texte" });
   });
 

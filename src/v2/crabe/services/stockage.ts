@@ -80,8 +80,8 @@ const localStorageDossier = ({ dossier }: { dossier: string }) => {
           };
         case "length":
           return Object.keys(target).filter(clefCorrespond).length;
-        case "tous": {
-          return () => {
+        case "jsonifier": {
+          return (): string => {
             const données = JSON.parse(JSON.stringify(target));
             return JSON.stringify(
               Object.fromEntries(
@@ -146,7 +146,7 @@ export class ServiceStockage extends ServiceNébuleuse<
     if (stockageLocal instanceof StockageLocal) {
       return stockageLocal.jsonifier();
     } else {
-      return JSON.stringify(stockageLocal.tous());
+      return stockageLocal.jsonifier();
     }
   }
 }
