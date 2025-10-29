@@ -474,7 +474,7 @@ describe.only("Service Libp2p", function () {
         if (isNode) {
           expect(adressesÉcouteDomaine).to.not.be.empty();
         } else {
-          expect(adressesÉcouteDomaine).to.be.empty("array");
+          expect(adressesÉcouteDomaine).to.be.undefined();
         }
       });
 
