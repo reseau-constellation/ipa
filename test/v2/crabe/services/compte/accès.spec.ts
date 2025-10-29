@@ -141,7 +141,7 @@ describe.only("Accès", function () {
       const autorisés = await promesseUtilisateurs;
 
       expect(autorisés).to.be.empty();
-      expect(await accès.utilisateursAutorisés()).to.be.empty();
+      expect(accès.utilisateursAutorisés()).to.be.empty();
     });
 
     it("dispositifs autorisés", async () => {

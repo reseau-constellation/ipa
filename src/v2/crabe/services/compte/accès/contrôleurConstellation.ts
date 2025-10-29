@@ -282,7 +282,8 @@ const ContrôleurConstellation =
       return oublier;
     };
 
-    const dispositifsAutorisés = (): AccèsDispositif[] => {
+    const dispositifsAutorisés = async (): Promise<AccèsDispositif[]> => {
+      await àJour();
       return accès.dispositifs
     };
 
@@ -292,9 +293,9 @@ const ContrôleurConstellation =
       const oublier = appelerLorsque({
         émetteur: accès.événements,
         événement: "misÀJour",
-        f: async () => await f(dispositifsAutorisés()),
+        f: async () => await f(await dispositifsAutorisés()),
       });
-      await f(dispositifsAutorisés());
+      await f(await dispositifsAutorisés());
 
       return oublier;
     };
