@@ -339,8 +339,9 @@ export class ServiceCompte<
     if (estContrôleurConstellation(bd.access)) {
       const monCompte = await this.obtIdCompte();
       const accès = bd.access;
-      const rôle = (await accès.utilisateursAutorisés())
-        .find((x) => x.idCompte === monCompte)?.rôle;
+      const rôle = (await accès.utilisateursAutorisés()).find(
+        (x) => x.idCompte === monCompte,
+      )?.rôle;
       await oublier();
       return rôle;
     } else {
