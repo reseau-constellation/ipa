@@ -90,7 +90,7 @@ export class ServiceLibp2p<
 
     if (!isLibp2p(libp2p)) {
       if (typeof this.options.libp2p !== "function")
-        throw new Error("Ça devrait être impossible d'arriver à cette erreur");
+        throw new Error("L'un de `libp2p` (type `Libp2p` ou `() => Libp2p`), `orbite` ou `hélia` doit être fourni dans les options.");
 
       const générateurOptions = this.options.libp2p || obtenirOptionsLibp2p();
 
