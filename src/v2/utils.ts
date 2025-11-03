@@ -4,6 +4,7 @@ import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
 import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
 import { zipper } from "@constl/utils-ipa";
+
 const { saveAs } = fileSaver;
 
 export interface DonnéesFichierBdExportées {

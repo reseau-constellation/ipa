@@ -1,3 +1,4 @@
+import { toUnicode } from "punycode";
 import { DagCborEncodable } from "@orbitdb/core";
 import {
   NestedMapToObject,
@@ -5,7 +6,10 @@ import {
   toObject,
 } from "@orbitdb/nested-db";
 import { AbortError } from "p-retry";
+import { multiaddr } from "@multiformats/multiaddr";
 import { PartielRécursif } from "../types.js";
+import type { Multiaddr } from "@multiformats/multiaddr";
+
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {
   return new Promise<void>((résoudre) => {
@@ -74,4 +78,14 @@ export const mapÀObjet = <
 ): NestedMapToObject<T> | undefined => {
   if (x === undefined) return undefined;
   return toObject(x);
+};
+
+export const dépunicodifier = (ma: Multiaddr): Multiaddr => {
+  const composantes = ma.getComponents();
+  const composantesDépunicodifiées = composantes.map((c) =>
+    c.name.startsWith("dns") && c.value
+      ? { ...c, value: toUnicode(c.value) }
+      : c,
+  );
+  return multiaddr(composantesDépunicodifiées);
 };

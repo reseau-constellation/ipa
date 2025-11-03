@@ -1,6 +1,6 @@
 import { multiaddr } from "@multiformats/multiaddr";
 import { expect } from "aegir/chai";
-import { dépunicodifier } from "@/utils.js";
+import { dépunicodifier } from "@/v2/crabe/utils.js";
 
 describe("utils", function () {
   describe("Dépunycodifier", function () {
