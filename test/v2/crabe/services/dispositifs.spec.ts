@@ -1,5 +1,4 @@
 import { ServicesLibp2pTest, dossierTempo } from "@constl/utils-tests";
-import { obtenir } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import {
@@ -15,7 +14,7 @@ import {
 } from "@/v2/crabe/services/dispositifs.js";
 import { Nébuleuse } from "@/v2/nébuleuse/index.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
-import { dossierTempoPropre } from "../../utils.js";
+import { dossierTempoPropre, obtenir } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";
 
 describe.only("Dispositifs", function () {
@@ -79,7 +78,7 @@ describe.only("Dispositifs", function () {
       await dispositifs.sauvegarderTypeDispositif({ type: "Fairphone" });
 
       const { type } = await obtenir<
-        { nom?: string; type?: string } | undefined
+        { nom?: string; type?: string }
       >(({ si }) =>
         dispositifs.suivreInfoDispositif({
           f: si((x) => !!x?.type),

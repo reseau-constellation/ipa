@@ -9,6 +9,7 @@ import { Crabe, ServicesCrabe, StructureCrabe } from "@/v2/crabe/crabe.js";
 import {
   ConstructeursServicesNébuleuse,
   OptionsNébuleuse,
+  ServiceNébuleuse,
   ServicesNébuleuse,
 } from "@/v2/nébuleuse/nébuleuse.js";
 import { ServicesDonnées } from "@/v2/crabe/services/compte/compte.js";
@@ -16,6 +17,12 @@ import { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
 import { dossierTempoPropre } from "../utils.js";
 import { ServiceLibp2pTest } from "./services/utils.js";
 import type { Oublier } from "@/v2/crabe/types.js";
+
+export type ConstructeurServicesCrabe<
+  T extends ServicesNébuleuse,
+  A extends ServicesNébuleuse = {
+  [clef: string]: ServiceNébuleuse<typeof clef>;
+}> = ConstructeursServicesNébuleuse<T, A & ServicesCrabe>
 
 export class CrabeTest<
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,

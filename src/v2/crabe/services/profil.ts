@@ -117,8 +117,11 @@ export class ServiceProfil<
   }
 
   async initialiser(): Promise<void> {
+    console.log("ici, 0")
     const bd = await this.bd();
+    console.log("ici, 1")
     await bd.set("initialisé", true);
+    console.log("ici, 2")
 
     const dispositifs = this.service("dispositifs");
     await dispositifs.sauvegarderTypeDispositif();
@@ -133,7 +136,7 @@ export class ServiceProfil<
   }): Promise<Oublier> {
     return await this.suivreBd({
       idCompte,
-      f: async (profil) => await f(profil?.initialisé),
+      f: async (profil) => await f(!!profil?.initialisé),
     });
   }
 

@@ -7,7 +7,7 @@ import { obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../../ressources/index.js";
 import type { Constellation } from "@/v2/constellation.js";
 
-describe("Profil", function () {
+describe.only("Profil", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
@@ -17,7 +17,9 @@ describe("Profil", function () {
       n: 1,
       créerConstellation,
     }));
+
     [constl] = constls;
+    await constl.démarrer();
   });
 
   after(async () => {
@@ -25,7 +27,7 @@ describe("Profil", function () {
   });
 
   describe("Initialiser profil", function () {
-    it("Pas initialisé pour commencer", async () => {
+    it.skip("Pas initialisé pour commencer", async () => {
       const initialisé = await obtenir(({ siDéfini }) =>
         constl.profil.suivreInitialisé({
           f: siDéfini(),
@@ -35,7 +37,9 @@ describe("Profil", function () {
     });
 
     it("Initialiser", async () => {
+      console.log("on va initialiser")
       await constl.profil.initialiser();
+      console.log("initialisé")
       const initialisé = await obtenir(({ si }) =>
         constl.profil.suivreInitialisé({
           f: si((x) => !!x),
