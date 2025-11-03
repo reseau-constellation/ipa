@@ -7,7 +7,7 @@ export type OptionsServiceJournal = {
 };
 
 export class ServiceJournal extends ServiceNébuleuse<
-  "stockage",
+  "journal",
   { journal: ServiceJournal },
   { f: (m: string) => Promise<void> | void },
   OptionsServiceJournal
@@ -22,7 +22,7 @@ export class ServiceJournal extends ServiceNébuleuse<
     options?: OptionsServiceJournal;
   }) {
     super({
-      clef: "stockage",
+      clef: "journal",
       nébuleuse,
       options: options || { f: console.log },
     });
