@@ -1,5 +1,5 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
-import { BaseDatabase, OrbitDB } from "@orbitdb/core";
+import { BaseDatabase, OrbitDB, isValidAddress } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceMap } from "@libp2p/interface";
 
@@ -7,36 +7,43 @@ import { ServiceMap } from "@libp2p/interface";
 
 // Ceci doit être commun pour que les contrôleurs d'accès puissent aussi envelopper leur instance d'Orbite
 const verrous = new Map<string, Semaphore>();
+const requêtes = new Map<string, Map<string, Set<string>>>();
+const cacheBds = new Map<string, Map<string, BaseDatabase>>();
 
 export const ORIGINALE = Symbol("orbite originale");
 
 export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   orbite: OrbitDB<L>,
 ) => {
-  if (!verrous.has(orbite.id)) verrous.set(orbite.id, new Semaphore());
-  const verrouOuverture = verrous.get(orbite.id);
+  if (!verrous.has(orbite.identity.id)) verrous.set(orbite.identity.id, new Semaphore());
+  const verrouOrbite = verrous.get(orbite.identity.id);
 
-  const requêtes = new Map<string, Set<string>>();
-  const cacheBds = new Map<string, BaseDatabase>();
+  if (!requêtes.has(orbite.identity.id)) requêtes.set(orbite.identity.id, new Map());
+  const requêtesOrbite = requêtes.get(orbite.identity.id)!;
+  
+  if (!cacheBds.has(orbite.identity.id)) cacheBds.set(orbite.identity.id, new Map());
+  const cacheBdsOrbite = cacheBds.get(orbite.identity.id)!;
 
   return new Proxy(orbite, {
     get(target, prop) {
       if (prop === "open") {
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
-          const adresse = args[0];
+          const nomOuAdresse = args[0];
 
-          await verrouOuverture.acquire(adresse);
+          await verrouOrbite.acquire(nomOuAdresse);
 
           try {
-            if (!requêtes.has(adresse)) requêtes.set(adresse, new Set());
+            const bd = cacheBdsOrbite.get(nomOuAdresse) || (await target.open(...args));
+            const adresse = bd.address;
 
-            const bd = cacheBds.get(adresse) || (await target.open(...args));
-            const résultat = mandatBd(bd, requêtes.get(adresse)!, cacheBds, verrouOuverture);
-            cacheBds.set(adresse, bd);
-            verrouOuverture.release(adresse);
+            if (!requêtesOrbite.has(adresse)) requêtesOrbite.set(adresse, new Set());
+            const résultat = mandatBd(bd, requêtesOrbite.get(adresse)!, cacheBdsOrbite, verrouOrbite);
+            cacheBdsOrbite.set(adresse, bd);
+
+            verrouOrbite.release(nomOuAdresse);
             return résultat;
           } finally {
-            verrouOuverture.release(adresse);
+            verrouOrbite.release(nomOuAdresse);
           }
         };
         return ouvrirAvecVerrou;

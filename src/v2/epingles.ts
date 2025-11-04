@@ -8,14 +8,27 @@ import { Oublier } from "./crabe/types.js";
 import { ServicesNécessairesOrbite } from "./crabe/services/orbite/orbite.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 
+export const diviserIdcEtFichier = (val: string) => {
+  const premièreBarreOblique = val.indexOf("/");
+  // eslint-disable-next-line no-irregular-whitespace
+  if (premièreBarreOblique === -1) throw new Error(`Chemin IDC et fichier non valide : ${val}`);
+
+  const idc = val.slice(0, premièreBarreOblique);
+  const fichier = val.slice(premièreBarreOblique+1);
+
+  return { idc, fichier };
+}
+
 export const idcEtFichierValide = (val: string) => {
   let idc: string;
   let fichier: string;
+  
   try {
-    [idc, fichier] = val.split("/", 1);
+    ({ idc, fichier } = diviserIdcEtFichier(val));
   } catch {
     return false;
   }
+
   if (!fichier) return false;
   if (!idcValide(idc)) return false;
   return { idc, fichier };
@@ -55,30 +68,33 @@ export class Épingles<
     idRequête: string;
     épingles: Set<string>;
   }) {
-    if (this.signaleurArrêt.signal.aborted) return;
     this.requêtes.set(idRequête, épingles);
+    
     this.queue.add(async () => await this.mettreÀJour());
   }
 
   async désépingler({ idRequête }: { idRequête: string }) {
-    if (this.signaleurArrêt.signal.aborted) return;
     this.requêtes.delete(idRequête);
-
     this.queue.add(async () => await this.mettreÀJour());
   }
 
-  estÉpinglé({ id }: { id: string }): boolean {
+  async estÉpinglé({ id }: { id: string }): Promise<boolean> {
+    // Enlever le fichier s'il s'agit d'un CID avec fichier
+    const idcEtFichier = idcEtFichierValide(id)
+    if (idcEtFichier) id = idcEtFichier.idc;
+ 
     return this.bdsOuvertes.has(id) || this.idcsÉpinglés.has(id);
   }
 
   private async mettreÀJour() {
-    const àÉpingler = new Set(...this.requêtes.values());
+    if (this.signaleurArrêt.signal.aborted) return;
+
+    const àÉpingler = new Set([...this.requêtes.values()].map(x=>[...x]).flat());
     const bdsOrbiteÀÉpingler = [...àÉpingler].filter(
       (id) => id && adresseOrbiteValide(id),
     );
 
     const idcsÀÉpingler = [...àÉpingler]
-      .filter((id) => !bdsOrbiteÀÉpingler.includes(id))
       .map((id) => {
         const cidAvecFichier = idcEtFichierValide(id);
         if (cidAvecFichier) return cidAvecFichier.idc;
@@ -98,12 +114,13 @@ export class Épingles<
     const idcsÀDésépingler = [...this.idcsÉpinglés].filter(
       (id) => !idcsÀÉpingler.includes(id),
     );
-    this.idcsÉpinglés = new Set(idcsÀÉpingler);
+    
     for (const idc of idcsÀDésépingler) {
       await drain(
         hélia.pins.rm(CID.parse(idc), { signal: this.signaleurArrêt.signal }),
       );
     }
+    this.idcsÉpinglés = new Set(idcsÀÉpingler);
 
     const orbite = this.service("orbite");
     await Promise.allSettled(
@@ -120,7 +137,7 @@ export class Épingles<
         }
       }),
     );
-    const bdsOrbiteÀDésépingler = Object.keys(this.bdsOuvertes).filter(
+    const bdsOrbiteÀDésépingler = [...this.bdsOuvertes.keys()].filter(
       (id) => !bdsOrbiteÀÉpingler.includes(id),
     );
     for (const idBd of bdsOrbiteÀDésépingler) {
@@ -134,7 +151,7 @@ export class Épingles<
     await this.queue.onIdle();
 
     await Promise.allSettled(
-      Object.values(this.bdsOuvertes).map(({ oublier }) => oublier()),
+      [...this.bdsOuvertes.values()].map(async ({ bd, oublier }) => await oublier()),
     );
 
     await super.fermer();
