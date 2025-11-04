@@ -26,6 +26,10 @@ export const estUnePromesse = (x: unknown): x is Promise<void> => {
   return !!x && !!(x as Promise<void>).then && !!(x as Promise<void>).finally;
 };
 
+export const nulÀObjetVide = <T>(f: Suivi<T | Record<string, never>>): Suivi<T | null> => {
+  return (x: T | null) => f(x === null ? {} : x)
+}
+
 export const appelerLorsque = <
   L extends ListenerSignature<L>,
   U extends keyof L,
