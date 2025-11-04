@@ -89,8 +89,10 @@ export class ServiceLibp2p<
     let libp2p = extraireLibp2pDesOptions<L>(this.nébuleuse.options);
 
     if (!isLibp2p(libp2p)) {
-      if (typeof this.options.libp2p !== "function")
-        throw new Error("L'un de `libp2p` (type `Libp2p` ou `() => Libp2p`), `orbite` ou `hélia` doit être fourni dans les options.");
+      if (this.options.libp2p !== undefined && typeof this.options.libp2p !== "function")
+        throw new Error(
+          "L'option `libp2p` doit être une fonction qui génère la configuration libp2p.",
+        );
 
       const générateurOptions = this.options.libp2p || obtenirOptionsLibp2p();
 
