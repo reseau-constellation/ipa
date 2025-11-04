@@ -31,7 +31,7 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
             if (!requêtes.has(adresse)) requêtes.set(adresse, new Set());
 
             const bd = cacheBds.get(adresse) || (await target.open(...args));
-            const résultat = mandatBd(bd, requêtes.get(adresse)!, cacheBds);
+            const résultat = mandatBd(bd, requêtes.get(adresse)!, cacheBds, verrouOuverture);
             cacheBds.set(adresse, bd);
             verrouOuverture.release(adresse);
             return résultat;
@@ -52,6 +52,7 @@ const mandatBd = (
   bd: BaseDatabase,
   requêtes: Set<string>,
   cache: Map<string, BaseDatabase>,
+  verrou: Semaphore
 ) => {
   const id = uuidv4();
   requêtes.add(id);
@@ -62,10 +63,18 @@ const mandatBd = (
 
       if (prop === "close") {
         const fermer: BaseDatabase["close"] = async () => {
-          requêtes.delete(id);
-          if (!requêtes.size) {
-            cache.delete(target.address);
-            return await target.close();
+          
+          await verrou.acquire(bd.address);
+
+          try {
+            requêtes.delete(id);
+
+            if (!requêtes.size) {
+              cache.delete(target.address);
+              await target.close();
+            }
+          } finally {
+            verrou.release(bd.address)
           }
         };
         return fermer;
