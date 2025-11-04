@@ -89,6 +89,7 @@ export class EnveloppeCrabe<T extends Crabe> {
 
     try {
       this.crabe = await this.créerCrabe();
+      await this.crabe.démarrer();
     } catch (e) {
       this.erreurInitialisation = e;
       this.fErreur({
