@@ -21,8 +21,9 @@ import type { Oublier } from "@/v2/crabe/types.js";
 export type ConstructeurServicesCrabe<
   T extends ServicesNébuleuse,
   A extends ServicesNébuleuse = {
-  [clef: string]: ServiceNébuleuse<typeof clef>;
-}> = ConstructeursServicesNébuleuse<T, A & ServicesCrabe>
+    [clef: string]: ServiceNébuleuse<typeof clef>;
+  },
+> = ConstructeursServicesNébuleuse<T, A & ServicesCrabe>;
 
 export class CrabeTest<
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,
@@ -96,13 +97,7 @@ export const créerCrabesTest = async <
   await connecterCrabes(crabes);
 
   const fermer = async () => {
-    // à faire : await Promise.all(crabes.map((c) => c.fermer())) reste aussi coincée si les différentes instances
-    // ont souscrit à la même base de données
-    for (const crabe of crabes) {
-      console.log(`On ferme ${await crabe.compte.obtIdLibp2p()}`);
-      await crabe.fermer();
-    }
-    console.log("tous fermés");
+    await Promise.allSettled(crabes.map((c) => c.fermer()))
     effacer();
   };
 
