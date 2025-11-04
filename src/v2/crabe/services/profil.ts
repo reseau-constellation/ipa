@@ -15,6 +15,7 @@ import { ServiceDonnéesNébuleuse } from "./services.js";
 import { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import { ServicesNécessairesCompte } from "./compte/compte.js";
 import { ServiceDispositifs } from "./dispositifs.js";
+import { nulÀObjetVide } from "./utils.js";
 
 // Types épingle
 
@@ -117,11 +118,8 @@ export class ServiceProfil<
   }
 
   async initialiser(): Promise<void> {
-    console.log("ici, 0")
     const bd = await this.bd();
-    console.log("ici, 1")
     await bd.set("initialisé", true);
-    console.log("ici, 2")
 
     const dispositifs = this.service("dispositifs");
     await dispositifs.sauvegarderTypeDispositif();
@@ -152,7 +150,7 @@ export class ServiceProfil<
     return await this.suivreBd({
       idCompte,
       clef: "noms",
-      f,
+      f: nulÀObjetVide(f),
     });
   }
 
@@ -212,7 +210,7 @@ export class ServiceProfil<
     return await this.suivreBd({
       idCompte,
       clef: "bios",
-      f,
+      f: nulÀObjetVide(f),
     });
   }
 
@@ -318,7 +316,7 @@ export class ServiceProfil<
                 contact,
                 type,
               }))
-            : undefined,
+            : [],
         ),
     });
   }
