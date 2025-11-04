@@ -177,8 +177,9 @@ describe.only("Crabe", function () {
       await crabes[1].compte.rejoindreCompte({
         idCompte: await crabes[0].compte.obtIdCompte(),
       });
+      
       // À faire : Pour une drôle de raison, il faut modifier la BD avant qu'elle ne s'actualise...
-      // await crabes[0].profil.effacerNom({ langue: "de" });
+      await crabes[0].profil.effacerNom({ langue: "de" });
 
       const nouvelId = await promesseIdCompte;
       expect(nouvelId).to.equal(await crabes[0].compte.obtIdCompte());
