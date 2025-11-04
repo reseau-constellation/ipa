@@ -177,7 +177,7 @@ export class ServiceDonnéesNébuleuse<
       | (T extends ExtractKeys<Structure>
           ? GetValueFromKey<Structure, T>
           : PartielRécursif<Structure>)
-      | undefined
+      | null | undefined
     >;
     clef?: T;
     idCompte?: string;
@@ -193,7 +193,10 @@ export class ServiceDonnéesNébuleuse<
           clef ? joinKey([this.clef, ...splitKey(clef)]) : this.clef,
         )) {
           données = données[k];
-          if (données === undefined) break;
+          if (données === undefined) {
+            données = null;
+            break;
+          }
         }
         await f(données);
       },
