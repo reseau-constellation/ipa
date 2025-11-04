@@ -332,17 +332,7 @@ describe.only("Service Compte", function () {
     before(async () => {
       ({ crabes, fermer } = await créerCrabesTest({
         n: 2,
-        services: {
-          journal: ServiceJournal,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia<ServicesLibp2pTest>,
-          orbite: ServiceOrbite<ServicesLibp2pTest>,
-          compte: ServiceCompte<
-            NestedObjectToMap<NestedValueObject>,
-            ServicesLibp2pTest
-          >,
-        },
+        services: { },
       }));
       comptes = crabes.map((n) => n.services["compte"]);
 
