@@ -1,9 +1,7 @@
-import { créerConstellationsTest } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "@/v2/crabe/services/consts.js";
 import { TraducsTexte } from "@/v2/types.js";
-import { créerConstellation } from "@/v2/index.js";
-import { obtenir } from "../../utils.js";
+import { créerConstellationsTest, obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../../ressources/index.js";
 import type { Constellation } from "@/v2/constellation.js";
 
@@ -15,7 +13,6 @@ describe.only("Profil", function () {
   before(async () => {
     ({ fermer, constls } = await créerConstellationsTest({
       n: 1,
-      créerConstellation,
     }));
 
     [constl] = constls;
@@ -27,7 +24,8 @@ describe.only("Profil", function () {
   });
 
   describe("Initialiser profil", function () {
-    it.skip("Pas initialisé pour commencer", async () => {
+
+    it("Pas initialisé pour commencer", async () => {
       const initialisé = await obtenir(({ siDéfini }) =>
         constl.profil.suivreInitialisé({
           f: siDéfini(),
@@ -37,9 +35,7 @@ describe.only("Profil", function () {
     });
 
     it("Initialiser", async () => {
-      console.log("on va initialiser")
       await constl.profil.initialiser();
-      console.log("initialisé")
       const initialisé = await obtenir(({ si }) =>
         constl.profil.suivreInitialisé({
           f: si((x) => !!x),
@@ -145,7 +141,7 @@ describe.only("Profil", function () {
   describe("Bios", function () {
     it("Pas de bios pour commencer", async () => {
       const bios = await obtenir<TraducsTexte>(({ siDéfini }) =>
-        constl.profil.suivreNoms({
+        constl.profil.suivreBios({
           f: siDéfini(),
         }),
       );
@@ -158,7 +154,7 @@ describe.only("Profil", function () {
         bio: "Julien Malard-Adam",
       });
       const bios: TraducsTexte = await obtenir(({ siPasVide }) =>
-        constl.profil.suivreNoms({
+        constl.profil.suivreBios({
           f: siPasVide(),
         }),
       );
@@ -169,7 +165,7 @@ describe.only("Profil", function () {
         bio: "अहाँ सिखैत रहू।",
       });
       const biosModifiées: TraducsTexte = await obtenir(({ si }) =>
-        constl.profil.suivreNoms({
+        constl.profil.suivreBios({
           f: si((x) => !!x && Object.keys(x).length > 1),
         }),
       );
@@ -182,21 +178,21 @@ describe.only("Profil", function () {
         bio: "अहाँ सिखैत रहू",
       });
       const bios: TraducsTexte = await obtenir(({ si }) =>
-        constl.profil.suivreNoms({
+        constl.profil.suivreBios({
           f: si((x) => !!x && x.मै !== "अहाँ सिखैत रहू।"),
         }),
       );
       expect(bios.मै).to.equal("अहाँ सिखैत रहू");
     });
 
-    it("Effacer un bio", async () => {
+    it("Effacer une bio", async () => {
       await constl.profil.effacerBio({ langue: "fr" });
       const bios = await obtenir<TraducsTexte>(({ si }) =>
-        constl.profil.suivreNoms({
+        constl.profil.suivreBios({
           f: si((x) => !!x && Object.keys(x).length <= 1),
         }),
       );
-      expect(bios).to.deep.equal({ मै: "अहाँ सिखैत रहू।" });
+      expect(bios).to.deep.equal({ मै: "अहाँ सिखैत रहू" });
     });
   });
 

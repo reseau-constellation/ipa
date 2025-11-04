@@ -1,3 +1,4 @@
+import path from "path";
 import { BaseDatabase, KeyValueDatabase } from "@orbitdb/core";
 import { SetDatabaseType } from "@orbitdb/set-db";
 import { FeedDatabaseType } from "@orbitdb/feed-db";
@@ -9,16 +10,20 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
 import { estContrôleurConstellation } from "@/v2/crabe/services/compte/accès/contrôleurConstellation.js";
 import { Oublier } from "@/v2/crabe/types.js";
+import { Constellation, créerConstellation } from "@/v2/index.js";
 import { attendreQue } from "./nébuleuse/utils/fonctions.js";
+import { connecterCrabes } from "./crabe/utils.js";
+import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
+
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,
   étiquette?: string,
 ): T => {
-  return (...args) => {
+  return ((...args) => {
     console.log(étiquette || "", args);
     return f(...args);
-  };
+  } )as T;
 };
 
 export const attendreInvité = async (
@@ -156,4 +161,41 @@ export const obtenir = async <T>(
   after(async () => await fOublier());
 
   return promesse;
+};
+
+export const créerConstellationsTest = async ({
+  n,
+}: {
+  n: number;
+}): Promise<{
+  constls: Constellation[];
+  fermer: Oublier;
+}> => {
+  const { dossier, effacer } = await dossierTempoPropre();
+
+  const constls: Constellation[] = [];
+
+  for (const i in [...Array(n).entries()]) {
+    const constl = créerConstellation({
+      dossier: path.join(dossier, i),
+      services: {
+        libp2p: {
+          libp2p: obtenirOptionsLibp2pTest()
+        } 
+      }
+    });
+    constls.push(constl);
+  }
+
+  await connecterCrabes(constls);
+
+  const fermer = async () => {
+    await Promise.allSettled(constls.map((c) => c.fermer()));
+    effacer();
+  };
+
+  return {
+    constls,
+    fermer,
+  };
 };
