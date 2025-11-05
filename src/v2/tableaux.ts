@@ -182,10 +182,16 @@ export class Tableaux<
     idStructure: string;
   }): Promise<string> {
     const compte = this.service("compte");
-    const optionsAccès = { écriture: idStructure };
+    const orbite = this.service("orbite");
+
+    const { bd: bdStructure, oublier: oublierStructure } = await orbite.ouvrirBd({ id: idStructure });
+    const adresseAccèsStructure = bdStructure.access.address;
+    await oublierStructure();
+
+    const optionsAccès = { écriture: adresseAccèsStructure };
 
     const { bd, oublier: oublierBd } = await compte.créerObjet({
-      type: "keyvalue",
+      type: "nested",
       optionsAccès,
     });
     const idTableau = bd.address;
