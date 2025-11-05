@@ -3,8 +3,7 @@ import { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
 
 export const schémaTraducsTexte: JSONSchemaType<
   PartielRécursif<TraducsTexte>
-> & { $ref: string } = {
-  $ref: "traducs-texts",
+> & { nullable: true } = {
   type: "object",
   additionalProperties: {
     type: "string",
@@ -15,8 +14,7 @@ export const schémaTraducsTexte: JSONSchemaType<
 
 export const schémaStatutDonnées: JSONSchemaType<
   PartielRécursif<StatutDonnées>
-> & { $ref: string } = {
-  $ref: "statut-données",
+> & { nullable: true } = {
   type: "object",
   properties: {
     statut: { type: "string", nullable: true },
