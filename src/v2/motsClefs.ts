@@ -16,6 +16,7 @@ import {
 } from "./favoris.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { schémaTraducsTexte } from "./schémas.js";
+import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 
 // Types structure
 
@@ -33,10 +34,7 @@ export const schémaServiceMotsClefs: JSONSchemaType<
   PartielRécursif<StructureServiceMotsClefs>
 > = {
   type: "object",
-  additionalProperties: {
-    type: "null",
-    nullable: true,
-  },
+  additionalProperties: true,
   required: [],
 };
 
@@ -60,14 +58,14 @@ export type ÉpingleMotClef = BaseÉpingleFavoris & {
 export class MotsClefs<
   L extends ServicesLibp2pCrabe,
 > extends ServiceDonnéesNébuleuse<
-  "motClef",
+  "motsClefs",
   StructureServiceMotsClefs,
   L,
   ServicesConstellation
 > {
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
-      clef: "motClef",
+      clef: "motsClefs",
       nébuleuse,
       dépendances: ["compte", "orbite"],
       options: {
@@ -87,7 +85,7 @@ export class MotsClefs<
     return await this.suivreBd({
       idCompte,
       f: async (motsClefs) =>
-        await f(motsClefs ? Object.keys(motsClefs) : undefined),
+        await f((motsClefs ? Object.keys(motsClefs) : []).map(m=>ajouterProtocoleOrbite(m))),
     });
   }
 
@@ -134,8 +132,11 @@ export class MotsClefs<
   async effacerMotClef({ idMotClef }: { idMotClef: string }): Promise<void> {
     // Effacer l'entrée dans notre liste de mots-clefs
     await this.enleverDeMesMotsClefs({ idMotClef });
-    await this.service("favoris").désépinglerFavori({ idObjet: idMotClef });
 
+    // On court-circuite `this.service("favoris")`
+    const favoris = this.nébuleuse.services["favoris"];
+    await favoris.désépinglerFavori({ idObjet: idMotClef });
+    
     // Effacer le mot-clef lui-même
     await this.service("orbite").effacerBd({ id: idMotClef });
   }
@@ -146,7 +147,7 @@ export class MotsClefs<
     idMotClef: string;
   }): Promise<void> {
     const bd = await this.bd();
-    await bd.put(idMotClef, null);
+    await bd.put(extraireEmpreinte(idMotClef), null);
   }
 
   async enleverDeMesMotsClefs({
@@ -155,7 +156,7 @@ export class MotsClefs<
     idMotClef: string;
   }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(idMotClef);
+    await bd.del(extraireEmpreinte(idMotClef));
   }
 
   async ouvrirMotClef({
@@ -201,6 +202,7 @@ export class MotsClefs<
       type: "mot-clef",
       base: TOUS_DISPOSITIFS,
     });
+
     // On court-circuite `this.service("favoris")`
     const favoris = this.nébuleuse.services["favoris"];
     await favoris.épinglerFavori({ idObjet: idMotClef, épingle });
@@ -222,7 +224,7 @@ export class MotsClefs<
       idObjet: idMotClef,
       f: async (épingle) => {
         await f(
-          épingle?.type === "motClef"
+          épingle?.type === "mot-clef"
             ? (épingle as PartielRécursif<ÉpingleMotClef>)
             : undefined,
         );
@@ -323,7 +325,7 @@ export class MotsClefs<
       id: idMotClef,
       type: "nested",
       schéma: schémaMotClef,
-      f: (motClef) => f(toObject(motClef).noms),
+      f: (motClef) => f(toObject(motClef).noms || {}),
     });
   }
 
@@ -359,7 +361,7 @@ export class MotsClefs<
     const { motClef, oublier } = await this.ouvrirMotClef({
       idMotClef,
     });
-    await motClef.set(`noms/${langue}`, description);
+    await motClef.set(`descriptions/${langue}`, description);
     await oublier();
   }
 
@@ -374,7 +376,7 @@ export class MotsClefs<
     const { motClef, oublier } = await this.ouvrirMotClef({
       idMotClef,
     });
-    await motClef.del(`noms/${langue}`);
+    await motClef.del(`descriptions/${langue}`);
     await oublier();
   }
 
@@ -390,7 +392,7 @@ export class MotsClefs<
       id: idMotClef,
       type: "nested",
       schéma: schémaMotClef,
-      f: (motClef) => f(toObject(motClef).noms),
+      f: (motClef) => f(toObject(motClef).descriptions || {}),
     });
   }
 
