@@ -9,6 +9,7 @@ import { Constellation, ServicesConstellation } from "./constellation.js";
 import { Oublier, Suivi } from "./crabe/types.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { ÉpingleMotClef } from "./motsClefs.js";
+import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 
 // Types épingles
 
@@ -115,7 +116,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     super({
       clef: "favoris",
       nébuleuse,
-      dépendances: ["compte", "épingles", "bds"],
+      dépendances: ["compte", "épingles", "bds", "motsClefs"],
       options: {
         schéma: SchémaServiceFavoris,
       },
@@ -159,10 +160,12 @@ export class Favoris extends ServiceDonnéesNébuleuse<
       fSuivreBranche: Suivi<Set<string>>;
       branche: PartielRécursif<ÉpingleFavorisAvecId>;
     }) => {
-      return await this.suivreRésolutionÉpingle({
-        épingle: branche,
-        f: fSuivreBranche,
-      });
+      if (branche.idObjet && branche.épingle?.type)
+        return await this.suivreRésolutionÉpingle({
+          épingle: branche,
+          f: fSuivreBranche,
+        });
+      return faisRien
     };
     const fIdDeBranche = (b: PartielRécursif<ÉpingleFavorisAvecId>) =>
       b.idObjet;
@@ -207,7 +210,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
       ceDispositif,
     });
     switch (épingleBooléennisée.type) {
-      case "motClef":
+      case "mot-clef":
         return await this.service("motsClefs").suivreRésolutionÉpingle({
           épingle: {
             idObjet: épingle.idObjet,
@@ -243,7 +246,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
         });
 
       default:
-        throw new Error(String(épingle));
+        throw new Error(JSON.stringify(épingle, undefined, 2));
     }
   }
 
@@ -258,13 +261,13 @@ export class Favoris extends ServiceDonnéesNébuleuse<
   }): Promise<void> {
     const bd = await this.bd();
 
-    const existant = await bd.get(idObjet);
-    if (!deepEqual(existant, épingle)) await bd.put(idObjet, épingle);
+    const existant = await bd.get(extraireEmpreinte(idObjet));
+    if (!deepEqual(existant, épingle)) await bd.put(extraireEmpreinte(idObjet), épingle);
   }
 
   async désépinglerFavori({ idObjet }: { idObjet: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(idObjet);
+    await bd.del(extraireEmpreinte(idObjet));
   }
 
   @cacheSuivi
@@ -279,10 +282,11 @@ export class Favoris extends ServiceDonnéesNébuleuse<
       favoris?: PartielRécursif<{ [key: string]: BaseÉpingleFavoris }>,
     ) => {
       if (!favoris) return await f(undefined);
+
       const favorisFinaux = Object.entries(favoris).map(
-        ([idObjet, épingle]) => {
+        ([empreinte, épingle]) => {
           return {
-            idObjet,
+            idObjet: ajouterProtocoleOrbite(empreinte),
             épingle,
           };
         },
@@ -306,8 +310,9 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     f: Suivi<PartielRécursif<BaseÉpingleFavoris> | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
+    const empreinte = extraireEmpreinte(idObjet);
     return await this.suivreBd({
-      f: (favoris) => f(favoris ? favoris[idObjet] : undefined),
+      f: (favoris) => f(favoris ? favoris[empreinte] : undefined),
       idCompte,
     });
   }
