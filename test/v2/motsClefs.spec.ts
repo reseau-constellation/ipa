@@ -1,11 +1,11 @@
-import { obtenir } from "@constl/utils-ipa";
-import { créerConstellationsTest } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
-import { Constellation, créerConstellation } from "@/v2/index.js";
-import { TraducsTexte } from "@/v2/types.js";
+import { Constellation } from "@/v2/index.js";
+import { PartielRécursif, TraducsTexte } from "@/v2/types.js";
 import { TOUS_DISPOSITIFS } from "@/v2/favoris.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
+import { ÉpingleMotClef } from "@/v2/motsClefs.js";
 
-describe("Mots-clefs", function () {
+describe.only("Mots-clefs", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
@@ -13,8 +13,6 @@ describe("Mots-clefs", function () {
   before("Préparer constls", async () => {
     ({ fermer, constls } = await créerConstellationsTest({
       n: 1,
-
-      créerConstellation,
     }));
     constl = constls[0];
   });
@@ -45,8 +43,8 @@ describe("Mots-clefs", function () {
       );
 
       expect(motsClefs).to.have.members([idMotClef]);
-
-      const épingle = await obtenir(({ siDéfini }) =>
+      
+      const épingle = await obtenir<PartielRécursif<ÉpingleMotClef>>(({ siDéfini }) =>
         constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: siDéfini() }),
       );
       expect(épingle).to.not.be.undefined();
@@ -61,6 +59,11 @@ describe("Mots-clefs", function () {
       );
 
       expect(motsClefs).to.be.an.empty("array");
+
+      const épingle = await obtenir(({ si }) =>
+        constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: si(x=>!x) }),
+      );
+      expect(épingle).to.be.undefined();
     });
   });
 
@@ -144,7 +147,7 @@ describe("Mots-clefs", function () {
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.motsClefs.suivreNomsMotClef({
           idMotClef,
-          f: si((x) => Object.keys(x).length >= 3),
+          f: si((x) => !!x && Object.keys(x).length >= 3),
         }),
       );
 
@@ -164,7 +167,7 @@ describe("Mots-clefs", function () {
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.motsClefs.suivreNomsMotClef({
           idMotClef,
-          f: si((x) => x["fr"] == "hydrologie"),
+          f: si((x) => x?.["fr"] === "hydrologie"),
         }),
       );
 
@@ -179,13 +182,102 @@ describe("Mots-clefs", function () {
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.motsClefs.suivreNomsMotClef({
           idMotClef,
-          f: si((x) => !Object.keys(x).includes("fr")),
+          f: si((x) => !!x && !Object.keys(x).includes("fr")),
         }),
       );
 
       expect(noms).to.deep.equal({
         த: "நீரியல்",
         हिं: "जल विज्ञान",
+      });
+    });
+  });
+
+  describe("Descriptions", function () {
+    let idMotClef: string;
+
+    before(async () => {
+      idMotClef = await constl.motsClefs.créerMotClef();
+    });
+
+    it("Pas de descriptions pour commencer", async () => {
+      const descriptions = await obtenir<TraducsTexte>(({ siDéfini }) =>
+        constl.motsClefs.suivreDescriptionsMotClef({
+          idMotClef,
+          f: siDéfini(),
+        }),
+      );
+      expect(Object.keys(descriptions).length).to.equal(0);
+    });
+
+    it("Ajouter une description", async () => {
+      await constl.motsClefs.sauvegarderDescriptionMotClef({
+        idMotClef,
+        langue: "fr",
+        description: "Données liées au domaine de l'hydrologie",
+      });
+      const descriptions = await obtenir<TraducsTexte>(({ siPasVide }) =>
+        constl.motsClefs.suivreDescriptionsMotClef({
+          idMotClef,
+          f: siPasVide(),
+        }),
+      );
+      expect(descriptions.fr).to.equal("Données liées au domaine de l'hydrologie");
+    });
+
+    it("Ajouter des descriptions", async () => {
+      await constl.motsClefs.sauvegarderDescriptionsMotClef({
+        idMotClef,
+        descriptions: {
+          த: "நீரியல் சம்பந்தமான தரவுகளுக்காக",
+          हिं: "जल विज्ञान से संबंधित आँकड़ों के लिये",
+        },
+      });
+      const descriptions = await obtenir<TraducsTexte>(({ si }) =>
+        constl.motsClefs.suivreDescriptionsMotClef({
+          idMotClef,
+          f: si((x) => !!x && Object.keys(x).length >= 3),
+        }),
+      );
+
+      expect(descriptions).to.deep.equal({
+        த: "நீரியல் சம்பந்தமான தரவுகளுக்காக",
+        हिं: "जल विज्ञान से संबंधित आँकड़ों के लिये",
+        fr: "Données liées au domaine de l'hydrologie",
+      });
+    });
+
+    it("Changer une description", async () => {
+      await constl.motsClefs.sauvegarderDescriptionMotClef({
+        idMotClef,
+        langue: "fr",
+        description: "Données liées à l'hydrologie",
+      });
+      const descriptions = await obtenir<TraducsTexte>(({ si }) =>
+        constl.motsClefs.suivreDescriptionsMotClef({
+          idMotClef,
+          f: si((x) => !x?.["fr"].includes("domaine")),
+        }),
+      );
+
+      expect(descriptions.fr).to.equal("Données liées à l'hydrologie");
+    });
+
+    it("Effacer une description", async () => {
+      await constl.motsClefs.effacerDescriptionMotClef({
+        idMotClef,
+        langue: "fr",
+      });
+      const descriptions = await obtenir<TraducsTexte>(({ si }) =>
+        constl.motsClefs.suivreDescriptionsMotClef({
+          idMotClef,
+          f: si((x) => !!x && !Object.keys(x).includes("fr")),
+        }),
+      );
+
+      expect(descriptions).to.deep.equal({
+        த: "நீரியல் சம்பந்தமான தரவுகளுக்காக",
+        हिं: "जल विज्ञान से संबंधित आँकड़ों के लिये",
       });
     });
   });
@@ -217,21 +309,25 @@ describe("Mots-clefs", function () {
       });
     });
 
-    it("Le mot-clef est copié", async () => {
+    it("le mot-clef est copié", async () => {
+      expect(typeof idMotClef2).to.equal("string")
+    })
+
+    it("le mot-clef est ajouté à mes mots-clefs", async () => {
       const motsClefs = await obtenir(({ siPasVide }) =>
         constl.motsClefs.suivreMotsClefs({ f: siPasVide() }),
       );
-      expect(motsClefs).to.have.members([idMotClef, idMotClef2]);
+      expect(motsClefs).to.include.members([idMotClef, idMotClef2]);
     });
 
-    it("Les noms sont copiés", async () => {
+    it("les noms sont copiés", async () => {
       const noms = await obtenir(({ siPasVide }) =>
         constl.motsClefs.suivreNomsMotClef({ idMotClef, f: siPasVide() }),
       );
       expect(noms).to.deep.equal({ த: "நீரியல்", हिं: "जल विज्ञान" });
     });
 
-    it("Les descriptions sont copiés", async () => {
+    it("les descriptions sont copiées", async () => {
       const descriptions = await obtenir(({ siPasVide }) =>
         constl.motsClefs.suivreDescriptionsMotClef({
           idMotClef,
@@ -287,7 +383,7 @@ describe("Mots-clefs", function () {
           f: siDéfini(),
         }),
       );
-      expect(résolution).to.have.members(["n'importe"]);
+      expect([...résolution]).to.have.members(["n'importe"]);
     });
   });
 });

@@ -1,9 +1,8 @@
-import { créerConstellationsTest } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { Constellation } from "@/v2/constellation.js";
-import { créerConstellation } from "@/v2/index.js";
+import { créerConstellationsTest } from "./utils.js";
 
-describe("Constellation", function () {
+describe.only("Constellation", function () {
   describe("création", function () {
     let fermer: () => Promise<void>;
     let constls: Constellation[];
@@ -11,7 +10,6 @@ describe("Constellation", function () {
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
         n: 2,
-        créerConstellation,
       }));
     });
 

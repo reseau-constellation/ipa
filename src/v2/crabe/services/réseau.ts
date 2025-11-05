@@ -192,4 +192,11 @@ export class ServiceRéseau<
       ]);
     };
   }
+
+  @cacheSuivi
+  async suivreComptes(): Promise<Oublier> {}
+
+  @cacheSuivi
+  async suivreConfiance(): Promise<Oublier> {}
+  
 }

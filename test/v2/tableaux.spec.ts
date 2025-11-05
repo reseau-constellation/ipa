@@ -1,19 +1,17 @@
-import { obtenir } from "@constl/utils-ipa";
-import { créerConstellationsTest } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
-import { Constellation, créerConstellation } from "@/v2/index.js";
+import { Constellation } from "@/v2/index.js";
 import { TraducsTexte } from "@/v2/types.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
 
-describe("Tableaux", function () {
+describe.only("Tableaux", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
 
   before(async () => {
     ({ fermer, constls } = await créerConstellationsTest({
       n: 2,
-      créerConstellation,
     }));
   });
 

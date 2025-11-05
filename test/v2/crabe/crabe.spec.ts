@@ -21,7 +21,7 @@ describe.only("Crabe", function () {
 
     after(async () => {
       if (crabe) await crabe.fermer();
-      effacer();
+      effacer?.();
     });
 
     it("démarrage", async () => {

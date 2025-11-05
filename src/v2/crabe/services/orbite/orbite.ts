@@ -300,7 +300,8 @@ export class ServiceOrbite<
     for (const idc of àDésépingler) await drain(hélia.pins.rm(idc));
 
     await bd.drop();
-    await hélia.gc();
+    await bd.close();
+
   }
 
   async ouvrirBd({

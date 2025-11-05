@@ -1,5 +1,5 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
-import { BaseDatabase, OrbitDB, isValidAddress } from "@orbitdb/core";
+import { BaseDatabase, OrbitDB } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceMap } from "@libp2p/interface";
 

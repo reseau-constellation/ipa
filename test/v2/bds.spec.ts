@@ -1,9 +1,9 @@
 import { adresseOrbiteValide, obtenir } from "@constl/utils-ipa";
-import { créerConstellationsTest } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { Constellation, créerConstellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
 import { ÉpingleBd } from "@/v2/bds.js";
+import { créerConstellationsTest } from "./utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -13,7 +13,6 @@ describe("BDs", function () {
   before(async () => {
     ({ fermer, constls } = await créerConstellationsTest({
       n: 1,
-      créerConstellation,
     }));
     constl = constls[0];
   });
