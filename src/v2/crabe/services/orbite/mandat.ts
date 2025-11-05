@@ -5,7 +5,7 @@ import { ServiceMap } from "@libp2p/interface";
 
 // Un mandataire pour orbite qui évite les conditions de concurrence pour `open`
 
-// Ceci doit être commun pour que les contrôleurs d'accès puissent aussi envelopper leur instance d'Orbite
+// Ceci doit être commun pour que les contrôleurs d'accès puissent aussi envelopper leurs instance d'OrbitDB
 const verrous = new Map<string, Semaphore>();
 const requêtes = new Map<string, Map<string, Set<string>>>();
 const cacheBds = new Map<string, Map<string, BaseDatabase>>();
