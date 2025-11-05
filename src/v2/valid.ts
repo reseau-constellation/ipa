@@ -95,8 +95,7 @@ export type DétailsRègleCatégorie = {
 
 export const schémaRègleColonne: JSONSchemaType<
   PartielRécursif<RègleColonne>
-> & { $ref: string } = {
-  $ref: "règle colonne",
+> & { nullable: true } = {
   type: "object",
   properties: {
     colonne: { type: "string", nullable: true },
