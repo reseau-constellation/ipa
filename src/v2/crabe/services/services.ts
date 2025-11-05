@@ -13,7 +13,6 @@ import {
   GetValueFromKeyList,
 } from "node_modules/@constl/bohr-db/dist/types.js";
 import { RecursivePartial } from "node_modules/@orbitdb/nested-db/dist/types.js";
-import { suivreFonctionImbriquée } from "@constl/utils-ipa";
 import {
   Nébuleuse,
   ServiceNébuleuse,
@@ -23,7 +22,6 @@ import {
 import { PartielRécursif } from "@/v2/types.js";
 import { Oublier, Suivi } from "../types.js";
 import { mapÀObjet } from "../utils.js";
-import { journalifier } from "../../../../test/v2/utils.js";
 import { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import { ServicesNécessairesCompte } from "./compte/compte.js";
 
@@ -62,7 +60,6 @@ export const brancheBd = <
             ? number | undefined
             : undefined,
         ): Promise<string[]> => {
-          let args: Parameters<TypedNested<T>["put"]>;
           if (typeof clefOuValeur === "string" || Array.isArray(clefOuValeur)) {
             const clefFinale = joinKey([
               clef,
