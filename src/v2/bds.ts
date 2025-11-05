@@ -67,7 +67,7 @@ export type StructureBd = {
   statut: StatutDonnées;
   tableaux: { [clef: string]: { id: string } };
   motsClefs: { [id: string]: null };
-  copiéDe?: { id: string };
+  copiéDe: { id: string };
 };
 
 export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
@@ -81,8 +81,7 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
     licenceContenu: { type: "string", nullable: true },
     métadonnées: {
       type: "object",
-      oneOf: [],
-      additionalProperties: {},
+      additionalProperties: true,
       required: [],
       nullable: true,
     },
@@ -111,9 +110,9 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
     copiéDe: {
       type: "object",
       properties: {
-        id: { type: "string" },
+        id: { type: "string", nullable: true },
       },
-      required: ["id"],
+      required: [],
       nullable: true,
     },
   },
@@ -127,10 +126,7 @@ export const SchémaServiceBds: JSONSchemaType<
   PartielRécursif<StructureServiceBds>
 > = {
   type: "object",
-  additionalProperties: {
-    type: "null",
-    nullable: true,
-  },
+  additionalProperties: true,
   required: [],
 };
 
