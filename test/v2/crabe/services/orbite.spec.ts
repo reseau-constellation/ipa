@@ -179,6 +179,7 @@ describe.only("Mandataire OrbitDB", function () {
     await attendreQue(
       async () => (await bd1.all()).length > 0 && (await bd2.all()).length > 0,
     );
+    await bd.close();
 
     await bd1.drop();
 
