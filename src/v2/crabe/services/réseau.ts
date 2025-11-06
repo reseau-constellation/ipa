@@ -14,7 +14,7 @@ import { ServicesNécessairesCompte } from "./compte/compte.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import {
   MODÉRATRICE,
-  estContrôleurConstellation,
+  estContrôleurNébuleuse,
 } from "./compte/accès/index.js";
 
 export type StructureRéseau = {
@@ -123,7 +123,7 @@ export class ServiceRéseau<
         type: "keyvalue",
       });
       const accès = bd.access;
-      if (!estContrôleurConstellation(accès)) {
+      if (!estContrôleurNébuleuse(accès)) {
         await oublier();
         return faisRien;
       }
@@ -198,5 +198,5 @@ export class ServiceRéseau<
 
   @cacheSuivi
   async suivreConfiance(): Promise<Oublier> {}
-  
+
 }

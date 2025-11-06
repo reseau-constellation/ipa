@@ -4,7 +4,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { Oublier } from "@/v2/crabe/types.js";
 import { appelerLorsque } from "../../utils.js";
 import { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
-import { estContrôleurConstellation } from "./contrôleurConstellation.js";
+import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
 import { MEMBRE, MODÉRATRICE } from "./consts.js";
 
 export const rôlePlusPuissant = (rôles: Set<Rôle>): Rôle | undefined => {
@@ -37,7 +37,7 @@ class AccèsCompte {
   async démarrer(): Promise<void> {
     const bd = await this.orbite.open(this.idCompte);
     const accèsCompte = bd.access;
-    if (!estContrôleurConstellation(accèsCompte))
+    if (!estContrôleurNébuleuse(accèsCompte))
       throw new Error(accèsCompte.type);
 
     const suiviCompte = async () => {

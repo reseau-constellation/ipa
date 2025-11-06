@@ -1,11 +1,11 @@
 export { MODÉRATRICE, MEMBRE, rôles } from "./consts.js";
 export {
   nomType,
-  OptionsContrôleurConstellation,
-  ContrôleurConstellation,
-  estContrôleurConstellation,
-  InstanceContrôleurConstellation,
-} from "./contrôleurConstellation.js";
+  OptionsContrôleurNébuleuse,
+  ContrôleurNébuleuse,
+  estContrôleurNébuleuse,
+  InstanceContrôleurNébuleuse,
+} from "./contrôleurNébuleuse.js";
 
 export { ContrôleurAccès } from "./contrôleurModératrices.js";
 export { Rôle, AccèsUtilisateur, AccèsDispositif } from "./types.js";

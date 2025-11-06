@@ -50,7 +50,7 @@ import { ServicesNécessairesHélia } from "../hélia.js";
 import { réessayer } from "../../utils.js";
 import { ServiceJournal } from "../journal.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
-import { ContrôleurConstellation } from "../compte/accès/contrôleurConstellation.js";
+import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
 import { mandatOrbite } from "./mandat.js";
 import type { Helia } from "helia";
 import type { Libp2p } from "libp2p";
@@ -62,7 +62,7 @@ export const préparerOrbite = () => {
   useDatabaseType(OrderedKeyValue);
   useDatabaseType(Nested);
   useAccessController(ContrôleurAccès);
-  useAccessController(ContrôleurConstellation);
+  useAccessController(ContrôleurNébuleuse);
 };
 
 export type BdsOrbite = {
@@ -273,7 +273,7 @@ export class ServiceOrbite<
     const orbite = await this.orbite();
 
     options = {
-      AccessController: ContrôleurConstellation(),
+      AccessController: ContrôleurNébuleuse(),
       ...options,
     };
     const bd = (await orbite.open(nom || uuidv4(), {

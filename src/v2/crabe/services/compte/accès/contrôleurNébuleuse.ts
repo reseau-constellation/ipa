@@ -49,9 +49,9 @@ import { MODÉRATRICE, rôles } from "./consts.js";
 import { ContrôleurAccès } from "./contrôleurModératrices.js";
 import { AccèsParComptes } from "./compte.js";
 
-export const nomType = "contrôleur-constellation";
+export const nomType = "contrôleur-nébuleuse";
 
-export interface OptionsContrôleurConstellation {
+export interface OptionsContrôleurNébuleuse {
   écriture?: string;
   adresse?: string;
   nom?: string;
@@ -61,7 +61,7 @@ const codec = dagCbor;
 const hasher = sha256;
 const hashStringEncoding = base58btc;
 
-const ManifestContrôleurConstellation = async ({
+const ManifestContrôleurNébuleuse = async ({
   stockage,
   type,
   params,
@@ -80,7 +80,7 @@ const ManifestContrôleurConstellation = async ({
   return hash;
 };
 
-const ContrôleurConstellation =
+const ContrôleurNébuleuse =
   ({
     écriture,
     nom,
@@ -115,7 +115,7 @@ const ContrôleurConstellation =
 
     let bdAccès: KeyValueDatabase;
 
-    if (écriture?.startsWith("/contrôleur-constellation/") && !address) {
+    if (écriture?.startsWith(`/${nomType}/`) && !address) {
       address = écriture;
     }
 
@@ -146,7 +146,7 @@ const ContrôleurConstellation =
         },
       )) as KeyValueDatabase;
       adresseBdAccès = bdAccès.address;
-      address = await ManifestContrôleurConstellation({
+      address = await ManifestContrôleurNébuleuse({
         stockage,
         type: nomType,
         params: { écriture, nom, adresseBdAccès },
@@ -211,11 +211,13 @@ const ContrôleurConstellation =
 
       // Pour implémenter la révocation des permissions, garder compte ici
       // des entrées approuvées par utilisatrice
-      const x =
-        (await identities.verifyIdentity(writerIdentity)) &&
-        (await estAutorisé(id));
+      if ((await identities.verifyIdentity(writerIdentity)) &&
+        (await estAutorisé(id))) {
+          return true
+        };
 
-      return x;
+      console.log("refusée ctlmod : ", entry)
+      return false;
     };
 
     const autoriser = async (rôle: Rôle, id: string): Promise<void> => {
@@ -326,15 +328,15 @@ const ContrôleurConstellation =
     };
   };
 
-ContrôleurConstellation.type = nomType;
-export { ContrôleurConstellation };
+ContrôleurNébuleuse.type = nomType;
+export { ContrôleurNébuleuse };
 
-export const estContrôleurConstellation = (
+export const estContrôleurNébuleuse = (
   x: unknown,
-): x is InstanceContrôleurConstellation => {
-  return (x as InstanceContrôleurConstellation).type === nomType;
+): x is InstanceContrôleurNébuleuse => {
+  return (x as InstanceContrôleurNébuleuse).type === nomType;
 };
 
-export type InstanceContrôleurConstellation = Awaited<
-  ReturnType<ReturnType<typeof ContrôleurConstellation>>
+export type InstanceContrôleurNébuleuse = Awaited<
+  ReturnType<ReturnType<typeof ContrôleurNébuleuse>>
 >;

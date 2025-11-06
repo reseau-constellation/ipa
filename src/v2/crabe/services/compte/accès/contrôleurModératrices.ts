@@ -17,7 +17,7 @@ import { MODÉRATRICE, rôles } from "./consts.js";
 import { AccèsParComptes } from "./compte.js";
 import { Rôle } from "./types.js";
 
-const type = "contrôleur-accès-constellation";
+const nomType = "contrôleur-accès-nébuleuse";
 
 const codec = dagCbor;
 const hasher = sha256;
@@ -70,7 +70,7 @@ const ContrôleurAccès =
 
     if (address) {
       const octetsManifest = await stockageFinal.get(
-        address.replaceAll("/contrôleur-accès-constellation/", ""),
+        address.replaceAll(`/${nomType}/`, ""),
       );
       const { value } = await Block.decode({
         bytes: octetsManifest,
@@ -81,10 +81,10 @@ const ContrôleurAccès =
     } else {
       address = await premierModérateur({
         stockage: stockageFinal,
-        type,
+        type: nomType,
         params: { écriture },
       });
-      address = `/${type}/${address}`;
+      address = `/${nomType}/${address}`;
     }
 
     // Ajouter la première modératrice
@@ -124,7 +124,7 @@ const ContrôleurAccès =
         // Qu'il s'agisse d'un membre ou d'une modératrice, on accepte la demande d'édition des données
         return true;
       }
-
+      console.log("refusée ctlmod : ", entry)
       return false;
     };
 
@@ -134,6 +134,7 @@ const ContrôleurAccès =
       id: string,
       entry: LogEntry,
     ): Promise<boolean> => {
+      console.log({entry, mod: await accès.estUneModératrice(id)})
       if (await accès.estUneModératrice(id)) return true;
 
       const prochains = entry.next;
@@ -152,12 +153,12 @@ const ContrôleurAccès =
     };
 
     return {
-      type,
+      type: nomType,
       address,
       écriture,
       canAppend,
     };
   };
 
-ContrôleurAccès.type = type;
+ContrôleurAccès.type = nomType;
 export { ContrôleurAccès };

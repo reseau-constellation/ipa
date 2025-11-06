@@ -8,7 +8,7 @@ import { dossierTempo } from "@constl/utils-tests";
 
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
-import { estContrôleurConstellation } from "@/v2/crabe/services/compte/accès/contrôleurConstellation.js";
+import { estContrôleurNébuleuse } from "@/v2/crabe/services/compte/accès/contrôleurNébuleuse.js";
 import { Oublier } from "@/v2/crabe/types.js";
 import { Constellation, créerConstellation } from "@/v2/index.js";
 import { attendreQue } from "./nébuleuse/utils/fonctions.js";
@@ -31,7 +31,7 @@ export const attendreInvité = async (
   idInvité: string,
 ): Promise<void> => {
   const accès = bd.access;
-  if (!estContrôleurConstellation(accès))
+  if (!estContrôleurNébuleuse(accès))
     throw new Error(`Contrôleur d'accès non supporté : ${accès.type}`);
 
   return await attendreQue(() => accès.estAutorisé(idInvité));
