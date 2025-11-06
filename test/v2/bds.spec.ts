@@ -1,9 +1,10 @@
-import { adresseOrbiteValide, obtenir } from "@constl/utils-ipa";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
-import { Constellation, créerConstellation } from "@/v2/index.js";
+import { Constellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
 import { ÉpingleBd } from "@/v2/bds.js";
-import { créerConstellationsTest } from "./utils.js";
+import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -36,10 +37,10 @@ describe("BDs", function () {
           f: siDéfini(),
         }),
       );
-      expect(permission).to.be.true();
+      expect(permission).to.equal(MODÉRATRICE);
     });
 
-    it("nouvelle BD ajoutée à mes bds", async () => {
+    it("automatiquement ajoutée à mes bds", async () => {
       const mesBds = await obtenir<string[]>(({ siDéfini }) =>
         constl.bds.suivreBds({
           f: siDéfini(),
@@ -50,9 +51,9 @@ describe("BDs", function () {
 
     it("enlever de mes bds", async () => {
       await constl.bds.enleverDeMesBds({ idBd });
-      const mesBds = await obtenir<string[] | undefined>(({ si }) =>
+      const mesBds = await obtenir<string[] | undefined>(({ siVide }) =>
         constl.bds.suivreBds({
-          f: si((x) => !!x && x.includes(idBd)),
+          f: siVide(),
         }),
       );
       expect(mesBds).to.be.an.empty("array");
@@ -60,7 +61,7 @@ describe("BDs", function () {
 
     it("ajouter manuellement à mes bds", async () => {
       await constl.bds.ajouterÀMesBds({ idBd });
-      const mesBds = await obtenir<string[] | undefined>(({ siPasVide }) =>
+      const mesBds = await obtenir<string[]>(({ siPasVide }) =>
         constl.bds.suivreBds({
           f: siPasVide(),
         }),
@@ -75,7 +76,7 @@ describe("BDs", function () {
           f: siVide(),
         }),
       );
-      expect(mesBds).to.be.an("array").with.length(1).and.to.contain(idBd);
+      expect(mesBds).to.be.empty();
     });
   });
 
@@ -129,14 +130,14 @@ describe("BDs", function () {
           f: siDéfini(),
         }),
       );
-      expect(résolution).to.have.members([idBd]);
+      expect([...résolution]).to.have.members([idBd]);
     });
 
     it("résoudre épingle - tableaux", async () => {
       const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       const idTableau = await constl.bds.ajouterTableau({ idBd });
 
-      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+      const résolution = await obtenir<Set<string>>(({ si }) =>
         constl.bds.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idBd,
@@ -148,10 +149,10 @@ describe("BDs", function () {
               },
             },
           },
-          f: siDéfini(),
+          f: si(x=>!!x && x.size > 1),
         }),
       );
-      expect(résolution).to.have.members([idBd, idTableau]);
+      expect([...résolution]).to.have.members([idBd, idTableau]);
 
       const résolutionSansTableaux = await obtenir<Set<string>>(
         ({ siDéfini }) =>
@@ -166,7 +167,7 @@ describe("BDs", function () {
             f: siDéfini(),
           }),
       );
-      expect(résolutionSansTableaux).to.have.members([idBd]);
+      expect([...résolutionSansTableaux]).to.have.members([idBd]);
     });
 
     it("résoudre épingle - fichiers", async () => {
@@ -202,7 +203,7 @@ describe("BDs", function () {
           f: siDéfini(),
         }),
       );
-      expect(résolution).to.have.members([idBd, idTableau, idc]);
+      expect([...résolution]).to.have.members([idBd, idTableau, idc]);
 
       const résolutionSansFichers = await obtenir<Set<string>>(({ siDéfini }) =>
         constl.bds.suivreRésolutionÉpingle({
@@ -216,15 +217,14 @@ describe("BDs", function () {
           f: siDéfini(),
         }),
       );
-      expect(résolutionSansFichers).to.have.members([idBd]);
+      expect([...résolutionSansFichers]).to.have.members([idBd]);
     });
 
     it("résoudre épingle - fichiers variable liste", async () => {
       const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       const idTableau = await constl.bds.ajouterTableau({ idBd });
       const idVariable = await constl.variables.créerVariable({
-        catégorie: "fichier",
-        liste: true,
+        catégorie: { catégorie: "fichier", type: "liste" },
       });
       const idColonne = await constl.tableaux.ajouterColonne({
         idTableau,
@@ -254,7 +254,7 @@ describe("BDs", function () {
           f: siDéfini(),
         }),
       );
-      expect(résolution).to.have.members([idBd, idTableau, idc, idc2]);
+      expect([...résolution]).to.have.members([idBd, idTableau, idc, idc2]);
     });
   });
 });
