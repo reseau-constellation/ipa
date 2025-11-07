@@ -2,6 +2,7 @@ import { BootstrapComponents } from "@libp2p/bootstrap";
 import { multiaddr } from "@multiformats/multiaddr";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { P2P } from "@multiformats/mafmt";
+import { obtIdPairAdresse } from "./config/utils.js";
 import type { Logger, PeerInfo, Startable } from "@libp2p/interface";
 
 const FRÉQUENCE_RECONNECTEUR_PAR_DÉFAUT = 10_000;
@@ -33,24 +34,24 @@ export class Reconnecteur implements Startable {
 
     for (const candidate of options.liste) {
       if (!P2P.matches(candidate)) {
-        this.log.error("Invalid multiaddr");
+        this.log.error("Multiadresse invalide");
         continue;
       }
 
       const ma = multiaddr(candidate);
-      const peerIdStr = ma.getPeerId();
+      const chaîneIdPair = obtIdPairAdresse(ma);
 
-      if (peerIdStr == null) {
-        this.log.error("Invalid bootstrap multiaddr without peer id");
+      if (chaîneIdPair == null) {
+        this.log.error("Multiadresse invalide car elle n'a pas d'identifiant de pair");
         continue;
       }
 
-      const peerData: PeerInfo = {
-        id: peerIdFromString(peerIdStr),
+      const infoPair: PeerInfo = {
+        id: peerIdFromString(chaîneIdPair),
         multiaddrs: [ma],
       };
 
-      this.liste.push(peerData);
+      this.liste.push(infoPair);
     }
   }
 
