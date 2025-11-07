@@ -1,5 +1,5 @@
 import { peerIdFromString } from "@libp2p/peer-id";
-import { multiaddr } from "@multiformats/multiaddr";
+import { Multiaddr, multiaddr } from "@multiformats/multiaddr";
 import { ServiceFactoryMap } from "libp2p";
 import {
   GossipSub,
@@ -42,12 +42,18 @@ export class ServiceClefPrivée {
   }
 }
 
+export const obtIdPairAdresse = (adresse: Multiaddr): string | undefined => {
+  const composantes = adresse.getComponents().filter(c=>c.name === "p2p")
+  const idPair = composantes[composantes.length - 1].value;
+  return idPair;
+}
+
 // Fonctions utilitaires
 export const résoudreInfoAdresses = (adresses: string[]): AddrInfo[] => {
   const infos: AddrInfo[] = [];
   for (const adresse of adresses) {
     const ma = multiaddr(adresse);
-    const idPair = ma.getPeerId();
+    const idPair = obtIdPairAdresse(ma)
     if (!idPair) continue;
     const info: AddrInfo = infos.find((i) => i.id.toString() === idPair) || {
       id: peerIdFromString(idPair),
@@ -59,7 +65,7 @@ export const résoudreInfoAdresses = (adresses: string[]): AddrInfo[] => {
 };
 
 export const scoreAppli = (adressesRelai: string[]) => (p: string) => {
-  if (adressesRelai.map((adr) => multiaddr(adr).getPeerId()).includes(p)) {
+  if (adressesRelai.map((adr) => obtIdPairAdresse(multiaddr(adr))).includes(p)) {
     return 150;
   }
 
