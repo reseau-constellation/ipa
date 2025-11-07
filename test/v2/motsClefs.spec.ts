@@ -256,7 +256,7 @@ describe.only("Mots-clefs", function () {
       const descriptions = await obtenir<TraducsTexte>(({ si }) =>
         constl.motsClefs.suivreDescriptionsMotClef({
           idMotClef,
-          f: si((x) => !x?.["fr"].includes("domaine")),
+          f: si((x) => !x?.fr?.includes("domaine")),
         }),
       );
 
