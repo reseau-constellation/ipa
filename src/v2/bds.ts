@@ -35,6 +35,8 @@ import {
 import { mapÀObjet } from "./crabe/utils.js";
 import {
   DonnéesFichierBdExportées,
+  ajouterProtocoleOrbite,
+  extraireEmpreinte,
   sauvegarderDonnéesExportées,
 } from "./utils.js";
 
@@ -159,7 +161,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<Oublier> {
     return await this.suivreBd({
       idCompte,
-      f: (bds) => f(bds ? Object.keys(bds) : undefined),
+      f: (bds) => f(bds ? Object.keys(bds).map(ajouterProtocoleOrbite) : []),
     });
   }
 
@@ -197,7 +199,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     // D'abord effacer l'entrée dans notre liste de BDs
     await this.enleverDeMesBds({ idBd });
-    await this.service("favoris").désépinglerFavori({ idObjet: idBd });
+
+    // On court-circuite `this.service("favoris")`
+    const favoris = this.nébuleuse.services["favoris"];
+    await favoris.désépinglerFavori({ idObjet: idBd });
 
     // aussi effacer les tableaux
     const tableaux = await uneFois<string[]>((f) =>
@@ -206,6 +211,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         f: (tbx) => tbx && f(tbx.map((t) => t.id)),
       }),
     );
+
     await Promise.all(
       tableaux.map(
         async (idTableau) =>
@@ -219,12 +225,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   async ajouterÀMesBds({ idBd }: { idBd: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.put(idBd, null);
+    await bd.put(extraireEmpreinte(idBd), null);
   }
 
   async enleverDeMesBds({ idBd }: { idBd: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(idBd);
+    await bd.del(extraireEmpreinte(idBd));
   }
 
   async confirmerPermission({ idBd }: { idBd: string }): Promise<void> {
@@ -755,8 +761,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     const fFinale = async (
       infos: NestedObjectToMap<{ [clef: string]: { id: string } }> | undefined,
     ) => {
-      if (!infos) return await f(undefined);
-      const tableaux: InfoTableau[] = [...infos.entries()]
+      const tableaux: InfoTableau[] = [...(infos || []).entries()]
         .map(([clef, valeur]) => {
           return {
             clef,
