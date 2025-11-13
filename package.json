@@ -183,6 +183,9 @@
       "esbuild",
       "iso-constants",
       "node-datachannel"
-    ]
+    ],
+    "patchedDependencies": {
+      "@chainsafe/libp2p-gossipsub@14.1.2": "patches/@chainsafe__libp2p-gossipsub@14.1.2.patch"
+    }
   }
 }

@@ -1,0 +1,13 @@
+diff --git a/dist/src/index.js b/dist/src/index.js
+index ef02fd0564234b67f3e193acd59ba58f7e251f93..bb3245ab62fc7bc3d44c46a197c5541b10aaca84 100644
+--- a/dist/src/index.js
++++ b/dist/src/index.js
+@@ -475,7 +475,7 @@ export class GossipSub extends TypedEventEmitter {
+         // TODO make this behavior more robust
+         // This behavior is different than for inbound streams
+         // If an outbound stream already exists, don't create a new stream
+-        if (this.streamsOutbound.has(id)) {
++        if (this.streamsOutbound.has(id)?.status === "open") {
+             return;
+         }
+         try {

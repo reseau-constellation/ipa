@@ -4,13 +4,18 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@chainsafe/libp2p-gossipsub@14.1.2':
+    hash: d6242162550a66b163615964f86df4be6e0515d064cce19a5792669523bcf2cc
+    path: patches/@chainsafe__libp2p-gossipsub@14.1.2.patch
+
 importers:
 
   .:
     dependencies:
       '@chainsafe/libp2p-gossipsub':
         specifier: ^14.1.1
-        version: 14.1.2
+        version: 14.1.2(patch_hash=d6242162550a66b163615964f86df4be6e0515d064cce19a5792669523bcf2cc)
       '@chainsafe/libp2p-noise':
         specifier: ^16.1.5
         version: 16.1.5
@@ -256,8 +261,8 @@ importers:
         specifier: ^9.39.1
         version: 9.39.1
       '@libp2p/interface':
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^2.11.0
+        version: 2.11.0
       '@orbitdb/core-types':
         specifier: ^1.2.1
         version: 1.2.1
@@ -9271,7 +9276,7 @@ snapshots:
 
   '@chainsafe/is-ip@2.1.0': {}
 
-  '@chainsafe/libp2p-gossipsub@14.1.2':
+  '@chainsafe/libp2p-gossipsub@14.1.2(patch_hash=d6242162550a66b163615964f86df4be6e0515d064cce19a5792669523bcf2cc)':
     dependencies:
       '@libp2p/crypto': 5.0.5
       '@libp2p/interface': 2.11.0
@@ -9388,7 +9393,7 @@ snapshots:
 
   '@constl/utils-tests@2.0.4(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
-      '@chainsafe/libp2p-gossipsub': 14.1.2
+      '@chainsafe/libp2p-gossipsub': 14.1.2(patch_hash=d6242162550a66b163615964f86df4be6e0515d064cce19a5792669523bcf2cc)
       '@helia/block-brokers': 4.2.4
       '@libp2p/peer-id': 5.1.9
       '@libp2p/webrtc': 5.2.24(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
