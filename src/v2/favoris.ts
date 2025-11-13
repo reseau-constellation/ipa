@@ -10,6 +10,7 @@ import { Oublier, Suivi } from "./crabe/types.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { ÉpingleMotClef } from "./motsClefs.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
+import { ÉpingleBd } from "./bds.js";
 
 // Types épingles
 
@@ -213,7 +214,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
       case "mot-clef":
         return await this.service("motsClefs").suivreRésolutionÉpingle({
           épingle: {
-            idObjet: épingle.idObjet,
+            idObjet: ajouterProtocoleOrbite(épingle.idObjet),
             épingle: épingleBooléennisée,
           } as ÉpingleFavorisAvecIdBooléennisée<ÉpingleMotClef>,
           f,
@@ -225,7 +226,10 @@ export class Favoris extends ServiceDonnéesNébuleuse<
         });
       case "bd":
         return await this.service("bds").suivreRésolutionÉpingle({
-          épingle: épingleBooléennisée as ÉpingleFavorisAvecId<ÉpingleBd>,
+          épingle: {
+            idObjet: ajouterProtocoleOrbite(épingle.idObjet),
+            épingle: épingleBooléennisée,
+          } as ÉpingleFavorisAvecIdBooléennisée<ÉpingleBd>,
           f,
         });
       case "projet":
