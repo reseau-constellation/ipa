@@ -70,6 +70,7 @@ export class Constellation<
       >,
       options: {
         dossier: options.dossier,
+        services: options.services,
       },
     });
 
