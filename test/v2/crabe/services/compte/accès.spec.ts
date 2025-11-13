@@ -53,7 +53,7 @@ describe.only("Accès", function () {
       expect(await accès.estAutorisé(orbite1.identity.id)).to.be.true();
     });
 
-    it("les autres ne sont pas des modératrice", async () => {
+    it("les autres ne sont pas des modératrices", async () => {
       expect(await accès.estUneModératrice(orbite2.identity.id)).to.be.false();
       expect(await accès.estAutorisé(orbite2.identity.id)).to.be.false();
     });
@@ -301,7 +301,7 @@ describe.only("Accès", function () {
       expect(await accès.estAutorisé(idCompte1)).to.be.true();
     });
 
-    it("les autres ne sont pas des modératrice", async () => {
+    it("les autres ne sont pas des modératrices", async () => {
       expect(await accès.estUneModératrice(orbite2.identity.id)).to.be.false();
       expect(await accès.estAutorisé(orbite2.identity.id)).to.be.false();
 
