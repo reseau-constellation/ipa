@@ -10,7 +10,7 @@ import {
 } from "@constl/utils-ipa";
 import { Nébuleuse, ServiceNébuleuse } from "@/v2/nébuleuse/index.js";
 import { PartielRécursif, RequisRécursif } from "@/v2/types.js";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "../../cache.js";
 import { Oublier, Suivi } from "../../types.js";
 import { ServiceDonnéesNébuleuse } from "../services.js";
 import { BdsOrbite, ServicesNécessairesOrbite } from "../orbite/orbite.js";

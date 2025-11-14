@@ -3,7 +3,7 @@ import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import plateforme from "platform";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { PartielRécursif } from "@/v2/types.js";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "../cache.js";
 import { Suivi } from "../types.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import { ServicesNécessairesCompte } from "./compte/compte.js";

@@ -2,7 +2,7 @@ import { JSONSchemaType } from "ajv";
 import { v4 as uuidv4 } from "uuid";
 import { idcValide } from "@constl/utils-ipa";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "../cache.js";
 import {
   BaseÉpingleFavoris,
   DispositifsÉpingle,

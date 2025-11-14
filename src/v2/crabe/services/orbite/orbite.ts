@@ -37,12 +37,12 @@ import {
   typedSet,
 } from "@constl/bohr-db";
 import { anySignal } from "any-signal";
-import Base64 from "crypto-js/enc-base64.js";
+import Base64 from "crypto-js";
 import md5 from "crypto-js/md5.js";
 import { suivreDeFonctionListe } from "@constl/utils-ipa";
 import { CID } from "multiformats";
 import { PartielRécursif } from "@/v2/types.js";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "../../cache.js";
 import { STATUTS } from "@/v2/nébuleuse/consts.js";
 import { Nébuleuse, ServiceNébuleuse } from "../../../nébuleuse/index.js";
 import { Oublier, Suivi } from "../../types.js";

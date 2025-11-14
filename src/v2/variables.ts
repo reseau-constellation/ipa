@@ -3,7 +3,7 @@ import { TypedNested, typedNested } from "@constl/bohr-db";
 import { faisRien } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "./crabe/cache.js";
 import { Constellation, ServicesConstellation } from "./constellation.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";

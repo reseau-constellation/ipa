@@ -265,9 +265,6 @@ describe("BDs", function () {
     });
   });
 
-  describe("Statut BD", function () {
-    it.skip("À faire");
-  });
 
   describe("Tableaux", function () {
     let idTableau: string;

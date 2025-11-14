@@ -2,7 +2,7 @@ import { TypedNested, typedNested } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
 import { toObject } from "@orbitdb/nested-db";
 import { faisRien } from "@constl/utils-ipa";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "./crabe/cache.js";
 import { Constellation, ServicesConstellation } from "./constellation.js";
 import { Oublier, Suivi } from "./crabe/types.js";
 import { PartielRécursif, TraducsTexte } from "./types.js";
