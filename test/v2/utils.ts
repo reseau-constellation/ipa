@@ -15,7 +15,6 @@ import { attendreQue } from "./nébuleuse/utils/fonctions.js";
 import { connecterCrabes } from "./crabe/utils.js";
 import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
 
-
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,
   étiquette?: string,
@@ -23,7 +22,7 @@ export const journalifier = <T extends (...args: unknown[]) => unknown>(
   return ((...args) => {
     console.log(étiquette || "", args);
     return f(...args);
-  } )as T;
+  }) as T;
 };
 
 export const attendreInvité = async (
@@ -180,9 +179,9 @@ export const créerConstellationsTest = async ({
       dossier: path.join(dossier, i),
       services: {
         libp2p: {
-          libp2p: obtenirOptionsLibp2pTest()
-        } 
-      }
+          libp2p: obtenirOptionsLibp2pTest(),
+        },
+      },
     });
     constls.push(constl);
   }

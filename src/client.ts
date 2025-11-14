@@ -58,7 +58,6 @@ import { Recherche } from "@/recherche/index.js";
 import { Réseau } from "@/reseau.js";
 import { Tableaux } from "@/tableaux.js";
 
-import { cacheSuivi } from "@/décorateursCache.js";
 
 import {
   Jsonifiable,
@@ -94,6 +93,7 @@ import type {
   KeyValueDatabase,
   OpenDatabaseOptions,
 } from "@orbitdb/core";
+import { cacheSuivi } from "@/décorateursCache.js";
 import {
   Profil,
   schémaStructureBdProfil,

@@ -15,13 +15,16 @@ export const ORIGINALE = Symbol("orbite originale");
 export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   orbite: OrbitDB<L>,
 ) => {
-  if (!verrous.has(orbite.identity.id)) verrous.set(orbite.identity.id, new Semaphore());
+  if (!verrous.has(orbite.identity.id))
+    verrous.set(orbite.identity.id, new Semaphore());
   const verrouOrbite = verrous.get(orbite.identity.id);
 
-  if (!requêtes.has(orbite.identity.id)) requêtes.set(orbite.identity.id, new Map());
+  if (!requêtes.has(orbite.identity.id))
+    requêtes.set(orbite.identity.id, new Map());
   const requêtesOrbite = requêtes.get(orbite.identity.id)!;
-  
-  if (!cacheBds.has(orbite.identity.id)) cacheBds.set(orbite.identity.id, new Map());
+
+  if (!cacheBds.has(orbite.identity.id))
+    cacheBds.set(orbite.identity.id, new Map());
   const cacheBdsOrbite = cacheBds.get(orbite.identity.id)!;
 
   return new Proxy(orbite, {
@@ -33,11 +36,18 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           await verrouOrbite.acquire(nomOuAdresse);
 
           try {
-            const bd = cacheBdsOrbite.get(nomOuAdresse) || (await target.open(...args));
+            const bd =
+              cacheBdsOrbite.get(nomOuAdresse) || (await target.open(...args));
             const adresse = bd.address;
 
-            if (!requêtesOrbite.has(adresse)) requêtesOrbite.set(adresse, new Set());
-            const résultat = mandatBd(bd, requêtesOrbite.get(adresse)!, cacheBdsOrbite, verrouOrbite);
+            if (!requêtesOrbite.has(adresse))
+              requêtesOrbite.set(adresse, new Set());
+            const résultat = mandatBd(
+              bd,
+              requêtesOrbite.get(adresse)!,
+              cacheBdsOrbite,
+              verrouOrbite,
+            );
             cacheBdsOrbite.set(adresse, bd);
 
             verrouOrbite.release(nomOuAdresse);
@@ -59,7 +69,7 @@ const mandatBd = (
   bd: BaseDatabase,
   requêtes: Set<string>,
   cache: Map<string, BaseDatabase>,
-  verrou: Semaphore
+  verrou: Semaphore,
 ) => {
   const id = uuidv4();
   requêtes.add(id);
@@ -70,7 +80,6 @@ const mandatBd = (
 
       if (prop === "close") {
         const fermer: BaseDatabase["close"] = async () => {
-          
           await verrou.acquire(bd.address);
 
           try {
@@ -81,7 +90,7 @@ const mandatBd = (
               await target.close();
             }
           } finally {
-            verrou.release(bd.address)
+            verrou.release(bd.address);
           }
         };
         return fermer;

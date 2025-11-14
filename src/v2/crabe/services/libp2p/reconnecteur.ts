@@ -42,7 +42,9 @@ export class Reconnecteur implements Startable {
       const chaîneIdPair = obtIdPairAdresse(ma);
 
       if (chaîneIdPair == null) {
-        this.log.error("Multiadresse invalide car elle n'a pas d'identifiant de pair");
+        this.log.error(
+          "Multiadresse invalide car elle n'a pas d'identifiant de pair",
+        );
         continue;
       }
 

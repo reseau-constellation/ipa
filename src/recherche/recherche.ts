@@ -6,7 +6,6 @@ import * as projet from "@/recherche/projet.js";
 import * as utils from "@/recherche/utils.js";
 import * as variable from "@/recherche/variable.js";
 
-import { cacheRechercheParN } from "@/décorateursCache.js";
 import type { Constellation } from "@/client.js";
 import type {
   infoRésultatRecherche,
@@ -16,6 +15,7 @@ import type {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParN,
 } from "@/types.js";
+import { cacheRechercheParN } from "@/décorateursCache.js";
 
 export class Recherche {
   client: Constellation;

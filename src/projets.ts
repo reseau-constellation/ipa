@@ -25,7 +25,6 @@ import {
   schémaStructureBdNoms,
   structureBdNoms,
 } from "@/types.js";
-import { cacheSuivi } from "@/décorateursCache.js";
 import { Constellation } from "@/client.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
@@ -39,6 +38,7 @@ import {
 } from "./favoris.js";
 import type xlsx from "xlsx";
 import type { objRôles } from "@/accès/types.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {

@@ -42,8 +42,8 @@ import md5 from "crypto-js/md5.js";
 import { suivreDeFonctionListe } from "@constl/utils-ipa";
 import { CID } from "multiformats";
 import { PartielRécursif } from "@/v2/types.js";
-import { cacheSuivi } from "../../cache.js";
 import { STATUTS } from "@/v2/nébuleuse/consts.js";
+import { cacheSuivi } from "../../cache.js";
 import { Nébuleuse, ServiceNébuleuse } from "../../../nébuleuse/index.js";
 import { Oublier, Suivi } from "../../types.js";
 import { ServicesNécessairesHélia } from "../hélia.js";
@@ -301,7 +301,6 @@ export class ServiceOrbite<
 
     await bd.drop();
     await bd.close();
-
   }
 
   async ouvrirBd({
@@ -345,7 +344,10 @@ export class ServiceOrbite<
       ...(signal ? [signal] : []),
     ]);
 
-    const bd = await réessayer(() => orbite.open(id, { signal: signalCombiné }), signalCombiné);
+    const bd = await réessayer(
+      () => orbite.open(id, { signal: signalCombiné }),
+      signalCombiné,
+    );
 
     signalCombiné.clear();
 

@@ -641,7 +641,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   // Métadonnées
-  
 
   // Statut
   async changerStatutBd({
@@ -671,7 +670,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       f: (bd) => f(toObject(bd).statut),
     });
   }
-
 
   // Licences
 
@@ -932,12 +930,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   // Gabarits
 
-  async bdÀGabarit({ idBd }: { idBd: string }): Promise<GabaritBd> {
-
-  }
-  async créerBdDeGabarit({ gabarit }: { gabarit: GabaritBd }): Promise<string> {
-
-  }
+  async bdÀGabarit({ idBd }: { idBd: string }): Promise<GabaritBd> {}
+  async créerBdDeGabarit({
+    gabarit,
+  }: {
+    gabarit: GabaritBd;
+  }): Promise<string> {}
 
   // Exportations
 

@@ -24,7 +24,6 @@ import {
   infoAccès,
   schémaStructureBdCompte,
 } from "@/client.js";
-import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
 import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
 import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
@@ -58,6 +57,7 @@ import type {
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
 import type { erreurValidation } from "@/valid.js";
+import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 

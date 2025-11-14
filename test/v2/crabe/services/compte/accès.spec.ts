@@ -76,7 +76,6 @@ describe.only("Accès", function () {
 
       await attendreInvité(bdSurOrbite2, orbite2.identity.id);
 
-
       const membreSurBd2 = await accès2.estUnMembre(orbite2.identity.id);
       expect(membreSurBd2).to.be.true();
 
@@ -222,7 +221,9 @@ describe.only("Accès", function () {
       for (const orbite of [orbite2, orbite3, orbite4]) {
         const bdLocale = await dernière.open(bd.address);
         const accèsLocal = bdLocale.access as InstanceContrôleurNébuleuse;
-        await attendreQue(() => accèsLocal.estUneModératrice(dernière.identity.id));
+        await attendreQue(() =>
+          accèsLocal.estUneModératrice(dernière.identity.id),
+        );
 
         await (bdLocale.access as InstanceContrôleurNébuleuse).autoriser(
           MODÉRATRICE,
@@ -233,9 +234,7 @@ describe.only("Accès", function () {
 
       // Attendre que la base de donées originale reçoive la dernière modification
       await obtenir<AccèsDispositif[]>(({ si }) =>
-        (
-          bd.access as InstanceContrôleurNébuleuse
-        ).suivreDispositifsAutorisées(
+        (bd.access as InstanceContrôleurNébuleuse).suivreDispositifsAutorisées(
           si((x) => !!x.find((d) => d.idDispositif === orbite4.identity.id)),
         ),
       );

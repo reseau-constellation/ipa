@@ -37,8 +37,7 @@ class AccèsCompte {
   async démarrer({ signal }: { signal?: AbortSignal } = {}): Promise<void> {
     const bd = await this.orbite.open(this.idCompte, { signal });
     const accèsCompte = bd.access;
-    if (!estContrôleurNébuleuse(accèsCompte))
-      throw new Error(accèsCompte.type);
+    if (!estContrôleurNébuleuse(accèsCompte)) throw new Error(accèsCompte.type);
 
     const suiviCompte = async () => {
       const tous = await accèsCompte.bd.all();
@@ -105,7 +104,7 @@ export class AccèsParComptes {
             accès: accèsCompte,
             rôles: new Set([rôle]),
           };
-          await accèsCompte.démarrer({ signal: this.signaleurArrêt.signal});
+          await accèsCompte.démarrer({ signal: this.signaleurArrêt.signal });
 
           this._comptes.set(id, utilisateur);
 

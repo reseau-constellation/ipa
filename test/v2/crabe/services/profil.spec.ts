@@ -13,7 +13,7 @@ describe.only("Profil", function () {
   before(async () => {
     ({ fermer, crabes } = await créerCrabesTest({
       n: 1,
-      services: {}
+      services: {},
     }));
 
     [crabe] = crabes;
@@ -25,7 +25,6 @@ describe.only("Profil", function () {
   });
 
   describe("Initialiser profil", function () {
-
     it("Pas initialisé pour commencer", async () => {
       const initialisé = await obtenir(({ siDéfini }) =>
         crabe.profil.suivreInitialisé({

@@ -184,7 +184,8 @@ export class Tableaux<
     const compte = this.service("compte");
     const orbite = this.service("orbite");
 
-    const { bd: bdStructure, oublier: oublierStructure } = await orbite.ouvrirBd({ id: idStructure });
+    const { bd: bdStructure, oublier: oublierStructure } =
+      await orbite.ouvrirBd({ id: idStructure });
     const adresseAccèsStructure = bdStructure.access.address;
     await oublierStructure();
 

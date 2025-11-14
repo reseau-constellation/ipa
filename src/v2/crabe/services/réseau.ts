@@ -6,16 +6,13 @@ import {
   suivreFonctionImbriquée,
 } from "@constl/utils-ipa";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { cacheSuivi } from "../cache.js";
 import { PartielRécursif } from "@/v2/types.js";
+import { cacheSuivi } from "../cache.js";
 import { Oublier, Suivi } from "../types.js";
 import { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import { ServicesNécessairesCompte } from "./compte/compte.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
-import {
-  MODÉRATRICE,
-  estContrôleurNébuleuse,
-} from "./compte/accès/index.js";
+import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
 
 export type StructureRéseau = {
   [idCompte: string]: string;
@@ -49,13 +46,11 @@ export class ServiceRéseau<
 
   // Cycle de vie
   async démarrer(): Promise<unknown> {
-    
-    return await super.démarrer()
+    return await super.démarrer();
   }
 
   async fermer(): Promise<void> {
-
-    return await super.fermer()
+    return await super.fermer();
   }
 
   // Méthodes publiques
@@ -211,5 +206,4 @@ export class ServiceRéseau<
 
   @cacheSuivi
   async suivreConfiance(): Promise<Oublier> {}
-
 }

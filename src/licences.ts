@@ -12,7 +12,6 @@ import {
   ID_NUÉE_LICENCES,
   SCHÉMA_BD_LICENCES,
 } from "@/const.js";
-import { cacheSuivi } from "@/décorateursCache.js";
 import { mandatairifier } from "./mandataire/index.js";
 import { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type {
@@ -20,6 +19,7 @@ import type {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 // https://github.com/github/choosealicense.com
 export const conditions = {

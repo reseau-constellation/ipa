@@ -177,7 +177,7 @@ describe.only("Crabe", function () {
       await crabes[1].compte.rejoindreCompte({
         idCompte: await crabes[0].compte.obtIdCompte(),
       });
- 
+
       const nouvelId = await promesseIdCompte;
       expect(nouvelId).to.equal(await crabes[0].compte.obtIdCompte());
 

@@ -4,8 +4,8 @@ import { Constellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
 import { ÉpingleBd } from "@/v2/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
 import { StatutDonnées } from "@/v2/types.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -150,7 +150,7 @@ describe("BDs", function () {
               },
             },
           },
-          f: si(x=>!!x && x.size > 1),
+          f: si((x) => !!x && x.size > 1),
         }),
       );
       expect([...résolution]).to.have.members([idBd, idTableau]);
@@ -264,34 +264,38 @@ describe("BDs", function () {
 
     it("statut actif par défaut", async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-      const statut = await obtenir(({siDéfini}) => constl.bds.suivreStatutBd({
-        idBd,
-        f: siDéfini()
-      }));
+      const statut = await obtenir(({ siDéfini }) =>
+        constl.bds.suivreStatutBd({
+          idBd,
+          f: siDéfini(),
+        }),
+      );
 
       const réf: StatutDonnées = {
-        statut: 'active'
+        statut: "active",
       };
-      expect(statut).to.deep.equal(réf)
+      expect(statut).to.deep.equal(réf);
     });
 
     it("changer statut", async () => {
       const nouveauStatut: StatutDonnées = {
         statut: "obsolète",
         // Pour une vraie application, utiliser un identifiant valide, bien entendu.
-        idNouvelle: '/orbitdb/uneAutreBaseDeDonnées'
-      }
+        idNouvelle: "/orbitdb/uneAutreBaseDeDonnées",
+      };
       await constl.bds.changerStatutBd({
         idBd,
-        statut: nouveauStatut
+        statut: nouveauStatut,
       });
 
-      const statut = await obtenir<StatutDonnées | null>(({si}) => constl.bds.suivreStatutBd({
-        idBd,
-        f: si(x => x?.statut !== "active")
-      }));
+      const statut = await obtenir<StatutDonnées | null>(({ si }) =>
+        constl.bds.suivreStatutBd({
+          idBd,
+          f: si((x) => x?.statut !== "active"),
+        }),
+      );
 
-      expect(statut).to.deep.equal(nouveauStatut)
+      expect(statut).to.deep.equal(nouveauStatut);
     });
-  })
+  });
 });

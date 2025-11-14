@@ -97,7 +97,7 @@ export const créerCrabesTest = async <
   await connecterCrabes(crabes);
 
   const fermer = async () => {
-    await Promise.allSettled(crabes.map((c) => c.fermer()))
+    await Promise.allSettled(crabes.map((c) => c.fermer()));
     effacer();
   };
 

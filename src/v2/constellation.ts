@@ -5,7 +5,10 @@ import { Crabe, ServicesCrabe, StructureCrabe } from "./crabe/crabe.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { Bds } from "./bds.js";
 import { Tableaux } from "./tableaux.js";
-import { ConstructeursServicesNébuleuse, OptionsNébuleuse } from "./nébuleuse/nébuleuse.js";
+import {
+  ConstructeursServicesNébuleuse,
+  OptionsNébuleuse,
+} from "./nébuleuse/nébuleuse.js";
 import {
   SchémaCompte,
   ServicesDonnées,
@@ -14,7 +17,9 @@ import { Favoris } from "./favoris.js";
 import { Épingles } from "./epingles.js";
 import { Automatisations } from "./automatisations/automatisations.js";
 
-export type OptionsConstellation<L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe> = {
+export type OptionsConstellation<
+  L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
+> = {
   sujetRéseau?: string;
   protocoles?: string[];
 } & OptionsNébuleuse<ServicesConstellation<L>>;

@@ -25,7 +25,6 @@ import {
 
 import { type donnéesBdExportées } from "@/bds.js";
 import { cholqij } from "@/dates.js";
-import { cacheSuivi } from "@/décorateursCache.js";
 import {
   détailsRègleBornesDynamiqueColonne,
   détailsRègleBornesDynamiqueVariable,
@@ -48,6 +47,7 @@ import type {
   catégorieBaseVariables,
   catégorieVariables,
 } from "@/variables.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 import { cidEtFichierValide } from "@/epingles.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 

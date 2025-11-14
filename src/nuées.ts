@@ -31,11 +31,6 @@ import {
 } from "@/types.js";
 
 import { schémaBdTableauxDeBd } from "@/bds.js";
-import {
-  cacheRechercheParN,
-  cacheRechercheParProfondeur,
-  cacheSuivi,
-} from "@/décorateursCache.js";
 import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
 import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
 import {
@@ -70,6 +65,11 @@ import type {
   élémentsBd,
 } from "@/types.js";
 import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
+import {
+  cacheRechercheParN,
+  cacheRechercheParProfondeur,
+  cacheSuivi,
+} from "@/décorateursCache.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 type ContrôleurConstellation = Awaited<

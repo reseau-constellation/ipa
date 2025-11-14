@@ -265,7 +265,6 @@ describe("BDs", function () {
     });
   });
 
-
   describe("Tableaux", function () {
     let idTableau: string;
     let idBd: string;

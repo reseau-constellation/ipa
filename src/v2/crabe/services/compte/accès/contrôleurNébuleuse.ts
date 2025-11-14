@@ -101,7 +101,7 @@ const ContrôleurNébuleuse =
     orbitdb: OrbitDB;
     identities: IdentitiesType;
     address?: string;
-    signal?: AbortSignal,
+    signal?: AbortSignal;
   }) => {
     écriture ??= orbitdb.identity.id;
 
@@ -126,7 +126,7 @@ const ContrôleurNébuleuse =
     if (address) {
       const manifestBytes = await stockage.get(
         address.replaceAll(`/${nomType}/`, ""),
-        signal
+        signal,
       );
       const { value } = await Block.decode({
         bytes: manifestBytes,
@@ -141,7 +141,7 @@ const ContrôleurNébuleuse =
 
       bdAccès = (await orbitdb.open(adresseBdAccès, {
         type: "keyvalue",
-        signal
+        signal,
       })) as KeyValueDatabase;
     } else {
       bdAccès = (await orbitdb.open(
@@ -149,7 +149,7 @@ const ContrôleurNébuleuse =
         {
           type: "keyvalue",
           AccessController: ContrôleurAccès({ écriture, storage: stockage }),
-          signal
+          signal,
         },
       )) as KeyValueDatabase;
       adresseBdAccès = bdAccès.address;
@@ -219,10 +219,12 @@ const ContrôleurNébuleuse =
 
       // Pour implémenter la révocation des permissions, garder compte ici
       // des entrées approuvées par utilisatrice
-      if ((await identities.verifyIdentity(writerIdentity)) &&
-        (await estAutorisé(id))) {
-          return true
-        };
+      if (
+        (await identities.verifyIdentity(writerIdentity)) &&
+        (await estAutorisé(id))
+      ) {
+        return true;
+      }
 
       return false;
     };

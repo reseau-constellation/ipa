@@ -8,7 +8,6 @@ import {
 } from "@constl/utils-ipa";
 
 import { Semaphore } from "@chriscdn/promise-semaphore";
-import { cacheSuivi } from "@/décorateursCache.js";
 import {
   type InfoColAvecCatégorie,
   différenceTableaux,
@@ -26,6 +25,7 @@ import {
 import { Constellation } from "@/client.js";
 import type { JSONSchemaType } from "ajv";
 import type { erreurValidation, règleColonne, règleExiste } from "@/valid.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { ComposanteClientListe } from "@/v2/nébuleuse/services.js";
 
@@ -1019,7 +1019,6 @@ export class BDs extends ComposanteClientListe<string> {
 
     await fOublier();
   }
-
 
   @cacheSuivi
   async suivreMotsClefsBd({

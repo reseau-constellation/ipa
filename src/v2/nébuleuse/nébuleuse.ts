@@ -175,9 +175,10 @@ export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
       );
 
     await Promise.all(prêtsÀFermer.map((s) => s.fermer()));
-    
-    const malFermé = prêtsÀFermer.find(s=>s.estDémarré)
-    if (malFermé) throw new Error(`Service ${malFermé.clef} n'a pas été bien fermé.`)
+
+    const malFermé = prêtsÀFermer.find((s) => s.estDémarré);
+    if (malFermé)
+      throw new Error(`Service ${malFermé.clef} n'a pas été bien fermé.`);
 
     await this.fermerServices();
   }

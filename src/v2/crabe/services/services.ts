@@ -174,7 +174,8 @@ export class ServiceDonnéesNébuleuse<
       | (T extends ExtractKeys<Structure>
           ? GetValueFromKey<Structure, T>
           : PartielRécursif<Structure>)
-      | null | undefined
+      | null
+      | undefined
     >;
     clef?: T;
     idCompte?: string;

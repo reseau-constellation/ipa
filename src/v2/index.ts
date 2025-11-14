@@ -4,7 +4,10 @@ import {
   Constellation as ConstructeurConstellation,
   OptionsConstellation,
 } from "./constellation.js";
-import { générerMandataireProcessus, générerMandataireTravailleur } from "./crabe/mandataire/index.js";
+import {
+  générerMandataireProcessus,
+  générerMandataireTravailleur,
+} from "./crabe/mandataire/index.js";
 import type { MandataireConstellation } from "@constl/mandataire";
 
 export type Constellation = MandataireConstellation<ConstructeurConstellation>;
@@ -12,12 +15,13 @@ export type Constellation = MandataireConstellation<ConstructeurConstellation>;
 export const créerConstellation = (
   opts: OptionsConstellation = {},
 ): Constellation => {
-
   if (isWebWorker) {
     console.warn(
       "Constellation a été initialisée dans un processus de travailleur, ce qui pourrait mener à des difficultés de connectivité.",
     );
-    return générerMandataireTravailleur(() => new ConstructeurConstellation(opts))
+    return générerMandataireTravailleur(
+      () => new ConstructeurConstellation(opts),
+    );
   }
 
   const mandataire = générerMandataireProcessus(

@@ -85,7 +85,11 @@ export class MotsClefs<
     return await this.suivreBd({
       idCompte,
       f: async (motsClefs) =>
-        await f((motsClefs ? Object.keys(motsClefs) : []).map(m=>ajouterProtocoleOrbite(m))),
+        await f(
+          (motsClefs ? Object.keys(motsClefs) : []).map((m) =>
+            ajouterProtocoleOrbite(m),
+          ),
+        ),
     });
   }
 
@@ -136,7 +140,7 @@ export class MotsClefs<
     // On court-circuite `this.service("favoris")`
     const favoris = this.nébuleuse.services["favoris"];
     await favoris.désépinglerFavori({ idObjet: idMotClef });
-    
+
     // Effacer le mot-clef lui-même
     await this.service("orbite").effacerBd({ id: idMotClef });
   }

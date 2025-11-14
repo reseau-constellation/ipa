@@ -53,8 +53,8 @@ describe.only("Épingles", function () {
         nomFichier: "logo.svg",
       });
 
-      const { bd, oublier } = await constl.orbite.créerBd({type: "keyvalue"})
-      idBd = bd.address
+      const { bd, oublier } = await constl.orbite.créerBd({ type: "keyvalue" });
+      idBd = bd.address;
       await bd.put("a", 1);
       await oublier();
     });
@@ -64,41 +64,51 @@ describe.only("Épingles", function () {
     });
 
     it("épingler hélia", async () => {
-      await constl.épingles.épingler({ idRequête: "a", épingles: new Set([idc])})
-      
+      await constl.épingles.épingler({
+        idRequête: "a",
+        épingles: new Set([idc]),
+      });
+
       await que(async () => await constl.épingles.estÉpinglé({ id: idc }));
 
       const hélia = await constl.services.hélia.hélia();
-      const épingléSurHélia = await hélia.pins.isPinned(CID.parse(diviserIdcEtFichier(idc).idc));
+      const épingléSurHélia = await hélia.pins.isPinned(
+        CID.parse(diviserIdcEtFichier(idc).idc),
+      );
 
       expect(épingléSurHélia).to.be.true();
-
     });
 
     it("désépingler hélia", async () => {
-      await constl.épingles.désépingler({ idRequête: "a" })
-      
-      await que(async () => !await constl.épingles.estÉpinglé({ id: idc }));
+      await constl.épingles.désépingler({ idRequête: "a" });
+
+      await que(async () => !(await constl.épingles.estÉpinglé({ id: idc })));
 
       const hélia = await constl.services.hélia.hélia();
-      const épingléSurHélia = await hélia.pins.isPinned(CID.parse(diviserIdcEtFichier(idc).idc));
+      const épingléSurHélia = await hélia.pins.isPinned(
+        CID.parse(diviserIdcEtFichier(idc).idc),
+      );
 
       expect(épingléSurHélia).to.be.false();
     });
 
     it("épingler orbite", async () => {
-      await constl.épingles.épingler({ idRequête: "a", épingles: new Set([idBd])})
-      
+      await constl.épingles.épingler({
+        idRequête: "a",
+        épingles: new Set([idBd]),
+      });
+
       await que(async () => await constl.épingles.estÉpinglé({ id: idBd }));
     });
 
     it("désépingler orbite", async () => {
-      await constl.épingles.désépingler({ idRequête: "a" })
-      
-      await que(async () => (await constl.épingles.estÉpinglé({ id: idBd })) === false);
+      await constl.épingles.désépingler({ idRequête: "a" });
+
+      await que(
+        async () => (await constl.épingles.estÉpinglé({ id: idBd })) === false,
+      );
     });
   });
-
 
   describe("cycle de vie", function () {
     let fermer: () => Promise<void>;
@@ -118,19 +128,24 @@ describe.only("Épingles", function () {
 
     it("bds fermées après fermeture", async () => {
       let fermée = false;
-      const lorsqueFermée = () => fermée = true;
+      const lorsqueFermée = () => (fermée = true);
 
-      const { bd, oublier } = await constl.orbite.créerBd({type: "keyvalue"});
+      const { bd, oublier } = await constl.orbite.créerBd({ type: "keyvalue" });
       bd.events.on("close", lorsqueFermée);
 
       await bd.put("a", 1);
-      
-      await constl.épingles.épingler({ idRequête: "a", épingles: new Set([bd.address])});
-      await que(async () => await constl.épingles.estÉpinglé({ id: bd.address }));
+
+      await constl.épingles.épingler({
+        idRequête: "a",
+        épingles: new Set([bd.address]),
+      });
+      await que(
+        async () => await constl.épingles.estÉpinglé({ id: bd.address }),
+      );
 
       await oublier();
       expect(fermée).to.be.false();
-      
+
       await constl.épingles.fermer();
 
       bd.events.off("close", lorsqueFermée);
@@ -138,15 +153,23 @@ describe.only("Épingles", function () {
     });
 
     it("pas d'erreur si bd non disponible", async () => {
-      const idBdInexistante = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-      
-      await constl.épingles.épingler({ idRequête: "a", épingles: new Set([idBdInexistante])});
+      const idBdInexistante =
+        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+
+      await constl.épingles.épingler({
+        idRequête: "a",
+        épingles: new Set([idBdInexistante]),
+      });
     });
 
     it("pas d'erreur si idc hélia non disponible", async () => {
-      const idcInexistant = "bafkreie7ohywtosou76tasm7j63yigtzxe7d5zqus4zu3j6oltvgtibeom";
+      const idcInexistant =
+        "bafkreie7ohywtosou76tasm7j63yigtzxe7d5zqus4zu3j6oltvgtibeom";
 
-      await constl.épingles.épingler({ idRequête: "a", épingles: new Set([idcInexistant])});
+      await constl.épingles.épingler({
+        idRequête: "a",
+        épingles: new Set([idcInexistant]),
+      });
     });
   });
 });

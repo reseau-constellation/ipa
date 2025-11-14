@@ -2,8 +2,8 @@ import { expect } from "aegir/chai";
 import { Constellation } from "@/v2/index.js";
 import { PartielRécursif, TraducsTexte } from "@/v2/types.js";
 import { TOUS_DISPOSITIFS } from "@/v2/favoris.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
 import { ÉpingleMotClef } from "@/v2/motsClefs.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe.only("Mots-clefs", function () {
   let fermer: () => Promise<void>;
@@ -43,9 +43,10 @@ describe.only("Mots-clefs", function () {
       );
 
       expect(motsClefs).to.have.members([idMotClef]);
-      
-      const épingle = await obtenir<PartielRécursif<ÉpingleMotClef>>(({ siDéfini }) =>
-        constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: siDéfini() }),
+
+      const épingle = await obtenir<PartielRécursif<ÉpingleMotClef>>(
+        ({ siDéfini }) =>
+          constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: siDéfini() }),
       );
       expect(épingle).to.not.be.undefined();
     });
@@ -61,7 +62,7 @@ describe.only("Mots-clefs", function () {
       expect(motsClefs).to.be.an.empty("array");
 
       const épingle = await obtenir(({ si }) =>
-        constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: si(x=>!x) }),
+        constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: si((x) => !x) }),
       );
       expect(épingle).to.be.undefined();
     });
@@ -222,7 +223,9 @@ describe.only("Mots-clefs", function () {
           f: siPasVide(),
         }),
       );
-      expect(descriptions.fr).to.equal("Données liées au domaine de l'hydrologie");
+      expect(descriptions.fr).to.equal(
+        "Données liées au domaine de l'hydrologie",
+      );
     });
 
     it("Ajouter des descriptions", async () => {
@@ -310,8 +313,8 @@ describe.only("Mots-clefs", function () {
     });
 
     it("le mot-clef est copié", async () => {
-      expect(typeof idMotClef2).to.equal("string")
-    })
+      expect(typeof idMotClef2).to.equal("string");
+    });
 
     it("le mot-clef est ajouté à mes mots-clefs", async () => {
       const motsClefs = await obtenir(({ siPasVide }) =>

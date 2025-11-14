@@ -166,7 +166,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
           épingle: branche,
           f: fSuivreBranche,
         });
-      return faisRien
+      return faisRien;
     };
     const fIdDeBranche = (b: PartielRécursif<ÉpingleFavorisAvecId>) =>
       b.idObjet;
@@ -266,7 +266,8 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     const bd = await this.bd();
 
     const existant = await bd.get(extraireEmpreinte(idObjet));
-    if (!deepEqual(existant, épingle)) await bd.put(extraireEmpreinte(idObjet), épingle);
+    if (!deepEqual(existant, épingle))
+      await bd.put(extraireEmpreinte(idObjet), épingle);
   }
 
   async désépinglerFavori({ idObjet }: { idObjet: string }): Promise<void> {

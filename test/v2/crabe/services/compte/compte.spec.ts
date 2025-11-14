@@ -332,7 +332,7 @@ describe.only("Service Compte", function () {
     before(async () => {
       ({ crabes, fermer } = await créerCrabesTest({
         n: 2,
-        services: { },
+        services: {},
       }));
       comptes = crabes.map((n) => n.services["compte"]);
 

@@ -10,19 +10,20 @@ import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 
 export const diviserIdcEtFichier = (val: string) => {
   const premièreBarreOblique = val.indexOf("/");
-  // eslint-disable-next-line no-irregular-whitespace
-  if (premièreBarreOblique === -1) throw new Error(`Chemin IDC et fichier non valide : ${val}`);
+   
+  if (premièreBarreOblique === -1)
+    throw new Error(`Chemin IDC et fichier non valide : ${val}`);
 
   const idc = val.slice(0, premièreBarreOblique);
-  const fichier = val.slice(premièreBarreOblique+1);
+  const fichier = val.slice(premièreBarreOblique + 1);
 
   return { idc, fichier };
-}
+};
 
 export const idcEtFichierValide = (val: string) => {
   let idc: string;
   let fichier: string;
-  
+
   try {
     ({ idc, fichier } = diviserIdcEtFichier(val));
   } catch {
@@ -69,7 +70,7 @@ export class Épingles<
     épingles: Set<string>;
   }) {
     this.requêtes.set(idRequête, épingles);
-    
+
     this.queue.add(async () => await this.mettreÀJour());
   }
 
@@ -80,16 +81,18 @@ export class Épingles<
 
   async estÉpinglé({ id }: { id: string }): Promise<boolean> {
     // Enlever le fichier s'il s'agit d'un CID avec fichier
-    const idcEtFichier = idcEtFichierValide(id)
+    const idcEtFichier = idcEtFichierValide(id);
     if (idcEtFichier) id = idcEtFichier.idc;
- 
+
     return this.bdsOuvertes.has(id) || this.idcsÉpinglés.has(id);
   }
 
   private async mettreÀJour() {
     if (this.signaleurArrêt.signal.aborted) return;
 
-    const àÉpingler = new Set([...this.requêtes.values()].map(x=>[...x]).flat());
+    const àÉpingler = new Set(
+      [...this.requêtes.values()].map((x) => [...x]).flat(),
+    );
     const bdsOrbiteÀÉpingler = [...àÉpingler].filter(
       (id) => id && adresseOrbiteValide(id),
     );
@@ -108,18 +111,20 @@ export class Épingles<
     try {
       for (const idc of idcsÀÉpingler) {
         await drain(
-          hélia.pins.add(CID.parse(idc), { signal: this.signaleurArrêt.signal }),
+          hélia.pins.add(CID.parse(idc), {
+            signal: this.signaleurArrêt.signal,
+          }),
         );
       }
     } catch (e) {
-      if (e.toString().includes('AbortError')) return;
-      throw e
+      if (e.toString().includes("AbortError")) return;
+      throw e;
     }
 
     const idcsÀDésépingler = [...this.idcsÉpinglés].filter(
       (id) => !idcsÀÉpingler.includes(id),
     );
-    
+
     try {
       for (const idc of idcsÀDésépingler) {
         await drain(
@@ -127,8 +132,8 @@ export class Épingles<
         );
       }
     } catch (e) {
-      if (e.toString().includes('AbortError')) return;
-      throw e
+      if (e.toString().includes("AbortError")) return;
+      throw e;
     }
     this.idcsÉpinglés = new Set(idcsÀÉpingler);
 
@@ -161,7 +166,9 @@ export class Épingles<
     await this.queue.onIdle();
 
     await Promise.allSettled(
-      [...this.bdsOuvertes.values()].map(async ({ bd, oublier }) => await oublier()),
+      [...this.bdsOuvertes.values()].map(
+        async ({ bd, oublier }) => await oublier(),
+      ),
     );
 
     await super.fermer();

@@ -10,7 +10,6 @@ import { multiaddr } from "@multiformats/multiaddr";
 import { PartielRécursif } from "../types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
 
-
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {
   return new Promise<void>((résoudre) => {
     const terminer = () => {
