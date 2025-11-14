@@ -70,7 +70,7 @@ const ManifestContrôleurNébuleuse = async ({
   stockage: Storage;
   type: string;
   params: { nom: string; adresseBdAccès: string; écriture: string };
-  signal: AbortSignal;
+  signal?: AbortSignal;
 }) => {
   const manifest = {
     type,
