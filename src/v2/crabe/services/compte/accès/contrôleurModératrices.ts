@@ -124,7 +124,6 @@ const ContrôleurAccès =
         // Qu'il s'agisse d'un membre ou d'une modératrice, on accepte la demande d'édition des données
         return true;
       }
-      console.log("refusée ctlmod : ", entry)
       return false;
     };
 
@@ -134,7 +133,6 @@ const ContrôleurAccès =
       id: string,
       entry: LogEntry,
     ): Promise<boolean> => {
-      console.log({entry, mod: await accès.estUneModératrice(id)})
       if (await accès.estUneModératrice(id)) return true;
 
       const prochains = entry.next;

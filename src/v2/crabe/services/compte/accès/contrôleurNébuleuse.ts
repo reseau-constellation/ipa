@@ -216,7 +216,6 @@ const ContrôleurNébuleuse =
           return true
         };
 
-      console.log("refusée ctlmod : ", entry)
       return false;
     };
 
