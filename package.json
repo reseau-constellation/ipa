@@ -186,7 +186,8 @@
     ],
     "patchedDependencies": {
       "@chainsafe/libp2p-gossipsub@14.1.2": "patches/@chainsafe__libp2p-gossipsub@14.1.2.patch",
-      "@orbitdb/core@3.0.2": "patches/@orbitdb__core@3.0.2.patch"
+      "@orbitdb/core@3.0.2": "patches/@orbitdb__core@3.0.2.patch",
+      "@orbitdb/core-types": "patches/@orbitdb__core-types.patch"
     }
   }
 }

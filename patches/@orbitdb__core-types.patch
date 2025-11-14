@@ -1,0 +1,31 @@
+diff --git a/src/index.d.ts b/src/index.d.ts
+index 10ed1d3fb214b30abf121353fcb55c73be47c192..2c0ab29b13d18a9fea2371afda797479a33b6fe4 100644
+--- a/src/index.d.ts
++++ b/src/index.d.ts
+@@ -37,6 +37,7 @@ declare module "@orbitdb/core" {
+     entryStorage: Storage;
+     indexStorage: Storage;
+     referencesCount: number;
++    signal?: AbortSignal;
+   }>;
+ 
+   type CreateDatabaseOptions<T extends ServiceMap = ServiceMap> = {
+@@ -256,6 +257,7 @@ declare module "@orbitdb/core" {
+     orbitdb: OrbitDB;
+     identities: IdentitiesType;
+     address?: string;
++    signal?: AbortSignal;
+   }): Promise<AccessController>;
+ 
+   export type AccessController = {
+@@ -338,8 +340,8 @@ declare module "@orbitdb/core" {
+   }
+ 
+   export type Storage = {
+-    put: (hash: string, data: unknown) => Promise<void>; // Todo: check if DagCborEncodable is appropriate here
+-    get: (hash: string) => Promise<ByteView<unknown>>;
++    put: (hash: string, data: unknown, signal?: AbortSignal) => Promise<void>; // Todo: check if DagCborEncodable is appropriate here
++    get: (hash: string, signal?: AbortSignal) => Promise<ByteView<unknown>>;
+   };
+   export function IPFSBlockStorage<T extends ServiceMap = ServiceMap>(args: {
+     ipfs: Helia<Libp2p<T>>;
