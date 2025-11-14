@@ -4,7 +4,7 @@ import {
   cacheRechercheParN,
   cacheRechercheParProfondeur,
   cacheSuivi,
-} from "@/décorateursCache.js";
+} from "@/v2/crabe/cache.js";
 import { Suivi, Oublier, RetourRecherche } from "@/v2/crabe/types.js";
 import { attendreQue } from "../nébuleuse/utils/fonctions.js";
 
@@ -27,6 +27,7 @@ describe.only("Cache", function () {
       }
 
       @cacheSuivi
+      // eslint-disable-next-line no-empty-pattern
       async sansFonction({}: { a: number }): Promise<Oublier> {
         return async () => {};
       }
@@ -220,6 +221,7 @@ describe.only("Cache", function () {
       }
 
       @cacheRechercheParN
+      // eslint-disable-next-line no-empty-pattern
       async sansFonction({}: { a: number }): Promise<Oublier> {
         return async () => {};
       }
