@@ -260,7 +260,7 @@ const ContrôleurNébuleuse =
     };
 
     const drop = async () => {
-      // Désactivée pour l'instant. Si nous avons plus qu'une bd qui partage le même contrôleur,
+      // Désactivée pour l'instant. Si nous avons plus qu'une bd qui partagent le même contrôleur,
       // la destruction de la bd du contrôleur pourrait causer des ennuis.
       // await bd.drop();
     };
