@@ -33,7 +33,7 @@ describe.only("Accès", function () {
     });
 
     after(async () => {
-      await fermer();
+      if (fermer) await fermer();
     });
 
     beforeEach(async () => {
@@ -60,9 +60,10 @@ describe.only("Accès", function () {
 
     it("ajout d'un membre", async () => {
       await accès.autoriser(MEMBRE, orbite2.identity.id);
-
+      console.log("autorisé")
       // Effectué sur l'instance originale
       await attendreInvité(bd, orbite2.identity.id);
+      console.log("invité")
       const membre = await accès.estUnMembre(orbite2.identity.id);
       expect(membre).to.be.true();
 
@@ -72,7 +73,9 @@ describe.only("Accès", function () {
       // Effectué sur l'instance ajoutée
       const bdSurOrbite2 = (await orbite2.open(bd.address)) as KeyValueDatabase;
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
+      console.log("ici")
       await attendreInvité(bdSurOrbite2, orbite2.identity.id);
+      console.log("INVITÉ")
 
       const membreSurBd2 = await accès2.estUnMembre(orbite2.identity.id);
       expect(membreSurBd2).to.be.true();
@@ -82,7 +85,9 @@ describe.only("Accès", function () {
       );
       expect(modératriceSurBd2).to.be.false();
 
+      console.log("là")
       const autorisé = await peutÉcrire(bdSurOrbite2);
+      console.log("autorisé ici")
       expect(autorisé).to.be.true();
     });
 
@@ -103,12 +108,14 @@ describe.only("Accès", function () {
 
       const bdSurOrbite2 = await orbite2.open(bd.address);
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
+      await attendreInvité(bdSurOrbite2, orbite2.identity.id);
 
       await accès2.autoriser(MEMBRE, orbite3.identity.id);
 
       const bdSurOrbite3 = (await orbite3.open(bd.address)) as KeyValueDatabase;
-
+      console.log("avant attendre invité")
       await attendreInvité(bdSurOrbite3, orbite3.identity.id);
+      console.log("après attendre invité")
 
       const autorisé = await peutÉcrire(bdSurOrbite3);
       expect(autorisé).to.be.true();
@@ -265,7 +272,7 @@ describe.only("Accès", function () {
     });
 
     after(async () => {
-      await fermer();
+      if (fermer) await fermer();
     });
 
     beforeEach(async () => {

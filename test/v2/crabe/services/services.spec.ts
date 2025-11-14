@@ -41,7 +41,7 @@ describe.only("Services Crabe", function () {
     });
 
     after(async () => {
-      await fermer();
+      if (fermer) await fermer();
     });
 
     it("orbite", () => {
@@ -133,7 +133,7 @@ describe.only("Services Crabe", function () {
         orbite = orbites[0];
       });
       after(async () => {
-        await fermer();
+        if (fermer) await fermer();
       });
 
       beforeEach(async () => {

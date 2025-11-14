@@ -40,7 +40,7 @@ describe.only("Service Hélia", function () {
     });
 
     after(async () => {
-      await fermer();
+      if (fermer) await fermer();
     });
 
     it("extraire Hélia - Orbite", () => {

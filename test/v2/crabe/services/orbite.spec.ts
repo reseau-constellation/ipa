@@ -49,7 +49,7 @@ describe.only("Mandataire OrbitDB", function () {
   });
 
   after(async () => {
-    await fermer();
+    if (fermer) await fermer();
   });
 
   it("condition concurrence sans mandataire", async () => {
