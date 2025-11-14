@@ -27,10 +27,12 @@ const premierModérateur = async ({
   stockage,
   type,
   params,
+  signal,
 }: {
   stockage: Storage;
   type: string;
   params: { écriture: string };
+  signal?: AbortSignal;
 }) => {
   const manifest = {
     type,
@@ -38,7 +40,7 @@ const premierModérateur = async ({
   };
   const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher });
   const hash = cid.toString(hashStringEncoding);
-  await stockage.put(hash, bytes);
+  await stockage.put(hash, bytes, signal);
   return hash;
 };
 
@@ -51,10 +53,12 @@ const ContrôleurAccès =
     orbitdb,
     identities,
     address,
+    signal,
   }: {
     orbitdb: OrbitDB;
     identities: IdentitiesType;
     address?: string;
+    signal?: AbortSignal;
   }) => {
     orbitdb = mandatOrbite(orbitdb);
 
@@ -71,6 +75,7 @@ const ContrôleurAccès =
     if (address) {
       const octetsManifest = await stockageFinal.get(
         address.replaceAll(`/${nomType}/`, ""),
+        signal,
       );
       const { value } = await Block.decode({
         bytes: octetsManifest,
@@ -83,6 +88,7 @@ const ContrôleurAccès =
         stockage: stockageFinal,
         type: nomType,
         params: { écriture },
+        signal,
       });
       address = `/${nomType}/${address}`;
     }

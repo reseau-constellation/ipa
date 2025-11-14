@@ -65,10 +65,12 @@ const ManifestContrôleurNébuleuse = async ({
   stockage,
   type,
   params,
+  signal,
 }: {
   stockage: Storage;
   type: string;
   params: { nom: string; adresseBdAccès: string; écriture: string };
+  signal: AbortSignal;
 }) => {
   const manifest = {
     type,
@@ -76,7 +78,7 @@ const ManifestContrôleurNébuleuse = async ({
   };
   const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher });
   const hash = cid.toString(hashStringEncoding);
-  await stockage.put(hash, bytes);
+  await stockage.put(hash, bytes, signal);
   return hash;
 };
 
@@ -94,10 +96,12 @@ const ContrôleurNébuleuse =
     orbitdb,
     identities,
     address,
+    signal,
   }: {
     orbitdb: OrbitDB;
     identities: IdentitiesType;
     address?: string;
+    signal?: AbortSignal,
   }) => {
     écriture ??= orbitdb.identity.id;
 
@@ -122,6 +126,7 @@ const ContrôleurNébuleuse =
     if (address) {
       const manifestBytes = await stockage.get(
         address.replaceAll(`/${nomType}/`, ""),
+        signal
       );
       const { value } = await Block.decode({
         bytes: manifestBytes,
@@ -136,6 +141,7 @@ const ContrôleurNébuleuse =
 
       bdAccès = (await orbitdb.open(adresseBdAccès, {
         type: "keyvalue",
+        signal
       })) as KeyValueDatabase;
     } else {
       bdAccès = (await orbitdb.open(
@@ -143,6 +149,7 @@ const ContrôleurNébuleuse =
         {
           type: "keyvalue",
           AccessController: ContrôleurAccès({ écriture, storage: stockage }),
+          signal
         },
       )) as KeyValueDatabase;
       adresseBdAccès = bdAccès.address;
@@ -150,6 +157,7 @@ const ContrôleurNébuleuse =
         stockage,
         type: nomType,
         params: { écriture, nom, adresseBdAccès },
+        signal,
       });
       address = `/${nomType}/${address}`;
     }

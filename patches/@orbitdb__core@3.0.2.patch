@@ -1,3 +1,44 @@
+diff --git a/src/access-controllers/ipfs.js b/src/access-controllers/ipfs.js
+index 40904cced08d86d3ea764e12509846fb0d6507b4..daf435e25e195e4a1f4eb6b1399de9eb9ddcee5f 100644
+--- a/src/access-controllers/ipfs.js
++++ b/src/access-controllers/ipfs.js
+@@ -52,7 +52,7 @@ const type = 'ipfs'
+  * IPFSAccessController function.
+  * @memberof module:AccessControllers
+  */
+-const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, identities, address }) => {
++const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, identities, address, signal }) => {
+   storage = storage || await ComposedStorage(
+     await LRUStorage({ size: 1000 }),
+     await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
+@@ -60,7 +60,7 @@ const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, iden
+   write = write || [orbitdb.identity.id]
+ 
+   if (address) {
+-    const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''))
++    const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''), signal)
+     const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
+     write = value.write
+   } else {
+diff --git a/src/access-controllers/orbitdb.js b/src/access-controllers/orbitdb.js
+index 2a6deb1ee3059257d2a68dc1710d181ed8adae97..237e56e084c329c9aeae9ae7ec9cb67bedfefbb2 100644
+--- a/src/access-controllers/orbitdb.js
++++ b/src/access-controllers/orbitdb.js
+@@ -32,12 +32,12 @@ const type = 'orbitdb'
+  * IPFSAccessController function.
+  * @memberof module:AccessControllers
+  */
+-const OrbitDBAccessController = ({ write } = {}) => async ({ orbitdb, identities, address, name }) => {
++const OrbitDBAccessController = ({ write } = {}) => async ({ orbitdb, identities, address, name, signal }) => {
+   address = address || name || await createId(64)
+   write = write || [orbitdb.identity.id]
+ 
+   // Open the database used for access information
+-  const db = await orbitdb.open(address, { type: 'keyvalue', AccessController: IPFSAccessController({ write }) })
++  const db = await orbitdb.open(address, { type: 'keyvalue', AccessController: IPFSAccessController({ write, signal }), signal })
+   address = db.address
+ 
+   /**
 diff --git a/src/manifest-store.js b/src/manifest-store.js
 index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..04829cd98f95a67021c75772a33b0b69d8aae035 100644
 --- a/src/manifest-store.js
@@ -52,7 +93,7 @@ index fb4a732274e056e1adf499b685b5a34cc304ade5..1b56421626f15271762182adb78b6caf
      await _heads.add(entry)
      return entry.hash
 diff --git a/src/orbitdb.js b/src/orbitdb.js
-index cc055cb011aa58bd77698694423d1ff88aa0ab2d..1d6f428ccee6092434cd1f11b7aaa5c700b148b2 100644
+index cc055cb011aa58bd77698694423d1ff88aa0ab2d..414a4da2197aff092d2c4e6bed878d11adb0ceb2 100644
 --- a/src/orbitdb.js
 +++ b/src/orbitdb.js
 @@ -106,6 +106,8 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
@@ -73,7 +114,7 @@ index cc055cb011aa58bd77698694423d1ff88aa0ab2d..1d6f428ccee6092434cd1f11b7aaa5c7
      let name, manifest, accessController
  
      if (databases[address]) {
-@@ -123,7 +125,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+@@ -123,10 +125,10 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
      if (isValidAddress(address)) {
        // If the address given was a valid OrbitDB address, eg. '/orbitdb/zdpuAuK3BHpS7NvMBivynypqciYCuy2UW77XYBPUYRnLjnw13'
        const addr = OrbitDBAddress(address)
@@ -81,7 +122,11 @@ index cc055cb011aa58bd77698694423d1ff88aa0ab2d..1d6f428ccee6092434cd1f11b7aaa5c7
 +      manifest = await manifestStore.get(addr.hash, signal)
        const acType = manifest.accessController.split('/', 2).pop()
        AccessController = getAccessController(acType)()
-       accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, address: manifest.accessController })
+-      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, address: manifest.accessController })
++      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, address: manifest.accessController, signal })
+       name = manifest.name
+       type = type || manifest.type
+       meta = manifest.meta
 diff --git a/src/storage/composed.js b/src/storage/composed.js
 index 5c35309fd13700c1aa96818cbe9fc663c315e873..cb6e1785b24b25c6bda38075bbb011fa2cc42ed3 100644
 --- a/src/storage/composed.js
