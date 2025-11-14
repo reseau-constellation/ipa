@@ -222,7 +222,7 @@ describe.only("Accès", function () {
       for (const orbite of [orbite2, orbite3, orbite4]) {
         const bdLocale = await dernière.open(bd.address);
         const accèsLocal = bdLocale.access as InstanceContrôleurNébuleuse;
-        await attendreQue(() => accèsLocal.estUneModératrice(orbite2.identity.id));
+        await attendreQue(() => accèsLocal.estUneModératrice(dernière.identity.id));
 
         await (bdLocale.access as InstanceContrôleurNébuleuse).autoriser(
           MODÉRATRICE,
