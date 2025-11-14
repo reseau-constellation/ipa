@@ -345,7 +345,7 @@ export class ServiceOrbite<
       ...(signal ? [signal] : []),
     ]);
 
-    const bd = await réessayer(() => orbite.open(id), signalCombiné);
+    const bd = await réessayer(() => orbite.open(id, { signal: signalCombiné }), signalCombiné);
 
     signalCombiné.clear();
 

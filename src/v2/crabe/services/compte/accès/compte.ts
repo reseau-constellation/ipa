@@ -34,8 +34,8 @@ class AccèsCompte {
     this.événements = new TypedEmitter();
   }
 
-  async démarrer(): Promise<void> {
-    const bd = await this.orbite.open(this.idCompte);
+  async démarrer({ signal }: { signal?: AbortSignal } = {}): Promise<void> {
+    const bd = await this.orbite.open(this.idCompte, { signal });
     const accèsCompte = bd.access;
     if (!estContrôleurNébuleuse(accèsCompte))
       throw new Error(accèsCompte.type);
@@ -78,6 +78,7 @@ export class AccèsParComptes {
   queue: PQueue;
   événements: TypedEmitter<{ misÀJour: () => void }>;
   oublier: Oublier[];
+  signaleurArrêt: AbortController;
 
   _comptes: Map<string, { rôles: Set<Rôle>; accès: AccèsCompte }>;
   _dispositifs: Map<string, Set<Rôle>>;
@@ -88,6 +89,7 @@ export class AccèsParComptes {
     this.queue = new PQueue({ concurrency: 1 });
     this.événements = new TypedEmitter();
     this.oublier = [];
+    this.signaleurArrêt = new AbortController();
 
     this._comptes = new Map();
     this._dispositifs = new Map();
@@ -103,7 +105,7 @@ export class AccèsParComptes {
             accès: accèsCompte,
             rôles: new Set([rôle]),
           };
-          await accèsCompte.démarrer();
+          await accèsCompte.démarrer({ signal: this.signaleurArrêt.signal});
 
           this._comptes.set(id, utilisateur);
 
@@ -201,6 +203,7 @@ export class AccèsParComptes {
   }
 
   async fermer(): Promise<void> {
+    this.signaleurArrêt.abort();
     await Promise.allSettled(this.oublier.map((f) => f()));
   }
 }
