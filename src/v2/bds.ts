@@ -641,6 +641,37 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   // Métadonnées
+  
+
+  // Statut
+  async changerStatutBd({
+    idBd,
+    statut,
+  }: {
+    idBd: string;
+    statut: StatutDonnées;
+  }): Promise<void> {
+    const { bd, oublier } = await this.ouvrirBd({ idBd });
+    bd.set("statut", statut);
+    await oublier();
+  }
+
+  async suivreStatutBd({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<StatutDonnées | null>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+    return await orbite.suivreDonnéesBd({
+      id: idBd,
+      type: "nested",
+      schéma: schémaBd,
+      f: (bd) => f(toObject(bd).statut),
+    });
+  }
+
 
   // Licences
 
@@ -898,6 +929,15 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   // Données
+
+  // Gabarits
+
+  async bdÀGabarit({ idBd }: { idBd: string }): Promise<GabaritBd> {
+
+  }
+  async créerBdDeGabarit({ gabarit }: { gabarit: GabaritBd }): Promise<string> {
+
+  }
 
   // Exportations
 
