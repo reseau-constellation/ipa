@@ -20,7 +20,7 @@ describe.only("Tableaux", function () {
   });
 
   describe("accès", function () {
-    it("l'accès suit l'accès à la structure originale", async () => {
+    it("l'accès du tableau suit l'accès à la structure originale", async () => {
       const idBd = await constls[0].bds.créerBd({ licence: "ODBl-1_0" });
       const idTableau = await constls[0].tableaux.créerTableau({
         idStructure: idBd,
