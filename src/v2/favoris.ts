@@ -2,7 +2,7 @@ import deepEqual from "deep-equal";
 import { JSONSchemaType } from "ajv";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "./crabe/cache.js";
 import { PartielRécursif } from "./types.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { Constellation, ServicesConstellation } from "./constellation.js";

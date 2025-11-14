@@ -12,7 +12,7 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import { BookType, WorkBook, utils } from "xlsx";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "./crabe/cache.js";
 import { Constellation, ServicesConstellation } from "./constellation.js";
 import { Oublier, Suivi } from "./crabe/types.js";
 import { PartielRécursif, TraducsTexte } from "./types.js";

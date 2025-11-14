@@ -12,7 +12,7 @@ import { NestedObjectToMap, toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import xlsx, { utils as xlsxUtils } from "xlsx";
 import { DagCborEncodable } from "@orbitdb/core";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "./crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
 import { Constellation, ServicesConstellation } from "./constellation.js";
