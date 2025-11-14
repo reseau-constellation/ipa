@@ -1,0 +1,64 @@
+diff --git a/dist/orbitdb.js b/dist/orbitdb.js
+index f4072b8ffb4c2e7530cc27a7e9af05823ae27ef7..c2efccb245b5223f433e017bec85127222c581eb 100644
+--- a/dist/orbitdb.js
++++ b/dist/orbitdb.js
+@@ -32301,12 +32301,12 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+ 
+       await traverseAndVerify()
+ 
++      /* 7. Add the new entry to heads (=union with current heads) */
++      await oplogStore.addHead(entry)
+       /* 4. Add missing entries to the oplog store (=to the log) */
+       await oplogStore.addVerified(hashesToAdd.values())
+       /* 6. Remove heads which new entries are connect to */
+       await oplogStore.removeHeads(connectedHeads.values())
+-      /* 7. Add the new entry to heads (=union with current heads) */
+-      await oplogStore.addHead(entry)
+ 
+       return true
+     }
+@@ -32645,6 +32645,10 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
+   }
+ 
+   const addHead = async (entry) => {
++    // Add entry to the entry storage
++    const { hash, bytes } = await Entry.encode(entry, encryptEntryFn, encryptPayloadFn)
++    await _entries.put(hash, bytes)
++
+     /* 7. Add the new entry to heads (=union with current heads) */
+     await _heads.add(entry)
+     return entry.hash
+diff --git a/src/oplog/log.js b/src/oplog/log.js
+index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..f3b1febc9a1be59427192787c7c12c377608eedd 100644
+--- a/src/oplog/log.js
++++ b/src/oplog/log.js
+@@ -298,12 +298,12 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+ 
+       await traverseAndVerify()
+ 
++      /* 7. Add the new entry to heads (=union with current heads) */
++      await oplogStore.addHead(entry)
+       /* 4. Add missing entries to the oplog store (=to the log) */
+       await oplogStore.addVerified(hashesToAdd.values())
+       /* 6. Remove heads which new entries are connect to */
+       await oplogStore.removeHeads(connectedHeads.values())
+-      /* 7. Add the new entry to heads (=union with current heads) */
+-      await oplogStore.addHead(entry)
+ 
+       return true
+     }
+diff --git a/src/oplog/oplog-store.js b/src/oplog/oplog-store.js
+index fb4a732274e056e1adf499b685b5a34cc304ade5..1b56421626f15271762182adb78b6cafc0eee341 100644
+--- a/src/oplog/oplog-store.js
++++ b/src/oplog/oplog-store.js
+@@ -59,6 +59,10 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
+   }
+ 
+   const addHead = async (entry) => {
++    // Add entry to the entry storage
++    const { hash, bytes } = await Entry.encode(entry, encryptEntryFn, encryptPayloadFn)
++    await _entries.put(hash, bytes)
++
+     /* 7. Add the new entry to heads (=union with current heads) */
+     await _heads.add(entry)
+     return entry.hash

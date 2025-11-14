@@ -34,7 +34,7 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/utils-tests": "^2.0.4",
+    "@constl/utils-tests": "^2.0.5",
     "@eslint/js": "^9.39.1",
     "@libp2p/interface": "^3.1.0",
     "@orbitdb/core-types": "^1.2.1",
@@ -185,7 +185,8 @@
       "node-datachannel"
     ],
     "patchedDependencies": {
-      "@chainsafe/libp2p-gossipsub@14.1.2": "patches/@chainsafe__libp2p-gossipsub@14.1.2.patch"
+      "@chainsafe/libp2p-gossipsub@14.1.2": "patches/@chainsafe__libp2p-gossipsub@14.1.2.patch",
+      "@orbitdb/core@3.0.2": "patches/@orbitdb__core@3.0.2.patch"
     }
   }
 }
