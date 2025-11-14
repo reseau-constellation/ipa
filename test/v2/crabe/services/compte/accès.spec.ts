@@ -122,6 +122,7 @@ describe.only("Accès", function () {
 
       const bdSurOrbite2 = await orbite2.open(bd.address);
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
+      await attendreQue(() => accès2.estUneModératrice(orbite2.identity.id));
 
       await accès2.autoriser(MODÉRATRICE, orbite3.identity.id);
 
