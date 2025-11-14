@@ -105,20 +105,30 @@ export class Épingles<
 
     const serviceHélia = this.service("hélia");
     const hélia = await serviceHélia.hélia();
-    for (const idc of idcsÀÉpingler) {
-      await drain(
-        hélia.pins.add(CID.parse(idc), { signal: this.signaleurArrêt.signal }),
-      );
+    try {
+      for (const idc of idcsÀÉpingler) {
+        await drain(
+          hélia.pins.add(CID.parse(idc), { signal: this.signaleurArrêt.signal }),
+        );
+      }
+    } catch (e) {
+      if (e.toString().includes('AbortError')) return;
+      throw e
     }
 
     const idcsÀDésépingler = [...this.idcsÉpinglés].filter(
       (id) => !idcsÀÉpingler.includes(id),
     );
     
-    for (const idc of idcsÀDésépingler) {
-      await drain(
-        hélia.pins.rm(CID.parse(idc), { signal: this.signaleurArrêt.signal }),
-      );
+    try {
+      for (const idc of idcsÀDésépingler) {
+        await drain(
+          hélia.pins.rm(CID.parse(idc), { signal: this.signaleurArrêt.signal }),
+        );
+      }
+    } catch (e) {
+      if (e.toString().includes('AbortError')) return;
+      throw e
     }
     this.idcsÉpinglés = new Set(idcsÀÉpingler);
 
