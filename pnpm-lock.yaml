@@ -258,8 +258,8 @@ importers:
         version: https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz
     devDependencies:
       '@constl/utils-tests':
-        specifier: ^2.0.6
-        version: 2.0.6(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+        specifier: ^2.0.7
+        version: 2.0.7(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@eslint/js':
         specifier: ^9.39.1
         version: 9.39.1
@@ -930,8 +930,8 @@ packages:
     resolution: {integrity: sha512-ypThNw7fa47lu5HSRkEL12nqKz1CjCFeY9ticpOaEBMbqXvpTVNw9044+fvgIaI/KsXWrDf8RQZvTwOU1zz5yw==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@2.0.6':
-    resolution: {integrity: sha512-PBJ3jBNOw/kXouIJ6dpkeGhe9f/4WXlTfzi5UZhv7RNVObnlkF4YP23XpjnIcnf87tShZnEnpFg07mxozpXLWw==}
+  '@constl/utils-tests@2.0.7':
+    resolution: {integrity: sha512-bzYgta+lHOX9aQl416necCxhyNIvK7A4x3lEE7b1xjXk+5yK3/QN2GvHKiijXpZSi5cjGqCZgVyG6NxFoV3JWw==}
     engines: {node: '>=20'}
 
   '@cspell/cspell-bundled-dicts@9.3.1':
@@ -9386,7 +9386,7 @@ snapshots:
       uint8arrays: 5.1.0
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@2.0.6(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
+  '@constl/utils-tests@2.0.7(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
       '@chainsafe/libp2p-gossipsub': 14.1.2(patch_hash=a6858f69ff944c62a19bb092a5a212cc6ed808c08acf1934430d6af84472e662)
       '@helia/block-brokers': 4.2.4
@@ -11905,9 +11905,9 @@ snapshots:
       strong-log-transformer: 2.1.0
       tempy: 3.1.0
       typedoc: 0.28.14(typescript@5.8.3)
-      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.8.3))
-      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.8.3))
-      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.8.3))
+      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.9.3))
+      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.9.3))
+      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.9.3))
       typescript: 5.8.3
       typescript-docs-verifier: 3.0.1(typescript@5.8.3)
       wherearewe: 2.0.1
@@ -18935,16 +18935,16 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       html-escaper: 3.0.3
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
