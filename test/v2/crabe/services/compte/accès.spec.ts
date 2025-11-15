@@ -216,7 +216,7 @@ describe.only("Accès", function () {
       await bd2.close();
     });
 
-    it("Invitations transitives après fermeture de la bd", async () => {
+    it("invitations transitives après fermeture de la bd", async () => {
       let dernière = orbite1;
       for (const orbite of [orbite2, orbite3, orbite4]) {
         const bdLocale = await dernière.open(bd.address);
