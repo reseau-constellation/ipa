@@ -1,0 +1,21 @@
+diff --git a/dist/nested.js b/dist/nested.js
+index 81bfced85634ff0e61e3b5938156ad7ddc87b91d..170da78a7ae0b7025ccc3dc81a5cc279021cc86d 100644
+--- a/dist/nested.js
++++ b/dist/nested.js
+@@ -3,7 +3,7 @@ import { getScalePosition } from "@orbitdb/ordered-keyvalue-db";
+ import itAll from "it-all";
+ import { asJoinedKey, flatten, isNestedKey, isNestedValue, isSisterKey, isSubkey, parentKey, positionToScale, sortEntries, splitKey, toNested, } from "./utils.js";
+ const type = "nested";
+-const Nested = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, }) => {
++const Nested = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, signal, }) => {
+     const database = await Database({
+         ipfs,
+         identity,
+@@ -18,6 +18,7 @@ const Nested = () => async ({ ipfs, identity, address, name, access, directory,
+         referencesCount,
+         syncAutomatically,
+         onUpdate,
++        signal,
+     });
+     const { put, set, get, del, move, iterator, all } = NestedApi({ database });
+     return {

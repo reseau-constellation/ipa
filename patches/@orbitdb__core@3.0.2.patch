@@ -39,6 +39,104 @@ index 2a6deb1ee3059257d2a68dc1710d181ed8adae97..237e56e084c329c9aeae9ae7ec9cb67b
    address = db.address
  
    /**
+diff --git a/src/database.js b/src/database.js
+index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..714e40a0172be7f098326a3bd29a955c1eb8bac3 100644
+--- a/src/database.js
++++ b/src/database.js
+@@ -44,7 +44,7 @@ const defaultCacheSize = 1000
+  * @return {module:Databases~Database} An instance of Database.
+  * @instance
+  */
+-const Database = async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption }) => {
++const Database = async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal }) => {
+   /**
+    * @namespace module:Databases~Database
+    * @description The instance returned by {@link module:Database~Database}.
+@@ -112,7 +112,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
+ 
+   encryption = encryption || {}
+ 
+-  const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage, encryption })
++  const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage, encryption, signal })
+ 
+   const events = new EventEmitter()
+ 
+@@ -191,7 +191,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
+     events.emit('drop')
+   }
+ 
+-  const sync = await Sync({ ipfs, log, events, onSynced: applyOperation, start: syncAutomatically })
++  const sync = await Sync({ ipfs, log, events, onSynced: applyOperation, start: syncAutomatically, signal })
+ 
+   return {
+     /**
+diff --git a/src/databases/documents.js b/src/databases/documents.js
+index ffd3cfa1495e590f9ac8d03bad171c9477201a1a..f5aefa2ecd0e4dc064f9c3385b2bca6e8e82e99b 100644
+--- a/src/databases/documents.js
++++ b/src/databases/documents.js
+@@ -25,8 +25,8 @@ const DefaultOptions = { indexBy: '_id' }
+  * @return {module:Databases.Databases-Documents} A Documents function.
+  * @memberof module:Databases
+  */
+-const Documents = ({ indexBy } = DefaultOptions) => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encrypt }) => {
+-  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, encrypt })
++const Documents = ({ indexBy } = DefaultOptions) => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encrypt, signal }) => {
++  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, encrypt, signal })
+ 
+   const { addOperation, log } = database
+ 
+diff --git a/src/databases/events.js b/src/databases/events.js
+index b68e782ffe12fa82a227b6680e5dce66271b030c..d37a938392486b735eef1ac44040747e8a15febd 100644
+--- a/src/databases/events.js
++++ b/src/databases/events.js
+@@ -15,8 +15,8 @@ const type = 'events'
+  * @return {module:Databases.Databases-Events} A Events function.
+  * @memberof module:Databases
+  */
+-const Events = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption }) => {
+-  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption })
++const Events = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal }) => {
++  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal })
+ 
+   const { addOperation, log } = database
+ 
+diff --git a/src/databases/keyvalue-indexed.js b/src/databases/keyvalue-indexed.js
+index 4cb75f5883ce90f3447e3f9b1a9e752fb582ccb4..93951bb31a5d7627d0534d00bca5d14f62e78411 100644
+--- a/src/databases/keyvalue-indexed.js
++++ b/src/databases/keyvalue-indexed.js
+@@ -109,7 +109,7 @@ const Index = ({ directory } = {}) => async () => {
+  * function.
+  * @memberof module:Databases
+  */
+-const KeyValueIndexed = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption }) => {
++const KeyValueIndexed = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal }) => {
+   // Set up the directory for an index
+   directory = pathJoin(directory || './orbitdb', `./${address}/_index/`)
+ 
+@@ -117,7 +117,7 @@ const KeyValueIndexed = () => async ({ ipfs, identity, address, name, access, di
+   const index = await Index({ directory })()
+ 
+   // Set up the underlying KeyValue database
+-  const keyValueStore = await KeyValue()({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate: index.update, encryption })
++  const keyValueStore = await KeyValue()({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate: index.update, encryption, signal })
+ 
+   /**
+    * Gets a value from the store by key.
+diff --git a/src/databases/keyvalue.js b/src/databases/keyvalue.js
+index 74e955d618e846695e18402ad0f6d0be93392285..465ebc28dba156250843718cfcdc0ebc01c1e947 100644
+--- a/src/databases/keyvalue.js
++++ b/src/databases/keyvalue.js
+@@ -15,8 +15,8 @@ const type = 'keyvalue'
+  * @return {module:Databases.Databases-KeyValue} A KeyValue function.
+  * @memberof module:Databases
+  */
+-const KeyValue = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption }) => {
+-  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption })
++const KeyValue = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal }) => {
++  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal })
+ 
+   const { addOperation, log } = database
+ 
 diff --git a/src/identities/identities.js b/src/identities/identities.js
 index d08d879af6cd83fba553f6887a01a21c562b4511..76b68f82bfca23d0f81e80f005b6e5a4352bab12 100644
 --- a/src/identities/identities.js
@@ -74,9 +172,27 @@ index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..04829cd98f95a67021c75772a33b0b69
      return value
    }
 diff --git a/src/oplog/log.js b/src/oplog/log.js
-index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..f3b1febc9a1be59427192787c7c12c377608eedd 100644
+index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..4524aa95d6a67cf475cd6d1fcce2d932579798ac 100644
 --- a/src/oplog/log.js
 +++ b/src/oplog/log.js
+@@ -52,7 +52,7 @@ const DefaultAccessController = async () => {
+  * @memberof module:Log
+  * @instance
+  */
+-const Log = async (identity, { logId, logHeads, access, entryStorage, headsStorage, indexStorage, sortFn, encryption } = {}) => {
++const Log = async (identity, { logId, logHeads, access, entryStorage, headsStorage, indexStorage, sortFn, encryption, signal } = {}) => {
+   /**
+    * @namespace Log
+    * @description The instance returned by {@link module:Log}
+@@ -136,7 +136,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+     if (!hash) {
+       throw new Error('hash is required')
+     }
+-    return oplogStore.get(hash)
++    return oplogStore.get(hash, signal)
+   }
+ 
+   const has = async (hash) => {
 @@ -298,12 +298,12 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
  
        await traverseAndVerify()
@@ -93,9 +209,41 @@ index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..f3b1febc9a1be59427192787c7c12c37
        return true
      }
 diff --git a/src/oplog/oplog-store.js b/src/oplog/oplog-store.js
-index fb4a732274e056e1adf499b685b5a34cc304ade5..1b56421626f15271762182adb78b6cafc0eee341 100644
+index fb4a732274e056e1adf499b685b5a34cc304ade5..5d71925bae5647ff87e78e17e12d74115fd324aa 100644
 --- a/src/oplog/oplog-store.js
 +++ b/src/oplog/oplog-store.js
+@@ -5,7 +5,7 @@ import MemoryStorage from '../storage/memory.js'
+ // Default storage for storing the Log and its entries. Default: Memory. Options: Memory, LRU, IPFS.
+ const DefaultStorage = MemoryStorage
+ 
+-const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage, encryption }) => {
++const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage, encryption, signal }) => {
+   // Setup encryption and decryption functions
+   const encryptEntryFn = encryption?.replication?.encrypt
+   const decryptEntryFn = encryption?.replication?.decrypt
+@@ -21,7 +21,7 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
+   const _heads = await Heads({ storage: headsStorage, heads: logHeads, decryptPayloadFn, decryptEntryFn })
+ 
+   const get = async (hash) => {
+-    const bytes = await _entries.get(hash)
++    const bytes = await _entries.get(hash, signal)
+     if (bytes) {
+       const entry = await Entry.decode(bytes, decryptEntryFn, decryptPayloadFn)
+       return entry
+@@ -29,11 +29,11 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
+   }
+ 
+   const getBytes = async (hash) => {
+-    return _entries.get(hash)
++    return _entries.get(hash, signal)
+   }
+ 
+   const has = async (hash) => {
+-    const entry = await _index.get(hash)
++    const entry = await _index.get(hash, signal)
+     return entry != null
+   }
+ 
 @@ -59,6 +59,10 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
    }
  
@@ -108,7 +256,7 @@ index fb4a732274e056e1adf499b685b5a34cc304ade5..1b56421626f15271762182adb78b6caf
      await _heads.add(entry)
      return entry.hash
 diff --git a/src/orbitdb.js b/src/orbitdb.js
-index cc055cb011aa58bd77698694423d1ff88aa0ab2d..bda5c4f2b8c9fce744a461b054b38a6f581c4f82 100644
+index cc055cb011aa58bd77698694423d1ff88aa0ab2d..f4df6590910ff16ad7a31ed02b135123e1f95072 100644
 --- a/src/orbitdb.js
 +++ b/src/orbitdb.js
 @@ -106,6 +106,8 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
@@ -151,6 +299,15 @@ index cc055cb011aa58bd77698694423d1ff88aa0ab2d..bda5c4f2b8c9fce744a461b054b38a6f
        const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta })
        manifest = m.manifest
        address = OrbitDBAddress(m.hash)
+@@ -154,7 +156,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+ 
+     address = address.toString()
+ 
+-    const db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption })
++    const db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption, signal })
+ 
+     db.events.on('close', onDatabaseClosed(address))
+ 
 diff --git a/src/storage/composed.js b/src/storage/composed.js
 index 5c35309fd13700c1aa96818cbe9fc663c315e873..cb6e1785b24b25c6bda38075bbb011fa2cc42ed3 100644
 --- a/src/storage/composed.js
@@ -257,3 +414,49 @@ index 44dfd68c7cdcf0defce4d6b72f202e46c2778c74..a766e9efe394448ba679b7b96bed4860
      if (block) {
        return block
      }
+diff --git a/src/sync.js b/src/sync.js
+index 019c5ba2b43adc742662ada1790af004a3cebff8..0309bd47df600fbe9b037c8c08a43118db95db68 100644
+--- a/src/sync.js
++++ b/src/sync.js
+@@ -4,6 +4,7 @@ import { EventEmitter } from 'events'
+ import { TimeoutController } from 'timeout-abort-controller'
+ import pathJoin from './utils/path-join.js'
+ import { Entry } from './oplog/index.js'
++import { anySignal } from 'any-signal'
+ 
+ const DefaultTimeout = 30000 // 30 seconds
+ 
+@@ -68,7 +69,7 @@ const DefaultTimeout = 30000 // 30 seconds
+  * @memberof module:Sync
+  * @instance
+  */
+-const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
++const Sync = async ({ ipfs, log, events, onSynced, start, timeout, signal }) => {
+   /**
+    * @namespace module:Sync~Sync
+    * @description The instance returned by {@link module:Sync}.
+@@ -191,10 +192,14 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+           return
+         }
+         const timeoutController = new TimeoutController(timeout)
+-        const { signal } = timeoutController
++        const { signal: timeoutSignal } = timeoutController
++        const combinedSignal = anySignal([
++          timeoutSignal,
++          ...(signal ? [signal] : [])
++        ])
+         try {
+           peers.add(peerId)
+-          const stream = await libp2p.dialProtocol(remotePeer, headsSyncAddress, { signal })
++          const stream = await libp2p.dialProtocol(remotePeer, headsSyncAddress, { signal: combinedSignal })
+           await pipe(sendHeads, stream, receiveHeads(peerId))
+         } catch (e) {
+           peers.delete(peerId)
+@@ -206,6 +211,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+         } finally {
+           if (timeoutController) {
+             timeoutController.clear()
++            combinedSignal.clear()
+           }
+         }
+       } else {
