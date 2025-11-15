@@ -39,6 +39,21 @@ index 2a6deb1ee3059257d2a68dc1710d181ed8adae97..237e56e084c329c9aeae9ae7ec9cb67b
    address = db.address
  
    /**
+diff --git a/src/identities/identities.js b/src/identities/identities.js
+index d08d879af6cd83fba553f6887a01a21c562b4511..76b68f82bfca23d0f81e80f005b6e5a4352bab12 100644
+--- a/src/identities/identities.js
++++ b/src/identities/identities.js
+@@ -54,8 +54,8 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
+    * @memberof module:Identities~Identities
+    * @instance
+    */
+-  const getIdentity = async (hash) => {
+-    const bytes = await storage.get(hash)
++  const getIdentity = async (hash, signal) => {
++    const bytes = await storage.get(hash, signal)
+     if (bytes) {
+       return decodeIdentity(bytes)
+     }
 diff --git a/src/manifest-store.js b/src/manifest-store.js
 index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..04829cd98f95a67021c75772a33b0b69d8aae035 100644
 --- a/src/manifest-store.js
@@ -93,7 +108,7 @@ index fb4a732274e056e1adf499b685b5a34cc304ade5..1b56421626f15271762182adb78b6caf
      await _heads.add(entry)
      return entry.hash
 diff --git a/src/orbitdb.js b/src/orbitdb.js
-index cc055cb011aa58bd77698694423d1ff88aa0ab2d..414a4da2197aff092d2c4e6bed878d11adb0ceb2 100644
+index cc055cb011aa58bd77698694423d1ff88aa0ab2d..bda5c4f2b8c9fce744a461b054b38a6f581c4f82 100644
 --- a/src/orbitdb.js
 +++ b/src/orbitdb.js
 @@ -106,6 +106,8 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
@@ -127,6 +142,15 @@ index cc055cb011aa58bd77698694423d1ff88aa0ab2d..414a4da2197aff092d2c4e6bed878d11
        name = manifest.name
        type = type || manifest.type
        meta = manifest.meta
+@@ -134,7 +136,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+       // If the address given was not valid, eg. just the name of the database
+       type = type || DefaultDatabaseType
+       AccessController = AccessController || DefaultAccessController()
+-      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, name: address })
++      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, name: address, signal })
+       const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta })
+       manifest = m.manifest
+       address = OrbitDBAddress(m.hash)
 diff --git a/src/storage/composed.js b/src/storage/composed.js
 index 5c35309fd13700c1aa96818cbe9fc663c315e873..cb6e1785b24b25c6bda38075bbb011fa2cc42ed3 100644
 --- a/src/storage/composed.js

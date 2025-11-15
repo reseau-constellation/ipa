@@ -210,17 +210,17 @@ const ContrôleurNébuleuse =
     const canAppend = async (
       entry: LogEntry<DagCborEncodable>,
     ): Promise<boolean> => {
-      const writerIdentity = await identities.getIdentity(entry.identity);
-      if (!writerIdentity) {
+      const identitéÉcrivain = await identities.getIdentity(entry.identity, signal);
+      if (!identitéÉcrivain) {
         return false;
       }
 
-      const { id } = writerIdentity;
+      const { id } = identitéÉcrivain;
 
       // Pour implémenter la révocation des permissions, garder compte ici
       // des entrées approuvées par utilisatrice
       if (
-        (await identities.verifyIdentity(writerIdentity)) &&
+        (await identities.verifyIdentity(identitéÉcrivain)) &&
         (await estAutorisé(id))
       ) {
         return true;

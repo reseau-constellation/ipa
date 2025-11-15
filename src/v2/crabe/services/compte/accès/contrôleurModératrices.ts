@@ -110,7 +110,7 @@ const ContrôleurAccès =
 
       if (!rôleValide) return false;
 
-      const identitéSignataire = await identities.getIdentity(entry.identity);
+      const identitéSignataire = await identities.getIdentity(entry.identity, signal);
       if (!identitéSignataire) {
         return false;
       }
