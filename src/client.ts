@@ -58,7 +58,6 @@ import { Recherche } from "@/recherche/index.js";
 import { Réseau } from "@/reseau.js";
 import { Tableaux } from "@/tableaux.js";
 
-
 import {
   Jsonifiable,
   PartielRécursif,

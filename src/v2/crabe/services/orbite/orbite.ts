@@ -348,9 +348,10 @@ export class ServiceOrbite<
       () => orbite.open(id, { signal: signalCombiné }),
       signalCombiné,
     );
-    const journal = this.service('journal');
-    const gérerErreur =  async (erreur:Error) => await journal.écrire(erreur.toString())
-    bd.sync.events.addListener('error', gérerErreur)
+    const journal = this.service("journal");
+    const gérerErreur = async (erreur: Error) =>
+      await journal.écrire(erreur.toString());
+    bd.sync.events.addListener("error", gérerErreur);
 
     signalCombiné.clear();
 
@@ -358,12 +359,12 @@ export class ServiceOrbite<
       if (type !== bd.type)
         throw new Error(`La bd est de type ${bd.type} et non ${type}.`);
     }
-    return { 
-      bd, 
+    return {
+      bd,
       oublier: async () => {
-        await bd.close()
-        bd.sync.events.removeListener('error', gérerErreur)
-      } 
+        await bd.close();
+        bd.sync.events.removeListener("error", gérerErreur);
+      },
     };
   }
 

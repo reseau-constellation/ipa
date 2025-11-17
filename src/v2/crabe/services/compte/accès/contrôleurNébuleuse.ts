@@ -210,7 +210,10 @@ const ContrôleurNébuleuse =
     const canAppend = async (
       entry: LogEntry<DagCborEncodable>,
     ): Promise<boolean> => {
-      const identitéÉcrivain = await identities.getIdentity(entry.identity, signal);
+      const identitéÉcrivain = await identities.getIdentity(
+        entry.identity,
+        signal,
+      );
       if (!identitéÉcrivain) {
         return false;
       }

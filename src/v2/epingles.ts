@@ -10,7 +10,7 @@ import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 
 export const diviserIdcEtFichier = (val: string) => {
   const premièreBarreOblique = val.indexOf("/");
-   
+
   if (premièreBarreOblique === -1)
     throw new Error(`Chemin IDC et fichier non valide : ${val}`);
 
