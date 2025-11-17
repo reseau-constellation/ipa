@@ -156,7 +156,7 @@ export class Variables<
     return await this.suivreBd({
       idCompte,
       f: async (variables) =>
-        await f(variables ? Object.keys(variables) : undefined),
+        await f(variables ? Object.keys(variables) : []),
     });
   }
 
@@ -270,7 +270,7 @@ export class Variables<
     const statut = mapÀObjet(await variable.get("statut")) || {
       statut: "active",
     };
-    await this.sauvegarderStatut({ idVariable: idNouvelleVariable, statut });
+    await this.sauvegarderStatutVariable({ idVariable: idNouvelleVariable, statut });
 
     await oublier();
     await oublierNouvelleVariable();
@@ -698,7 +698,7 @@ export class Variables<
 
   // Statut
 
-  async sauvegarderStatut({
+  async sauvegarderStatutVariable({
     idVariable,
     statut,
   }: {
@@ -709,6 +709,22 @@ export class Variables<
     await variable.set("statut", statut);
 
     await oublier();
+  }
+
+  async suivreStatutVariable({
+    idVariable,
+    f,
+  }: {
+    idVariable: string;
+    f: Suivi<StatutDonnées | null>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+    return await orbite.suivreDonnéesBd({
+      id: idVariable,
+      type: "nested",
+      schéma: schémaVariable,
+      f: (bd) => f(toObject(bd).statut),
+    });
   }
 
   // Qualité
