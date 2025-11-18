@@ -13,13 +13,11 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import { BookType, WorkBook, utils } from "xlsx";
+import { asSplitKey, joinKey } from "@orbitdb/nested-db";
 import {
-  Nested,
-  NestedDatabaseType,
-  asSplitKey,
-  joinKey,
-} from "@orbitdb/nested-db";
-import { NestedObjectToMap, NestedValueObject } from "node_modules/@orbitdb/nested-db/dist/types.js";
+  NestedObjectToMap,
+  NestedValueObject,
+} from "node_modules/@orbitdb/nested-db/dist/types.js";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ServicesConstellation } from "./constellation.js";
 import { Oublier, Suivi } from "./crabe/types.js";
@@ -28,7 +26,16 @@ import { brancheBd } from "./crabe/services/services.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import {
+  DétailsRègleBornesDynamiqueColonne,
+  DétailsRègleBornesDynamiqueVariable,
+  DétailsRègleValeurCatégoriqueDynamique,
+  ErreurRègle,
+  ErreurRègleBornesColonneInexistante,
+  ErreurRègleBornesVariableNonPrésente,
+  ErreurRègleCatégoriqueColonneInexistante,
+  RègleBornes,
   RègleColonne,
+  RègleValeurCatégorique,
   RègleVariable,
   RègleVariableAvecId,
   schémaRègleColonne,
@@ -912,6 +919,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   }
 
   // Données
+
   async obtIdDonnées({
     idStructure,
     idTableau,
@@ -939,17 +947,9 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idTableau: string;
     idÉlément: string;
   }) {
-    const idDonnées = await this.obtIdDonnées({ idStructure, idTableau });
-    const { bd, oublier } = await this.service("orbite").ouvrirBd({
-      id: idDonnées,
-      type: "nested",
-    });
-    const bdTypée = typer({
-      bd,
-      schéma: schémaDonnéesTableau,
-    }) as TypedNested<StructureDonnéesTableau>;
+    const { données, oublier } = await this.ouvrirDonnéesTableau({ idStructure, idTableau});
 
-    await bdTypée.del(idÉlément);
+    await données.del(idÉlément);
     await oublier();
   }
 
@@ -1004,17 +1004,19 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     });
 
     const oublierDonnées = await suivreFonctionImbriquée({
-      fRacine: async ({fSuivreRacine}) =>  this.suivreTableau({
-        idStructure,
-        idTableau,
-        f: async (tableau) => await fSuivreRacine(tableau.données)
-      }),
-      fSuivre: async ({id: idDonnées, fSuivreBd}) => await this.service("orbite").suivreDonnéesBd({
-        id: idDonnées,
-        type: "nested",
-        schéma: schémaDonnéesTableau,
-        f: fSuivreBd,
-      }),
+      fRacine: async ({ fSuivreRacine }) =>
+        this.suivreTableau({
+          idStructure,
+          idTableau,
+          f: async (tableau) => await fSuivreRacine(tableau.données),
+        }),
+      fSuivre: async ({ id: idDonnées, fSuivreBd }) =>
+        await this.service("orbite").suivreDonnéesBd({
+          id: idDonnées,
+          type: "nested",
+          schéma: schémaDonnéesTableau,
+          f: fSuivreBd,
+        }),
       f: async (données?: NestedObjectToMap<StructureDonnéesTableau>) => {
         if (données)
           info.données = mapÀObjet(données) as { [id: string]: T } | undefined; // Il faudrait implémenter un schéma dynamique selon T
@@ -1026,6 +1028,168 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       await oublierDonnées();
       await oublierColonnes();
     };
+  }
+
+  // Validation
+
+  @cacheSuivi
+  async suivreValidRègles({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<ErreurRègle[]>;
+  }): Promise<Oublier> {
+    const info: {
+      règles?: {
+        règle: RègleColonne<RègleVariable>;
+        colsTableauRéf?: InfoColonneAvecCatégorie[];
+      }[];
+      colonnes?: InfoColonne[];
+    } = {};
+
+    const fFinale = async () => {
+      if (!info.colonnes || !info.règles) return;
+
+      const erreurs: ErreurRègle[] = [];
+
+      const règlesTypeBornes = info.règles
+        .map((r) => r.règle)
+        .filter(
+          (r) => r.règle.règle.typeRègle === "bornes",
+        ) as RègleColonne<RègleBornes>[];
+
+      const règlesBornesColonnes = règlesTypeBornes.filter(
+        (r) => r.règle.règle.détails.type === "dynamiqueColonne",
+      ) as RègleColonne<RègleBornes<DétailsRègleBornesDynamiqueColonne>>[];
+
+      const règlesBornesVariables = règlesTypeBornes.filter(
+        (r) => r.règle.règle.détails.type === "dynamiqueVariable",
+      ) as RègleColonne<RègleBornes<DétailsRègleBornesDynamiqueVariable>>[];
+
+      const règlesCatégoriquesDynamiques = info.règles.filter(
+        (r) =>
+          r.règle.règle.règle.typeRègle === "valeurCatégorique" &&
+          r.règle.règle.règle.détails.type === "dynamique",
+      ) as {
+        règle: RègleColonne<
+          RègleValeurCatégorique<DétailsRègleValeurCatégoriqueDynamique>
+        >;
+        colsTableauRéf?: InfoColonneAvecCatégorie[];
+      }[];
+
+      for (const r of règlesBornesColonnes) {
+        const colRéfRègle = info.colonnes.find(
+          (c) => c.id === r.règle.règle.détails.val,
+        );
+        if (!colRéfRègle) {
+          const erreur: ErreurRègleBornesColonneInexistante = {
+            règle: r,
+            détails: "colonneBornesInexistante",
+          };
+          erreurs.push(erreur);
+        }
+      }
+
+      for (const r of règlesBornesVariables) {
+        const varRéfRègle = info.colonnes.find(
+          (c) => c.variable === r.règle.règle.détails.val,
+        );
+        if (!varRéfRègle) {
+          const erreur: ErreurRègleBornesVariableNonPrésente = {
+            règle: r,
+            détails: "variableBornesNonPrésente",
+          };
+          erreurs.push(erreur);
+        }
+      }
+
+      for (const r of règlesCatégoriquesDynamiques) {
+        const colRéfRègle = r.colsTableauRéf?.find(
+          (c) => c.id === r.règle.règle.règle.détails.colonne,
+        );
+        if (!colRéfRègle) {
+          const erreur: ErreurRègleCatégoriqueColonneInexistante = {
+            règle: r.règle,
+            détails: "colonneCatégInexistante",
+          };
+          erreurs.push(erreur);
+        }
+      }
+      await f(erreurs);
+    };
+
+    const fFinaleRègles = async (
+      règles: {
+        règle: RègleColonne<RègleVariable>;
+        colsTableauRéf?: InfoColonneAvecCatégorie[];
+      }[],
+    ) => {
+      info.règles = règles;
+      return await fFinale();
+    };
+
+    const fOublierColonnes = await this.suivreColonnes({
+      idStructure,
+      idTableau,
+      f: async (cols) => {
+        info.colonnes = cols;
+        return await fFinale();
+      },
+    });
+
+    const fListeRègles = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (règles: RègleColonne<RègleVariable>[]) => Promise<void>;
+    }): Promise<Oublier> => {
+      return await this.suivreRègles({ idStructure, idTableau, f: fSuivreRacine });
+    };
+
+    const fBrancheRègles = async ({
+      fSuivreBranche,
+      branche: règle,
+    }: {
+      fSuivreBranche: Suivi<{
+        règle: RègleColonne<RègleVariable>;
+        colsTableauRéf?: InfoColonne[];
+      }>;
+      branche: RègleColonne<RègleVariable>;
+    }): Promise<Oublier> => {
+      if (
+        règle.règle.règle.typeRègle === "valeurCatégorique" &&
+        règle.règle.règle.détails.type === "dynamique"
+      ) {
+        const { tableau, structure } = règle.règle.règle.détails;
+        return await this.suivreColonnes({
+          idStructure: structure,
+          idTableau: tableau,
+          f: (cols) =>
+            fSuivreBranche({
+              règle,
+              colsTableauRéf: cols,
+            }),
+        });
+      } else {
+        await fSuivreBranche({ règle });
+        return faisRien;
+      }
+    };
+
+    const fOublierRègles = await suivreDeFonctionListe({
+      fListe: fListeRègles,
+      f: fFinaleRègles,
+      fBranche: fBrancheRègles,
+      fIdDeBranche: (b: RègleColonne<RègleVariable>) => b.règle.id,
+    });
+
+    const fOublier = async () => {
+      await fOublierRègles();
+      await fOublierColonnes();
+    };
+    return fOublier;
   }
 
   // Exportation
@@ -1114,6 +1278,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
 
     if (langues) {
       const fOublierNomsTableaux = await this.suivreNoms({
+        idStructure,
         idTableau,
         f: async (noms) => {
           info.nomsTableau = noms;
@@ -1127,7 +1292,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
           fSuivreRacine,
         }: {
           fSuivreRacine: (éléments: string[]) => Promise<void>;
-        }) => this.suivreVariables({ idTableau, f: fSuivreRacine }),
+        }) => this.suivreVariables({ idStructure, idTableau, f: fSuivreRacine }),
         f: async (noms: { idVar: string; noms: TraducsTexte }[]) => {
           info.nomsVariables = Object.fromEntries(
             noms.map((n) => [n.idVar, n.noms]),
@@ -1153,7 +1318,8 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       fsOublier.push(fOublierNomsVariables);
     }
 
-    const fOublierColonnes = await this.suivreColonnesEtCatégoriesTableau({
+    const fOublierColonnes = await this.suivreCatégoriesColonnes({
+      idStructure,
       idTableau,
       f: async (cols) => {
         info.colonnes = cols;
@@ -1163,6 +1329,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     fsOublier.push(fOublierColonnes);
 
     const fOublierDonnées = await this.suivreDonnées({
+      idStructure,
       idTableau,
       f: async (données) => {
         info.données = données;

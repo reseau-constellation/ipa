@@ -80,6 +80,7 @@ export type DétailsRègleValeurCatégoriqueFixe = {
 
 export type DétailsRègleValeurCatégoriqueDynamique = {
   type: "dynamique";
+  structure: string;
   tableau: string;
   colonne: string;
 };
@@ -132,4 +133,38 @@ export const schémaRègleColonne: JSONSchemaType<
   },
   nullable: true,
   required: [],
+};
+
+
+// Erreurs
+
+export type Erreur<T extends RègleVariable = RègleVariable> = {
+  règle: RègleColonne<T>;
+};
+
+export type ErreurValidation<T extends RègleVariable = RègleVariable> = {
+  id: string;
+  erreur: Erreur<T>;
+};
+
+export type ErreurRègle =
+  | ErreurRègleCatégoriqueColonneInexistante
+  | ErreurRègleBornesColonneInexistante
+  | ErreurRègleBornesVariableNonPrésente;
+
+export type ErreurRègleCatégoriqueColonneInexistante = {
+  règle: RègleColonne<
+    RègleValeurCatégorique<DétailsRègleValeurCatégoriqueDynamique>
+  >;
+  détails: "colonneCatégInexistante";
+};
+
+export type ErreurRègleBornesColonneInexistante = {
+  règle: RègleColonne<RègleBornes<DétailsRègleBornesDynamiqueColonne>>;
+  détails: "colonneBornesInexistante";
+};
+
+export type ErreurRègleBornesVariableNonPrésente = {
+  règle: RègleColonne<RègleBornes<DétailsRègleBornesDynamiqueVariable>>;
+  détails: "variableBornesNonPrésente";
 };

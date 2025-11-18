@@ -704,6 +704,10 @@ describe("tableaux", function () {
     describe("règles", function () {
       it("ajout règle colonne");
       it("ajout règle à travers variable");
+
+      it("erreur règle borne - colonne inexistante")
+      it("erreur règle borne - variable inexistante")
+      it("erreur règle catégorique - colonne inexistante")
     });
 
     describe("importation", function () {

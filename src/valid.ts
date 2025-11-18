@@ -2,36 +2,7 @@ import { validerCatégorieVal } from "@constl/utils-ipa";
 import { élémentsBd } from "@/types.js";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 
-export type Erreur<T extends règleVariable = règleVariable> = {
-  règle: règleColonne<T>;
-};
 
-export type erreurValidation<T extends règleVariable = règleVariable> = {
-  id: string;
-  erreur: Erreur<T>;
-};
-
-export type erreurRègle =
-  | erreurRègleCatégoriqueColonneInexistante
-  | erreurRègleBornesColonneInexistante
-  | erreurRègleBornesVariableNonPrésente;
-
-export type erreurRègleCatégoriqueColonneInexistante = {
-  règle: règleColonne<
-    règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>
-  >;
-  détails: "colonneCatégInexistante";
-};
-
-export type erreurRègleBornesColonneInexistante = {
-  règle: règleColonne<règleBornes<détailsRègleBornesDynamiqueColonne>>;
-  détails: "colonneBornesInexistante";
-};
-
-export type erreurRègleBornesVariableNonPrésente = {
-  règle: règleColonne<règleBornes<détailsRègleBornesDynamiqueVariable>>;
-  détails: "variableBornesNonPrésente";
-};
 
 export type schémaFonctionValidation<
   T extends élémentBdListeDonnées = élémentBdListeDonnées,
