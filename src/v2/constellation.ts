@@ -27,7 +27,6 @@ export type OptionsConstellation<
 export type ServicesSpécifiquesConstellation<L extends ServicesLibp2pCrabe> = {
   motsClefs: MotsClefs<L>;
   bds: Bds<L>;
-  tableaux: Tableaux<L>;
   favoris: Favoris;
   épingles: Épingles;
   variables: Variables<L>;
@@ -48,7 +47,6 @@ export class Constellation<
   S extends ServicesDonnées<T, L> = ServicesDonnées<T, L>,
 > extends Crabe<T, S & ServicesSpécifiquesConstellation<L>, L> {
   bds: Bds<L>;
-  tableaux: Tableaux<L>;
   motsClefs: MotsClefs<L>;
   favoris: Favoris;
   épingles: Épingles;
@@ -64,7 +62,6 @@ export class Constellation<
     super({
       services: {
         bds: Bds,
-        tableaux: Tableaux,
         motsClefs: MotsClefs,
         favoris: Favoris,
         épingles: Épingles,
@@ -82,7 +79,6 @@ export class Constellation<
     // Pour garder l'IPA d'avant que j'aime bien...
     this.motsClefs = this.services["motsClefs"];
     this.bds = this.services["bds"];
-    this.tableaux = this.services["tableaux"];
     this.favoris = this.services["favoris"];
     this.épingles = this.services["épingles"];
     this.variables = this.services["variables"];

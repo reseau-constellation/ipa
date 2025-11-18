@@ -283,7 +283,7 @@ describe("BDs", function () {
         // Pour une vraie application, utiliser un identifiant valide, bien entendu.
         idNouvelle: "/orbitdb/uneAutreBaseDeDonnées",
       };
-      await constl.bds.changerStatutBd({
+      await constl.bds.sauvegarderStatutBd({
         idBd,
         statut: nouveauStatut,
       });

@@ -130,6 +130,13 @@ export class ServiceLibp2p<
         // Tant pis...
       }
     });
+    libp2p.addEventListener("peer:update", async (x) => {
+      try {
+        await libp2p.dial(x.detail.peer.id);
+      } catch {
+        // Tant pis...
+      }
+    });
 
     return await super.démarrer();
   }

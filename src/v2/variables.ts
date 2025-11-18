@@ -17,7 +17,11 @@ import {
   ÉpingleFavorisAvecIdBooléennisée,
 } from "./favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import { RègleCatégorie, RègleVariable, RègleVariableAvecId } from "./règles.js";
+import {
+  RègleCatégorie,
+  RègleVariable,
+  RègleVariableAvecId,
+} from "./règles.js";
 
 // Types structure
 
@@ -155,8 +159,7 @@ export class Variables<
   }): Promise<Oublier> {
     return await this.suivreBd({
       idCompte,
-      f: async (variables) =>
-        await f(variables ? Object.keys(variables) : []),
+      f: async (variables) => await f(variables ? Object.keys(variables) : []),
     });
   }
 
@@ -270,7 +273,10 @@ export class Variables<
     const statut = mapÀObjet(await variable.get("statut")) || {
       statut: "active",
     };
-    await this.sauvegarderStatutVariable({ idVariable: idNouvelleVariable, statut });
+    await this.sauvegarderStatutVariable({
+      idVariable: idNouvelleVariable,
+      statut,
+    });
 
     await oublier();
     await oublierNouvelleVariable();

@@ -28,9 +28,12 @@ import {
 } from "./favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import {
-  DonnéesFileTableauAvecId,
+  DonnéesRangéeTableauAvecId,
   DonnéesTableauExportées,
   InfoTableau,
+  StructureTableau,
+  schémaTableau,
+  Tableaux,
 } from "./tableaux.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import {
@@ -67,9 +70,9 @@ export type StructureBd = {
   licenceContenu: string;
   métadonnées: { [clef: string]: DagCborEncodable };
   statut: StatutDonnées;
-  tableaux: { [clef: string]: { id: string } };
+  tableaux: StructureTableau;
   motsClefs: { [id: string]: null };
-  copiéDe: { id: string };
+  copiéeDe: { id: string };
 };
 
 export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
@@ -96,20 +99,8 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
       },
     },
     statut: schémaStatutDonnées,
-    tableaux: {
-      type: "object",
-      nullable: true,
-      additionalProperties: {
-        type: "object",
-        nullable: true,
-        properties: {
-          id: { type: "string", nullable: true },
-        },
-        required: [],
-      },
-      required: [],
-    },
-    copiéDe: {
+    tableaux: schémaTableau,
+    copiéeDe: {
       type: "object",
       properties: {
         id: { type: "string", nullable: true },
@@ -138,14 +129,19 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   L,
   ServicesConstellation<L>
 > {
+  tableaux: Tableaux<L>;
+
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
       clef: "bds",
       nébuleuse,
-      dépendances: ["compte", "orbite", "hélia", "tableaux"],
+      dépendances: ["compte", "orbite", "hélia"],
       options: {
         schéma: SchémaServiceBds,
       },
+    });
+    this.tableaux = new Tableaux({
+      service: (clef) => this.service(clef),
     });
   }
 
@@ -257,7 +253,115 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     };
   }
 
+  async copierBd({
+    idBd,
+    copierDonnées = true,
+  }: {
+    idBd: string;
+    copierDonnées?: boolean;
+  }): Promise<string> {
+    const { bd, oublier } = await this.ouvrirBd({ idBd });
+    const licence = await bd.get("licence");
+    const licenceContenu = await bd.get("licenceContenu");
+    if (!licence)
+      throw new Error(`Aucune licence trouvée sur la BD source ${idBd}.`);
+    const idNouvelleBd = await this.créerBd({
+      licence,
+      licenceContenu,
+    });
+
+    const métadonnées = await bd.get("métadonnées");
+    if (métadonnées) {
+      await this.sauvegarderMétadonnéesBd({ idBd: idNouvelleBd, métadonnées });
+    }
+
+    const noms = await bd.get("noms");
+    if (noms) {
+      await this.sauvegarderNomsBd({ idBd: idNouvelleBd, noms });
+    }
+
+    const descriptions = await bd.get("descriptions");
+    if (descriptions) {
+      await this.sauvegarderDescriptionsBd({
+        idBd: idNouvelleBd,
+        descriptions,
+      });
+    }
+
+    const motsClefs = await bd.get("motsClefs");
+    await this.ajouterMotsClefsBd({
+      idBd: idNouvelleBd,
+      idsMotsClefs: motsClefs,
+    });
+
+    const idBdNuées = await bdBase.get("nuées");
+    if (idBdNuées) {
+      const { bd: bdNuées, fOublier: fOublierBdNuées } =
+        await this.client.ouvrirBdTypée({
+          id: idBdNuées,
+          type: "set",
+          schéma: schémaStructureBdNuées,
+        });
+      const nuées = (await bdNuées.all()).map((x) => x.value);
+      await fOublierBdNuées();
+      await this.rejoindreNuées({
+        idBd: idNouvelleBd,
+        idsNuées: nuées,
+      });
+    }
+
+    const idBdTableaux = await bdBase.get("tableaux");
+    const idNouvelleBdTableaux = await nouvelleBd.get("tableaux");
+    if (!idNouvelleBdTableaux) throw new Error("Erreur d'initialisation.");
+
+    const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
+      await this.client.ouvrirBdTypée({
+        id: idNouvelleBdTableaux,
+        type: "ordered-keyvalue",
+        schéma: schémaBdTableauxDeBd,
+      });
+    if (idBdTableaux) {
+      const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
+        await this.client.ouvrirBdTypée({
+          id: idBdTableaux,
+          type: "ordered-keyvalue",
+          schéma: schémaBdTableauxDeBd,
+        });
+      const tableaux = await bdTableaux.all();
+
+      await fOublierBdTableaux();
+      for (const { key: idTableau, value: tableau } of tableaux) {
+        const idNouveauTableau: string =
+          await this.client.tableaux.copierTableau({
+            id: idTableau,
+            idBd: idNouvelleBd,
+            copierDonnées,
+          });
+        await nouvelleBdTableaux.set(idNouveauTableau, tableau);
+      }
+    }
+
+    const statut = await bd.get("statut");
+    if (statut) await this.sauvegarderStatutBd({ idBd: idNouvelleBd, statut });
+
+    const image = await bd.get("image");
+    if (image) await this.sauvegarderImage({ idBd: idNouvelleBd, image });
+
+    const { bd: nouvelleBd, oublier: oublierNouvelle } = await this.ouvrirBd({
+      idBd: idNouvelleBd,
+    });
+    await nouvelleBd.set("copiéeDe", { id: idBd });
+
+    await Promise.allSettled([
+      oublier(),
+      fOublierNouvelleTableaux(),
+      oublierNouvelle(),
+    ]);
+    return idNouvelleBd;
+  }
+
   // Épingles
+
   async épinglerBd({
     idBd,
     options = {},
@@ -385,14 +489,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
           fSuivreBranche,
         }: {
           id: string;
-          fSuivreBranche: Suivi<DonnéesFileTableauAvecId[]>;
+          fSuivreBranche: Suivi<DonnéesRangéeTableauAvecId[]>;
         }) => {
           return await tableaux.suivreDonnées({
             idTableau: id,
             f: fSuivreBranche,
           });
         },
-        f: async (données: DonnéesFileTableauAvecId[]) => {
+        f: async (données: DonnéesRangéeTableauAvecId[]) => {
           const idcs = données
             .map((file) =>
               Object.values(file.données).filter((x) => idcValide(x)),
@@ -643,7 +747,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   // Métadonnées
 
   // Statut
-  async changerStatutBd({
+  async sauvegarderStatutBd({
     idBd,
     statut,
   }: {
@@ -811,25 +915,15 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   async ajouterTableau({
     idBd,
-    clefTableau,
+    idTableau,
   }: {
     idBd: string;
-    clefTableau?: string;
+    idTableau?: string;
   }): Promise<string> {
     await this.confirmerPermission({ idBd });
 
-    const { bd, oublier } = await this.ouvrirBd({ idBd });
-
-    const tableaux = this.service("tableaux");
-    clefTableau = clefTableau || uuidv4();
-    const idTableau = await tableaux.créerTableau({ idStructure: idBd });
-
-    await bd.set(`tableaux/${clefTableau}`, {
-      id: idTableau,
-    });
-
-    await oublier();
-    return idTableau;
+    idTableau = idTableau || uuidv4();
+    return await this.tableaux.créerTableau({ idStructure: idBd, idTableau });
   }
 
   async effacerTableauBd({
@@ -844,12 +938,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     // D'abord effacer l'entrée dans notre liste de tableaux
     const { bd, oublier } = await this.ouvrirBd({ idBd });
 
-    const clefTableau = Object.entries(
+    const idTableau = Object.entries(
       mapÀObjet(await bd.get(`tableaux`)) || {},
     ).find(([_clef, { id }]) => id === idTableau)?.[0];
-    if (!clefTableau) throw new Error(`Tableau non existant : ${idTableau}`);
+    if (!idTableau) throw new Error(`Tableau non existant : ${idTableau}`);
 
-    await bd.del(`tableaux/${clefTableau}`);
+    await bd.del(`tableaux/${idTableau}`);
     await oublier();
 
     // Enfin, effacer les données et le tableau lui-même

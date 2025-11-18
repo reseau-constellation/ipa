@@ -380,43 +380,45 @@ describe.only("Variables", function () {
     });
 
     it("modifier une règle", async () => {
-        const règleModifiée: RègleBornes = {
-          typeRègle: "bornes",
-          détails: {
-            type: "fixe",
-            val: 0,
-            op: ">=",
-          },
-        };
-  
-        await constl.variables.modifierRègleVariable({
-          idVariable,
-          idRègle,
-          règleModifiée,
-        });
-  
-        const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
-          constl.variables.suivreRèglesVariable({
-            idVariable,
-            f: si((x) => {
-              const règleBornes = x?.find(r=>r.id === idRègle) as RègleVariableAvecId<RègleBornes> | undefined;
-              return règleBornes?.règle.détails.op !== ">"
-            }),
-          }),
-        );
-  
-        const réf: RègleVariableAvecId[] = [
-          {
-            id: idRègleCatégorie,
-            règle: réfRègleCatégorie,
-          },
-          {
-            id: idRègle,
-            règle: règleModifiée,
-          },
-        ];
-        expect(règles).to.have.deep.members(réf);
+      const règleModifiée: RègleBornes = {
+        typeRègle: "bornes",
+        détails: {
+          type: "fixe",
+          val: 0,
+          op: ">=",
+        },
+      };
+
+      await constl.variables.modifierRègleVariable({
+        idVariable,
+        idRègle,
+        règleModifiée,
       });
+
+      const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
+        constl.variables.suivreRèglesVariable({
+          idVariable,
+          f: si((x) => {
+            const règleBornes = x?.find((r) => r.id === idRègle) as
+              | RègleVariableAvecId<RègleBornes>
+              | undefined;
+            return règleBornes?.règle.détails.op !== ">";
+          }),
+        }),
+      );
+
+      const réf: RègleVariableAvecId[] = [
+        {
+          id: idRègleCatégorie,
+          règle: réfRègleCatégorie,
+        },
+        {
+          id: idRègle,
+          règle: règleModifiée,
+        },
+      ];
+      expect(règles).to.have.deep.members(réf);
+    });
 
     it("effacer une règle", async () => {
       await constl.variables.effacerRègleVariable({ idVariable, idRègle });
@@ -461,12 +463,13 @@ describe.only("Variables", function () {
       const pRègles = obtenir<RègleVariableAvecId[]>(({ si }) =>
         constl.variables.suivreRèglesVariable({
           idVariable,
-          f: si((x) =>
-            !!x?.some(
-              (r) =>
-                r.règle.typeRègle === "catégorie" &&
-                r.règle.détails.catégorie.catégorie !== "numérique",
-            ),
+          f: si(
+            (x) =>
+              !!x?.some(
+                (r) =>
+                  r.règle.typeRègle === "catégorie" &&
+                  r.règle.détails.catégorie.catégorie !== "numérique",
+              ),
           ),
         }),
       );
@@ -484,9 +487,9 @@ describe.only("Variables", function () {
             détails: {
               catégorie: {
                 type: "simple",
-                catégorie: "horoDatage"
-              }
-            }
+                catégorie: "horoDatage",
+              },
+            },
           },
         },
       ];
@@ -532,7 +535,9 @@ describe.only("Variables", function () {
     let idVariable: string;
 
     it("statut actif par défaut", async () => {
-      idVariable = await constl.variables.créerVariable({ catégorie: "booléen" });
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "booléen",
+      });
       const statut = await obtenir(({ siDéfini }) =>
         constl.variables.suivreStatutVariable({
           idVariable,
@@ -642,17 +647,17 @@ describe.only("Variables", function () {
     });
 
     it("la catégorie est copiée", async () => {
-        const catégorie = await obtenir(({ siDéfini }) =>
-          constl.variables.suivreCatégorieVariable({
-            idVariable: idVariable2,
-            f: siDéfini(),
-          }),
-        );
-        expect(catégorie).to.deep.equal({
-          type: "simple",
-          catégorie: "numérique",
-        });
+      const catégorie = await obtenir(({ siDéfini }) =>
+        constl.variables.suivreCatégorieVariable({
+          idVariable: idVariable2,
+          f: siDéfini(),
+        }),
+      );
+      expect(catégorie).to.deep.equal({
+        type: "simple",
+        catégorie: "numérique",
       });
+    });
 
     it("les règles sont copiées", async () => {
       const règleCatégorie: RègleCatégorie = {
@@ -682,6 +687,5 @@ describe.only("Variables", function () {
       );
       expect(val).to.equal("mm");
     });
-
   });
 });
