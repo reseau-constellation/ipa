@@ -285,7 +285,7 @@ describe.only("Mots-clefs", function () {
     });
   });
 
-  describe("Copier mots-clefs", function () {
+  describe("copier mots-clefs", function () {
     let idMotClef: string;
     let idMotClef2: string;
 
@@ -344,7 +344,7 @@ describe.only("Mots-clefs", function () {
     });
   });
 
-  describe("Épingler", function () {
+  describe("épingler", function () {
     it("désépingler", async () => {
       const idMotClef = await constl.motsClefs.créerMotClef();
       await constl.motsClefs.désépinglerMotClef({ idMotClef });
