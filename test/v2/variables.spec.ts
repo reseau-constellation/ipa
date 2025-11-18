@@ -6,7 +6,7 @@ import {
   RègleBornes,
   RègleCatégorie,
   RègleVariableAvecId,
-} from "@/v2/valid.js";
+} from "@/v2/règles.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe.only("Variables", function () {

@@ -19,7 +19,7 @@ import { PartielRécursif, TraducsTexte } from "./types.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import { RègleColonne, schémaRègleColonne } from "./valid.js";
+import { RègleColonne, RègleVariable, RègleVariableAvecId, schémaRègleColonne } from "./règles.js";
 import { CatégorieBaseVariables, CatégorieVariables } from "./variables.js";
 import {
   DonnéesFichierBdExportées,

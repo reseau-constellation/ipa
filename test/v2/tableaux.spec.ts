@@ -3,7 +3,11 @@ import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
 import { Constellation } from "@/v2/index.js";
 import { TraducsTexte } from "@/v2/types.js";
-import { InfoColonne } from "@/v2/tableaux.js";
+import {
+  DonnéesRangéeTableauAvecId,
+  InfoColonne,
+} from "@/v2/tableaux.js";
+import { RègleBornes, RègleColonne } from "@/v2/règles.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe.only("tableaux", function () {

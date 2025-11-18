@@ -17,7 +17,7 @@ import {
   ÉpingleFavorisAvecIdBooléennisée,
 } from "./favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import { RègleCatégorie, RègleVariable, RègleVariableAvecId } from "./valid.js";
+import { RègleCatégorie, RègleVariable, RègleVariableAvecId } from "./règles.js";
 
 // Types structure
 
