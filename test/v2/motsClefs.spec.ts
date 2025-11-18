@@ -10,7 +10,7 @@ describe.only("Mots-clefs", function () {
   let constls: Constellation[];
   let constl: Constellation;
 
-  before("Préparer constls", async () => {
+  before("préparer constls", async () => {
     ({ fermer, constls } = await créerConstellationsTest({
       n: 1,
     }));
@@ -21,10 +21,10 @@ describe.only("Mots-clefs", function () {
     if (fermer) await fermer();
   });
 
-  describe("Création", function () {
+  describe("création", function () {
     let idMotClef: string;
 
-    it("Pas de mots-clefs pour commencer", async () => {
+    it("pas de mots-clefs pour commencer", async () => {
       const motsClefs = await obtenir(({ siDéfini }) =>
         constl.motsClefs.suivreMotsClefs({
           f: siDéfini(),
@@ -34,7 +34,7 @@ describe.only("Mots-clefs", function () {
       expect(motsClefs).to.be.an.empty("array");
     });
 
-    it("Créer un mot-clef", async () => {
+    it("créer un mot-clef", async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
       const motsClefs = await obtenir(({ siPasVide }) =>
         constl.motsClefs.suivreMotsClefs({
@@ -51,7 +51,7 @@ describe.only("Mots-clefs", function () {
       expect(épingle).to.not.be.undefined();
     });
 
-    it("Effacer un mot-clef", async () => {
+    it("effacer un mot-clef", async () => {
       await constl.motsClefs.effacerMotClef({ idMotClef });
       const motsClefs = await obtenir(({ siVide }) =>
         constl.motsClefs.suivreMotsClefs({
@@ -68,10 +68,10 @@ describe.only("Mots-clefs", function () {
     });
   });
 
-  describe("Mes mots-clefs", function () {
+  describe("mes mots-clefs", function () {
     let idMotClef: string;
 
-    it("Le mot-clef est déjà ajouté", async () => {
+    it("le mot-clef est déjà ajouté", async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
       const mesMotsClefs = await obtenir(({ siPasVide }) =>
         constl.motsClefs.suivreMotsClefs({
@@ -82,7 +82,7 @@ describe.only("Mots-clefs", function () {
       expect(mesMotsClefs).to.contain(idMotClef);
     });
 
-    it("Enlever de mes mots-clefs", async () => {
+    it("enlever de mes mots-clefs", async () => {
       await constl.motsClefs.enleverDeMesMotsClefs({ idMotClef });
       const mesMotsClefs = await obtenir(({ siVide }) =>
         constl.motsClefs.suivreMotsClefs({
@@ -93,7 +93,7 @@ describe.only("Mots-clefs", function () {
       expect(mesMotsClefs).not.to.contain(idMotClef);
     });
 
-    it("Ajouter à mes mots-clefs", async () => {
+    it("ajouter à mes mots-clefs", async () => {
       await constl.motsClefs.ajouterÀMesMotsClefs({ idMotClef });
       const mesMotsClefs = await obtenir(({ siPasVide }) =>
         constl.motsClefs.suivreMotsClefs({
@@ -105,14 +105,14 @@ describe.only("Mots-clefs", function () {
     });
   });
 
-  describe("Noms", function () {
+  describe("noms", function () {
     let idMotClef: string;
 
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
     });
 
-    it("Pas de noms pour commencer", async () => {
+    it("pas de noms pour commencer", async () => {
       const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
         constl.motsClefs.suivreNomsMotClef({
           idMotClef,
@@ -122,7 +122,7 @@ describe.only("Mots-clefs", function () {
       expect(Object.keys(noms).length).to.equal(0);
     });
 
-    it("Ajouter un nom", async () => {
+    it("ajouter un nom", async () => {
       await constl.motsClefs.sauvegarderNomMotClef({
         idMotClef,
         langue: "fr",
@@ -137,7 +137,7 @@ describe.only("Mots-clefs", function () {
       expect(noms.fr).to.equal("Hydrologie");
     });
 
-    it("Ajouter des noms", async () => {
+    it("ajouter des noms", async () => {
       await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
@@ -159,7 +159,7 @@ describe.only("Mots-clefs", function () {
       });
     });
 
-    it("Changer un nom", async () => {
+    it("changer un nom", async () => {
       await constl.motsClefs.sauvegarderNomMotClef({
         idMotClef,
         langue: "fr",
@@ -175,7 +175,7 @@ describe.only("Mots-clefs", function () {
       expect(noms.fr).to.equal("hydrologie");
     });
 
-    it("Effacer un nom", async () => {
+    it("effacer un nom", async () => {
       await constl.motsClefs.effacerNomMotClef({
         idMotClef,
         langue: "fr",
@@ -194,14 +194,14 @@ describe.only("Mots-clefs", function () {
     });
   });
 
-  describe("Descriptions", function () {
+  describe("descriptions", function () {
     let idMotClef: string;
 
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
     });
 
-    it("Pas de descriptions pour commencer", async () => {
+    it("pas de descriptions pour commencer", async () => {
       const descriptions = await obtenir<TraducsTexte>(({ siDéfini }) =>
         constl.motsClefs.suivreDescriptionsMotClef({
           idMotClef,
@@ -211,7 +211,7 @@ describe.only("Mots-clefs", function () {
       expect(Object.keys(descriptions).length).to.equal(0);
     });
 
-    it("Ajouter une description", async () => {
+    it("ajouter une description", async () => {
       await constl.motsClefs.sauvegarderDescriptionMotClef({
         idMotClef,
         langue: "fr",
@@ -228,7 +228,7 @@ describe.only("Mots-clefs", function () {
       );
     });
 
-    it("Ajouter des descriptions", async () => {
+    it("ajouter des descriptions", async () => {
       await constl.motsClefs.sauvegarderDescriptionsMotClef({
         idMotClef,
         descriptions: {
@@ -250,7 +250,7 @@ describe.only("Mots-clefs", function () {
       });
     });
 
-    it("Changer une description", async () => {
+    it("changer une description", async () => {
       await constl.motsClefs.sauvegarderDescriptionMotClef({
         idMotClef,
         langue: "fr",
@@ -266,7 +266,7 @@ describe.only("Mots-clefs", function () {
       expect(descriptions.fr).to.equal("Données liées à l'hydrologie");
     });
 
-    it("Effacer une description", async () => {
+    it("effacer une description", async () => {
       await constl.motsClefs.effacerDescriptionMotClef({
         idMotClef,
         langue: "fr",
