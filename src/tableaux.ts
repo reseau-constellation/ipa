@@ -45,15 +45,6 @@ export function élémentsÉgaux(
   return true;
 }
 
-export function indexÉlémentsÉgaux(
-  élément1: { [key: string]: élémentsBd },
-  élément2: { [key: string]: élémentsBd },
-  index: string[],
-): boolean {
-  if (!index.every((x) => élément1[x] === élément2[x])) return false;
-  return true;
-}
-
 export class Tableaux extends ServiceConstellation {
   client: Constellation;
 

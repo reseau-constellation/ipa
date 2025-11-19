@@ -240,12 +240,23 @@ export type DifférenceColonneSupplémentaire = {
 
 
 // Fonctions
+
 export const obtIdIndex = (v: {[clef: string]: DagCborEncodable}, colsIndex: string[]): string => {
   const valsIndex = Object.fromEntries(
     Object.entries(v).filter((x) => colsIndex.includes(x[0])),
   );
   return Base64.stringify(md5(JSON.stringify(valsIndex)));
 };
+
+export function indexÉlémentsÉgaux(
+  élément1: DonnéesRangéeTableau,
+  élément2: DonnéesRangéeTableau,
+  index: string[],
+): boolean {
+  return index.every((x) => deepEqual(élément1[x], élément2[x]));
+}
+
+// Tableaux
 
 export class Tableaux<L extends ServicesLibp2pCrabe> {
   service: <T extends keyof ServicesConstellation<L>>(
@@ -1199,7 +1210,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     };
     patience?: number;
   }): Promise<void> {
-    const [donnéesTableauSource, donnéesTableauDestinataire] = await Promise.all([
+    const [donnéesTableauSource, donnéesTableauDestinataire, colsTableauDestinataire] = await Promise.all([
       uneFois(
         async (
           fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>,
@@ -1219,35 +1230,27 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         },
         attendreStabilité(patience),
       ),
+      uneFois(
+        async (fSuivi: Suivi<InfoColonne[]>) => {
+          return await this.suivreColonnes({
+            ...à,
+            f: ignorerNonDéfinis(fSuivi),
+          });
+        },
+        attendreStabilité(patience),
+      ),
     ]);
 
-    const colsTableauDestinataire = await uneFois(
-      async (fSuivi: Suivi<InfoColonne[]>) => {
-        return await this.suivreColonnes({
-          ...à,
-          f: ignorerNonDéfinis(fSuivi),
-        });
-      },
-      // Il faut attendre que toutes les colonnes soient présentes
-      (colonnes) =>
-        !!colonnes &&
-        [
-          ...new Set(
-            donnéesTableauDestinataire
-              .map((d) => Object.keys(d.données))
-              .flat(),
-          ),
-        ].length <= colonnes.length,
-    );
 
-    const indexes = colsTableauDestinataire.filter((c) => c.index).map((c) => c.id);
+    const indices = colsTableauDestinataire.filter((c) => c.index).map((c) => c.id);
+    const élémentsÀAjouter = [];
     for (const nouvelÉlément of donnéesTableauSource) {
       const existant = donnéesTableauDestinataire.find((d) =>
-        indexÉlémentsÉgaux(d.données, nouvelÉlément.données, indexes),
+        indexÉlémentsÉgaux(d.données, nouvelÉlément.données, indices),
       );
 
       if (existant) {
-        const àAjouter: { [key: string]: élémentsBd } = {};
+        const àAjouter: DonnéesRangéeTableau = {};
         for (const col of colsTableauDestinataire) {
           if (
             existant.données[col.id] === undefined &&
@@ -1259,21 +1262,19 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
 
         if (Object.keys(àAjouter).length) {
           await this.effacerÉlément({
-            idTableau: idTableauBase,
+            ...à,
             idÉlément: existant.id,
           });
-          await this.ajouterÉlément({
-            idTableau: idTableauBase,
-            vals: Object.assign({}, existant.données, àAjouter),
-          });
+          élémentsÀAjouter.push(Object.assign({}, existant.données, àAjouter))
         }
       } else {
-        await this.ajouterÉléments({
-          ...à,
-          vals: [nouvelÉlément.données],
-        });
+        élémentsÀAjouter.push(nouvelÉlément.données)
       }
     }
+    await this.ajouterÉléments({
+      ...à,
+      éléments: élémentsÀAjouter,
+    });
   }
 
   // Validation
@@ -1729,7 +1730,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         );
 
         donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d).reduce((acc: DonnéesRangéeTableau, idColonne string) => {
+          Object.keys(d).reduce((acc: DonnéesRangéeTableau, idColonne, string) => {
             const idVar = colonnes.find((c) => c.id === idCol)?.variable;
             if (!idVar)
               throw new Error(
