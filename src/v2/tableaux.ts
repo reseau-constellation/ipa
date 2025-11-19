@@ -1627,7 +1627,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
               sévère: true,
               idColonne: cCorresp.id,
               varColTableau: cCorresp.variable,
-              varColTableauLiée: cRéf.variable,
+              varColTableauRéf: cRéf.variable,
             };
             différences.push(dif);
           }
