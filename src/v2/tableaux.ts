@@ -206,6 +206,39 @@ export type ConversionDonnéesChaîne = {
   langue: string;
 };
 
+// Types comparaisons tableaux
+
+export type DifférenceTableaux =
+  | DifférenceVariableColonne
+  | DifférenceIndexColonne
+  | DifférenceColonneManquante
+  | DifférenceColonneSupplémentaire;
+
+export type DifférenceVariableColonne = {
+  type: "variableColonne";
+  sévère: true;
+  idColonne: string;
+  varColTableau?: string;
+  varColTableauRéf?: string;
+};
+export type DifférenceIndexColonne = {
+  type: "indexColonne";
+  sévère: true;
+  idColonne: string;
+  colTableauIndexée: boolean;
+};
+export type DifférenceColonneManquante = {
+  type: "colonneManquante";
+  sévère: true;
+  idColonneManquante: string;
+};
+export type DifférenceColonneSupplémentaire = {
+  type: "colonneSupplémentaire";
+  sévère: false;
+  idColonneSupplémentaire: string;
+};
+
+
 // Fonctions
 export const obtIdIndex = (v: {[clef: string]: DagCborEncodable}, colsIndex: string[]): string => {
   const valsIndex = Object.fromEntries(
@@ -1558,6 +1591,101 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     })
   }
 
+  // Comparaisons
+  @cacheSuivi
+  async suivreDifférencesAvecTableau({
+    tableau,
+    tableauRéf,
+    f,
+  }: {
+    tableau: {
+      idStructure: string;
+      idTableau: string;
+    };
+    tableauRéf: {
+      idStructure: string;
+      idTableau: string;
+    };
+    f: Suivi<DifférenceTableaux[]>;
+  }): Promise<Oublier> {
+    const info: {
+      colonnesTableau?: InfoColonne[];
+      colonnesTableauRéf?: InfoColonne[];
+    } = {};
+
+    const fFinale = async () => {
+      if (!info.colonnesTableau || !info.colonnesTableauRéf) return;
+
+      const différences: DifférenceTableaux[] = [];
+
+      for (const cRéf of info.colonnesTableauRéf) {
+        const cCorresp = info.colonnesTableau.find((c) => c.id === cRéf.id);
+        if (cCorresp) {
+          if (cCorresp.variable !== cRéf.variable) {
+            const dif: DifférenceVariableColonne = {
+              type: "variableColonne",
+              sévère: true,
+              idColonne: cCorresp.id,
+              varColTableau: cCorresp.variable,
+              varColTableauLiée: cRéf.variable,
+            };
+            différences.push(dif);
+          }
+          if (cCorresp.index !== cRéf.index) {
+            const dif: DifférenceIndexColonne = {
+              type: "indexColonne",
+              sévère: true,
+              idColonne: cCorresp.id,
+              colTableauIndexée: !!cCorresp.index,
+            };
+            différences.push(dif);
+          }
+        } else {
+          const dif: DifférenceColonneManquante = {
+            type: "colonneManquante",
+            sévère: true,
+            idColonneManquante: cRéf.id,
+          };
+          différences.push(dif);
+        }
+      }
+
+      for (const cTableau of info.colonnesTableau) {
+        const cLiée = info.colonnesTableauRéf.find((c) => c.id === cTableau.id);
+        if (!cLiée) {
+          const dif: DifférenceColonneSupplémentaire = {
+            type: "colonneSupplémentaire",
+            sévère: false,
+            idColonneSupplémentaire: cTableau.id,
+          };
+          différences.push(dif);
+        }
+      }
+
+      await f(différences);
+    };
+
+    const fOublierColonnesTableau = await this.suivreColonnes({
+      ...tableau,
+      f: async (x) => {
+        info.colonnesTableau = x;
+        await fFinale();
+      },
+    });
+
+    const fOublierColonnesRéf = await this.suivreColonnes({
+      ...tableauRéf,
+      f: async (x) => {
+        info.colonnesTableauRéf = x;
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await Promise.allSettled([fOublierColonnesTableau, fOublierColonnesRéf]);
+    };
+  }
+
   // Exportation
 
   async suivreDonnéesExportation({
@@ -1601,7 +1729,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         );
 
         donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d).reduce((acc: DonnéesRangéeTableau, idCol: string) => {
+          Object.keys(d).reduce((acc: DonnéesRangéeTableau, idColonne string) => {
             const idVar = colonnes.find((c) => c.id === idCol)?.variable;
             if (!idVar)
               throw new Error(

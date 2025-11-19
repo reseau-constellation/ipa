@@ -25,23 +25,6 @@ import {
 
 import { type donnéesBdExportées } from "@/bds.js";
 import { cholqij } from "@/dates.js";
-import {
-  détailsRègleBornesDynamiqueColonne,
-  détailsRègleBornesDynamiqueVariable,
-  détailsRègleValeurCatégoriqueDynamique,
-  erreurRègle,
-  erreurRègleBornesColonneInexistante,
-  erreurRègleBornesVariableNonPrésente,
-  erreurRègleCatégoriqueColonneInexistante,
-  erreurValidation,
-  générerFonctionRègle,
-  règleBornes,
-  règleColonne,
-  règleValeurCatégorique,
-  règleVariable,
-  règleVariableAvecId,
-  schémaFonctionValidation,
-} from "@/valid.js";
 import { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type {
   catégorieBaseVariables,
@@ -71,160 +54,12 @@ export function indexÉlémentsÉgaux(
   return true;
 }
 
-export type différenceTableaux =
-  | différenceVariableColonne
-  | différenceIndexColonne
-  | différenceColonneManquante
-  | différenceColonneSupplémentaire;
-
-export type différenceVariableColonne = {
-  type: "variableColonne";
-  sévère: true;
-  idCol: string;
-  varColTableau?: string;
-  varColTableauLiée?: string;
-};
-export type différenceIndexColonne = {
-  type: "indexColonne";
-  sévère: true;
-  idCol: string;
-  colTableauIndexée: boolean;
-};
-export type différenceColonneManquante = {
-  type: "colonneManquante";
-  sévère: true;
-  idManquante: string;
-};
-export type différenceColonneSupplémentaire = {
-  type: "colonneSupplémentaire";
-  sévère: false;
-  idExtra: string;
-};
-
-export type structureBdTableau = {
-  type: "tableau";
-  noms: string;
-  données: string;
-  colonnes: string;
-  règles: string;
-};
-const schémaStructureBdTableau: JSONSchemaType<structureBdTableau> = {
-  type: "object",
-  properties: {
-    type: { type: "string" },
-    noms: { type: "string" },
-    données: { type: "string" },
-    colonnes: { type: "string" },
-    règles: { type: "string" },
-  },
-  required: ["données", "colonnes", "noms", "règles", "type"],
-};
-
 export class Tableaux extends ServiceConstellation {
   client: Constellation;
 
   constructor({ client }: { client: Constellation }) {
     super({ client, clef: "tableaux" });
     this.client = client;
-  }
-
-  async _confirmerPermission({
-    idTableau,
-  }: {
-    idTableau: string;
-  }): Promise<void> {
-    if (!(await this.client.permission({ idObjet: idTableau })))
-      throw new Error(
-        `Permission de modification refusée pour le tableau ${idTableau}.`,
-      );
-  }
-
-  @cacheSuivi
-  async suivreDifférencesAvecTableau({
-    idTableau,
-    idTableauRéf,
-    f,
-  }: {
-    idTableau: string;
-    idTableauRéf: string;
-    f: schémaFonctionSuivi<différenceTableaux[]>;
-  }): Promise<schémaFonctionOublier> {
-    const info: {
-      colonnesTableau?: InfoCol[];
-      colonnesTableauRéf?: InfoCol[];
-    } = {};
-
-    const fFinale = async () => {
-      if (!info.colonnesTableau || !info.colonnesTableauRéf) return;
-
-      const différences: différenceTableaux[] = [];
-
-      for (const cRéf of info.colonnesTableauRéf) {
-        const cCorresp = info.colonnesTableau.find((c) => c.id === cRéf.id);
-        if (cCorresp) {
-          if (cCorresp.variable !== cRéf.variable) {
-            const dif: différenceVariableColonne = {
-              type: "variableColonne",
-              sévère: true,
-              idCol: cCorresp.id,
-              varColTableau: cCorresp.variable,
-              varColTableauLiée: cRéf.variable,
-            };
-            différences.push(dif);
-          }
-          if (cCorresp.index !== cRéf.index) {
-            const dif: différenceIndexColonne = {
-              type: "indexColonne",
-              sévère: true,
-              idCol: cCorresp.id,
-              colTableauIndexée: !!cCorresp.index,
-            };
-            différences.push(dif);
-          }
-        } else {
-          const dif: différenceColonneManquante = {
-            type: "colonneManquante",
-            sévère: true,
-            idManquante: cRéf.id,
-          };
-          différences.push(dif);
-        }
-      }
-
-      for (const cTableau of info.colonnesTableau) {
-        const cLiée = info.colonnesTableauRéf.find((c) => c.id === cTableau.id);
-        if (!cLiée) {
-          const dif: différenceColonneSupplémentaire = {
-            type: "colonneSupplémentaire",
-            sévère: false,
-            idExtra: cTableau.id,
-          };
-          différences.push(dif);
-        }
-      }
-
-      await f(différences);
-    };
-
-    const fOublierColonnesTableau = await this.suivreColonnesTableau({
-      idTableau,
-      f: async (x) => {
-        info.colonnesTableau = x;
-        await fFinale();
-      },
-    });
-
-    const fOublierColonnesRéf = await this.suivreColonnesTableau({
-      idTableau: idTableauRéf,
-      f: async (x) => {
-        info.colonnesTableauRéf = x;
-        await fFinale();
-      },
-    });
-
-    return async () => {
-      await Promise.allSettled([fOublierColonnesTableau, fOublierColonnesRéf]);
-    };
   }
 
   async réordonnerColonneTableau({
