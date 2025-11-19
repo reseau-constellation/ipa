@@ -1,8 +1,10 @@
 import { JSONSchemaType } from "ajv";
+import { DagCborEncodable } from "@orbitdb/core";
+import { validerCatégorieVal } from "@constl/utils-ipa";
 import { PartielRécursif } from "./types.js";
+import { DonnéesRangéeTableau, DonnéesRangéeTableauAvecId, obtIdIndex } from "./tableaux.js";
 import type { CatégorieVariables } from "./variables.js";
 
-export type type = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type SourceRègle =
   | { type: "variable"; id: string }
   | { type: "tableau"; idStructure: string; idTableau: string };
@@ -143,9 +145,17 @@ export type ErreurDonnée<T extends RègleVariable = RègleVariable> = {
 };
 
 export type ErreurRègle =
+  | ErreurRègleCatégoriqueTableauInexistant
   | ErreurRègleCatégoriqueColonneInexistante
   | ErreurRègleBornesColonneInexistante
   | ErreurRègleBornesVariableNonPrésente;
+
+  export type ErreurRègleCatégoriqueTableauInexistant = {
+    règle: RègleColonne<
+      RègleValeurCatégorique<DétailsRègleValeurCatégoriqueDynamique>
+    >;
+    type: "tableauCatégInexistant";
+  };
 
 export type ErreurRègleCatégoriqueColonneInexistante = {
   règle: RègleColonne<
@@ -167,21 +177,23 @@ export type ErreurRègleBornesVariableNonPrésente = {
 // Fonctions
 
 export type FonctionValidation<
-  T extends élémentBdListeDonnées = élémentBdListeDonnées,
+  T extends DonnéesRangéeTableau = DonnéesRangéeTableau,
   R extends RègleVariable = RègleVariable,
-> = (valeurs: élémentDonnées<T>[]) => ErreurDonnée<R>[];
+> = (valeurs: DonnéesRangéeTableauAvecId<T>[]) => ErreurDonnée<R>[];
 
 export function générerFonctionValidation<
-  T extends élémentBdListeDonnées,
+  T extends DonnéesRangéeTableau,
   R extends RègleVariable,
 >({
   règle,
   varsÀColonnes,
   donnéesCatégorie,
+  colsIndex,
 }: {
   règle: RègleColonne<R>;
   varsÀColonnes: { [key: string]: string };
-  donnéesCatégorie?: élémentsBd[];
+  donnéesCatégorie?: DagCborEncodable[];
+  colsIndex: string[];
 }): FonctionValidation<T, R> {
   const règleOriginale = règle.règle;
   const { colonne } = règle;
@@ -189,13 +201,13 @@ export function générerFonctionValidation<
 
   switch (type) {
     case "existe": {
-      return (vals: élémentDonnées<T>[]): ErreurDonnée<R>[] => {
+      return (vals: DonnéesRangéeTableauAvecId<T>[]): ErreurDonnée<R>[] => {
         const nonValides = vals.filter((v) => v.données[colonne] === undefined);
-        return nonValides.map((v: élémentDonnées<T>) => {
+        return nonValides.map((v) => {
           const { id } = v;
           const erreur: ErreurDonnée<R> = {
             id,
-            erreur: { règle },
+            erreur: règle,
           };
           return erreur;
         });
@@ -203,17 +215,17 @@ export function générerFonctionValidation<
     }
 
     case "catégorie": {
-      return (vals: élémentDonnées<T>[]) => {
+      return (vals: DonnéesRangéeTableauAvecId<T>[]) => {
         const catégorie = (règleOriginale.règle as RègleCatégorie).détails
           .catégorie;
         const nonValides = vals.filter(
           (v) => !validerCatégorieVal({ val: v.données[colonne], catégorie }),
         );
-        return nonValides.map((v: élémentDonnées<T>) => {
+        return nonValides.map((v) => {
           const { id } = v;
           const erreur: ErreurDonnée<R> = {
             id,
-            erreur: { règle },
+            erreur: règle,
           };
           return erreur;
         });
@@ -224,7 +236,7 @@ export function générerFonctionValidation<
       const règleTypeBornes =
         règleOriginale as RègleVariableAvecId<RègleBornes>;
 
-      let fComp: (v: élémentDonnées<T>) => boolean;
+      let fComp: (v: DonnéesRangéeTableauAvecId<T>) => boolean;
       let fOp: (v1: number, v2: number) => boolean;
 
       const { val, op, type: typeBornes } = règleTypeBornes.règle.détails;
@@ -251,14 +263,14 @@ export function générerFonctionValidation<
       }
 
       if (typeBornes === "fixe") {
-        fComp = (v: élémentDonnées<T>): boolean => {
+        fComp = (v: DonnéesRangéeTableauAvecId<T>): boolean => {
           const donnéesCol = v.données[colonne];
           return Array.isArray(donnéesCol)
             ? donnéesCol.every((x) => fOp(x as number, val as number))
             : fOp(donnéesCol as number, val as number);
         };
       } else {
-        fComp = (v: élémentDonnées<T>): boolean => {
+        fComp = (v: DonnéesRangéeTableauAvecId<T>): boolean => {
           const donnéesCol = v.données[colonne];
 
           // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
@@ -273,15 +285,15 @@ export function générerFonctionValidation<
         };
       }
 
-      return (vals: élémentDonnées<T>[]) => {
+      return (vals: DonnéesRangéeTableauAvecId<T>[]) => {
         const nonValides = vals.filter(
           (v) => !validerBorneVal({ val: v, fComp }),
         );
-        return nonValides.map((v: élémentDonnées<T>) => {
+        return nonValides.map((v) => {
           const { id } = v;
           const erreur: ErreurDonnée<R> = {
             id,
-            erreur: { règle },
+            erreur: règle,
           };
           return erreur;
         });
@@ -290,7 +302,7 @@ export function générerFonctionValidation<
 
     case "valeurCatégorique": {
       const règleTypeCatégorique =
-        règleOriginale.règle as règleValeurCatégorique;
+        règleOriginale.règle as RègleValeurCatégorique;
 
       const options =
         règleTypeCatégorique.détails.type === "fixe"
@@ -299,34 +311,35 @@ export function générerFonctionValidation<
 
       if (!options) throw new Error("Options non spécifiées");
 
-      return (vals: élémentDonnées<T>[]) => {
-        const nonValides = vals.filter(
-          (v: élémentDonnées<T>) =>
+      return (vals: DonnéesRangéeTableauAvecId<T>[]) => {
+        const nonValides = vals.filter((v) =>
             v.données[colonne] !== undefined &&
             !options.includes(v.données[colonne]),
         );
-        return nonValides.map((v: élémentDonnées<T>) => {
+        return nonValides.map((v) => {
           const { id } = v;
-          return {
+          const erreur: ErreurDonnée<R> = {
             id,
-            colonne,
-            erreur: { règle },
+            erreur: règle,
           };
+          return erreur
         });
       };
     }
+
     case "indexUnique": {
-      return (vals: élémentDonnées<T>[]): ErreurDonnée<RègleIndexUnique>[] => {
-        const décompte = (colonnes).map(c=>c.variable).reduce((acc: {[idVar: string]: number}, idVariable) => {
-          if (idVariable) acc[idVariable] = (acc[idVariable] || 0) + 1;
+      return (vals: DonnéesRangéeTableauAvecId<T>[]) => {
+        const décompte = (vals).map(v=>v.données).reduce((acc: {[index: string]: number}, données) => {
+          const index = obtIdIndex(données, colsIndex)
+          if (index) acc[index] = (acc[index] || 0) + 1;
           return acc;
         }, {});
-        const nonValides = vals.filter((v) => v.données[colonne] === undefined);
-        return nonValides.map((v: élémentDonnées<T>) => {
+        const nonValides = vals.filter((v) => décompte[obtIdIndex(v.données, colsIndex)] > 1);
+        return nonValides.map((v) => {
           const { id } = v;
-          const erreur: ErreurDonnée<RègleIndexUnique> = {
+          const erreur: ErreurDonnée<R> = {
             id,
-            erreur: { règle },
+            erreur: règle,
           };
           return erreur;
         });
@@ -337,12 +350,12 @@ export function générerFonctionValidation<
   }
 }
 
-const validerBorneVal = <T extends élémentBdListeDonnées>({
+const validerBorneVal = <T extends DonnéesRangéeTableau>({
   val,
   fComp,
 }: {
-  val: élémentDonnées<T>;
-  fComp: (v: élémentDonnées<T>) => boolean;
+  val: DonnéesRangéeTableauAvecId<T>;
+  fComp: (v: DonnéesRangéeTableauAvecId<T>) => boolean;
 }) => {
   if (Array.isArray(val)) {
     return val.every((v) => fComp(v));

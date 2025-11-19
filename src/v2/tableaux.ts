@@ -48,6 +48,7 @@ import {
   ErreurColonneVariableDédoublée,
   générerFonctionValidation,
   SpécificationRègleColonne,
+  FonctionValidation,
 } from "./règles.js";
 import { CatégorieBaseVariables, CatégorieVariables } from "./variables.js";
 import {
@@ -116,8 +117,10 @@ export const schémaTableau: JSONSchemaType<
   nullable: true,
 };
 
+export type ÉlémentDonnéesTableau = { [clef: string]: DagCborEncodable };
+
 export type StructureDonnéesTableau = {
-  [id: string]: { [clef: string]: DagCborEncodable };
+  [id: string]: ÉlémentDonnéesTableau;
 };
 
 export const schémaDonnéesTableau: JSONSchemaType<
@@ -201,6 +204,14 @@ export type ConversionDonnéesDate = {
 export type ConversionDonnéesChaîne = {
   type: "chaîne";
   langue: string;
+};
+
+// Fonctions
+export const obtIdIndex = (v: {[clef: string]: DagCborEncodable}, colsIndex: string[]): string => {
+  const valsIndex = Object.fromEntries(
+    Object.entries(v).filter((x) => colsIndex.includes(x[0])),
+  );
+  return Base64.stringify(md5(JSON.stringify(valsIndex)));
 };
 
 export class Tableaux<L extends ServicesLibp2pCrabe> {
@@ -879,24 +890,25 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
               type: "indexUnique",
             }
           },
-          source: { type: "tableau", id: idTableau },
+          source: { type: "tableau", idStructure, idTableau },
           colonne: c.id,
         }))
       }
     })
 
     // Suivre les règles spécifiées dans le tableau
-    const fFinaleRèglesTableau = async (règles: {
-      [id: string]: RègleColonne;
-    }) => {
-      dicRègles.tableau = Object.values(règles);
-      return await fFinale();
-    };
-
     const oublierRèglesTableau = await this.suivreTableau({
       idStructure,
       idTableau,
-      f: (tableau) => fFinaleRèglesTableau(tableau.règles) || {},
+      f: async (tableau) => {
+        const règlesTableau: RègleColonne[] = Object.entries(tableau.règles).map(([id, règle]) => ({
+          règle: { id, règle: règle.règle },
+          source: { type: "tableau", idStructure, idTableau },
+          colonne: règle.colonne
+        }));
+        dicRègles.tableau = Object.values(règlesTableau);
+        return await fFinale();
+      },
     });
 
     // Suivre les règles spécifiées dans les variables
@@ -992,12 +1004,12 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   }: {
     idStructure: string;
     idTableau: string;
-    éléments
+    éléments: ÉlémentDonnéesTableau[];
   }): Promise<string[]> {
     await this.confirmerPermission({ idStructure });
 
     // Éviter, autant que possible, de dédoubler des colonnes indexes
-    const colsIndexe = (
+    const colsIndex = (
       await uneFois((f: Suivi<InfoColonne[]>) =>
         this.suivreColonnes({ idStructure, idTableau, f: ignorerNonDéfinis(f) }),
       )
@@ -1005,17 +1017,10 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       .filter((c) => c.index)
       .map((c) => c.id);
 
-    const obtIdIndex = (v: {[clef: string]: DagCborEncodable}): string => {
-      const valsIndex = Object.fromEntries(
-        Object.entries(v).filter((x) => colsIndexe.includes(x[0])),
-      );
-      return Base64.stringify(md5(JSON.stringify(valsIndex)));
-    };
-
     const { données, oublier } = await this.ouvrirDonnéesTableau({ idStructure, idTableau });
     const ids: string[] = [];
     for (const val of éléments) {
-      const id = colsIndexe.length ? obtIdIndex(val) : uuidv4();
+      const id = colsIndex.length ? obtIdIndex(val, colsIndex) : uuidv4();
       await données.put(id, val);
       ids.push(id);
     }
@@ -1033,7 +1038,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   }: {
     idStructure: string,
     idTableau: string;
-    vals: { [key: string]: élémentsBd | undefined };
+    vals: ÉlémentDonnéesTableau & { [key: string]: undefined };
     idÉlément: string;
   }): Promise<void> {
     await this.confirmerPermission({ idStructure });
@@ -1295,7 +1300,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         if (!colRéfRègle) {
           const erreur: ErreurRègleBornesColonneInexistante = {
             règle: r,
-            détails: "colonneBornesInexistante",
+            type: "colonneBornesInexistante",
           };
           erreurs.push(erreur);
         }
@@ -1308,7 +1313,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         if (!varRéfRègle) {
           const erreur: ErreurRègleBornesVariableNonPrésente = {
             règle: r,
-            détails: "variableBornesNonPrésente",
+            type: "variableBornesNonPrésente",
           };
           erreurs.push(erreur);
         }
@@ -1321,7 +1326,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         if (!colRéfRègle) {
           const erreur: ErreurRègleCatégoriqueColonneInexistante = {
             règle: r.règle,
-            détails: "colonneCatégInexistante",
+            type: "colonneCatégInexistante",
           };
           erreurs.push(erreur);
         }
@@ -1411,10 +1416,11 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     f: Suivi<ErreurDonnée[]>;
   }): Promise<Oublier> {
     const info: {
-      données?: élémentDonnées[];
-      règles?: schémaFonctionValidation[];
+      données?: DonnéesRangéeTableauAvecId[];
+      règles?: FonctionValidation[];
       colonnes?: InfoColonne[];
     } = {};
+
     const fFinale = async () => {
       if (!info.données || !info.règles) return;
 
@@ -1427,26 +1433,24 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     };
 
     const fFinaleRègles = async (
-      règles: { règle: RègleColonne; donnéesCatégorie?: élémentsBd[] }[],
+      règles: { règle: RègleColonne; donnéesCatégorie?: DagCborEncodable[] }[],
     ) => {
       if (info.colonnes) {
         const varsÀColonnes = info.colonnes.reduce(
           (o, c) => (c.variable ? { ...o, [c.variable]: c.id } : { ...o }),
           {},
         );
+        const colsIndex = info.colonnes.filter(c=>c.index).map(c=>c.id);
         info.règles = règles.map((r) =>
           générerFonctionValidation({
             règle: r.règle,
             varsÀColonnes,
             donnéesCatégorie: r.donnéesCatégorie,
+            colsIndex,
           }),
         );
         await fFinale();
       }
-    };
-    const fFinaleDonnées = async (données: élémentDonnées[]) => {
-      info.données = données;
-      await fFinale();
     };
     const oublierVarsÀColonnes = await this.suivreColonnes({
       idStructure,
@@ -1471,7 +1475,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     }: {
       fSuivreBranche: Suivi<{
         règle: RègleColonne;
-        donnéesCatégorie?: élémentsBd[];
+        donnéesCatégorie?: DagCborEncodable[];
       }>;
       branche: RègleColonne;
     }): Promise<Oublier> => {
@@ -1495,7 +1499,6 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       }
     };
 
-
     const oublierRègles = await suivreDeFonctionListe({
       fListe: fListeRègles,
       f: fFinaleRègles,
@@ -1506,7 +1509,10 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     const oublierDonnées = await this.suivreDonnées({
       idStructure,
       idTableau,
-      f: fFinaleDonnées,
+      f: async (données) => {
+        info.données = données;
+        await fFinale();
+      },
     });
     const oublier = async () => {
       await oublierRègles();
