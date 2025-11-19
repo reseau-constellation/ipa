@@ -1,4 +1,3 @@
-
 describe("Tableaux", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];

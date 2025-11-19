@@ -513,5 +513,4 @@ export class Tableaux extends ServiceConstellation {
       await this.ajouterÉlément({ idTableau, vals: n });
     }
   }
-
 }

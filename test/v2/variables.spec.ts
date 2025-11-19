@@ -339,9 +339,7 @@ describe.only("Variables", function () {
       };
 
       expect(règles.map((r) => r.règle)).to.deep.equal(réf);
-      idRègleCatégorie = règles.find(
-        (r) => r.règle.type === "catégorie",
-      )!.id;
+      idRègleCatégorie = règles.find((r) => r.règle.type === "catégorie")!.id;
     });
 
     it("ajouter une règle", async () => {

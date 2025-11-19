@@ -1097,8 +1097,7 @@ export class BDs extends ComposanteClientListe<string> {
           const dénominateur = colsÉligibles.length;
           const numérateur = colsÉligibles.filter((c) =>
             règles.some(
-              (r) =>
-                r.règle.règle.type !== "catégorie" && r.colonne === c.id,
+              (r) => r.règle.règle.type !== "catégorie" && r.colonne === c.id,
             ),
           ).length;
           await fSuivreBranche({ numérateur, dénominateur });

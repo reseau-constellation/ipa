@@ -2,7 +2,11 @@ import { JSONSchemaType } from "ajv";
 import { DagCborEncodable } from "@orbitdb/core";
 import { validerCatégorieVal } from "@constl/utils-ipa";
 import { PartielRécursif } from "./types.js";
-import { DonnéesRangéeTableau, DonnéesRangéeTableauAvecId, obtIdIndex } from "./tableaux.js";
+import {
+  DonnéesRangéeTableau,
+  DonnéesRangéeTableauAvecId,
+  obtIdIndex,
+} from "./tableaux.js";
 import type { CatégorieVariables } from "./variables.js";
 
 export type SourceRègle =
@@ -21,10 +25,11 @@ export type RègleVariable =
   | RègleValeurCatégorique
   | RègleCatégorie;
 
-export type SpécificationRègleColonne<T extends RègleVariable = RègleVariable> = {
-  règle: T;
-  colonne: string;
-};
+export type SpécificationRègleColonne<T extends RègleVariable = RègleVariable> =
+  {
+    règle: T;
+    colonne: string;
+  };
 
 export type RègleColonne<T extends RègleVariable = RègleVariable> = {
   règle: RègleVariableAvecId<T>;
@@ -35,8 +40,8 @@ export type RègleColonne<T extends RègleVariable = RègleVariable> = {
 export type Op = ">" | "<" | ">=" | "<=" | "≥" | "≤";
 
 export type RègleIndexUnique = {
-  type: "indexUnique"
-}
+  type: "indexUnique";
+};
 
 export type RègleExiste = {
   type: "existe";
@@ -130,14 +135,13 @@ export const schémaSpécificationRègleColonne: JSONSchemaType<
   required: [],
 };
 
-
 // Erreurs
 
 export type ErreurColonne = ErreurColonneVariableDédoublée;
 export type ErreurColonneVariableDédoublée = {
   type: "variableDédoublée";
   colonnes: string[];
-}
+};
 
 export type ErreurDonnée<T extends RègleVariable = RègleVariable> = {
   id: string;
@@ -150,12 +154,12 @@ export type ErreurRègle =
   | ErreurRègleBornesColonneInexistante
   | ErreurRègleBornesVariableNonPrésente;
 
-  export type ErreurRègleCatégoriqueTableauInexistant = {
-    règle: RègleColonne<
-      RègleValeurCatégorique<DétailsRègleValeurCatégoriqueDynamique>
-    >;
-    type: "tableauCatégInexistant";
-  };
+export type ErreurRègleCatégoriqueTableauInexistant = {
+  règle: RègleColonne<
+    RègleValeurCatégorique<DétailsRègleValeurCatégoriqueDynamique>
+  >;
+  type: "tableauCatégInexistant";
+};
 
 export type ErreurRègleCatégoriqueColonneInexistante = {
   règle: RègleColonne<
@@ -312,7 +316,8 @@ export function générerFonctionValidation<
       if (!options) throw new Error("Options non spécifiées");
 
       return (vals: DonnéesRangéeTableauAvecId<T>[]) => {
-        const nonValides = vals.filter((v) =>
+        const nonValides = vals.filter(
+          (v) =>
             v.données[colonne] !== undefined &&
             !options.includes(v.données[colonne]),
         );
@@ -322,19 +327,23 @@ export function générerFonctionValidation<
             id,
             erreur: règle,
           };
-          return erreur
+          return erreur;
         });
       };
     }
 
     case "indexUnique": {
       return (vals: DonnéesRangéeTableauAvecId<T>[]) => {
-        const décompte = (vals).map(v=>v.données).reduce((acc: {[index: string]: number}, données) => {
-          const index = obtIdIndex(données, colsIndex)
-          if (index) acc[index] = (acc[index] || 0) + 1;
-          return acc;
-        }, {});
-        const nonValides = vals.filter((v) => décompte[obtIdIndex(v.données, colsIndex)] > 1);
+        const décompte = vals
+          .map((v) => v.données)
+          .reduce((acc: { [index: string]: number }, données) => {
+            const index = obtIdIndex(données, colsIndex);
+            if (index) acc[index] = (acc[index] || 0) + 1;
+            return acc;
+          }, {});
+        const nonValides = vals.filter(
+          (v) => décompte[obtIdIndex(v.données, colsIndex)] > 1,
+        );
         return nonValides.map((v) => {
           const { id } = v;
           const erreur: ErreurDonnée<R> = {
