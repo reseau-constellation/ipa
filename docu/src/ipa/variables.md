@@ -490,7 +490,7 @@ const client = créerConstellation();
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
 const règle: valid.règleBornes = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,
@@ -525,7 +525,7 @@ const client = créerConstellation();
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
 const règle: valid.règleBornes = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,
@@ -541,7 +541,7 @@ const idRègle = await client.variables.ajouterRègleVariable({
 
 // Après tout, elle doit être positive
 const règleModifiée: valid.règleBornes = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,
@@ -574,7 +574,7 @@ const client = créerConstellation();
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
 const règle: valid.règleBornes = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,
@@ -627,7 +627,7 @@ const fOublierRègles = await client.variables.suivreRèglesVariable({
 });
 
 const règle: valid.règleBornes = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,

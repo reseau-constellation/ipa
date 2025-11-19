@@ -58,7 +58,7 @@ export const schémaVariable: JSONSchemaType<
       additionalProperties: {
         type: "object",
         properties: {
-          typeRègle: { type: "string", nullable: true },
+          type: { type: "string", nullable: true },
           détails: {
             type: "object",
             nullable: true,
@@ -674,7 +674,7 @@ export class Variables<
         if (catégorie) {
           const règleCat: { [id: string]: RègleCatégorie } = {
             [uuidv4()]: {
-              typeRègle: "catégorie",
+              type: "catégorie",
               détails: { catégorie },
             },
           };

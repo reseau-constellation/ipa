@@ -2,7 +2,7 @@ import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { Constellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
-import { ÉpingleBd } from "@/v2/bds.js";
+import { ÉpingleBd } from "@/v2/bds/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { StatutDonnées } from "@/v2/types.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";

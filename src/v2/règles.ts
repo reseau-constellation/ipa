@@ -2,7 +2,7 @@ import { JSONSchemaType } from "ajv";
 import { PartielRécursif } from "./types.js";
 import type { CatégorieVariables } from "./variables.js";
 
-export type TypeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
+export type type = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type SourceRègle =
   | { type: "variable"; id: string }
   | { type: "tableau"; id: string };
@@ -28,18 +28,18 @@ export type RègleColonne<T extends RègleVariable = RègleVariable> = {
 export type Op = ">" | "<" | ">=" | "<=" | "≥" | "≤";
 
 export type RègleIndexUnique = {
-  typeRègle: "indexUnique"
+  type: "indexUnique"
 }
 
 export type RègleExiste = {
-  typeRègle: "existe";
+  type: "existe";
   détails: DétailsRègleExiste;
 };
 
 export type DétailsRègleExiste = Record<string, never>;
 
 export type RègleBornes<T extends DétailsRègleBornes = DétailsRègleBornes> = {
-  typeRègle: "bornes";
+  type: "bornes";
   détails: T;
 };
 
@@ -70,7 +70,7 @@ export type DétailsRègleBornesDynamiqueVariable = {
 export type RègleValeurCatégorique<
   T extends DétailsRègleValeurCatégorique = DétailsRègleValeurCatégorique,
 > = {
-  typeRègle: "valeurCatégorique";
+  type: "valeurCatégorique";
   détails: T;
 };
 
@@ -91,7 +91,7 @@ export type DétailsRègleValeurCatégoriqueDynamique = {
 };
 
 export type RègleCatégorie = {
-  typeRègle: "catégorie";
+  type: "catégorie";
   détails: DétailsRègleCatégorie;
 };
 
@@ -126,7 +126,7 @@ export const schémaRègleColonne: JSONSchemaType<
               required: [],
               nullable: true,
             },
-            typeRègle: { type: "string", nullable: true },
+            type: { type: "string", nullable: true },
           },
           nullable: true,
           required: [],
@@ -198,9 +198,9 @@ export function générerFonctionValidation<
 }): FonctionValidation<T, R> {
   const règleOriginale = règle.règle;
   const { colonne } = règle;
-  const { typeRègle } = règleOriginale.règle;
+  const { type } = règleOriginale.règle;
 
-  switch (typeRègle) {
+  switch (type) {
     case "existe": {
       return (vals: élémentDonnées<T>[]): ErreurDonnée<R>[] => {
         const nonValides = vals.filter((v) => v.données[colonne] === undefined);
@@ -346,7 +346,7 @@ export function générerFonctionValidation<
       };
     }
     default:
-      throw Error(`Catégorie ${typeRègle} inconnue.`);
+      throw Error(`Catégorie ${type} inconnue.`);
   }
 }
 

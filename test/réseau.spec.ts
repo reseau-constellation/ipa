@@ -1539,7 +1539,7 @@ if (isNode || isElectronMain) {
         await constls[1].variables.ajouterRègleVariable({
           idVariable,
           règle: {
-            typeRègle: "existe",
+            type: "existe",
             détails: {},
           },
         });
@@ -1684,7 +1684,7 @@ if (isNode || isElectronMain) {
         await constls[1].tableaux.ajouterRègleTableau({
           idTableau,
           idColonne,
-          règle: { typeRègle: "existe", détails: {} },
+          règle: { type: "existe", détails: {} },
         });
         await constls[1].tableaux.ajouterÉlément({
           idTableau,
@@ -1919,7 +1919,7 @@ if (isNode || isElectronMain) {
         await constls[1].nuées.ajouterRègleTableauNuée({
           idTableau,
           idColonne,
-          règle: { typeRègle: "existe", détails: {} },
+          règle: { type: "existe", détails: {} },
         });
         await constls[1].nuées.ajouterMotsClefsNuée({
           idNuée,

@@ -479,7 +479,7 @@ const idVariable = await client.variables.créerVariable({ catégorie: "numériq
 const idColonne = await client.tableaux.ajouterColonneTableau({ idTableau, idVariable });
 
 const règle: valid.règleBornes = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,

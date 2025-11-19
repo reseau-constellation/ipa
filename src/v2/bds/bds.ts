@@ -12,12 +12,12 @@ import { NestedObjectToMap, toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import xlsx, { utils as xlsxUtils } from "xlsx";
 import { DagCborEncodable } from "@orbitdb/core";
-import { cacheSuivi } from "./crabe/cache.js";
-import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
-import { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
-import { Constellation, ServicesConstellation } from "./constellation.js";
-import { Oublier, Suivi } from "./crabe/types.js";
-import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import { cacheSuivi } from "../crabe/cache.js";
+import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
+import { PartielRécursif, StatutDonnées, TraducsTexte } from "../types.js";
+import { Constellation, ServicesConstellation } from "../constellation.js";
+import { Oublier, Suivi } from "../crabe/types.js";
+import { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import {
   BaseÉpingleFavoris,
   DISPOSITIFS_INSTALLÉS,
@@ -25,8 +25,8 @@ import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
   ÉpingleFavorisAvecIdBooléennisée,
-} from "./favoris.js";
-import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
+} from "../favoris.js";
+import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import {
   DonnéesRangéeTableauAvecId,
   DonnéesTableauExportées,
@@ -34,14 +34,14 @@ import {
   StructureTableau,
   schémaTableau,
   Tableaux,
-} from "./tableaux.js";
-import { mapÀObjet } from "./crabe/utils.js";
+} from "../tableaux.js";
+import { mapÀObjet } from "../crabe/utils.js";
 import {
   DonnéesFichierBdExportées,
   ajouterProtocoleOrbite,
   extraireEmpreinte,
   sauvegarderDonnéesExportées,
-} from "./utils.js";
+} from "../utils.js";
 
 // Types épingles
 export type ÉpingleBd = BaseÉpingleFavoris & {

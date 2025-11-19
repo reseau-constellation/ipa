@@ -1106,7 +1106,7 @@ describe("BDs", function () {
 
       it("Ajout de règles", async () => {
         const règleNumérique: règleBornes = {
-          typeRègle: "bornes",
+          type: "bornes",
           détails: { type: "fixe", val: 0, op: ">=" },
         };
         await constl.tableaux.ajouterRègleTableau({

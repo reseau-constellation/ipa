@@ -851,7 +851,7 @@ describe("tableaux", function () {
             règle: {
               id: idRègle,
               règle: {
-                typeRègle: "indexUnique"
+                type: "indexUnique"
               }
             },
             source: {
@@ -875,7 +875,7 @@ describe("tableaux", function () {
         }))[0];
 
         const règle: RègleBornes = {
-          typeRègle: "bornes",
+          type: "bornes",
           détails: {
             type: "fixe",
             op: ">",
@@ -927,7 +927,7 @@ describe("tableaux", function () {
         })
 
         const règle: RègleBornes = {
-          typeRègle: "bornes",
+          type: "bornes",
           détails: {
             type: "fixe",
             op: ">",
@@ -967,60 +967,262 @@ describe("tableaux", function () {
     })
 
     describe("règles", function () {
-      let idTableau: string;
 
-      beforeEach(async () => {
-        idTableau = await constl.bds.ajouterTableau({ idBd });
-      });
+      describe("général", function () {
+        let idTableau: string;
+        let idColonne: string;
+        let idRègle: string;
 
-      it("aucune règle pour commencer", async () => {
-        await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
-          idTableau,
+        before(async () => {
+          idTableau = await constl.bds.ajouterTableau({ idBd });
+          idColonne = await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau
+          })
         });
-        const règles = await obtenir<RègleColonne[]>(({siDéfini}) => constl.bds.tableaux.suivreRègles({
-          idStructure: idBd,
-          idTableau,
-          f: siDéfini()
-        }));
 
-        expect(règles).to.be.empty();
-      });
-
-      it("règles génériques de catégorie", async () => {
-        const idVariable = await constl.variables.créerVariable({ catégorie: "numérique" })
-        const idColonne = await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
-          idTableau,
-          idVariable
+        it("aucune règle pour commencer", async () => {
+          await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau,
+          });
+          const règles = await obtenir<RègleColonne[]>(({siDéfini}) => constl.bds.tableaux.suivreRègles({
+            idStructure: idBd,
+            idTableau,
+            f: siDéfini()
+          }));
+  
+          expect(règles).to.be.empty();
         });
-        const règles = await obtenir<RègleColonne[]>(({siPasVide}) => constl.bds.tableaux.suivreRègles({
-          idStructure: idBd,
-          idTableau,
-          f: siPasVide()
-        }));
 
-        const réf: RègleColonne<RègleCatégorie>[] = [
-          {
-            règle: {
-              id: règles[0].règle.id,
-              règle: {
-                typeRègle: "catégorie",
-                détails: {
-                  catégorie: { type: "simple", catégorie: "numérique" }
-                }
-              }
-            },
-            source: { type: "tableau", id: idTableau },
-            colonne: idColonne
+        it("ajouter règle", async () => {
+          const règle: RègleBornes = {
+            type: "bornes",
+            détails: {
+              type: "fixe",
+              op: "≥",
+              val: 100
+            }
           }
-        ]
-        expect(règles).to.have.deep.members(réf);
+          idRègle = await constl.bds.tableaux.ajouterRègleTableau({
+            idStructure: idBd,
+            idTableau,
+            idColonne,
+            règle
+          })
+          await constl.bds.tableaux.ajouterRègleTableau({
+            idStructure: idBd,
+            idTableau,
+            idColonne,
+            règle
+          });
+
+          const règles = await obtenir<RègleColonne[]>(({siPasVide}) => constl.bds.tableaux.suivreRègles({
+            idStructure: idBd,
+            idTableau,
+            f: siPasVide()
+          }));
+  
+          const réfRègles: RègleColonne[] = [
+            {
+              règle: {
+                id: idRègle,
+                règle
+              },
+              source: { type : "tableau", id: idTableau },
+              colonne: idColonne
+            }
+          ]
+          expect(règles).to.have.deep.members(réfRègles);
+
+          const idÉlément = (await constl.bds.tableaux.ajouterÉléments({
+            idStructure: idBd,
+            idTableau,
+            éléments: [{[idColonne]: 10}]
+          }))[0]
+
+          const erreurs = await obtenir<ErreurDonnée[]>(({siPasVide})=> constl.bds.tableaux.suivreValidDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: siPasVide()
+          }))
+          const réfErreurs: ErreurDonnée[] = [
+            {
+              id: idÉlément,
+              erreur: réfRègles[0]
+            }
+          ]
+
+          expect(erreurs).to.have.deep.members(réfErreurs)
+
+        })
+        
+        it("modifier règle", async () => {
+          await constl.bds.tableaux.modifierRègle({
+            id
+          })
+        })
+
+        it("effacer règle", async () => {
+
+        })
+  
+        it("on ne peut pas directement effacer une règle provenant de la variable", async () => {
+          const idVariable = await constl.variables.créerVariable({ catégorie: "numérique" })
+          const idColonne = await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau,
+            idVariable
+          });
+          const règle: RègleBornes = {
+            type: "bornes",
+            détails: {
+              type: "fixe",
+              val: 0,
+              op: "<",
+            },
+          };
+          const idRègle = await constl.variables.ajouterRègleVariable({
+            idVariable,
+            règle,
+          });
+          await constl.bds.tableaux.effacerRègleTableau({
+            idStructure: idBd,
+            idTableau,
+            idRègle,
+          });
+  
+          const règles = await obtenir<RègleColonne[]>(({si}) => constl.bds.tableaux.suivreRègles({
+            idStructure: idBd,
+            idTableau,
+            f: si(x=>!!x?.find(r=>r.règle.règle.type === "bornes"))
+          }));
+    
+          const réf: RègleColonne = {
+            règle: {
+              id: idRègle,
+              règle
+            },
+            source: { type: "variable", id: idVariable },
+            colonne: idColonne,
+          };
+          expect(règles.filter((r) => r.règle.id === idRègle).length).to.deep.equal(réf);
+        });
       });
 
-      it("erreur règle borne - colonne inexistante")
-      it("erreur règle borne - variable inexistante")
-      it("erreur règle catégorique - colonne inexistante")
+      describe("catégories", function () {
+        let idTableau: string;
+
+        before(async () => {
+          idTableau = await constl.bds.ajouterTableau({ idBd });
+        });
+
+        it("ajout règle", async () => {
+          const idVariable = await constl.variables.créerVariable({ catégorie: "numérique" })
+          const idColonne = await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau,
+            idVariable
+          });
+          const règles = await obtenir<RègleColonne[]>(({siPasVide}) => constl.bds.tableaux.suivreRègles({
+            idStructure: idBd,
+            idTableau,
+            f: siPasVide()
+          }));
+  
+          const réf: RègleColonne<RègleCatégorie>[] = [
+            {
+              règle: {
+                id: règles[0].règle.id,
+                règle: {
+                  type: "catégorie",
+                  détails: {
+                    catégorie: { type: "simple", catégorie: "numérique" }
+                  }
+                }
+              },
+              source: { type: "tableau", id: idTableau },
+              colonne: idColonne
+            }
+          ]
+          expect(règles).to.have.deep.members(réf);
+  
+          
+        });
+  
+        it("règle catégorie - erreur données", async () => {
+          
+          const idÉlément = (
+            await constl.bds.tableaux.ajouterÉléments({
+              idStructure: idBd,
+              idTableau,
+              éléments: [{
+                [idColonne]: 123,
+              }],
+            })
+          )[0];
+          const erreurs = await obtenir<ErreurDonnée[]>(({siPasVide}) => constl.bds.tableaux.suivreValidDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: siPasVide()
+          }));
+
+          const idVariable = await constl.variables.créerVariable({ catégorie: "chaîne" })
+          const idColonne = await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau,
+            idVariable
+          });
+          
+          const règles = await obtenir<RègleColonne[]>(({siPasVide}) => constl.bds.tableaux.suivreRègles({
+            idStructure: idBd,
+            idTableau,
+            f: siPasVide()
+          }));
+          
+          
+          const réf: ErreurDonnée[] = [
+            {
+              id: idÉlément,
+              erreur: {
+                règle: {
+                  id: règles[0].règle.id,
+                  règle: {
+                    type: "catégorie",
+                    détails: {
+                      catégorie: {
+                        type: "simple",
+                        catégorie: "chaîne"
+                      }
+                    }
+                  }
+                },
+                source: { type: "tableau", id: idTableau },
+                colonne: idColonne,
+              }
+            }
+          ]
+          expect(erreurs).to.have.deep.members(réf);
+        });
+      })
+
+      describe("bornes fixes")
+
+      describe("bornes relatives colonne", function () {
+        it("erreur règle borne - colonne inexistante")
+      })
+      
+      describe("bornes relatives variable", function () {
+        it("erreur règle borne - variable inexistante")
+
+      })
+      
+      describe("catégorique fixe")
+      
+      describe("catégorique relative", function () {
+        it("erreur règle catégorique - colonne inexistante")
+
+      })
     });
 
     describe("importation", function () {
@@ -1282,7 +1484,7 @@ describe("tableaux", function () {
       हिं: "बारिश",
     };
     const règle: RègleBornes = {
-      typeRègle: "bornes",
+      type: "bornes",
       détails: {
         type: "fixe",
         val: 0,

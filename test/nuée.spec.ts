@@ -329,7 +329,7 @@ describe("Nuées", function () {
         await client.nuées.ajouterRègleTableauNuée({
           idTableau: idsTableaux[1],
           idColonne: "colonne numérique",
-          règle: { typeRègle: "existe", détails: {} },
+          règle: { type: "existe", détails: {} },
         });
 
         schéma = await client.nuées.générerSchémaBdNuée({
@@ -1380,7 +1380,7 @@ describe("Nuées", function () {
     describe.skip("Héritage règles", function () {
       // À faire: déterminer structure tableaux nuées entre idTableau et clefTableau
       /*const règle: règleExiste = {
-        typeRègle: "existe",
+        type: "existe",
         détails: {}
       }*/
       const clefTableau = "principal";

@@ -10,7 +10,7 @@ import { Oublier, Suivi } from "./crabe/types.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { ÉpingleMotClef } from "./motsClefs.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
-import { ÉpingleBd } from "./bds.js";
+import { ÉpingleBd } from "./bds/bds.js";
 
 // Types épingles
 

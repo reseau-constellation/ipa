@@ -3,7 +3,7 @@ import { Variables } from "./variables.js";
 import { MotsClefs } from "./motsClefs.js";
 import { Crabe, ServicesCrabe, StructureCrabe } from "./crabe/crabe.js";
 import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
-import { Bds } from "./bds.js";
+import { Bds } from "./bds/bds.js";
 import { Tableaux } from "./tableaux.js";
 import {
   ConstructeursServicesNébuleuse,

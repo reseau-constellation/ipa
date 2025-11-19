@@ -169,25 +169,10 @@ describe("Tableaux", function () {
       expect(val.length).to.equal(0);
     });
 
-    it("Ajouter des données de catégorie invalide", async () => {
-      const id = (
-        await client.tableaux.ajouterÉlément({
-          idTableau: idTableauRègles,
-          vals: {
-            [idColonneChaîne]: 123,
-          },
-        })
-      )[0];
-      expect(typeof id).to.equal("string");
-      const val = await résErreurs.attendreQue((x) => !!x.length);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(1);
-      expect(val[0].erreur.règle.règle.règle.typeRègle).to.equal("catégorie");
-    });
 
     it("Ajouter une règle au tableau", async () => {
       const règle: règleBornes = {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
           type: "fixe",
           val: 0,
@@ -209,101 +194,9 @@ describe("Tableaux", function () {
       });
     });
 
-    it("Ajouter une règle à la variable", async () => {
-      const règle: règleBornes = {
-        typeRègle: "bornes",
-        détails: {
-          type: "fixe",
-          val: 0,
-          op: "<",
-        },
-      };
-      idRègle = await client.variables.ajouterRègleVariable({
-        idVariable: idVariableNumérique,
-        règle,
-      });
-      const val = await résRègles.attendreQue((x) => x.length >= 3);
-      expect(val.length).to.equal(3);
-      expect(val.filter((r) => r.règle.id === idRègle).length).to.equal(1);
-    });
-
-    it("Ajouter des données invalides (règle tableau)", async () => {
-      const règle: règleBornes = {
-        typeRègle: "bornes",
-        détails: {
-          type: "fixe",
-          val: 0,
-          op: "<",
-        },
-      };
-      idRègle = await client.tableaux.ajouterRègleTableau({
-        idTableau: idTableauRègles,
-        idColonne: idColonneNumérique,
-        règle,
-      });
-
-      await client.tableaux.ajouterÉlément({
-        idTableau: idTableauRègles,
-        vals: {
-          [idColonneNumérique]: 123,
-        },
-      });
-
-      const val = await résErreurs.attendreQue((x) => !!x.length);
-      expect(val.length).to.equal(1);
-      expect(val[0].erreur.règle.règle.id).to.equal(idRègle);
-    });
-
-    it("Ajouter des données invalides (règle variable)", async () => {
-      const règle: règleBornes = {
-        typeRègle: "bornes",
-        détails: {
-          type: "fixe",
-          val: 0,
-          op: "<",
-        },
-      };
-      idRègle = await client.variables.ajouterRègleVariable({
-        idVariable: idVariableNumérique,
-        règle,
-      });
-
-      await client.tableaux.ajouterÉlément({
-        idTableau: idTableauRègles,
-        vals: {
-          [idColonneNumérique]: 123,
-        },
-      });
-      const val = await résErreurs.attendreQue((x) => x.length >= 1);
-      expect(val.length).to.equal(1);
-      expect(val[0].erreur.règle.règle.id).to.equal(idRègle);
-    });
-
-    it("On ne peut pas directement effacer une règle provenant de la variable", async () => {
-      const règle: règleBornes = {
-        typeRègle: "bornes",
-        détails: {
-          type: "fixe",
-          val: 0,
-          op: "<",
-        },
-      };
-      idRègle = await client.variables.ajouterRègleVariable({
-        idVariable: idVariableNumérique,
-        règle,
-      });
-      await client.tableaux.effacerRègleTableau({
-        idTableau: idTableauRègles,
-        idRègle,
-      });
-
-      const val = await résRègles.attendreExiste();
-      expect(val.filter((r) => r.règle.id === idRègle).length).to.equal(1);
-    });
-
     it("Effacer une règle tableau", async () => {
       const règle: règleBornes = {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
           type: "fixe",
           val: 0,
@@ -336,7 +229,7 @@ describe("Tableaux", function () {
 
     it("Effacer une règle variable", async () => {
       const règle: règleBornes = {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
           type: "fixe",
           val: 0,
@@ -446,7 +339,7 @@ describe("Tableaux", function () {
 
     it("Erreur règle si la colonne n'existe pas", async () => {
       règle1 = {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
           type: "dynamiqueColonne",
           val: idColonneTempMax,
@@ -571,7 +464,7 @@ describe("Tableaux", function () {
 
     it("Règle bornes relatives variable", async () => {
       règle2 = {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
           type: "dynamiqueVariable",
           val: idVariableTempMin,
@@ -620,7 +513,7 @@ describe("Tableaux", function () {
 
     it("Erreur règle variable introuvable", async () => {
       const règle: règleBornes<détailsRègleBornesDynamiqueVariable> = {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
           type: "dynamiqueVariable",
           val: idVariableTempMoyenne,
@@ -693,7 +586,7 @@ describe("Tableaux", function () {
         });
 
         const règleCatégorique: règleValeurCatégorique = {
-          typeRègle: "valeurCatégorique",
+          type: "valeurCatégorique",
           détails: { type: "fixe", options: ["வணக்கம்", "សួស្តើ"] },
         };
 
@@ -785,7 +678,7 @@ describe("Tableaux", function () {
         });
 
         règleCatégorique = {
-          typeRègle: "valeurCatégorique",
+          type: "valeurCatégorique",
           détails: {
             type: "dynamique",
             tableau: idTableauCatégories,

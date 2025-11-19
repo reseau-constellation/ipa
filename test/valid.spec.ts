@@ -162,7 +162,7 @@ describe("Validation", function () {
         règle: {
           id: uuidv4(),
           règle: {
-            typeRègle: "existe",
+            type: "existe",
             détails: {},
           },
         },
@@ -201,7 +201,7 @@ describe("Validation", function () {
         règle: {
           id: uuidv4(),
           règle: {
-            typeRègle: "catégorie",
+            type: "catégorie",
             détails: {
               catégorie: { type: "simple", catégorie: "numérique" },
             },
@@ -242,7 +242,7 @@ describe("Validation", function () {
           règle: {
             id: uuidv4(),
             règle: {
-              typeRègle: "bornes",
+              type: "bornes",
               détails: {
                 type: "fixe",
                 val: 0,
@@ -274,7 +274,7 @@ describe("Validation", function () {
             règle: {
               id: uuidv4(),
               règle: {
-                typeRègle: "bornes",
+                type: "bornes",
                 détails: {
                   type: "fixe",
                   val: ref,
@@ -322,7 +322,7 @@ describe("Validation", function () {
           règle: {
             id: uuidv4(),
             règle: {
-              typeRègle: "bornes",
+              type: "bornes",
               détails: {
                 type: "dynamiqueVariable",
                 val: "var temp min",
@@ -375,7 +375,7 @@ describe("Validation", function () {
         règle: {
           id: uuidv4(),
           règle: {
-            typeRègle: "valeurCatégorique",
+            type: "valeurCatégorique",
             détails: {
               type: "fixe",
               options: ["a", "b", "c"],
@@ -416,7 +416,7 @@ describe("Validation", function () {
         règle: {
           id: uuidv4(),
           règle: {
-            typeRègle: "catégorie",
+            type: "catégorie",
             détails: {
               catégorie: { type: "liste", catégorie: "numérique" },
             },
@@ -429,7 +429,7 @@ describe("Validation", function () {
         règle: {
           id: uuidv4(),
           règle: {
-            typeRègle: "bornes",
+            type: "bornes",
             détails: {
               type: "fixe",
               op: ">",

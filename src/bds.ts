@@ -179,7 +179,7 @@ export class BDs extends ComposanteClientListe<string> {
         }
         if (!optionnelle) {
           const règle: règleExiste = {
-            typeRègle: "existe",
+            type: "existe",
             détails: {},
           };
           await this.client.tableaux.ajouterRègleTableau({
@@ -1098,7 +1098,7 @@ export class BDs extends ComposanteClientListe<string> {
           const numérateur = colsÉligibles.filter((c) =>
             règles.some(
               (r) =>
-                r.règle.règle.typeRègle !== "catégorie" && r.colonne === c.id,
+                r.règle.règle.type !== "catégorie" && r.colonne === c.id,
             ),
           ).length;
           await fSuivreBranche({ numérateur, dénominateur });

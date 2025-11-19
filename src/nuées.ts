@@ -3612,7 +3612,7 @@ export class Nuées extends ComposanteClientListe<string> {
             cols: cols.map((c) => {
               const obligatoire = règles.some(
                 (r) =>
-                  r.colonne === c.id && r.règle.règle.typeRègle === "existe",
+                  r.colonne === c.id && r.règle.règle.type === "existe",
               );
               return {
                 idColonne: c.id,

@@ -130,7 +130,7 @@ await client.nuées.ajouterRègleTableauNuée({
     idTableau: idTableauObs,
     idColonne: idColNiveauDEau,
     règle: {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
             type: "fixe";
             val: 0,

@@ -306,7 +306,7 @@ describe.only("Variables", function () {
 
     let idRègleCatégorie: string;
     const réfRègleCatégorie: RègleCatégorie = {
-      typeRègle: "catégorie",
+      type: "catégorie",
       détails: {
         catégorie: {
           type: "simple",
@@ -329,7 +329,7 @@ describe.only("Variables", function () {
         }),
       );
       const réf: RègleCatégorie = {
-        typeRègle: "catégorie",
+        type: "catégorie",
         détails: {
           catégorie: {
             type: "simple",
@@ -340,13 +340,13 @@ describe.only("Variables", function () {
 
       expect(règles.map((r) => r.règle)).to.deep.equal(réf);
       idRègleCatégorie = règles.find(
-        (r) => r.règle.typeRègle === "catégorie",
+        (r) => r.règle.type === "catégorie",
       )!.id;
     });
 
     it("ajouter une règle", async () => {
       const règle: RègleBornes = {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
           type: "fixe",
           val: 0,
@@ -381,7 +381,7 @@ describe.only("Variables", function () {
 
     it("modifier une règle", async () => {
       const règleModifiée: RègleBornes = {
-        typeRègle: "bornes",
+        type: "bornes",
         détails: {
           type: "fixe",
           val: 0,
@@ -467,7 +467,7 @@ describe.only("Variables", function () {
             (x) =>
               !!x?.some(
                 (r) =>
-                  r.règle.typeRègle === "catégorie" &&
+                  r.règle.type === "catégorie" &&
                   r.règle.détails.catégorie.catégorie !== "numérique",
               ),
           ),
@@ -483,7 +483,7 @@ describe.only("Variables", function () {
         {
           id: idRègleCatégorie,
           règle: {
-            typeRègle: "catégorie",
+            type: "catégorie",
             détails: {
               catégorie: {
                 type: "simple",
@@ -577,7 +577,7 @@ describe.only("Variables", function () {
     let idVariable2: string;
 
     const règle: RègleBornes = {
-      typeRègle: "bornes",
+      type: "bornes",
       détails: {
         type: "fixe",
         val: 0,
@@ -661,7 +661,7 @@ describe.only("Variables", function () {
 
     it("les règles sont copiées", async () => {
       const règleCatégorie: RègleCatégorie = {
-        typeRègle: "catégorie",
+        type: "catégorie",
         détails: {
           catégorie: { type: "simple", catégorie: "numérique" },
         },
