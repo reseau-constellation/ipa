@@ -5,7 +5,7 @@ import type { CatégorieVariables } from "./variables.js";
 export type type = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type SourceRègle =
   | { type: "variable"; id: string }
-  | { type: "tableau"; id: string };
+  | { type: "tableau"; idStructure: string; idTableau: string };
 
 export type RègleVariableAvecId<T extends RègleVariable = RègleVariable> = {
   id: string;
@@ -18,6 +18,11 @@ export type RègleVariable =
   | RègleBornes
   | RègleValeurCatégorique
   | RègleCatégorie;
+
+export type SpécificationRègleColonne<T extends RègleVariable = RègleVariable> = {
+  règle: T;
+  colonne: string;
+};
 
 export type RègleColonne<T extends RègleVariable = RègleVariable> = {
   règle: RègleVariableAvecId<T>;
@@ -99,38 +104,21 @@ export type DétailsRègleCatégorie = {
   catégorie: CatégorieVariables;
 };
 
-export const schémaRègleColonne: JSONSchemaType<
-  PartielRécursif<RègleColonne>
+export const schémaSpécificationRègleColonne: JSONSchemaType<
+  PartielRécursif<SpécificationRègleColonne>
 > & { nullable: true } = {
   type: "object",
   properties: {
     colonne: { type: "string", nullable: true },
-    source: {
-      type: "object",
-      properties: {
-        id: { type: "string", nullable: true },
-        type: { type: "string", nullable: true },
-      },
-      nullable: true,
-      required: [],
-    },
     règle: {
       type: "object",
       properties: {
-        id: { type: "string", nullable: true },
-        règle: {
+        détails: {
           type: "object",
-          properties: {
-            détails: {
-              type: "object",
-              required: [],
-              nullable: true,
-            },
-            type: { type: "string", nullable: true },
-          },
-          nullable: true,
           required: [],
+          nullable: true,
         },
+        type: { type: "string", nullable: true },
       },
       nullable: true,
       required: [],
@@ -177,7 +165,6 @@ export type ErreurRègleBornesVariableNonPrésente = {
 };
 
 // Fonctions
-
 
 export type FonctionValidation<
   T extends élémentBdListeDonnées = élémentBdListeDonnées,

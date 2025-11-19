@@ -19,6 +19,9 @@ import {
   NestedObjectToMap,
   NestedValueObject,
 } from "node_modules/@orbitdb/nested-db/dist/types.js";
+import md5 from "crypto-js/md5.js";
+import Base64 from "crypto-js/enc-base64.js";
+import deepEqual from "deep-equal";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ServicesConstellation } from "./constellation.js";
 import { Oublier, Suivi } from "./crabe/types.js";
@@ -40,11 +43,11 @@ import {
   RègleValeurCatégorique,
   RègleVariable,
   RègleVariableAvecId,
-  schémaRègleColonne,
+  schémaSpécificationRègleColonne,
   ErreurColonne,
   ErreurColonneVariableDédoublée,
-  RègleIndexUnique,
   générerFonctionValidation,
+  SpécificationRègleColonne,
 } from "./règles.js";
 import { CatégorieBaseVariables, CatégorieVariables } from "./variables.js";
 import {
@@ -52,9 +55,6 @@ import {
   sauvegarderDonnéesExportées,
 } from "./utils.js";
 import { typer } from "./crabe/services/orbite/orbite.js";
-import md5 from "crypto-js/md5.js";
-import Base64 from "crypto-js/enc-base64.js";
-import deepEqual from "deep-equal";
 
 // Types tableaux
 
@@ -63,7 +63,7 @@ export type StructureTableau = {
   colonnes: { [id: string]: Omit<InfoColonne, "id"> };
   données: string;
   règles: {
-    [idRègle: string]: RègleColonne;
+    [idRègle: string]: SpécificationRègleColonne;
   };
 };
 
@@ -108,7 +108,7 @@ export const schémaTableau: JSONSchemaType<
     },
     règles: {
       type: "object",
-      additionalProperties: schémaRègleColonne,
+      additionalProperties: schémaSpécificationRègleColonne,
       nullable: true,
     },
   },
@@ -774,7 +774,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
 
   // Règles
 
-  async ajouterRègleTableau<R extends RègleVariable = RègleVariable>({
+  async ajouterRègle<R extends RègleVariable = RègleVariable>({
     idStructure,
     idTableau,
     idColonne,
@@ -793,14 +793,9 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     });
 
     const id = uuidv4();
-    const règleAvecId: RègleVariableAvecId<R> = {
-      id,
-      règle,
-    };
 
-    const élément: RègleColonne = {
-      règle: règleAvecId,
-      source: { type: "tableau", id: idStructure },
+    const élément: SpécificationRègleColonne = {
+      règle: règle,
       colonne: idColonne,
     };
     await tableau.put(`règles/${id}`, élément);
@@ -810,7 +805,30 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     return id;
   }
 
-  async effacerRègleTableau({
+  async modifierRègle({
+    idStructure,
+    idTableau,
+    idRègle,
+    règleModifiée,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idRègle: string;
+    règleModifiée: RègleVariable;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    await tableau.put(`règles/${idRègle}/règle`, règleModifiée);
+
+    await oublier();
+  }
+
+  async effacerRègle({
     idStructure,
     idTableau,
     idRègle,
