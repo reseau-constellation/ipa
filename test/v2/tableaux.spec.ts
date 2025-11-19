@@ -25,7 +25,6 @@ import {
   RègleColonne,
   RègleIndexUnique,
   RègleValeurCatégorique,
-  SpécificationRègleColonne,
 } from "@/v2/règles.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 
@@ -2119,147 +2118,147 @@ describe("tableaux", function () {
         expect(données.map((d) => d.données)).to.have.deep.members(réf);
       });
     });
-
-    describe("différences tableaux", function () {
-      let idTableau: string;
-      let idTableauRéf: string;
-
-      beforeEach(async () => {
-        idTableau = await constl.bds.ajouterTableau({ idBd });
-        idTableauRéf = await constl.bds.ajouterTableau({ idBd });
-      });
-
-      it("variable colonne", async () => {
-        const idColonne = "une colonne";
-
-        const idVariable = await constl.variables.créerVariable({
-          catégorie: "image",
-        });
-        const idVariable2 = await constl.variables.créerVariable({
-          catégorie: "image",
-        });
-
-        await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
-          idTableau,
-          idColonne,
-          idVariable,
-        });
-        await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
-          idTableau: idTableauRéf,
-          idColonne,
-          idVariable: idVariable2,
-        });
-
-        const différences = await obtenir<DifférenceTableaux[]>(
-          ({ siPasVide }) =>
-            constl.bds.tableaux.suivreDifférencesAvecTableau({
-              tableau: { idStructure: idBd, idTableau },
-              tableauRéf: { idStructure: idBd, idTableau: idTableauRéf },
-              f: siPasVide(),
-            }),
-        );
-        const réf: DifférenceVariableColonne[] = [
-          {
-            type: "variableColonne",
-            sévère: true,
-            idColonne,
-            varColTableau: idVariable,
-            varColTableauRéf: idVariable2,
-          },
-        ];
-        expect(différences).to.have.deep.members(réf);
-      });
-
-      it("index colonne", async () => {
-        const idColonne = "une colonne";
-        await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
-          idTableau,
-          idColonne,
-        });
-        await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
-          idTableau: idTableauRéf,
-          idColonne,
-        });
-
-        await constl.bds.tableaux.modifierIndexColonne({
-          idStructure: idBd,
-          idTableau,
-          idColonne,
-          index: true,
-        });
-
-        const différences = await obtenir<DifférenceTableaux[]>(
-          ({ siPasVide }) =>
-            constl.bds.tableaux.suivreDifférencesAvecTableau({
-              tableau: { idStructure: idBd, idTableau },
-              tableauRéf: { idStructure: idBd, idTableau: idTableauRéf },
-              f: siPasVide(),
-            }),
-        );
-        const réf: DifférenceIndexColonne[] = [
-          {
-            type: "indexColonne",
-            sévère: true,
-            idColonne,
-            colTableauIndexée: true,
-          },
-        ];
-        expect(différences).to.have.deep.members(réf);
-      });
-      it("colonne manquante", async () => {
-        const idColonne = await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
-          idTableau: idTableauRéf,
-        });
-
-        const différences = await obtenir<DifférenceTableaux[]>(
-          ({ siPasVide }) =>
-            constl.bds.tableaux.suivreDifférencesAvecTableau({
-              tableau: { idStructure: idBd, idTableau },
-              tableauRéf: { idStructure: idBd, idTableau: idTableauRéf },
-              f: siPasVide(),
-            }),
-        );
-        const réf: DifférenceColonneManquante[] = [
-          {
-            type: "colonneManquante",
-            sévère: true,
-            idColonneManquante: idColonne,
-          },
-        ];
-        expect(différences).to.have.deep.members(réf);
-      });
-
-      it("colonne supplémentaire", async () => {
-        const idColonne = await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
-          idTableau,
-        });
-
-        const différences = await obtenir<DifférenceTableaux[]>(
-          ({ siPasVide }) =>
-            constl.bds.tableaux.suivreDifférencesAvecTableau({
-              tableau: { idStructure: idBd, idTableau },
-              tableauRéf: { idStructure: idBd, idTableau: idTableauRéf },
-              f: siPasVide(),
-            }),
-        );
-        const réf: DifférenceColonneSupplémentaire[] = [
-          {
-            type: "colonneSupplémentaire",
-            sévère: false,
-            idColonneSupplémentaire: idColonne,
-          },
-        ];
-        expect(différences).to.have.deep.members(réf);
-      });
-    });
   });
 
+  describe("différences tableaux", function () {
+    let idTableau: string;
+    let idTableauRéf: string;
+
+    beforeEach(async () => {
+      idTableau = await constl.bds.ajouterTableau({ idBd });
+      idTableauRéf = await constl.bds.ajouterTableau({ idBd });
+    });
+
+    it("variable colonne", async () => {
+      const idColonne = "une colonne";
+
+      const idVariable = await constl.variables.créerVariable({
+        catégorie: "image",
+      });
+      const idVariable2 = await constl.variables.créerVariable({
+        catégorie: "image",
+      });
+
+      await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idColonne,
+        idVariable,
+      });
+      await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau: idTableauRéf,
+        idColonne,
+        idVariable: idVariable2,
+      });
+
+      const différences = await obtenir<DifférenceTableaux[]>(
+        ({ siPasVide }) =>
+          constl.bds.tableaux.suivreDifférencesAvecTableau({
+            tableau: { idStructure: idBd, idTableau },
+            tableauRéf: { idStructure: idBd, idTableau: idTableauRéf },
+            f: siPasVide(),
+          }),
+      );
+      const réf: DifférenceVariableColonne[] = [
+        {
+          type: "variableColonne",
+          sévère: true,
+          idColonne,
+          varColTableau: idVariable,
+          varColTableauRéf: idVariable2,
+        },
+      ];
+      expect(différences).to.have.deep.members(réf);
+    });
+
+    it("index colonne", async () => {
+      const idColonne = "une colonne";
+      await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idColonne,
+      });
+      await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau: idTableauRéf,
+        idColonne,
+      });
+
+      await constl.bds.tableaux.modifierIndexColonne({
+        idStructure: idBd,
+        idTableau,
+        idColonne,
+        index: true,
+      });
+
+      const différences = await obtenir<DifférenceTableaux[]>(
+        ({ siPasVide }) =>
+          constl.bds.tableaux.suivreDifférencesAvecTableau({
+            tableau: { idStructure: idBd, idTableau },
+            tableauRéf: { idStructure: idBd, idTableau: idTableauRéf },
+            f: siPasVide(),
+          }),
+      );
+      const réf: DifférenceIndexColonne[] = [
+        {
+          type: "indexColonne",
+          sévère: true,
+          idColonne,
+          colTableauIndexée: true,
+        },
+      ];
+      expect(différences).to.have.deep.members(réf);
+    });
+    it("colonne manquante", async () => {
+      const idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau: idTableauRéf,
+      });
+
+      const différences = await obtenir<DifférenceTableaux[]>(
+        ({ siPasVide }) =>
+          constl.bds.tableaux.suivreDifférencesAvecTableau({
+            tableau: { idStructure: idBd, idTableau },
+            tableauRéf: { idStructure: idBd, idTableau: idTableauRéf },
+            f: siPasVide(),
+          }),
+      );
+      const réf: DifférenceColonneManquante[] = [
+        {
+          type: "colonneManquante",
+          sévère: true,
+          idColonneManquante: idColonne,
+        },
+      ];
+      expect(différences).to.have.deep.members(réf);
+    });
+
+    it("colonne supplémentaire", async () => {
+      const idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+      });
+
+      const différences = await obtenir<DifférenceTableaux[]>(
+        ({ siPasVide }) =>
+          constl.bds.tableaux.suivreDifférencesAvecTableau({
+            tableau: { idStructure: idBd, idTableau },
+            tableauRéf: { idStructure: idBd, idTableau: idTableauRéf },
+            f: siPasVide(),
+          }),
+      );
+      const réf: DifférenceColonneSupplémentaire[] = [
+        {
+          type: "colonneSupplémentaire",
+          sévère: false,
+          idColonneSupplémentaire: idColonne,
+        },
+      ];
+      expect(différences).to.have.deep.members(réf);
+    });
+  });
+  
   describe("copier", function () {
     let fermer: () => Promise<void>;
     let constls: Constellation[];
