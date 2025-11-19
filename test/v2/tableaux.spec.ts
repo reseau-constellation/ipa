@@ -9,6 +9,7 @@ import {
   DifférenceIndexColonne,
   DifférenceTableaux,
   DifférenceVariableColonne,
+  DonnéesRangéeTableau,
   DonnéesRangéeTableauAvecId,
   InfoColonne,
   InfoColonneAvecCatégorie,
@@ -2046,7 +2047,7 @@ describe("tableaux", function () {
           éléments: élémentsDestinataire,
         });
 
-        const élémentsSource = [
+        const élémentsSource: DonnéesRangéeTableau[] = [
           {
             endroit: "ici",
             date: "2021-01-01",
@@ -2121,6 +2122,24 @@ describe("tableaux", function () {
   });
 
   describe("différences tableaux", function () {
+    let fermer: () => Promise<void>;
+    let constls: Constellation[];
+    let constl: Constellation;
+    let idBd: string;
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 1,
+      }));
+      constl = constls[0];
+
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
     let idTableau: string;
     let idTableauRéf: string;
 

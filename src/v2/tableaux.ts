@@ -1082,7 +1082,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   }: {
     idStructure: string,
     idTableau: string;
-    vals: ÉlémentDonnéesTableau & { [key: string]: undefined };
+    vals: Partial<ÉlémentDonnéesTableau>;
     idÉlément: string;
   }): Promise<void> {
     await this.confirmerPermission({ idStructure });
@@ -1593,6 +1593,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   }
 
   // Comparaisons
+
   @cacheSuivi
   async suivreDifférencesAvecTableau({
     tableau,
@@ -1687,6 +1688,58 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     };
   }
 
+  // Importation
+
+  async importerDonnées({
+    idStructure,
+    idTableau,
+    données,
+    patience = 100,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    données: DonnéesRangéeTableau[];
+    patience: number
+  }): Promise<void> {
+    const donnéesTableau = await uneFois(
+      async (
+        fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>,
+      ) => {
+        return await this.suivreDonnées({ idStructure, idTableau, f: fSuivi });
+      },
+      attendreStabilité(patience)
+    );
+
+    const colonnes = await uneFois(
+      async (fSuivi: Suivi<InfoColonne[]>) => await this.suivreColonnes({ idStructure, idTableau, f: fSuivi })
+    )
+    const index = colonnes.filter(c=>c.index).map(c=>c.id);
+    const identiques = (élément1: DonnéesRangéeTableau, élément2: DonnéesRangéeTableau) => {
+      if (index.length) return obtIdIndex(élément1, index) === obtIdIndex(élément2, index)
+      return deepEqual(élément1, élément2)
+    }
+
+    const nouveaux: DonnéesRangéeTableau[] = [];
+    for (const élément of données) {
+      if (!donnéesTableau.some((x) => identiques(x.données, élément))) {
+        nouveaux.push(élément);
+      }
+    }
+
+    const àEffacer: string[] = [];
+    for (const élément of donnéesTableau) {
+      if (!données.some((x) => identiques(x, élément.données))) {
+        àEffacer.push(élément.id);
+      }
+    }
+
+    for (const id of àEffacer) {
+      await this.effacerÉlément({ idStructure, idTableau, idÉlément: id });
+    }
+
+    await this.ajouterÉléments({ idStructure, idTableau, éléments: nouveaux });
+  }
+
   // Exportation
 
   async suivreDonnéesExportation({
@@ -1730,11 +1783,11 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         );
 
         donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d).reduce((acc: DonnéesRangéeTableau, idColonne, string) => {
-            const idVar = colonnes.find((c) => c.id === idCol)?.variable;
+          Object.keys(d).reduce((acc: DonnéesRangéeTableau, idColonne: string) => {
+            const idVar = colonnes.find((c) => c.id === idColonne)?.variable;
             if (!idVar)
               throw new Error(
-                `Colonne avec id ${idCol} non trouvée parmis les colonnes :\n${JSON.stringify(
+                `Colonne avec id ${idColonne} non trouvée parmis les colonnes :\n${JSON.stringify(
                   colonnes,
                   undefined,
                   2,
@@ -1742,9 +1795,9 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
               );
             const nomVar =
               langues && nomsVariables?.[idVar]
-                ? traduire(nomsVariables[idVar], langues) || idCol
-                : idCol;
-            acc[nomVar] = d[idCol];
+                ? traduire(nomsVariables[idVar], langues) || idColonne
+                : idColonne;
+            acc[nomVar] = d[idColonne];
             return acc;
           }, {}),
         );

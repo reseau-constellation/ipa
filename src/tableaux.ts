@@ -465,13 +465,6 @@ export class Tableaux extends ServiceConstellation {
     conversions?: { [col: string]: conversionDonnées };
     cheminBaseFichiers?: string;
   }): Promise<void> {
-    const donnéesTableau = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
-      ) => {
-        return await this.suivreDonnées({ idTableau, f: fSuivi });
-      },
-    );
 
     const donnéesConverties = await this.convertirDonnées({
       idTableau,
@@ -482,26 +475,5 @@ export class Tableaux extends ServiceConstellation {
       donnéesExistantes: donnéesTableau.map((x) => x.données),
     });
 
-    const nouveaux: élémentBdListeDonnées[] = [];
-    for (const élément of donnéesConverties) {
-      if (!donnéesTableau.some((x) => élémentsÉgaux(x.données, élément))) {
-        nouveaux.push(élément);
-      }
-    }
-
-    const àEffacer: string[] = [];
-    for (const élément of donnéesTableau) {
-      if (!donnéesConverties.some((x) => élémentsÉgaux(x, élément.données))) {
-        àEffacer.push(élément.id);
-      }
-    }
-
-    for (const id of àEffacer) {
-      await this.effacerÉlément({ idTableau, idÉlément: id });
-    }
-
-    for (const n of nouveaux) {
-      await this.ajouterÉlément({ idTableau, vals: n });
-    }
   }
 }
