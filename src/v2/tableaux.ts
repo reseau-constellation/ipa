@@ -1062,12 +1062,11 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       .map((c) => c.id);
 
     const { données, oublier } = await this.ouvrirDonnéesTableau({ idStructure, idTableau });
-    const ids: string[] = [];
-    for (const val of éléments) {
+    const ids = await Promise.all(éléments.map(async val => {
       const id = colsIndex.length ? obtIdIndex(val, colsIndex) : uuidv4();
       await données.put(id, val);
-      ids.push(id);
-    }
+      return id
+    }))
 
     await oublier();
 
