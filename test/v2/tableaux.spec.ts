@@ -30,26 +30,29 @@ import {
 import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe("tableaux", function () {
+  let fermer: () => Promise<void>;
+  let constls: Constellation[];
+  let constl: Constellation;
+
+  before(async () => {
+    ({ fermer, constls } = await créerConstellationsTest({
+      n: 1,
+    }));
+    constl = constls[0];
+  });
+
+  after(async () => {
+    if (fermer) await fermer();
+  });
+
   describe("noms", function () {
-    let fermer: () => Promise<void>;
-    let constls: Constellation[];
-    let constl: Constellation;
     let idBd: string;
 
     let idTableau: string;
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
-        n: 1,
-      }));
-      constl = constls[0];
-
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       idTableau = await constl.bds.ajouterTableau({ idBd });
-    });
-
-    after(async () => {
-      if (fermer) await fermer();
     });
 
     it("pas de noms pour commencer", async () => {
@@ -141,22 +144,10 @@ describe("tableaux", function () {
   });
 
   describe("données", function () {
-    let fermer: () => Promise<void>;
-    let constls: Constellation[];
-    let constl: Constellation;
     let idBd: string;
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
-        n: 1,
-      }));
-      constl = constls[0];
-
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-    });
-
-    after(async () => {
-      if (fermer) await fermer();
     });
 
     describe("colonnes", function () {
@@ -2122,22 +2113,10 @@ describe("tableaux", function () {
   });
 
   describe("différences tableaux", function () {
-    let fermer: () => Promise<void>;
-    let constls: Constellation[];
-    let constl: Constellation;
     let idBd: string;
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
-        n: 1,
-      }));
-      constl = constls[0];
-
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-    });
-
-    after(async () => {
-      if (fermer) await fermer();
     });
 
     let idTableau: string;
@@ -2279,17 +2258,7 @@ describe("tableaux", function () {
   });
   
   describe("copier", function () {
-    let fermer: () => Promise<void>;
-    let constls: Constellation[];
-    let constl: Constellation;
     let idBd: string;
-
-    before(async () => {});
-
-    after(async () => {
-      if (fermer) await fermer();
-    });
-
     let idTableau: string;
     let idVariable: string;
     let idColonne: string;
@@ -2311,11 +2280,6 @@ describe("tableaux", function () {
     };
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
-        n: 1,
-      }));
-      constl = constls[0];
-
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
       idTableau = await constl.bds.ajouterTableau({ idBd });
