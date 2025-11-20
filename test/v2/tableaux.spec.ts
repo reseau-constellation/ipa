@@ -1054,11 +1054,14 @@ describe("tableaux", function () {
     describe("index", function () {
       it("index univariable - ajout élément");
       it("index univariable - modification élément");
+      it("index variable liste - ajout élément");
+      it("index variable liste - modification élément");
       it("index multivariable - ajout élément");
       it("index multivariable - modification élément");
     });
 
     describe("règles", function () {
+
       describe("général", function () {
         let idTableau: string;
         let idColonne: string;
@@ -1871,10 +1874,85 @@ describe("tableaux", function () {
     });
 
     describe("importation", function () {
-      it("importation nouveaux éléments");
-      it("importation avec index");
-      it("importation avec index variable liste");
-      it("importation avec indices multiples");
+      let idTableau: string;
+
+      before(async () => {
+        idTableau = await constl.bds.ajouterTableau({ idBd });
+        await Promise.all(["endroit", "date", "températureMinimale"].map(async idColonne => await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne,
+        })));
+      });
+
+      it("importation éléments", async () => {
+        const élémentsBase = [
+          {
+            endroit: "ici",
+            date: {
+              système: "dateJS",
+              val: new Date("2021-01-01").valueOf(),
+            },
+            températureMinimale: 25,
+          },
+          {
+            endroit: "ici",
+            date: {
+              système: "dateJS",
+              val: new Date("2021-01-02").valueOf(),
+            },
+            températureMinimale: 25,
+          },
+          {
+            endroit: "là-bas",
+            date: {
+              système: "dateJS",
+              val: new Date("2021-01-01").valueOf(),
+            },
+            températureMinimale: 25,
+          },
+        ];
+  
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments: élémentsBase,
+        });
+
+        // Il faut attendre que les données soient bien ajoutées avant de progresser avec l'importation.
+        await obtenir<DonnéesRangéeTableauAvecId[]>(({si}) => constl.bds.tableaux.suivreDonnées({idStructure: idBd, idTableau, f: si(x=>x?.length === 3)}));
+
+        const nouvellesDonnées: DonnéesRangéeTableau[] = [
+          {
+            endroit: "ici",
+            date: {
+              système: "dateJS",
+              val: new Date("2021-01-01").valueOf(),
+            },
+            températureMinimale: 25,
+          },
+          {
+            endroit: "ici",
+            date: {
+              système: "dateJS",
+              val: new Date("2021-01-02").valueOf(),
+            },
+            températureMinimale: 27,
+          },
+        ];
+        await constl.bds.tableaux.importerDonnées({
+          idStructure: idBd,
+          idTableau,
+          données: nouvellesDonnées,
+        });
+
+        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({si})=>constl.bds.tableaux.suivreDonnées({
+          idStructure: idBd,
+          idTableau,
+          f: si(x=>x?.length === 2 && !x.some((d) => d.données["endroit"] === "là-bas"))
+        }));
+        expect(données.map(d=>d.données)).to.deep.equal(nouvellesDonnées);
+      });
     });
 
     describe("exportation", function () {
