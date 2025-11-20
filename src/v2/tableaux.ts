@@ -1091,7 +1091,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     const précédent = await données.get(idÉlément);
     if (!précédent) throw new Error(`Id élément ${idÉlément} n'existe pas.`);
 
-    const élément = Object.assign({}, précédent, vals);
+    const élément = Object.assign({}, mapÀObjet(précédent), vals);
 
     Object.keys(vals).map((c: string) => {
       if (vals[c] === undefined) delete élément[c];
@@ -1698,7 +1698,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idStructure: string;
     idTableau: string;
     données: DonnéesRangéeTableau[];
-    patience: number
+    patience?: number
   }): Promise<void> {
     const donnéesTableau = await uneFois(
       async (
@@ -1710,7 +1710,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     );
 
     const colonnes = await uneFois(
-      async (fSuivi: Suivi<InfoColonne[]>) => await this.suivreColonnes({ idStructure, idTableau, f: fSuivi })
+      async (fSuivi: Suivi<InfoColonne[]>) => await this.suivreColonnes({ idStructure, idTableau, f: ignorerNonDéfinis(fSuivi) })
     )
     const index = colonnes.filter(c=>c.index).map(c=>c.id);
     const identiques = (élément1: DonnéesRangéeTableau, élément2: DonnéesRangéeTableau) => {
