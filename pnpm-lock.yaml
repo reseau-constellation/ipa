@@ -278,6 +278,9 @@ importers:
       '@libp2p/interface':
         specifier: ^2.11.0
         version: 2.11.0
+      '@libp2p/interface-internal':
+        specifier: ^2.3.19
+        version: 2.3.19
       '@orbitdb/core-types':
         specifier: ^1.2.1
         version: 1.2.1(patch_hash=eb967695ff139c3768ffea8f03733ebb28477e09449c2b216f65ce6628f5de37)
@@ -11917,9 +11920,9 @@ snapshots:
       strong-log-transformer: 2.1.0
       tempy: 3.1.0
       typedoc: 0.28.14(typescript@5.8.3)
-      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.8.3))
-      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.8.3))
-      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.8.3))
+      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.9.3))
+      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.9.3))
+      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.9.3))
       typescript: 5.8.3
       typescript-docs-verifier: 3.0.1(typescript@5.8.3)
       wherearewe: 2.0.1
@@ -18947,16 +18950,16 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       html-escaper: 3.0.3
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
