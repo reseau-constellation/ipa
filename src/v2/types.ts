@@ -1,3 +1,5 @@
+import { DagCborEncodable } from "@orbitdb/core";
+
 export type TraducsTexte = { [langue: string]: string };
 
 export type PartielRécursif<T> = {
@@ -18,3 +20,5 @@ export type StatutDonnées =
       statut: "obsolète";
       idNouvelle?: string;
     };
+
+export type Métadonnées = { [clef: string]: DagCborEncodable };

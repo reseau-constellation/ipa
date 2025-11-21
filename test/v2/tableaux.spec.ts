@@ -2571,6 +2571,7 @@ describe("tableaux", function () {
     let idRègle: string;
 
     let idTableauCopié: string;
+    let idNouvelleBd: string;
 
     const réfNoms = {
       த: "மழை",
@@ -2693,6 +2694,83 @@ describe("tableaux", function () {
         ({ siPasVide }) =>
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
+            idTableau: idTableauCopié,
+            f: siPasVide(),
+          }),
+      );
+      expect(données.map((d) => d.données)).to.deep.equal([
+        { [idColonne]: 123 },
+      ]);
+    });
+
+    it("nouvelle structure - le tableau est copié", async () => {
+      idNouvelleBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+
+      idTableauCopié = await constl.bds.tableaux.copierTableau({
+        idStructure: idBd,
+        idTableau,
+        idStructureDestinataire: idNouvelleBd
+      });
+      expect(idTableauCopié).to.be.a("string");
+    });
+
+    it("nouvelle structure - les noms sont copiés", async () => {
+      const noms = await obtenir(({ siPasVide }) =>
+        constl.bds.tableaux.suivreNoms({
+          idStructure: idNouvelleBd,
+          idTableau: idTableauCopié,
+          f: siPasVide(),
+        }),
+      );
+      expect(noms).to.deep.equal(réfNoms);
+    });
+
+    it("nouvelle structure - les colonnes sont copiées", async () => {
+      const colonnes = await obtenir<InfoColonne[]>(({ siPasVide }) =>
+        constl.bds.tableaux.suivreColonnes({
+          idStructure: idNouvelleBd,
+          idTableau: idTableauCopié,
+          f: siPasVide(),
+        }),
+      );
+      expect(colonnes).to.deep.equal([
+        {
+          id: idColonne,
+          variable: idVariable,
+          index: true,
+        },
+      ]);
+    });
+
+    it("nouvelle structure - les règles sont copiés", async () => {
+      const règles = await obtenir<RègleColonne[]>(({ si }) =>
+        constl.bds.tableaux.suivreRègles({
+          idStructure: idNouvelleBd,
+          idTableau: idTableauCopié,
+          f: si((x) => !!x && x.some((r) => r.règle.id === idRègle)),
+        }),
+      );
+
+      expect(règles).to.deep.equal([règle]);
+    });
+
+    it("nouvelle structure - les variables sont copiés", async () => {
+      const variables = await obtenir(({ siPasVide }) =>
+        constl.bds.tableaux.suivreVariables({
+          idStructure: idNouvelleBd,
+          idTableau: idTableauCopié,
+          f: siPasVide(),
+        }),
+      );
+
+      expect(variables).to.deep.equal([idVariable]);
+    });
+
+    it("nouvelle structure - les données sont copiés", async () => {
+      const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
+        ({ siPasVide }) =>
+          constl.bds.tableaux.suivreDonnées({
+            idStructure: idNouvelleBd,
             idTableau: idTableauCopié,
             f: siPasVide(),
           }),

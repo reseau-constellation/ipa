@@ -1,49 +1,26 @@
-import { v4 as uuidv4 } from "uuid";
-import { WorkBook, utils, BookType } from "xlsx";
+
 
 import {
-  attendreStabilité,
-  faisRien,
-  suivreDeFonctionListe,
-  traduire,
   uneFois,
 } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
-import { JSONSchemaType } from "ajv";
+
 import axios from "axios";
-import Base64 from "crypto-js/enc-base64.js";
-import md5 from "crypto-js/md5.js";
 import { isElectronMain, isNode } from "wherearewe";
 import { Constellation } from "@/client.js";
 import {
-  TraducsTexte,
-  schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStructureBdNoms,
   élémentsBd,
 } from "@/types.js";
 
-import { type donnéesBdExportées } from "@/bds.js";
 import { cholqij } from "@/dates.js";
 import { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type {
   catégorieBaseVariables,
-  catégorieVariables,
 } from "@/variables.js";
-import { cacheSuivi } from "@/décorateursCache.js";
 import { cidEtFichierValide } from "@/epingles.js";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-export function élémentsÉgaux(
-  élément1: { [key: string]: élémentsBd },
-  élément2: { [key: string]: élémentsBd },
-): boolean {
-  const clefs1 = Object.keys(élément1).filter((x) => x !== "id");
-  const clefs2 = Object.keys(élément2).filter((x) => x !== "id");
-  if (!clefs1.every((x) => élément1[x] === élément2[x])) return false;
-  if (!clefs2.every((x) => élément1[x] === élément2[x])) return false;
-  return true;
-}
 
 export class Tableaux extends ServiceConstellation {
   client: Constellation;

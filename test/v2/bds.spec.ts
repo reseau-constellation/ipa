@@ -80,10 +80,12 @@ describe("BDs", function () {
       expect(mesBds).to.be.empty();
     });
 
-    it("création de schéma");
-
-    it("génération schéma");
   });
+
+  describe("schémas", function () {
+    it("création bd à partir de schéma");
+    it("génération de schéma");
+  })
 
   describe("noms");
 
@@ -289,7 +291,7 @@ describe("BDs", function () {
     it("statut actif par défaut", async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       const statut = await obtenir(({ siDéfini }) =>
-        constl.bds.suivreStatutBd({
+        constl.bds.suivreStatut({
           idBd,
           f: siDéfini(),
         }),
@@ -307,13 +309,13 @@ describe("BDs", function () {
         // Pour une vraie application, utiliser un identifiant valide, bien entendu.
         idNouvelle: "/orbitdb/uneAutreBaseDeDonnées",
       };
-      await constl.bds.sauvegarderStatutBd({
+      await constl.bds.sauvegarderStatut({
         idBd,
         statut: nouveauStatut,
       });
 
       const statut = await obtenir<StatutDonnées | null>(({ si }) =>
-        constl.bds.suivreStatutBd({
+        constl.bds.suivreStatut({
           idBd,
           f: si((x) => x?.statut !== "active"),
         }),
@@ -324,6 +326,8 @@ describe("BDs", function () {
   });
 
   describe("copier");
+
+  describe("nuées");
 
   describe("différences", function () {
     let idBd: string;
@@ -401,6 +405,8 @@ describe("BDs", function () {
     });
 
   });
+
+  describe("combiner");
 
   describe("exportation");
 

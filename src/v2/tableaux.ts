@@ -310,30 +310,34 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   async copierTableau({
     idStructure,
     idTableau,
+    idStructureDestinataire,
     copierDonnées = true,
   }: {
     idStructure: string;
     idTableau: string;
+    idStructureDestinataire?: string;
     copierDonnées?: boolean;
   }): Promise<string> {
+    idStructureDestinataire ??= idStructure;
+
     const { tableau, oublier } = await this.ouvrirTableau({
       idStructure,
       idTableau,
     });
 
     const idNouveauTableau = await this.créerTableau({
-      idStructure,
+      idStructure: idStructureDestinataire,
       idTableau: uuidv4(),
     });
 
     const { tableau: nouveauTableau, oublier: oublierNouveauTableau } =
-      await this.ouvrirTableau({ idStructure, idTableau: idNouveauTableau });
+      await this.ouvrirTableau({ idStructure: idStructureDestinataire, idTableau: idNouveauTableau });
 
     // Copier les noms
     const noms = mapÀObjet(await tableau.get("noms"));
     if (noms)
       await this.sauvegarderNoms({
-        idStructure,
+        idStructure: idStructureDestinataire,
         idTableau: idNouveauTableau,
         noms,
       });
@@ -360,7 +364,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       if (données) {
         const { données: nouvelleBdDonnées, oublier: oublierNouvellesDonnées } =
           await this.ouvrirDonnéesTableau({
-            idStructure,
+            idStructure: idStructureDestinataire,
             idTableau: idNouveauTableau,
           });
         await nouvelleBdDonnées.put(données);
