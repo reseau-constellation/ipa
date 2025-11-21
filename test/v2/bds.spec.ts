@@ -197,15 +197,17 @@ describe("BDs", function () {
       const idVariable = await constl.variables.créerVariable({
         catégorie: "fichier",
       });
-      const idColonne = await constl.tableaux.ajouterColonne({
+      const idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
         idTableau,
         idVariable,
       });
 
       const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4";
-      await constl.tableaux.ajouterÉlément({
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
         idTableau,
-        val: { [idColonne]: idc },
+        éléments: [{ [idColonne]: idc }],
       });
 
       const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
@@ -247,16 +249,18 @@ describe("BDs", function () {
       const idVariable = await constl.variables.créerVariable({
         catégorie: { catégorie: "fichier", type: "liste" },
       });
-      const idColonne = await constl.tableaux.ajouterColonne({
+      const idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
         idTableau,
         idVariable,
       });
 
       const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4";
       const idc2 = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmR.mp4";
-      await constl.tableaux.ajouterÉlément({
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
         idTableau,
-        val: { [idColonne]: [idc, idc2] },
+        éléments: [{ [idColonne]: [idc, idc2] }],
       });
 
       const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
