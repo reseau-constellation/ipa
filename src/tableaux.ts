@@ -85,39 +85,6 @@ export class Tableaux extends ServiceConstellation {
     await fOublier();
   }
 
-  async vérifierClefsÉlément<T extends élémentBdListeDonnées>({
-    idTableau,
-    élément,
-  }: {
-    idTableau: string;
-    élément: élémentBdListeDonnées;
-  }): Promise<T> {
-    await this._confirmerPermission({ idTableau });
-    const idBdColonnes = await this.client.obtIdBd({
-      nom: "colonnes",
-      racine: idTableau,
-      type: "ordered-keyvalue",
-    });
-
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdColonnes,
-      type: "ordered-keyvalue",
-      schéma: schémaBdInfoCol,
-    });
-    const idsColonnes: string[] = (await bdColonnes.all()).map(
-      (e) => e.value.id,
-    );
-    const clefsPermises = [...idsColonnes, "id"];
-    const clefsFinales = Object.keys(élément).filter((x: string) =>
-      clefsPermises.includes(x),
-    );
-
-    await fOublier();
-    return Object.fromEntries(
-      clefsFinales.map((x: string) => [x, élément[x]]),
-    ) as T;
-  }
-
   async convertirDonnées<T extends élémentBdListeDonnées[]>({
     idTableau,
     données,
@@ -465,7 +432,6 @@ export class Tableaux extends ServiceConstellation {
     conversions?: { [col: string]: conversionDonnées };
     cheminBaseFichiers?: string;
   }): Promise<void> {
-
     const donnéesConverties = await this.convertirDonnées({
       idTableau,
       données,
@@ -474,6 +440,5 @@ export class Tableaux extends ServiceConstellation {
       cheminBaseFichiers,
       donnéesExistantes: donnéesTableau.map((x) => x.données),
     });
-
   }
 }

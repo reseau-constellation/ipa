@@ -136,8 +136,6 @@ export const schémaDonnéesTableau: JSONSchemaType<
   required: [],
 };
 
-export type InfoTableau = { clef: string; id: string };
-
 type StructureAvecTableau = { tableaux: { [clef: string]: StructureTableau } };
 const schémaStructureAvecTableau: JSONSchemaType<
   PartielRécursif<StructureAvecTableau>
@@ -238,10 +236,12 @@ export type DifférenceColonneSupplémentaire = {
   idColonneSupplémentaire: string;
 };
 
-
 // Fonctions
 
-export const obtIdIndex = (v: {[clef: string]: DagCborEncodable}, colsIndex: string[]): string => {
+export const obtIdIndex = (
+  v: { [clef: string]: DagCborEncodable },
+  colsIndex: string[],
+): string => {
   const valsIndex = Object.fromEntries(
     Object.entries(v).filter((x) => colsIndex.includes(x[0])),
   );
@@ -914,8 +914,11 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idTableau: string;
     f: Suivi<RègleColonne[]>;
   }): Promise<Oublier> {
-    const dicRègles: { tableau?: RègleColonne[]; variable?: RègleColonne[], index?: RègleColonne[] } =
-      {};
+    const dicRègles: {
+      tableau?: RègleColonne[];
+      variable?: RègleColonne[];
+      index?: RègleColonne[];
+    } = {};
     const fFinale = async () => {
       if (!dicRègles.tableau || !dicRègles.variable) return;
       return await f([...dicRègles.tableau, ...dicRègles.variable]);
@@ -925,30 +928,32 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     const oublierColonnes = await this.suivreColonnes({
       idStructure,
       idTableau,
-      f: colonnes => {
-        const colonnesIndex = (colonnes || []).filter(c=>c.index);
-        dicRègles.index = colonnesIndex.map(c=>({
+      f: (colonnes) => {
+        const colonnesIndex = (colonnes || []).filter((c) => c.index);
+        dicRègles.index = colonnesIndex.map((c) => ({
           règle: {
             id: uuidv4(),
             règle: {
               type: "indexUnique",
-            }
+            },
           },
           source: { type: "tableau", idStructure, idTableau },
           colonne: c.id,
-        }))
-      }
-    })
+        }));
+      },
+    });
 
     // Suivre les règles spécifiées dans le tableau
     const oublierRèglesTableau = await this.suivreTableau({
       idStructure,
       idTableau,
       f: async (tableau) => {
-        const règlesTableau: RègleColonne[] = Object.entries(tableau.règles).map(([id, règle]) => ({
+        const règlesTableau: RègleColonne[] = Object.entries(
+          tableau.règles,
+        ).map(([id, règle]) => ({
           règle: { id, règle: règle.règle },
           source: { type: "tableau", idStructure, idTableau },
-          colonne: règle.colonne
+          colonne: règle.colonne,
         }));
         dicRègles.tableau = Object.values(règlesTableau);
         return await fFinale();
@@ -1044,7 +1049,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   async ajouterÉléments({
     idStructure,
     idTableau,
-    éléments
+    éléments,
   }: {
     idStructure: string;
     idTableau: string;
@@ -1055,18 +1060,27 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     // Éviter, autant que possible, de dédoubler des colonnes indexes
     const colsIndex = (
       await uneFois((f: Suivi<InfoColonne[]>) =>
-        this.suivreColonnes({ idStructure, idTableau, f: ignorerNonDéfinis(f) }),
+        this.suivreColonnes({
+          idStructure,
+          idTableau,
+          f: ignorerNonDéfinis(f),
+        }),
       )
     )
       .filter((c) => c.index)
       .map((c) => c.id);
 
-    const { données, oublier } = await this.ouvrirDonnéesTableau({ idStructure, idTableau });
-    const ids = await Promise.all(éléments.map(async val => {
-      const id = colsIndex.length ? obtIdIndex(val, colsIndex) : uuidv4();
-      await données.put(id, val);
-      return id
-    }))
+    const { données, oublier } = await this.ouvrirDonnéesTableau({
+      idStructure,
+      idTableau,
+    });
+    const ids = await Promise.all(
+      éléments.map(async (val) => {
+        const id = colsIndex.length ? obtIdIndex(val, colsIndex) : uuidv4();
+        await données.put(id, val);
+        return id;
+      }),
+    );
 
     await oublier();
 
@@ -1079,14 +1093,17 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     vals,
     idÉlément,
   }: {
-    idStructure: string,
+    idStructure: string;
     idTableau: string;
     vals: Partial<ÉlémentDonnéesTableau>;
     idÉlément: string;
   }): Promise<void> {
     await this.confirmerPermission({ idStructure });
 
-    const {données, oublier} = await this.ouvrirDonnéesTableau({ idStructure, idTableau });
+    const { données, oublier } = await this.ouvrirDonnéesTableau({
+      idStructure,
+      idTableau,
+    });
 
     const précédent = await données.get(idÉlément);
     if (!précédent) throw new Error(`Id élément ${idÉlément} n'existe pas.`);
@@ -1112,7 +1129,10 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idTableau: string;
     idÉlément: string;
   }) {
-    const { données, oublier } = await this.ouvrirDonnéesTableau({ idStructure, idTableau});
+    const { données, oublier } = await this.ouvrirDonnéesTableau({
+      idStructure,
+      idTableau,
+    });
 
     await données.del(idÉlément);
     await oublier();
@@ -1202,46 +1222,39 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   }: {
     de: {
       idStructure: string;
-      idTableau: string};
+      idTableau: string;
+    };
     à: {
       idStructure: string;
       idTableau: string;
     };
     patience?: number;
   }): Promise<void> {
-    const [donnéesTableauSource, donnéesTableauDestinataire, colsTableauDestinataire] = await Promise.all([
-      uneFois(
-        async (
-          fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>,
-        ) => {
-          return await this.suivreDonnées({
-            ...de,
-            f: fSuivi,
-          });
-        },
-        attendreStabilité(patience),
-      ),
-      uneFois(
-        async (
-          fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>,
-        ) => {
-          return await this.suivreDonnées({ ...à, f: fSuivi });
-        },
-        attendreStabilité(patience),
-      ),
-      uneFois(
-        async (fSuivi: Suivi<InfoColonne[]>) => {
-          return await this.suivreColonnes({
-            ...à,
-            f: ignorerNonDéfinis(fSuivi),
-          });
-        },
-        attendreStabilité(patience),
-      ),
+    const [
+      donnéesTableauSource,
+      donnéesTableauDestinataire,
+      colsTableauDestinataire,
+    ] = await Promise.all([
+      uneFois(async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
+        return await this.suivreDonnées({
+          ...de,
+          f: fSuivi,
+        });
+      }, attendreStabilité(patience)),
+      uneFois(async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
+        return await this.suivreDonnées({ ...à, f: fSuivi });
+      }, attendreStabilité(patience)),
+      uneFois(async (fSuivi: Suivi<InfoColonne[]>) => {
+        return await this.suivreColonnes({
+          ...à,
+          f: ignorerNonDéfinis(fSuivi),
+        });
+      }, attendreStabilité(patience)),
     ]);
 
-
-    const indices = colsTableauDestinataire.filter((c) => c.index).map((c) => c.id);
+    const indices = colsTableauDestinataire
+      .filter((c) => c.index)
+      .map((c) => c.id);
     const élémentsÀAjouter = [];
     for (const nouvelÉlément of donnéesTableauSource) {
       const existant = donnéesTableauDestinataire.find((d) =>
@@ -1264,10 +1277,10 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
             ...à,
             idÉlément: existant.id,
           });
-          élémentsÀAjouter.push(Object.assign({}, existant.données, àAjouter))
+          élémentsÀAjouter.push(Object.assign({}, existant.données, àAjouter));
         }
       } else {
-        élémentsÀAjouter.push(nouvelÉlément.données)
+        élémentsÀAjouter.push(nouvelÉlément.données);
       }
     }
     await this.ajouterÉléments({
@@ -1391,7 +1404,11 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     }: {
       fSuivreRacine: (règles: RègleColonne<RègleVariable>[]) => Promise<void>;
     }): Promise<Oublier> => {
-      return await this.suivreRègles({ idStructure, idTableau, f: fSuivreRacine });
+      return await this.suivreRègles({
+        idStructure,
+        idTableau,
+        f: fSuivreRacine,
+      });
     };
 
     const fBrancheRègles = async ({
@@ -1473,7 +1490,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
           (o, c) => (c.variable ? { ...o, [c.variable]: c.id } : { ...o }),
           {},
         );
-        const colsIndex = info.colonnes.filter(c=>c.index).map(c=>c.id);
+        const colsIndex = info.colonnes.filter((c) => c.index).map((c) => c.id);
         info.règles = règles.map((r) =>
           générerFonctionValidation({
             règle: r.règle,
@@ -1489,7 +1506,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       idStructure,
       idTableau,
       f: async (cols) => {
-        info.colonnes = cols
+        info.colonnes = cols;
         await fFinale();
       },
     });
@@ -1499,7 +1516,11 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     }: {
       fSuivreRacine: (règles: RègleColonne[]) => Promise<void>;
     }): Promise<Oublier> => {
-      return await this.suivreRègles({ idStructure, idTableau, f: fSuivreRacine });
+      return await this.suivreRègles({
+        idStructure,
+        idTableau,
+        f: fSuivreRacine,
+      });
     };
 
     const fBrancheRègles = async ({
@@ -1572,23 +1593,27 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         if (!colonnes) return await f([]);
 
         const erreurs: ErreurColonne[] = [];
-        const décompte = (colonnes).map(c=>c.variable).reduce((acc: {[idVar: string]: number}, idVariable) => {
-          if (idVariable) acc[idVariable] = (acc[idVariable] || 0) + 1;
-          return acc;
-        }, {});
+        const décompte = colonnes
+          .map((c) => c.variable)
+          .reduce((acc: { [idVar: string]: number }, idVariable) => {
+            if (idVariable) acc[idVariable] = (acc[idVariable] || 0) + 1;
+            return acc;
+          }, {});
         const déjàVue = new Set<string>();
         for (const [idVariable, n] of Object.entries(décompte)) {
-          if (n > 1 && déjàVue.has(idVariable)){
+          if (n > 1 && déjàVue.has(idVariable)) {
             const erreur: ErreurColonneVariableDédoublée = {
               type: "variableDédoublée",
-              colonnes: colonnes.filter(c=>c.variable === idVariable).map(c=>c.id)
+              colonnes: colonnes
+                .filter((c) => c.variable === idVariable)
+                .map((c) => c.id),
             };
-            erreurs.push(erreur)
-            déjàVue.add(idVariable)
+            erreurs.push(erreur);
+            déjàVue.add(idVariable);
           }
         }
-      }
-    })
+      },
+    });
   }
 
   // Comparaisons
@@ -1698,25 +1723,32 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idStructure: string;
     idTableau: string;
     données: DonnéesRangéeTableau[];
-    patience?: number
+    patience?: number;
   }): Promise<void> {
     const donnéesTableau = await uneFois(
-      async (
-        fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>,
-      ) => {
+      async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
         return await this.suivreDonnées({ idStructure, idTableau, f: fSuivi });
       },
-      attendreStabilité(patience)
+      attendreStabilité(patience),
     );
 
     const colonnes = await uneFois(
-      async (fSuivi: Suivi<InfoColonne[]>) => await this.suivreColonnes({ idStructure, idTableau, f: ignorerNonDéfinis(fSuivi) })
-    )
-    const index = colonnes.filter(c=>c.index).map(c=>c.id);
-    const identiques = (élément1: DonnéesRangéeTableau, élément2: DonnéesRangéeTableau) => {
-      if (index.length) return obtIdIndex(élément1, index) === obtIdIndex(élément2, index)
-      return deepEqual(élément1, élément2)
-    }
+      async (fSuivi: Suivi<InfoColonne[]>) =>
+        await this.suivreColonnes({
+          idStructure,
+          idTableau,
+          f: ignorerNonDéfinis(fSuivi),
+        }),
+    );
+    const index = colonnes.filter((c) => c.index).map((c) => c.id);
+    const identiques = (
+      élément1: DonnéesRangéeTableau,
+      élément2: DonnéesRangéeTableau,
+    ) => {
+      if (index.length)
+        return obtIdIndex(élément1, index) === obtIdIndex(élément2, index);
+      return deepEqual(élément1, élément2);
+    };
 
     const nouveaux: DonnéesRangéeTableau[] = [];
     for (const élément of données) {
@@ -1782,23 +1814,26 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         );
 
         donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d).reduce((acc: DonnéesRangéeTableau, idColonne: string) => {
-            const idVar = colonnes.find((c) => c.id === idColonne)?.variable;
-            if (!idVar)
-              throw new Error(
-                `Colonne avec id ${idColonne} non trouvée parmis les colonnes :\n${JSON.stringify(
-                  colonnes,
-                  undefined,
-                  2,
-                )}.`,
-              );
-            const nomVar =
-              langues && nomsVariables?.[idVar]
-                ? traduire(nomsVariables[idVar], langues) || idColonne
-                : idColonne;
-            acc[nomVar] = d[idColonne];
-            return acc;
-          }, {}),
+          Object.keys(d).reduce(
+            (acc: DonnéesRangéeTableau, idColonne: string) => {
+              const idVar = colonnes.find((c) => c.id === idColonne)?.variable;
+              if (!idVar)
+                throw new Error(
+                  `Colonne avec id ${idColonne} non trouvée parmis les colonnes :\n${JSON.stringify(
+                    colonnes,
+                    undefined,
+                    2,
+                  )}.`,
+                );
+              const nomVar =
+                langues && nomsVariables?.[idVar]
+                  ? traduire(nomsVariables[idVar], langues) || idColonne
+                  : idColonne;
+              acc[nomVar] = d[idColonne];
+              return acc;
+            },
+            {},
+          ),
         );
 
         const idCourtTableau = idTableau.split("/").pop()!;
@@ -1839,7 +1874,8 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
           fSuivreRacine,
         }: {
           fSuivreRacine: (éléments: string[]) => Promise<void>;
-        }) => this.suivreVariables({ idStructure, idTableau, f: fSuivreRacine }),
+        }) =>
+          this.suivreVariables({ idStructure, idTableau, f: fSuivreRacine }),
         f: async (noms: { idVar: string; noms: TraducsTexte }[]) => {
           info.nomsVariables = Object.fromEntries(
             noms.map((n) => [n.idVar, n.noms]),
