@@ -958,16 +958,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     idTableau: string;
   }): Promise<void> {
-    await this.confirmerPermission({ idBd });
-
-    // D'abornd, effacer les données du tableau
+    // L'interface du tableau s'occupe de tout !
     await this.tableaux.effacerTableau({ idStructure: idBd, idTableau });
 
-    // Enfin, effacer l'entrée dans la bd
-    const { bd, oublier } = await this.ouvrirBd({ idBd });
-    await bd.del(`tableaux/${idTableau}`);
-    
-    await oublier();
   }
 
   async réordonnerTableauBd({
