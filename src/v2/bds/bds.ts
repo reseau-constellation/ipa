@@ -30,10 +30,10 @@ import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import {
   DonnéesRangéeTableauAvecId,
   DonnéesTableauExportées,
-  InfoTableau,
   StructureTableau,
   schémaTableau,
   Tableaux,
+  DifférenceTableaux,
 } from "../tableaux.js";
 import { mapÀObjet } from "../crabe/utils.js";
 import {
@@ -50,6 +50,34 @@ export type ÉpingleBd = BaseÉpingleFavoris & {
     tableaux: DispositifsÉpingle;
     fichiers: DispositifsÉpingle;
   };
+};
+
+// Types différences
+
+export type DifférenceBds =
+  | DifférenceBDTableauSupplémentaire
+  | DifférenceBDTableauManquant
+  | DifférenceTableauxBds;
+
+export type DifférenceBDTableauManquant = {
+  type: "tableauManquant";
+  sévère: true;
+  clefManquante: string;
+};
+
+export type DifférenceBDTableauSupplémentaire = {
+  type: "tableauSupplémentaire";
+  sévère: false;
+  clefExtra: string;
+};
+
+export type DifférenceTableauxBds<
+  T extends DifférenceTableaux = DifférenceTableaux,
+> = {
+  type: "tableau";
+  sévère: T["sévère"];
+  idTableau: string;
+  différence: T;
 };
 
 // Types données
@@ -70,7 +98,7 @@ export type StructureBd = {
   licenceContenu: string;
   métadonnées: { [clef: string]: DagCborEncodable };
   statut: StatutDonnées;
-  tableaux: StructureTableau;
+  tableaux: { [clef: string]: StructureTableau};
   motsClefs: { [id: string]: null };
   copiéeDe: { id: string };
 };
@@ -99,7 +127,11 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
       },
     },
     statut: schémaStatutDonnées,
-    tableaux: schémaTableau,
+    tableaux: {
+      type: "object",
+      additionalProperties: schémaTableau,
+      nullable: true,
+    },
     copiéeDe: {
       type: "object",
       properties: {
@@ -237,6 +269,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         `Permission de modification refusée pour la base de données ${idBd}.`,
       );
   }
+
+  async bdÀSchéma({ idBd }: { idBd: string }): Promise<GabaritBd> {}
+
+  async créerBdDeSchéma({
+    gabarit,
+  }: {
+    gabarit: GabaritBd;
+  }): Promise<string> {}
 
   async ouvrirBd({
     idBd,
@@ -471,8 +511,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     // Fichiers présents dans les données
     if (épingle.épingle.données?.fichiers) {
-      const tableaux = this.service("tableaux");
-
       const fOublierDonnées = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
@@ -491,7 +529,8 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
           id: string;
           fSuivreBranche: Suivi<DonnéesRangéeTableauAvecId[]>;
         }) => {
-          return await tableaux.suivreDonnées({
+          return await this.tableaux.suivreDonnées({
+            idStructure: épingle.idObjet,
             idTableau: id,
             f: fSuivreBranche,
           });
@@ -889,27 +928,13 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     f,
   }: {
     idBd: string;
-    f: Suivi<InfoTableau[] | undefined>;
+    f: Suivi<string[] | undefined>;
   }): Promise<Oublier> {
-    const fFinale = async (
-      infos: NestedObjectToMap<{ [clef: string]: { id: string } }> | undefined,
-    ) => {
-      const tableaux: InfoTableau[] = [...(infos || []).entries()]
-        .map(([clef, valeur]) => {
-          return {
-            clef,
-            id: valeur.get("id"),
-          };
-        })
-        .filter((x): x is InfoTableau => !!(x.clef && x.id));
-      await f(tableaux);
-    };
-
     return await this.service("orbite").suivreDonnéesBd({
       id: idBd,
       type: "nested",
       schéma: schémaBd,
-      f: (bd) => fFinale(bd.get("tableaux")),
+      f: (bd) => f(Object.keys(mapÀObjet(bd)?.tableaux || {})),
     });
   }
 
@@ -1022,14 +1047,94 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   // Données
 
-  // Gabarits
 
-  async bdÀGabarit({ idBd }: { idBd: string }): Promise<GabaritBd> {}
-  async créerBdDeGabarit({
-    gabarit,
+
+  // Comparaisons
+
+  @cacheSuivi
+  async suivreDifférencesAvecBd({
+    bd,
+    bdRéf,
+    f,
   }: {
-    gabarit: GabaritBd;
-  }): Promise<string> {}
+    bd: string;
+    bdRéf: string;
+    f: Suivi<DifférenceBds[]>;
+  }): Promise<Oublier> {
+    const différences: {
+      tableauxManquants?: string[];
+      tableauxSupplémentaires?: string[]
+    } = { };
+
+    const fFinale = async (différencesTableaux: {id: string, différence: DifférenceTableaux}[]) => {
+      const différencesTableauxManquants: DifférenceBDTableauManquant[] = (différences.tableauxManquants || []).map(t=>({
+        type: "tableauManquant",
+        sévère: true,
+        clefManquante: t
+      }))
+
+      const différencesTableauxSupplémentaires: DifférenceBDTableauSupplémentaire[] = (différences.tableauxSupplémentaires || []).map(t=>({
+        type: "tableauSupplémentaire",
+        sévère: false,
+        clefExtra: t
+      }));
+
+      const différencesTableauxBds: DifférenceTableauxBds[] = différencesTableaux.map(({id, différence})=>({
+        type: "tableau",
+        idTableau: id,
+        différence: différence,
+        sévère: différence.sévère
+      }))
+      return await f([...différencesTableauxManquants, ...différencesTableauxSupplémentaires, ...différencesTableauxBds])
+    }
+    
+    return await suivreDeFonctionListe({
+      fListe: async ({fSuivreRacine})=>{
+        const tableaux: { base?: string[], réf?: string[] } = {};
+
+        const fTableaux = async () => {
+          if (!tableaux.base || !tableaux.réf) {
+            différences.tableauxManquants = []
+            différences.tableauxSupplémentaires = []
+            return;
+          }
+          différences.tableauxManquants = tableaux.réf.filter(t=>!tableaux.base?.includes(t));
+          différences.tableauxSupplémentaires = tableaux.base.filter(t=>!tableaux.réf?.includes(t));
+          
+          const communs = tableaux.réf.filter(t=>tableaux.base?.includes(t));
+          return await fSuivreRacine(communs);
+        }
+
+        const oublierTableaux = await this.suivreTableaux({ idBd: bd , f: async (x) => {
+          tableaux.base = x;
+          await fTableaux();
+        }})
+        const oublierTableauxRéf = await this.suivreTableaux({ idBd: bdRéf , f: async (x) => {
+          tableaux.réf = x;
+          await fTableaux();
+        }})
+        return async () => {
+          await oublierTableaux();
+          await oublierTableauxRéf();
+        }
+      },
+      fBranche: async ({id: tableau, fSuivreBranche }) => {
+        return await this.tableaux.suivreDifférencesAvecTableau({
+          tableau: {
+            idStructure: bd,
+            idTableau: tableau
+          },
+          tableauRéf: {
+            idStructure: bdRéf,
+            idTableau: tableau
+          },
+          f: async (différences) => await fSuivreBranche(différences.map(différence => ({id: tableau, différence})))
+        })
+      },
+      f: fFinale,
+    })
+  }
+
 
   // Exportations
 
@@ -1067,7 +1172,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       fListe: async ({
         fSuivreRacine,
       }: {
-        fSuivreRacine: (éléments: InfoTableau[]) => Promise<void>;
+        fSuivreRacine: (éléments: string[]) => Promise<void>;
       }) => {
         return await this.suivreTableaux({
           idBd,
