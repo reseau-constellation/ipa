@@ -790,7 +790,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     métadonnées,
   }: {
     idBd: string;
-    métadonnées: { [key: string]: string };
+    métadonnées: { [key: string]: DagCborEncodable };
   }): Promise<void> {
     await this.confirmerPermission({ idBd });
 
@@ -807,7 +807,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }: {
     idBd: string;
     clef: string;
-    valeur: string;
+    valeur: DagCborEncodable;
   }): Promise<void> {
     await this.confirmerPermission({ idBd });
 
@@ -836,7 +836,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     f,
   }: {
     idBd: string;
-    f: Suivi<TraducsTexte | undefined>;
+    f: Suivi<DagCborEncodable | undefined>;
   }): Promise<Oublier> {
     
     return await this.service("orbite").suivreDonnéesBd({
