@@ -2,7 +2,7 @@ import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { Constellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
-import { ÉpingleBd } from "@/v2/bds/bds.js";
+import { DifférenceBds, ÉpingleBd } from "@/v2/bds/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { StatutDonnées } from "@/v2/types.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
@@ -79,7 +79,27 @@ describe("BDs", function () {
       );
       expect(mesBds).to.be.empty();
     });
+
+    it("création de schéma");
+
+    it("génération schéma");
   });
+
+  describe("noms");
+
+  describe("descriptions");
+
+  describe("métadonnées");
+
+  describe("mots-clefs");
+
+  describe("tableaux");
+
+  describe("variables");
+
+  describe("image");
+
+  describe("licences");
 
   describe("épingles", function () {
     it("désépingler bd", async () => {
@@ -298,4 +318,86 @@ describe("BDs", function () {
       expect(statut).to.deep.equal(nouveauStatut);
     });
   });
+
+  describe("copier");
+
+  describe("différences", function () {
+    let idBd: string;
+    let idBdRéf: string;
+
+    before(async () => {
+      idBd = await constl.bds.créerBd({ licence: "ODBl-1_0" })
+    })
+
+    it("vide pour commencer", async () => {
+      const différences = await obtenir(({siVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }));
+      expect(différences).to.be.empty();
+    })
+    
+    it("tableau manquant", async () => {
+      const idTableau = await constl.bds.ajouterTableau({ idBd: idBdRéf })
+      const différences = await obtenir(({siPasVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }));
+      
+      const réf: DifférenceBds[] = [
+        {
+          type: "tableauManquant",
+          sévère: true,
+          clefManquante: idTableau
+        }
+      ]
+      expect(différences).to.have.deep.members(réf);
+
+      await constl.bds.ajouterTableau({ idBd, idTableau })
+      const différencesAprès = await obtenir(({siVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }));
+      expect(différencesAprès).to.be.empty();
+    });
+
+    it("tableau supplémentaire", async () => {
+      const idTableau = await constl.bds.ajouterTableau({ idBd })
+      const différences = await obtenir(({siPasVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }));
+      
+      const réf: DifférenceBds[] = [
+        {
+          type: "tableauSupplémentaire",
+          sévère: false,
+          clefExtra: idTableau
+        }
+      ]
+      expect(différences).to.have.deep.members(réf);
+
+      await constl.bds.effacerTableau({ idBd, idTableau })
+      const différencesAprès = await obtenir(({siVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }));
+      expect(différencesAprès).to.be.empty();
+    });
+
+    it("différences tableau", async () => {
+      const idTableau = await constl.bds.ajouterTableau({ idBd: idBdRéf })
+      await constl.bds.ajouterTableau({ idBd, idTableau })
+
+      const idColonne = await constl.bds.tableaux.ajouterColonne({ idStructure: idBdRéf, idTableau })
+      const différences = await obtenir(({siPasVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }));
+      
+      const réf: DifférenceBds[] = [
+        {
+          type: "tableau",
+          idTableau,
+          sévère: true,
+          différence: {
+            type: "colonneManquante",
+            idColonneManquante: idColonne,
+            sévère: true,
+          }
+        }
+      ]
+      expect(différences).to.have.deep.members(réf);
+
+      await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau, idColonne })
+      const différencesAprès = await obtenir(({siVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }));
+      expect(différencesAprès).to.be.empty();
+    });
+
+  });
+
+  describe("exportation");
+
 });
