@@ -951,7 +951,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     return await this.tableaux.créerTableau({ idStructure: idBd, idTableau });
   }
 
-  async effacerTableauBd({
+  async effacerTableau({
     idBd,
     idTableau,
   }: {
@@ -960,20 +960,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<void> {
     await this.confirmerPermission({ idBd });
 
-    // D'abord effacer l'entrée dans notre liste de tableaux
+    // D'abornd, effacer les données du tableau
+    await this.tableaux.effacerTableau({ idStructure: idBd, idTableau });
+
+    // Enfin, effacer l'entrée dans la bd
     const { bd, oublier } = await this.ouvrirBd({ idBd });
-
-    const idTableau = Object.entries(
-      mapÀObjet(await bd.get(`tableaux`)) || {},
-    ).find(([_clef, { id }]) => id === idTableau)?.[0];
-    if (!idTableau) throw new Error(`Tableau non existant : ${idTableau}`);
-
     await bd.del(`tableaux/${idTableau}`);
+    
     await oublier();
-
-    // Enfin, effacer les données et le tableau lui-même
-    const tableaux = this.service("tableaux");
-    await tableaux.effacerTableau({ idTableau });
   }
 
   async réordonnerTableauBd({
@@ -1053,12 +1047,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   @cacheSuivi
   async suivreDifférencesAvecBd({
-    bd,
-    bdRéf,
+    idBd,
+    idBdRéf,
     f,
   }: {
-    bd: string;
-    bdRéf: string;
+    idBd: string;
+    idBdRéf: string;
     f: Suivi<DifférenceBds[]>;
   }): Promise<Oublier> {
     const différences: {
@@ -1105,11 +1099,11 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
           return await fSuivreRacine(communs);
         }
 
-        const oublierTableaux = await this.suivreTableaux({ idBd: bd , f: async (x) => {
+        const oublierTableaux = await this.suivreTableaux({ idBd: idBd , f: async (x) => {
           tableaux.base = x;
           await fTableaux();
         }})
-        const oublierTableauxRéf = await this.suivreTableaux({ idBd: bdRéf , f: async (x) => {
+        const oublierTableauxRéf = await this.suivreTableaux({ idBd: idBdRéf , f: async (x) => {
           tableaux.réf = x;
           await fTableaux();
         }})
@@ -1121,11 +1115,11 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       fBranche: async ({id: tableau, fSuivreBranche }) => {
         return await this.tableaux.suivreDifférencesAvecTableau({
           tableau: {
-            idStructure: bd,
+            idStructure: idBd,
             idTableau: tableau
           },
           tableauRéf: {
-            idStructure: bdRéf,
+            idStructure: idBdRéf,
             idTableau: tableau
           },
           f: async (différences) => await fSuivreBranche(différences.map(différence => ({id: tableau, différence})))
