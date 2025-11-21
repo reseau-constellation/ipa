@@ -312,7 +312,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     const métadonnées = await bd.get("métadonnées");
     if (métadonnées) {
-      await this.sauvegarderMétadonnéesBd({ idBd: idNouvelleBd, métadonnées });
+      await this.sauvegarderMétadonnées({ idBd: idNouvelleBd, métadonnées });
     }
 
     const noms = await bd.get("noms");
@@ -784,6 +784,70 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   // Métadonnées
+
+  async sauvegarderMétadonnéesBd({
+    idBd,
+    métadonnées,
+  }: {
+    idBd: string;
+    métadonnées: { [key: string]: string };
+  }): Promise<void> {
+    await this.confirmerPermission({ idBd });
+
+    const { bd, oublier } = await this.ouvrirBd({ idBd });
+
+    await bd.put("métadonnées", métadonnées);
+    await oublier();
+  }
+
+  async sauvegarderMétadonnéeBd({
+    idBd,
+    clef,
+    valeur,
+  }: {
+    idBd: string;
+    clef: string;
+    valeur: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idBd });
+
+    const { bd, oublier } = await this.ouvrirBd({ idBd });
+    await bd.set(`métadonnées/${clef}`, valeur);
+    await oublier();
+  }
+
+  async effacerMétadonnéeBd({
+    idBd,
+    clef,
+  }: {
+    idBd: string;
+    clef: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idBd });
+
+    const { bd, oublier } = await this.ouvrirBd({ idBd });
+    await bd.del(`métadonnées/${clef}`);
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreMétadonnéesBd({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<TraducsTexte | undefined>;
+  }): Promise<Oublier> {
+    
+    return await this.service("orbite").suivreDonnéesBd({
+      id: idBd,
+      type: "nested",
+      schéma: schémaBd,
+      f: async (bd) => {
+        await f(mapÀObjet(bd.get("métadonnées")));
+      },
+    });
+  }
 
   // Statut
   async sauvegarderStatutBd({

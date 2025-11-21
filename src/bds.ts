@@ -55,31 +55,6 @@ export interface infoScore {
   total: number;
 }
 
-export type différenceBds =
-  | différenceBDTableauSupplémentaire
-  | différenceBDTableauManquant
-  | différenceTableauxBds;
-
-export type différenceBDTableauManquant = {
-  type: "tableauManquant";
-  sévère: true;
-  clefManquante: string;
-};
-
-export type différenceBDTableauSupplémentaire = {
-  type: "tableauSupplémentaire";
-  sévère: false;
-  clefExtra: string;
-};
-
-export type différenceTableauxBds<
-  T extends différenceTableaux = différenceTableaux,
-> = {
-  type: "tableau";
-  sévère: T["sévère"];
-  idTableau: string;
-  différence: T;
-};
 
 export const schémaInfoTableau: JSONSchemaType<{ clef: string }> = {
   type: "object",
@@ -97,7 +72,6 @@ export const schémaBdTableauxDeBd: JSONSchemaType<{
 };
 
 const schémaBdPrincipale: JSONSchemaType<string> = { type: "string" };
-const schémaStructureBdMotsClefs: JSONSchemaType<string> = { type: "string" };
 const schémaStructureBdNuées: JSONSchemaType<string> = { type: "string" };
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
@@ -736,79 +710,6 @@ export class BDs extends ComposanteClientListe<string> {
     this.client.tableaux.effacerÉlément({
       idTableau,
       idÉlément,
-    });
-  }
-
-  async sauvegarderMétadonnéesBd({
-    idBd,
-    métadonnées,
-  }: {
-    idBd: string;
-    métadonnées: { [key: string]: élémentsBd };
-  }): Promise<void> {
-    await this._confirmerPermission({ idBd });
-
-    const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBd,
-      type: "nested",
-      schéma: schémaStructureBdBd,
-    });
-    await bdBd.set(`métadonnées`, métadonnées);
-    await fOublier();
-  }
-
-  async sauvegarderMétadonnéeBd({
-    idBd,
-    clef,
-    métadonnée,
-  }: {
-    idBd: string;
-    clef: string;
-    métadonnée: string;
-  }): Promise<void> {
-    await this._confirmerPermission({ idBd });
-    const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBd,
-      type: "nested",
-      schéma: schémaStructureBdBd,
-    });
-    await bdBd.set(`métadonnées/${clef}`, métadonnée);
-    await fOublier();
-  }
-
-  async effacerMétadonnéeBd({
-    idBd,
-    clef,
-  }: {
-    idBd: string;
-    clef: string;
-  }): Promise<void> {
-    await this._confirmerPermission({ idBd });
-
-    const { bd, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBd,
-      type: "nested",
-      schéma: schémaStructureBdBd,
-    });
-    await bd.del(`métadonnées/${clef}`);
-    await fOublier();
-  }
-
-  @cacheSuivi
-  async suivreMétadonnéesBd({
-    idBd,
-    f,
-  }: {
-    idBd: string;
-    f: schémaFonctionSuivi<{ [key: string]: élémentsBd }>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaStructureBdBd,
-      f: async (bd) => {
-        await f((await bd.get("métadonnées")) || {});
-      },
     });
   }
 
