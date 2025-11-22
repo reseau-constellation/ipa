@@ -36,6 +36,7 @@ import {
   SpécificationRègleColonne,
 } from "./règles.js";
 import { typer } from "./crabe/services/orbite/orbite.js";
+import { CatégorieVariables } from "./variables.js";
 
 // Types tableaux
 
@@ -118,6 +119,10 @@ export type InfoColonne = {
   id: string;
   variable?: string;
   index?: boolean;
+};
+
+export type InfoColonneAvecCatégorie = InfoColonne & {
+  catégorie?: CatégorieVariables;
 };
 
 // Types comparaisons tableaux

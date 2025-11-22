@@ -17,21 +17,18 @@ import {
 } from "../règles.js";
 import {
   InfoColonne,
+  InfoColonneAvecCatégorie,
   Tableaux,
 } from "../tableaux.js";
 import { Oublier, Suivi } from "../crabe/types.js";
 import { cacheSuivi } from "../crabe/cache.js";
 import { mapÀObjet } from "../crabe/utils.js";
-import { CatégorieBaseVariables, CatégorieVariables } from "../variables.js";
+import { CatégorieBaseVariables } from "../variables.js";
 import { PartielRécursif, TraducsTexte } from "../types.js";
 import { typer } from "../crabe/services/orbite/orbite.js";
 import { DonnéesFichierBdExportées, sauvegarderDonnéesExportées } from "../utils.js";
 
 // Types données tableaux
-
-export type InfoColonneAvecCatégorie = InfoColonne & {
-  catégorie?: CatégorieVariables;
-};
 
 export interface DonnéesRangéeTableauAvecId<
   T extends DonnéesRangéeTableau = DonnéesRangéeTableau,
