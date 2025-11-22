@@ -322,7 +322,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       );
   }
 
-  async bdÀSchéma({ idBd }: { idBd: string }): Promise<SchémaBd> {
+  async créerSchémaDeBd({ idBd }: { idBd: string }): Promise<SchémaBd> {
     const licence = await uneFois<string>((f) =>
       this.suivreLicence({ idBd, f }),
     );
@@ -1421,6 +1421,20 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   // Bds uniques
+
+  @cacheSuivi
+  async suivreClefUnique({
+    idBd, f
+  }: { idBd: string; f: Suivi<string | undefined> }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await orbite.suivreDonnéesBd({
+      id: idBd,
+      type: "nested",
+      schéma: schémaBd,
+      f: async (bd) => await f(mapÀObjet(bd)?.clefUnique),
+    });
+  }
 
   @cacheSuivi
   async suivreBdUnique({

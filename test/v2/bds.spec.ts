@@ -334,11 +334,8 @@ describe("BDs", function () {
         idsMotsClefs: idMotClef,
       });
 
-      const motsClefs = await obtenir<string[]>(({ si }) =>
-        constl.bds.suivreMotsClefs({
-          idBd,
-          f: si((x) => !!x && x.length > 0),
-        }),
+      const motsClefs = await obtenir<string[]>(({ siPasVide }) =>
+        constl.bds.suivreMotsClefs({ idBd, f: siPasVide(), }),
       );
       expect(Array.isArray(motsClefs)).to.be.true();
       expect(motsClefs.length).to.equal(1);
@@ -522,7 +519,7 @@ describe("BDs", function () {
     })
 
     it("effacer image", async () => {
-      await constl.bds.effacerImage({ idBd });
+      await constl.bds.effacerImage({ idBd })
       const image = await obtenir(({siNul})=>
         constl.bds.suivreImage({idBd, f: siNul() })
       ) 
@@ -810,81 +807,90 @@ describe("BDs", function () {
   });
 
   describe("schémas", function () {
-    describe("création bd à partir de schéma", function () {
-      const idColonneLangue = "langue";
-      const idColonneClef = "clef";
-      const idColonneTraduc = "traduc";
-      const idColonneNomLangue = "nom langue";
+    const idColonneLangue = "langue";
+    const idColonneClef = "clef";
+    const idColonneTraduc = "traduc";
+    const idColonneNomLangue = "nom langue";
 
-      const idTableauTraducs = "tableau traducs"
-      const idTableauLangues = "tableau langues"
+    const idTableauTraducs = "tableau traducs"
+    const idTableauLangues = "tableau langues"
 
-      const licence = "ODbl-1_0";
-      const licenceContenu = "CC-BY-SA-4_0";
-      const clefUnique = "clef unique pour cette bd"
+    const licence = "ODbl-1_0";
+    const licenceContenu = "CC-BY-SA-4_0";
+    const clefUnique = "clef unique pour cette bd"
+    const métadonnées = { clef: true, clef2: [1, 2, 3] }
+    const statut: StatutDonnées = { statut: "interne" }
 
-      let idVarClef: string;
-      let idVarTraduc: string;
-      let idVarLangue: string;
-      let idVarNomLangue: string;
+    let idVarClef: string;
+    let idVarTraduc: string;
+    let idVarLangue: string;
+    let idVarNomLangue: string;
 
-  
-      let idMotClef: string;
-  
-      let idBd: string;
-  
-      before(async () => {
-        idVarClef = await constl.variables.créerVariable({
-          catégorie: "chaîneNonTraductible",
-        });
-        idVarTraduc = await constl.variables.créerVariable({
-          catégorie: "chaîneNonTraductible",
-        });
-        idVarLangue = await constl.variables.créerVariable({
-          catégorie: "chaîneNonTraductible",
-        });
-  
-        idMotClef = await constl.motsClefs.créerMotClef();
-  
-        const schéma: SchémaBd = {
-          licence,
-          licenceContenu,
-          motsClefs: [idMotClef],
-          tableaux: {
-            [idTableauTraducs]: {
-              cols: [
-                {
-                  idVariable: idVarClef,
-                  idColonne: idColonneClef,
-                  index: true,
-                },
-                {
-                  idVariable: idVarLangue,
-                  idColonne: idColonneLangue,
-                  index: true,
-                },
-                {
-                  idVariable: idVarTraduc,
-                  idColonne: idColonneTraduc,
-                },
-              ],
-            },
-            [idTableauLangues]: {
-              cols: [
-                {
-                  idVariable: idVarLangue,
-                  idColonne: idColonneLangue,
-                },
-                {
-                  idVariable: idVarNomLangue,
-                  idColonne: idColonneNomLangue,
-                },
-              ],
-            },
+    let idMotClef: string;
+    let idNuée: string;
+    let idBd: string;
+
+    let schéma: SchémaBd;
+
+    before(async () => {
+      idVarClef = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
+      idVarTraduc = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
+      idVarLangue = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
+
+      idMotClef = await constl.motsClefs.créerMotClef();
+      idNuée = await constl.nuées.créerNuée();
+
+      schéma = {
+        licence,
+        licenceContenu,
+        motsClefs: [idMotClef],
+        métadonnées,
+        statut,
+        tableaux: {
+          [idTableauTraducs]: {
+            cols: [
+              {
+                idVariable: idVarClef,
+                idColonne: idColonneClef,
+                index: true,
+              },
+              {
+                idVariable: idVarLangue,
+                idColonne: idColonneLangue,
+                index: true,
+              },
+              {
+                idVariable: idVarTraduc,
+                idColonne: idColonneTraduc,
+              },
+            ],
           },
-          clefUnique,
-        };
+          [idTableauLangues]: {
+            cols: [
+              {
+                idVariable: idVarLangue,
+                idColonne: idColonneLangue,
+              },
+              {
+                idVariable: idVarNomLangue,
+                idColonne: idColonneNomLangue,
+              },
+            ],
+          },
+        },
+        clefUnique,
+      };
+    })
+
+    describe("création bd à partir de schéma", function () {
   
+      before(async () => {    
         idBd = await constl.bds.créerBdDeSchéma({ schéma });
       });
 
@@ -908,22 +914,46 @@ describe("BDs", function () {
         expect(licenceContenuBd).to.equal(licenceContenu);
       })
 
-      it("métadonnées")
+      it("métadonnées", async () => {
+        const métadonnéesBd = await obtenir<Métadonnées>(({ si }) =>
+          constl.bds.suivreMétadonnées({
+            idBd,
+            f: si((x) => !!x && Object.keys(x).length > 0),
+          }),
+        );
+        
+        expect(métadonnéesBd).to.deep.equal(métadonnées);  
+      })
 
       it("mots-clefs", async () => {
-        const motsClefs = await obtenir<string[]>(({ si }) =>
-          constl.bds.suivreMotsClefs({
-            idBd,
-            f: si((x) => !!x && x.length > 0),
-          }),
+        const motsClefs = await obtenir<string[]>(({ siPasVide }) =>
+          constl.bds.suivreMotsClefs({ idBd, f: siPasVide(), }),
         );
 
         expect(motsClefs).to.have.members([idMotClef]);  
       })
 
-      it("statut")
+      it("statut", async () => {
+        const statutBd = await obtenir<StatutDonnées | null >(({ siPasNul }) =>
+          constl.bds.suivreStatut({
+            idBd,
+            f: siPasNul(),
+          }),
+        );
+        
+        expect(statutBd).to.deep.equal(statut);  
+      })
 
-      it("nuées")
+      it("nuées", async () => {
+        const nuéesBd = await obtenir<string[]>(({ siPasVide }) =>
+          constl.bds.suivreNuées({
+            idBd,
+            f: siPasVide(),
+          }),
+        );
+
+        expect(nuéesBd).to.have.members([idNuée]);  
+      })
 
       it("tableaux", async () => {
         const tableaux = await obtenir<string[]>(({ siPasVide }) =>
@@ -965,7 +995,7 @@ describe("BDs", function () {
       });
 
       it("clef unique", async () => {
-        const clefUniqueBd = await obtenir<string>(({siDéfini}) => constl.bds.suivreClefUnique({ idBd, f: siDéfini }));
+        const clefUniqueBd = await obtenir<string>(({siDéfini}) => constl.bds.suivreClefUnique({ idBd, f: siDéfini() }));
         expect(clefUniqueBd).to.equal(clefUnique);
       });
 
@@ -973,31 +1003,9 @@ describe("BDs", function () {
 
     describe("génération de schéma", async () => {
       it("schéma complet", async () => {
-        const schémaRéf: SchémaBd = {
-          licence,
-          licenceContenu,
-          métadonnées,
-          clefUnique,
-          motsClefs: idsMotsClefs,
-          nuées,
-          statut,
-          tableaux: {
-            [idTableau]: {
-              cols: [{
-                idColonne: idColonne1,
-                idVariable: idVariable1,
-                index: true,
-              },{
-                idColonne: idColonne2,
-                idVariable: idVariable2,
-              }],
-            },
-          },
-        };
+        const schémaGénéré = await constl.bds.créerSchémaDeBd(({ idBd }));
 
-        const schéma = await constl.bds.générerSchéma(({ idBd }));
-        
-        expect(schéma).to.deep.equal(schémaRéf);
+        expect(schémaGénéré).to.deep.equal(schéma);
       })
     });
   });
