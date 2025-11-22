@@ -79,13 +79,12 @@ describe("BDs", function () {
       );
       expect(mesBds).to.be.empty();
     });
-
   });
 
   describe("schémas", function () {
     it("création bd à partir de schéma");
     it("génération de schéma");
-  })
+  });
 
   describe("noms");
 
@@ -325,66 +324,87 @@ describe("BDs", function () {
     });
   });
 
-  describe("copier");
+  describe("copier", function () {
+    it("suivre bd parent");
+  });
 
-  describe("nuées");
+  describe("nuées", function () {
+    it("aucune nuée pour commencer");
+    it("rejoindre nuée");
+    it("quiter nuée");
+  });
 
   describe("différences", function () {
     let idBd: string;
     let idBdRéf: string;
 
     before(async () => {
-      idBd = await constl.bds.créerBd({ licence: "ODBl-1_0" })
-    })
+      idBd = await constl.bds.créerBd({ licence: "ODBl-1_0" });
+    });
 
     it("vide pour commencer", async () => {
-      const différences = await obtenir(({siVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }));
+      const différences = await obtenir(({ siVide }) =>
+        constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }),
+      );
       expect(différences).to.be.empty();
-    })
-    
+    });
+
     it("tableau manquant", async () => {
-      const idTableau = await constl.bds.ajouterTableau({ idBd: idBdRéf })
-      const différences = await obtenir(({siPasVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }));
-      
+      const idTableau = await constl.bds.ajouterTableau({ idBd: idBdRéf });
+      const différences = await obtenir(({ siPasVide }) =>
+        constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }),
+      );
+
       const réf: DifférenceBds[] = [
         {
           type: "tableauManquant",
           sévère: true,
-          clefManquante: idTableau
-        }
-      ]
+          clefManquante: idTableau,
+        },
+      ];
       expect(différences).to.have.deep.members(réf);
 
-      await constl.bds.ajouterTableau({ idBd, idTableau })
-      const différencesAprès = await obtenir(({siVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }));
+      await constl.bds.ajouterTableau({ idBd, idTableau });
+      const différencesAprès = await obtenir(({ siVide }) =>
+        constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }),
+      );
       expect(différencesAprès).to.be.empty();
     });
 
     it("tableau supplémentaire", async () => {
-      const idTableau = await constl.bds.ajouterTableau({ idBd })
-      const différences = await obtenir(({siPasVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }));
-      
+      const idTableau = await constl.bds.ajouterTableau({ idBd });
+      const différences = await obtenir(({ siPasVide }) =>
+        constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }),
+      );
+
       const réf: DifférenceBds[] = [
         {
           type: "tableauSupplémentaire",
           sévère: false,
-          clefExtra: idTableau
-        }
-      ]
+          clefExtra: idTableau,
+        },
+      ];
       expect(différences).to.have.deep.members(réf);
 
-      await constl.bds.effacerTableau({ idBd, idTableau })
-      const différencesAprès = await obtenir(({siVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }));
+      await constl.bds.effacerTableau({ idBd, idTableau });
+      const différencesAprès = await obtenir(({ siVide }) =>
+        constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }),
+      );
       expect(différencesAprès).to.be.empty();
     });
 
     it("différences tableau", async () => {
-      const idTableau = await constl.bds.ajouterTableau({ idBd: idBdRéf })
-      await constl.bds.ajouterTableau({ idBd, idTableau })
+      const idTableau = await constl.bds.ajouterTableau({ idBd: idBdRéf });
+      await constl.bds.ajouterTableau({ idBd, idTableau });
 
-      const idColonne = await constl.bds.tableaux.ajouterColonne({ idStructure: idBdRéf, idTableau })
-      const différences = await obtenir(({siPasVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }));
-      
+      const idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBdRéf,
+        idTableau,
+      });
+      const différences = await obtenir(({ siPasVide }) =>
+        constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siPasVide() }),
+      );
+
       const réf: DifférenceBds[] = [
         {
           type: "tableau",
@@ -394,20 +414,28 @@ describe("BDs", function () {
             type: "colonneManquante",
             idColonneManquante: idColonne,
             sévère: true,
-          }
-        }
-      ]
+          },
+        },
+      ];
       expect(différences).to.have.deep.members(réf);
 
-      await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau, idColonne })
-      const différencesAprès = await obtenir(({siVide})=>constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }));
+      await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idColonne,
+      });
+      const différencesAprès = await obtenir(({ siVide }) =>
+        constl.bds.suivreDifférencesAvecBd({ idBd, idBdRéf, f: siVide() }),
+      );
       expect(différencesAprès).to.be.empty();
     });
-
   });
 
   describe("combiner");
 
-  describe("exportation");
+  describe("score");
 
+  describe("bds uniques");
+
+  describe("exportation");
 });
