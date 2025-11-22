@@ -2,9 +2,11 @@ import { JSONSchemaType } from "ajv";
 import { TypedNested, typedNested } from "@constl/bohr-db";
 import {
   attendreStabilité,
+  faisRien,
   idcValide,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
+  suivreFonctionImbriquée,
   traduire,
   uneFois,
 } from "@constl/utils-ipa";
@@ -12,9 +14,15 @@ import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import xlsx, { utils as xlsxUtils } from "xlsx";
 import { DagCborEncodable } from "@orbitdb/core";
+import { Semaphore } from "@chriscdn/promise-semaphore";
 import { cacheSuivi } from "../crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
-import { Métadonnées, PartielRécursif, StatutDonnées, TraducsTexte } from "../types.js";
+import {
+  Métadonnées,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "../types.js";
 import { Constellation, ServicesConstellation } from "../constellation.js";
 import { Oublier, Suivi } from "../crabe/types.js";
 import { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
@@ -35,6 +43,7 @@ import {
   Tableaux,
   DifférenceTableaux,
   InfoColonne,
+  InfoColonneAvecCatégorie,
 } from "../tableaux.js";
 import { mapÀObjet } from "../crabe/utils.js";
 import {
@@ -43,6 +52,8 @@ import {
   extraireEmpreinte,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
+import { ErreurDonnée, RègleColonne } from "../règles.js";
+import { TableauxBds } from "./tableaux.js";
 
 // Types épingles
 
@@ -95,16 +106,29 @@ export type SchémaBd = {
   licence: string;
   licenceContenu?: string;
   métadonnées?: Métadonnées;
+  clefUnique?: string;
   motsClefs?: string[];
   nuées?: string[];
   statut?: StatutDonnées;
-  tableaux: {[idTableau: string]: {
-    cols: {
-      idColonne: string;
-      idVariable?: string;
-      index?: boolean;
-    }[];
-  }};
+  tableaux: {
+    [idTableau: string]: {
+      cols: {
+        idColonne: string;
+        idVariable?: string;
+        index?: boolean;
+      }[];
+    };
+  };
+};
+
+// Types score
+
+export interface ScoreBd {
+  accès?: number;
+  couverture?: number;
+  valide?: number;
+  licence?: number;
+  total: number;
 }
 
 // Types structure
@@ -117,9 +141,10 @@ export type StructureBd = {
   licence: string;
   licenceContenu: string;
   métadonnées: Métadonnées;
+  clefUnique?: string;
   nuées: { [id: string]: null };
   statut: StatutDonnées;
-  tableaux: { [clef: string]: StructureTableau};
+  tableaux: { [clef: string]: StructureTableau };
   motsClefs: { [id: string]: null };
   copiéeDe: { id: string };
 };
@@ -156,6 +181,7 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
       },
     },
     statut: schémaStatutDonnées,
+    clefUnique: { type: "string", nullable: true },
     tableaux: {
       type: "object",
       additionalProperties: schémaTableau,
@@ -190,7 +216,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   L,
   ServicesConstellation<L>
 > {
-  tableaux: Tableaux<L>;
+  tableaux: TableauxBds<L>;
 
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
@@ -201,7 +227,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         schéma: SchémaServiceBds,
       },
     });
-    this.tableaux = new Tableaux({
+    this.tableaux = new TableauxBds({
       service: (clef) => this.service(clef),
     });
   }
@@ -265,7 +291,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     const tableaux = await uneFois<string[]>((f) =>
       this.suivreTableaux({
         idBd,
-        f
+        f,
       }),
     );
 
@@ -300,27 +326,54 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   async bdÀSchéma({ idBd }: { idBd: string }): Promise<SchémaBd> {
-    const licence = await uneFois<string>(f=>this.suivreLicenceBd({idBd, f}))
-    const licenceContenu = await uneFois<string>(f=>this.suivreLicenceBd({idBd, f}))
+    const licence = await uneFois<string>((f) =>
+      this.suivreLicenceBd({ idBd, f }),
+    );
+    const licenceContenu = await uneFois<string>((f) =>
+      this.suivreLicenceBd({ idBd, f }),
+    );
 
-    const métadonnées = await uneFois<Métadonnées>(f=>this.suivreMétadonnées({idBd, f}))
-    
-    const motsClefs = await uneFois<string[]>(f=>this.suivreMotsClefs({idBd, f}))
-    const statut = await uneFois<StatutDonnées | null>(f=>this.suivreStatut({idBd, f}))
-    const nuées = await uneFois<string[]>(f=>this.suivreNuées({idBd, f}))
+    const métadonnées = await uneFois<Métadonnées>((f) =>
+      this.suivreMétadonnées({ idBd, f }),
+    );
 
-    const idsTableaux = await uneFois<string[]>(f => this.suivreTableaux({ idBd, f }))
+    const motsClefs = await uneFois<string[]>((f) =>
+      this.suivreMotsClefs({ idBd, f }),
+    );
+    const statut = await uneFois<StatutDonnées | null>((f) =>
+      this.suivreStatut({ idBd, f }),
+    );
+    const nuées = await uneFois<string[]>((f) => this.suivreNuées({ idBd, f }));
 
-    const tableaux: {idTableau: string, tableau: SchémaBd["tableaux"][string]}[] = await Promise.all(idsTableaux.map(async idTableau => {
-      const infoCols = await uneFois<InfoColonne[]>(f=>this.tableaux.suivreColonnes({ idStructure: idBd, idTableau, f: ignorerNonDéfinis(f) }))
-      const cols = infoCols.map(col => ({ idColonne: col.id, idVariable: col.variable, index: col.index }))
-      return {
-        idTableau,
-        tableau: {
-          cols
-        }
-      }
-    }))
+    const idsTableaux = await uneFois<string[]>((f) =>
+      this.suivreTableaux({ idBd, f }),
+    );
+
+    const tableaux: {
+      idTableau: string;
+      tableau: SchémaBd["tableaux"][string];
+    }[] = await Promise.all(
+      idsTableaux.map(async (idTableau) => {
+        const infoCols = await uneFois<InfoColonne[]>((f) =>
+          this.tableaux.suivreColonnes({
+            idStructure: idBd,
+            idTableau,
+            f: ignorerNonDéfinis(f),
+          }),
+        );
+        const cols = infoCols.map((col) => ({
+          idColonne: col.id,
+          idVariable: col.variable,
+          index: col.index,
+        }));
+        return {
+          idTableau,
+          tableau: {
+            cols,
+          },
+        };
+      }),
+    );
 
     const schéma: SchémaBd = {
       licence,
@@ -328,12 +381,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       métadonnées,
       motsClefs,
       nuées,
-      tableaux: Object.fromEntries(tableaux.map(t=>[t.idTableau, t.tableau]))
-    }
+      tableaux: Object.fromEntries(
+        tableaux.map((t) => [t.idTableau, t.tableau]),
+      ),
+    };
 
-    if (statut) schéma.statut = statut
+    if (statut) schéma.statut = statut;
 
-    return schéma
+    return schéma;
   }
 
   async créerBdDeSchéma({
@@ -357,7 +412,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     }
 
     if (nuées) {
-      await Promise.all(nuées.map(idNuée => this.rejoindreNuée({ idBd, idNuée })));
+      await Promise.all(
+        nuées.map((idNuée) => this.rejoindreNuée({ idBd, idNuée })),
+      );
     }
 
     if (statut) {
@@ -440,7 +497,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       });
     }
 
-    const motsClefs = (await bd.get("motsClefs"));
+    const motsClefs = await bd.get("motsClefs");
     if (motsClefs)
       await this.ajouterMotsClefsBd({
         idBd: idNouvelleBd,
@@ -455,29 +512,54 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       });
     }
 
-    const tableaux = await uneFois<string[]>(f=>this.suivreTableaux({ idBd, f }));
+    const tableaux = await uneFois<string[]>((f) =>
+      this.suivreTableaux({ idBd, f }),
+    );
     for (const idTableau of tableaux) {
-      await this.tableaux.copierTableau({ idStructure: idBd, idTableau, idStructureDestinataire: idNouvelleBd, copierDonnées });
+      await this.tableaux.copierTableau({
+        idStructure: idBd,
+        idTableau,
+        idStructureDestinataire: idNouvelleBd,
+        copierDonnées,
+      });
     }
 
     const statut = await bd.get("statut");
-    if (statut) await this.sauvegarderStatut({ idBd: idNouvelleBd, statut: mapÀObjet(statut)! });
+    if (statut)
+      await this.sauvegarderStatut({
+        idBd: idNouvelleBd,
+        statut: mapÀObjet(statut)!,
+      });
 
-    
     const { bd: nouvelleBd, oublier: oublierNouvelle } = await this.ouvrirBd({
       idBd: idNouvelleBd,
     });
 
     const image = await bd.get("image");
-    if (image) await nouvelleBd.set(`image`, image );
+    if (image) await nouvelleBd.set(`image`, image);
 
     await nouvelleBd.set("copiéeDe", { id: idBd });
 
-    await Promise.allSettled([
-      oublier(),
-      oublierNouvelle(),
-    ]);
+    await Promise.allSettled([oublier(), oublierNouvelle()]);
     return idNouvelleBd;
+  }
+
+  @cacheSuivi
+  async suivreParent({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<{ id: string } | undefined>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await orbite.suivreDonnéesBd({
+      id: idBd,
+      type: "nested",
+      schéma: schémaBd,
+      f: (bd) => f(mapÀObjet(bd)?.copiéeDe),
+    });
   }
 
   // Épingles
@@ -876,7 +958,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<Métadonnées>;
   }): Promise<Oublier> {
-    
     return await this.service("orbite").suivreDonnéesBd({
       id: idBd,
       type: "nested",
@@ -913,7 +994,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       id: idBd,
       type: "nested",
       schéma: schémaBd,
-      f: (bd) => f(toObject(bd).statut),
+      f: (bd) => f(mapÀObjet(bd)?.statut || null),
     });
   }
 
@@ -1081,7 +1162,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<void> {
     // L'interface du tableau s'occupe de tout !
     await this.tableaux.effacerTableau({ idStructure: idBd, idTableau });
-
   }
 
   // Variables
@@ -1094,7 +1174,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<string[]>;
   }): Promise<Oublier> {
-
     const fBranche = async ({
       id: idTableau,
       fSuivreBranche,
@@ -1138,9 +1217,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<void> {
     await this.confirmerPermission({ idBd });
 
-    const {bd, oublier } = await this.ouvrirBd({ idBd });
+    const { bd, oublier } = await this.ouvrirBd({ idBd });
     await bd.put(`nuées/${idNuée}`, null);
-    
+
     await oublier();
   }
 
@@ -1153,9 +1232,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<void> {
     await this.confirmerPermission({ idBd });
 
-    const {bd, oublier } = await this.ouvrirBd({ idBd });
+    const { bd, oublier } = await this.ouvrirBd({ idBd });
     await bd.del(`nuées/${idNuée}`);
-    
+
     await oublier();
   }
 
@@ -1191,76 +1270,101 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<Oublier> {
     const différences: {
       tableauxManquants?: string[];
-      tableauxSupplémentaires?: string[]
-    } = { };
+      tableauxSupplémentaires?: string[];
+    } = {};
 
-    const fFinale = async (différencesTableaux: {id: string, différence: DifférenceTableaux}[]) => {
-      const différencesTableauxManquants: DifférenceBDTableauManquant[] = (différences.tableauxManquants || []).map(t=>({
+    const fFinale = async (
+      différencesTableaux: { id: string; différence: DifférenceTableaux }[],
+    ) => {
+      const différencesTableauxManquants: DifférenceBDTableauManquant[] = (
+        différences.tableauxManquants || []
+      ).map((t) => ({
         type: "tableauManquant",
         sévère: true,
-        clefManquante: t
-      }))
-
-      const différencesTableauxSupplémentaires: DifférenceBDTableauSupplémentaire[] = (différences.tableauxSupplémentaires || []).map(t=>({
-        type: "tableauSupplémentaire",
-        sévère: false,
-        clefExtra: t
+        clefManquante: t,
       }));
 
-      const différencesTableauxBds: DifférenceTableauxBds[] = différencesTableaux.map(({id, différence})=>({
-        type: "tableau",
-        idTableau: id,
-        différence: différence,
-        sévère: différence.sévère
-      }))
-      return await f([...différencesTableauxManquants, ...différencesTableauxSupplémentaires, ...différencesTableauxBds])
-    }
-    
+      const différencesTableauxSupplémentaires: DifférenceBDTableauSupplémentaire[] =
+        (différences.tableauxSupplémentaires || []).map((t) => ({
+          type: "tableauSupplémentaire",
+          sévère: false,
+          clefExtra: t,
+        }));
+
+      const différencesTableauxBds: DifférenceTableauxBds[] =
+        différencesTableaux.map(({ id, différence }) => ({
+          type: "tableau",
+          idTableau: id,
+          différence: différence,
+          sévère: différence.sévère,
+        }));
+      return await f([
+        ...différencesTableauxManquants,
+        ...différencesTableauxSupplémentaires,
+        ...différencesTableauxBds,
+      ]);
+    };
+
     return await suivreDeFonctionListe({
-      fListe: async ({fSuivreRacine})=>{
-        const tableaux: { base?: string[], réf?: string[] } = {};
+      fListe: async ({ fSuivreRacine }) => {
+        const tableaux: { base?: string[]; réf?: string[] } = {};
 
         const fTableaux = async () => {
           if (!tableaux.base || !tableaux.réf) {
-            différences.tableauxManquants = []
-            différences.tableauxSupplémentaires = []
+            différences.tableauxManquants = [];
+            différences.tableauxSupplémentaires = [];
             return;
           }
-          différences.tableauxManquants = tableaux.réf.filter(t=>!tableaux.base?.includes(t));
-          différences.tableauxSupplémentaires = tableaux.base.filter(t=>!tableaux.réf?.includes(t));
-          
-          const communs = tableaux.réf.filter(t=>tableaux.base?.includes(t));
-          return await fSuivreRacine(communs);
-        }
+          différences.tableauxManquants = tableaux.réf.filter(
+            (t) => !tableaux.base?.includes(t),
+          );
+          différences.tableauxSupplémentaires = tableaux.base.filter(
+            (t) => !tableaux.réf?.includes(t),
+          );
 
-        const oublierTableaux = await this.suivreTableaux({ idBd: idBd , f: async (x) => {
-          tableaux.base = x;
-          await fTableaux();
-        }})
-        const oublierTableauxRéf = await this.suivreTableaux({ idBd: idBdRéf , f: async (x) => {
-          tableaux.réf = x;
-          await fTableaux();
-        }})
+          const communs = tableaux.réf.filter((t) =>
+            tableaux.base?.includes(t),
+          );
+          return await fSuivreRacine(communs);
+        };
+
+        const oublierTableaux = await this.suivreTableaux({
+          idBd: idBd,
+          f: async (x) => {
+            tableaux.base = x;
+            await fTableaux();
+          },
+        });
+        const oublierTableauxRéf = await this.suivreTableaux({
+          idBd: idBdRéf,
+          f: async (x) => {
+            tableaux.réf = x;
+            await fTableaux();
+          },
+        });
         return async () => {
           await oublierTableaux();
           await oublierTableauxRéf();
-        }
+        };
       },
-      fBranche: async ({id: tableau, fSuivreBranche }) => {
+      fBranche: async ({ id: tableau, fSuivreBranche }) => {
         return await this.tableaux.suivreDifférencesAvecTableau({
           tableau: {
             idStructure: idBd,
-            idTableau: tableau
+            idTableau: tableau,
           },
           tableauRéf: {
             idStructure: idBdRéf,
-            idTableau: tableau
+            idTableau: tableau,
           },
-          f: async (différences) => await fSuivreBranche(différences.map(différence => ({id: tableau, différence})))
-        })
+          f: async (différences) =>
+            await fSuivreBranche(
+              différences.map((différence) => ({ id: tableau, différence })),
+            ),
+        });
       },
       f: fFinale,
-    })
+    });
   }
 
   // Combiner
@@ -1274,19 +1378,506 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBdSource: string;
     patience?: number;
   }): Promise<void> {
-    const tableauxSource = await uneFois<string[]>(f=>this.suivreTableaux({ idBd: idBdSource, f}), attendreStabilité(patience));
-    const tableauxDestinataire = await uneFois<string[]>(f=>this.suivreTableaux({ idBd: idBdDestinataire, f}), attendreStabilité(patience));
-    const communs = tableauxSource.filter(t=>tableauxDestinataire.includes(t));
+    const tableauxSource = await uneFois<string[]>(
+      (f) => this.suivreTableaux({ idBd: idBdSource, f }),
+      attendreStabilité(patience),
+    );
+    const tableauxDestinataire = await uneFois<string[]>(
+      (f) => this.suivreTableaux({ idBd: idBdDestinataire, f }),
+      attendreStabilité(patience),
+    );
+    const communs = tableauxSource.filter((t) =>
+      tableauxDestinataire.includes(t),
+    );
 
-    await Promise.all(communs.map(async idTableau => {
-      await this.tableaux.combinerDonnées({
-        de: { idStructure: idBdSource, idTableau },
-        à: { idStructure: idBdDestinataire, idTableau},
-        patience,
-      })
-    }))
+    await Promise.all(
+      communs.map(async (idTableau) => {
+        await this.tableaux.combinerDonnées({
+          de: { idStructure: idBdSource, idTableau },
+          à: { idStructure: idBdDestinataire, idTableau },
+          patience,
+        });
+      }),
+    );
   }
 
+  // Bds uniques
+
+  @cacheSuivi
+  async suivreBdUnique({
+    schéma,
+    clefUnique,
+    f,
+  }: {
+    schéma: SchémaBd;
+    clefUnique: string;
+    f: Suivi<string>;
+  }): Promise<Oublier> {
+    const stockage = this.service("stockage");
+    if (!schéma.clefUnique)
+      throw new Error("Le schéma doit contenir la propriété `clefUnique`.");
+
+    const clefStockageLocal = "bdUnique : " + clefUnique;
+
+    // On peut mettre le verrou ici car `@cacheSuivi` assure que cette fonction ne sera appellée
+    // qu'une seule fois en même temps
+    const verrouBdUnique = new Semaphore();
+
+    const déjàCombinées = new Set();
+
+    const fFinale = async (bds: string[]): Promise<void> => {
+      let idBd: string;
+
+      await verrouBdUnique.acquire(clefUnique);
+      try {
+        const idBdLocale = await stockage.obtenirItem(clefStockageLocal);
+
+        switch (bds.length) {
+          case 0: {
+            if (idBdLocale) {
+              idBd = idBdLocale;
+            } else {
+              idBd = await this.créerBdDeSchéma({ schéma });
+              await stockage.sauvegarderItem(clefStockageLocal, idBd);
+            }
+            break;
+          }
+          case 1: {
+            idBd = bds[0];
+            await stockage.sauvegarderItem(clefStockageLocal, idBd);
+            if (
+              idBdLocale &&
+              idBd !== idBdLocale &&
+              !déjàCombinées.has(idBdLocale)
+            ) {
+              déjàCombinées.add(idBdLocale);
+
+              await this.combinerBds({
+                idBdDestinataire: idBd,
+                idBdSource: idBdLocale,
+              });
+              await this.effacerBd({ idBd: idBdLocale });
+            }
+            break;
+          }
+          default: {
+            if (idBdLocale) bds = [...new Set([...bds, idBdLocale])];
+            idBd = bds.sort()[0];
+            await stockage.sauvegarderItem(clefStockageLocal, idBd);
+
+            for (const bd of bds.slice(1)) {
+              if (déjàCombinées.has(bd)) continue;
+
+              déjàCombinées.add(bd);
+              await this.combinerBds({
+                idBdDestinataire: idBd,
+                idBdSource: bd,
+              });
+              await this.effacerBd({ idBd: bd });
+            }
+
+            break;
+          }
+        }
+      } finally {
+        verrouBdUnique.release(clefUnique);
+      }
+      await f(idBd);
+    };
+
+    const orbite = this.service("orbite");
+
+    const oublier = await suivreDeFonctionListe({
+      fListe: ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
+        this.suivreBds({ f: ignorerNonDéfinis(fSuivreRacine) }),
+      fBranche: async ({ id, fSuivreBranche }) => {
+        return await orbite.suivreDonnéesBd({
+          id,
+          type: "nested",
+          schéma: schémaBd,
+          f: async (bd) =>
+            await fSuivreBranche({ id, clefUnique: mapÀObjet(bd)?.clefUnique }),
+        });
+      },
+      f: async (bds: { id: string; clefUnique?: string }[]) =>
+        await fFinale(
+          bds.filter((bd) => bd.clefUnique === clefUnique).map((bd) => bd.id),
+        ),
+    });
+
+    return oublier;
+  }
+
+  async obtenirBdUnique({
+    schéma,
+    clefUnique,
+  }: {
+    schéma: SchémaBd;
+    clefUnique: string;
+  }): Promise<string> {
+    return await uneFois(async (fSuivi: Suivi<string>) => {
+      return await this.suivreBdUnique({
+        schéma,
+        clefUnique,
+        f: ignorerNonDéfinis(fSuivi),
+      });
+    });
+  }
+
+  @cacheSuivi
+  async suivreDonnéesBdUnique({
+    schéma,
+    clefUnique,
+    idTableau,
+    f,
+  }: {
+    schéma: SchémaBd;
+    clefUnique: string;
+    idTableau: string;
+    f: Suivi<DonnéesRangéeTableauAvecId[]>;
+  }): Promise<Oublier> {
+    const fFinale = async (données?: DonnéesRangéeTableauAvecId[]) => {
+      return await f(données || []);
+    };
+
+    const fSuivreDonnéesDeTableau = async ({
+      id: idBd,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: Suivi<DonnéesRangéeTableauAvecId[]>;
+    }): Promise<Oublier> => {
+      return await this.tableaux.suivreDonnées({
+        idStructure: idBd,
+        idTableau,
+        f: fSuivreBd,
+      });
+    };
+
+    const fSuivreIdBd = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: Suivi<string>;
+    }): Promise<Oublier> => {
+      return await this.suivreBdUnique({
+        schéma,
+        clefUnique,
+        f: ignorerNonDéfinis(fSuivreRacine),
+      });
+    };
+
+    return await suivreFonctionImbriquée({
+      fRacine: fSuivreIdBd,
+      f: fFinale,
+      fSuivre: fSuivreDonnéesDeTableau,
+    });
+  }
+
+  // Qualité
+
+  @cacheSuivi
+  async suivreScoreAccès({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<number | undefined>;
+  }): Promise<Oublier> {
+    // À faire
+    f(Number.parseInt(idBd));
+    return faisRien;
+  }
+
+  @cacheSuivi
+  async suivreScoreCouverture({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<number | undefined>;
+  }): Promise<Oublier> {
+    type ScoreTableau = { numérateur: number; dénominateur: number };
+
+    const fFinale = async (branches: ScoreTableau[]) => {
+      const numérateur = branches.reduce(
+        (a: number, b: ScoreTableau) => a + b.numérateur,
+        0,
+      );
+      const dénominateur = branches.reduce(
+        (a: number, b: ScoreTableau) => a + b.dénominateur,
+        0,
+      );
+      await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
+    };
+
+    const fBranche = async ({
+      id: idTableau,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: Suivi<ScoreTableau>;
+    }): Promise<Oublier> => {
+      const info: {
+        cols?: InfoColonneAvecCatégorie[];
+        règles?: RègleColonne[];
+      } = {};
+
+      const fFinaleBranche = async () => {
+        const { cols, règles } = info;
+
+        if (cols !== undefined && règles !== undefined) {
+          const colsÉligibles = cols.filter(
+            (c) => c.catégorie?.catégorie === "numérique",
+          );
+
+          const dénominateur = colsÉligibles.length;
+          const numérateur = colsÉligibles.filter((c) =>
+            règles.some(
+              (r) => r.règle.règle.type !== "catégorie" && r.colonne === c.id,
+            ),
+          ).length;
+          await fSuivreBranche({ numérateur, dénominateur });
+        }
+      };
+
+      const oublierColonnes = await this.tableaux.suivreCatégoriesColonnes({
+        idStructure: idBd,
+        idTableau,
+        f: async (cols) => {
+          info.cols = cols;
+          await fFinaleBranche();
+        },
+      });
+
+      const oublierRègles = await this.tableaux.suivreRègles({
+        idStructure: idBd,
+        idTableau,
+        f: async (règles) => {
+          info.règles = règles;
+          await fFinaleBranche();
+        },
+      });
+
+      return async () => {
+        await oublierColonnes();
+        await oublierRègles();
+      };
+    };
+
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.suivreTableauxBd({
+        idBd,
+        f: (tableaux) => fSuivreRacine(tableaux.map((x) => x.id)),
+      });
+    };
+
+    return await suivreDeFonctionListe({
+      fListe,
+      f: fFinale,
+      fBranche,
+    });
+  }
+
+  @cacheSuivi
+  async suivreScoreValide({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<number | undefined>;
+  }): Promise<Oublier> {
+    type ScoreTableau = { numérateur: number; dénominateur: number };
+
+    const fFinale = async (branches: ScoreTableau[]) => {
+      const numérateur = branches.reduce(
+        (a: number, b: ScoreTableau) => a + b.numérateur,
+        0,
+      );
+      const dénominateur = branches.reduce(
+        (a: number, b: ScoreTableau) => a + b.dénominateur,
+        0,
+      );
+      await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
+    };
+
+    const fBranche = async ({
+      id: idTableau,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: Suivi<ScoreTableau>;
+    }): Promise<Oublier> => {
+      const info: {
+        données?: DonnéesRangéeTableauAvecId[];
+        cols?: InfoColonneAvecCatégorie[];
+        règles?: RègleColonne[];
+        erreurs?: ErreurDonnée[];
+      } = {};
+
+      const fFinaleBranche = () => {
+        const { données, erreurs, cols, règles } = info;
+        if (
+          données !== undefined &&
+          erreurs !== undefined &&
+          cols !== undefined
+        ) {
+          const colsÉligibles = cols.filter(
+            (c) =>
+              c.catégorie?.catégorie === "numérique" ||
+              règles?.some((r) => r.colonne === c.id),
+          );
+
+          const déjàVus: { id: string; idColonne: string }[] = [];
+          const nCellulesÉrronnées = erreurs.filter((x) => {
+            const déjàVu = déjàVus.find(
+              (y) => y.id === x.id && y.idColonne === x.erreur.colonne,
+            );
+            if (déjàVu) {
+              return false;
+            } else {
+              déjàVus.push({ id: x.id, idColonne: x.erreur.colonne });
+              return true;
+            }
+          }).length;
+
+          const dénominateur = données
+            .map(
+              (d) =>
+                colsÉligibles.filter((c) => d.données[c.id] !== undefined)
+                  .length,
+            )
+            .reduce((a, b) => a + b, 0);
+
+          const numérateur = dénominateur - nCellulesÉrronnées;
+
+          fSuivreBranche({ numérateur, dénominateur });
+        }
+      };
+
+      const oublierDonnées = await this.tableaux.suivreDonnées({
+        idStructure: idBd,
+        idTableau,
+        f: (données) => {
+          info.données = données;
+          fFinaleBranche();
+        },
+      });
+
+      const oublierErreurs = await this.tableaux.suivreValidDonnées({
+        idStructure: idBd,
+        idTableau,
+        f: (erreurs) => {
+          info.erreurs = erreurs;
+          fFinaleBranche();
+        },
+      });
+
+      const oublierColonnes = await this.tableaux.suivreCatégoriesColonnes({
+        idStructure: idBd,
+        idTableau,
+        f: (cols) => {
+          info.cols = cols;
+          fFinaleBranche();
+        },
+      });
+
+      return async () => {
+        await oublierDonnées();
+        await oublierErreurs();
+        await oublierColonnes();
+      };
+    };
+
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<Oublier> => {
+      return await this.suivreTableaux({
+        idBd,
+        f: (tableaux) => fSuivreRacine(tableaux),
+      });
+    };
+
+    return await suivreDeFonctionListe({
+      fListe,
+      f: fFinale,
+      fBranche,
+    });
+  }
+
+  @cacheSuivi
+  async suivreScoreQualité({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<ScoreBd>;
+  }): Promise<Oublier> {
+    const info: {
+      accès?: number;
+      couverture?: number;
+      valide?: number;
+      licence?: number;
+    } = {};
+
+    const fFinale = async () => {
+      const { accès, couverture, valide, licence } = info;
+      const score: ScoreBd = {
+        // Score impitoyable de 0 pour BDs sans licence
+        total: licence
+          ? ((accès || 0) + (couverture || 0) + (valide || 0)) / 3
+          : 0,
+        accès,
+        couverture,
+        valide,
+        licence,
+      };
+      await f(score);
+    };
+
+    const oublierAccès = await this.suivreScoreAccès({
+      idBd,
+      f: async (accès) => {
+        info.accès = accès;
+        await fFinale();
+      },
+    });
+    const oublierCouverture = await this.suivreScoreCouverture({
+      idBd,
+      f: async (couverture) => {
+        info.couverture = couverture;
+        await fFinale();
+      },
+    });
+    const oublierValide = await this.suivreScoreValide({
+      idBd,
+      f: async (valide) => {
+        info.valide = valide;
+        await fFinale();
+      },
+    });
+
+    const oublierLicence = await this.suivreLicenceBd({
+      idBd,
+      f: async (licence) => {
+        info.licence = licence ? 1 : 0;
+        await fFinale();
+      },
+    });
+    return async () => {
+      await Promise.allSettled([
+        oublierAccès,
+        oublierCouverture,
+        oublierValide,
+        oublierLicence,
+      ]);
+    };
+  }
 
   // Exportations
 
@@ -1304,7 +1895,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       données?: DonnéesTableauExportées[];
     } = {};
     const fsOublier: Oublier[] = [];
-
 
     const fFinale = async () => {
       const { nomsBd, données } = info;

@@ -1,8 +1,4 @@
-
-
-import {
-  uneFois,
-} from "@constl/utils-ipa";
+import { uneFois } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 
 import axios from "axios";
@@ -16,11 +12,8 @@ import {
 
 import { cholqij } from "@/dates.js";
 import { ServiceConstellation } from "./v2/nébuleuse/services.js";
-import type {
-  catégorieBaseVariables,
-} from "@/variables.js";
+import type { catégorieBaseVariables } from "@/variables.js";
 import { cidEtFichierValide } from "@/epingles.js";
-
 
 export class Tableaux extends ServiceConstellation {
   client: Constellation;

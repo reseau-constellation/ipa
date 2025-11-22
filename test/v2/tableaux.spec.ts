@@ -9,10 +9,7 @@ import {
   DifférenceIndexColonne,
   DifférenceTableaux,
   DifférenceVariableColonne,
-  DonnéesRangéeTableau,
-  DonnéesRangéeTableauAvecId,
   InfoColonne,
-  InfoColonneAvecCatégorie,
 } from "@/v2/tableaux.js";
 import {
   DétailsRègleBornesDynamiqueColonne,
@@ -28,6 +25,7 @@ import {
   RègleValeurCatégorique,
 } from "@/v2/règles.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
+import { DonnéesRangéeTableauAvecId, DonnéesRangéeTableau, InfoColonneAvecCatégorie } from "@/v2/bds/tableaux.js";
 
 describe("tableaux", function () {
   let fermer: () => Promise<void>;
@@ -1061,217 +1059,338 @@ describe("tableaux", function () {
 
       const élémentsInitiaux: DonnéesRangéeTableau[] = [
         {
-          [idColonneDate]: (new Date("20/11/2025")).valueOf(),
+          [idColonneDate]: new Date("20/11/2025").valueOf(),
           [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
-          [idColonnePrécip]: 3
+          [idColonnePrécip]: 3,
         },
         {
-          [idColonneDate]: (new Date("21/11/2025")).valueOf(),
+          [idColonneDate]: new Date("21/11/2025").valueOf(),
           [idColonneEndroit]: [16.534768942113885, 80.79302512863033],
-          [idColonnePrécip]: 11
-        }
-      ]
+          [idColonnePrécip]: 11,
+        },
+      ];
 
       beforeEach(async () => {
         idTableau = await constl.bds.ajouterTableau({ idBd });
-        await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau, idColonne: idColonneDate });
-        await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau, idColonne: idColonneEndroit });
-        await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau, idColonne: idColonnePrécip });
-        
-        idsÉlémentsInitiaux = await constl.bds.tableaux.ajouterÉléments({
-          idStructure:idBd,
+        await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
           idTableau,
-          éléments: élémentsInitiaux
-        })
+          idColonne: idColonneDate,
+        });
+        await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneEndroit,
+        });
+        await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonnePrécip,
+        });
+
+        idsÉlémentsInitiaux = await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments: élémentsInitiaux,
+        });
       });
 
       it("index univariable - ajout élément", async () => {
-        await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne: idColonneDate, index: true });
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneDate,
+          index: true,
+        });
 
-        const éléments: DonnéesRangéeTableau[] = [{
-          [idColonneDate]: (new Date("21/11/2025")).valueOf(),
-          [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
-          [idColonnePrécip]: 4
-        }]
+        const éléments: DonnéesRangéeTableau[] = [
+          {
+            [idColonneDate]: new Date("21/11/2025").valueOf(),
+            [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
+            [idColonnePrécip]: 4,
+          },
+        ];
         const idsNouveauxÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
-          éléments
+          éléments,
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
           {
             id: idsÉlémentsInitiaux[0],
-            données: élémentsInitiaux[0]
+            données: élémentsInitiaux[0],
           },
           {
             id: idsNouveauxÉléments[0],
-            données: éléments[0]
-          }
-        ]
+            données: éléments[0],
+          },
+        ];
 
-        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({si})=>constl.bds.tableaux.suivreDonnées({idStructure: idBd, idTableau, 
-          f: si(x=>x?.length === réf.length && idsNouveauxÉléments.every(id=>x.find(d=>d.id === id)))})
-        )
+        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
+          constl.bds.tableaux.suivreDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: si(
+              (x) =>
+                x?.length === réf.length &&
+                idsNouveauxÉléments.every((id) => x.find((d) => d.id === id)),
+            ),
+          }),
+        );
         expect(données).to.have.deep.members(réf);
       });
 
       it("index univariable - modification élément", async () => {
-        await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne: idColonneDate, index: true })
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneDate,
+          index: true,
+        });
         await constl.bds.tableaux.modifierÉlément({
-          idStructure: idBd, idTableau, idÉlément: idsÉlémentsInitiaux[0], vals: { [idColonneDate]: (new Date("22/11/2025")).valueOf() }
-        })
+          idStructure: idBd,
+          idTableau,
+          idÉlément: idsÉlémentsInitiaux[0],
+          vals: { [idColonneDate]: new Date("22/11/2025").valueOf() },
+        });
 
         const éléments: DonnéesRangéeTableau[] = [
           {
-            [idColonneDate]: (new Date("22/11/2025")).valueOf(),
+            [idColonneDate]: new Date("22/11/2025").valueOf(),
             [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
-            [idColonnePrécip]: 5
+            [idColonnePrécip]: 5,
           },
-        ]
+        ];
         const idsNouveauxÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
-          éléments
+          éléments,
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
           { id: idsNouveauxÉléments[0], données: éléments[0] },
-          { id: idsÉlémentsInitiaux[1], données: élémentsInitiaux[1] }
-        ]
+          { id: idsÉlémentsInitiaux[1], données: élémentsInitiaux[1] },
+        ];
 
-        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({si})=>constl.bds.tableaux.suivreDonnées({idStructure: idBd, idTableau, 
-          f: si(x=>x?.length === réf.length && idsNouveauxÉléments.every(id=>x.find(d=>d.id === id)))})
-        )
+        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
+          constl.bds.tableaux.suivreDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: si(
+              (x) =>
+                x?.length === réf.length &&
+                idsNouveauxÉléments.every((id) => x.find((d) => d.id === id)),
+            ),
+          }),
+        );
         expect(données).to.have.deep.members(réf);
       });
 
       it("index variable liste - ajout élément", async () => {
-        await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne: idColonneEndroit, index: true })
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneEndroit,
+          index: true,
+        });
 
-        const éléments: DonnéesRangéeTableau[] = [{
-          [idColonneDate]: (new Date("20/11/2025")).valueOf(),
-          [idColonneEndroit]: [16.534768942113885, 80.79302512863033],
-          [idColonnePrécip]: 4
-        }]
+        const éléments: DonnéesRangéeTableau[] = [
+          {
+            [idColonneDate]: new Date("20/11/2025").valueOf(),
+            [idColonneEndroit]: [16.534768942113885, 80.79302512863033],
+            [idColonnePrécip]: 4,
+          },
+        ];
         const idsNouveauxÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
-          éléments
+          éléments,
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
           {
             id: idsÉlémentsInitiaux[0],
-            données: élémentsInitiaux[0]
+            données: élémentsInitiaux[0],
           },
           {
             id: idsNouveauxÉléments[0],
-            données: éléments[0]
+            données: éléments[0],
           },
-        ]
+        ];
 
-        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({si})=>constl.bds.tableaux.suivreDonnées({idStructure: idBd, idTableau, 
-          f: si(x=>x?.length === réf.length && idsNouveauxÉléments.every(id=>x.find(d=>d.id === id)))})
-        )
+        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
+          constl.bds.tableaux.suivreDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: si(
+              (x) =>
+                x?.length === réf.length &&
+                idsNouveauxÉléments.every((id) => x.find((d) => d.id === id)),
+            ),
+          }),
+        );
         expect(données).to.have.deep.members(réf);
       });
 
       it("index variable liste - modification élément", async () => {
-        await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne: idColonneEndroit, index: true })
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneEndroit,
+          index: true,
+        });
         await constl.bds.tableaux.modifierÉlément({
-          idStructure: idBd, idTableau, idÉlément: idsÉlémentsInitiaux[0], vals: { [idColonneEndroit]: [14.782883663386926, -91.14748363253622] }
-        })
+          idStructure: idBd,
+          idTableau,
+          idÉlément: idsÉlémentsInitiaux[0],
+          vals: {
+            [idColonneEndroit]: [14.782883663386926, -91.14748363253622],
+          },
+        });
 
         const éléments: DonnéesRangéeTableau[] = [
           {
-            [idColonneDate]: (new Date("22/11/2025")).valueOf(),
+            [idColonneDate]: new Date("22/11/2025").valueOf(),
             [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
-            [idColonnePrécip]: 5
+            [idColonnePrécip]: 5,
           },
-        ]
+        ];
         const idsNouveauxÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
-          éléments
+          éléments,
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
           { id: idsNouveauxÉléments[0], données: éléments[0] },
-          { id: idsÉlémentsInitiaux[1], données: élémentsInitiaux[1] }
-        ]
-        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({si})=>constl.bds.tableaux.suivreDonnées({idStructure: idBd, idTableau, 
-          f: si(x=>x?.length === réf.length && idsNouveauxÉléments.every(id=>x.find(d=>d.id === id)))})
-        )
+          { id: idsÉlémentsInitiaux[1], données: élémentsInitiaux[1] },
+        ];
+        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
+          constl.bds.tableaux.suivreDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: si(
+              (x) =>
+                x?.length === réf.length &&
+                idsNouveauxÉléments.every((id) => x.find((d) => d.id === id)),
+            ),
+          }),
+        );
         expect(données).to.have.deep.members(réf);
       });
 
       it("index multivariable - ajout élément", async () => {
-        await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne: idColonneDate, index: true })
-        await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne: idColonneEndroit, index: true })
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneDate,
+          index: true,
+        });
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneEndroit,
+          index: true,
+        });
 
-        const éléments: DonnéesRangéeTableau[] = [{
-          [idColonneDate]: (new Date("20/11/2025")).valueOf(),
-          [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
-          [idColonnePrécip]: 3
-        },
-        {
-          [idColonneDate]: (new Date("21/11/2025")).valueOf(),
-          [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
-          [idColonnePrécip]: 11
-        }]
+        const éléments: DonnéesRangéeTableau[] = [
+          {
+            [idColonneDate]: new Date("20/11/2025").valueOf(),
+            [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
+            [idColonnePrécip]: 3,
+          },
+          {
+            [idColonneDate]: new Date("21/11/2025").valueOf(),
+            [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
+            [idColonnePrécip]: 11,
+          },
+        ];
         const idsNouveauxÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
-          éléments
+          éléments,
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
           {
             id: idsÉlémentsInitiaux[1],
-            données: élémentsInitiaux[1]
+            données: élémentsInitiaux[1],
           },
           {
             id: idsNouveauxÉléments[0],
-            données: éléments[0]
+            données: éléments[0],
           },
           {
             id: idsNouveauxÉléments[1],
-            données: éléments[1]
-          }
-        ]
+            données: éléments[1],
+          },
+        ];
 
-        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({si})=>constl.bds.tableaux.suivreDonnées({idStructure: idBd, idTableau, 
-          f: si(x=>x?.length === réf.length && idsNouveauxÉléments.every(id=>x.find(d=>d.id === id)))})
-        )
+        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
+          constl.bds.tableaux.suivreDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: si(
+              (x) =>
+                x?.length === réf.length &&
+                idsNouveauxÉléments.every((id) => x.find((d) => d.id === id)),
+            ),
+          }),
+        );
         expect(données).to.have.deep.members(réf);
       });
 
       it("index multivariable - modification élément", async () => {
-        await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne: idColonneDate, index: true })
-        await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne: idColonneEndroit, index: true })
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneDate,
+          index: true,
+        });
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColonneEndroit,
+          index: true,
+        });
         await constl.bds.tableaux.modifierÉlément({
-          idStructure: idBd, idTableau, idÉlément: idsÉlémentsInitiaux[0], vals: { [idColonneEndroit]: [14.782883663386926, -91.14748363253622] }
-        })
+          idStructure: idBd,
+          idTableau,
+          idÉlément: idsÉlémentsInitiaux[0],
+          vals: {
+            [idColonneEndroit]: [14.782883663386926, -91.14748363253622],
+          },
+        });
 
-        const éléments: DonnéesRangéeTableau[] = [{
-          [idColonneDate]: (new Date("20/11/2025")).valueOf(),
-          [idColonneEndroit]: [14.782883663386926, -91.14748363253622],
-          [idColonnePrécip]: 5
-        },]
+        const éléments: DonnéesRangéeTableau[] = [
+          {
+            [idColonneDate]: new Date("20/11/2025").valueOf(),
+            [idColonneEndroit]: [14.782883663386926, -91.14748363253622],
+            [idColonnePrécip]: 5,
+          },
+        ];
         const idsNouveauxÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
-          éléments
+          éléments,
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
           { id: idsNouveauxÉléments[0], données: éléments[0] },
-          { id: idsÉlémentsInitiaux[1], données: élémentsInitiaux[1] }
-        ]
-        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({si})=>constl.bds.tableaux.suivreDonnées({idStructure: idBd, idTableau, 
-          f: si(x=>x?.length === réf.length && idsNouveauxÉléments.every(id=>x.find(d=>d.id === id)))})
-        )
+          { id: idsÉlémentsInitiaux[1], données: élémentsInitiaux[1] },
+        ];
+        const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
+          constl.bds.tableaux.suivreDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: si(
+              (x) =>
+                x?.length === réf.length &&
+                idsNouveauxÉléments.every((id) => x.find((d) => d.id === id)),
+            ),
+          }),
+        );
         expect(données).to.have.deep.members(réf);
       });
     });
@@ -2709,7 +2828,7 @@ describe("tableaux", function () {
       idTableauCopié = await constl.bds.tableaux.copierTableau({
         idStructure: idBd,
         idTableau,
-        idStructureDestinataire: idNouvelleBd
+        idStructureDestinataire: idNouvelleBd,
       });
       expect(idTableauCopié).to.be.a("string");
     });
