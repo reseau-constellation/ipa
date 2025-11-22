@@ -2,7 +2,7 @@ import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { Constellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
-import { DifférenceBds, SchémaBd, ÉpingleBd } from "@/v2/bds/bds.js";
+import { DifférenceBds, SchémaBd, ScoreBd, ÉpingleBd } from "@/v2/bds/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
 import { InfoColonne } from "@/v2/tableaux.js";
@@ -12,6 +12,7 @@ import {
 } from "@/v2/bds/tableaux.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
+import { RègleBornes } from "@/v2/règles.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -1501,7 +1502,185 @@ describe("BDs", function () {
     });
   });
 
-  describe("score");
+  describe("score", function () {
+    let idBd: string;
+    let idTableau: string;
+    let idVarNumérique: string;
+    let idVarChaîne: string;
+    let idVarNumérique2: string;
+
+    let idColNumérique: string;
+    let idColNumérique2: string;
+
+    before(async () => {
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idTableau = await constl.bds.ajouterTableau({ idBd });
+
+      idVarNumérique = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+      idVarNumérique2 = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+      idVarChaîne = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
+    });
+
+    describe("score accessibilité", function () {
+      it.skip("À faire");
+    });
+
+    describe("score couverture tests", function () {
+      it("`undefined` lorsque aucune colonne", async () => {
+        const score = await obtenir<ScoreBd>(({ siDéfini }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: siDéfini(),
+          }),
+        );
+        expect(score.couverture).to.be.undefined();
+      });
+
+      it("ajout de colonnes", async () => {
+        idColNumérique = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+          idVariable: idVarNumérique,
+        });
+        idColNumérique2 = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+          idVariable: idVarNumérique2,
+        });
+        await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+          idVariable: idVarChaîne,
+        });
+        const score = await obtenir<ScoreBd>(({ si }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: si((s) => s?.couverture !== undefined),
+          }),
+        );
+        expect(score.couverture).to.equal(0);
+      });
+
+      it("ajout de règles", async () => {
+        const règleNumérique: RègleBornes = {
+          type: "bornes",
+          détails: { type: "fixe", val: 0, op: ">=" },
+        };
+        await constl.bds.tableaux.ajouterRègle({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColNumérique,
+          règle: règleNumérique,
+        });
+        let score = await obtenir<ScoreBd>(({ si }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: si((s) => !!s && !!s.couverture && s.couverture > 0),
+          }),
+        );
+        expect(score.couverture).to.equal(0.5);
+
+        await constl.bds.tableaux.ajouterRègle({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColNumérique2,
+          règle: règleNumérique,
+        });
+        score = await obtenir<ScoreBd>(({ si }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: si((s) => !!s && !!s.couverture && s.couverture > 0.5),
+          }),
+        );
+        expect(score.couverture).to.equal(1);
+      });
+    });
+
+    describe("score validité données", function () {
+      let idÉlément: string;
+
+      it("`undefined` pour commencer", async () => {
+        const score = await obtenir<ScoreBd>(({ siDéfini }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: siDéfini(),
+          }),
+        );
+        expect(score.valide).to.be.undefined();
+      });
+
+      it("ajout d'éléments", async () => {
+        idÉlément = (
+          await constl.bds.tableaux.ajouterÉléments({
+            idStructure: idBd,
+            idTableau,
+            éléments: [{
+              [idColNumérique]: -1,
+              [idColNumérique2]: 1,
+            }],
+          })
+        )[0];
+        let score = await obtenir<ScoreBd>(({ si }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: si((s) => s?.valide !== undefined && s.valide === 0.5),
+          }),
+        );
+        expect(score.valide).to.equal(0.5);
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments: [{
+            [idColNumérique]: 1,
+          }],
+        });
+        score = await obtenir<ScoreBd>(({ si }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: si((s) => !!s?.valide && s.valide > 0.5),
+          }),
+        );
+        expect(score.valide).to.equal(2 / 3);
+      });
+
+      it("correction des éléments", async () => {
+        await constl.bds.tableaux.modifierÉlément({
+          idStructure: idBd,
+          idTableau,
+          vals: { [idColNumérique]: 12 },
+          idÉlément,
+        });
+        const score = await obtenir<ScoreBd>(({ si }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: si((s) => s?.valide !== undefined && s.valide > 2 / 3),
+          }),
+        );
+        expect(score.valide).to.equal(1);
+      });
+    });
+
+    describe("score total", function () {
+      it("calcul du score total", async () => {
+        const score = await obtenir<ScoreBd>(({ siDéfini }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: siDéfini(),
+          }),
+        );
+        const total =
+          ((score.accès || 0) + (score.couverture || 0) + (score.valide || 0)) /
+          3;
+        expect(score.total).to.equal(total);
+      });
+    });
+  });
 
   describe("bds uniques", function () {
     it("création bd unique");
