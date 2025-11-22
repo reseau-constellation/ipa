@@ -6,7 +6,7 @@ import {
   DonnéesRangéeTableau,
   DonnéesRangéeTableauAvecId,
   obtIdIndex,
-} from "./tableaux.js";
+} from "./bds/tableaux.js";
 import type { CatégorieVariables } from "./variables.js";
 
 export type SourceRègle =
