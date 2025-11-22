@@ -220,11 +220,13 @@ describe.only("Profil", function () {
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
 
-      const image = await obtenir<{ image: Uint8Array; idImage: string } | null>(
-        ({ siPasNul }) =>
-          crabe.profil.suivreImage({
-            f: siPasNul(),
-          }),
+      const image = await obtenir<{
+        image: Uint8Array;
+        idImage: string;
+      } | null>(({ siPasNul }) =>
+        crabe.profil.suivreImage({
+          f: siPasNul(),
+        }),
       );
 
       expect(image?.image).to.deep.equal(new Uint8Array(IMAGE));
