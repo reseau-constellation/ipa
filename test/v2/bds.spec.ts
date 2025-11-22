@@ -1011,9 +1011,32 @@ describe("BDs", function () {
   });
 
   describe("nuées", function () {
-    it("aucune nuée pour commencer");
-    it("rejoindre nuée");
-    it("quiter nuée");
+    let idBd: string;
+    let idNuée: string;
+
+    before(async () => {
+      idBd = await constl.bds.créerBd({ licence: "ODBl-1_0" });
+      idNuée = await constl.nuées.créerNuée();
+    });
+
+    it("aucune nuée pour commencer", async () => {
+      const nuées = await obtenir<string[]>(({siDéfini})=>constl.bds.suivreNuées({ idBd, f: siDéfini() }));
+      expect(nuées).to.be.empty();
+    });
+
+    it("rejoindre nuée", async () => {
+      await constl.bds.rejoindreNuée({ idBd, idNuée });
+
+      const nuées = await obtenir<string[]>(({siPasVide})=>constl.bds.suivreNuées({ idBd, f: siPasVide() }));
+      expect(nuées).to.have.members([idNuée]);
+    });
+
+    it("quitter nuée", async () => {
+      await constl.bds.quitterNuée({ idBd, idNuée });
+
+      const nuées = await obtenir<string[]>(({siDéfini})=>constl.bds.suivreNuées({ idBd, f: siDéfini() }));
+      expect(nuées).to.be.empty();
+    });
   });
 
   describe("différences", function () {
@@ -1022,6 +1045,7 @@ describe("BDs", function () {
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODBl-1_0" });
+      idBdRéf = await constl.bds.créerBd({ licence: "ODBl-1_0" });
     });
 
     it("vide pour commencer", async () => {

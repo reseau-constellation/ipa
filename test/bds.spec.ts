@@ -169,21 +169,6 @@ describe("BDs", function () {
     });
   });
 
-  describe("Créer BD de schéma", function () {
-
-    it("Tableaux unique détectable", async () => {
-      const idTableau = await obtenir<string>(({ siDéfini }) =>
-        constl.bds.suivreIdTableauParClef({
-          idBd,
-          clef: "tableau trads",
-          f: siDéfini(),
-        }),
-      );
-
-      expect(isValidAddress(idTableau)).to.be.true();
-    });
-  });
-
   describe("Nuées associées", async function () {
     it("Héritage des noms de bd de la nuée", async () => {
       const idNuée = await constl.nuées.créerNuée();
