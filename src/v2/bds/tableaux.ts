@@ -249,6 +249,22 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     return idDonnées;
   }
 
+  async suivreIdDonnées({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<string>;
+  }): Promise<Oublier> {
+    return await this.suivreTableau({
+      idStructure,
+      idTableau,
+      f: async tableau => await f(tableau.données)
+    })
+  }
+
   async ajouterÉléments({
     idStructure,
     idTableau,

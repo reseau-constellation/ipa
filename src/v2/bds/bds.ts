@@ -36,11 +36,8 @@ import {
 } from "../favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import {
-  DonnéesRangéeTableauAvecId,
-  DonnéesTableauExportées,
   StructureTableau,
   schémaTableau,
-  Tableaux,
   DifférenceTableaux,
   InfoColonne,
   InfoColonneAvecCatégorie,
@@ -53,7 +50,7 @@ import {
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { ErreurDonnée, RègleColonne } from "../règles.js";
-import { TableauxBds } from "./tableaux.js";
+import { DonnéesRangéeTableauAvecId, DonnéesTableauExportées, TableauxBds } from "./tableaux.js";
 
 // Types épingles
 
@@ -268,7 +265,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     await this.ajouterÀMesBds({ idBd });
 
-    if (épingler) await this.épinglerBd({ idBd });
+    if (épingler) await this.épingler({ idBd });
 
     await bdBd.put({ type: "bd", licence, statut: { statut: "active" } });
     if (licenceContenu) await bdBd.put({ licenceContenu });
@@ -327,10 +324,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   async bdÀSchéma({ idBd }: { idBd: string }): Promise<SchémaBd> {
     const licence = await uneFois<string>((f) =>
-      this.suivreLicenceBd({ idBd, f }),
+      this.suivreLicence({ idBd, f }),
     );
     const licenceContenu = await uneFois<string>((f) =>
-      this.suivreLicenceBd({ idBd, f }),
+      this.suivreLicenceContenu({ idBd, f }),
     );
 
     const métadonnées = await uneFois<Métadonnées>((f) =>
@@ -408,7 +405,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     });
 
     if (motsClefs) {
-      await this.ajouterMotsClefsBd({ idBd, idsMotsClefs: motsClefs });
+      await this.ajouterMotsClefs({ idBd, idsMotsClefs: motsClefs });
     }
 
     if (nuées) {
@@ -486,12 +483,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     const noms = mapÀObjet(await bd.get("noms"));
     if (noms) {
-      await this.sauvegarderNomsBd({ idBd: idNouvelleBd, noms });
+      await this.sauvegarderNoms({ idBd: idNouvelleBd, noms });
     }
 
     const descriptions = mapÀObjet(await bd.get("descriptions"));
     if (descriptions) {
-      await this.sauvegarderDescriptionsBd({
+      await this.sauvegarderDescriptions({
         idBd: idNouvelleBd,
         descriptions,
       });
@@ -499,7 +496,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     const motsClefs = await bd.get("motsClefs");
     if (motsClefs)
-      await this.ajouterMotsClefsBd({
+      await this.ajouterMotsClefs({
         idBd: idNouvelleBd,
         idsMotsClefs: Object.keys(mapÀObjet(motsClefs)!),
       });
@@ -564,7 +561,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   // Épingles
 
-  async épinglerBd({
+  async épingler({
     idBd,
     options = {},
   }: {
@@ -586,14 +583,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await favoris.épinglerFavori({ idObjet: idBd, épingle });
   }
 
-  async désépinglerBd({ idBd }: { idBd: string }): Promise<void> {
+  async désépingler({ idBd }: { idBd: string }): Promise<void> {
     // On court-circuite `this.service("favoris")`
     const favoris = this.nébuleuse.services["favoris"];
 
     await favoris.désépinglerFavori({ idObjet: idBd });
   }
 
-  async suivreÉpingleBd({
+  async suivreÉpingle({
     idBd,
     f,
     idCompte,
@@ -661,10 +658,32 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     // Données des tableaux
     if (épingle.épingle.données?.tableaux) {
-      const fOublierTableaux = await this.suivreTableaux({
-        idBd: épingle.idObjet,
-        f: async (tableaux) => {
-          info.données = tableaux?.map((t) => t.id);
+      const fOublierTableaux = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (éléments: string[]) => Promise<void>;
+        }) => {
+          return await this.suivreTableaux({
+            idBd: épingle.idObjet,
+            f: (tbx) => fSuivreRacine(tbx || []),
+          });
+        },
+        fBranche: async ({
+          id,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: Suivi<string>;
+        }) => {
+          return await this.tableaux.suivreIdDonnées({
+            idStructure: épingle.idObjet,
+            idTableau: id,
+            f: fSuivreBranche,
+          });
+        },
+        f: async (données: string[]) => {
+          info.données = données;
           await fFinale();
         },
       });
@@ -717,7 +736,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   // Noms
 
-  async sauvegarderNomsBd({
+  async sauvegarderNoms({
     idBd,
     noms,
   }: {
@@ -732,7 +751,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await oublier();
   }
 
-  async sauvegarderNomBd({
+  async sauvegarderNom({
     idBd,
     langue,
     nom,
@@ -748,7 +767,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await oublier();
   }
 
-  async effacerNomBd({
+  async effacerNom({
     idBd,
     langue,
   }: {
@@ -763,7 +782,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   @cacheSuivi
-  async suivreNomsBd({
+  async suivreNoms({
     idBd,
     f,
   }: {
@@ -782,7 +801,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   // Descriptions
 
-  async sauvegarderDescriptionsBd({
+  async sauvegarderDescriptions({
     idBd,
     descriptions,
   }: {
@@ -796,7 +815,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await oublier();
   }
 
-  async sauvegarderDescriptionBd({
+  async sauvegarderDescription({
     idBd,
     langue,
     description,
@@ -812,7 +831,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await oublier();
   }
 
-  async effacerDescriptionBd({
+  async effacerDescription({
     idBd,
     langue,
   }: {
@@ -827,7 +846,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   @cacheSuivi
-  async suivreDescriptionsBd({
+  async suivreDescriptions({
     idBd,
     f,
   }: {
@@ -1000,7 +1019,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   // Licences
 
-  async changerLicenceBd({
+  async changerLicence({
     idBd,
     licence,
   }: {
@@ -1012,7 +1031,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await oublier();
   }
 
-  async changerLicenceContenuBd({
+  async changerLicenceContenu({
     idBd,
     licenceContenu,
   }: {
@@ -1030,7 +1049,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   @cacheSuivi
-  async suivreLicenceBd({
+  async suivreLicence({
     idBd,
     f,
   }: {
@@ -1049,7 +1068,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   @cacheSuivi
-  async suivreLicenceContenuBd({
+  async suivreLicenceContenu({
     idBd,
     f,
   }: {
@@ -1069,7 +1088,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   // Mots-clefs
 
-  async ajouterMotsClefsBd({
+  async ajouterMotsClefs({
     idBd,
     idsMotsClefs,
   }: {
@@ -1088,7 +1107,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await oublier();
   }
 
-  async effacerMotClefBd({
+  async effacerMotClef({
     idBd,
     idMotClef,
   }: {
@@ -1862,7 +1881,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       },
     });
 
-    const oublierLicence = await this.suivreLicenceBd({
+    const oublierLicence = await this.suivreLicence({
       idBd,
       f: async (licence) => {
         info.licence = licence ? 1 : 0;
@@ -1945,7 +1964,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     fsOublier.push(fOublierDonnées);
 
     if (langues) {
-      const fOublierNomsBd = await this.suivreNomsBd({
+      const fOublierNomsBd = await this.suivreNoms({
         idBd,
         f: async (noms) => {
           info.nomsBd = noms;
