@@ -10,6 +10,7 @@ import {
   DifférenceTableaux,
   DifférenceVariableColonne,
   InfoColonne,
+  InfoColonneAvecCatégorie,
 } from "@/v2/tableaux.js";
 import {
   DétailsRègleBornesDynamiqueColonne,
@@ -24,8 +25,8 @@ import {
   RègleIndexUnique,
   RègleValeurCatégorique,
 } from "@/v2/règles.js";
+import { DonnéesRangéeTableauAvecId, DonnéesRangéeTableau } from "@/v2/bds/tableaux.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
-import { DonnéesRangéeTableauAvecId, DonnéesRangéeTableau, InfoColonneAvecCatégorie } from "@/v2/bds/tableaux.js";
 
 describe("tableaux", function () {
   let fermer: () => Promise<void>;
