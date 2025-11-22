@@ -25,7 +25,10 @@ import {
   RègleIndexUnique,
   RègleValeurCatégorique,
 } from "@/v2/règles.js";
-import { DonnéesRangéeTableauAvecId, DonnéesRangéeTableau } from "@/v2/bds/tableaux.js";
+import {
+  DonnéesRangéeTableauAvecId,
+  DonnéesRangéeTableau,
+} from "@/v2/bds/tableaux.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe("tableaux", function () {
