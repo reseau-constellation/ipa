@@ -6,7 +6,10 @@ import { DifférenceBds, SchémaBd, ÉpingleBd } from "@/v2/bds/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
 import { InfoColonne } from "@/v2/tableaux.js";
-import { DonnéesRangéeTableau, DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
+import {
+  DonnéesRangéeTableau,
+  DonnéesRangéeTableauAvecId,
+} from "@/v2/bds/tableaux.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 
@@ -513,7 +516,7 @@ describe("BDs", function () {
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
       expect(idImage).to.endWith("logo.svg");
-      
+
       const image = await obtenir<{
         image: Uint8Array;
         idImage: string;
@@ -521,7 +524,7 @@ describe("BDs", function () {
         constl.bds.suivreImage({ idBd, f: siPasNul() }),
       );
 
-      const réf = { idImage, image: IMAGE}
+      const réf = { idImage, image: IMAGE };
       expect(image).to.deep.equal(réf);
     });
 
@@ -1174,7 +1177,7 @@ describe("BDs", function () {
 
     let IMAGE: Uint8Array;
     let idImage: string;
-    
+
     const réfNoms = {
       த: "மழை",
       हिं: "बारिश",
@@ -1185,33 +1188,42 @@ describe("BDs", function () {
     };
     const réfLicence = "ODbl-1_0";
     const réfLicenceContenu = "CC-BY-SA-4_0";
-    
-    const réfMétadonnées = { clef: true }
-    
-    const réfStatut: StatutDonnées = { statut: "interne" }
+
+    const réfMétadonnées = { clef: true };
+
+    const réfStatut: StatutDonnées = { statut: "interne" };
 
     before(async () => {
       IMAGE = await obtRessourceTest({
         nomFichier: "logo.svg",
       });
 
-      idBdOrig = await constl.bds.créerBd({ licence: réfLicence, licenceContenu: réfLicenceContenu });
+      idBdOrig = await constl.bds.créerBd({
+        licence: réfLicence,
+        licenceContenu: réfLicenceContenu,
+      });
       idMotClef = await constl.motsClefs.créerMotClef();
 
       await constl.bds.sauvegarderNoms({
-          idBd: idBdOrig,
-          noms: réfNoms,
-        });
+        idBd: idBdOrig,
+        noms: réfNoms,
+      });
       await constl.bds.sauvegarderDescriptions({
-          idBd: idBdOrig,
-          descriptions: réfDescrs,
-        });
+        idBd: idBdOrig,
+        descriptions: réfDescrs,
+      });
       await constl.bds.ajouterMotsClefs({
-          idBd: idBdOrig,
-          idsMotsClefs: idMotClef,
-        });
-      await constl.bds.sauvegarderMétadonnées({ idBd: idBdOrig, métadonnées: réfMétadonnées });
-      idImage = await constl.bds.sauvegarderImage({ idBd: idBdOrig, image: { contenu: IMAGE, nomFichier: "logo.svg" }})
+        idBd: idBdOrig,
+        idsMotsClefs: idMotClef,
+      });
+      await constl.bds.sauvegarderMétadonnées({
+        idBd: idBdOrig,
+        métadonnées: réfMétadonnées,
+      });
+      idImage = await constl.bds.sauvegarderImage({
+        idBd: idBdOrig,
+        image: { contenu: IMAGE, nomFichier: "logo.svg" },
+      });
 
       idTableau = await constl.bds.ajouterTableau({ idBd: idBdOrig });
 
@@ -1225,20 +1237,23 @@ describe("BDs", function () {
         idVariable,
       });
 
-      donnéesRéf = [{
-        [idColonne]: 1
-      }, {
-        [idColonne]: 2
-      }, {
-        [idColonne]: 0
-      }];
+      donnéesRéf = [
+        {
+          [idColonne]: 1,
+        },
+        {
+          [idColonne]: 2,
+        },
+        {
+          [idColonne]: 0,
+        },
+      ];
 
       await constl.bds.tableaux.ajouterÉléments({
         idStructure: idBdOrig,
         idTableau,
-        éléments: donnéesRéf
-      })
-      
+        éléments: donnéesRéf,
+      });
     });
 
     it("copier la bd", async () => {
@@ -1373,9 +1388,117 @@ describe("BDs", function () {
   });
 
   describe("combiner", function () {
-    it("données combinées")
-    it("tableau supplémentaire non touché")
-    it("tableau manquant non ajouté")
+    let idBdSource: string;
+    let idBdDestinataire: string;
+
+    const idTableau = "traductions";
+    const idTableauSupplémentaire = "tableau source";
+    const idTableauManquant = "tableau destinataire";
+
+    const idColonneClef = "clef";
+    const idColonneTraduc = "traduc";
+
+    before(async () => {
+      const schéma: SchémaBd = {
+        licence: "ODbl-1_0",
+        tableaux: {
+          idTableau: {
+            cols: [
+              {
+                idColonne: idColonneClef,
+                index: true,
+              },
+              {
+                idColonne: idColonneTraduc,
+              },
+            ],
+          },
+        },
+      };
+
+      idBdSource = await constl.bds.créerBdDeSchéma({ schéma });
+      idBdDestinataire = await constl.bds.créerBdDeSchéma({ schéma });
+
+      type ÉlémentTrad = {
+        [idColonneClef]: string;
+        [idColonneTraduc]?: string;
+      };
+
+      const élémentsSource: ÉlémentTrad[] = [
+        {
+          [idColonneClef]: "fr",
+          [idColonneTraduc]: "Constellation",
+        },
+        {
+          [idColonneClef]: "kaq", // Une traduction vide, par erreur disons
+        },
+      ];
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBdSource,
+        idTableau,
+        éléments: élémentsSource,
+      });
+
+      const élémentsDestinataire: ÉlémentTrad[] = [
+        {
+          [idColonneClef]: "fr",
+          [idColonneTraduc]: "Constellation!", // Une erreur ici, disons
+        },
+        {
+          [idColonneClef]: "kaq",
+          [idColonneTraduc]: "Ch'umil",
+        },
+        {
+          [idColonneClef]: "हिं",
+          [idColonneTraduc]: "तारामंडल",
+        },
+      ];
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBdDestinataire,
+        idTableau,
+        éléments: élémentsDestinataire,
+      });
+    });
+
+    it("combiner les bds", async () => {
+      await constl.bds.combinerBds({ idBdSource, idBdDestinataire });
+    });
+
+    it("données combinées", async () => {
+      const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
+        constl.bds.tableaux.suivreDonnées({
+          idStructure: idBdDestinataire,
+          idTableau,
+          f: si(
+            (x) =>
+              !!x &&
+              x.length > 2 &&
+              x.every((y) => Object.keys(y.données).length > 1),
+          ),
+        }),
+      );
+
+      const donnéesSansId = données.map((d) => d.données);
+      expect(donnéesSansId).to.have.deep.members([
+        { [idColonneClef]: "fr", [idColonneTraduc]: "Constellation" },
+        { [idColonneClef]: "kaq", [idColonneTraduc]: "Ch'umil" },
+        { [idColonneClef]: "हिं", [idColonneTraduc]: "तारामंडल" },
+      ]);
+    });
+
+    it("tableau supplémentaire non touché", async () => {
+      const tableauxBdDestinataire = await obtenir<string[]>(({ siPasVide }) =>
+        constl.bds.suivreTableaux({ idBd: idBdDestinataire, f: siPasVide() }),
+      );
+      expect(tableauxBdDestinataire).to.contain(idTableauSupplémentaire);
+    });
+
+    it("tableau manquant non ajouté", async () => {
+      const tableauxBdDestinataire = await obtenir<string[]>(({ siPasVide }) =>
+        constl.bds.suivreTableaux({ idBd: idBdDestinataire, f: siPasVide() }),
+      );
+      expect(tableauxBdDestinataire).to.not.contain(idTableauManquant);
+    });
   });
 
   describe("score");

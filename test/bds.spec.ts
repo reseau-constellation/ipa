@@ -3,9 +3,7 @@ import path from "path";
 
 import { isSet } from "lodash-es";
 
-import {
-  dossiers,
-} from "@constl/utils-tests";
+import { dossiers } from "@constl/utils-tests";
 
 import { uneFois, obtenir } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
@@ -13,10 +11,7 @@ import { isValidAddress } from "@orbitdb/core";
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
-import {
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
-} from "@/types.js";
+import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import type { règleBornes } from "@/valid.js";
 import type {
@@ -31,141 +26,9 @@ import type {
 } from "@/bds.js";
 import type XLSX from "xlsx";
 
-
 describe("BDs", function () {
-
   describe("Combiner BDs", function () {
-    let idVarClef: string;
-    let idVarTrad: string;
-
-    let idBd1: string;
-    let idBd2: string;
-
-    let idTableau1: string;
-    let idTableau2: string;
-
-    before(async () => {
-      idVarClef = await constl.variables.créerVariable({
-        catégorie: "chaîneNonTraductible",
-      });
-      idVarTrad = await constl.variables.créerVariable({
-        catégorie: "chaîneNonTraductible",
-      });
-
-      const schéma: schémaSpécificationBd = {
-        licence: "ODbl-1_0",
-        tableaux: [
-          {
-            cols: [
-              {
-                idVariable: idVarClef,
-                idColonne: "clef",
-                index: true,
-              },
-              {
-                idVariable: idVarTrad,
-                idColonne: "trad",
-              },
-            ],
-            clef: "tableau trads",
-          },
-        ],
-      };
-
-      idBd1 = await constl.bds.créerBdDeSchéma({ schéma });
-      idBd2 = await constl.bds.créerBdDeSchéma({ schéma });
-
-      idTableau1 = (
-        await uneFois(
-          async (
-            fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
-          ): Promise<schémaFonctionOublier> => {
-            return await constl.bds.suivreTableauxBd({
-              idBd: idBd1,
-              f: fSuivi,
-            });
-          },
-        )
-      )[0].id;
-      idTableau2 = (
-        await uneFois(
-          async (
-            fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
-          ): Promise<schémaFonctionOublier> => {
-            return await constl.bds.suivreTableauxBd({
-              idBd: idBd2,
-              f: fSuivi,
-            });
-          },
-        )
-      )[0].id;
-
-      type élémentTrad = { clef: string; trad?: string };
-
-      const éléments1: élémentTrad[] = [
-        {
-          clef: "fr",
-          trad: "Constellation",
-        },
-        {
-          clef: "kaq", // Une traduction vide, par erreur disons
-        },
-      ];
-      for (const élément of éléments1) {
-        await constl.tableaux.ajouterÉlément({
-          idTableau: idTableau1,
-          vals: élément,
-        });
-      }
-
-      const éléments2: élémentTrad[] = [
-        {
-          clef: "fr",
-          trad: "Constellation!", // Une erreur ici, disons
-        },
-        {
-          clef: "kaq",
-          trad: "Ch'umil",
-        },
-        {
-          clef: "हिं",
-          trad: "तारामंडल",
-        },
-      ];
-      for (const élément of éléments2) {
-        await constl.tableaux.ajouterÉlément({
-          idTableau: idTableau2,
-          vals: élément,
-        });
-      }
-    });
-
-    it("Combiner les bds", async () => {
-      await constl.bds.combinerBds({ idBdBase: idBd1, idBd2 });
-    });
-
-    it("Les données sont copiées", async () => {
-      const données = await obtenir<élémentDonnées<élémentBdListeDonnées>[]>(
-        ({ si }) =>
-          constl.tableaux.suivreDonnées({
-            idTableau: idTableau1,
-            f: si(
-              (x) =>
-                x.length > 2 &&
-                x.every((y) => Object.keys(y.données).length > 1),
-            ),
-            clefsSelonVariables: true,
-          }),
-      );
-      const donnéesSansId = données.map((d) => d.données);
-      expect(Array.isArray(donnéesSansId)).to.be.true();
-
-      expect(donnéesSansId.length).to.equal(3);
-      expect(donnéesSansId).to.have.deep.members([
-        { [idVarClef]: "fr", [idVarTrad]: "Constellation" },
-        { [idVarClef]: "kaq", [idVarTrad]: "Ch'umil" },
-        { [idVarClef]: "हिं", [idVarTrad]: "तारामंडल" },
-      ]);
+    
     });
   });
 
