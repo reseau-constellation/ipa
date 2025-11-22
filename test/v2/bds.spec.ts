@@ -8,6 +8,7 @@ import { Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
 import { InfoColonne } from "@/v2/tableaux.js";
 import { DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
+import { obtRessourceTest } from "test/ressources/index.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -489,9 +490,44 @@ describe("BDs", function () {
   });
 
   describe("image", function () {
-    it("aucune image pour commencer")
-    it("ajouter image")
-    it("effacer image")
+    let IMAGE: Uint8Array;
+    let idBd: string;
+
+    before(async () => {
+      IMAGE = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+      
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+    });
+
+    it("aucune image pour commencer", async () => {
+      const image = await obtenir(({siNul})=>
+        constl.bds.suivreImage({idBd, f: siNul() })
+      ) 
+      expect(image).to.be.null();
+    });
+
+    it("ajouter image", async () => {
+      await constl.bds.sauvegarderImage({ idBd, image: { contenu: IMAGE, nomFichier: "logo.svg" }});
+      const image = await obtenir<{
+        image: Uint8Array;
+        idImage: string;
+      } | null>(({siPasNul})=>
+        constl.bds.suivreImage({idBd, f: siPasNul() })
+      )
+
+      expect(image?.image).to.equal(IMAGE);
+      expect(image?.idImage).to.endWith("logo.svg")
+    })
+
+    it("effacer image", async () => {
+      await constl.bds.effacerImage({ idBd });
+      const image = await obtenir(({siNul})=>
+        constl.bds.suivreImage({idBd, f: siNul() })
+      ) 
+      expect(image).to.be.null();
+    })
   });
 
   describe("licences", function () {
