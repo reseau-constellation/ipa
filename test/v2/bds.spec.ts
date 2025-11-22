@@ -4,7 +4,7 @@ import { Constellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
 import { DifférenceBds, ÉpingleBd } from "@/v2/bds/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
-import { StatutDonnées } from "@/v2/types.js";
+import { StatutDonnées, TraducsTexte } from "@/v2/types.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe("BDs", function () {
@@ -81,14 +81,155 @@ describe("BDs", function () {
     });
   });
 
-  describe("schémas", function () {
-    it("création bd à partir de schéma");
-    it("génération de schéma");
+  describe("noms", function () {
+    let idBd: string;
+
+    before(async () => {
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+    });
+
+    it("pas de noms pour commencer", async () => {
+      const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
+        constl.bds.suivreNomsBd({ idBd, f: siDéfini() }),
+      );
+      expect(Object.keys(noms).length).to.equal(0);
+    });
+
+    it("ajouter un nom", async () => {
+      await constl.bds.sauvegarderNomBd({
+        idBd,
+        langue: "fr",
+        nom: "Alphabets",
+      });
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.bds.suivreNomsBd({
+          idBd,
+          f: si((n) => !!n && Object.keys(n).length > 0),
+        }),
+      );
+      expect(noms.fr).to.equal("Alphabets");
+    });
+
+    it("ajouter des noms", async () => {
+      await constl.bds.sauvegarderNomsBd({
+        idBd,
+        noms: {
+          த: "எழுத்துகள்",
+          हिं: "वर्णमाला",
+        },
+      });
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.bds.suivreNomsBd({
+          idBd,
+          f: si((n) => !!n && Object.keys(n).length > 2),
+        }),
+      );
+      expect(noms).to.deep.equal({
+        fr: "Alphabets",
+        த: "எழுத்துகள்",
+        हिं: "वर्णमाला",
+      });
+    });
+
+    it("changer un nom", async () => {
+      await constl.bds.sauvegarderNomBd({
+        idBd,
+        langue: "fr",
+        nom: "Systèmes d'écriture",
+      });
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.bds.suivreNomsBd({
+          idBd,
+          f: si((n) => n?.["fr"] !== "Alphabets"),
+        }),
+      );
+
+      expect(noms?.fr).to.equal("Systèmes d'écriture");
+    });
+
+    it("effacer un nom", async () => {
+      await constl.bds.effacerNomBd({ idBd, langue: "fr" });
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.bds.suivreNomsBd({ idBd, f: si((n) => !!n && !n["fr"]) }),
+      );
+      expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+    });
   });
 
-  describe("noms");
+  describe("descriptions", function () {
+    let idBd: string;
 
-  describe("descriptions");
+    before(async () => {
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+    });
+
+    it("aucune description pour commencer", async () => {
+      const descrs = await obtenir<TraducsTexte>(({ siDéfini }) =>
+        constl.bds.suivreDescriptionsBd({ idBd, f: siDéfini() }),
+      );
+      expect(Object.keys(descrs).length).to.equal(0);
+    });
+
+    it("ajouter une description", async () => {
+      await constl.bds.sauvegarderDescriptionBd({
+        idBd,
+        langue: "fr",
+        description: "Alphabets",
+      });
+
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.bds.suivreDescriptionsBd({ idBd, f: si((x) => !!x?.["fr"]) }),
+      );
+      expect(descrs.fr).to.equal("Alphabets");
+    });
+
+    it("ajouter des descriptions", async () => {
+      await constl.bds.sauvegarderDescriptionsBd({
+        idBd,
+        descriptions: {
+          த: "எழுத்துகள்",
+          हिं: "वर्णमाला",
+        },
+      });
+
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.bds.suivreDescriptionsBd({
+          idBd,
+          f: si((x) => !!x && Object.keys(x).length > 2),
+        }),
+      );
+      expect(descrs).to.deep.equal({
+        fr: "Alphabets",
+        த: "எழுத்துகள்",
+        हिं: "वर्णमाला",
+      });
+    });
+
+    it("changer une description", async () => {
+      await constl.bds.sauvegarderDescriptionBd({
+        idBd,
+        langue: "fr",
+        description: "Systèmes d'écriture",
+      });
+
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.bds.suivreDescriptionsBd({
+          idBd,
+          f: si((x) => x?.["fr"] !== "Alphabets"),
+        }),
+      );
+      expect(descrs?.fr).to.equal("Systèmes d'écriture");
+    });
+
+    it("effacer une description", async () => {
+      await constl.bds.effacerDescriptionBd({ idBd, langue: "fr" });
+
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.bds.suivreDescriptionsBd({ idBd, f: si((x) => !!x && !x["fr"]) }),
+      );
+      expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+    });
+  });
 
   describe("métadonnées");
 
@@ -326,6 +467,11 @@ describe("BDs", function () {
 
   describe("copier", function () {
     it("suivre bd parent");
+  });
+
+  describe("schémas", function () {
+    it("création bd à partir de schéma");
+    it("génération de schéma");
   });
 
   describe("nuées", function () {
