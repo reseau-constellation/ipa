@@ -6,7 +6,7 @@ import { DifférenceBds, SchémaBd, ÉpingleBd } from "@/v2/bds/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
 import { InfoColonne } from "@/v2/tableaux.js";
-import { DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
+import { DonnéesRangéeTableau, DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 
@@ -508,10 +508,12 @@ describe("BDs", function () {
     });
 
     it("ajouter image", async () => {
-      await constl.bds.sauvegarderImage({
+      const idImage = await constl.bds.sauvegarderImage({
         idBd,
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
+      expect(idImage).to.endWith("logo.svg");
+      
       const image = await obtenir<{
         image: Uint8Array;
         idImage: string;
@@ -519,8 +521,8 @@ describe("BDs", function () {
         constl.bds.suivreImage({ idBd, f: siPasNul() }),
       );
 
-      expect(image?.image).to.equal(IMAGE);
-      expect(image?.idImage).to.endWith("logo.svg");
+      const réf = { idImage, image: IMAGE}
+      expect(image).to.deep.equal(réf);
     });
 
     it("effacer image", async () => {
@@ -1168,6 +1170,11 @@ describe("BDs", function () {
     let idVariable: string;
     let idTableau: string;
 
+    let donnéesRéf: DonnéesRangéeTableau[];
+
+    let IMAGE: Uint8Array;
+    let idImage: string;
+    
     const réfNoms = {
       த: "மழை",
       हिं: "बारिश",
@@ -1177,37 +1184,61 @@ describe("BDs", function () {
       हिं: "दैनिक बारिश",
     };
     const réfLicence = "ODbl-1_0";
+    const réfLicenceContenu = "CC-BY-SA-4_0";
+    
+    const réfMétadonnées = { clef: true }
+    
+    const réfStatut: StatutDonnées = { statut: "interne" }
 
     before(async () => {
-      idBdOrig = await constl.bds.créerBd({ licence: réfLicence });
+      IMAGE = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+
+      idBdOrig = await constl.bds.créerBd({ licence: réfLicence, licenceContenu: réfLicenceContenu });
       idMotClef = await constl.motsClefs.créerMotClef();
 
-      await Promise.all([
-        constl.bds.sauvegarderNoms({
+      await constl.bds.sauvegarderNoms({
           idBd: idBdOrig,
           noms: réfNoms,
-        }),
-        constl.bds.sauvegarderDescriptions({
+        });
+      await constl.bds.sauvegarderDescriptions({
           idBd: idBdOrig,
           descriptions: réfDescrs,
-        }),
-        constl.bds.ajouterMotsClefs({
+        });
+      await constl.bds.ajouterMotsClefs({
           idBd: idBdOrig,
           idsMotsClefs: idMotClef,
-        }),
-        (async () => {
-          idTableau = await constl.bds.ajouterTableau({ idBd: idBdOrig });
+        });
+      await constl.bds.sauvegarderMétadonnées({ idBd: idBdOrig, métadonnées: réfMétadonnées });
+      idImage = await constl.bds.sauvegarderImage({ idBd: idBdOrig, image: { contenu: IMAGE, nomFichier: "logo.svg" }})
 
-          idVariable = await constl.variables.créerVariable({
-            catégorie: "numérique",
-          });
-          await constl.bds.tableaux.ajouterColonne({
-            idStructure: idBdOrig,
-            idTableau,
-            idVariable,
-          });
-        })(),
-      ]);
+      idTableau = await constl.bds.ajouterTableau({ idBd: idBdOrig });
+
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+
+      const idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBdOrig,
+        idTableau,
+        idVariable,
+      });
+
+      donnéesRéf = [{
+        [idColonne]: 1
+      }, {
+        [idColonne]: 2
+      }, {
+        [idColonne]: 0
+      }];
+
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBdOrig,
+        idTableau,
+        éléments: donnéesRéf
+      })
+      
     });
 
     it("copier la bd", async () => {
@@ -1261,7 +1292,7 @@ describe("BDs", function () {
       const statut = await obtenir<StatutDonnées | null>(({ siDéfini }) =>
         constl.bds.suivreStatut({ idBd: idBdCopie, f: siDéfini() }),
       );
-      expect(statut).to.deep.equal(statutRéf);
+      expect(statut).to.deep.equal(réfStatut);
     });
 
     it("l'image est copiée'", async () => {
@@ -1271,7 +1302,7 @@ describe("BDs", function () {
       } | null>(({ siDéfini }) =>
         constl.bds.suivreImage({ idBd: idBdCopie, f: siDéfini() }),
       );
-      expect(image).to.deep.equal(imageRéf);
+      expect(image).to.deep.equal({ idImage, image: IMAGE });
     });
 
     it("les tableaux sont copiés", async () => {
@@ -1341,7 +1372,11 @@ describe("BDs", function () {
     });
   });
 
-  describe("combiner");
+  describe("combiner", function () {
+    it("données combinées")
+    it("tableau supplémentaire non touché")
+    it("tableau manquant non ajouté")
+  });
 
   describe("score");
 
