@@ -330,7 +330,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     const licence = await uneFois<string>((f) =>
       this.suivreLicence({ idBd, f }),
     );
-    const licenceContenu = await uneFois<string>((f) =>
+    const licenceContenu = await uneFois<string | undefined>((f) =>
       this.suivreLicenceContenu({ idBd, f }),
     );
 
@@ -399,7 +399,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     schéma: SchémaBd;
     épingler?: boolean;
   }): Promise<string> {
-    const { tableaux, motsClefs, nuées, licence, licenceContenu, statut } =
+    const { tableaux, motsClefs, nuées, licence, licenceContenu, statut, clefUnique } =
       schéma;
 
     const idBd = await this.créerBd({
@@ -444,7 +444,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       }
     }
 
-    if (schéma.clefUnique) {
+    if (clefUnique) {
       await this.ajouterClefUnique({ idBd, clefUnique });
     }
 
@@ -708,7 +708,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         }) => {
           return await this.suivreTableaux({
             idBd: épingle.idObjet,
-            f: (tbx) => fSuivreRacine(tbx?.map((t) => t.id) || []),
+            f: (tbx) => fSuivreRacine(tbx || []),
           });
         },
         fBranche: async ({
@@ -1620,6 +1620,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     });
   }
 
+  async ajouterClefUnique({ idBd, clefUnique }: { idBd: string; clefUnique: string }) {
+    const { bd, oublier } = await this.ouvrirBd({ idBd });
+
+    await bd.set("clefUnique", clefUnique);
+
+    await oublier();
+  }
+
   // Qualité
 
   @cacheSuivi
@@ -1715,10 +1723,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       fSuivreRacine,
     }: {
       fSuivreRacine: (éléments: string[]) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauxBd({
+    }): Promise<Oublier> => {
+      return await this.suivreTableaux({
         idBd,
-        f: (tableaux) => fSuivreRacine(tableaux.map((x) => x.id)),
+        f: (tableaux) => fSuivreRacine(tableaux),
       });
     };
 
@@ -1987,7 +1995,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
           },
         });
       },
-      fIdDeBranche: (x) => x.id,
     });
     fsOublier.push(fOublierDonnées);
 
