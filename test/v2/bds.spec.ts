@@ -1,5 +1,7 @@
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
+import { isValidAddress } from "@orbitdb/core";
+import { v4 as uuidv4 } from "uuid";
 import { Constellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
 import { DifférenceBds, SchémaBd, ScoreBd, ÉpingleBd } from "@/v2/bds/bds.js";
@@ -11,8 +13,8 @@ import {
   DonnéesRangéeTableauAvecId,
 } from "@/v2/bds/tableaux.js";
 import { obtRessourceTest } from "test/ressources/index.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
 import { RègleBornes } from "@/v2/règles.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -1620,10 +1622,12 @@ describe("BDs", function () {
           await constl.bds.tableaux.ajouterÉléments({
             idStructure: idBd,
             idTableau,
-            éléments: [{
-              [idColNumérique]: -1,
-              [idColNumérique2]: 1,
-            }],
+            éléments: [
+              {
+                [idColNumérique]: -1,
+                [idColNumérique2]: 1,
+              },
+            ],
           })
         )[0];
         let score = await obtenir<ScoreBd>(({ si }) =>
@@ -1636,9 +1640,11 @@ describe("BDs", function () {
         await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
-          éléments: [{
-            [idColNumérique]: 1,
-          }],
+          éléments: [
+            {
+              [idColNumérique]: 1,
+            },
+          ],
         });
         score = await obtenir<ScoreBd>(({ si }) =>
           constl.bds.suivreScoreQualité({
@@ -1683,14 +1689,113 @@ describe("BDs", function () {
   });
 
   describe("bds uniques", function () {
-    it("création bd unique");
-    it("création bd unique - locale existante");
-    it("bd unique locale existante");
-    it("bd unique locale existante");
+    let idBdUnique: string;
 
-    it("obtenir bd unique");
-    it("suivre bd unique");
-    it("suivre données bd unique");
+    const clefUnique = uuidv4();
+    const idTableau = "mon tableau";
+
+    const idColonneLangue = "clef";
+    const idColonneTraduc = "traduc";
+
+    const éléments: DonnéesRangéeTableau[] = [
+      {
+        [idColonneLangue]: "kaq",
+        [idColonneTraduc]: "Ch'umil",
+      },
+      { [idColonneLangue]: "हिं", [idColonneTraduc]: "तारामंडल" },
+    ];
+
+    const schéma: SchémaBd = {
+      licence: "ODbl-1_0",
+      tableaux: {
+        [idTableau]: {
+          cols: [
+            {
+              idColonne: idColonneLangue,
+              index: true,
+            },
+            {
+              idColonne: idColonneTraduc,
+              index: false,
+            },
+          ],
+        },
+      },
+      clefUnique,
+    };
+
+    it("création bd unique", async () => {
+      idBdUnique = await constl.bds.obtenirBdUnique({ schéma, clefUnique });
+
+      expect(isValidAddress(idBdUnique)).to.be.true();
+    });
+
+    it("détection de la même bd unique", async () => {
+      const idBdUniqueMaintenant = await constl.bds.obtenirBdUnique({
+        schéma,
+        clefUnique,
+      });
+      expect(idBdUniqueMaintenant).to.equal(idBdUnique);
+    });
+
+    it("ajout données bd unique", async () => {
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBdUnique,
+        idTableau,
+        éléments,
+      });
+
+      const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
+        ({ siPasVide }) =>
+          constl.bds.suivreDonnéesBdUnique({
+            schéma,
+            clefUnique,
+            idTableau,
+            f: siPasVide(),
+          }),
+      );
+
+      expect(données.map((d) => d.données)).to.have.deep.members(éléments);
+    });
+
+    it("combinaison bds existantes", async () => {
+      const idBdUnique2 = await constl.bds.créerBdDeSchéma({ schéma });
+      const élémentsBd2: DonnéesRangéeTableau[] = [
+        {
+          [idColonneLangue]: "తె",
+          [idColonneTraduc]: "నక్షత్రరాశి",
+        },
+      ];
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBdUnique2,
+        idTableau,
+        éléments: élémentsBd2,
+      });
+
+      const réf: DonnéesRangéeTableau[] = [...éléments, ...élémentsBd2];
+
+      const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
+        constl.bds.suivreDonnéesBdUnique({
+          schéma,
+          clefUnique,
+          idTableau,
+          f: si((x) => !!x && x.length >= réf.length),
+        }),
+      );
+
+      expect(données.map((d) => d.données)).to.have.deep.members(réf);
+    });
+
+    it("recréée si effacée", async () => {
+      await constl.bds.effacerBd({ idBd: idBdUnique });
+      const nouvelIdBdUnique = await constl.bds.obtenirBdUnique({
+        schéma,
+        clefUnique,
+      });
+
+      expect(isValidAddress(nouvelIdBdUnique)).to.be.true();
+      expect(nouvelIdBdUnique).to.not.equal(idBdUnique);
+    });
   });
 
   describe("exportation");
