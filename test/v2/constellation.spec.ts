@@ -168,14 +168,14 @@ describe.only("Constellation", function () {
       expect(permission).to.equal(MEMBRE);
 
       // Vérifier que l'édition des données fonctionne
-      await constls[1].bds.sauvegarderNomBd({
+      await constls[1].bds.sauvegarderNom({
         idBd,
         langue: "fr",
         nom: "mon tableau",
       });
 
       const noms = await obtenir<TraducsTexte | undefined>(({ siPasVide }) =>
-        constls[0].bds.suivreNomsBd({ idBd, f: siPasVide() }),
+        constls[0].bds.suivreNoms({ idBd, f: siPasVide() }),
       );
       expect(noms).to.deep.equal({
         fr: "mon tableau",
