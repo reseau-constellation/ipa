@@ -3,10 +3,22 @@ import { v4 as uuidv4 } from "uuid";
 
 import { expect } from "aegir/chai";
 
+import {
+  ErreurDonnée,
+  FonctionValidation,
+  Op,
+  RègleBornes,
+  RègleCatégorie,
+  RègleColonne,
+  RègleExiste,
+  RègleIndexUnique,
+  RègleValeurCatégorique,
+  SourceRègle,
+  générerFonctionValidation,
+} from "@/v2/règles.js";
+import { DonnéesRangéeTableau } from "@/v2/bds/tableaux.js";
 import type { CatégorieBaseVariables } from "@/v2/variables.js";
 import type { élémentsBd } from "@/types.js";
-import { ErreurDonnée, FonctionValidation, Op, RègleBornes, RègleCatégorie, RègleColonne, RègleExiste, RègleIndexUnique, RègleValeurCatégorique, SourceRègle, générerFonctionValidation } from "@/v2/règles.js";
-import { DonnéesRangéeTableau } from "@/v2/bds/tableaux.js";
 
 const catégories: {
   [key in CatégorieBaseVariables]: {
@@ -150,7 +162,7 @@ describe("Validation", function () {
   });
   describe("générer fonction règle", function () {
     describe("règle existe", function () {
-      const idColonneNumérique  = "col numérique";
+      const idColonneNumérique = "col numérique";
       const règle: RègleColonne<RègleExiste> = {
         source: { type: "variable", id: "idVar" },
         colonne: idColonneNumérique,
@@ -162,7 +174,11 @@ describe("Validation", function () {
           },
         },
       };
-      const fonc = générerFonctionValidation({ règle, varsÀColonnes: {}, colsIndex: [] });
+      const fonc = générerFonctionValidation({
+        règle,
+        varsÀColonnes: {},
+        colsIndex: [],
+      });
       const id = uuidv4();
 
       it("valeure existante", () => {
@@ -182,16 +198,18 @@ describe("Validation", function () {
             id,
           },
         ]);
-        const réf: ErreurDonnée<RègleExiste>[] = [{
-          id,
-          erreur: règle
-        }]
+        const réf: ErreurDonnée<RègleExiste>[] = [
+          {
+            id,
+            erreur: règle,
+          },
+        ];
         expect(erreurs).to.have.deep.members(réf);
       });
     });
 
     describe("règles catégories", function () {
-      const idColonneNumérique = "col numérique"
+      const idColonneNumérique = "col numérique";
       const règle: RègleColonne<RègleCatégorie> = {
         source: { type: "variable", id: "idVar" },
         colonne: idColonneNumérique,
@@ -205,7 +223,11 @@ describe("Validation", function () {
           },
         },
       };
-      const fonc = générerFonctionValidation({ règle, varsÀColonnes: {}, colsIndex: [] });
+      const fonc = générerFonctionValidation({
+        règle,
+        varsÀColonnes: {},
+        colsIndex: [],
+      });
       const id = uuidv4();
 
       it("catérogie valide", () => {
@@ -225,10 +247,12 @@ describe("Validation", function () {
             id,
           },
         ]);
-        const réf: ErreurDonnée<RègleCatégorie>[] = [{
-          id,
-          erreur: règle
-        }];
+        const réf: ErreurDonnée<RègleCatégorie>[] = [
+          {
+            id,
+            erreur: règle,
+          },
+        ];
         expect(erreurs).to.have.members(réf);
       });
     });
@@ -238,23 +262,30 @@ describe("Validation", function () {
       const idColonneDate = "col date";
 
       describe("index univariable", function () {
-        let fonc: FonctionValidation<DonnéesRangéeTableau, RègleIndexUnique>
+        let fonc: FonctionValidation<DonnéesRangéeTableau, RègleIndexUnique>;
 
         const règle: RègleColonne<RègleIndexUnique> = {
-          source: { type: "tableau", idTableau: "idTableau", idStructure: "idStructure" },
+          source: {
+            type: "tableau",
+            idTableau: "idTableau",
+            idStructure: "idStructure",
+          },
           colonne: idColonneTexte,
           règle: {
             id: uuidv4(),
             règle: {
               type: "indexUnique",
+            },
+          },
+        };
 
-            }
-          }
-        }
-        
         before(async () => {
-          fonc = générerFonctionValidation({ règle, varsÀColonnes: {}, colsIndex: [idColonneTexte] });
-        })
+          fonc = générerFonctionValidation({
+            règle,
+            varsÀColonnes: {},
+            colsIndex: [idColonneTexte],
+          });
+        });
 
         it("données valides", () => {
           const erreurs = fonc([
@@ -263,8 +294,8 @@ describe("Validation", function () {
           ]);
 
           expect(erreurs).to.be.empty();
-        })
-        
+        });
+
         it("index dupliqué", () => {
           const idsÉléments = [uuidv4(), uuidv4(), uuidv4()];
           const erreurs = fonc([
@@ -272,73 +303,119 @@ describe("Validation", function () {
             { données: { [idColonneTexte]: "a" }, id: idsÉléments[1] },
             { données: { [idColonneTexte]: "b" }, id: idsÉléments[2] },
           ]);
-          
-          const réf: ErreurDonnée<RègleIndexUnique>[] = [{
-            id: idsÉléments[0],
-            erreur: règle,
-          }, {
-            id: idsÉléments[1],
-            erreur: règle,
-          }]
+
+          const réf: ErreurDonnée<RègleIndexUnique>[] = [
+            {
+              id: idsÉléments[0],
+              erreur: règle,
+            },
+            {
+              id: idsÉléments[1],
+              erreur: règle,
+            },
+          ];
           expect(erreurs).to.have.deep.members(réf);
-        })
-      })
+        });
+      });
 
       describe("index multivariable", function () {
-        let fonc: FonctionValidation<DonnéesRangéeTableau, RègleIndexUnique>
+        let fonc: FonctionValidation<DonnéesRangéeTableau, RègleIndexUnique>;
 
         const règle: RègleColonne<RègleIndexUnique> = {
-          source: { type: "tableau", idTableau: "idTableau", idStructure: "idStructure" },
+          source: {
+            type: "tableau",
+            idTableau: "idTableau",
+            idStructure: "idStructure",
+          },
           colonne: idColonneTexte,
           règle: {
             id: uuidv4(),
             règle: {
               type: "indexUnique",
+            },
+          },
+        };
 
-            }
-          }
-        }
-        
         before(async () => {
-          fonc = générerFonctionValidation({ règle, varsÀColonnes: {}, colsIndex: [idColonneTexte, idColonneDate] });
-        })
+          fonc = générerFonctionValidation({
+            règle,
+            varsÀColonnes: {},
+            colsIndex: [idColonneTexte, idColonneDate],
+          });
+        });
 
         it("données valides", () => {
           const erreurs = fonc([
-            { données: { [idColonneTexte]: "a", [idColonneDate]: (new Date("01/01/2025")).getTime() }, id: uuidv4() },
-            { données: { [idColonneTexte]: "a", [idColonneDate]: (new Date("01/02/2025")).getTime() }, id: uuidv4() },
+            {
+              données: {
+                [idColonneTexte]: "a",
+                [idColonneDate]: new Date("01/01/2025").getTime(),
+              },
+              id: uuidv4(),
+            },
+            {
+              données: {
+                [idColonneTexte]: "a",
+                [idColonneDate]: new Date("01/02/2025").getTime(),
+              },
+              id: uuidv4(),
+            },
           ]);
 
           expect(erreurs).to.be.empty();
-        })
-        
+        });
+
         it("index dupliqué", () => {
           const idsÉléments = [uuidv4(), uuidv4(), uuidv4()];
           const erreurs = fonc([
-            { données: { [idColonneTexte]: "a", [idColonneDate]: (new Date("01/01/2025")).getTime() }, id: idsÉléments[0] },
-            { données: { [idColonneTexte]: "a", [idColonneDate]: (new Date("01/01/2025")).getTime() }, id: idsÉléments[1] },
-            { données: { [idColonneTexte]: "b", [idColonneDate]: (new Date("01/01/2025")).getTime() }, id: idsÉléments[2] },
+            {
+              données: {
+                [idColonneTexte]: "a",
+                [idColonneDate]: new Date("01/01/2025").getTime(),
+              },
+              id: idsÉléments[0],
+            },
+            {
+              données: {
+                [idColonneTexte]: "a",
+                [idColonneDate]: new Date("01/01/2025").getTime(),
+              },
+              id: idsÉléments[1],
+            },
+            {
+              données: {
+                [idColonneTexte]: "b",
+                [idColonneDate]: new Date("01/01/2025").getTime(),
+              },
+              id: idsÉléments[2],
+            },
           ]);
-          
-          const réf: ErreurDonnée<RègleIndexUnique>[] = [{
-            id: idsÉléments[0],
-            erreur: règle,
-          }, {
-            id: idsÉléments[1],
-            erreur: règle,
-          }]
+
+          const réf: ErreurDonnée<RègleIndexUnique>[] = [
+            {
+              id: idsÉléments[0],
+              erreur: règle,
+            },
+            {
+              id: idsÉléments[1],
+              erreur: règle,
+            },
+          ];
           expect(erreurs).to.have.deep.members(réf);
-        })
-      })
-    })
+        });
+      });
+    });
 
     describe("règles bornes", function () {
-
       const idColonneNumérique = "col numérique";
 
       it("pas d'erreure si la colonne n'existe pas", () => {
         const règle: RègleColonne<RègleBornes> = {
-          source: { type: "tableau", idTableau: "idTableau", idStructure: "idStructure" },
+          source: {
+            type: "tableau",
+            idTableau: "idTableau",
+            idStructure: "idStructure",
+          },
           colonne: idColonneNumérique,
           règle: {
             id: uuidv4(),
@@ -352,7 +429,11 @@ describe("Validation", function () {
             },
           },
         };
-        const fonc = générerFonctionValidation({ règle, varsÀColonnes: {}, colsIndex: [] });
+        const fonc = générerFonctionValidation({
+          règle,
+          varsÀColonnes: {},
+          colsIndex: [],
+        });
         const erreurs = fonc([
           { données: { "une autre colonne": 1 }, id: uuidv4() },
         ]);
@@ -360,7 +441,11 @@ describe("Validation", function () {
       });
 
       it("tests bornes", () => {
-        const source: SourceRègle = { type: "tableau", idTableau: "idTableau", idStructure: "idStructure" };
+        const source: SourceRègle = {
+          type: "tableau",
+          idTableau: "idTableau",
+          idStructure: "idStructure",
+        };
 
         const ops: { op: Op; valides: number[]; invalides: number[] }[] = [
           { op: ">", valides: [0.1, 1], invalides: [0, -1] },
@@ -385,7 +470,11 @@ describe("Validation", function () {
                 },
               },
             };
-            const fonc = générerFonctionValidation({ règle, varsÀColonnes: {}, colsIndex: [] });
+            const fonc = générerFonctionValidation({
+              règle,
+              varsÀColonnes: {},
+              colsIndex: [],
+            });
             const idÉlément = uuidv4();
 
             op.valides.forEach((v) => {
@@ -408,10 +497,12 @@ describe("Validation", function () {
                     id: idÉlément,
                   },
                 ]);
-                const réf: ErreurDonnée<RègleBornes>[] = [{
-                  id: idÉlément,
-                  erreur: règle
-                }];
+                const réf: ErreurDonnée<RègleBornes>[] = [
+                  {
+                    id: idÉlément,
+                    erreur: règle,
+                  },
+                ];
                 expect(erreurs).to.have.deep.members(réf);
               });
             });
@@ -450,34 +541,46 @@ describe("Validation", function () {
         const idÉlément = uuidv4();
 
         it("pas d'erreur si la colonne n'existe pas", () => {
-          const erreurs = fonc([{ données: { [idColTempMin]: 1 }, id: idÉlément }]);
+          const erreurs = fonc([
+            { données: { [idColTempMin]: 1 }, id: idÉlément },
+          ]);
 
           expect(erreurs).to.be.empty();
         });
 
         it("pas d'erreur si tout est valide", () => {
           const erreurs = fonc([
-            { données: { [idColTempMin]: 10, [idColTempMax]: 20 }, id: idÉlément },
+            {
+              données: { [idColTempMin]: 10, [idColTempMax]: 20 },
+              id: idÉlément,
+            },
           ]);
 
           expect(erreurs).to.be.empty();
         });
 
         it("pas d'erreur si la colonne référence n'existe pas", () => {
-          const erreurs = fonc([{ données: { [idColTempMax]: 20 }, id: idÉlément }]);
-          
+          const erreurs = fonc([
+            { données: { [idColTempMax]: 20 }, id: idÉlément },
+          ]);
+
           expect(erreurs).to.be.empty();
         });
 
         it("erreur si non valide", () => {
           const erreurs = fonc([
-            { données: { [idColTempMax]: 20, [idColTempMin]: 25 }, id: idÉlément },
+            {
+              données: { [idColTempMax]: 20, [idColTempMin]: 25 },
+              id: idÉlément,
+            },
           ]);
-          
-          const réf: ErreurDonnée<RègleBornes>[] = [{
-            id: idÉlément,
-            erreur: règle
-          }]
+
+          const réf: ErreurDonnée<RègleBornes>[] = [
+            {
+              id: idÉlément,
+              erreur: règle,
+            },
+          ];
           expect(erreurs).to.have.deep.members(réf);
         });
       });
@@ -487,7 +590,11 @@ describe("Validation", function () {
       const idColonneChaîne = "col chaîne";
 
       const règle: RègleColonne<RègleValeurCatégorique> = {
-        source: { type: "tableau", idTableau: "idTableau", idStructure: "idStructure" },
+        source: {
+          type: "tableau",
+          idTableau: "idTableau",
+          idStructure: "idStructure",
+        },
         colonne: idColonneChaîne,
         règle: {
           id: uuidv4(),
@@ -515,24 +622,26 @@ describe("Validation", function () {
 
       it("pas d'erreur si valide", () => {
         const erreurs = fonc([{ données: { [idColonneChaîne]: "a" }, id }]);
-        
+
         expect(erreurs).to.be.empty();
       });
 
       it("erreur si non valide", () => {
         const erreurs = fonc([{ données: { [idColonneChaîne]: "d" }, id }]);
 
-        const réf: ErreurDonnée<RègleValeurCatégorique>[] = [{
-          id,
-          erreur: règle
-        }]
+        const réf: ErreurDonnée<RègleValeurCatégorique>[] = [
+          {
+            id,
+            erreur: règle,
+          },
+        ];
 
         expect(erreurs).to.deep.equal(réf);
       });
     });
 
     describe("catégories liste - règle bornes", function () {
-      const idColonneNumérique = "col numérique"
+      const idColonneNumérique = "col numérique";
 
       const règle: RègleColonne<RègleBornes> = {
         source: { type: "variable", id: "idVar" },
@@ -563,7 +672,7 @@ describe("Validation", function () {
             id,
           },
         ]);
-        
+
         expect(erreurs).to.be.empty();
       });
 
@@ -574,18 +683,20 @@ describe("Validation", function () {
             id,
           },
         ]);
-        
-        const réf: ErreurDonnée<RègleBornes>[] = [{
-          id,
-          erreur: règle
-        }]
+
+        const réf: ErreurDonnée<RègleBornes>[] = [
+          {
+            id,
+            erreur: règle,
+          },
+        ];
 
         expect(erreurs).to.deep.equal(réf);
       });
     });
 
     describe("catégories liste - règle catégorie", function () {
-      const idColonneNumérique =  "col numérique"
+      const idColonneNumérique = "col numérique";
       const règle: RègleColonne<RègleCatégorie> = {
         source: { type: "variable", id: "idVar" },
         colonne: idColonneNumérique,
@@ -613,7 +724,7 @@ describe("Validation", function () {
             id,
           },
         ]);
-        
+
         expect(erreurs).to.be.empty();
       });
 
@@ -624,11 +735,13 @@ describe("Validation", function () {
             id,
           },
         ]);
-        
-        const réf: ErreurDonnée<RègleCatégorie>[] = [{
-          id,
-          erreur: règle
-        }]
+
+        const réf: ErreurDonnée<RègleCatégorie>[] = [
+          {
+            id,
+            erreur: règle,
+          },
+        ];
 
         expect(erreurs).to.deep.equal(réf);
       });
