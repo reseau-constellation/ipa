@@ -399,8 +399,15 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     schéma: SchémaBd;
     épingler?: boolean;
   }): Promise<string> {
-    const { tableaux, motsClefs, nuées, licence, licenceContenu, statut, clefUnique } =
-      schéma;
+    const {
+      tableaux,
+      motsClefs,
+      nuées,
+      licence,
+      licenceContenu,
+      statut,
+      clefUnique,
+    } = schéma;
 
     const idBd = await this.créerBd({
       licence,
@@ -1615,12 +1622,18 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     return await suivreFonctionImbriquée({
       fRacine: fSuivreIdBd,
-      f: fFinale,
       fSuivre: fSuivreDonnéesDeTableau,
+      f: fFinale,
     });
   }
 
-  async ajouterClefUnique({ idBd, clefUnique }: { idBd: string; clefUnique: string }) {
+  async ajouterClefUnique({
+    idBd,
+    clefUnique,
+  }: {
+    idBd: string;
+    clefUnique: string;
+  }) {
     const { bd, oublier } = await this.ouvrirBd({ idBd });
 
     await bd.set("clefUnique", clefUnique);
