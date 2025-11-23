@@ -50,7 +50,11 @@ import {
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { ErreurDonnée, RègleColonne } from "../règles.js";
-import { DonnéesRangéeTableauAvecId, DonnéesTableauExportées, TableauxBds } from "./tableaux.js";
+import {
+  DonnéesRangéeTableauAvecId,
+  DonnéesTableauExportées,
+  TableauxBds,
+} from "./tableaux.js";
 
 // Types épingles
 
@@ -438,6 +442,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
           });
         }
       }
+    }
+
+    if (schéma.clefUnique) {
+      await this.ajouterClefUnique({ idBd, clefUnique });
     }
 
     return idBd;
@@ -871,7 +879,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }: {
     idBd: string;
     image: { contenu: Uint8Array; nomFichier: string };
-  }): Promise<void> {
+  }): Promise<string> {
     const maxTailleImage =
       this.service("compte").options.consts.maxTailleImageSauvegarder;
 
@@ -884,6 +892,8 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     const { bd, oublier } = await this.ouvrirBd({ idBd });
     await bd.set("image", idImage);
     await oublier();
+
+    return idImage;
   }
 
   async effacerImage({ idBd }: { idBd: string }): Promise<void> {
@@ -1424,8 +1434,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   @cacheSuivi
   async suivreClefUnique({
-    idBd, f
-  }: { idBd: string; f: Suivi<string | undefined> }): Promise<Oublier> {
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<string | undefined>;
+  }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
     return await orbite.suivreDonnéesBd({
@@ -1486,8 +1500,8 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
               déjàCombinées.add(idBdLocale);
 
               await this.combinerBds({
-                idBdDestinataire: idBd,
-                idBdSource: idBdLocale,
+                idBdDestinataire: idBdLocale,
+                idBdSource: idBd,
               });
               await this.effacerBd({ idBd: idBdLocale });
             }
