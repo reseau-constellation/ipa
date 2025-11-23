@@ -183,9 +183,9 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       idStructure,
       idTableau,
     });
-    
+
     // On ajoute un élément vide pour ajouter la clef du tableau à la liste de tableaux
-    await tableau.set({})
+    await tableau.set({});
 
     await oublier();
     return idTableau;
