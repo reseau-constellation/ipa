@@ -1,4 +1,13 @@
-import { attendreStabilité, faisRien, idcValide, ignorerNonDéfinis, suivreDeFonctionListe, suivreFonctionImbriquée, traduire, uneFois } from "@constl/utils-ipa";
+import {
+  attendreStabilité,
+  faisRien,
+  idcValide,
+  ignorerNonDéfinis,
+  suivreDeFonctionListe,
+  suivreFonctionImbriquée,
+  traduire,
+  uneFois,
+} from "@constl/utils-ipa";
 import { DagCborEncodable } from "@orbitdb/core";
 import { TypedNested } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
@@ -26,7 +35,10 @@ import { mapÀObjet } from "../crabe/utils.js";
 import { CatégorieBaseVariables } from "../variables.js";
 import { PartielRécursif, TraducsTexte } from "../types.js";
 import { typer } from "../crabe/services/orbite/orbite.js";
-import { DonnéesFichierBdExportées, sauvegarderDonnéesExportées } from "../utils.js";
+import {
+  DonnéesFichierBdExportées,
+  sauvegarderDonnéesExportées,
+} from "../utils.js";
 
 // Types données tableaux
 
@@ -95,22 +107,22 @@ export const schémaDonnéesTableau: JSONSchemaType<
 // Fonctions
 
 export const obtIdIndex = (
-    v: { [clef: string]: DagCborEncodable },
-    colsIndex: string[],
-  ): string => {
-    const valsIndex = Object.fromEntries(
-      Object.entries(v).filter((x) => colsIndex.includes(x[0])),
-    );
-    return Base64.stringify(md5(JSON.stringify(valsIndex)));
-  };
-  
-  export function indexÉlémentsÉgaux(
-    élément1: DonnéesRangéeTableau,
-    élément2: DonnéesRangéeTableau,
-    index: string[],
-  ): boolean {
-    return index.every((x) => deepEqual(élément1[x], élément2[x]));
-  }
+  v: { [clef: string]: DagCborEncodable },
+  colsIndex: string[],
+): string => {
+  const valsIndex = Object.fromEntries(
+    Object.entries(v).filter((x) => colsIndex.includes(x[0])),
+  );
+  return Base64.stringify(md5(JSON.stringify(valsIndex)));
+};
+
+export function indexÉlémentsÉgaux(
+  élément1: DonnéesRangéeTableau,
+  élément2: DonnéesRangéeTableau,
+  index: string[],
+): boolean {
+  return index.every((x) => deepEqual(élément1[x], élément2[x]));
+}
 
 export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
   async créerTableau({
@@ -120,6 +132,8 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     idStructure: string;
     idTableau: string;
   }): Promise<string> {
+    await super.créerTableau({ idStructure, idTableau });
+
     const compte = this.service("compte");
     const orbite = this.service("orbite");
 
@@ -136,6 +150,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     });
     const idBdDonnées = bd.address;
     await oublierBd();
+
     const { tableau, oublier } = await this.ouvrirTableau({
       idStructure,
       idTableau,
@@ -261,8 +276,8 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     return await this.suivreTableau({
       idStructure,
       idTableau,
-      f: async tableau => await f(tableau.données)
-    })
+      f: async (tableau) => await f(tableau.données),
+    });
   }
 
   async ajouterÉléments({

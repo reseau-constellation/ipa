@@ -7,9 +7,7 @@ import {
   suivreDeFonctionListe,
 } from "@constl/utils-ipa";
 import { asSplitKey, joinKey } from "@orbitdb/nested-db";
-import {
-  NestedValueObject,
-} from "node_modules/@orbitdb/nested-db/dist/types.js";
+import { NestedValueObject } from "node_modules/@orbitdb/nested-db/dist/types.js";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ServicesConstellation } from "./constellation.js";
 import { Oublier, Suivi } from "./crabe/types.js";
@@ -181,28 +179,13 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idStructure: string;
     idTableau: string;
   }): Promise<string> {
-    const compte = this.service("compte");
-    const orbite = this.service("orbite");
-
-    const { bd: bdStructure, oublier: oublierStructure } =
-      await orbite.ouvrirBd({ id: idStructure });
-    const adresseAccèsStructure = bdStructure.access.address;
-    await oublierStructure();
-
-    const optionsAccès = { écriture: adresseAccèsStructure };
-
-    const { bd, oublier: oublierBd } = await compte.créerObjet({
-      type: "nested",
-      optionsAccès,
-    });
-    const idBdDonnées = bd.address;
-    await oublierBd();
     const { tableau, oublier } = await this.ouvrirTableau({
       idStructure,
       idTableau,
     });
-
-    await tableau.set("données", idBdDonnées);
+    
+    // On ajoute un élément vide pour ajouter la clef du tableau à la liste de tableaux
+    await tableau.set({})
 
     await oublier();
     return idTableau;
