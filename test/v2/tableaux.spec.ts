@@ -3,6 +3,7 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { DagCborEncodable } from "@orbitdb/core";
 import { dossierTempo } from "@constl/utils-tests";
+import JSZip from "jszip";
 import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
 import { Constellation } from "@/v2/index.js";
@@ -36,10 +37,9 @@ import {
 } from "@/v2/bds/tableaux.js";
 import { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import { CatégorieBaseVariables } from "@/v2/variables.js";
+import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { CellObject, WorkBook } from "xlsx";
-import JSZip from "jszip";
-import { obtRessourceTest } from "test/ressources/index.js";
 
 describe("tableaux", function () {
   let fermer: () => Promise<void>;
@@ -2526,33 +2526,6 @@ describe("tableaux", function () {
         });
       });
 
-      describe("exporter données", function () {
-        let idBd: string;
-        let idTableau: string;
-
-        before(async () => {
-          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-          idTableau = await constl.bds.ajouterTableau({ idBd });
-        });
-
-        it("nom document - spécifié", async () => {
-          const docu = await constl.bds.tableaux.exporterDonnées({
-            idStructure: idBd,
-            idTableau,
-            nomFichier: "mon fichier",
-          });
-          expect(docu.nomFichier).to.equal("mon fichier");
-        });
-
-        it("nom document - non spécifié", async () => {
-          const docu = await constl.bds.tableaux.exporterDonnées({
-            idStructure: idBd,
-            idTableau,
-          });
-          expect(docu.nomFichier).to.equal(idTableau);
-        });
-      });
-
       describe("à document", function () {
         let idBd: string;
         let idTableau: string;
@@ -2683,6 +2656,15 @@ describe("tableaux", function () {
         it("nom fichier", async () => {
           expect(données.nomFichier).to.equal(nomTableauFr);
         });
+
+        it("nom fichier spécifié", async () => {
+          const donnéesAvecNomFichier = await constl.bds.tableaux.exporterDonnées({
+            idStructure: idBd,
+            idTableau,
+            nomFichier: "mon fichier",
+          });
+          expect(donnéesAvecNomFichier.nomFichier).to.equal("mon fichier");
+        })
 
         it("nom tableau", async () => {
           expect(données.docu.SheetNames[0]).to.equal(nomTableauFr);
@@ -2898,7 +2880,7 @@ describe("tableaux", function () {
             idStructure: idBd,
             idTableau,
             dossier,
-            formatDoc: "ods",
+            formatDocu: "ods",
             langues: ["fr"],
             inclureDocuments: false,
           });
@@ -2911,7 +2893,7 @@ describe("tableaux", function () {
             idStructure: idBd,
             idTableau,
             dossier,
-            formatDoc: "ods",
+            formatDocu: "ods",
             langues: ["fr"],
             inclureDocuments: false,
           });
@@ -2938,7 +2920,7 @@ describe("tableaux", function () {
             idStructure: idBd,
             idTableau,
             dossier: nouveauDossier,
-            formatDoc: "ods",
+            formatDocu: "ods",
             langues: ["fr"],
             inclureDocuments: false,
           });
@@ -2954,7 +2936,7 @@ describe("tableaux", function () {
             idStructure: idBd,
             idTableau,
             dossier: nouveauDossier,
-            formatDoc: "ods",
+            formatDocu: "ods",
             langues: ["fr"],
           });
 

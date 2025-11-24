@@ -7,33 +7,34 @@ import { zipper } from "@constl/utils-ipa";
 
 const { saveAs } = fileSaver;
 
-export interface DonnéesFichierBdExportées {
-  doc: xlsx.WorkBook;
+export type DonnéesFichierBdExportées = {
+  docu: xlsx.WorkBook;
   fichiersSFIP: Set<string>;
   nomFichier: string;
-}
+};
+
+export const conversionsTypes: { [key: string]: xlsx.BookType } = {
+  xls: "biff8",
+};
 
 export const sauvegarderDonnéesExportées = async ({
   données,
-  formatDoc,
+  formatDocu,
   obtItérableAsyncSFIP,
   dossier = "",
   inclureDocuments = true,
 }: {
   données: DonnéesFichierBdExportées;
-  formatDoc: xlsx.BookType | "xls";
+  formatDocu: xlsx.BookType | "xls";
   obtItérableAsyncSFIP: (args: {
     id: string;
   }) => Promise<AsyncIterable<Uint8Array>>;
   dossier?: string;
   inclureDocuments?: boolean;
 }): Promise<string> => {
-  const { doc, fichiersSFIP, nomFichier } = données;
+  const { docu: doc, fichiersSFIP, nomFichier } = données;
 
-  const conversionsTypes: { [key: string]: xlsx.BookType } = {
-    xls: "biff8",
-  };
-  const bookType: xlsx.BookType = conversionsTypes[formatDoc] || formatDoc;
+  const bookType: xlsx.BookType = conversionsTypes[formatDocu] || formatDocu;
 
   // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
   if (!(isBrowser || isWebWorker)) {
@@ -49,7 +50,7 @@ export const sauvegarderDonnéesExportées = async ({
 
     const fichierDoc = {
       octets: xlsxWrite(doc, { bookType, type: "buffer" }),
-      nom: `${nomFichier}.${formatDoc}`,
+      nom: `${nomFichier}.${formatDocu}`,
     };
     const fichiersDeSFIP = (
       await Promise.all(
@@ -71,7 +72,7 @@ export const sauvegarderDonnéesExportées = async ({
     await zipper([fichierDoc], fichiersDeSFIP, path.join(dossier, nomFichier));
     return adresseFinale;
   } else {
-    const adresseFinale = path.join(dossier, `${nomFichier}.${formatDoc}`);
+    const adresseFinale = path.join(dossier, `${nomFichier}.${formatDocu}`);
     if (isNode || isElectronMain) {
       xlsxWriteFile(doc, adresseFinale, {
         bookType,
@@ -83,7 +84,7 @@ export const sauvegarderDonnéesExportées = async ({
       }) as ArrayBuffer;
       saveAs(
         new Blob([new Uint8Array(document)]),
-        `${nomFichier}.${formatDoc}`,
+        `${nomFichier}.${formatDocu}`,
       );
     }
     return adresseFinale;

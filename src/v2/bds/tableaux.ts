@@ -912,7 +912,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     langues,
     nomFichier,
     patience = 500,
-    formatDoc,
+    formatDocu: formatDoc,
     dossier = "",
     inclureDocuments = true,
   }: {
@@ -921,7 +921,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     langues?: string[];
     nomFichier?: string;
     patience?: number;
-    formatDoc: BookType | "xls";
+    formatDocu: BookType | "xls";
     dossier?: string;
     inclureDocuments?: boolean;
   }): Promise<string> {
