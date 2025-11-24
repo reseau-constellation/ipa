@@ -770,11 +770,10 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
           ),
         );
 
-        const idCourtTableau = idTableau.split("/").pop()!;
         const nomTableau =
           langues && nomsTableau
-            ? traduire(nomsTableau, langues) || idCourtTableau
-            : idCourtTableau;
+            ? traduire(nomsTableau, langues) || idTableau
+            : idTableau;
 
         return await f({
           nomTableau,
@@ -783,6 +782,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         });
       }
     };
+
     const oublierTraducs = this.suivreTraducsValeurs({
       idTableau,
       f: async (traducs) => {
@@ -906,11 +906,10 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     return { docu, fichiersSFIP: données.fichiersSFIP, nomFichier };
   }
 
-  async sauvegarderDonnéesExportées({
+  async exporterDonnéesÀFichier({
     idStructure,
     idTableau,
     langues,
-    doc,
     nomFichier,
     patience = 500,
     formatDoc,
@@ -920,7 +919,6 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     idStructure: string;
     idTableau: string;
     langues?: string[];
-    doc?: WorkBook;
     nomFichier?: string;
     patience?: number;
     formatDoc: BookType | "xls";
@@ -933,7 +931,6 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       idStructure,
       idTableau,
       langues,
-      doc,
       nomFichier,
       patience,
     });
