@@ -864,19 +864,19 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     idStructure,
     idTableau,
     langues,
-    doc,
+    docu,
     nomFichier,
     patience = 500,
   }: {
     idStructure: string;
     idTableau: string;
     langues?: string[];
-    doc?: WorkBook;
+    docu?: WorkBook;
     nomFichier?: string;
     patience?: number;
   }): Promise<DonnéesFichierBdExportées> {
     /* Créer le document si nécessaire */
-    doc = doc || utils.book_new();
+    docu = docu || utils.book_new();
 
     const données = await uneFois(
       async (
@@ -900,10 +900,10 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     const tableau = utils.json_to_sheet(données.données);
 
     /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-    utils.book_append_sheet(doc, tableau, données.nomTableau.slice(0, 30));
+    utils.book_append_sheet(docu, tableau, données.nomTableau.slice(0, 30));
 
     nomFichier = nomFichier || données.nomTableau;
-    return { doc, fichiersSFIP: données.fichiersSFIP, nomFichier };
+    return { docu, fichiersSFIP: données.fichiersSFIP, nomFichier };
   }
 
   async sauvegarderDonnéesExportées({
