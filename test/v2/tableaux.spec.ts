@@ -1,4 +1,4 @@
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { DagCborEncodable } from "@orbitdb/core";
@@ -38,6 +38,8 @@ import { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import { CatégorieBaseVariables } from "@/v2/variables.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { CellObject, WorkBook } from "xlsx";
+import JSZip from "jszip";
+import { obtRessourceTest } from "test/ressources/index.js";
 
 describe("tableaux", function () {
   let fermer: () => Promise<void>;
@@ -154,7 +156,6 @@ describe("tableaux", function () {
   });
 
   describe("données", function () {
-    
     describe("colonnes", function () {
       let idBd: string;
       let idTableau: string;
@@ -2090,7 +2091,7 @@ describe("tableaux", function () {
 
         const idTableauValide = "valide";
         const idColonnePermises = "permises";
-        
+
         before(async () => {
           idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
@@ -2380,16 +2381,22 @@ describe("tableaux", function () {
             [idColonneDate]: new Date().getTime(),
             [idColonneEndroit]: "ici",
             [idColonneTempératureMinimale]: -17,
-            [idColonneImage]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg"
+            [idColonneImage]:
+              "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg",
           },
         ];
-        const fichiersSFIP = éléments.map(é=>é[idColonneImage])
+        const fichiersSFIP = éléments.map((é) => é[idColonneImage]);
 
         before(async () => {
           idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
           await Promise.all(
-            [idColonneDate, idColonneEndroit, idColonneTempératureMinimale, idColonneImage].map(
+            [
+              idColonneDate,
+              idColonneEndroit,
+              idColonneTempératureMinimale,
+              idColonneImage,
+            ].map(
               async (idColonne) =>
                 await constl.bds.tableaux.ajouterColonne({
                   idStructure: idBd,
@@ -2520,24 +2527,31 @@ describe("tableaux", function () {
       });
 
       describe("exporter données", function () {
-        let idBd: string
+        let idBd: string;
         let idTableau: string;
 
         before(async () => {
           idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-          idTableau = await constl.bds.ajouterTableau({ idBd })
-        })
+          idTableau = await constl.bds.ajouterTableau({ idBd });
+        });
 
         it("nom document - spécifié", async () => {
-          const docu = await constl.bds.tableaux.exporterDonnées({ idStructure: idBd, idTableau, nomFichier: "mon fichier" })
-          expect(docu.nomFichier).to.equal("mon fichier")
+          const docu = await constl.bds.tableaux.exporterDonnées({
+            idStructure: idBd,
+            idTableau,
+            nomFichier: "mon fichier",
+          });
+          expect(docu.nomFichier).to.equal("mon fichier");
         });
-        
+
         it("nom document - non spécifié", async () => {
-          const docu = await constl.bds.tableaux.exporterDonnées({ idStructure: idBd, idTableau })
-          expect(docu.nomFichier).to.equal(idTableau)
+          const docu = await constl.bds.tableaux.exporterDonnées({
+            idStructure: idBd,
+            idTableau,
+          });
+          expect(docu.nomFichier).to.equal(idTableau);
         });
-      }) 
+      });
 
       describe("à document", function () {
         let idBd: string;
@@ -2563,7 +2577,11 @@ describe("tableaux", function () {
         ];
         const étiquettesColonnesDocu = [..."ABCDEFGHIJK"];
 
-        const obtenirValsDocu = (col: string, nomTableau: string, docu: WorkBook): DagCborEncodable[] => {
+        const obtenirValsDocu = (
+          col: string,
+          nomTableau: string,
+          docu: WorkBook,
+        ): DagCborEncodable[] => {
           const étiquette = étiquettesColonnesDocu.find(
             (c) => docu.Sheets[nomTableau][`${c}1`].v === col,
           );
@@ -2573,13 +2591,13 @@ describe("tableaux", function () {
           while (i++) {
             const val = données.docu.Sheets[nomTableauFr][`${étiquette}${i}`].v;
             if (val === undefined) break;
-            vals.push(val)
-          };
+            vals.push(val);
+          }
           return vals;
-        }
+        };
 
-        const valDate = (new Date()).getTime();
-        const valIntervaleTemps = [(new Date()).getTime(), (new Date()).getTime()];
+        const valDate = new Date().getTime();
+        const valIntervaleTemps = [new Date().getTime(), new Date().getTime()];
         const valGéoJson: DagCborEncodable = {
           type: "FeatureCollection",
           features: [
@@ -2605,7 +2623,7 @@ describe("tableaux", function () {
               },
             },
           ],
-        }
+        };
 
         before(async () => {
           idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -2623,10 +2641,14 @@ describe("tableaux", function () {
               [idsColonnes["numérique"]!]: 123,
               [idsColonnes["chaîneNonTraductible"]!]: "வணக்கம்",
               [idsColonnes["booléen"]!]: true,
-              [idsColonnes["fichier"]!]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4",
-              [idsColonnes["audio"]!]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/audio.mp4",
-              [idsColonnes["image"]!]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg",
-              [idsColonnes["vidéo"]!]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/vidéo.mp4",
+              [idsColonnes["fichier"]!]:
+                "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4",
+              [idsColonnes["audio"]!]:
+                "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/audio.mp4",
+              [idsColonnes["image"]!]:
+                "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg",
+              [idsColonnes["vidéo"]!]:
+                "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/vidéo.mp4",
               [idsColonnes["chaîne"]!]: "du texte",
               [idsColonnes["géojson"]!]: valGéoJson,
               [idsColonnes["horoDatage"]!]: valDate,
@@ -2656,7 +2678,6 @@ describe("tableaux", function () {
             idTableau,
             langues: ["த", "fr"],
           });
-
         });
 
         it("nom fichier", async () => {
@@ -2677,64 +2698,124 @@ describe("tableaux", function () {
         });
 
         it("données numériques", async () => {
-          const vals = obtenirValsDocu(idsColonnes["numérique"]!, nomTableauFr, données.docu);
+          const vals = obtenirValsDocu(
+            idsColonnes["numérique"]!,
+            nomTableauFr,
+            données.docu,
+          );
           expect(vals).to.have.deep.ordered.members([123, 456]);
         });
 
         it("données horoDatage", async () => {
-          const vals = obtenirValsDocu(idsColonnes["horoDatage"]!, nomTableauFr, données.docu);
+          const vals = obtenirValsDocu(
+            idsColonnes["horoDatage"]!,
+            nomTableauFr,
+            données.docu,
+          );
           expect(vals).to.have.deep.ordered.members([new Date(valDate)]);
         });
 
         it("données chaîne", async () => {
-          const vals = obtenirValsDocu(idsColonnes["chaîne"]!, nomTableauFr, données.docu);
+          const vals = obtenirValsDocu(
+            idsColonnes["chaîne"]!,
+            nomTableauFr,
+            données.docu,
+          );
           expect(vals).to.have.deep.ordered.members(["வணக்கம்"]);
         });
 
         it("données booléennes", async () => {
-          const vals = obtenirValsDocu(idsColonnes["booléen"]!, nomTableauFr, données.docu);
-          expect(vals).to.have.deep.ordered.members([true].map(v=>String(v)));
+          const vals = obtenirValsDocu(
+            idsColonnes["booléen"]!,
+            nomTableauFr,
+            données.docu,
+          );
+          expect(vals).to.have.deep.ordered.members(
+            [true].map((v) => String(v)),
+          );
         });
 
         it("données fichiers", async () => {
-          const vals = obtenirValsDocu(idsColonnes["fichier"]!, nomTableauFr, données.docu);
-          expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4"]);
+          const vals = obtenirValsDocu(
+            idsColonnes["fichier"]!,
+            nomTableauFr,
+            données.docu,
+          );
+          expect(vals).to.have.deep.ordered.members([
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4",
+          ]);
         });
 
         it("données audio", async () => {
-          const vals = obtenirValsDocu(idsColonnes["audio"]!, nomTableauFr, données.docu);
-          expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/audio.mp4"]);
+          const vals = obtenirValsDocu(
+            idsColonnes["audio"]!,
+            nomTableauFr,
+            données.docu,
+          );
+          expect(vals).to.have.deep.ordered.members([
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/audio.mp4",
+          ]);
         });
 
         it("données chaîne non traductible", async () => {
-          const vals = obtenirValsDocu(idsColonnes["chaîneNonTraductible"]!, nomTableauFr, données.docu);
+          const vals = obtenirValsDocu(
+            idsColonnes["chaîneNonTraductible"]!,
+            nomTableauFr,
+            données.docu,
+          );
           expect(vals).to.have.deep.ordered.members(["வணக்கம்"]);
         });
 
         it("données géojson", async () => {
-          const vals = obtenirValsDocu(idsColonnes["géojson"]!, nomTableauFr, données.docu);
+          const vals = obtenirValsDocu(
+            idsColonnes["géojson"]!,
+            nomTableauFr,
+            données.docu,
+          );
           expect(vals).to.have.deep.ordered.members([valGéoJson]);
         });
 
         it("données image", async () => {
-          const vals = obtenirValsDocu(idsColonnes["image"]!, nomTableauFr, données.docu);
-          expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg"]);
+          const vals = obtenirValsDocu(
+            idsColonnes["image"]!,
+            nomTableauFr,
+            données.docu,
+          );
+          expect(vals).to.have.deep.ordered.members([
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg",
+          ]);
         });
 
         it("données intervaleTemps", async () => {
-          const vals = obtenirValsDocu(idsColonnes["intervaleTemps"]!, nomTableauFr, données.docu);
+          const vals = obtenirValsDocu(
+            idsColonnes["intervaleTemps"]!,
+            nomTableauFr,
+            données.docu,
+          );
           expect(vals).to.have.deep.ordered.members([valIntervaleTemps]);
         });
 
         it("données vidéo", async () => {
-          const vals = obtenirValsDocu(idsColonnes["vidéo"]!, nomTableauFr, données.docu);
-          expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/vidéo.mp4"]);
+          const vals = obtenirValsDocu(
+            idsColonnes["vidéo"]!,
+            nomTableauFr,
+            données.docu,
+          );
+          expect(vals).to.have.deep.ordered.members([
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/vidéo.mp4",
+          ]);
         });
-        
+
         it("données variable catégorie liste", async () => {
-          const vals = obtenirValsDocu("colonneListe", nomTableauFr, données.docu);
-          expect(vals.map(v=>JSON.parse(v as string))).to.have.deep.ordered.members([[1, 2, 3]]);
-        })
+          const vals = obtenirValsDocu(
+            "colonneListe",
+            nomTableauFr,
+            données.docu,
+          );
+          expect(
+            vals.map((v) => JSON.parse(v as string)),
+          ).to.have.deep.ordered.members([[1, 2, 3]]);
+        });
 
         it("fichiers sfip inclus", async () => {
           expect([...données.fichiersSFIP]).to.have.deep.members([
@@ -2754,7 +2835,7 @@ describe("tableaux", function () {
           const idTableauCourt = idTableau.split("/").pop()!.slice(0, 30);
 
           expect(docu.SheetNames[0]).to.equal(idTableauCourt);
-          
+
           for (const é of étiquettesColonnesDocu) {
             expect(Object.keys(idsColonnes)).to.contain(
               docu.Sheets[idTableauCourt][`${é}1`].v,
@@ -2767,47 +2848,87 @@ describe("tableaux", function () {
         let idBd: string;
         let idTableau: string;
 
+        let idc: string;
+
+        let zip = JSZip;
+
         let dossier: string;
         let effacer: () => void;
-        
-        const nomTableauFr = "voici un tableau"
 
-        beforeEach(async () => {
-          ({ dossier, effacer } = await dossierTempo())
+        const nomTableauFr = "voici un tableau";
 
+        before(async () => {
           idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
-          await constl.bds.tableaux.sauvegarderNom({ idStructure: idBd, idTableau, langue: "fr", nom: nomTableauFr })
+          await constl.bds.tableaux.sauvegarderNom({
+            idStructure: idBd,
+            idTableau,
+            langue: "fr",
+            nom: nomTableauFr,
+          });
+
+          const octets = await obtRessourceTest({
+            nomFichier: "logo.svg",
+          });
+          idc = await constl.services["hélia"].ajouterFichierÀSFIP({
+            contenu: octets,
+            nomFichier: "logo.svg",
+          });
+
+
+          const idColonne = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau })
+          await constl.bds.tableaux.ajouterÉléments({
+            idStructure: idBd,
+            idTableau,
+            éléments: [{[idColonne]: idc}]
+          })
         })
+
+        beforeEach(async () => {
+          ({ dossier, effacer } = await dossierTempo());
+
+        });
 
         afterEach(async () => {
           if (effacer) effacer();
-        })
+        });
 
-        it("document créé sans fichiers sfip", async () => {
+        it("exporter document sans fichiers sfip", async () => {
           await constl.bds.tableaux.exporterDonnéesÀFichier({
             idStructure: idBd,
             idTableau,
             dossier,
             formatDoc: "ods",
             langues: ["fr"],
-            inclureDocuments: false
+            inclureDocuments: false,
           });
           const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
           expect(existsSync(cheminFichier)).to.be.true();
         });
 
-        it("inclure fichiers sfip", async () => {
+        it("exporter document zip avec fichiers sfip", async () => {
           await constl.bds.tableaux.exporterDonnéesÀFichier({
             idStructure: idBd,
             idTableau,
             dossier,
             formatDoc: "ods",
             langues: ["fr"],
-            inclureDocuments: false
+            inclureDocuments: false,
           });
           const cheminFichier = join(dossier, `${nomTableauFr}.zip`);
           expect(existsSync(cheminFichier)).to.be.true();
+
+          // Le fichier ZIP est valide
+          zip = await JSZip.loadAsync(readFileSync(`${nomTableauFr}.zip`));
+          
+          // Le document des données existe
+          expect(zip.files[nomTableauFr + ".ods"]).to.exist();
+  
+          // Le dossier pour les données SFIP existe
+          expect(zip.files["sfip/"]?.dir).to.be.true();
+  
+          // Les fichiers SFIP existent
+          expect(zip.files[["sfip", idc.replace("/", "-")].join("/")]).to.exist();
         });
 
         it("dossier auparavant inexistant - sans fichiers sfip", async () => {
@@ -2819,7 +2940,7 @@ describe("tableaux", function () {
             dossier: nouveauDossier,
             formatDoc: "ods",
             langues: ["fr"],
-            inclureDocuments: false
+            inclureDocuments: false,
           });
 
           const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
@@ -2828,7 +2949,7 @@ describe("tableaux", function () {
 
         it("dossier auparavant inexistant - avec fichiers sfip", async () => {
           const nouveauDossier = join(dossier, "plus", "profond");
-          
+
           await constl.bds.tableaux.exporterDonnéesÀFichier({
             idStructure: idBd,
             idTableau,
