@@ -30,7 +30,6 @@ import {
   schémaStructureBdNoms,
 } from "@/types.js";
 
-import { schémaBdTableauxDeBd } from "@/bds.js";
 import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
 import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
 import {
@@ -65,6 +64,7 @@ import type {
   élémentsBd,
 } from "@/types.js";
 import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
+import { schémaBdTableauxDeBd } from "@/bds.js";
 import {
   cacheRechercheParN,
   cacheRechercheParProfondeur,
@@ -260,96 +260,6 @@ export class Nuées extends ComposanteClientListe<string> {
     return async () => {
       await Promise.allSettled(fsOublier.map((f) => f()));
     };
-  }
-
-  async créerNuée({
-    nuéeParent,
-    autorisation = "IJPC",
-    épingler = true,
-  }: {
-    nuéeParent?: string;
-    autorisation?: string | "IJPC" | "CJPI";
-    épingler?: boolean;
-  } = {}): Promise<string> {
-    const idNuée = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès: {
-        address: undefined,
-        write: await this.client.obtIdCompte(),
-      },
-    });
-    await this.ajouterÀMesNuées({ idNuée });
-    if (épingler) {
-      await this.épinglerNuée({ idNuée });
-    }
-
-    const { bd: bdNuée, fOublier: fOublierNuée } =
-      await this.client.ouvrirBdTypée({
-        id: idNuée,
-        type: "keyvalue",
-        schéma: schémaStructureBdNuée,
-      });
-
-    const accès = bdNuée.access as ContrôleurConstellation;
-    const optionsAccès = { write: accès.address };
-
-    await bdNuée.set("type", "nuée");
-
-    let autorisationFinale: string;
-    if (isValidAddress(autorisation)) {
-      autorisationFinale = autorisation;
-    } else if (autorisation === "CJPI" || autorisation === "IJPC") {
-      autorisationFinale = await this.générerGestionnaireAutorisations({
-        philosophie: autorisation,
-      });
-    } else {
-      throw new Error(`Autorisation non valide : ${autorisation}`);
-    }
-    await bdNuée.set("autorisation", autorisationFinale);
-    if (autorisation === "CJPI") {
-      await this.accepterMembreNuée({
-        idNuée: idNuée,
-        idCompte: await this.client.obtIdCompte(),
-      });
-    }
-
-    const idBdNoms = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdNuée.set("noms", idBdNoms);
-
-    const idBdDescr = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdNuée.set("descriptions", idBdDescr);
-
-    const idBdTableaux = await this.client.créerBdIndépendante({
-      type: "ordered-keyvalue",
-      optionsAccès,
-    });
-    await bdNuée.set("tableaux", idBdTableaux);
-
-    const idBdMétadonnées = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdNuée.set("métadonnées", idBdMétadonnées);
-
-    const idBdMotsClefs = await this.client.créerBdIndépendante({
-      type: "set",
-      optionsAccès,
-    });
-    await bdNuée.set("motsClefs", idBdMotsClefs);
-
-    await bdNuée.set("statut", { statut: "active" });
-    if (nuéeParent) {
-      await bdNuée.set("parent", nuéeParent);
-    }
-
-    fOublierNuée();
-    return idNuée;
   }
 
   async ajouterÀMesNuées({ idNuée }: { idNuée: string }): Promise<void> {

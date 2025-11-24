@@ -12,7 +12,6 @@ import { obtenir } from "@constl/utils-ipa";
 import { créerConstellation, type Constellation } from "@/index.js";
 import { TraducsTexte, schémaFonctionOublier, schémaStatut } from "@/types.js";
 
-import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 
@@ -20,6 +19,7 @@ import { donnéesNuéeExportation } from "@/nuées.js";
 import { règleColonne } from "@/valid.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
+import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
