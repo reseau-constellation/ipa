@@ -274,27 +274,6 @@ export class Nuées extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async épinglerNuée({
-    idNuée,
-    options = {},
-  }: {
-    idNuée: string;
-    options?: PartielRécursif<ÉpingleNuée>;
-  }) {
-    const épingle: ÉpingleNuée = résoudreDéfauts(options, {
-      type: "nuée",
-      base: TOUS,
-      données: {
-        type: "bd",
-        base: TOUS,
-        données: {
-          tableaux: TOUS,
-          fichiers: INSTALLÉ,
-        },
-      },
-    });
-    await this.client.favoris.épinglerFavori({ idObjet: idNuée, épingle });
-  }
 
   async suivreÉpingleNuée({
     idNuée,
