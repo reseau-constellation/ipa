@@ -3,7 +3,6 @@ import { isValidAddress } from "@orbitdb/core";
 
 import axios from "axios";
 import { isElectronMain, isNode } from "wherearewe";
-import { Constellation } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaStructureBdNoms,
@@ -16,45 +15,6 @@ import type { catégorieBaseVariables } from "@/variables.js";
 import { cidEtFichierValide } from "@/epingles.js";
 
 export class Tableaux extends ServiceConstellation {
-  client: Constellation;
-
-  constructor({ client }: { client: Constellation }) {
-    super({ client, clef: "tableaux" });
-    this.client = client;
-  }
-
-  async réordonnerColonneTableau({
-    idTableau,
-    idColonne,
-    position,
-  }: {
-    idTableau: string;
-    idColonne: string;
-    position: number;
-  }): Promise<void> {
-    await this._confirmerPermission({ idTableau });
-    const idBdColonnes = await this.client.obtIdBd({
-      nom: "colonnes",
-      racine: idTableau,
-      type: "ordered-keyvalue",
-    });
-
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdColonnes,
-      type: "ordered-keyvalue",
-      schéma: schémaBdInfoCol,
-    });
-
-    const colonnesExistantes = await bdColonnes.all();
-    const positionExistante = colonnesExistantes.findIndex(
-      (c) => c.key === idColonne,
-    );
-    if (position !== positionExistante)
-      await bdColonnes.move(idColonne, position);
-
-    await fOublier();
-  }
-
   async convertirDonnées<T extends élémentBdListeDonnées[]>({
     idTableau,
     données,

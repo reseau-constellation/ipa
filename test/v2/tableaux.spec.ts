@@ -1,4 +1,8 @@
+import { existsSync } from "fs";
+import { join } from "path";
 import { expect } from "aegir/chai";
+import { DagCborEncodable } from "@orbitdb/core";
+import { dossierTempo } from "@constl/utils-tests";
 import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
 import { Constellation } from "@/v2/index.js";
@@ -32,10 +36,8 @@ import {
 } from "@/v2/bds/tableaux.js";
 import { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import { CatégorieBaseVariables } from "@/v2/variables.js";
-import { catégories } from "@/licences.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { CellObject, WorkBook } from "xlsx";
-import { DagCborEncodable } from "@orbitdb/core";
 
 describe("tableaux", function () {
   let fermer: () => Promise<void>;
@@ -152,16 +154,13 @@ describe("tableaux", function () {
   });
 
   describe("données", function () {
-    let idBd: string;
-
-    before(async () => {
-      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-    });
-
+    
     describe("colonnes", function () {
+      let idBd: string;
       let idTableau: string;
 
       beforeEach(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableau = await constl.bds.ajouterTableau({ idBd });
       });
 
@@ -418,9 +417,11 @@ describe("tableaux", function () {
     });
 
     describe("variables", function () {
+      let idBd: string;
       let idTableau: string;
 
       beforeEach(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableau = await constl.bds.ajouterTableau({ idBd });
       });
 
@@ -557,12 +558,14 @@ describe("tableaux", function () {
     });
 
     describe("éléments", function () {
+      let idBd: string;
       let idTableau: string;
 
       let idColChaîne: string;
       let idColNumérique: string;
 
       beforeEach(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableau = await constl.bds.ajouterTableau({ idBd });
 
         idColNumérique = await constl.bds.tableaux.ajouterColonne({
@@ -1089,6 +1092,7 @@ describe("tableaux", function () {
     });
 
     describe("index", function () {
+      let idBd: string;
       let idTableau: string;
       let idsÉlémentsInitiaux: string[];
 
@@ -1110,6 +1114,7 @@ describe("tableaux", function () {
       ];
 
       beforeEach(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableau = await constl.bds.ajouterTableau({ idBd });
         await constl.bds.tableaux.ajouterColonne({
           idStructure: idBd,
@@ -1436,11 +1441,13 @@ describe("tableaux", function () {
 
     describe("règles", function () {
       describe("général", function () {
+        let idBd: string;
         let idTableau: string;
         let idColonne: string;
         let idRègle: string;
 
         before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
           idColonne = await constl.bds.tableaux.ajouterColonne({
             idStructure: idBd,
@@ -1650,11 +1657,13 @@ describe("tableaux", function () {
       });
 
       describe("catégories", function () {
+        let idBd: string;
         let idTableau: string;
         let idColonne: string;
         let idRègle: string;
 
         before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
           idColonne = await constl.bds.tableaux.ajouterColonne({
             idStructure: idBd,
@@ -1745,6 +1754,7 @@ describe("tableaux", function () {
       });
 
       describe("bornes relatives colonne", function () {
+        let idBd: string;
         let idTableau: string;
         let idColonneTempMin: string;
         let idColonneTempMax: string;
@@ -1760,6 +1770,7 @@ describe("tableaux", function () {
         };
 
         before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
           idColonneTempMax = await constl.bds.tableaux.ajouterColonne({
             idStructure: idBd,
@@ -1874,10 +1885,12 @@ describe("tableaux", function () {
       });
 
       describe("bornes relatives variable", function () {
+        let idBd: string;
         let idTableau: string;
         let idColonneTempMax: string;
 
         beforeEach(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
           idColonneTempMax = await constl.bds.tableaux.ajouterColonne({
             idStructure: idBd,
@@ -1986,6 +1999,7 @@ describe("tableaux", function () {
       });
 
       describe("catégorique fixe", function () {
+        let idBd: string;
         let idTableau: string;
         let idColonne: string;
         let idRègle: string;
@@ -1996,6 +2010,7 @@ describe("tableaux", function () {
         };
 
         before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
           idColonne = await constl.bds.tableaux.ajouterColonne({
             idStructure: idBd,
@@ -2066,14 +2081,24 @@ describe("tableaux", function () {
       });
 
       describe("catégorique relative", function () {
+        let idBd: string;
         let idTableau: string;
         let idColonne: string;
         let idRègle: string;
 
+        let règle: RègleValeurCatégorique<DétailsRègleValeurCatégoriqueDynamique>;
+
         const idTableauValide = "valide";
         const idColonnePermises = "permises";
-        const règle: RègleValeurCatégorique<DétailsRègleValeurCatégoriqueDynamique> =
-          {
+        
+        before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+          idTableau = await constl.bds.ajouterTableau({ idBd });
+          idColonne = await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau,
+          });
+          règle = {
             type: "valeurCatégorique",
             détails: {
               type: "dynamique",
@@ -2082,13 +2107,6 @@ describe("tableaux", function () {
               colonne: idColonnePermises,
             },
           };
-
-        before(async () => {
-          idTableau = await constl.bds.ajouterTableau({ idBd });
-          idColonne = await constl.bds.tableaux.ajouterColonne({
-            idStructure: idBd,
-            idTableau,
-          });
         });
 
         it("erreur règle catégorique - tableau inexistant", async () => {
@@ -2247,9 +2265,11 @@ describe("tableaux", function () {
     });
 
     describe("importation", function () {
+      let idBd: string;
       let idTableau: string;
 
       before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableau = await constl.bds.ajouterTableau({ idBd });
         await Promise.all(
           ["endroit", "date", "températureMinimale"].map(
@@ -2347,24 +2367,29 @@ describe("tableaux", function () {
 
     describe("exportation", function () {
       describe("suivi données", async () => {
+        let idBd: string;
         let idTableau: string;
 
         const idColonneEndroit = "endroit";
         const idColonneDate = "date";
         const idColonneTempératureMinimale = "températureMinimale";
+        const idColonneImage = "image";
 
         const éléments: DonnéesRangéeTableau[] = [
           {
             [idColonneDate]: new Date().getTime(),
             [idColonneEndroit]: "ici",
             [idColonneTempératureMinimale]: -17,
+            [idColonneImage]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg"
           },
         ];
+        const fichiersSFIP = éléments.map(é=>é[idColonneImage])
 
         before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await constl.bds.ajouterTableau({ idBd });
           await Promise.all(
-            [idColonneDate, idColonneEndroit, idColonneTempératureMinimale].map(
+            [idColonneDate, idColonneEndroit, idColonneTempératureMinimale, idColonneImage].map(
               async (idColonne) =>
                 await constl.bds.tableaux.ajouterColonne({
                   idStructure: idBd,
@@ -2494,7 +2519,28 @@ describe("tableaux", function () {
         });
       });
 
+      describe("exporter données", function () {
+        let idBd: string
+        let idTableau: string;
+
+        before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+          idTableau = await constl.bds.ajouterTableau({ idBd })
+        })
+
+        it("nom document - spécifié", async () => {
+          const docu = await constl.bds.tableaux.exporterDonnées({ idStructure: idBd, idTableau, nomFichier: "mon fichier" })
+          expect(docu.nomFichier).to.equal("mon fichier")
+        });
+        
+        it("nom document - non spécifié", async () => {
+          const docu = await constl.bds.tableaux.exporterDonnées({ idStructure: idBd, idTableau })
+          expect(docu.nomFichier).to.equal(idTableau)
+        });
+      }) 
+
       describe("à document", function () {
+        let idBd: string;
         let idTableau: string;
 
         let données: DonnéesFichierBdExportées;
@@ -2532,14 +2578,38 @@ describe("tableaux", function () {
           return vals;
         }
 
-        before(async () => {
-          idTableau = await constl.bds.ajouterTableau({ idBd });
+        const valDate = (new Date()).getTime();
+        const valIntervaleTemps = [(new Date()).getTime(), (new Date()).getTime()];
+        const valGéoJson: DagCborEncodable = {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: { type: "Point", coordinates: [102.0, 0.5] },
+              properties: { prop0: "value0" },
+            },
+            {
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: [
+                  [102.0, 0.0],
+                  [103.0, 1.0],
+                  [104.0, 0.0],
+                  [105.0, 1.0],
+                ],
+              },
+              properties: {
+                prop0: "value0",
+                prop1: 0.0,
+              },
+            },
+          ],
+        }
 
-          données = await constl.bds.tableaux.exporterDonnées({
-            idStructure: idBd,
-            idTableau,
-            langues: ["த", "fr"],
-          });
+        before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+          idTableau = await constl.bds.ajouterTableau({ idBd });
 
           for (const catégorie of catégories) {
             idsColonnes[catégorie] = await constl.bds.tableaux.ajouterColonne({
@@ -2550,13 +2620,20 @@ describe("tableaux", function () {
 
           const éléments: DonnéesRangéeTableau[] = [
             {
-              [idColNumérique]: 123,
-              [idColChaîne]: "வணக்கம்",
-              [idColBooléenne]: true,
-              [idColFichier]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
+              [idsColonnes["numérique"]!]: 123,
+              [idsColonnes["chaîneNonTraductible"]!]: "வணக்கம்",
+              [idsColonnes["booléen"]!]: true,
+              [idsColonnes["fichier"]!]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4",
+              [idsColonnes["audio"]!]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/audio.mp4",
+              [idsColonnes["image"]!]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg",
+              [idsColonnes["vidéo"]!]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/vidéo.mp4",
+              [idsColonnes["chaîne"]!]: "du texte",
+              [idsColonnes["géojson"]!]: valGéoJson,
+              [idsColonnes["horoDatage"]!]: valDate,
+              [idsColonnes["intervaleTemps"]!]: valIntervaleTemps,
             },
             {
-              [idColNumérique]: 456,
+              [idsColonnes["numérique"]!]: 456,
             },
           ];
           await constl.bds.tableaux.ajouterÉléments({
@@ -2564,6 +2641,21 @@ describe("tableaux", function () {
             idTableau,
             éléments,
           });
+
+          await constl.bds.tableaux.sauvegarderNoms({
+            idStructure: idBd,
+            idTableau,
+            noms: {
+              fr: nomTableauFr,
+            },
+          });
+
+          données = await constl.bds.tableaux.exporterDonnées({
+            idStructure: idBd,
+            idTableau,
+            langues: ["த", "fr"],
+          });
+
         });
 
         it("nom fichier", async () => {
@@ -2575,60 +2667,76 @@ describe("tableaux", function () {
         });
 
         it("noms colonnes", async () => {
+          // Tous les noms de colonne devraient exister dans le document
           for (const c of étiquettesColonnesDocu) {
-            expect([
-              "Numérique",
-              "இது உரை ஆகும்",
-              idColBooléenne,
-              idColFichier,
-            ]).to.contain(
+            expect(Object.values(idsColonnes)).to.contain(
               (données.docu.Sheets[nomTableauFr][`${c}1`] as CellObject).v,
             );
           }
         });
 
         it("données numériques", async () => {
-          const vals = obtenirValsDocu(nomVarNumériqueFr, nomTableauFr, données.docu);
+          const vals = obtenirValsDocu(idsColonnes["numérique"]!, nomTableauFr, données.docu);
           expect(vals).to.have.deep.ordered.members([123, 456]);
         });
 
-        it("données dates", async () => {
+        it("données horoDatage", async () => {
           const vals = obtenirValsDocu(idsColonnes["horoDatage"]!, nomTableauFr, données.docu);
-          expect(vals).to.have.deep.ordered.members([valDate]);
+          expect(vals).to.have.deep.ordered.members([new Date(valDate)]);
         });
 
         it("données chaîne", async () => {
-          const vals = obtenirValsDocu(nomVarChaîne_த, nomTableauFr, données.docu);
+          const vals = obtenirValsDocu(idsColonnes["chaîne"]!, nomTableauFr, données.docu);
           expect(vals).to.have.deep.ordered.members(["வணக்கம்"]);
         });
 
         it("données booléennes", async () => {
           const vals = obtenirValsDocu(idsColonnes["booléen"]!, nomTableauFr, données.docu);
-          expect(vals).to.have.deep.ordered.members([valBooléenne].map(v=>String(v)));
+          expect(vals).to.have.deep.ordered.members([true].map(v=>String(v)));
         });
 
         it("données fichiers", async () => {
-          const iColFichier = ["A", "B", "C", "D"].find(
-            (i) => doc.Sheets[nomTableauFr][`${i}1`].v === idColFichier,
-          );
-          const val = doc.Sheets[nomTableauFr][`${iColFichier}2`].v;
-          expect(val).to.equal(
-            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
-          );
+          const vals = obtenirValsDocu(idsColonnes["fichier"]!, nomTableauFr, données.docu);
+          expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4"]);
         });
 
-        it("données audio");
-        it("données chaîneNonTraductible");
-        it("données géojson");
-        it("données horoDatage");
-        it("données image");
-        it("données intervaleTemps");
-        it("données chaîneNonTraductible");
-        it("données vidéo");
+        it("données audio", async () => {
+          const vals = obtenirValsDocu(idsColonnes["audio"]!, nomTableauFr, données.docu);
+          expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/audio.mp4"]);
+        });
+
+        it("données chaîne non traductible", async () => {
+          const vals = obtenirValsDocu(idsColonnes["chaîneNonTraductible"]!, nomTableauFr, données.docu);
+          expect(vals).to.have.deep.ordered.members(["வணக்கம்"]);
+        });
+
+        it("données géojson", async () => {
+          const vals = obtenirValsDocu(idsColonnes["géojson"]!, nomTableauFr, données.docu);
+          expect(vals).to.have.deep.ordered.members([valGéoJson]);
+        });
+
+        it("données image", async () => {
+          const vals = obtenirValsDocu(idsColonnes["image"]!, nomTableauFr, données.docu);
+          expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg"]);
+        });
+
+        it("données intervaleTemps", async () => {
+          const vals = obtenirValsDocu(idsColonnes["intervaleTemps"]!, nomTableauFr, données.docu);
+          expect(vals).to.have.deep.ordered.members([valIntervaleTemps]);
+        });
+
+        it("données vidéo", async () => {
+          const vals = obtenirValsDocu(idsColonnes["vidéo"]!, nomTableauFr, données.docu);
+          expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/vidéo.mp4"]);
+        });
+
 
         it("fichiers sfip inclus", async () => {
           expect([...données.fichiersSFIP]).to.have.deep.members([
-            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4",
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/image.jpeg",
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/vidéo.mp4",
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/audio.mp4",
           ]);
         });
 
@@ -2651,13 +2759,87 @@ describe("tableaux", function () {
       });
 
       describe("à fichier", function () {
-        describe("sans fichiers sfip");
-        it("document créé");
-        it("inclure fichiers sfip");
+        let idBd: string;
+        let idTableau: string;
+
+        let dossier: string;
+        let effacer: () => void;
+        
+        const nomTableauFr = "voici un tableau"
+
+        beforeEach(async () => {
+          ({ dossier, effacer } = await dossierTempo())
+
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+          idTableau = await constl.bds.ajouterTableau({ idBd });
+          await constl.bds.tableaux.sauvegarderNom({ idStructure: idBd, idTableau, langue: "fr", nom: nomTableauFr })
+        })
+
+        afterEach(async () => {
+          if (effacer) effacer();
+        })
+
+        it("document créé sans fichiers sfip", async () => {
+          await constl.bds.tableaux.exporterDonnéesÀFichier({
+            idStructure: idBd,
+            idTableau,
+            dossier,
+            formatDoc: "ods",
+            langues: ["fr"],
+            inclureDocuments: false
+          });
+          const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
+          expect(existsSync(cheminFichier)).to.be.true();
+        });
+
+        it("inclure fichiers sfip", async () => {
+          await constl.bds.tableaux.exporterDonnéesÀFichier({
+            idStructure: idBd,
+            idTableau,
+            dossier,
+            formatDoc: "ods",
+            langues: ["fr"],
+            inclureDocuments: false
+          });
+          const cheminFichier = join(dossier, `${nomTableauFr}.zip`);
+          expect(existsSync(cheminFichier)).to.be.true();
+        });
+
+        it("dossier auparavant inexistant - sans fichiers sfip", async () => {
+          const nouveauDossier = join(dossier, "plus", "profond");
+
+          await constl.bds.tableaux.exporterDonnéesÀFichier({
+            idStructure: idBd,
+            idTableau,
+            dossier: nouveauDossier,
+            formatDoc: "ods",
+            langues: ["fr"],
+            inclureDocuments: false
+          });
+
+          const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
+          expect(existsSync(cheminFichier)).to.be.true();
+        });
+
+        it("dossier auparavant inexistant - avec fichiers sfip", async () => {
+          const nouveauDossier = join(dossier, "plus", "profond");
+          
+          await constl.bds.tableaux.exporterDonnéesÀFichier({
+            idStructure: idBd,
+            idTableau,
+            dossier: nouveauDossier,
+            formatDoc: "ods",
+            langues: ["fr"],
+          });
+
+          const cheminFichier = join(dossier, `${nomTableauFr}.zip`);
+          expect(existsSync(cheminFichier)).to.be.true();
+        });
       });
     });
 
     describe("variables indisponibles", function () {
+      let idBd: string;
       let idTableau: string;
       let idColonne: string;
 
@@ -2665,6 +2847,7 @@ describe("tableaux", function () {
         "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
       before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableau = await constl.bds.ajouterTableau({ idBd });
         idColonne = await constl.bds.tableaux.ajouterColonne({
           idStructure: idBd,
@@ -2758,10 +2941,13 @@ describe("tableaux", function () {
     });
 
     describe("combiner données", function () {
+      let idBd: string;
+
       let idTableauDestinataire: string;
       let idTableauSource: string;
 
       before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableauDestinataire = await constl.bds.ajouterTableau({ idBd });
         idTableauSource = await constl.bds.ajouterTableau({ idBd });
 
