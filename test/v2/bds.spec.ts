@@ -257,61 +257,61 @@ describe("BDs", function () {
     it("ajouter une métadonnée", async () => {
       await constl.bds.sauvegarderMétadonnée({
         idBd,
-        clef: "fr",
-        valeur: "Alphabets",
+        clef: "clef1",
+        valeur: true,
       });
-      const métadonnées = await obtenir<TraducsTexte>(({ si }) =>
+      const métadonnées = await obtenir<Métadonnées>(({ si }) =>
         constl.bds.suivreMétadonnées({
           idBd,
           f: si((n) => !!n && Object.keys(n).length > 0),
         }),
       );
-      expect(métadonnées.fr).to.equal("Alphabets");
+      expect(métadonnées.clef1).to.be.true();
     });
 
     it("ajouter des métadonnées", async () => {
       await constl.bds.sauvegarderMétadonnées({
         idBd,
         métadonnées: {
-          த: "எழுத்துகள்",
-          हिं: "वर्णमाला",
+          clef2: 123,
+          clef3: "du texte",
         },
       });
-      const métadonnées = await obtenir<TraducsTexte>(({ si }) =>
+      const métadonnées = await obtenir<Métadonnées>(({ si }) =>
         constl.bds.suivreMétadonnées({
           idBd,
           f: si((n) => !!n && Object.keys(n).length > 2),
         }),
       );
       expect(métadonnées).to.deep.equal({
-        fr: "Alphabets",
-        த: "எழுத்துகள்",
-        हिं: "वर्णमाला",
+        clef1: true,
+        clef2: 123,
+        clef3: "du texte",
       });
     });
 
     it("changer un métadonnée", async () => {
       await constl.bds.sauvegarderMétadonnée({
         idBd,
-        clef: "fr",
-        valeur: "Systèmes d'écriture",
+        clef: "clef1",
+        valeur: false,
       });
-      const métadonnées = await obtenir<TraducsTexte>(({ si }) =>
+      const métadonnées = await obtenir<Métadonnées>(({ si }) =>
         constl.bds.suivreMétadonnées({
           idBd,
-          f: si((n) => n?.["fr"] !== "Alphabets"),
+          f: si((n) => n?.["clef1"] !== true),
         }),
       );
 
-      expect(métadonnées?.fr).to.equal("Systèmes d'écriture");
+      expect(métadonnées?.clef1).to.be.false();
     });
 
     it("effacer une métadonnée", async () => {
-      await constl.bds.effacerMétadonnée({ idBd, clef: "fr" });
-      const métadonnées = await obtenir<TraducsTexte>(({ si }) =>
-        constl.bds.suivreMétadonnées({ idBd, f: si((n) => !!n && !n["fr"]) }),
+      await constl.bds.effacerMétadonnée({ idBd, clef: "clef1" });
+      const métadonnées = await obtenir<Métadonnées>(({ si }) =>
+        constl.bds.suivreMétadonnées({ idBd, f: si((n) => !!n && !n["clef1"]) }),
       );
-      expect(métadonnées).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+      expect(métadonnées).to.deep.equal({ clef2: 123, clef3: "du texte" });
     });
   });
 
