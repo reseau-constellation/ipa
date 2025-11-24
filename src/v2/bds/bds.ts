@@ -2038,7 +2038,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     nomFichier?: string;
     patience?: number;
   }): Promise<DonnéesFichierBdExportées> {
-    const doc = xlsxUtils.book_new();
+    const docu = xlsxUtils.book_new();
 
     const données = await uneFois(
       async (fSuivi: Suivi<DonnéesBdExportées>): Promise<Oublier> => {
@@ -2063,12 +2063,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
       /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
       xlsxUtils.book_append_sheet(
-        doc,
+        docu,
         tableauXLSX,
         tableau.nomTableau.slice(0, 30),
       );
     }
-    return { doc, fichiersSFIP, nomFichier };
+    return { docu, fichiersSFIP, nomFichier };
   }
 
   async exporterÀFichier({
