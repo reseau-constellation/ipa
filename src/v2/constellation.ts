@@ -16,6 +16,7 @@ import {
 import { Favoris } from "./favoris.js";
 import { Épingles } from "./epingles.js";
 import { Automatisations } from "./automatisations/automatisations.js";
+import { Nuées } from "./nuées.js";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
@@ -30,6 +31,7 @@ export type ServicesSpécifiquesConstellation<L extends ServicesLibp2pCrabe> = {
   favoris: Favoris;
   épingles: Épingles;
   variables: Variables<L>;
+  nuées: Nuées<L>;
   automatisations: Automatisations<L>;
 };
 
@@ -48,6 +50,7 @@ export class Constellation<
 > extends Crabe<T, S & ServicesSpécifiquesConstellation<L>, L> {
   bds: Bds<L>;
   motsClefs: MotsClefs<L>;
+  nuées: Nuées<L>;
   favoris: Favoris;
   épingles: Épingles;
   variables: Variables<L>;
@@ -66,6 +69,7 @@ export class Constellation<
         favoris: Favoris,
         épingles: Épingles,
         variables: Variables,
+        nuées: Nuées,
         ...(services || {}),
       } as ConstructeursServicesNébuleuse<
         S & ServicesSpécifiquesConstellation<L>
@@ -79,6 +83,7 @@ export class Constellation<
     // Pour garder l'IPA d'avant que j'aime bien...
     this.motsClefs = this.services["motsClefs"];
     this.bds = this.services["bds"];
+    this.nuées = this.services["nuées"];
     this.favoris = this.services["favoris"];
     this.épingles = this.services["épingles"];
     this.variables = this.services["variables"];
