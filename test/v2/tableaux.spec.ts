@@ -2631,6 +2631,7 @@ describe("tableaux", function () {
               [idsColonnes["géojson"]!]: valGéoJson,
               [idsColonnes["horoDatage"]!]: valDate,
               [idsColonnes["intervaleTemps"]!]: valIntervaleTemps,
+              colonneListe: [1, 2, 3],
             },
             {
               [idsColonnes["numérique"]!]: 456,
@@ -2729,7 +2730,11 @@ describe("tableaux", function () {
           const vals = obtenirValsDocu(idsColonnes["vidéo"]!, nomTableauFr, données.docu);
           expect(vals).to.have.deep.ordered.members(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/vidéo.mp4"]);
         });
-
+        
+        it("données variable catégorie liste", async () => {
+          const vals = obtenirValsDocu("colonneListe", nomTableauFr, données.docu);
+          expect(vals.map(v=>JSON.parse(v as string))).to.have.deep.ordered.members([[1, 2, 3]]);
+        })
 
         it("fichiers sfip inclus", async () => {
           expect([...données.fichiersSFIP]).to.have.deep.members([
