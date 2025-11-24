@@ -4,7 +4,7 @@ import { isValidAddress } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 import { Constellation } from "@/v2/index.js";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
-import { DifférenceBds, SchémaBd, ScoreBd, ÉpingleBd } from "@/v2/bds/bds.js";
+import { DifférenceBds, DonnéesBdExportées, SchémaBd, ScoreBd, ÉpingleBd } from "@/v2/bds/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
 import { InfoColonne } from "@/v2/tableaux.js";
@@ -15,6 +15,10 @@ import {
 import { obtRessourceTest } from "test/ressources/index.js";
 import { RègleBornes } from "@/v2/règles.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
+import { DonnéesFichierBdExportées } from "@/v2/utils.js";
+import { join } from "path";
+import JSZip from "jszip";
+import { existsSync, readFileSync } from "fs";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -1799,22 +1803,162 @@ describe("BDs", function () {
   });
 
   describe("exportation", function () {
+    let idc: string;
+
+    before(async () => {
+      const octets = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+      idc = await constl.services["hélia"].ajouterFichierÀSFIP({
+        contenu: octets,
+        nomFichier: "logo.svg",
+      });
+    });
+
     describe("suivi données exportation", function () {
-      it("noms bd");
-      it("tableaux");
-      it("données");
+      let idBd: string;
+      let idTableau1: string;
+      let idTableau2: string;
+
+      let données: DonnéesBdExportées;
+
+      const nomBdFr = "ma base de données"
+
+      before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" })
+        idTableau1 = await constl.bds.ajouterTableau({ idBd })
+        idTableau2 = await constl.bds.ajouterTableau({ idBd });
+        
+        const idColFichier = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau: idTableau1 })
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau: idTableau1,
+          éléments: [{
+            [idColFichier]: idc,
+          }],
+        });
+
+        await constl.bds.sauvegarderNom({ idBd, langue: "fr", nom: nomBdFr });
+
+        données = await obtenir<DonnéesBdExportées>(({siDéfini})=>constl.bds.suivreDonnéesExportation({
+          idBd,
+          langues: ["fr"],
+          f: siDéfini(),
+        }));
+      })
+
+      it("noms bd", async () => {
+        expect(données.nomBd).to.equal(nomBdFr)
+      });
+
+      it("tableaux", async () => {
+        expect(données.tableaux.map(t=>t.nomTableau)).to.have.ordered.members([idTableau1, idTableau2])
+      });
+
     });
 
     describe("à document", function () {
-      it("document données - tableaux créés");
-      it("document données - fichiers SFIP");
+      let idBd: string;
+      let idTableau1: string;
+      let idTableau2: string;
+
+      let données: DonnéesFichierBdExportées;
+
+      before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idTableau1 = await constl.bds.ajouterTableau({ idBd });
+        idTableau2 = await constl.bds.ajouterTableau({ idBd });
+
+        const idColonne = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau: idTableau1 })
+        await constl.bds.tableaux.ajouterÉléments({ idStructure: idBd, idTableau: idTableau1, éléments: [{[idColonne]: idc}]})
+
+      })
+
+      it("nom document - spécifié", async () => {
+        const docu = await constl.bds.exporterDonnées({
+          idBd,
+          nomFichier: "mon fichier",
+        });
+        expect(docu.nomFichier).to.equal("mon fichier");
+      });
+
+      it("nom document - non spécifié", async () => {
+        const docu = await constl.bds.exporterDonnées({ idBd });
+        expect(docu.nomFichier).to.equal(idBd.replace("/orbitdb/", ""));
+      });
+
+      it("document données - tableaux créés", async () => {
+        expect(Array.isArray(données.docu.SheetNames));
+        expect(données.docu.SheetNames).to.have.members([idTableau1, idTableau2]);
+      });
+
+      it("document données - fichiers SFIP", async () => {
+        expect([...données.fichiersSFIP]).to.have.members([idc]);
+      });
     });
 
     describe("à fichier", function () {
-      it("le fichier zip existe");
-      it("les données sont exportées");
-      it("le dossier pour les données SFIP existe");
-      it("les fichiers SFIP existent");
+      let idBd: string;
+        let idTableau: string;
+
+        let zip = JSZip;
+
+        let dossier: string;
+        let effacer: () => void;
+
+        const nomTableauFr = "voici un tableau";
+        const nomFichier = "mes données";
+
+        before(async () => {
+          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+          idTableau = await constl.bds.ajouterTableau({ idBd });
+          await constl.bds.tableaux.sauvegarderNom({
+            idStructure: idBd,
+            idTableau,
+            langue: "fr",
+            nom: nomTableauFr,
+          });
+
+          const idColonne = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau })
+          await constl.bds.tableaux.ajouterÉléments({
+            idStructure: idBd,
+            idTableau,
+            éléments: [{[idColonne]: idc}]
+          })
+        })
+        
+        after(async () => {
+          if (effacer) effacer();
+        })
+
+      it("le fichier zip existe", async () => {
+        await constl.bds.exporterÀFichier({
+          idBd,
+          nomFichier,
+          dossier,
+          formatDocu: "ods",
+        });
+
+        const nomZip = join(dossier, nomFichier + ".zip");
+        expect(existsSync(nomZip)).to.be.true();
+        zip = await JSZip.loadAsync(readFileSync(nomZip));
+      });
+
+      it("les données sont exportées", async () => {
+        const contenu = zip.files[nomFichier + ".ods"];
+        expect(contenu).to.exist();
+      });
+
+      it("le dossier pour les données SFIP existe", async () => {
+        const contenu = zip.files["sfip/"];
+        expect(contenu?.dir).to.be.true();
+      });
+
+      it("les fichiers SFIP existent", async () => {
+        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        expect(contenu).to.exist();
+      });
     });
   });
 });

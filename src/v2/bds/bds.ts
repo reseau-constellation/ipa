@@ -1968,7 +1968,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       const { nomsBd, données } = info;
       if (!données) return;
 
-      const idCourt = idBd.split("/").pop()!;
+      const idCourt = idBd.replace("/orbitdb/", "");
       const nomBd =
         nomsBd && langues ? traduire(nomsBd, langues) || idCourt : idCourt;
       await f({
@@ -2076,7 +2076,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     langues,
     nomFichier,
     patience = 500,
-    formatDoc,
+    formatDocu: formatDoc,
     dossier = "",
     inclureDocuments = true,
   }: {
@@ -2084,7 +2084,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     langues?: string[];
     nomFichier?: string;
     patience?: number;
-    formatDoc: xlsx.BookType | "xls";
+    formatDocu: xlsx.BookType | "xls";
     dossier?: string;
     inclureDocuments?: boolean;
   }): Promise<string> {
