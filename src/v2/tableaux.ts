@@ -547,6 +547,31 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     await oublier();
   }
 
+  async réordonnerColonne({
+    idStructure,
+    idTableau,
+    idColonne,
+    position,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idColonne: string;
+    position: number;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+    throw new Error(
+      `Impossible de réordonner colonne ${idColonne} de tableau ${idTableau} à position ${position} : pas encore implémenté.`,
+    );
+
+    /*const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+    await tableau.move(`colonnes/${idColonne}`, position)
+
+    await oublier();*/
+  }
+
   @cacheSuivi
   async suivreColonnes({
     idStructure,

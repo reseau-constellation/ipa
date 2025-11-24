@@ -1798,5 +1798,23 @@ describe("BDs", function () {
     });
   });
 
-  describe("exportation");
+  describe("exportation", function () {
+    describe("suivi données exportation", function () {
+      it("noms bd");
+      it("tableaux");
+      it("données");
+    });
+
+    describe("à document", function () {
+      it("document données - tableaux créés");
+      it("document données - fichiers SFIP");
+    });
+
+    describe("à fichier", function () {
+      it("le fichier zip existe");
+      it("les données sont exportées");
+      it("le dossier pour les données SFIP existe");
+      it("les fichiers SFIP existent");
+    });
+  });
 });
