@@ -127,6 +127,7 @@ export class Nuées<
         schéma: SchémaServiceNuées,
       },
     });
+
     this.tableaux = new Tableaux({
       service: (clef) => this.service(clef),
     });
@@ -353,9 +354,10 @@ export class Nuées<
       fSuivreBranche,
     }: {
       id: string;
-      fSuivreBranche: schémaFonctionSuivi<string[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.tableaux.suivreVariables({
+      fSuivreBranche: Suivi<string[]>;
+    }): Promise<Oublier> => {
+      return await this.tableaux.suivreVariables({
+        idStructure: idNuée,
         idTableau: id,
         f: fSuivreBranche,
       });
@@ -365,8 +367,8 @@ export class Nuées<
       fSuivreRacine,
     }: {
       fSuivreRacine: (éléments: string[]) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauxNuée({
+    }): Promise<Oublier> => {
+      return await this.suivreTableaux({
         idNuée,
         f: (x) => fSuivreRacine(x.map((x) => x.id)),
       });
@@ -405,7 +407,7 @@ export class Nuées<
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
       await f(qualité);
     };
-    const oublierNoms = await this.suivreNomsNuée({
+    const oublierNoms = await this.suivreNoms({
       idNuée,
       f: (noms) => {
         rés.noms = noms;
@@ -413,7 +415,7 @@ export class Nuées<
       },
     });
 
-    const oublierDescr = await this.suivreDescriptionsNuée({
+    const oublierDescr = await this.suivreDescriptions({
       idNuée,
       f: (descr) => {
         rés.descr = descr;
