@@ -1,120 +1,130 @@
+import { profil } from "@/index.js";
 import { cacheRechercheParN } from "../crabe/cache.js";
+import { rechercherProfilsSelonNom, rechercherProfilsSelonImage, rechercherProfilsSelonCourriel, rechercherProfilsSelonTexte } from "./fonctions/profils.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
-import {
-  rechercherMotsClefsSelonDescription,
-  rechercherMotsClefsSelonNom,
-  rechercherMotsClefsSelonTexte,
-} from "./fonctions/motsClefs.js";
-import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import type { Profil } from "../crabe/services/profil.js";
 import type { Suivi } from "../crabe/types.js";
-import type { MotsClefs } from "../motsClefs.js";
-import type {
-  InfoRésultat,
-  InfoRésultatTexte,
-  InfoRésultatVide,
-  SuivreObjectifRecherche,
-  RetourFonctionRecherche,
-  RésultatRecherche,
-} from "./types.js";
+import type { Constellation } from "../index.js";
+import type { RésultatRecherche, InfoRésultatVide, RetourFonctionRecherche, InfoRésultat, SuivreObjectifRecherche, InfoRésultatTexte } from "./types.js";
 
-export class RechercheMotsClefs<
+export class RechercheProfils<
   L extends ServicesLibp2pCrabe,
 > extends Recherche<L> {
-  motsClefs: MotsClefs<L>;
+  profils: Profil<L>;
 
   constructor({
-    motsClefs,
+    profils,
     constl,
     service,
   }: {
-    motsClefs: MotsClefs<L>;
+    profils: Profil<L>;
     constl: Constellation;
     service: <T extends keyof ServicesConstellation<L>>(
       service: T,
     ) => ServicesConstellation<L>[T];
   }) {
     super({ constl, service });
-    this.motsClefs = motsClefs;
+    this.profils = profils;
   }
 
   @cacheRechercheParN
   async tous({
     f,
     n,
-    idCompte,
   }: {
     f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
     n?: number;
-    idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
     return await this.selonObjectif({
       f,
       n,
       fObjectif: rechercherTous(),
-      idCompte,
     });
   }
 
   @cacheRechercheParN
   async selonId({
-    idMotClef,
+    idCompte,
     f,
     n,
-    idCompte,
   }: {
-    idMotClef: string;
+    idCompte: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
-    idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherSelonId(idMotClef),
-      idCompte,
+      fObjectif: rechercherSelonId(idCompte),
     });
   }
 
   @cacheRechercheParN
   async selonNom({
-    nomMotClef,
+    nom,
     f,
     n,
-    idCompte,
   }: {
-    nomMotClef: string;
+    nom: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
-    idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherMotsClefsSelonNom(nomMotClef),
-      idCompte,
+      fObjectif: rechercherProfilsSelonNom(nom),
     });
   }
 
   @cacheRechercheParN
-  async selonDescription({
-    descriptionMotClef,
+  async selonImage({
+    image,
     f,
     n,
-    idCompte,
   }: {
-    descriptionMotClef: string;
-    f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
+    image: Uint8Array;
+    f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
     n?: number;
-    idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherMotsClefsSelonDescription(descriptionMotClef),
-      idCompte,
+      fObjectif: rechercherProfilsSelonImage(image),
+    });
+  }
+
+  @cacheRechercheParN
+  async selonActivité({
+    f,
+    n,
+  }: {
+    f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
+    n?: number;
+  }): Promise<RetourFonctionRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: profil.rechercherProfilsSelonActivité(),
+    });
+  }
+
+  @cacheRechercheParN
+  async selonCourriel({
+    courriel,
+    f,
+    n,
+  }: {
+    courriel: string;
+    f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
+    n?: number;
+  }): Promise<RetourFonctionRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherProfilsSelonCourriel(courriel),
     });
   }
 
@@ -123,18 +133,15 @@ export class RechercheMotsClefs<
     texte,
     f,
     n,
-    idCompte,
   }: {
     texte: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte | InfoRésultatVide>[]>;
     n?: number;
-    idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherMotsClefsSelonTexte(texte),
-      idCompte,
+      fObjectif: rechercherProfilsSelonTexte(texte),
     });
   }
 
@@ -145,25 +152,25 @@ export class RechercheMotsClefs<
     f,
     fObjectif,
     n,
-    idCompte,
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
     fObjectif: SuivreObjectifRecherche<T>;
     n?: number;
-    idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
-    return await this.rechercherObjets<T>({
+    const réseau = this.service("réseau");
+
+    return await this.rechercher<T>({
       f,
       n,
-      fRecherche: async ({ f, idCompte }) =>
-        await this.motsClefs.suivreMotsClefs({ f, idCompte }),
+      fRecherche: async ({ f }) =>
+        await réseau.rechercherMembres({ f }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
-        await this.motsClefs.suivreScoreQualité({
-          idMotClef: idObjet,
+        await this.profils.suivreScoreQualité({
+          idProjet: idObjet,
           f: fSuiviQualité,
         }),
       fObjectif,
-      idCompte,
+      fConfiance,
     });
   }
 }

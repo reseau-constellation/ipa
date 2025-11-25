@@ -1,13 +1,13 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
-import { rechercherMotsClefsSelonNom } from "@/recherche/motClef.js";
+import { rechercherVariablesSelonNom } from "@/v2/recherche/fonctions/variables.js";
 import {
   combinerRecherches,
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
   sousRecherche,
-} from "@/v2/recherche/utils.js";
-import { rechercherVariablesSelonNom } from "@/recherche/variable.js";
+} from "@/v2/recherche/fonctions/utils.js";
+import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
 
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { Constellation } from "@/v2/index.js";
@@ -15,28 +15,28 @@ import type {
   InfoRésultatRecherche,
   InfoRésultatTexte,
   InfoRésultatVide,
-  RechercherSelonObjectif,
   SuiviRecherche,
+  SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 import type { TraducsTexte } from "@/v2/types.js";
 
 export const rechercherBdsSelonNom = (
   nomBd: string,
-): RechercherSelonObjectif<InfoRésultatTexte> => {
+): SuivreObjectifRecherche<InfoRésultatTexte> => {
   return async ({
-    client,
-    idBd,
+    constl,
+    idObjet,
     f,
   }: {
-    client: Constellation;
-    idBd: string;
+    constl: Constellation;
+    idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = async (noms: TraducsTexte) => {
       const corresp = similTexte(nomBd, noms);
       if (corresp) {
         const { score, clef, info } = corresp;
-        return await fSuivreRecherche({
+        return await f({
           type: "résultat",
           score,
           clef,
@@ -44,30 +44,34 @@ export const rechercherBdsSelonNom = (
           de: "nom",
         });
       } else {
-        return await fSuivreRecherche();
+        return await f();
       }
     };
-    const fOublier = await client.bds.suivreNoms({
-      idBd,
+    const fOublier = await constl.bds.suivreNoms({
+      idBd: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
     return fOublier;
   };
 };
 
-export const rechercherBdsSelonDescr = (
+export const rechercherBdsSelonDescription = (
   descrBd: string,
-): RechercherSelonObjectif<InfoRésultatTexte> => {
-  return async (
-    client: Constellation,
-    idBd: string,
-    fSuivreRecherche: SuiviRecherche<InfoRésultatTexte>,
-  ): Promise<Oublier> => {
+): SuivreObjectifRecherche<InfoRésultatTexte> => {
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatTexte>;
+  }): Promise<Oublier> => {
     const fSuivre = async (descrs: { [key: string]: string }) => {
       const corresp = similTexte(descrBd, descrs);
       if (corresp) {
         const { score, clef, info } = corresp;
-        return await fSuivreRecherche({
+        return await f({
           type: "résultat",
           score,
           clef,
@@ -75,12 +79,12 @@ export const rechercherBdsSelonDescr = (
           de: "descr",
         });
       } else {
-        return await fSuivreRecherche();
+        return await f();
       }
     };
-    const fOublier = await client.bds.suivreDescriptions({
-      idBd,
-      f: fSuivre,
+    const fOublier = await constl.bds.suivreDescriptions({
+      idBd: idObjet,
+      f: ignorerNonDéfinis(fSuivre),
     });
     return fOublier;
   };
@@ -88,184 +92,188 @@ export const rechercherBdsSelonDescr = (
 
 export const rechercherBdsSelonIdVariable = (
   idVariable: string,
-): RechercherSelonObjectif<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async (
-    client: Constellation,
-    idBd: string,
-    fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
-  ): Promise<Oublier> => {
+): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+  }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await client.bds.suivreVariablesBd({
-        idBd,
+      return await constl.bds.suivreVariables({
+        idBd: idObjet,
         f: fSuivreRacine,
       });
     };
 
     const fRechercher = rechercherSelonId(idVariable);
 
-    return await sousRecherche(
-      "variable",
-      fListe,
-      fRechercher,
-      client,
-      fSuivreRecherche,
-    );
+    return await sousRecherche("variable", fListe, fRechercher, constl, f);
   };
 };
 
 export const rechercherBdsSelonNomVariable = (
   nomVariable: string,
-): RechercherSelonObjectif<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async (
-    client: Constellation,
-    idBd: string,
-    fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
-  ): Promise<Oublier> => {
+): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+  }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await client.bds.suivreVariablesBd({
-        idBd,
+      return await constl.bds.suivreVariables({
+        idBd: idObjet,
         f: fSuivreRacine,
       });
     };
 
     const fRechercher = rechercherVariablesSelonNom(nomVariable);
 
-    return await sousRecherche(
-      "variable",
-      fListe,
-      fRechercher,
-      client,
-      fSuivreRecherche,
-    );
+    return await sousRecherche("variable", fListe, fRechercher, constl, f);
   };
 };
 
 export const rechercherBdsSelonVariable = (
   texte: string,
-): RechercherSelonObjectif<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async (
-    client: Constellation,
-    idBd: string,
-    fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
-  ) => {
+): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+  }) => {
     return await combinerRecherches(
       {
         id: rechercherBdsSelonIdVariable(texte),
         nom: rechercherBdsSelonNomVariable(texte),
       },
-      client,
-      idBd,
-      fSuivreRecherche,
+      constl,
+      idObjet,
+      f,
     );
   };
 };
 
 export const rechercherBdsSelonIdMotClef = (
   idMotClef: string,
-): RechercherSelonObjectif<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async (
-    client: Constellation,
-    idBd: string,
-    fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
-  ): Promise<Oublier> => {
+): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+  }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await client.bds.suivreMotsClefsBd({
-        idBd,
+      return await constl.bds.suivreMotsClefs({
+        idBd: idObjet,
         f: fSuivreRacine,
       });
     };
 
     const fRechercher = rechercherSelonId(idMotClef);
 
-    return await sousRecherche(
-      "motClef",
-      fListe,
-      fRechercher,
-      client,
-      fSuivreRecherche,
-    );
+    return await sousRecherche("motClef", fListe, fRechercher, constl, f);
   };
 };
 
 export const rechercherBdsSelonNomMotClef = (
   nomMotClef: string,
-): RechercherSelonObjectif<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async (
-    client: Constellation,
-    idBd: string,
-    fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
-  ): Promise<Oublier> => {
+): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+  }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await client.bds.suivreMotsClefsBd({
-        idBd,
+      return await constl.bds.suivreMotsClefs({
+        idBd: idObjet,
         f: fSuivreRacine,
       });
     };
 
     const fRechercher = rechercherMotsClefsSelonNom(nomMotClef);
 
-    return await sousRecherche(
-      "motClef",
-      fListe,
-      fRechercher,
-      client,
-      fSuivreRecherche,
-    );
+    return await sousRecherche("motClef", fListe, fRechercher, constl, f);
   };
 };
 
 export const rechercherBdsSelonMotClef = (
   texte: string,
-): RechercherSelonObjectif<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async (
-    client: Constellation,
-    idBd: string,
-    fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
-  ) => {
+): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+  }) => {
     return await combinerRecherches(
       {
         id: rechercherBdsSelonIdMotClef(texte),
         nom: rechercherBdsSelonNomMotClef(texte),
       },
-      client,
-      idBd,
-      fSuivreRecherche,
+      constl,
+      idObjet,
+      f,
     );
   };
 };
 
 export const rechercherBdsSelonTexte = (
   texte: string,
-): RechercherSelonObjectif<
+): SuivreObjectifRecherche<
   | InfoRésultatRecherche<InfoRésultatTexte>
   | InfoRésultatTexte
   | InfoRésultatVide
 > => {
-  return async (
-    client: Constellation,
-    idBd: string,
-    fSuivreRecherche: SuiviRecherche<
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<
       | InfoRésultatRecherche<InfoRésultatTexte>
       | InfoRésultatTexte
       | InfoRésultatVide
-    >,
-  ) => {
+    >;
+  }) => {
     return await combinerRecherches<
       | InfoRésultatRecherche<InfoRésultatTexte>
       | InfoRésultatTexte
@@ -273,15 +281,15 @@ export const rechercherBdsSelonTexte = (
     >(
       {
         nom: rechercherBdsSelonNom(texte),
-        descr: rechercherBdsSelonDescr(texte),
+        descr: rechercherBdsSelonDescription(texte),
         variables: rechercherBdsSelonVariable(texte),
         motsClefs: rechercherBdsSelonMotClef(texte),
         id: rechercherSelonId(texte),
         vide: rechercherTousSiVide(texte),
       },
-      client,
-      idBd,
-      fSuivreRecherche,
+      constl,
+      idObjet,
+      f,
     );
   };
 };

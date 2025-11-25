@@ -5,18 +5,17 @@ import {
   rechercherTousSiVide,
   similTexte,
 } from "./utils.js";
-import type { TraducsTexte } from "@/v2/types.js";
-import type { Oublier } from "@/v2/crabe/types.js";
-import type { Constellation } from "@/v2/index.js";
 import type {
   InfoRésultatTexte,
   InfoRésultatVide,
   SuiviRecherche,
   SuivreObjectifRecherche,
 } from "../types.js";
+import type { Constellation } from "@/v2/index.js";
+import type { Oublier } from "@/v2/crabe/types.js";
 
-export const rechercherMotsClefsSelonNom = (
-  nomMotClef: string,
+export const rechercherVariablesSelonNom = (
+  nom: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte> => {
   return async ({
     constl,
@@ -27,31 +26,31 @@ export const rechercherMotsClefsSelonNom = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = async (noms: TraducsTexte) => {
-      const corresp = similTexte(nomMotClef, noms);
-      if (corresp) {
-        const { score, clef, info } = corresp;
+    const fSuivre = async (nomsVariable: { [key: string]: string }) => {
+      const résultat = similTexte(nom, nomsVariable);
+      if (résultat) {
+        const { score, clef, info } = résultat;
         return await f({
           type: "résultat",
           score,
+          de: "nom",
           clef,
           info,
-          de: "nom",
         });
       } else {
         return await f();
       }
     };
-    const fOublier = await constl.motsClefs.suivreNoms({
-      idMotClef: idObjet,
+    const fOublier = await constl.variables.suivreNoms({
+      idVariable: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
     return fOublier;
   };
 };
 
-export const rechercherMotsClefsSelonDescription = (
-  descriptionMotClef: string,
+export const rechercherVariablesSelonDescription = (
+  description: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte> => {
   return async ({
     constl,
@@ -62,30 +61,30 @@ export const rechercherMotsClefsSelonDescription = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = async (noms: { [key: string]: string }) => {
-      const corresp = similTexte(descriptionMotClef, noms);
-      if (corresp) {
-        const { score, clef, info } = corresp;
+    const fSuivre = async (nomsVariable: { [key: string]: string }) => {
+      const résultat = similTexte(description, nomsVariable);
+      if (résultat) {
+        const { score, clef, info } = résultat;
         return await f({
           type: "résultat",
           score,
+          de: "descr",
           clef,
           info,
-          de: "descr",
         });
       } else {
         return await f();
       }
     };
-    const fOublier = await constl.motsClefs.suivreDescriptions({
-      idMotClef: idObjet,
+    const fOublier = await constl.variables.suivreDescriptions({
+      idVariable: idObjet,
       f: fSuivre,
     });
     return fOublier;
   };
 };
 
-export const rechercherMotsClefsSelonTexte = (
+export const rechercherVariablesSelonTexte = (
   texte: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte | InfoRésultatVide> => {
   return async ({
@@ -97,16 +96,16 @@ export const rechercherMotsClefsSelonTexte = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte | InfoRésultatVide>;
   }): Promise<Oublier> => {
-    const fRechercherNoms = rechercherMotsClefsSelonNom(texte);
-    const fRechercherDescr = rechercherMotsClefsSelonDescription(texte);
+    const fRechercherNoms = rechercherVariablesSelonNom(texte);
+    const fRechercherDescriptions = rechercherVariablesSelonDescription(texte);
     const fRechercherId = rechercherSelonId(texte);
     const fRechercherTous = rechercherTousSiVide(texte);
 
     return await combinerRecherches(
       {
         noms: fRechercherNoms,
+        descriptions: fRechercherDescriptions,
         id: fRechercherId,
-        descr: fRechercherDescr,
         vide: fRechercherTous,
       },
       constl,

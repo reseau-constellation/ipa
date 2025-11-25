@@ -2,15 +2,15 @@ import { cacheRechercheParN } from "../crabe/cache.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
 import {
-  rechercherMotsClefsSelonDescription,
-  rechercherMotsClefsSelonNom,
-  rechercherMotsClefsSelonTexte,
-} from "./fonctions/motsClefs.js";
+  rechercherVariablesSelonDescription,
+  rechercherVariablesSelonNom,
+  rechercherVariablesSelonTexte,
+} from "./fonctions/variables.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { Suivi } from "../crabe/types.js";
-import type { MotsClefs } from "../motsClefs.js";
+import type { Variables } from "../variables.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,
@@ -20,28 +20,28 @@ import type {
   RésultatRecherche,
 } from "./types.js";
 
-export class RechercheMotsClefs<
+export class RechercheVariables<
   L extends ServicesLibp2pCrabe,
 > extends Recherche<L> {
-  motsClefs: MotsClefs<L>;
+  variables: Variables<L>;
 
   constructor({
-    motsClefs,
+    variables,
     constl,
     service,
   }: {
-    motsClefs: MotsClefs<L>;
+    variables: Variables<L>;
     constl: Constellation;
     service: <T extends keyof ServicesConstellation<L>>(
       service: T,
     ) => ServicesConstellation<L>[T];
   }) {
     super({ constl, service });
-    this.motsClefs = motsClefs;
+    this.variables = variables;
   }
 
   @cacheRechercheParN
-  async tous({
+  async toutes({
     f,
     n,
     idCompte,
@@ -60,12 +60,12 @@ export class RechercheMotsClefs<
 
   @cacheRechercheParN
   async selonId({
-    idMotClef,
+    idVariable,
     f,
     n,
     idCompte,
   }: {
-    idMotClef: string;
+    idVariable: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
@@ -73,19 +73,19 @@ export class RechercheMotsClefs<
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherSelonId(idMotClef),
+      fObjectif: rechercherSelonId(idVariable),
       idCompte,
     });
   }
 
   @cacheRechercheParN
   async selonNom({
-    nomMotClef,
+    nomVariable,
     f,
     n,
     idCompte,
   }: {
-    nomMotClef: string;
+    nomVariable: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
@@ -93,19 +93,19 @@ export class RechercheMotsClefs<
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherMotsClefsSelonNom(nomMotClef),
+      fObjectif: rechercherVariablesSelonNom(nomVariable),
       idCompte,
     });
   }
 
   @cacheRechercheParN
   async selonDescription({
-    descriptionMotClef,
+    descriptionVariable,
     f,
     n,
     idCompte,
   }: {
-    descriptionMotClef: string;
+    descriptionVariable: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
@@ -113,7 +113,7 @@ export class RechercheMotsClefs<
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherMotsClefsSelonDescription(descriptionMotClef),
+      fObjectif: rechercherVariablesSelonDescription(descriptionVariable),
       idCompte,
     });
   }
@@ -133,7 +133,7 @@ export class RechercheMotsClefs<
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherMotsClefsSelonTexte(texte),
+      fObjectif: rechercherVariablesSelonTexte(texte),
       idCompte,
     });
   }
@@ -156,10 +156,10 @@ export class RechercheMotsClefs<
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.motsClefs.suivreMotsClefs({ f, idCompte }),
+        await this.variables.suivreVariables({ f, idCompte }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
-        await this.motsClefs.suivreScoreQualité({
-          idMotClef: idObjet,
+        await this.variables.suivreScoreQualité({
+          idVariable: idObjet,
           f: fSuiviQualité,
         }),
       fObjectif,
