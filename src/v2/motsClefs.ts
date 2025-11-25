@@ -154,7 +154,7 @@ export class MotsClefs<
 
     const descriptions = mapÀObjet(await motClef.get("descriptions"));
     if (descriptions)
-      await this.sauvegarderDescriptionsMotClef({
+      await this.sauvegarderDescriptions({
         idMotClef: idNouveauMotClef,
         descriptions,
       });
@@ -365,7 +365,7 @@ export class MotsClefs<
 
   // Descriptions
 
-  async sauvegarderDescriptionsMotClef({
+  async sauvegarderDescriptions({
     idMotClef,
     descriptions,
   }: {
@@ -382,7 +382,7 @@ export class MotsClefs<
     await oublier();
   }
 
-  async sauvegarderDescriptionMotClef({
+  async sauvegarderDescription({
     idMotClef,
     langue,
     description,
@@ -399,7 +399,7 @@ export class MotsClefs<
     await oublier();
   }
 
-  async effacerDescriptionMotClef({
+  async effacerDescription({
     idMotClef,
     langue,
   }: {
@@ -415,7 +415,7 @@ export class MotsClefs<
   }
 
   @cacheSuivi
-  async suivreDescriptionsMotClef({
+  async suivreDescriptions({
     idMotClef,
     f,
   }: {

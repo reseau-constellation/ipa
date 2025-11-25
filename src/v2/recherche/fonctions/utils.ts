@@ -2,17 +2,17 @@ import correspTexte from "approx-string-match";
 import ssim from "ssim";
 
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
-import type { Constellation } from "../index.js";
+import type { Constellation } from "../../index.js";
 import type {
   InfoRésultat,
   InfoRésultatRecherche,
   InfoRésultatTexte,
   InfoRésultatVide,
   RésultatObjectifRecherche,
-  RechercherSelonObjectif,
+  SuivreObjectifRecherche,
   SuiviRecherche,
-} from "./types.js";
-import type { Oublier } from "../crabe/types.js";
+} from "../types.js";
+import type { Oublier } from "../../crabe/types.js";
 
 export const rechercherDansTexte = (
   schéma: string,
@@ -73,9 +73,9 @@ export const similImages = (
 };
 
 export const combinerRecherches = async <T extends InfoRésultat>(
-  fsRecherche: { [key: string]: RechercherSelonObjectif<T> },
+  fsRecherche: { [key: string]: SuivreObjectifRecherche<T> },
   constl: Constellation,
-  id: string,
+  idObjet: string,
   fSuivreRecherche: SuiviRecherche<T>,
 ): Promise<Oublier> => {
   const fsOublier: Oublier[] = [];
@@ -96,7 +96,7 @@ export const combinerRecherches = async <T extends InfoRésultat>(
         résultats[clef] = résultat;
         fSuivreFinale();
       };
-      fsOublier.push(await fRecherche({ constl, id, f: fSuivre }));
+      fsOublier.push(await fRecherche({ constl, idObjet, f: fSuivre }));
     }),
   );
 
@@ -112,31 +112,31 @@ export const sousRecherche = async <T extends InfoRésultat>(
   }: {
     fSuivreRacine: (ids: string[]) => void;
   }) => Promise<Oublier>,
-  fRechercher: RechercherSelonObjectif<T>,
+  fRechercher: SuivreObjectifRecherche<T>,
   constl: Constellation,
   fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<T>>,
 ): Promise<Oublier> => {
   const fBranche = async ({
-    id,
+    id: idObjet,
     fSuivreBranche,
   }: {
     id: string;
     fSuivreBranche: (x: {
-      id: string;
+      idObjet: string;
       résultat: RésultatObjectifRecherche<T>;
     }) => void;
   }): Promise<Oublier> => {
     return await fRechercher({
       constl,
-      id,
+      idObjet,
       f: async (résultat?: RésultatObjectifRecherche<T>) => {
-        if (résultat) fSuivreBranche({ id, résultat });
+        if (résultat) fSuivreBranche({ idObjet, résultat });
       },
     });
   };
   const fFinale = async (
     résultats: {
-      id: string;
+      idObjet: string;
       résultat: RésultatObjectifRecherche<T>;
     }[],
   ) => {
@@ -146,7 +146,7 @@ export const sousRecherche = async <T extends InfoRésultat>(
       const résultat: RésultatObjectifRecherche<InfoRésultatRecherche<T>> = {
         type: "résultat",
         de,
-        clef: meilleur.id,
+        clef: meilleur.idObjet,
         score: meilleur.résultat.score,
         info: {
           type: "résultat",
@@ -209,8 +209,8 @@ const aMieuxQueB = <T extends InfoRésultat>(
 };
 
 const meilleurRésultat = <T extends InfoRésultat>(
-  résultats: { id: string; résultat: RésultatObjectifRecherche<T> }[],
-): { id: string; résultat: RésultatObjectifRecherche<T> } | undefined => {
+  résultats: { idObjet: string; résultat: RésultatObjectifRecherche<T> }[],
+): { idObjet: string; résultat: RésultatObjectifRecherche<T> } | undefined => {
   const meilleur = Object.values(résultats)
     .filter((x) => x)
     .sort((a, b) => (aMieuxQueB(a.résultat, b.résultat) ? -1 : 1))[0];
@@ -219,15 +219,15 @@ const meilleurRésultat = <T extends InfoRésultat>(
 
 export const rechercherSelonId = (
   idRecherché: string,
-): RechercherSelonObjectif<InfoRésultatTexte> => {
+): SuivreObjectifRecherche<InfoRésultatTexte> => {
   return async ({
-    id,
+    idObjet,
     f,
   }: {
-    id: string;
+    idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const résultat = rechercherDansTexte(idRecherché, id);
+    const résultat = rechercherDansTexte(idRecherché, idObjet);
     if (résultat) {
       const { score, début, fin } = résultat;
       await f({
@@ -238,7 +238,7 @@ export const rechercherSelonId = (
           type: "texte",
           début,
           fin,
-          texte: id,
+          texte: idObjet,
         },
       });
     } else {
@@ -249,7 +249,7 @@ export const rechercherSelonId = (
   };
 };
 
-export const rechercherTous = (): RechercherSelonObjectif<InfoRésultatVide> => {
+export const rechercherTous = (): SuivreObjectifRecherche<InfoRésultatVide> => {
   return async ({ f }): Promise<Oublier> => {
     await f({
       type: "résultat",
@@ -263,7 +263,7 @@ export const rechercherTous = (): RechercherSelonObjectif<InfoRésultatVide> => 
 
 export const rechercherTousSiVide = (
   texte: string,
-): RechercherSelonObjectif<InfoRésultatVide> => {
+): SuivreObjectifRecherche<InfoRésultatVide> => {
   return async ({ f }): Promise<Oublier> => {
     if (texte === "")
       await f({

@@ -1,6 +1,7 @@
 import { cacheRechercheParN } from "../crabe/cache.js";
-import { rechercherSelonId, rechercherTous } from "./utils.js";
+import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
+import { rechercherMotsClefsSelonDescription, rechercherMotsClefsSelonNom, rechercherMotsClefsSelonTexte } from "./fonctions/motsClefs.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
@@ -45,12 +46,10 @@ export class RechercheMotsClefs<
     n?: number;
     idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
-    const fObjectif = rechercherTous();
-
     return await this.selonObjectif({
       f,
       n,
-      fObjectif,
+      fObjectif: rechercherTous(),
       idCompte,
     });
   }
@@ -67,14 +66,70 @@ export class RechercheMotsClefs<
     n?: number;
     idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
-    const fObjectif = rechercherSelonId(idMotClef);
     return await this.selonObjectif({
       f,
       n,
-      fObjectif,
+      fObjectif: rechercherSelonId(idMotClef),
       idCompte,
     });
   }
+
+  async selonNom ({
+    nomMotClef,
+    f,
+    n,
+    idCompte,
+  }: {
+    nomMotClef: string;
+    f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourFonctionRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherMotsClefsSelonNom(nomMotClef),
+      idCompte,
+    });
+  };
+  
+  async selonDescription ({
+    descriptionMotClef,
+    f,
+    n,
+    idCompte,
+}: {
+    descriptionMotClef: string;
+    f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourFonctionRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherMotsClefsSelonDescription(descriptionMotClef),
+      idCompte,
+    });
+  };
+  
+  async selonTexte ({
+    texte,
+    f,
+    n,
+    idCompte,
+  }: {
+    texte: string,
+    f: Suivi<RésultatRecherche<InfoRésultatTexte | InfoRésultatVide>[]>;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourFonctionRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherMotsClefsSelonTexte(texte),
+      idCompte,
+    });
+  };
 
   // Méthodes internes
 
