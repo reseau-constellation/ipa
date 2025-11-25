@@ -1,13 +1,10 @@
 import fs from "fs";
 import { join } from "path";
-import { OrbitDB } from "@orbitdb/core";
 import { expect } from "aegir/chai";
-import { Helia } from "helia";
-import { Libp2p, Libp2pOptions, createLibp2p, isLibp2p } from "libp2p";
+import { createLibp2p, isLibp2p } from "libp2p";
 import {
   OptionsDéfautLibp2pNavigateur,
   OptionsDéfautLibp2pNode,
-  ServicesLibp2pTest,
   créerOrbitesTest,
 } from "@constl/utils-tests";
 import { isBrowser, isNode } from "wherearewe";
@@ -16,27 +13,33 @@ import {
   toString as uint8ArrayToString,
 } from "uint8arrays";
 
-import { IDBDatastore } from "datastore-idb";
-import { FsDatastore } from "datastore-fs";
 import { privateKeyFromRaw } from "@libp2p/crypto/keys";
-import { PrivateKey } from "@libp2p/interface";
 import { multiaddr } from "@multiformats/multiaddr";
 import { obtenirOptionsLibp2p } from "@/v2/crabe/services/libp2p/config/config.js";
 import { ServiceStockage } from "@/v2/crabe/index.js";
 import {
   ServiceLibp2p,
-  ServicesLibp2pCrabe,
-  ServicesNécessairesLibp2p,
   extraireLibp2pDesOptions,
 } from "@/v2/crabe/services/libp2p/libp2p.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { ServicesLibp2pCrabeDéfaut } from "@/v2/crabe/services/libp2p/config/utils.js";
 import { dossierTempoPropre } from "../../utils.js";
 import {
   ServiceLibp2pTest,
   obtenirOptionsLibp2pLocal,
   obtenirOptionsLibp2pTest,
 } from "./utils.js";
+import type { ServicesLibp2pCrabeDéfaut } from "@/v2/crabe/services/libp2p/config/utils.js";
+import type {
+  ServicesLibp2pCrabe,
+  ServicesNécessairesLibp2p} from "@/v2/crabe/services/libp2p/libp2p.js";
+import type { PrivateKey } from "@libp2p/interface";
+import type { FsDatastore } from "datastore-fs";
+import type { IDBDatastore } from "datastore-idb";
+import type {
+  ServicesLibp2pTest} from "@constl/utils-tests";
+import type { Libp2p, Libp2pOptions} from "libp2p";
+import type { Helia } from "helia";
+import type { OrbitDB } from "@orbitdb/core";
 
 describe.only("Service Libp2p", function () {
   describe("options", function () {

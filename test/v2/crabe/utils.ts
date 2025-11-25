@@ -1,21 +1,23 @@
 import path from "path";
 import {
-  ServicesLibp2pTest,
   obtenirAdresseRelai,
   toutesConnectées,
 } from "@constl/utils-tests";
-import { NestedValueObject } from "@orbitdb/nested-db";
-import { Crabe, ServicesCrabe, StructureCrabe } from "@/v2/crabe/crabe.js";
-import {
+import { Crabe } from "@/v2/crabe/crabe.js";
+import { dossierTempoPropre } from "../utils.js";
+import { ServiceLibp2pTest } from "./services/utils.js";
+import type {
+  ServicesLibp2pTest} from "@constl/utils-tests";
+import type { NestedValueObject } from "@orbitdb/nested-db";
+import type { ServicesCrabe, StructureCrabe } from "@/v2/crabe/crabe.js";
+import type {
   ConstructeursServicesNébuleuse,
   OptionsNébuleuse,
   ServiceNébuleuse,
   ServicesNébuleuse,
 } from "@/v2/nébuleuse/nébuleuse.js";
-import { ServicesDonnées } from "@/v2/crabe/services/compte/compte.js";
-import { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
-import { dossierTempoPropre } from "../utils.js";
-import { ServiceLibp2pTest } from "./services/utils.js";
+import type { ServicesDonnées } from "@/v2/crabe/services/compte/compte.js";
+import type { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 
 export type ConstructeurServicesCrabe<

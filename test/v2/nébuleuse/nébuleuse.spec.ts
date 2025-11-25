@@ -4,11 +4,12 @@ import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import {
   Nébuleuse,
-  OptionsNébuleuse,
-  ServiceNébuleuse,
-  ServicesNébuleuse,
+  ServiceNébuleuse
 } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
+import type {
+  OptionsNébuleuse,
+  ServicesNébuleuse} from "@/v2/nébuleuse/nébuleuse.js";
 
 describe.only("Nébuleuse", function () {
   describe("Démarrage", function () {

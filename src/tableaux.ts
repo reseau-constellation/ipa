@@ -4,18 +4,32 @@ import { isValidAddress } from "@orbitdb/core";
 import axios from "axios";
 import { isElectronMain, isNode } from "wherearewe";
 import {
-  schémaFonctionSuivi,
   schémaStructureBdNoms,
   élémentsBd,
 } from "@/types.js";
 
 import { cholqij } from "@/dates.js";
 import { ServiceConstellation } from "./v2/nébuleuse/services.js";
+import {
+  DonnéesRangéeTableau
+} from "./v2/bds/tableaux.js";
+import { idcEtFichierValide } from "./v2/epingles.js";
+import type {
+  ConversionDonnées,
+  OpérationConversionNumérique} from "./v2/bds/tableaux.js";
+import type { CatégorieBaseVariables } from "./v2/variables.js";
+import type {
+  schémaFonctionSuivi} from "@/types.js";
+import type { DagCborEncodable} from "@orbitdb/core";
 import type { catégorieBaseVariables } from "@/variables.js";
 import { cidEtFichierValide } from "@/epingles.js";
 
+// Fichier ODS / URL -> JSON -> résoudre sfip -> formats traducs chaîne/dates/chiffres -> conversions */+- -> importer
+
+const résoudreFichiers = async () => {};
+
 export class Tableaux extends ServiceConstellation {
-  async convertirDonnées<T extends élémentBdListeDonnées[]>({
+  async convertirDonnées<T extends DonnéesRangéeTableauÀImporter[]>({
     idTableau,
     données,
     conversions = {},
@@ -25,7 +39,7 @@ export class Tableaux extends ServiceConstellation {
   }: {
     idTableau: string;
     données: T;
-    conversions?: { [col: string]: conversionDonnées };
+    conversions?: { [col: string]: ConversionDonnées };
     importerFichiers: boolean;
     cheminBaseFichiers?: string;
     donnéesExistantes?: élémentBdListeDonnées[];
@@ -168,17 +182,17 @@ export class Tableaux extends ServiceConstellation {
       catégorie,
       conversion,
     }: {
-      val: élémentsBd;
-      catégorie: catégorieBaseVariables;
-      conversion: conversionDonnées;
-    }): Promise<élémentsBd> => {
+      val: DagCborEncodable;
+      catégorie: CatégorieBaseVariables;
+      conversion: ConversionDonnées;
+    }): Promise<DagCborEncodable> => {
       switch (catégorie) {
         case "audio":
         case "image":
         case "vidéo":
         case "fichier": {
           if (typeof val === "string" && importerFichiers) {
-            if (cidEtFichierValide(val)) return val;
+            if (idcEtFichierValide(val)) return val;
 
             const infoFichier = await ajouterFichierÀSFIP({ chemin: val });
             return infoFichier || val;
@@ -191,9 +205,10 @@ export class Tableaux extends ServiceConstellation {
 
         case "numérique": {
           let opération:
-            | opérationConversionNumérique
-            | opérationConversionNumérique[]
+            | OpérationConversionNumérique
+            | OpérationConversionNumérique[]
             | undefined = undefined;
+
           let systèmeNumération: string | undefined = undefined;
           if (conversion?.type === "numérique") {
             ({ opération, systèmeNumération } = conversion);
@@ -203,7 +218,7 @@ export class Tableaux extends ServiceConstellation {
             ops,
           }: {
             val: number;
-            ops?: opérationConversionNumérique[];
+            ops?: OpérationConversionNumérique[];
           }): number => {
             if (!ops) return val;
 
@@ -245,6 +260,7 @@ export class Tableaux extends ServiceConstellation {
           } else if (typeof val === "number") {
             valNumérique = val;
           }
+
           return valNumérique !== undefined
             ? convertirValNumérique({
                 val: valNumérique,

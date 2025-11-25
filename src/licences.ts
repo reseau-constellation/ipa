@@ -6,7 +6,6 @@ import {
 } from "@lassi-js/kili";
 
 import { TypedEmitter } from "tiny-typed-emitter";
-import { Constellation } from "@/client.js";
 import {
   CLEF_TABLEAU_LICENCES_APPROUVÉES,
   ID_NUÉE_LICENCES,
@@ -14,6 +13,7 @@ import {
 } from "@/const.js";
 import { mandatairifier } from "./mandataire/index.js";
 import { ServiceConstellation } from "./v2/nébuleuse/services.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,

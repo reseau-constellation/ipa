@@ -1,20 +1,14 @@
-import { JSONSchemaType } from "ajv";
 import { merge } from "lodash-es";
-import { TypedNested, typedNested } from "@constl/bohr-db";
-import { NestedObjectToMap, NestedValueObject } from "@orbitdb/nested-db";
+import { typedNested } from "@constl/bohr-db";
 import { TypedEmitter } from "tiny-typed-emitter";
 import {
   adresseOrbiteValide,
   suivreFonctionImbriquée,
   uneFois,
 } from "@constl/utils-ipa";
-import { Nébuleuse, ServiceNébuleuse } from "@/v2/nébuleuse/index.js";
-import { PartielRécursif, RequisRécursif } from "@/v2/types.js";
+import { ServiceNébuleuse } from "@/v2/nébuleuse/index.js";
 import { cacheSuivi } from "../../cache.js";
-import { Oublier, Suivi } from "../../types.js";
 import { ServiceDonnéesNébuleuse } from "../services.js";
-import { BdsOrbite, ServicesNécessairesOrbite } from "../orbite/orbite.js";
-import { ServicesLibp2pCrabe } from "../libp2p/libp2p.js";
 import {
   CLEF_ID_COMPTE,
   CLEF_N_CHANGEMENT_COMPTES,
@@ -23,15 +17,25 @@ import {
 } from "../consts.js";
 import { appelerLorsque } from "../utils.js";
 import {
-  AccèsDispositif,
-  AccèsUtilisateur,
   ContrôleurNébuleuse,
   MEMBRE,
   MODÉRATRICE,
-  OptionsContrôleurNébuleuse,
-  Rôle,
   estContrôleurNébuleuse,
 } from "./accès/index.js";
+import type { Nébuleuse } from "@/v2/nébuleuse/index.js";
+import type { PartielRécursif, RequisRécursif } from "@/v2/types.js";
+import type { Oublier, Suivi } from "../../types.js";
+import type { BdsOrbite, ServicesNécessairesOrbite } from "../orbite/orbite.js";
+import type { ServicesLibp2pCrabe } from "../libp2p/libp2p.js";
+import type {
+  AccèsDispositif,
+  AccèsUtilisateur,
+  OptionsContrôleurNébuleuse,
+  Rôle,
+} from "./accès/index.js";
+import type { NestedValueObject } from "@orbitdb/nested-db";
+import type { TypedNested } from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
 
 export type MesDispositifs = {
   idDispositif: string;
@@ -352,9 +356,11 @@ export class ServiceCompte<
   async suivrePermission({
     idObjet,
     f,
+    idCompte,
   }: {
     idObjet: string;
     f: Suivi<Rôle | undefined>;
+    idCompte?: string;
   }): Promise<Oublier> {
     const { bd, oublier: oublierBd } = await this.service("orbite").ouvrirBd({
       id: idObjet,
@@ -367,7 +373,9 @@ export class ServiceCompte<
     let utilisateurs: AccèsUtilisateur[] | undefined = undefined;
 
     const fFinale = async () => {
-      await f(utilisateurs?.find((x) => x.idCompte === monCompte)?.rôle);
+      await f(
+        utilisateurs?.find((x) => x.idCompte === (idCompte || monCompte))?.rôle,
+      );
     };
 
     const oublierAccès = await accès.suivreUtilisateursAutorisés(

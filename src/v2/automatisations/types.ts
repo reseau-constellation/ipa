@@ -1,8 +1,8 @@
-import { JSONSchemaType } from "ajv";
-import * as XLSX from "xlsx";
-import { PartielRécursif } from "../types.js";
-import { ClefsExtraction } from "../importateur/json.js";
-import { ConversionDonnées } from "../tableaux.js";
+import type { JSONSchemaType } from "ajv";
+import type * as XLSX from "xlsx";
+import type { PartielRécursif } from "../types.js";
+import type { ClefsExtraction } from "../importateur/json.js";
+import type { ConversionDonnées } from "../bds/tableaux.js";
 
 // Types XLSX
 

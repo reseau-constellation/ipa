@@ -1,8 +1,8 @@
-import { JSONSchemaType } from "ajv";
-import { Constellation } from "./client.js";
 import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
 import { cacheSuivi } from "./décorateursCache.js";
-import { schémaFonctionOublier, schémaFonctionSuivi } from "./types.js";
+import type { JSONSchemaType } from "ajv";
+import type { Constellation } from "./client.js";
+import type { schémaFonctionOublier, schémaFonctionSuivi } from "./types.js";
 
 export type structureBdProtocoles = {
   [idDispositif: string]: string[];

@@ -1,9 +1,10 @@
 import { expect } from "aegir/chai";
 import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "@/v2/crabe/services/consts.js";
-import { TraducsTexte } from "@/v2/types.js";
 import { obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../../ressources/index.js";
-import { CrabeTest, créerCrabesTest } from "../utils.js";
+import { créerCrabesTest } from "../utils.js";
+import type { CrabeTest} from "../utils.js";
+import type { TraducsTexte } from "@/v2/types.js";
 
 describe.only("Profil", function () {
   let fermer: () => Promise<void>;

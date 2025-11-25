@@ -1,18 +1,23 @@
-import { Libp2pEvents } from "@libp2p/interface";
-import { JSONSchemaType } from "ajv";
 import {
   faisRien,
   ignorerNonDéfinis,
   suivreFonctionImbriquée,
 } from "@constl/utils-ipa";
-import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { PartielRécursif } from "@/v2/types.js";
 import { cacheSuivi } from "../cache.js";
-import { Oublier, Suivi } from "../types.js";
-import { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
-import { ServicesNécessairesCompte } from "./compte/compte.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
+import type { Libp2pEvents } from "@libp2p/interface";
+import type { JSONSchemaType } from "ajv";
+import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type { PartielRécursif } from "@/v2/types.js";
+import type { Oublier, Suivi } from "../types.js";
+import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
+import type { ServicesNécessairesCompte } from "./compte/compte.js";
+
+// Types connexions
+export type ConnexionLibp2p = { pair: string; adresses: string[] };
+
+// Types structure
 
 export type StructureRéseau = {
   [idCompte: string]: string;
@@ -59,7 +64,7 @@ export class ServiceRéseau<
   async suivreConnexionsLibp2p({
     f,
   }: {
-    f: Suivi<{ pair: string; adresses: string[] }[]>;
+    f: Suivi<ConnexionLibp2p[]>;
   }): Promise<Oublier> {
     const libp2p = await this.service("libp2p").libp2p();
 
@@ -83,8 +88,6 @@ export class ServiceRéseau<
       "peer:connect",
       "peer:disconnect",
       "peer:update",
-      "peer:identify",
-      "peer:discovery",
     ];
     événements.map((é) => libp2p.addEventListener(é, fFinale));
 

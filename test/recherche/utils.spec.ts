@@ -1,6 +1,5 @@
 import { attente } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
-import { JSONSchemaType } from "ajv";
 import {
   combinerRecherches,
   rechercherDansTexte,
@@ -9,9 +8,10 @@ import {
   similImages,
   similTexte,
   sousRecherche,
-} from "@/recherche/utils.js";
+} from "@/v2/recherche/utils.js";
 import { obtRessourceTest } from "../ressources/index.js";
 import { générerClientsInternes } from "../ressources/utils.js";
+import type { JSONSchemaType } from "ajv";
 import type {
   infoRésultatRecherche,
   infoRésultatTexte,

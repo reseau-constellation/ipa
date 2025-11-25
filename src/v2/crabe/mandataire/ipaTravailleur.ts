@@ -1,12 +1,13 @@
+import type {
+
+  MandataireConstellation} from "@constl/mandataire";
 import {
   générerMandataire,
-  MandataireConstellation,
   Mandatairifiable,
   type MessageDIpa,
-  type MessagePourIpa,
-} from "@constl/mandataire";
-import { Constellation } from "@/client.js";
-import { Crabe, OptionsDeCrabe } from "../crabe.js";
+  type MessagePourIpa} from "@constl/mandataire";
+import type { Constellation } from "@/client.js";
+import type { Crabe, OptionsDeCrabe } from "../crabe.js";
 
 export class MandataireTravailleur<T extends Crabe> extends Mandatairifiable {
   travailleur: Worker;

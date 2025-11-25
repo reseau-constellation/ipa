@@ -1,5 +1,4 @@
 import { isValidAddress } from "@orbitdb/core";
-import XLSX from "xlsx";
 import {
   attente,
   attente as utilsTestAttente,
@@ -10,16 +9,17 @@ import { isElectronMain, isNode } from "wherearewe";
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-ipa";
 import { créerConstellation, type Constellation } from "@/index.js";
-import { TraducsTexte, schémaFonctionOublier, schémaStatut } from "@/types.js";
-
-import { élémentDeMembreAvecValid } from "@/reseau.js";
-import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
-
-import { donnéesNuéeExportation } from "@/nuées.js";
-import { règleColonne } from "@/valid.js";
-
 import { obtRessourceTest } from "./ressources/index.js";
-import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
+import type { TraducsTexte, schémaFonctionOublier, schémaStatut } from "@/types.js";
+
+import type { élémentDeMembreAvecValid } from "@/reseau.js";
+import type { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
+
+import type { donnéesNuéeExportation } from "@/nuées.js";
+import type { règleColonne } from "@/valid.js";
+
+import type XLSX from "xlsx";
+import type { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 

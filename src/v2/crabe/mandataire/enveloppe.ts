@@ -14,8 +14,8 @@ import {
   ERREUR_PAS_UNE_FONCTION,
 } from "@constl/mandataire";
 import { v4 as uuidv4 } from "uuid";
-import { Oublier } from "../types.js";
-import { Crabe } from "../crabe.js";
+import type { Oublier } from "../types.js";
+import type { Crabe } from "../crabe.js";
 
 export class EnveloppeCrabe<T extends Crabe> {
   crabe?: T;

@@ -1,24 +1,27 @@
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
-import { Libp2pOptions } from "libp2p";
 import { FaultTolerance } from "@libp2p/interface";
 import { webSockets } from "@libp2p/websockets";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webTransport } from "@libp2p/webtransport";
 import {
-  CircuitRelayService,
   circuitRelayServer,
   circuitRelayTransport,
 } from "@libp2p/circuit-relay-v2";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
-import { UPnPNAT, uPnPNAT } from "@libp2p/upnp-nat";
+import { uPnPNAT } from "@libp2p/upnp-nat";
 import { obtStockageDonnées } from "../../utils.js";
 import {
-  ConfigOptionsLibp2p,
-  ServicesLibp2pCrabeDéfaut,
   découvertePairs,
   servicesDéfaut,
 } from "./utils.js";
+import type {
+  ConfigOptionsLibp2p,
+  ServicesLibp2pCrabeDéfaut} from "./utils.js";
+import type { UPnPNAT} from "@libp2p/upnp-nat";
+import type {
+  CircuitRelayService} from "@libp2p/circuit-relay-v2";
+import type { Libp2pOptions } from "libp2p";
 
 export type ServicesLibp2pNode = ServicesLibp2pCrabeDéfaut & {
   upnp: UPnPNAT;

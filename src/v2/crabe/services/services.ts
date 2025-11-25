@@ -1,29 +1,31 @@
 import {
-  NestedValueObject,
   asSplitKey,
   joinKey,
   splitKey,
 } from "@orbitdb/nested-db";
-import { TypedNested } from "@constl/bohr-db";
-import { JSONSchemaType } from "ajv";
 import {
+  ServiceNébuleuse
+} from "@/v2/nébuleuse/nébuleuse.js";
+import { mapÀObjet } from "../utils.js";
+import type {
+  NestedValueObject} from "@orbitdb/nested-db";
+import type { TypedNested } from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
+import type {
   ExtractKeys,
   ExtractKeysAsList,
   GetValueFromKey,
   GetValueFromKeyList,
 } from "node_modules/@constl/bohr-db/dist/types.js";
-import { RecursivePartial } from "node_modules/@orbitdb/nested-db/dist/types.js";
-import {
+import type { RecursivePartial } from "node_modules/@orbitdb/nested-db/dist/types.js";
+import type {
   Nébuleuse,
-  ServiceNébuleuse,
-  ServicesNébuleuse,
-} from "@/v2/nébuleuse/nébuleuse.js";
+  ServicesNébuleuse} from "@/v2/nébuleuse/nébuleuse.js";
 
-import { PartielRécursif } from "@/v2/types.js";
-import { Oublier, Suivi } from "../types.js";
-import { mapÀObjet } from "../utils.js";
-import { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
-import { ServicesNécessairesCompte } from "./compte/compte.js";
+import type { PartielRécursif } from "@/v2/types.js";
+import type { Oublier, Suivi } from "../types.js";
+import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
+import type { ServicesNécessairesCompte } from "./compte/compte.js";
 
 export type ClefDeBranche<T extends NestedValueObject> = keyof {
   [C in ExtractKeys<T> as GetValueFromKey<T, C> extends NestedValueObject

@@ -1,9 +1,5 @@
-import { NestedValueObject } from "@orbitdb/nested-db";
 import {
-  ConstructeursServicesNébuleuse,
-  Nébuleuse,
-  OptionsNébuleuse,
-  ServicesNébuleuse,
+  Nébuleuse
 } from "@/v2/nébuleuse/nébuleuse.js";
 import {
   ServiceCompte,
@@ -13,17 +9,25 @@ import {
   ServiceStockage,
 } from "./services/index.js";
 import {
-  ServiceDispositifs,
-  StructureDispositifs,
+  ServiceDispositifs
 } from "./services/dispositifs.js";
-import { ServicesLibp2pCrabe } from "./services/libp2p/libp2p.js";
-import { ServiceProfil, StructureProfil } from "./services/profil.js";
-import { ServiceRéseau, StructureRéseau } from "./services/réseau.js";
-import {
+import { ServiceProfil } from "./services/profil.js";
+import { ServiceRéseau } from "./services/réseau.js";
+import { ServiceJournal } from "./services/journal.js";
+import type { NestedValueObject } from "@orbitdb/nested-db";
+import type {
+  ConstructeursServicesNébuleuse,
+  OptionsNébuleuse,
+  ServicesNébuleuse} from "@/v2/nébuleuse/nébuleuse.js";
+import type {
+  StructureDispositifs} from "./services/dispositifs.js";
+import type { ServicesLibp2pCrabe } from "./services/libp2p/libp2p.js";
+import type { StructureProfil } from "./services/profil.js";
+import type { StructureRéseau } from "./services/réseau.js";
+import type {
   ServicesDonnées,
   ServicesNécessairesCompte,
 } from "./services/compte/compte.js";
-import { ServiceJournal } from "./services/journal.js";
 
 export type StructureCrabe = {
   dispositifs: StructureDispositifs;

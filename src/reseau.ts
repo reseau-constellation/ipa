@@ -6,30 +6,31 @@ import { sum } from "lodash-es";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { pipe } from "it-pipe";
 import { pushable } from "it-pushable";
-import { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 import {
   faisRien,
   suivreFonctionImbriquée,
   suivreDeFonctionListe,
   uneFois,
 } from "@constl/utils-ipa";
-import { JSONSchemaType } from "ajv";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
 import pRetry, { AbortError } from "p-retry";
 import {
   CLEF_N_CHANGEMENT_COMPTES,
-  Constellation,
-  Signature,
-  infoAccès,
   schémaStructureBdCompte,
 } from "@/client.js";
 import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
-import { rechercherTous } from "@/recherche/utils.js";
+import { rechercherTous } from "@/v2/recherche/utils.js";
 import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque, dépunicodifier } from "./utils.js";
+import type {
+  Constellation,
+  Signature,
+  infoAccès} from "@/client.js";
+import type { JSONSchemaType } from "ajv";
+import type { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 import type { Pushable } from "it-pushable";
 
 import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
@@ -1763,7 +1764,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     fConfiance: schémaFonctionSuivreConfianceRecherche;
     nRésultatsDésirés?: number;
     fQualité: schémaFonctionSuivreQualitéRecherche;
-    fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
+    fObjectif: schémaFonctionSuivreObjectifRecherche<T>;
     fScore?: (r: résultatRechercheSansScore<T>) => number;
   }): Promise<schémaRetourFonctionRechercheParN> {
     if (!fScore) {
@@ -1771,11 +1772,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
       };
     }
-
-    // Il y a probablement une meilleure façon de faire ça, mais pour l'instant ça passe
-    fObjectif =
-      fObjectif ||
-      (rechercherTous() as schémaFonctionSuivreObjectifRecherche<T>);
 
     const résultatsParMembre: {
       [key: string]: {
@@ -2098,62 +2094,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
   }
 
-  async suivreConfianceAuteurs({
-    idItem,
-    clef,
-    f,
-  }: {
-    idItem: string;
-    clef: clefObjet;
-    f: schémaFonctionSuivi<number>;
-  }): Promise<schémaFonctionOublier> {
-    const fListe = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (auteurs: string[]) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreAuteursObjet({
-        idObjet: idItem,
-        clef,
-        f: async (auteurs: infoAuteur[]) => {
-          const idsAuteurs = auteurs
-            .filter((a) => a.accepté)
-            .map((a) => a.idCompte);
-          return await fSuivreRacine(idsAuteurs);
-        },
-      });
-    };
-
-    const fBranche = async ({
-      id: idAuteur,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<number>;
-    }): Promise<schémaFonctionOublier> => {
-      const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
-        idCompte: idAuteur,
-        f: fSuivreBranche,
-        profondeur: 4,
-      });
-      return fOublier;
-    };
-
-    const fFinale = async (confiances: number[]) => {
-      const confiance = confiances.reduce((a, b) => a + b, 0);
-      await f(confiance);
-    };
-
-    const fRéduction = (branches: number[]) => branches.flat();
-
-    return await suivreDeFonctionListe({
-      fListe,
-      f: fFinale,
-      fBranche,
-      fRéduction,
-    });
-  }
-
   async rechercherObjets<T extends infoRésultat>({
     f,
     clef,
@@ -2179,38 +2119,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
     if (!toutLeRéseau) {
-      // Il y a probablement une meilleure façon de faire ça, mais pour l'instant ça passe
-      const fObjectifFinal =
-        fObjectif ||
-        (rechercherTous() as schémaFonctionSuivreObjectifRecherche<T>);
-
-      return await suivreDeFonctionListe({
-        fListe: async ({
-          fSuivreRacine,
-        }: {
-          fSuivreRacine: (éléments: string[]) => Promise<void>;
-        }): Promise<schémaRetourFonctionRechercheParN> => {
-          return {
-            fOublier: await fRechercheLesMiens(fSuivreRacine),
-            fChangerN: () => Promise.resolve(),
-          }; // À faire : implémenter fChangerN ?
-        },
-        f,
-        fBranche: async ({
-          id,
-          fSuivreBranche,
-        }: {
-          id: string;
-          fSuivreBranche: schémaFonctionSuivi<résultatRecherche<T>>;
-        }): Promise<schémaFonctionOublier> =>
-          await fObjectifFinal(this.client, id, async (résultat) => {
-            if (résultat)
-              return await fSuivreBranche({
-                id,
-                résultatObjectif: résultat,
-              });
-          }),
-      });
     }
 
     const fRechercheFinale = async ({
@@ -2293,13 +2201,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         await fOublierPropres();
         await fOublierFavoris();
       };
-    };
-
-    const fConfiance = async (
-      id: string,
-      f: schémaFonctionSuivi<number>,
-    ): Promise<schémaFonctionOublier> => {
-      return await this.suivreConfianceAuteurs({ idItem: id, clef, f });
     };
 
     return await this.rechercher({
@@ -2425,48 +2326,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     return await this.rechercherObjets({
       f,
       clef: "variables",
-      nRésultatsDésirés,
-      fRecherche,
-      fRechercheLesMiens,
-      fQualité,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  async rechercherMotsClefs<T extends infoRésultat>({
-    f,
-    nRésultatsDésirés,
-    fObjectif,
-    toutLeRéseau = true,
-  }: {
-    f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés?: number;
-    fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fRecherche = this.suivreMotsClefsMembre.bind(this);
-
-    const fQualité = async (
-      id: string,
-      fSuivreQualité: schémaFonctionSuivi<number>,
-    ) => {
-      return await this.client.motsClefs.suivreQualitéMotClef({
-        idMotClef: id,
-        f: fSuivreQualité,
-      });
-    };
-
-    const fRechercheLesMiens = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> =>
-      await this.client.motsClefs.suivreMotsClefs({
-        f: fSuivreRacine,
-      });
-
-    return await this.rechercherObjets({
-      f,
-      clef: "motsClefs",
       nRésultatsDésirés,
       fRecherche,
       fRechercheLesMiens,
@@ -2672,35 +2531,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
   }
 
-  async suivreObjetsMembre({
-    idCompte,
-    fListeObjets,
-    fSuivi,
-  }: {
-    idCompte: string;
-    fListeObjets: (args: {
-      fSuivreRacine: (ids: string[]) => Promise<void>;
-    }) => Promise<schémaFonctionOublier>;
-    fSuivi: schémaFonctionSuivi<string[]>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdsSelonCondition({
-      fListe: fListeObjets,
-      fCondition: async (
-        id: string,
-        fSuivreCondition: schémaFonctionSuivi<boolean>,
-      ): Promise<schémaFonctionOublier> => {
-        return await this.client.suivreAccèsBd({
-          id,
-          f: (autorisés: infoAccès[]) =>
-            fSuivreCondition(
-              autorisés.map((a) => a.idCompte).includes(idCompte),
-            ),
-        });
-      },
-      f: fSuivi,
-    });
-  }
-
   @cacheSuivi
   async suivreBdsMembre({
     idCompte,
@@ -2763,25 +2593,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       idCompte,
       fListeObjets: async ({ fSuivreRacine }) =>
         await this.client.variables.suivreVariables({
-          f: fSuivreRacine,
-          idCompte,
-        }),
-      fSuivi: f,
-    });
-  }
-
-  @cacheSuivi
-  async suivreMotsClefsMembre({
-    idCompte,
-    f,
-  }: {
-    idCompte: string;
-    f: schémaFonctionSuivi<string[] | undefined>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.suivreObjetsMembre({
-      idCompte,
-      fListeObjets: async ({ fSuivreRacine }) =>
-        await this.client.motsClefs.suivreMotsClefs({
           f: fSuivreRacine,
           idCompte,
         }),

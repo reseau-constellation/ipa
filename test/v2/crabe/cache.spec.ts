@@ -1,12 +1,13 @@
 import { expect } from "aegir/chai";
 import {
-  RésultatProfondeur,
   cacheRechercheParN,
   cacheRechercheParProfondeur,
   cacheSuivi,
 } from "@/v2/crabe/cache.js";
-import { Suivi, Oublier, RetourRecherche } from "@/v2/crabe/types.js";
 import { attendreQue } from "../nébuleuse/utils/fonctions.js";
+import type {
+  RésultatProfondeur} from "@/v2/crabe/cache.js";
+import type { Suivi, Oublier, RetourRecherche } from "@/v2/crabe/types.js";
 
 describe.only("Cache", function () {
   describe("suivi", function () {

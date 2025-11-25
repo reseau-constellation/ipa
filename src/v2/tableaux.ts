@@ -1,5 +1,3 @@
-import { TypedNested } from "@constl/bohr-db";
-import { JSONSchemaType } from "ajv";
 import { v4 as uuidv4 } from "uuid";
 import {
   adresseOrbiteValide,
@@ -7,15 +5,21 @@ import {
   suivreDeFonctionListe,
 } from "@constl/utils-ipa";
 import { asSplitKey, joinKey } from "@orbitdb/nested-db";
-import { NestedValueObject } from "node_modules/@orbitdb/nested-db/dist/types.js";
 import { cacheSuivi } from "./crabe/cache.js";
-import { ServicesConstellation } from "./constellation.js";
-import { Oublier, Suivi } from "./crabe/types.js";
-import { PartielRécursif, TraducsTexte } from "./types.js";
 import { brancheBd } from "./crabe/services/services.js";
-import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import {
+  schémaSpécificationRègleColonne
+} from "./règles.js";
+import { typer } from "./crabe/services/orbite/orbite.js";
+import type { TypedNested } from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
+import type { NestedValueObject } from "node_modules/@orbitdb/nested-db/dist/types.js";
+import type { ServicesConstellation } from "./constellation.js";
+import type { Oublier, Suivi } from "./crabe/types.js";
+import type { PartielRécursif, TraducsTexte } from "./types.js";
+import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type {
   DétailsRègleBornesDynamiqueColonne,
   DétailsRègleBornesDynamiqueVariable,
   DétailsRègleValeurCatégoriqueDynamique,
@@ -28,13 +32,10 @@ import {
   RègleValeurCatégorique,
   RègleVariable,
   RègleVariableAvecId,
-  schémaSpécificationRègleColonne,
   ErreurColonne,
   ErreurColonneVariableDédoublée,
-  SpécificationRègleColonne,
-} from "./règles.js";
-import { typer } from "./crabe/services/orbite/orbite.js";
-import { CatégorieVariables } from "./variables.js";
+  SpécificationRègleColonne} from "./règles.js";
+import type { CatégorieVariables } from "./variables.js";
 
 // Types tableaux
 

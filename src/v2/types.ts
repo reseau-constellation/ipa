@@ -1,4 +1,4 @@
-import { DagCborEncodable } from "@orbitdb/core";
+import type { DagCborEncodable } from "@orbitdb/core";
 
 export type TraducsTexte = { [langue: string]: string };
 

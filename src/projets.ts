@@ -6,7 +6,6 @@ type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
 >;
 
-import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import {
   adresseOrbiteValide,
   attendreStabilité,
@@ -15,31 +14,35 @@ import {
   uneFois,
   zipper,
 } from "@constl/utils-ipa";
-import { JSONSchemaType } from "ajv";
 import {
+  schémaStructureBdNoms
+} from "@/types.js";
+import { estUnContrôleurConstellation } from "./accès/utils.js";
+import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
+import {
+  INSTALLÉ,
+  TOUS,
+  résoudreDéfauts
+} from "./favoris.js";
+import { conversionsTypes } from "./v2/utils.js";
+import type { TypedKeyValue, TypedSet } from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
+import type {
   PartielRécursif,
   TraducsTexte,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
-  schémaStructureBdNoms,
-  structureBdNoms,
-} from "@/types.js";
-import { Constellation } from "@/client.js";
-import { estUnContrôleurConstellation } from "./accès/utils.js";
-import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
-import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
-import {
-  INSTALLÉ,
-  TOUS,
-  résoudreDéfauts,
+  structureBdNoms} from "@/types.js";
+import type { Constellation } from "@/client.js";
+import type { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
+import type {
   ÉpingleFavorisAvecId,
-  ÉpingleProjet,
-} from "./favoris.js";
+  ÉpingleProjet} from "./favoris.js";
 import type xlsx from "xlsx";
 import type { objRôles } from "@/accès/types.js";
+import type { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
   type: "string",
@@ -1175,9 +1178,6 @@ export class Projets extends ComposanteClientListe<string> {
   }): Promise<string> {
     const { docs, fichiersSFIP, nomFichier } = données;
 
-    const conversionsTypes: { [key: string]: xlsx.BookType } = {
-      xls: "biff8",
-    };
     const bookType: xlsx.BookType = conversionsTypes[formatDoc] || formatDoc;
 
     const fichiersDocs = docs.map((d) => {

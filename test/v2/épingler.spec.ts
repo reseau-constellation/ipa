@@ -2,9 +2,9 @@ import { expect } from "aegir/chai";
 import { CID } from "multiformats";
 import { que } from "@constl/utils-tests";
 import { diviserIdcEtFichier, idcEtFichierValide } from "@/v2/epingles.js";
-import { Constellation } from "@/v2/index.js";
 import { obtRessourceTest } from "../ressources/index.js";
 import { créerConstellationsTest } from "./utils.js";
+import type { Constellation } from "@/v2/index.js";
 
 describe.only("Épingles", function () {
   describe("vérification idc", function () {

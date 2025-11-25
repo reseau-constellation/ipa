@@ -1,23 +1,26 @@
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import {
-  CircuitRelayService,
   circuitRelayServer,
   circuitRelayTransport,
 } from "@libp2p/circuit-relay-v2";
 import { FaultTolerance } from "@libp2p/interface";
-import { UPnPNAT, uPnPNAT } from "@libp2p/upnp-nat";
+import { uPnPNAT } from "@libp2p/upnp-nat";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
 import { webTransport } from "@libp2p/webtransport";
-import { Libp2pOptions } from "libp2p";
 import { obtStockageDonnées } from "../../utils.js";
 import {
-  ConfigOptionsLibp2p,
-  ServicesLibp2pCrabeDéfaut,
   découvertePairs,
   servicesDéfaut,
 } from "./utils.js";
+import type { Libp2pOptions } from "libp2p";
+import type {
+  ConfigOptionsLibp2p,
+  ServicesLibp2pCrabeDéfaut} from "./utils.js";
+import type { UPnPNAT} from "@libp2p/upnp-nat";
+import type {
+  CircuitRelayService} from "@libp2p/circuit-relay-v2";
 
 export type ServicesLibp2pÉlectronPrincipal = ServicesLibp2pCrabeDéfaut & {
   upnp: UPnPNAT;

@@ -1,4 +1,5 @@
-import { utils, WorkBook } from "xlsx";
+import { utils } from "xlsx";
+import type { WorkBook } from "xlsx";
 
 export class ImportateurFeuilleCalcul {
   doc: WorkBook;

@@ -4,7 +4,6 @@ import axios from "axios";
 import JSZip from "jszip";
 import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
-  WorkBook,
   utils as xlsxUtils,
   readFile as xlsxReadFile,
   writeFile as xlsxWriteFile,
@@ -19,10 +18,12 @@ import {
 import { uneFois, obtenir } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
-import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
 import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
+import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
+import type {
+  WorkBook} from "xlsx";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   SourceDonnéesImportationFichier,

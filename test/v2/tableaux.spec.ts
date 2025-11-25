@@ -1,14 +1,16 @@
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
-import { DagCborEncodable } from "@orbitdb/core";
 import { dossierTempo } from "@constl/utils-tests";
 import JSZip from "jszip";
 import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
-import { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
-import { Constellation } from "@/v2/index.js";
-import { TraducsTexte } from "@/v2/types.js";
-import {
+import { obtRessourceTest } from "test/ressources/index.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { DagCborEncodable } from "@orbitdb/core";
+import type { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
+import type { Constellation } from "@/v2/index.js";
+import type { TraducsTexte } from "@/v2/types.js";
+import type {
   DifférenceColonneManquante,
   DifférenceColonneSupplémentaire,
   DifférenceIndexColonne,
@@ -17,7 +19,7 @@ import {
   InfoColonne,
   InfoColonneAvecCatégorie,
 } from "@/v2/tableaux.js";
-import {
+import type {
   DétailsRègleBornesDynamiqueColonne,
   DétailsRègleBornesDynamiqueVariable,
   DétailsRègleValeurCatégoriqueDynamique,
@@ -30,15 +32,13 @@ import {
   RègleIndexUnique,
   RègleValeurCatégorique,
 } from "@/v2/règles.js";
-import {
+import type {
   DonnéesRangéeTableauAvecId,
   DonnéesRangéeTableau,
   DonnéesTableauExportées,
 } from "@/v2/bds/tableaux.js";
-import { DonnéesFichierBdExportées } from "@/v2/utils.js";
-import { CatégorieBaseVariables } from "@/v2/variables.js";
-import { obtRessourceTest } from "test/ressources/index.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
+import type { CatégorieBaseVariables } from "@/v2/variables.js";
 import type { CellObject, WorkBook } from "xlsx";
 
 describe("tableaux", function () {
@@ -2658,13 +2658,14 @@ describe("tableaux", function () {
         });
 
         it("nom fichier spécifié", async () => {
-          const donnéesAvecNomFichier = await constl.bds.tableaux.exporterDonnées({
-            idStructure: idBd,
-            idTableau,
-            nomFichier: "mon fichier",
-          });
+          const donnéesAvecNomFichier =
+            await constl.bds.tableaux.exporterDonnées({
+              idStructure: idBd,
+              idTableau,
+              nomFichier: "mon fichier",
+            });
           expect(donnéesAvecNomFichier.nomFichier).to.equal("mon fichier");
-        })
+        });
 
         it("nom tableau", async () => {
           expect(données.docu.SheetNames[0]).to.equal(nomTableauFr);
@@ -2857,18 +2858,19 @@ describe("tableaux", function () {
             nomFichier: "logo.svg",
           });
 
-
-          const idColonne = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau })
+          const idColonne = await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau,
+          });
           await constl.bds.tableaux.ajouterÉléments({
             idStructure: idBd,
             idTableau,
-            éléments: [{[idColonne]: idc}]
-          })
-        })
+            éléments: [{ [idColonne]: idc }],
+          });
+        });
 
         beforeEach(async () => {
           ({ dossier, effacer } = await dossierTempo());
-
         });
 
         afterEach(async () => {
@@ -2902,15 +2904,17 @@ describe("tableaux", function () {
 
           // Le fichier ZIP est valide
           zip = await JSZip.loadAsync(readFileSync(`${nomTableauFr}.zip`));
-          
+
           // Le document des données existe
           expect(zip.files[nomTableauFr + ".ods"]).to.exist();
-  
+
           // Le dossier pour les données SFIP existe
           expect(zip.files["sfip/"]?.dir).to.be.true();
-  
+
           // Les fichiers SFIP existent
-          expect(zip.files[["sfip", idc.replace("/", "-")].join("/")]).to.exist();
+          expect(
+            zip.files[["sfip", idc.replace("/", "-")].join("/")],
+          ).to.exist();
         });
 
         it("dossier auparavant inexistant - sans fichiers sfip", async () => {

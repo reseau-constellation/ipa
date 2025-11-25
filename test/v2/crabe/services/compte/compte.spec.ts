@@ -1,8 +1,6 @@
 import { expect } from "aegir/chai";
-import { ServicesLibp2pTest } from "@constl/utils-tests";
-import { NestedObjectToMap, NestedValueObject } from "@orbitdb/nested-db";
+import { NestedObjectToMap } from "@orbitdb/nested-db";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
-import { TypedNested } from "@constl/bohr-db";
 import {
   ServiceCompte,
   ServiceHélia,
@@ -10,26 +8,34 @@ import {
   ServiceStockage,
 } from "@/v2/crabe/index.js";
 import {
-  ServicesNécessairesCompte,
   compilerSchémaCompte,
 } from "@/v2/crabe/services/compte/compte.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { ServiceDonnéesNébuleuse } from "@/v2/crabe/services/services.js";
-import { PartielRécursif } from "@/v2/types.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
-import { Oublier } from "@/v2/crabe/types.js";
-import { StructureCrabe } from "@/v2/crabe/crabe.js";
 import {
-  StructureDispositifs,
   schémaDispositifs,
 } from "@/v2/crabe/services/dispositifs.js";
-import { StructureProfil, schémaProfil } from "@/v2/crabe/services/profil.js";
-import { StructureRéseau, schémaRéseau } from "@/v2/crabe/services/réseau.js";
+import { schémaProfil } from "@/v2/crabe/services/profil.js";
+import type { StructureRéseau} from "@/v2/crabe/services/réseau.js";
+import { schémaRéseau } from "@/v2/crabe/services/réseau.js";
 import { mapÀObjet } from "@/v2/crabe/utils.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
-import { CrabeTest, créerCrabesTest } from "../../utils.js";
+import type { CrabeTest} from "../../utils.js";
+import { créerCrabesTest } from "../../utils.js";
+import type { StructureProfil} from "@/v2/crabe/services/profil.js";
+import type {
+  StructureDispositifs} from "@/v2/crabe/services/dispositifs.js";
+import type { StructureCrabe } from "@/v2/crabe/crabe.js";
+import type { Oublier } from "@/v2/crabe/types.js";
+import type { PartielRécursif } from "@/v2/types.js";
+import type {
+  ServicesNécessairesCompte} from "@/v2/crabe/services/compte/compte.js";
+import type { TypedNested } from "@constl/bohr-db";
+import type { NestedValueObject } from "@orbitdb/nested-db";
+import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { JSONSchemaType } from "ajv";
 
 describe.only("Service Compte", function () {

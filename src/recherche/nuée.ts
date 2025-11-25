@@ -5,7 +5,7 @@ import {
   rechercherTousSiVide,
   similTexte,
   sousRecherche,
-} from "@/recherche/utils.js";
+} from "@/v2/recherche/utils.js";
 import { rechercherVariablesSelonNom } from "@/recherche/variable.js";
 import type {
   infoRésultatRecherche,

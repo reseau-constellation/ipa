@@ -1,7 +1,7 @@
 import { IDBDatastore } from "datastore-idb";
 import { isElectronMain, isNode } from "wherearewe";
-import { ListenerSignature, TypedEmitter } from "tiny-typed-emitter";
-import { Oublier, Suivi } from "../types.js";
+import type { ListenerSignature, TypedEmitter } from "tiny-typed-emitter";
+import type { Oublier, Suivi } from "../types.js";
 import type { Datastore } from "interface-datastore";
 
 export const obtStockageDonnées = async (

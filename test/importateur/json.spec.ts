@@ -2,10 +2,11 @@ import { expect } from "aegir/chai";
 import {
   ImportateurDonnéesJSON,
   aplatirDonnées,
-  extraireDonnées,
-  élément,
+  extraireDonnées
 } from "@/importateur/json.js";
 import { obtRessourceTest } from "../ressources/index.js";
+import type {
+  élément} from "@/importateur/json.js";
 
 describe("JSON", function () {
   describe("Extraire données", function () {

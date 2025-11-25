@@ -1,7 +1,7 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
-import { BaseDatabase, OrbitDB } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
-import { ServiceMap } from "@libp2p/interface";
+import type { BaseDatabase, OrbitDB } from "@orbitdb/core";
+import type { ServiceMap } from "@libp2p/interface";
 
 // Un mandataire pour orbite qui évite les conditions de concurrence pour `open`
 

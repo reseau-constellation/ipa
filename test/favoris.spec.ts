@@ -4,15 +4,16 @@ import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-ipa";
 import { créerConstellation, type Constellation } from "@/index.js";
+import type {
+
+  ÉpingleCompte} from "@/favoris.js";
 import {
   INSTALLÉ,
   TOUS,
-  ÉpingleCompte,
   type BooléenniserPropriétés,
   type ÉpingleBd,
   type ÉpingleFavoris,
-  type ÉpingleFavorisAvecId,
-} from "@/favoris.js";
+  type ÉpingleFavorisAvecId} from "@/favoris.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 

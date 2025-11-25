@@ -4,6 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 import { expect } from "aegir/chai";
 
 import {
+  générerFonctionValidation,
+} from "@/v2/règles.js";
+import type {
   ErreurDonnée,
   FonctionValidation,
   Op,
@@ -13,10 +16,8 @@ import {
   RègleExiste,
   RègleIndexUnique,
   RègleValeurCatégorique,
-  SourceRègle,
-  générerFonctionValidation,
-} from "@/v2/règles.js";
-import { DonnéesRangéeTableau } from "@/v2/bds/tableaux.js";
+  SourceRègle} from "@/v2/règles.js";
+import type { DonnéesRangéeTableau } from "@/v2/bds/tableaux.js";
 import type { CatégorieBaseVariables } from "@/v2/variables.js";
 import type { élémentsBd } from "@/types.js";
 

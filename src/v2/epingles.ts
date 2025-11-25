@@ -1,39 +1,14 @@
 import { adresseOrbiteValide, idcValide } from "@constl/utils-ipa";
-import { BaseDatabase } from "@orbitdb/core";
 import { CID } from "multiformats";
 import drain from "it-drain";
 import PQueue from "p-queue";
-import { Nébuleuse, ServiceNébuleuse } from "./nébuleuse/nébuleuse.js";
-import { Oublier } from "./crabe/types.js";
-import { ServicesNécessairesOrbite } from "./crabe/services/orbite/orbite.js";
-import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
-
-export const diviserIdcEtFichier = (val: string) => {
-  const premièreBarreOblique = val.indexOf("/");
-
-  if (premièreBarreOblique === -1)
-    throw new Error(`Chemin IDC et fichier non valide : ${val}`);
-
-  const idc = val.slice(0, premièreBarreOblique);
-  const fichier = val.slice(premièreBarreOblique + 1);
-
-  return { idc, fichier };
-};
-
-export const idcEtFichierValide = (val: string) => {
-  let idc: string;
-  let fichier: string;
-
-  try {
-    ({ idc, fichier } = diviserIdcEtFichier(val));
-  } catch {
-    return false;
-  }
-
-  if (!fichier) return false;
-  if (!idcValide(idc)) return false;
-  return { idc, fichier };
-};
+import { ServiceNébuleuse } from "./nébuleuse/nébuleuse.js";
+import { idcEtFichierValide } from "./utils.js";
+import type { BaseDatabase } from "@orbitdb/core";
+import type { Nébuleuse} from "./nébuleuse/nébuleuse.js";
+import type { Oublier } from "./crabe/types.js";
+import type { ServicesNécessairesOrbite } from "./crabe/services/orbite/orbite.js";
+import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 
 export class Épingles<
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,

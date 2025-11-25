@@ -1,7 +1,6 @@
 import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
 import { faisRien } from "@constl/utils-ipa";
-import { FSWatcherEventMap } from "chokidar";
 import { TypedEmitter } from "tiny-typed-emitter";
 import {
   importerFeuilleCalculDURL,
@@ -9,10 +8,11 @@ import {
 } from "@/importateur/index.js";
 import { ImportateurDonnéesJSON } from "@/importateur/json.js";
 import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
-import { Constellation } from "../constellation.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
-import { Suivi } from "../crabe/types.js";
-import {
+import type { Constellation } from "../constellation.js";
+import type { FSWatcherEventMap } from "chokidar";
+import type { Suivi } from "../crabe/types.js";
+import type {
   FréquenceFixe,
   InfoImporterFeuilleCalcul,
   InfoImporterJSON,

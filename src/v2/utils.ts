@@ -1,9 +1,10 @@
 import path from "path";
-import xlsx, { write as xlsxWrite, writeFile as xlsxWriteFile } from "xlsx";
+import { write as xlsxWrite, writeFile as xlsxWriteFile } from "xlsx";
 import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
 import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
-import { zipper } from "@constl/utils-ipa";
+import { idcValide, zipper } from "@constl/utils-ipa";
+import type xlsx from "xlsx";
 
 const { saveAs } = fileSaver;
 
@@ -97,4 +98,31 @@ export const extraireEmpreinte = (adresseOrbite: string): string => {
 
 export const ajouterProtocoleOrbite = (empreinte: string): string => {
   return `/orbitdb/${empreinte}`;
+};
+
+export const diviserIdcEtFichier = (val: string) => {
+  const premièreBarreOblique = val.indexOf("/");
+
+  if (premièreBarreOblique === -1)
+    throw new Error(`Chemin IDC et fichier non valide : ${val}`);
+
+  const idc = val.slice(0, premièreBarreOblique);
+  const fichier = val.slice(premièreBarreOblique + 1);
+
+  return { idc, fichier };
+};
+
+export const idcEtFichierValide = (val: string) => {
+  let idc: string;
+  let fichier: string;
+
+  try {
+    ({ idc, fichier } = diviserIdcEtFichier(val));
+  } catch {
+    return false;
+  }
+
+  if (!fichier) return false;
+  if (!idcValide(idc)) return false;
+  return { idc, fichier };
 };

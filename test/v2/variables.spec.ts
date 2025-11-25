@@ -1,13 +1,13 @@
 import { expect } from "aegir/chai";
-import { Constellation } from "@/v2/index.js";
-import { StatutDonnées, TraducsTexte } from "@/v2/types.js";
-import { CatégorieVariables as CatégorieVariable } from "@/v2/variables.js";
-import {
+import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { Constellation } from "@/v2/index.js";
+import type { StatutDonnées, TraducsTexte } from "@/v2/types.js";
+import type { CatégorieVariables as CatégorieVariable } from "@/v2/variables.js";
+import type {
   RègleBornes,
   RègleCatégorie,
   RègleVariableAvecId,
 } from "@/v2/règles.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
 
 describe.only("Variables", function () {
   let fermer: () => Promise<void>;

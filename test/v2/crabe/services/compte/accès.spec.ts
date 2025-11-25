@@ -1,19 +1,20 @@
-import { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import { créerOrbitesTest } from "@constl/utils-tests";
 import { obtenir } from "@constl/utils-ipa";
 import {
-  AccèsDispositif,
-  AccèsUtilisateur,
   ContrôleurNébuleuse,
-  InstanceContrôleurNébuleuse,
   MEMBRE,
   MODÉRATRICE,
 } from "@/v2/crabe/services/compte/accès/index.js";
-import { Oublier } from "@/v2/crabe/types.js";
 import { attendreQue } from "../../../nébuleuse/utils/fonctions.js";
 import { attendreInvité, peutÉcrire } from "./../../../utils.js";
+import type { Oublier } from "@/v2/crabe/types.js";
+import type {
+  AccèsDispositif,
+  AccèsUtilisateur,
+  InstanceContrôleurNébuleuse} from "@/v2/crabe/services/compte/accès/index.js";
+import type { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 
 describe.only("Accès", function () {
   describe("par identités orbite", function () {

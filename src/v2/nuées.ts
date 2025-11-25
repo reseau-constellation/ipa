@@ -1,13 +1,26 @@
-import { TypedNested, typedNested } from "@constl/bohr-db";
-import { Constellation, ServicesConstellation } from "./constellation.js";
-import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import { typedNested } from "@constl/bohr-db";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
-import { Oublier } from "./crabe/types.js";
-import { StructureTableau, Tableaux, schémaTableau } from "./tableaux.js";
-import { Métadonnées, PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
+import { Tableaux, schémaTableau } from "./tableaux.js";
 import { extraireEmpreinte } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
-import { BaseÉpingleFavoris, DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
+import {
+  DISPOSITIFS_INSTALLÉS,
+  TOUS_DISPOSITIFS,
+  résoudreDéfauts,
+} from "./favoris.js";
+import type { TypedNested} from "@constl/bohr-db";
+import type { Constellation, ServicesConstellation } from "./constellation.js";
+import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { Oublier } from "./crabe/types.js";
+import type { StructureTableau} from "./tableaux.js";
+import type {
+  Métadonnées,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "./types.js";
+import type {
+  BaseÉpingleFavoris} from "./favoris.js";
 import type { ÉpingleBd } from "./bds/bds.js";
 import type { JSONSchemaType } from "ajv";
 
@@ -18,14 +31,13 @@ export type ÉpingleNuée = BaseÉpingleFavoris & {
   données: ÉpingleBd;
 };
 
-
 // Types structure
 
 export type AutorisationNuée = {
-  type: "ouverte" | "par invitation",
-  bloqués: string[],
-  invités: string[],
-}
+  type: "ouverte" | "par invitation";
+  bloqués: string[];
+  invités: string[];
+};
 
 export type StructureNuée = {
   type: "nuée";
@@ -66,8 +78,8 @@ export const schémaNuée: JSONSchemaType<PartielRécursif<StructureNuée>> = {
       type: "object",
       properties: {
         type: { type: "string", nullable: true },
-        bloqués: { type: "array", items: { type: "string" }, nullable: true},
-        invités: { type: "array", items: { type: "string" }, nullable: true},
+        bloqués: { type: "array", items: { type: "string" }, nullable: true },
+        invités: { type: "array", items: { type: "string" }, nullable: true },
       },
       nullable: true,
     },
@@ -138,12 +150,17 @@ export class Nuées<
 
     if (épingler) await this.épingler({ idNuée });
 
-    await nuée.put({ type: "nuée", autorisation: { 
-      type: autorisation 
-    }, statut: { statut: "active" }, parent: nuéeParent });
+    await nuée.put({
+      type: "nuée",
+      autorisation: {
+        type: autorisation,
+      },
+      statut: { statut: "active" },
+      parent: nuéeParent,
+    });
 
     await oublier();
-    
+
     return idNuée;
   }
 

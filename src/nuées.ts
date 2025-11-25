@@ -9,43 +9,35 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import { v4 as uuidv4 } from "uuid";
-import { TypedKeyValue } from "@constl/bohr-db";
 import { isValidAddress } from "@orbitdb/core";
-import { JSONSchemaType } from "ajv";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
-import { Constellation } from "@/client.js";
 
 import {
-  infoAuteur,
-  infoRésultatVide,
-  résultatRecherche,
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
-  schémaFonctionSuiviRecherche,
-  schémaRetourFonctionRechercheParProfondeur,
-  schémaStatut,
   schémaStructureBdMétadonnées,
   schémaStructureBdNoms,
 } from "@/types.js";
 
-import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
 import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
 import {
   INSTALLÉ,
   TOUS,
-  résoudreDéfauts,
-  ÉpingleFavorisAvecId,
-  ÉpingleNuée,
+  résoudreDéfauts
 } from "./favoris.js";
-import type { BookType } from "xlsx";
-import type {
+import type { donnéesTableauExportation, élémentDonnées ,
   différenceTableaux,
   InfoCol,
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
 } from "@/tableaux.js";
+import type {
+  ÉpingleFavorisAvecId,
+  ÉpingleNuée} from "./favoris.js";
+import type { Constellation } from "@/client.js";
+import type { JSONSchemaType } from "ajv";
+import type { TypedKeyValue } from "@constl/bohr-db";
+import type { BookType } from "xlsx";
 import type {
   différenceBds,
   différenceBDTableauManquant,
@@ -62,15 +54,23 @@ import type {
   TraducsTexte,
   schémaRetourFonctionRechercheParN,
   élémentsBd,
-} from "@/types.js";
+
+  infoAuteur,
+  infoRésultatVide,
+  résultatRecherche,
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaFonctionSuiviRecherche,
+  schémaRetourFonctionRechercheParProfondeur,
+  schémaStatut} from "@/types.js";
 import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
-import { schémaBdTableauxDeBd } from "@/bds.js";
+import type { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
   cacheRechercheParN,
   cacheRechercheParProfondeur,
   cacheSuivi,
 } from "@/décorateursCache.js";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import { schémaBdTableauxDeBd } from "@/bds.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -273,7 +273,6 @@ export class Nuées extends ComposanteClientListe<string> {
     await bdRacine.del(idNuée);
     await fOublier();
   }
-
 
   async suivreÉpingleNuée({
     idNuée,

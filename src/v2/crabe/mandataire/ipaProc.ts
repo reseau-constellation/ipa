@@ -1,14 +1,15 @@
 import {
   générerMandataire,
+  Mandatairifiable
+} from "@constl/mandataire";
+import { EnveloppeCrabe } from "./enveloppe.js";
+import type {
   MandataireConstellation,
-  Mandatairifiable,
   MessageDIpa,
   MessageErreurDIpa,
-  MessagePourIpa,
-} from "@constl/mandataire";
+  MessagePourIpa} from "@constl/mandataire";
 
-import { Crabe } from "../index.js";
-import { EnveloppeCrabe } from "./enveloppe.js";
+import type { Crabe } from "../index.js";
 
 export class MandataireProc<T extends Crabe> extends Mandatairifiable {
   crabe: EnveloppeCrabe<T>;

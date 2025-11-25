@@ -1,13 +1,14 @@
 import { isElectronRenderer, isWebWorker } from "wherearewe";
 
 import {
-  Constellation as ConstructeurConstellation,
-  OptionsConstellation,
+  Constellation as ConstructeurConstellation
 } from "./constellation.js";
 import {
   générerMandataireProcessus,
   générerMandataireTravailleur,
 } from "./crabe/mandataire/index.js";
+import type {
+  OptionsConstellation} from "./constellation.js";
 import type { MandataireConstellation } from "@constl/mandataire";
 
 export type Constellation = MandataireConstellation<ConstructeurConstellation>;

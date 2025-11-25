@@ -3,7 +3,7 @@ import {
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
-} from "@/recherche/utils.js";
+} from "@/v2/recherche/utils.js";
 import type { Constellation } from "@/client.js";
 import type {
   infoRésultatTexte,

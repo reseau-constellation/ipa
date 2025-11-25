@@ -11,9 +11,9 @@ import {
 } from "@constl/utils-tests";
 
 import { expect } from "aegir/chai";
-import { schémaFonctionOublier } from "@/types.js";
 import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
+import type { schémaFonctionOublier } from "@/types.js";
 import type xlsx from "xlsx";
 
 const { créerConstellationsTest } = utilsTestConstellation;

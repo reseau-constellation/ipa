@@ -1,5 +1,5 @@
 import axios from "axios";
-import { élémentDic } from "./json.js";
+import type { élémentDic } from "./json.js";
 
 export const importerDonnéesEpiCollecte = async ({
   idProjet,

@@ -1,19 +1,20 @@
 import path from "path";
-import { BaseDatabase, KeyValueDatabase } from "@orbitdb/core";
-import { SetDatabaseType } from "@orbitdb/set-db";
-import { FeedDatabaseType } from "@orbitdb/feed-db";
-import { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import { isBrowser } from "wherearewe";
 import { dossierTempo } from "@constl/utils-tests";
 
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
 import { estContrôleurNébuleuse } from "@/v2/crabe/services/compte/accès/contrôleurNébuleuse.js";
-import { Oublier } from "@/v2/crabe/types.js";
-import { Constellation, créerConstellation } from "@/v2/index.js";
+import { créerConstellation } from "@/v2/index.js";
 import { attendreQue } from "./nébuleuse/utils/fonctions.js";
 import { connecterCrabes } from "./crabe/utils.js";
 import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
+import type { Constellation} from "@/v2/index.js";
+import type { Oublier } from "@/v2/crabe/types.js";
+import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
+import type { FeedDatabaseType } from "@orbitdb/feed-db";
+import type { SetDatabaseType } from "@orbitdb/set-db";
+import type { BaseDatabase, KeyValueDatabase } from "@orbitdb/core";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,

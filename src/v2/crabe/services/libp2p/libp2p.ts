@@ -1,24 +1,26 @@
 import { join } from "path";
-import { Libp2p, Libp2pOptions, createLibp2p, isLibp2p } from "libp2p";
-import { Identify } from "@libp2p/identify";
-import { GossipSub } from "@chainsafe/libp2p-gossipsub";
+import { createLibp2p, isLibp2p } from "libp2p";
 import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
 } from "uint8arrays";
-import { PrivateKey, ServiceMap } from "@libp2p/interface";
 import { keys } from "@libp2p/crypto";
 import {
-  Nébuleuse,
-  OptionsNébuleuse,
   ServiceNébuleuse,
 } from "../../../nébuleuse/index.js";
-import { ServiceStockage } from "../stockage.js";
-
-import { ServiceOrbite } from "../orbite/index.js";
-import { ServiceHélia } from "../hélia.js";
 import { obtenirOptionsLibp2p } from "./config/index.js";
-import { ServiceClefPrivée } from "./config/utils.js";
+import type { Libp2p, Libp2pOptions} from "libp2p";
+import type { Identify } from "@libp2p/identify";
+import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
+import type { PrivateKey, ServiceMap } from "@libp2p/interface";
+import type {
+  Nébuleuse,
+  OptionsNébuleuse} from "../../../nébuleuse/index.js";
+import type { ServiceStockage } from "../stockage.js";
+
+import type { ServiceOrbite } from "../orbite/index.js";
+import type { ServiceHélia } from "../hélia.js";
+import type { ServiceClefPrivée } from "./config/utils.js";
 
 export type ServicesLibp2pCrabe = {
   identify: Identify;

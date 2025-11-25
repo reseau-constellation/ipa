@@ -1,9 +1,9 @@
 import { expect } from "aegir/chai";
-import { Constellation } from "@/v2/index.js";
-import { PartielRécursif, TraducsTexte } from "@/v2/types.js";
 import { TOUS_DISPOSITIFS } from "@/v2/favoris.js";
-import { ÉpingleMotClef } from "@/v2/motsClefs.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { Constellation } from "@/v2/index.js";
+import type { PartielRécursif, TraducsTexte } from "@/v2/types.js";
+import type { ÉpingleMotClef } from "@/v2/motsClefs.js";
 
 describe.only("Mots-clefs", function () {
   let fermer: () => Promise<void>;
@@ -46,7 +46,7 @@ describe.only("Mots-clefs", function () {
 
       const épingle = await obtenir<PartielRécursif<ÉpingleMotClef>>(
         ({ siDéfini }) =>
-          constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: siDéfini() }),
+          constl.motsClefs.suivreÉpingle({ idMotClef, f: siDéfini() }),
       );
       expect(épingle).to.not.be.undefined();
     });
@@ -62,7 +62,7 @@ describe.only("Mots-clefs", function () {
       expect(motsClefs).to.be.an.empty("array");
 
       const épingle = await obtenir(({ si }) =>
-        constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: si((x) => !x) }),
+        constl.motsClefs.suivreÉpingle({ idMotClef, f: si((x) => !x) }),
       );
       expect(épingle).to.be.undefined();
     });
@@ -114,7 +114,7 @@ describe.only("Mots-clefs", function () {
 
     it("pas de noms pour commencer", async () => {
       const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
-        constl.motsClefs.suivreNomsMotClef({
+        constl.motsClefs.suivreNoms({
           idMotClef,
           f: siDéfini(),
         }),
@@ -123,13 +123,13 @@ describe.only("Mots-clefs", function () {
     });
 
     it("ajouter un nom", async () => {
-      await constl.motsClefs.sauvegarderNomMotClef({
+      await constl.motsClefs.sauvegarderNom({
         idMotClef,
         langue: "fr",
         nom: "Hydrologie",
       });
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
-        constl.motsClefs.suivreNomsMotClef({
+        constl.motsClefs.suivreNoms({
           idMotClef,
           f: siPasVide(),
         }),
@@ -138,7 +138,7 @@ describe.only("Mots-clefs", function () {
     });
 
     it("ajouter des noms", async () => {
-      await constl.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
           த: "நீரியல்",
@@ -146,7 +146,7 @@ describe.only("Mots-clefs", function () {
         },
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.motsClefs.suivreNomsMotClef({
+        constl.motsClefs.suivreNoms({
           idMotClef,
           f: si((x) => !!x && Object.keys(x).length >= 3),
         }),
@@ -160,13 +160,13 @@ describe.only("Mots-clefs", function () {
     });
 
     it("changer un nom", async () => {
-      await constl.motsClefs.sauvegarderNomMotClef({
+      await constl.motsClefs.sauvegarderNom({
         idMotClef,
         langue: "fr",
         nom: "hydrologie",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.motsClefs.suivreNomsMotClef({
+        constl.motsClefs.suivreNoms({
           idMotClef,
           f: si((x) => x?.["fr"] === "hydrologie"),
         }),
@@ -176,12 +176,12 @@ describe.only("Mots-clefs", function () {
     });
 
     it("effacer un nom", async () => {
-      await constl.motsClefs.effacerNomMotClef({
+      await constl.motsClefs.effacerNom({
         idMotClef,
         langue: "fr",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.motsClefs.suivreNomsMotClef({
+        constl.motsClefs.suivreNoms({
           idMotClef,
           f: si((x) => !!x && !Object.keys(x).includes("fr")),
         }),
@@ -291,7 +291,7 @@ describe.only("Mots-clefs", function () {
 
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
-      await constl.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
           த: "நீரியல்",
@@ -325,7 +325,7 @@ describe.only("Mots-clefs", function () {
 
     it("les noms sont copiés", async () => {
       const noms = await obtenir(({ siPasVide }) =>
-        constl.motsClefs.suivreNomsMotClef({ idMotClef, f: siPasVide() }),
+        constl.motsClefs.suivreNoms({ idMotClef, f: siPasVide() }),
       );
       expect(noms).to.deep.equal({ த: "நீரியல்", हिं: "जल विज्ञान" });
     });
@@ -350,7 +350,7 @@ describe.only("Mots-clefs", function () {
       await constl.motsClefs.désépinglerMotClef({ idMotClef });
 
       const épingle = await obtenir(({ si }) =>
-        constl.motsClefs.suivreÉpingleMotClef({
+        constl.motsClefs.suivreÉpingle({
           idMotClef,
           f: si((x) => x === undefined),
         }),
@@ -362,10 +362,10 @@ describe.only("Mots-clefs", function () {
       const idMotClef = await constl.motsClefs.créerMotClef({
         épingler: false,
       });
-      await constl.motsClefs.épinglerMotClef({ idMotClef });
+      await constl.motsClefs.épingler({ idMotClef });
 
       const épingle = await obtenir(({ siDéfini }) =>
-        constl.motsClefs.suivreÉpingleMotClef({ idMotClef, f: siDéfini() }),
+        constl.motsClefs.suivreÉpingle({ idMotClef, f: siDéfini() }),
       );
       expect(épingle).to.deep.equal({
         base: TOUS_DISPOSITIFS,

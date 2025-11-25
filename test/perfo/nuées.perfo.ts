@@ -1,7 +1,7 @@
 import { describe, bench, beforeAll, afterAll } from "@chainsafe/benchmark";
 import { constellation as constlTest } from "@constl/utils-tests";
 import { créerConstellation, type Constellation } from "@/index.js";
-import { schémaFonctionOublier } from "@/types.js";
+import type { schémaFonctionOublier } from "@/types.js";
 
 describe("Nuées", () => {
   let constls: Constellation[];

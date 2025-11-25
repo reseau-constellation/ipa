@@ -1,13 +1,14 @@
 import { toUnicode } from "punycode";
-import { DagCborEncodable } from "@orbitdb/core";
 import {
-  NestedMapToObject,
-  NestedValueMap,
   toObject,
 } from "@orbitdb/nested-db";
 import { AbortError } from "p-retry";
 import { multiaddr } from "@multiformats/multiaddr";
-import { PartielRécursif } from "../types.js";
+import type {
+  NestedMapToObject,
+  NestedValueMap} from "@orbitdb/nested-db";
+import type { DagCborEncodable } from "@orbitdb/core";
+import type { PartielRécursif } from "../types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {

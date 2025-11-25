@@ -1,25 +1,28 @@
-import { OrbitDB } from "@orbitdb/core";
 import { expect } from "aegir/chai";
-import { Helia } from "helia";
-import { Libp2p } from "libp2p";
-import { ServicesLibp2pTest, créerOrbitesTest } from "@constl/utils-tests";
-import { TypedNested, typedNested } from "@constl/bohr-db";
+import { créerOrbitesTest } from "@constl/utils-tests";
+import { typedNested } from "@constl/bohr-db";
 import { v4 as uuidv4 } from "uuid";
-import { JSONSchemaType } from "ajv";
-import { NestedDatabaseType } from "@orbitdb/nested-db";
-import { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
-import { Crabe, validerOptionsServicesCrabe } from "@/v2/crabe/crabe.js";
-import { Oublier } from "@/v2/crabe/types.js";
+import { validerOptionsServicesCrabe } from "@/v2/crabe/crabe.js";
 import {
   ServiceDonnéesNébuleuse,
   brancheBd,
 } from "@/v2/crabe/services/services.js";
-import { PartielRécursif } from "@/v2/types.js";
 import { mapÀObjet } from "@/v2/crabe/utils.js";
-import { Nébuleuse } from "@/v2/nébuleuse/index.js";
-import { ServicesNécessairesCompte } from "@/v2/crabe/services/compte/index.js";
 import { créerCrabesTest } from "../utils.js";
 import { obtenir } from "../../utils.js";
+import type { OrbitDB } from "@orbitdb/core";
+import type { Helia } from "helia";
+import type { Libp2p } from "libp2p";
+import type { ServicesLibp2pTest} from "@constl/utils-tests";
+import type { TypedNested} from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
+import type { NestedDatabaseType } from "@orbitdb/nested-db";
+import type { ServicesLibp2pCrabe } from "@/v2/crabe/services/libp2p/libp2p.js";
+import type { Crabe} from "@/v2/crabe/crabe.js";
+import type { Oublier } from "@/v2/crabe/types.js";
+import type { PartielRécursif } from "@/v2/types.js";
+import type { Nébuleuse } from "@/v2/nébuleuse/index.js";
+import type { ServicesNécessairesCompte } from "@/v2/crabe/services/compte/index.js";
 
 const ERREUR_DUPLIQUÉS =
   "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";

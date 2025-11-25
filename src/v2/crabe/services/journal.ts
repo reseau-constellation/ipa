@@ -1,6 +1,7 @@
 import { isElectronMain, isNode } from "wherearewe";
 import PQueue from "p-queue";
-import { Nébuleuse, ServiceNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import { ServiceNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type { Nébuleuse} from "@/v2/nébuleuse/nébuleuse.js";
 
 export type OptionsServiceJournal = {
   f: string | ((m: string) => void | Promise<void>);

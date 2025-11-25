@@ -1,5 +1,3 @@
-import { PrivateKey } from "@libp2p/interface";
-import { Libp2pOptions } from "libp2p";
 import {
   isBrowser,
   isElectronMain,
@@ -13,11 +11,13 @@ import {
 } from "./const.js";
 import { obtOptionsLibp2pNavigateur } from "./navigateur.js";
 import { obtOptionsLibp2pNode } from "./node.js";
-import { ConfigOptionsLibp2p, ServicesLibp2pCrabeDéfaut } from "./utils.js";
 import {
   obtOptionsLibp2pTravailleur,
   obtOptionsLibp2pÉlectronPrincipal,
 } from "./index.js";
+import type { ConfigOptionsLibp2p, ServicesLibp2pCrabeDéfaut } from "./utils.js";
+import type { Libp2pOptions } from "libp2p";
+import type { PrivateKey } from "@libp2p/interface";
 
 export type ConfigLibp2p = {
   dossier?: string;

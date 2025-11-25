@@ -1,23 +1,25 @@
-import { JSONSchemaType } from "ajv";
-import { TypedNested, typedNested } from "@constl/bohr-db";
+import { typedNested } from "@constl/bohr-db";
 import { faisRien } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { cacheSuivi } from "./crabe/cache.js";
-import { Constellation, ServicesConstellation } from "./constellation.js";
-import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
-import { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
-import { Oublier, Suivi } from "./crabe/types.js";
 import {
-  BaseÉpingleFavoris,
   TOUS_DISPOSITIFS,
-  résoudreDéfauts,
-  ÉpingleFavorisAvecIdBooléennisée,
+  résoudreDéfauts
 } from "./favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import {
+import type { Constellation, ServicesConstellation } from "./constellation.js";
+import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
+import type { Oublier, Suivi } from "./crabe/types.js";
+import type {
+  BaseÉpingleFavoris,
+  ÉpingleFavorisAvecIdBooléennisée} from "./favoris.js";
+import type { TypedNested} from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
+import type {
   RègleCatégorie,
   RègleVariable,
   RègleVariableAvecId,

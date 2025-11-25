@@ -1,6 +1,5 @@
 import { join } from "path";
-import { Libp2p } from "libp2p";
-import { Helia, HeliaInit, createHelia } from "helia";
+import { createHelia } from "helia";
 import { isElectronMain, isNode } from "wherearewe";
 import { IDBBlockstore } from "blockstore-idb";
 
@@ -8,16 +7,19 @@ import { unixfs } from "@helia/unixfs";
 import { toBuffer } from "@constl/utils-ipa";
 import { CID } from "multiformats";
 import {
-  Nébuleuse,
-  OptionsNébuleuse,
   ServiceNébuleuse,
 } from "../../nébuleuse/index.js";
-import {
+import { obtStockageDonnées } from "./utils.js";
+import type {
+  Nébuleuse,
+  OptionsNébuleuse} from "../../nébuleuse/index.js";
+import type {
   ServicesLibp2pCrabe,
   ServicesNécessairesLibp2p,
 } from "./libp2p/libp2p.js";
-import { obtStockageDonnées } from "./utils.js";
-import { ServiceOrbite } from "./orbite/orbite.js";
+import type { Helia, HeliaInit} from "helia";
+import type { Libp2p } from "libp2p";
+import type { ServiceOrbite } from "./orbite/orbite.js";
 
 export type OptionsServiceHélia<
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,

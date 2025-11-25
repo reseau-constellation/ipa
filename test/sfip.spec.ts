@@ -1,17 +1,19 @@
 import path from "path";
 import { expect } from "aegir/chai";
-import { Connection, Libp2p, PeerId, Stream } from "@libp2p/interface";
 import { dossiers } from "@constl/utils-tests";
 import { v4 as uuidv4 } from "uuid";
 import { isElectronMain, isNode } from "wherearewe";
 import { pushable } from "it-pushable";
 import { pipe } from "it-pipe";
-import { Multiaddr } from "@multiformats/multiaddr";
 import { TypedEmitter } from "tiny-typed-emitter";
 import pRetry from "p-retry";
-import { Constellation, créerConstellation } from "@/index.js";
-import { ServicesLibp2p, initSFIP } from "../src/sfip/index.js";
+import { créerConstellation } from "@/index.js";
+import { initSFIP } from "../src/sfip/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
+import type { ServicesLibp2p} from "../src/sfip/index.js";
+import type { Constellation} from "@/index.js";
+import type { Multiaddr } from "@multiformats/multiaddr";
+import type { Connection, Libp2p, PeerId, Stream } from "@libp2p/interface";
 import type { Helia } from "helia";
 
 const attendre = (ms: number) =>

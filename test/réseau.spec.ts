@@ -8,16 +8,16 @@ import { expect } from "aegir/chai";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { MEMBRE, MODÉRATEUR } from "@/v2/crabe/services/compte/accès/consts.js";
-import {
+
+import { type Constellation, créerConstellation } from "@/index.js";
+import { INSTALLÉ, TOUS, type ÉpingleFavorisAvecId } from "@/favoris.js";
+import { obtRessourceTest } from "./ressources/index.js";
+import type {
   infoAuteur,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
-
-import { type Constellation, créerConstellation } from "@/index.js";
-import { INSTALLÉ, TOUS, type ÉpingleFavorisAvecId } from "@/favoris.js";
-import { obtRessourceTest } from "./ressources/index.js";
 import type { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 import type {
   infoBloqué,

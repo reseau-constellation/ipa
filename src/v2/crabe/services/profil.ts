@@ -1,21 +1,21 @@
-import { JSONSchemaType } from "ajv";
 import { v4 as uuidv4 } from "uuid";
 import { idcValide } from "@constl/utils-ipa";
-import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import {
+import { cacheSuivi } from "../cache.js";
+import { mapÀObjet } from "../utils.js";
+import { ServiceDonnéesNébuleuse } from "./services.js";
+import { nulÀObjetVide } from "./utils.js";
+import type { JSONSchemaType } from "ajv";
+import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
   ÉpingleFavorisAvecIdBooléennisée,
 } from "@/v2/favoris.js";
-import { cacheSuivi } from "../cache.js";
-import { Suivi, Oublier } from "../types.js";
-import { PartielRécursif, TraducsTexte } from "../../types.js";
-import { mapÀObjet } from "../utils.js";
-import { ServiceDonnéesNébuleuse } from "./services.js";
-import { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
-import { ServicesNécessairesCompte } from "./compte/compte.js";
-import { ServiceDispositifs } from "./dispositifs.js";
-import { nulÀObjetVide } from "./utils.js";
+import type { Suivi, Oublier } from "../types.js";
+import type { PartielRécursif, TraducsTexte } from "../../types.js";
+import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
+import type { ServicesNécessairesCompte } from "./compte/compte.js";
+import type { ServiceDispositifs } from "./dispositifs.js";
 
 // Types épingle
 

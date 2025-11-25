@@ -1,5 +1,4 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
-import { Libp2p } from "@libp2p/interface";
 import { எண்ணிக்கை } from "ennikkai";
 import indexedDbStream from "indexed-db-stream";
 import plateforme from "platform";
@@ -14,20 +13,14 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import {
-  TypedFeed,
-  TypedKeyValue,
-  TypedNested,
-  TypedOrderedKeyValue,
-  TypedSet,
+  TypedFeed
 } from "@constl/bohr-db";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
-import { JSONSchemaType } from "ajv";
 
 import sha256 from "crypto-js/sha256.js";
 import { randomBytes } from "@noble/hashes/utils";
 import bs58 from "bs58";
 
-import { Helia } from "helia";
 import JSZip from "jszip";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import { isValidAddress } from "@orbitdb/core";
@@ -39,17 +32,12 @@ import {
 import { keys } from "@libp2p/crypto";
 import { anySignal } from "any-signal";
 import { AbortError } from "p-retry";
-import { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import { Automatisations } from "@/automatisation.js";
-import { BDs } from "@/bds.js";
 import {
   Favoris,
   INSTALLÉ,
   TOUS,
-  résoudreDéfauts,
-  ÉpingleCompte,
-  ÉpingleFavoris,
-  ÉpingleFavorisAvecId,
+  résoudreDéfauts
 } from "@/favoris.js";
 import { Licences } from "@/licences.js";
 import { Nuées } from "@/nuées.js";
@@ -59,6 +47,14 @@ import { Réseau } from "@/reseau.js";
 import { Tableaux } from "@/tableaux.js";
 
 import {
+  MEMBRE,
+  MODÉRATEUR
+} from "@/v2/crabe/services/compte/accès/consts.js";
+import { Protocoles } from "./protocoles.js";
+import { appelerLorsque, estUnePromesse } from "./utils.js";
+import type {
+  rôles} from "@/v2/crabe/services/compte/accès/consts.js";
+import type {
   Jsonifiable,
   PartielRécursif,
   schémaFonctionOublier,
@@ -66,15 +62,20 @@ import {
   schémaRetourFonctionRechercheParProfondeur,
   élémentsBd,
 } from "@/types.js";
-import {
-  MEMBRE,
-  MODÉRATEUR,
-  rôles,
-} from "@/v2/crabe/services/compte/accès/consts.js";
-import { Protocoles } from "./protocoles.js";
-import { appelerLorsque, estUnePromesse } from "./utils.js";
-import { ServiceConstellation } from "./v2/nébuleuse/services.js";
-import type { PrivateKey } from "@libp2p/interface";
+import type {
+  ÉpingleCompte,
+  ÉpingleFavoris,
+  ÉpingleFavorisAvecId} from "@/favoris.js";
+import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
+import type { Helia } from "helia";
+import type { JSONSchemaType } from "ajv";
+import type {
+  TypedKeyValue,
+  TypedNested,
+  TypedOrderedKeyValue,
+  TypedSet} from "@constl/bohr-db";
+import type { Libp2p , PrivateKey } from "@libp2p/interface";
+import type { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type {
   ContenuMessageRejoindreCompte,
@@ -92,25 +93,27 @@ import type {
   KeyValueDatabase,
   OpenDatabaseOptions,
 } from "@orbitdb/core";
-import { cacheSuivi } from "@/décorateursCache.js";
-import {
-  Profil,
-  schémaStructureBdProfil,
-  structureBdProfil,
-} from "@/profil.js";
-import { Variables } from "@/variables.js";
-import { MotsClefs } from "@/motsClefs.js";
-import { Épingles } from "@/epingles.js";
+import type {
+  structureBdProfil} from "@/profil.js";
+import type {
+  Store,
+  type GestionnaireOrbite,
+  gestionnaireOrbiteGénéral
+} from "@/orbite.js";
 import {
   type OptionsContrôleurConstellation,
   ContrôleurConstellation as générerContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
+import { Épingles } from "@/epingles.js";
+import { MotsClefs } from "@/motsClefs.js";
+import { Variables } from "@/variables.js";
 import {
-  type GestionnaireOrbite,
-  gestionnaireOrbiteGénéral,
-  Store,
-} from "@/orbite.js";
+  Profil,
+  schémaStructureBdProfil
+} from "@/profil.js";
+import { cacheSuivi } from "@/décorateursCache.js";
+import { BDs } from "@/bds.js";
 import { initSFIP } from "@/sfip/index.js";
 import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 

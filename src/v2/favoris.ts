@@ -1,16 +1,16 @@
 import deepEqual from "deep-equal";
-import { JSONSchemaType } from "ajv";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { cacheSuivi } from "./crabe/cache.js";
-import { PartielRécursif } from "./types.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
-import { Constellation, ServicesConstellation } from "./constellation.js";
-import { Oublier, Suivi } from "./crabe/types.js";
-import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
-import { ÉpingleMotClef } from "./motsClefs.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
-import { ÉpingleBd } from "./bds/bds.js";
+import type { JSONSchemaType } from "ajv";
+import type { PartielRécursif } from "./types.js";
+import type { Constellation, ServicesConstellation } from "./constellation.js";
+import type { Oublier, Suivi } from "./crabe/types.js";
+import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { ÉpingleMotClef } from "./motsClefs.js";
+import type { ÉpingleBd } from "./bds/bds.js";
 
 // Types épingles
 

@@ -1,24 +1,30 @@
+import { join } from "path";
+import { existsSync, readFileSync } from "fs";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { isValidAddress } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
-import { Constellation } from "@/v2/index.js";
+import JSZip from "jszip";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
-import { DifférenceBds, DonnéesBdExportées, SchémaBd, ScoreBd, ÉpingleBd } from "@/v2/bds/bds.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
-import { Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
-import { InfoColonne } from "@/v2/tableaux.js";
-import {
+import { obtRessourceTest } from "test/ressources/index.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { Constellation } from "@/v2/index.js";
+import type {
+  DifférenceBds,
+  DonnéesBdExportées,
+  SchémaBd,
+  ScoreBd,
+  ÉpingleBd,
+} from "@/v2/bds/bds.js";
+import type { Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
+import type { InfoColonne } from "@/v2/tableaux.js";
+import type {
   DonnéesRangéeTableau,
   DonnéesRangéeTableauAvecId,
 } from "@/v2/bds/tableaux.js";
-import { obtRessourceTest } from "test/ressources/index.js";
-import { RègleBornes } from "@/v2/règles.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
-import { DonnéesFichierBdExportées } from "@/v2/utils.js";
-import { join } from "path";
-import JSZip from "jszip";
-import { existsSync, readFileSync } from "fs";
+import type { RègleBornes } from "@/v2/règles.js";
+import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -313,7 +319,10 @@ describe("BDs", function () {
     it("effacer une métadonnée", async () => {
       await constl.bds.effacerMétadonnée({ idBd, clef: "clef1" });
       const métadonnées = await obtenir<Métadonnées>(({ si }) =>
-        constl.bds.suivreMétadonnées({ idBd, f: si((n) => !!n && !n["clef1"]) }),
+        constl.bds.suivreMétadonnées({
+          idBd,
+          f: si((n) => !!n && !n["clef1"]),
+        }),
       );
       expect(métadonnées).to.deep.equal({ clef2: 123, clef3: "du texte" });
     });
@@ -1822,40 +1831,48 @@ describe("BDs", function () {
 
       let données: DonnéesBdExportées;
 
-      const nomBdFr = "ma base de données"
+      const nomBdFr = "ma base de données";
 
       before(async () => {
-        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" })
-        idTableau1 = await constl.bds.ajouterTableau({ idBd })
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idTableau1 = await constl.bds.ajouterTableau({ idBd });
         idTableau2 = await constl.bds.ajouterTableau({ idBd });
-        
-        const idColFichier = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau: idTableau1 })
+
+        const idColFichier = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau: idTableau1,
+        });
 
         await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau: idTableau1,
-          éléments: [{
-            [idColFichier]: idc,
-          }],
+          éléments: [
+            {
+              [idColFichier]: idc,
+            },
+          ],
         });
 
         await constl.bds.sauvegarderNom({ idBd, langue: "fr", nom: nomBdFr });
 
-        données = await obtenir<DonnéesBdExportées>(({siDéfini})=>constl.bds.suivreDonnéesExportation({
-          idBd,
-          langues: ["fr"],
-          f: siDéfini(),
-        }));
-      })
+        données = await obtenir<DonnéesBdExportées>(({ siDéfini }) =>
+          constl.bds.suivreDonnéesExportation({
+            idBd,
+            langues: ["fr"],
+            f: siDéfini(),
+          }),
+        );
+      });
 
       it("noms bd", async () => {
-        expect(données.nomBd).to.equal(nomBdFr)
+        expect(données.nomBd).to.equal(nomBdFr);
       });
 
       it("tableaux", async () => {
-        expect(données.tableaux.map(t=>t.nomTableau)).to.have.ordered.members([idTableau1, idTableau2])
+        expect(
+          données.tableaux.map((t) => t.nomTableau),
+        ).to.have.ordered.members([idTableau1, idTableau2]);
       });
-
     });
 
     describe("à document", function () {
@@ -1870,10 +1887,16 @@ describe("BDs", function () {
         idTableau1 = await constl.bds.ajouterTableau({ idBd });
         idTableau2 = await constl.bds.ajouterTableau({ idBd });
 
-        const idColonne = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau: idTableau1 })
-        await constl.bds.tableaux.ajouterÉléments({ idStructure: idBd, idTableau: idTableau1, éléments: [{[idColonne]: idc}]})
-
-      })
+        const idColonne = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau: idTableau1,
+        });
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau: idTableau1,
+          éléments: [{ [idColonne]: idc }],
+        });
+      });
 
       it("nom document - spécifié", async () => {
         const docu = await constl.bds.exporterDonnées({
@@ -1890,7 +1913,10 @@ describe("BDs", function () {
 
       it("document données - tableaux créés", async () => {
         expect(Array.isArray(données.docu.SheetNames));
-        expect(données.docu.SheetNames).to.have.members([idTableau1, idTableau2]);
+        expect(données.docu.SheetNames).to.have.members([
+          idTableau1,
+          idTableau2,
+        ]);
       });
 
       it("document données - fichiers SFIP", async () => {
@@ -1900,37 +1926,40 @@ describe("BDs", function () {
 
     describe("à fichier", function () {
       let idBd: string;
-        let idTableau: string;
+      let idTableau: string;
 
-        let zip = JSZip;
+      let zip = JSZip;
 
-        let dossier: string;
-        let effacer: () => void;
+      let dossier: string;
+      let effacer: () => void;
 
-        const nomTableauFr = "voici un tableau";
-        const nomFichier = "mes données";
+      const nomTableauFr = "voici un tableau";
+      const nomFichier = "mes données";
 
-        before(async () => {
-          idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-          idTableau = await constl.bds.ajouterTableau({ idBd });
-          await constl.bds.tableaux.sauvegarderNom({
-            idStructure: idBd,
-            idTableau,
-            langue: "fr",
-            nom: nomTableauFr,
-          });
+      before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idTableau = await constl.bds.ajouterTableau({ idBd });
+        await constl.bds.tableaux.sauvegarderNom({
+          idStructure: idBd,
+          idTableau,
+          langue: "fr",
+          nom: nomTableauFr,
+        });
 
-          const idColonne = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau })
-          await constl.bds.tableaux.ajouterÉléments({
-            idStructure: idBd,
-            idTableau,
-            éléments: [{[idColonne]: idc}]
-          })
-        })
-        
-        after(async () => {
-          if (effacer) effacer();
-        })
+        const idColonne = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+        });
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments: [{ [idColonne]: idc }],
+        });
+      });
+
+      after(async () => {
+        if (effacer) effacer();
+      });
 
       it("le fichier zip existe", async () => {
         await constl.bds.exporterÀFichier({

@@ -1,22 +1,24 @@
 import {
   OptionsDéfautLibp2pNavigateur,
   OptionsDéfautLibp2pNode,
-  ServicesLibp2pTest,
   obtenirAdresseRelai,
 } from "@constl/utils-tests";
-import { PrivateKey } from "@libp2p/interface";
-import { Libp2pOptions } from "libp2p";
 import { isBrowser, isElectronRenderer, isWebWorker } from "wherearewe";
 import { ServiceLibp2p } from "@/v2/crabe/index.js";
 import {
+  obtenirOptionsLibp2p,
+} from "@/v2/crabe/services/libp2p/config/config.js";
+import type {
+  ServicesLibp2pTest} from "@constl/utils-tests";
+import type { PrivateKey } from "@libp2p/interface";
+import type { Libp2pOptions } from "libp2p";
+import type {
   ServicesLibp2pCrabe,
   ServicesNécessairesLibp2p,
 } from "@/v2/crabe/services/libp2p/libp2p.js";
-import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import {
-  ConfigLibp2p,
-  obtenirOptionsLibp2p,
-} from "@/v2/crabe/services/libp2p/config/config.js";
+import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type {
+  ConfigLibp2p} from "@/v2/crabe/services/libp2p/config/config.js";
 
 export const obtenirOptionsLibp2pLocal = (config: ConfigLibp2p = {}) => {
   return obtenirOptionsLibp2p({

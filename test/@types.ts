@@ -1,4 +1,4 @@
-import { Browser, Page } from "playwright";
+import type { Browser, Page } from "playwright";
 
 declare global {
   const page: Page;

@@ -4,23 +4,11 @@ import { Ajv } from "ajv";
 import deepEqual from "deep-equal";
 import { v4 as uuidv4 } from "uuid";
 import { effacerPropriétésNonDéfinies } from "@constl/utils-ipa";
-import { Constellation, ServicesConstellation } from "../constellation.js";
-import { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
-import { Oublier, Suivi } from "../crabe/types.js";
-import { PartielRécursif } from "../types.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
 import {
-  InfoImporterFeuilleCalcul,
-  InfoImporterJSON,
-  SpécificationAutomatisation,
-  SpécificationExporter,
-  SpécificationImporter,
-  SpécificationImporterAvecFichier,
-  StructureServiceAutomatisations,
   schémaServiceAutomatisations,
-  schémaSpécificationAutomatisation,
-  ÉtatAutomatisation,
+  schémaSpécificationAutomatisation
 } from "./types.js";
 import {
   chronomètre,
@@ -28,6 +16,19 @@ import {
   générerFAuto,
   obtTempsInterval,
 } from "./utils.js";
+import type { Constellation, ServicesConstellation } from "../constellation.js";
+import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import type { Oublier, Suivi } from "../crabe/types.js";
+import type { PartielRécursif } from "../types.js";
+import type {
+  InfoImporterFeuilleCalcul,
+  InfoImporterJSON,
+  SpécificationAutomatisation,
+  SpécificationExporter,
+  SpécificationImporter,
+  SpécificationImporterAvecFichier,
+  StructureServiceAutomatisations,
+  ÉtatAutomatisation} from "./types.js";
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   spéc: T,

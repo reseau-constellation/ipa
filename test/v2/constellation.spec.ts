@@ -1,20 +1,20 @@
 import path from "path";
 import { expect } from "aegir/chai";
 import { que } from "@constl/utils-tests";
-import { KeyValueDatabase } from "@orbitdb/core";
-import { Constellation } from "@/v2/constellation.js";
-import { TraducsTexte } from "@/v2/types.js";
 import {
   MEMBRE,
   MODÉRATRICE,
 } from "@/v2/crabe/services/compte/accès/consts.js";
-import { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
 import { créerConstellation } from "@/v2/index.js";
 import {
   créerConstellationsTest,
   dossierTempoPropre,
   obtenir,
 } from "./utils.js";
+import type { KeyValueDatabase } from "@orbitdb/core";
+import type { Constellation } from "@/v2/constellation.js";
+import type { TraducsTexte } from "@/v2/types.js";
+import type { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
 
 describe.only("Constellation", function () {
   describe("création", function () {

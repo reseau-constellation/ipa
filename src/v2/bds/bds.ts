@@ -1,5 +1,4 @@
-import { JSONSchemaType } from "ajv";
-import { TypedNested, typedNested } from "@constl/bohr-db";
+import { typedNested } from "@constl/bohr-db";
 import {
   attendreStabilité,
   faisRien,
@@ -12,49 +11,56 @@ import {
 } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
-import xlsx, { utils as xlsxUtils } from "xlsx";
-import { DagCborEncodable } from "@orbitdb/core";
+import { utils as xlsxUtils } from "xlsx";
 import { Semaphore } from "@chriscdn/promise-semaphore";
 import { cacheSuivi } from "../crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import {
+  DISPOSITIFS_INSTALLÉS,
+  TOUS_DISPOSITIFS,
+  résoudreDéfauts
+} from "../favoris.js";
+import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
+import {
+  schémaTableau
+} from "../tableaux.js";
+import type xlsx from "xlsx";
+import type { DagCborEncodable } from "@orbitdb/core";
+import type {
   Métadonnées,
   PartielRécursif,
   StatutDonnées,
   TraducsTexte,
 } from "../types.js";
-import { Constellation, ServicesConstellation } from "../constellation.js";
-import { Oublier, Suivi } from "../crabe/types.js";
-import { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import {
+import type { Constellation, ServicesConstellation } from "../constellation.js";
+import type { Oublier, Suivi } from "../crabe/types.js";
+import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import type {
   BaseÉpingleFavoris,
-  DISPOSITIFS_INSTALLÉS,
   DispositifsÉpingle,
-  TOUS_DISPOSITIFS,
-  résoudreDéfauts,
-  ÉpingleFavorisAvecIdBooléennisée,
-} from "../favoris.js";
-import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
-import {
+  ÉpingleFavorisAvecIdBooléennisée} from "../favoris.js";
+import type {
   StructureTableau,
-  schémaTableau,
   DifférenceTableaux,
   InfoColonne,
-  InfoColonneAvecCatégorie,
-} from "../tableaux.js";
+  InfoColonneAvecCatégorie} from "../tableaux.js";
 import { mapÀObjet } from "../crabe/utils.js";
+import type {
+  DonnéesFichierBdExportées} from "../utils.js";
 import {
-  DonnéesFichierBdExportées,
   ajouterProtocoleOrbite,
   extraireEmpreinte,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
-import { ErreurDonnée, RègleColonne } from "../règles.js";
-import {
+import type { ErreurDonnée, RègleColonne } from "../règles.js";
+import type {
   DonnéesRangéeTableauAvecId,
-  DonnéesTableauExportées,
+  DonnéesTableauExportées} from "./tableaux.js";
+import {
   TableauxBds,
 } from "./tableaux.js";
+import type { TypedNested} from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
 
 // Types épingles
 

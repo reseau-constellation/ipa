@@ -1,19 +1,24 @@
 import { peerIdFromString } from "@libp2p/peer-id";
-import { Multiaddr, multiaddr } from "@multiformats/multiaddr";
-import { ServiceFactoryMap } from "libp2p";
+import { multiaddr } from "@multiformats/multiaddr";
 import {
-  GossipSub,
-  GossipSubComponents,
   gossipsub,
 } from "@chainsafe/libp2p-gossipsub";
 import { autoNAT } from "@libp2p/autonat";
 import { dcutr } from "@libp2p/dcutr";
-import { IdentifyPush, identify, identifyPush } from "@libp2p/identify";
-import { Ping, ping } from "@libp2p/ping";
+import { identify, identifyPush } from "@libp2p/identify";
+import { ping } from "@libp2p/ping";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { bootstrap } from "@libp2p/bootstrap";
-import { Reconnecteur, reconnecteur } from "../reconnecteur.js";
-import { ServicesLibp2pCrabe } from "../libp2p.js";
+import { reconnecteur } from "../services/reconnecteur.js";
+import type { Reconnecteur} from "../services/reconnecteur.js";
+import type { Ping} from "@libp2p/ping";
+import type { IdentifyPush} from "@libp2p/identify";
+import type {
+  GossipSub,
+  GossipSubComponents} from "@chainsafe/libp2p-gossipsub";
+import type { ServiceFactoryMap } from "libp2p";
+import type { Multiaddr} from "@multiformats/multiaddr";
+import type { ServicesLibp2pCrabe } from "../libp2p.js";
 import type { PrivateKey } from "@libp2p/interface";
 import type { AddrInfo } from "@chainsafe/libp2p-gossipsub/types";
 

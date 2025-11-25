@@ -15,7 +15,7 @@ import * as dagCbor from "@ipld/dag-cbor";
 import { mandatOrbite } from "../../orbite/mandat.js";
 import { MODÉRATRICE, rôles } from "./consts.js";
 import { AccèsParComptes } from "./compte.js";
-import { Rôle } from "./types.js";
+import type { Rôle } from "./types.js";
 
 const nomType = "contrôleur-accès-nébuleuse";
 

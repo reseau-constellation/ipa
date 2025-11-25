@@ -1,13 +1,13 @@
-import { JSONSchemaType } from "ajv";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import plateforme from "platform";
-import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { PartielRécursif } from "@/v2/types.js";
 import { cacheSuivi } from "../cache.js";
-import { Suivi } from "../types.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
-import { ServicesNécessairesCompte } from "./compte/compte.js";
-import { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
+import type { JSONSchemaType } from "ajv";
+import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type { PartielRécursif } from "@/v2/types.js";
+import type { Suivi } from "../types.js";
+import type { ServicesNécessairesCompte } from "./compte/compte.js";
+import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 
 export type StructureDispositifs = {
   dispositifs: {

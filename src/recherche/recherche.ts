@@ -3,7 +3,7 @@ import * as motClef from "@/recherche/motClef.js";
 import * as nuée from "@/recherche/nuée.js";
 import * as profil from "@/recherche/profil.js";
 import * as projet from "@/recherche/projet.js";
-import * as utils from "@/recherche/utils.js";
+import * as utils from "@/v2/recherche/utils.js";
 import * as variable from "@/recherche/variable.js";
 
 import type { Constellation } from "@/client.js";
@@ -120,44 +120,6 @@ export class Recherche {
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = variable.rechercherVariablesSelonTexte(texte);
     return await this.client.réseau.rechercherVariables({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParN
-  async rechercherMotsClefs({
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    return await this.client.réseau.rechercherMotsClefs({
-      f,
-      nRésultatsDésirés,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParN
-  async rechercherMotsClefsSelonId({
-    idMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idMotClef: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = utils.rechercherSelonId(idMotClef);
-    return await this.client.réseau.rechercherMotsClefs({
       f,
       nRésultatsDésirés,
       fObjectif,

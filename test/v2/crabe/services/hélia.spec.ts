@@ -1,28 +1,33 @@
 import {
   OptionsDéfautLibp2pNavigateur,
   OptionsDéfautLibp2pNode,
-  ServicesLibp2pTest,
   créerOrbitesTest,
 } from "@constl/utils-tests";
 
-import { OrbitDB } from "@orbitdb/core";
 import { expect } from "aegir/chai";
-import { Helia, createHelia } from "helia";
-import { Libp2p, createLibp2p } from "libp2p";
+import { createHelia } from "helia";
+import { createLibp2p } from "libp2p";
 import { isBrowser } from "wherearewe";
 import {
-  ServiceLibp2p,
-  ServicesLibp2pCrabe,
+  ServiceLibp2p
 } from "@/v2/crabe/services/libp2p/libp2p.js";
 import {
   ServiceHélia,
-  ServicesNécessairesHélia,
   extraireHéliaDesOptions,
 } from "@/v2/crabe/services/hélia.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { ServiceStockage } from "@/v2/crabe/index.js";
 import { dossierTempoPropre } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";
+import type {
+  ServicesNécessairesHélia} from "@/v2/crabe/services/hélia.js";
+import type {
+  ServicesLibp2pCrabe} from "@/v2/crabe/services/libp2p/libp2p.js";
+import type { Libp2p} from "libp2p";
+import type { Helia} from "helia";
+import type { OrbitDB } from "@orbitdb/core";
+import type {
+  ServicesLibp2pTest} from "@constl/utils-tests";
 
 describe.only("Service Hélia", function () {
   describe("options", function () {

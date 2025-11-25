@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { KeyValueDatabase } from "@orbitdb/core";
 import { orbite } from "@constl/utils-tests";
 import { typedKeyValue } from "@constl/bohr-db";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import { MEMBRE, MODÉRATEUR } from "@/v2/crabe/services/compte/accès/consts.js";
+import type { KeyValueDatabase } from "@orbitdb/core";
 
 import type { JSONSchemaType } from "ajv";
 import type { OrbitDbTest } from "../ressources/utils.js";

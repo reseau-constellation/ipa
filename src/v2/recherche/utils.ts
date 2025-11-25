@@ -2,17 +2,17 @@ import correspTexte from "approx-string-match";
 import ssim from "ssim";
 
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
-import type { Constellation } from "@/client.js";
+import type { Constellation } from "../index.js";
 import type {
-  infoRésultat,
-  infoRésultatRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
-  schémaFonctionOublier,
-  schémaFonctionSuiviRecherche,
-  schémaFonctionSuivreObjectifRecherche,
-} from "@/types.js";
+  InfoRésultat,
+  InfoRésultatRecherche,
+  InfoRésultatTexte,
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
+  RechercherSelonObjectif,
+  SuiviRecherche,
+} from "./types.js";
+import type { Oublier } from "../crabe/types.js";
 
 export const rechercherDansTexte = (
   schéma: string,
@@ -37,7 +37,7 @@ export const rechercherDansTexte = (
 export const similTexte = (
   texte: string,
   possibilités: { [key: string]: string } | string[],
-): { score: number; clef: string; info: infoRésultatTexte } | undefined => {
+): { score: number; clef: string; info: InfoRésultatTexte } | undefined => {
   if (Array.isArray(possibilités)) {
     possibilités = Object.fromEntries(possibilités.map((x) => [x, x]));
   }
@@ -49,7 +49,7 @@ export const similTexte = (
         type: "résultat",
         score,
         clef,
-        info: { type: "texte", texte: val, début, fin } as infoRésultatTexte,
+        info: { type: "texte", texte: val, début, fin } as InfoRésultatTexte,
       };
     }
     return undefined;
@@ -72,15 +72,15 @@ export const similImages = (
   return mssim;
 };
 
-export const combinerRecherches = async <T extends infoRésultat>(
-  fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche<T> },
-  client: Constellation,
+export const combinerRecherches = async <T extends InfoRésultat>(
+  fsRecherche: { [key: string]: RechercherSelonObjectif<T> },
+  constl: Constellation,
   id: string,
-  fSuivreRecherche: schémaFonctionSuiviRecherche<T>,
-): Promise<schémaFonctionOublier> => {
-  const fsOublier: schémaFonctionOublier[] = [];
+  fSuivreRecherche: SuiviRecherche<T>,
+): Promise<Oublier> => {
+  const fsOublier: Oublier[] = [];
 
-  const résultats: { [key: string]: résultatObjectifRecherche<T> | undefined } =
+  const résultats: { [key: string]: RésultatObjectifRecherche<T> | undefined } =
     Object.fromEntries(Object.keys(fsRecherche).map((x) => [x, undefined]));
 
   const fSuivreFinale = (): void => {
@@ -92,11 +92,11 @@ export const combinerRecherches = async <T extends infoRésultat>(
 
   await Promise.allSettled(
     Object.entries(fsRecherche).map(async ([clef, fRecherche]) => {
-      const fSuivre = async (résultat?: résultatObjectifRecherche<T>) => {
+      const fSuivre = async (résultat?: RésultatObjectifRecherche<T>) => {
         résultats[clef] = résultat;
         fSuivreFinale();
       };
-      fsOublier.push(await fRecherche(client, id, fSuivre));
+      fsOublier.push(await fRecherche({ constl, id, f: fSuivre }));
     }),
   );
 
@@ -105,45 +105,45 @@ export const combinerRecherches = async <T extends infoRésultat>(
   };
 };
 
-export const sousRecherche = async <T extends infoRésultat>(
+export const sousRecherche = async <T extends InfoRésultat>(
   de: string,
   fListe: ({
     fSuivreRacine,
   }: {
     fSuivreRacine: (ids: string[]) => void;
-  }) => Promise<schémaFonctionOublier>,
-  fRechercher: schémaFonctionSuivreObjectifRecherche<T>,
-  client: Constellation,
-  fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<T>>,
-): Promise<schémaFonctionOublier> => {
+  }) => Promise<Oublier>,
+  fRechercher: RechercherSelonObjectif<T>,
+  constl: Constellation,
+  fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<T>>,
+): Promise<Oublier> => {
   const fBranche = async ({
-    id: idBd,
+    id,
     fSuivreBranche,
   }: {
     id: string;
     fSuivreBranche: (x: {
       id: string;
-      résultat: résultatObjectifRecherche<T>;
+      résultat: RésultatObjectifRecherche<T>;
     }) => void;
-  }): Promise<schémaFonctionOublier> => {
-    return await fRechercher(
-      client,
-      idBd,
-      async (résultat?: résultatObjectifRecherche<T>) => {
-        if (résultat) fSuivreBranche({ id: idBd, résultat });
+  }): Promise<Oublier> => {
+    return await fRechercher({
+      constl,
+      id,
+      f: async (résultat?: RésultatObjectifRecherche<T>) => {
+        if (résultat) fSuivreBranche({ id, résultat });
       },
-    );
+    });
   };
   const fFinale = async (
     résultats: {
       id: string;
-      résultat: résultatObjectifRecherche<T>;
+      résultat: RésultatObjectifRecherche<T>;
     }[],
   ) => {
     const meilleur = meilleurRésultat<T>(résultats);
 
     if (meilleur) {
-      const résultat: résultatObjectifRecherche<infoRésultatRecherche<T>> = {
+      const résultat: RésultatObjectifRecherche<InfoRésultatRecherche<T>> = {
         type: "résultat",
         de,
         clef: meilleur.id,
@@ -169,21 +169,21 @@ export const sousRecherche = async <T extends infoRésultat>(
   return fOublier;
 };
 
-const aMieuxQueB = <T extends infoRésultat>(
-  a: résultatObjectifRecherche<T>,
-  b: résultatObjectifRecherche<T>,
+const aMieuxQueB = <T extends InfoRésultat>(
+  a: RésultatObjectifRecherche<T>,
+  b: RésultatObjectifRecherche<T>,
 ): boolean => {
-  const xPlusImportantQueY = (x: infoRésultat, y: infoRésultat): boolean => {
+  const xPlusImportantQueY = (x: InfoRésultat, y: InfoRésultat): boolean => {
     while (x.type === "résultat") x = x.info;
     while (y.type === "résultat") y = y.info;
 
-    const ordreImportanceCroissante: infoRésultat["type"][] = ["vide", "texte"];
+    const ordreImportanceCroissante: InfoRésultat["type"][] = ["vide", "texte"];
     const iX = ordreImportanceCroissante.indexOf(x.type);
     const iY = ordreImportanceCroissante.indexOf(y.type);
 
     return iX > iY;
   };
-  const xPlusLongQueY = (x: infoRésultat, y: infoRésultat): boolean => {
+  const xPlusLongQueY = (x: InfoRésultat, y: InfoRésultat): boolean => {
     while (x.type === "résultat") x = x.info;
     while (y.type === "résultat") y = y.info;
 
@@ -208,9 +208,9 @@ const aMieuxQueB = <T extends infoRésultat>(
         : xPlusImportantQueY(a.info, b.info);
 };
 
-const meilleurRésultat = <T extends infoRésultat>(
-  résultats: { id: string; résultat: résultatObjectifRecherche<T> }[],
-): { id: string; résultat: résultatObjectifRecherche<T> } | undefined => {
+const meilleurRésultat = <T extends InfoRésultat>(
+  résultats: { id: string; résultat: RésultatObjectifRecherche<T> }[],
+): { id: string; résultat: RésultatObjectifRecherche<T> } | undefined => {
   const meilleur = Object.values(résultats)
     .filter((x) => x)
     .sort((a, b) => (aMieuxQueB(a.résultat, b.résultat) ? -1 : 1))[0];
@@ -219,16 +219,18 @@ const meilleurRésultat = <T extends infoRésultat>(
 
 export const rechercherSelonId = (
   idRecherché: string,
-): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
-  return async (
-    _client: Constellation,
-    id: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
-  ): Promise<schémaFonctionOublier> => {
+): RechercherSelonObjectif<InfoRésultatTexte> => {
+  return async ({
+    id,
+    f,
+  }: {
+    id: string;
+    f: SuiviRecherche<InfoRésultatTexte>;
+  }): Promise<Oublier> => {
     const résultat = rechercherDansTexte(idRecherché, id);
     if (résultat) {
       const { score, début, fin } = résultat;
-      await fSuivreRecherche({
+      await f({
         score,
         type: "résultat",
         de: "id",
@@ -240,40 +242,31 @@ export const rechercherSelonId = (
         },
       });
     } else {
-      await fSuivreRecherche();
+      await f();
     }
 
     return faisRien;
   };
 };
 
-export const rechercherTous =
-  (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
-    return async (
-      _client: Constellation,
-      _id: string,
-      fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
-    ): Promise<schémaFonctionOublier> => {
-      await fSuivreRecherche({
-        type: "résultat",
-        score: 1,
-        de: "*",
-        info: { type: "vide" },
-      });
-      return faisRien;
-    };
+export const rechercherTous = (): RechercherSelonObjectif<InfoRésultatVide> => {
+  return async ({ f }): Promise<Oublier> => {
+    await f({
+      type: "résultat",
+      score: 1,
+      de: "*",
+      info: { type: "vide" },
+    });
+    return faisRien;
   };
+};
 
 export const rechercherTousSiVide = (
   texte: string,
-): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
-  return async (
-    _client: Constellation,
-    _id: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
-  ): Promise<schémaFonctionOublier> => {
+): RechercherSelonObjectif<InfoRésultatVide> => {
+  return async ({ f }): Promise<Oublier> => {
     if (texte === "")
-      await fSuivreRecherche({
+      await f({
         type: "résultat",
         score: 1,
         de: "*",

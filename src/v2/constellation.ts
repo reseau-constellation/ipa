@@ -1,22 +1,23 @@
-import { NestedValueObject } from "@orbitdb/nested-db";
 import { Variables } from "./variables.js";
 import { MotsClefs } from "./motsClefs.js";
-import { Crabe, ServicesCrabe, StructureCrabe } from "./crabe/crabe.js";
-import { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import { Crabe } from "./crabe/crabe.js";
 import { Bds } from "./bds/bds.js";
 import { Tableaux } from "./tableaux.js";
-import {
+import { Favoris } from "./favoris.js";
+import { Épingles } from "./epingles.js";
+import { Nuées } from "./nuées.js";
+import type {
   ConstructeursServicesNébuleuse,
   OptionsNébuleuse,
 } from "./nébuleuse/nébuleuse.js";
-import {
+import type {
   SchémaCompte,
   ServicesDonnées,
 } from "./crabe/services/compte/compte.js";
-import { Favoris } from "./favoris.js";
-import { Épingles } from "./epingles.js";
-import { Automatisations } from "./automatisations/automatisations.js";
-import { Nuées } from "./nuées.js";
+import type { Automatisations } from "./automatisations/automatisations.js";
+import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { ServicesCrabe, StructureCrabe } from "./crabe/crabe.js";
+import type { NestedValueObject } from "@orbitdb/nested-db";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,

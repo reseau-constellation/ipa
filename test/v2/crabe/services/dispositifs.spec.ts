@@ -1,4 +1,4 @@
-import { ServicesLibp2pTest, dossierTempo } from "@constl/utils-tests";
+import { dossierTempo } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import {
@@ -9,13 +9,15 @@ import {
 } from "@/v2/crabe/index.js";
 import {
   ServiceDispositifs,
-  ServicesNécessairesDispositifs,
   détecterTypeDispositif,
 } from "@/v2/crabe/services/dispositifs.js";
 import { Nébuleuse } from "@/v2/nébuleuse/index.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";
+import type {
+  ServicesNécessairesDispositifs} from "@/v2/crabe/services/dispositifs.js";
+import type { ServicesLibp2pTest} from "@constl/utils-tests";
 
 describe.only("Dispositifs", function () {
   describe("infos dispositifs", function () {

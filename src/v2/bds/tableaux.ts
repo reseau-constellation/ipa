@@ -8,35 +8,39 @@ import {
   traduire,
   uneFois,
 } from "@constl/utils-ipa";
-import { DagCborEncodable } from "@orbitdb/core";
-import { TypedNested } from "@constl/bohr-db";
-import { JSONSchemaType } from "ajv";
 import deepEqual from "deep-equal";
-import { NestedObjectToMap } from "@orbitdb/nested-db";
 import md5 from "crypto-js/md5.js";
 import Base64 from "crypto-js/enc-base64.js";
 import { v4 as uuidv4 } from "uuid";
-import { BookType, WorkBook, utils } from "xlsx";
-import { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import { utils } from "xlsx";
 import {
-  ErreurDonnée,
-  FonctionValidation,
-  RègleColonne,
   générerFonctionValidation,
 } from "../règles.js";
 import {
-  InfoColonne,
-  InfoColonneAvecCatégorie,
   Tableaux,
 } from "../tableaux.js";
-import { Oublier, Suivi } from "../crabe/types.js";
 import { cacheSuivi } from "../crabe/cache.js";
 import { mapÀObjet } from "../crabe/utils.js";
-import { CatégorieBaseVariables } from "../variables.js";
-import { PartielRécursif, TraducsTexte } from "../types.js";
+import type { DagCborEncodable } from "@orbitdb/core";
+import type { TypedNested } from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
+import type { NestedObjectToMap } from "@orbitdb/nested-db";
+import type { BookType, WorkBook} from "xlsx";
+import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import type {
+  ErreurDonnée,
+  FonctionValidation,
+  RègleColonne} from "../règles.js";
+import type {
+  InfoColonne,
+  InfoColonneAvecCatégorie} from "../tableaux.js";
+import type { Oublier, Suivi } from "../crabe/types.js";
+import type { CatégorieBaseVariables } from "../variables.js";
+import type { PartielRécursif, TraducsTexte } from "../types.js";
 import { typer } from "../crabe/services/orbite/orbite.js";
+import type {
+  DonnéesFichierBdExportées} from "../utils.js";
 import {
-  DonnéesFichierBdExportées,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 
@@ -912,7 +916,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     langues,
     nomFichier,
     patience = 500,
-    formatDocu: formatDoc,
+    formatDocu,
     dossier = "",
     inclureDocuments = true,
   }: {
@@ -937,7 +941,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
 
     return await sauvegarderDonnéesExportées({
       données: donnéesExportées,
-      formatDoc,
+      formatDocu,
       dossier,
       inclureDocuments,
       obtItérableAsyncSFIP: hélia.obtItérableAsyncSFIP.bind(hélia),

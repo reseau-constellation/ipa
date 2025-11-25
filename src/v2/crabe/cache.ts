@@ -4,7 +4,7 @@ import md5 from "crypto-js/md5.js";
 import { v4 as uuidv4 } from "uuid";
 
 import deepEqual from "deep-equal";
-import { Oublier, RetourRecherche, Suivi } from "./types.js";
+import type { Oublier, RetourRecherche, Suivi } from "./types.js";
 
 export class CacheSuivi {
   verrou: Semaphore;

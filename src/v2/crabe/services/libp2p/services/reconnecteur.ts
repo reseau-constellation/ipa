@@ -1,8 +1,8 @@
-import { BootstrapComponents } from "@libp2p/bootstrap";
 import { multiaddr } from "@multiformats/multiaddr";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { P2P } from "@multiformats/mafmt";
-import { obtIdPairAdresse } from "./config/utils.js";
+import { obtIdPairAdresse } from "../config/utils.js";
+import type { BootstrapComponents } from "@libp2p/bootstrap";
 import type { Logger, PeerInfo, Startable } from "@libp2p/interface";
 
 const FRÉQUENCE_RECONNECTEUR_PAR_DÉFAUT = 10_000;

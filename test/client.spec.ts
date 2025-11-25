@@ -20,14 +20,14 @@ import { isElectronMain, isNode } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
-import { TypedKeyValue } from "@constl/bohr-db";
-import { JSONSchemaType } from "ajv";
 import { statutDispositif } from "@/reseau.js";
 import { créerConstellation } from "@/index.js";
 import { MEMBRE, MODÉRATEUR } from "@/v2/crabe/services/compte/accès/consts.js";
-import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
-import { Constellation, infoAccès } from "@/client.js";
 import { générerClientsInternes } from "./ressources/utils.js";
+import type { TypedKeyValue } from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
+import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
+import type { Constellation, infoAccès } from "@/client.js";
 import type { OrbitDbTest } from "./ressources/utils.js";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
