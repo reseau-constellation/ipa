@@ -1,11 +1,7 @@
 import { join } from "path";
 import fs from "fs";
-import {
-  ServiceNébuleuse
-} from "@/v2/nébuleuse/nébuleuse.js";
-import type {
-  Nébuleuse,
-  ServicesNébuleuse} from "@/v2/nébuleuse/nébuleuse.js";
+import { ServiceNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 
 export class StockageLocal implements Storage {
   fichier: string;

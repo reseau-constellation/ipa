@@ -1064,7 +1064,7 @@ describe("tableaux", function () {
             val: 500,
           },
         };
-        const idRègle = await constl.variables.ajouterRègleVariable({
+        const idRègle = await constl.variables.ajouterRègle({
           idVariable,
           règle,
         });
@@ -1625,7 +1625,7 @@ describe("tableaux", function () {
               op: "<",
             },
           };
-          const idRègle = await constl.variables.ajouterRègleVariable({
+          const idRègle = await constl.variables.ajouterRègle({
             idVariable,
             règle,
           });
@@ -2460,7 +2460,7 @@ describe("tableaux", function () {
             idColonne: idColonneDate,
             idVariable: idVariableDate,
           });
-          await constl.variables.sauvegarderNomVariable({
+          await constl.variables.sauvegarderNom({
             idVariable: idVariableDate,
             langue: "cst",
             nom: "fecha",

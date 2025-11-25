@@ -2,14 +2,12 @@ import fs from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
-import {
-  Nébuleuse,
-  ServiceNébuleuse
-} from "@/v2/nébuleuse/nébuleuse.js";
+import { Nébuleuse, ServiceNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
 import type {
   OptionsNébuleuse,
-  ServicesNébuleuse} from "@/v2/nébuleuse/nébuleuse.js";
+  ServicesNébuleuse,
+} from "@/v2/nébuleuse/nébuleuse.js";
 
 describe.only("Nébuleuse", function () {
   describe("Démarrage", function () {

@@ -20,20 +20,16 @@ import {
 } from "@/types.js";
 
 import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
-import {
-  INSTALLÉ,
-  TOUS,
-  résoudreDéfauts
-} from "./favoris.js";
-import type { donnéesTableauExportation, élémentDonnées ,
+import { INSTALLÉ, TOUS, résoudreDéfauts } from "./favoris.js";
+import type {
+  donnéesTableauExportation,
+  élémentDonnées,
   différenceTableaux,
   InfoCol,
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
 } from "@/tableaux.js";
-import type {
-  ÉpingleFavorisAvecId,
-  ÉpingleNuée} from "./favoris.js";
+import type { ÉpingleFavorisAvecId, ÉpingleNuée } from "./favoris.js";
 import type { Constellation } from "@/client.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedKeyValue } from "@constl/bohr-db";
@@ -54,7 +50,6 @@ import type {
   TraducsTexte,
   schémaRetourFonctionRechercheParN,
   élémentsBd,
-
   infoAuteur,
   infoRésultatVide,
   résultatRecherche,
@@ -62,7 +57,8 @@ import type {
   schémaFonctionSuivi,
   schémaFonctionSuiviRecherche,
   schémaRetourFonctionRechercheParProfondeur,
-  schémaStatut} from "@/types.js";
+  schémaStatut,
+} from "@/types.js";
 import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
 import type { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
@@ -1908,96 +1904,6 @@ export class Nuées extends ComposanteClientListe<string> {
       f: fFinale,
       fParents,
     });
-  }
-
-  async suivreVariablesNuée({
-    idNuée,
-    f,
-  }: {
-    idNuée: string;
-    f: schémaFonctionSuivi<string[]>;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (variables?: string[]) => {
-      return await f(variables || []);
-    };
-
-    const fBranche = async ({
-      id,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<string[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.tableaux.suivreVariables({
-        idTableau: id,
-        f: fSuivreBranche,
-      });
-    };
-
-    const fListe = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (éléments: string[]) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauxNuée({
-        idNuée,
-        f: (x) => fSuivreRacine(x.map((x) => x.id)),
-      });
-    };
-
-    return await suivreDeFonctionListe({
-      fListe,
-      f: fFinale,
-      fBranche,
-    });
-  }
-
-  @cacheSuivi
-  async suivreQualitéNuée({
-    idNuée,
-    f,
-  }: {
-    idNuée: string;
-    f: schémaFonctionSuivi<number>;
-  }): Promise<schémaFonctionOublier> {
-    const rés: {
-      noms: { [key: string]: string };
-      descr: { [key: string]: string };
-    } = {
-      noms: {},
-      descr: {},
-    };
-    const fFinale = async () => {
-      const scores = [
-        Object.keys(rés.noms).length ? 1 : 0,
-        Object.keys(rés.descr).length ? 1 : 0,
-      ];
-
-      const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
-      await f(qualité);
-    };
-    const oublierNoms = await this.suivreNomsNuée({
-      idNuée,
-      f: (noms) => {
-        rés.noms = noms;
-        fFinale();
-      },
-    });
-
-    const oublierDescr = await this.suivreDescriptionsNuée({
-      idNuée,
-      f: (descr) => {
-        rés.descr = descr;
-        fFinale();
-      },
-    });
-
-    const fOublier = async () => {
-      await oublierNoms();
-      await oublierDescr();
-    };
-
-    return fOublier;
   }
 
   @cacheSuivi

@@ -8,7 +8,7 @@ import {
   similImages,
   similTexte,
   sousRecherche,
-} from "@/v2/recherche/utils.js";
+} from "@/v2/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "../ressources/index.js";
 import { générerClientsInternes } from "../ressources/utils.js";
 import type { JSONSchemaType } from "ajv";

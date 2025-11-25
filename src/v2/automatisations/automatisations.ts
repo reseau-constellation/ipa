@@ -8,7 +8,7 @@ import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
 import {
   schémaServiceAutomatisations,
-  schémaSpécificationAutomatisation
+  schémaSpécificationAutomatisation,
 } from "./types.js";
 import {
   chronomètre,
@@ -28,7 +28,8 @@ import type {
   SpécificationImporter,
   SpécificationImporterAvecFichier,
   StructureServiceAutomatisations,
-  ÉtatAutomatisation} from "./types.js";
+  ÉtatAutomatisation,
+} from "./types.js";
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   spéc: T,

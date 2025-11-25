@@ -13,7 +13,8 @@ import type { Oublier } from "@/v2/crabe/types.js";
 import type {
   AccèsDispositif,
   AccèsUtilisateur,
-  InstanceContrôleurNébuleuse} from "@/v2/crabe/services/compte/accès/index.js";
+  InstanceContrôleurNébuleuse,
+} from "@/v2/crabe/services/compte/accès/index.js";
 import type { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 
 describe.only("Accès", function () {

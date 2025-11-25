@@ -18,12 +18,17 @@ import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
-  résoudreDéfauts
+  résoudreDéfauts,
 } from "../favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
+import { schémaTableau } from "../tableaux.js";
+import { mapÀObjet } from "../crabe/utils.js";
 import {
-  schémaTableau
-} from "../tableaux.js";
+  ajouterProtocoleOrbite,
+  extraireEmpreinte,
+  sauvegarderDonnéesExportées,
+} from "../utils.js";
+import { TableauxBds } from "./tableaux.js";
 import type xlsx from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
@@ -38,28 +43,21 @@ import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
-  ÉpingleFavorisAvecIdBooléennisée} from "../favoris.js";
+  ÉpingleFavorisAvecIdBooléennisée,
+} from "../favoris.js";
 import type {
   StructureTableau,
   DifférenceTableaux,
   InfoColonne,
-  InfoColonneAvecCatégorie} from "../tableaux.js";
-import { mapÀObjet } from "../crabe/utils.js";
-import type {
-  DonnéesFichierBdExportées} from "../utils.js";
-import {
-  ajouterProtocoleOrbite,
-  extraireEmpreinte,
-  sauvegarderDonnéesExportées,
-} from "../utils.js";
+  InfoColonneAvecCatégorie,
+} from "../tableaux.js";
+import type { DonnéesFichierBdExportées } from "../utils.js";
 import type { ErreurDonnée, RègleColonne } from "../règles.js";
 import type {
   DonnéesRangéeTableauAvecId,
-  DonnéesTableauExportées} from "./tableaux.js";
-import {
-  TableauxBds,
+  DonnéesTableauExportées,
 } from "./tableaux.js";
-import type { TypedNested} from "@constl/bohr-db";
+import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 
 // Types épingles
@@ -206,7 +204,7 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
 };
 
 export type StructureServiceBds = {
-  [motClef: string]: null;
+  [bd: string]: null;
 };
 
 export const SchémaServiceBds: JSONSchemaType<
@@ -249,9 +247,26 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     f: Suivi<string[] | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    return await this.suivreBd({
-      idCompte,
-      f: (bds) => f(bds ? Object.keys(bds).map(ajouterProtocoleOrbite) : []),
+    const compte = this.service("compte");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
+        await this.suivreBd({
+          idCompte,
+          f: async (bds) =>
+            await fSuivreRacine(
+              bds ? Object.keys(bds).map(ajouterProtocoleOrbite) : [],
+            ),
+        }),
+      fBranche: async ({ id: idObjet, fSuivreBranche }) => {
+        return await compte.suivrePermission({
+          idObjet,
+          idCompte,
+          f: async (permission) =>
+            await fSuivreBranche(permission ? idObjet : undefined),
+        });
+      },
+      f,
     });
   }
 

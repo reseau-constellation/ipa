@@ -6,18 +6,14 @@ import { IDBBlockstore } from "blockstore-idb";
 import { unixfs } from "@helia/unixfs";
 import { toBuffer } from "@constl/utils-ipa";
 import { CID } from "multiformats";
-import {
-  ServiceNébuleuse,
-} from "../../nébuleuse/index.js";
+import { ServiceNébuleuse } from "../../nébuleuse/index.js";
 import { obtStockageDonnées } from "./utils.js";
-import type {
-  Nébuleuse,
-  OptionsNébuleuse} from "../../nébuleuse/index.js";
+import type { Nébuleuse, OptionsNébuleuse } from "../../nébuleuse/index.js";
 import type {
   ServicesLibp2pCrabe,
   ServicesNécessairesLibp2p,
 } from "./libp2p/libp2p.js";
-import type { Helia, HeliaInit} from "helia";
+import type { Helia, HeliaInit } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServiceOrbite } from "./orbite/orbite.js";
 

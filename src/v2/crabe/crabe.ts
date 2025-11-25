@@ -1,6 +1,4 @@
-import {
-  Nébuleuse
-} from "@/v2/nébuleuse/nébuleuse.js";
+import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import {
   ServiceCompte,
   ServiceHélia,
@@ -8,19 +6,17 @@ import {
   ServiceOrbite,
   ServiceStockage,
 } from "./services/index.js";
-import {
-  ServiceDispositifs
-} from "./services/dispositifs.js";
-import { ServiceProfil } from "./services/profil.js";
+import { ServiceDispositifs } from "./services/dispositifs.js";
+import { Profil } from "./services/profil.js";
 import { ServiceRéseau } from "./services/réseau.js";
 import { ServiceJournal } from "./services/journal.js";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 import type {
   ConstructeursServicesNébuleuse,
   OptionsNébuleuse,
-  ServicesNébuleuse} from "@/v2/nébuleuse/nébuleuse.js";
-import type {
-  StructureDispositifs} from "./services/dispositifs.js";
+  ServicesNébuleuse,
+} from "@/v2/nébuleuse/nébuleuse.js";
+import type { StructureDispositifs } from "./services/dispositifs.js";
 import type { ServicesLibp2pCrabe } from "./services/libp2p/libp2p.js";
 import type { StructureProfil } from "./services/profil.js";
 import type { StructureRéseau } from "./services/réseau.js";
@@ -41,7 +37,7 @@ export type ServicesCrabe<
 > = Omit<ServicesNécessairesCompte<L>, "compte"> & {
   compte: ServiceCompte<T, L>;
   dispositifs: ServiceDispositifs<L>;
-  profil: ServiceProfil<L>;
+  profil: Profil<L>;
   réseau: ServiceRéseau<L>;
 };
 
@@ -73,7 +69,7 @@ export class Crabe<
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
 > extends Nébuleuse<ServicesCrabe<StructureCrabe & T, L> & S> {
   orbite: ServiceOrbite<L>;
-  profil: ServiceProfil<L>;
+  profil: Profil<L>;
   compte: ServiceCompte<StructureCrabe & T, L>;
   réseau: ServiceRéseau<L>;
 
@@ -102,7 +98,7 @@ export class Crabe<
         orbite: ServiceOrbite,
         compte: ServiceCompte<T, L>,
         dispositifs: ServiceDispositifs,
-        profil: ServiceProfil,
+        profil: Profil,
         réseau: ServiceRéseau,
         ...services,
       } as ConstructeursServicesNébuleuse<

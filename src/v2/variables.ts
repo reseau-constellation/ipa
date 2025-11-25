@@ -1,23 +1,23 @@
 import { typedNested } from "@constl/bohr-db";
-import { faisRien } from "@constl/utils-ipa";
+import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
-import {
-  TOUS_DISPOSITIFS,
-  résoudreDéfauts
-} from "./favoris.js";
+import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
+import { ajouterProtocoleOrbite } from "./utils.js";
+import { RechercheVariables } from "./recherche/variables.js";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
 import type {
   BaseÉpingleFavoris,
-  ÉpingleFavorisAvecIdBooléennisée} from "./favoris.js";
-import type { TypedNested} from "@constl/bohr-db";
+  ÉpingleFavorisAvecIdBooléennisée,
+} from "./favoris.js";
+import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type {
   RègleCatégorie,
@@ -140,6 +140,8 @@ export class Variables<
   L,
   ServicesConstellation
 > {
+  recherche: RechercheVariables<L>;
+
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
       clef: "variable",
@@ -148,6 +150,12 @@ export class Variables<
       options: {
         schéma: schémaServiceVariables,
       },
+    });
+
+    this.recherche = new RechercheVariables<L>({
+      variables: this,
+      constl: this.nébuleuse,
+      service: (clef) => this.service(clef),
     });
   }
 
@@ -159,9 +167,28 @@ export class Variables<
     f: Suivi<string[] | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    return await this.suivreBd({
-      idCompte,
-      f: async (variables) => await f(variables ? Object.keys(variables) : []),
+    const compte = this.service("compte");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
+        await this.suivreBd({
+          idCompte,
+          f: async (variables) =>
+            await fSuivreRacine(
+              variables
+                ? Object.keys(variables).map(ajouterProtocoleOrbite)
+                : [],
+            ),
+        }),
+      fBranche: async ({ id: idObjet, fSuivreBranche }) => {
+        return await compte.suivrePermission({
+          idObjet,
+          idCompte,
+          f: async (permission) =>
+            await fSuivreBranche(permission ? idObjet : undefined),
+        });
+      },
+      f,
     });
   }
 
@@ -182,7 +209,7 @@ export class Variables<
 
     await this.ajouterÀMesVariables({ idVariable });
 
-    if (épingler) await this.épinglerVariable({ idVariable });
+    if (épingler) await this.épingler({ idVariable });
 
     await variable.put("type", "variable");
     await variable.set("catégorie", standardiserCatégorieVariable(catégorie));
@@ -244,14 +271,14 @@ export class Variables<
 
     const noms = mapÀObjet(await variable.get("noms"));
     if (noms)
-      await this.sauvegarderNomsVariable({
+      await this.sauvegarderNoms({
         idVariable: idNouvelleVariable,
         noms,
       });
 
     const descriptions = mapÀObjet(await variable.get("descriptions"));
     if (descriptions)
-      await this.sauvegarderDescriptionsVariable({
+      await this.sauvegarderDescriptions({
         idVariable: idNouvelleVariable,
         descriptions,
       });
@@ -263,7 +290,7 @@ export class Variables<
     if (règles) {
       await Promise.allSettled(
         Object.entries(règles).map(async ([id, r]) => {
-          await this.ajouterRègleVariable({
+          await this.ajouterRègle({
             idVariable: idNouvelleVariable,
             règle: r,
             idRègle: id,
@@ -275,7 +302,7 @@ export class Variables<
     const statut = mapÀObjet(await variable.get("statut")) || {
       statut: "active",
     };
-    await this.sauvegarderStatutVariable({
+    await this.sauvegarderStatut({
       idVariable: idNouvelleVariable,
       statut,
     });
@@ -312,7 +339,7 @@ export class Variables<
 
   // Épingler
 
-  async épinglerVariable({
+  async épingler({
     idVariable,
     options = {},
   }: {
@@ -328,7 +355,7 @@ export class Variables<
     await favoris.épinglerFavori({ idObjet: idVariable, épingle });
   }
 
-  async suivreÉpingleVariable({
+  async suivreÉpingle({
     idVariable,
     f,
     idCompte,
@@ -353,11 +380,7 @@ export class Variables<
     });
   }
 
-  async désépinglerVariable({
-    idVariable,
-  }: {
-    idVariable: string;
-  }): Promise<void> {
+  async désépingler({ idVariable }: { idVariable: string }): Promise<void> {
     // On court-circuite `this.service("favoris")`
     const favoris = this.nébuleuse.services["favoris"];
 
@@ -378,7 +401,7 @@ export class Variables<
 
   // Noms
 
-  async sauvegarderNomsVariable({
+  async sauvegarderNoms({
     idVariable,
     noms,
   }: {
@@ -398,7 +421,7 @@ export class Variables<
     await oublier();
   }
 
-  async sauvegarderNomVariable({
+  async sauvegarderNom({
     idVariable,
     langue,
     nom,
@@ -417,7 +440,7 @@ export class Variables<
     await oublier();
   }
 
-  async effacerNomVariable({
+  async effacerNom({
     idVariable,
     langue,
   }: {
@@ -434,7 +457,7 @@ export class Variables<
   }
 
   @cacheSuivi
-  async suivreNomsVariable({
+  async suivreNoms({
     idVariable,
     f,
   }: {
@@ -451,7 +474,7 @@ export class Variables<
 
   // Descriptions
 
-  async sauvegarderDescriptionsVariable({
+  async sauvegarderDescriptions({
     idVariable,
     descriptions,
   }: {
@@ -468,7 +491,7 @@ export class Variables<
     await oublier();
   }
 
-  async sauvegarderDescriptionVariable({
+  async sauvegarderDescription({
     idVariable,
     langue,
     description,
@@ -485,7 +508,7 @@ export class Variables<
     await oublier();
   }
 
-  async effacerDescriptionVariable({
+  async effacerDescription({
     idVariable,
     langue,
   }: {
@@ -501,7 +524,7 @@ export class Variables<
   }
 
   @cacheSuivi
-  async suivreDescriptionsVariable({
+  async suivreDescriptions({
     idVariable,
     f,
   }: {
@@ -518,7 +541,7 @@ export class Variables<
 
   // Catégories
 
-  async sauvegarderCatégorieVariable({
+  async sauvegarderCatégorie({
     idVariable,
     catégorie,
   }: {
@@ -534,7 +557,7 @@ export class Variables<
   }
 
   @cacheSuivi
-  async suivreCatégorieVariable({
+  async suivreCatégorie({
     idVariable,
     f,
   }: {
@@ -558,7 +581,7 @@ export class Variables<
 
   // Unités
 
-  async sauvegarderUnitésVariable({
+  async sauvegarderUnités({
     idVariable,
     idUnité,
   }: {
@@ -573,7 +596,7 @@ export class Variables<
   }
 
   @cacheSuivi
-  async suivreUnitésVariable({
+  async suivreUnités({
     idVariable,
     f,
   }: {
@@ -593,7 +616,7 @@ export class Variables<
 
   // Règles
 
-  async ajouterRègleVariable({
+  async ajouterRègle({
     idVariable,
     règle,
     idRègle,
@@ -614,7 +637,7 @@ export class Variables<
     return idRègle;
   }
 
-  async effacerRègleVariable({
+  async effacerRègle({
     idVariable,
     idRègle,
   }: {
@@ -629,7 +652,7 @@ export class Variables<
     await oublier();
   }
 
-  async modifierRègleVariable({
+  async modifierRègle({
     idVariable,
     règleModifiée,
     idRègle,
@@ -645,7 +668,7 @@ export class Variables<
   }
 
   @cacheSuivi
-  async suivreRèglesVariable({
+  async suivreRègles({
     idVariable,
     f,
   }: {
@@ -670,7 +693,7 @@ export class Variables<
       );
     };
 
-    const oublierCatégorie = await this.suivreCatégorieVariable({
+    const oublierCatégorie = await this.suivreCatégorie({
       idVariable,
       f: async (catégorie) => {
         if (catégorie) {
@@ -706,7 +729,7 @@ export class Variables<
 
   // Statut
 
-  async sauvegarderStatutVariable({
+  async sauvegarderStatut({
     idVariable,
     statut,
   }: {
@@ -719,7 +742,7 @@ export class Variables<
     await oublier();
   }
 
-  async suivreStatutVariable({
+  async suivreStatut({
     idVariable,
     f,
   }: {
@@ -737,7 +760,7 @@ export class Variables<
 
   // Qualité
   @cacheSuivi
-  async suivreQualitéVariable({
+  async suivreScoreQualité({
     idVariable,
     f,
   }: {
@@ -765,7 +788,7 @@ export class Variables<
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
       await f(qualité);
     };
-    const oublierNoms = await this.suivreNomsVariable({
+    const oublierNoms = await this.suivreNoms({
       idVariable,
       f: async (noms) => {
         info.noms = noms;
@@ -773,7 +796,7 @@ export class Variables<
       },
     });
 
-    const oublierDescr = await this.suivreDescriptionsVariable({
+    const oublierDescr = await this.suivreDescriptions({
       idVariable,
       f: async (descr) => {
         info.descr = descr;
@@ -781,7 +804,7 @@ export class Variables<
       },
     });
 
-    const oublierUnités = await this.suivreUnitésVariable({
+    const oublierUnités = await this.suivreUnités({
       idVariable,
       f: async (unités) => {
         info.unités = unités;
@@ -789,7 +812,7 @@ export class Variables<
       },
     });
 
-    const oublierCatégorie = await this.suivreCatégorieVariable({
+    const oublierCatégorie = await this.suivreCatégorie({
       idVariable,
       f: async (catégorie) => {
         info.catégorie = catégorie;
@@ -797,7 +820,7 @@ export class Variables<
       },
     });
 
-    const oublierRègles = await this.suivreRèglesVariable({
+    const oublierRègles = await this.suivreRègles({
       idVariable,
       f: async (règles) => {
         info.règles = règles;

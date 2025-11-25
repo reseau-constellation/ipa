@@ -9,7 +9,7 @@ import { créerConstellation } from "@/v2/index.js";
 import { attendreQue } from "./nébuleuse/utils/fonctions.js";
 import { connecterCrabes } from "./crabe/utils.js";
 import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
-import type { Constellation} from "@/v2/index.js";
+import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";

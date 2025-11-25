@@ -2,10 +2,10 @@ import { Variables } from "./variables.js";
 import { MotsClefs } from "./motsClefs.js";
 import { Crabe } from "./crabe/crabe.js";
 import { Bds } from "./bds/bds.js";
-import { Tableaux } from "./tableaux.js";
 import { Favoris } from "./favoris.js";
 import { Épingles } from "./epingles.js";
 import { Nuées } from "./nuées.js";
+import type { Projets } from "./projets.js";
 import type {
   ConstructeursServicesNébuleuse,
   OptionsNébuleuse,
@@ -34,6 +34,7 @@ export type ServicesSpécifiquesConstellation<L extends ServicesLibp2pCrabe> = {
   variables: Variables<L>;
   nuées: Nuées<L>;
   automatisations: Automatisations<L>;
+  projets: Projets<L>;
 };
 
 export type StructureConstellation<L extends ServicesLibp2pCrabe> =
@@ -56,6 +57,7 @@ export class Constellation<
   épingles: Épingles;
   variables: Variables<L>;
   automatisations: Automatisations<L>;
+  projets: Projets<L>;
 
   constructor(
     options: OptionsConstellation,
@@ -88,6 +90,7 @@ export class Constellation<
     this.favoris = this.services["favoris"];
     this.épingles = this.services["épingles"];
     this.variables = this.services["variables"];
+    this.projets = this.services["projets"];
 
     this.automatisations = this.services["automatisations"];
   }

@@ -14,16 +14,10 @@ import {
   uneFois,
   zipper,
 } from "@constl/utils-ipa";
-import {
-  schémaStructureBdNoms
-} from "@/types.js";
+import { schémaStructureBdNoms } from "@/types.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
-import {
-  INSTALLÉ,
-  TOUS,
-  résoudreDéfauts
-} from "./favoris.js";
+import { INSTALLÉ, TOUS, résoudreDéfauts } from "./favoris.js";
 import { conversionsTypes } from "./v2/utils.js";
 import type { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
@@ -33,12 +27,11 @@ import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
-  structureBdNoms} from "@/types.js";
+  structureBdNoms,
+} from "@/types.js";
 import type { Constellation } from "@/client.js";
 import type { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
-import type {
-  ÉpingleFavorisAvecId,
-  ÉpingleProjet} from "./favoris.js";
+import type { ÉpingleFavorisAvecId, ÉpingleProjet } from "./favoris.js";
 import type xlsx from "xlsx";
 import type { objRôles } from "@/accès/types.js";
 import type { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
@@ -64,45 +57,6 @@ export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
 const schémaBdPrincipale: JSONSchemaType<string> = { type: "string" };
-
-export type structureBdProjet = {
-  type: "projet";
-  noms: string;
-  descriptions: string;
-  image?: string;
-  bds: string;
-  motsClefs: string;
-  statut: schémaStatut;
-  copiéDe?: schémaCopiéDe;
-};
-const schémaStructureBdProjet: JSONSchemaType<structureBdProjet> = {
-  type: "object",
-  properties: {
-    type: { type: "string" },
-    noms: { type: "string" },
-    descriptions: { type: "string" },
-    bds: { type: "string" },
-    image: { type: "string", nullable: true },
-    motsClefs: { type: "string" },
-    statut: {
-      type: "object",
-      properties: {
-        statut: { type: "string" },
-        idNouvelle: { type: "string", nullable: true },
-      },
-      required: ["statut"],
-    },
-    copiéDe: {
-      type: "object",
-      properties: {
-        id: { type: "string" },
-      },
-      required: ["id"],
-      nullable: true,
-    },
-  },
-  required: ["noms", "descriptions", "statut", "type", "bds"],
-};
 
 export class Projets extends ComposanteClientListe<string> {
   constructor({ client }: { client: Constellation }) {
@@ -798,211 +752,6 @@ export class Projets extends ComposanteClientListe<string> {
           return await f(image ? { image, idImage: idImage } : null);
         }
       },
-    });
-  }
-
-  @cacheSuivi
-  async suivreNomsProjet({
-    idProjet,
-    f,
-  }: {
-    idProjet: string;
-    f: schémaFonctionSuivi<{ [key: string]: string }>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
-      id: idProjet,
-      clef: "noms",
-      schéma: schémaStructureBdNoms,
-      f,
-    });
-  }
-
-  @cacheSuivi
-  async suivreDescriptionsProjet({
-    idProjet,
-    f,
-  }: {
-    idProjet: string;
-    f: schémaFonctionSuivi<TraducsTexte>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
-      id: idProjet,
-      clef: "descriptions",
-      schéma: schémaStructureBdNoms,
-      f,
-    });
-  }
-
-  @cacheSuivi
-  async suivreMotsClefsProjet({
-    idProjet,
-    f,
-  }: {
-    idProjet: string;
-    f: schémaFonctionSuivi<{ idMotClef: string; source: "projet" | "bds" }[]>;
-  }): Promise<schémaFonctionOublier> {
-    const motsClefs: { propres?: string[]; bds?: string[] } = {};
-    const fFinale = async () => {
-      if (motsClefs.propres && motsClefs.bds) {
-        const motsClefsFinaux = [
-          ...motsClefs.propres.map((idMotClef) => ({
-            idMotClef,
-            source: "projet",
-          })),
-          ...motsClefs.bds.map((idMotClef) => ({ idMotClef, source: "bds" })),
-        ] as { idMotClef: string; source: "projet" | "bds" }[];
-        return await f(motsClefsFinaux);
-      }
-    };
-
-    const fFinalePropres = async (mots: string[]) => {
-      motsClefs.propres = mots;
-      return await fFinale();
-    };
-    const fOublierMotsClefsPropres = await this.client.suivreBdListeDeClef({
-      id: idProjet,
-      clef: "motsClefs",
-      schéma: { type: "string" },
-      f: fFinalePropres,
-    });
-
-    const fFinaleBds = async (mots: string[]) => {
-      motsClefs.bds = mots;
-      return await fFinale();
-    };
-    const fListe = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (éléments: string[]) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
-    };
-    const fBranche = async ({
-      id: idBd,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<string[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.bds.suivreMotsClefsBd({
-        idBd,
-        f: fSuivreBranche,
-      });
-    };
-    const fOublierMotsClefsBds = await suivreDeFonctionListe({
-      fListe,
-      f: fFinaleBds,
-      fBranche,
-    });
-
-    return async () => {
-      await fOublierMotsClefsPropres();
-      await fOublierMotsClefsBds();
-    };
-  }
-
-  @cacheSuivi
-  async suivreBdsProjet({
-    idProjet,
-    f,
-  }: {
-    idProjet: string;
-    f: schémaFonctionSuivi<string[]>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdListeDeClef<string>({
-      id: idProjet,
-      clef: "bds",
-      schéma: { type: "string" },
-      f,
-    });
-  }
-
-  @cacheSuivi
-  async suivreVariablesProjet({
-    idProjet,
-    f,
-  }: {
-    idProjet: string;
-    f: schémaFonctionSuivi<string[]>;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (variables?: string[]) => {
-      return await f(variables || []);
-    };
-    const fBranche = async ({
-      id: idBd,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<string[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.bds.suivreVariablesBd({
-        idBd,
-        f: fSuivreBranche,
-      });
-    };
-    const fSuivreBds = async ({
-      id,
-      fSuivreBd,
-    }: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<string[]>;
-    }) => {
-      return await this.client.suivreBdsDeBdListe({
-        id,
-        f: fSuivreBd,
-        fBranche,
-      });
-    };
-    return await this.client.suivreBdDeClef({
-      id: idProjet,
-      clef: "bds",
-      f: fFinale,
-      fSuivre: fSuivreBds,
-    });
-  }
-
-  @cacheSuivi
-  async suivreQualitéProjet({
-    idProjet,
-    f,
-  }: {
-    idProjet: string;
-    f: schémaFonctionSuivi<number>;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (scoresBds: number[]) => {
-      return await f(
-        scoresBds.length
-          ? scoresBds.reduce((a, b) => a + b, 0) / scoresBds.length
-          : 0,
-      );
-    };
-    const fListe = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: schémaFonctionSuivi<string[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
-    };
-    const fBranche = async ({
-      id: idBd,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<number>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.bds.suivreQualitéBd({
-        idBd,
-        f: (score) => fSuivreBranche(score.total),
-      });
-    };
-    const fRéduction = (scores: number[]) => {
-      return scores.flat();
-    };
-    return await suivreDeFonctionListe({
-      fListe,
-      f: fFinale,
-      fBranche,
-      fRéduction,
     });
   }
 

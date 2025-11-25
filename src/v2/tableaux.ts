@@ -8,9 +8,7 @@ import { asSplitKey, joinKey } from "@orbitdb/nested-db";
 import { cacheSuivi } from "./crabe/cache.js";
 import { brancheBd } from "./crabe/services/services.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import {
-  schémaSpécificationRègleColonne
-} from "./règles.js";
+import { schémaSpécificationRègleColonne } from "./règles.js";
 import { typer } from "./crabe/services/orbite/orbite.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
@@ -34,7 +32,8 @@ import type {
   RègleVariableAvecId,
   ErreurColonne,
   ErreurColonneVariableDédoublée,
-  SpécificationRègleColonne} from "./règles.js";
+  SpécificationRègleColonne,
+} from "./règles.js";
 import type { CatégorieVariables } from "./variables.js";
 
 // Types tableaux
@@ -643,7 +642,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       const idVariable = branche.variable;
       if (!idVariable) return faisRien;
 
-      return await variables.suivreCatégorieVariable({
+      return await variables.suivreCatégorie({
         idVariable,
         f: async (catégorie) => {
           const col = Object.assign(
@@ -872,7 +871,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         });
         return await fSuivreBranche(règlesColonnes);
       };
-      return await this.service("variables").suivreRèglesVariable({
+      return await this.service("variables").suivreRègles({
         idVariable,
         f: fFinaleSuivreBranche,
       });

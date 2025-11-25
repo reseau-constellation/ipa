@@ -19,16 +19,12 @@ import {
   CLEF_N_CHANGEMENT_COMPTES,
   schémaStructureBdCompte,
 } from "@/client.js";
-import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
-import { rechercherTous } from "@/v2/recherche/utils.js";
+import { rechercherTous } from "@/v2/recherche/fonctions/utils.js";
 import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque, dépunicodifier } from "./utils.js";
-import type {
-  Constellation,
-  Signature,
-  infoAccès} from "@/client.js";
+import type { Constellation, Signature, infoAccès } from "@/client.js";
 import type { JSONSchemaType } from "ajv";
 import type { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 import type { Pushable } from "it-pushable";
@@ -58,6 +54,7 @@ import type {
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
 import type { erreurValidation } from "@/valid.js";
+import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
@@ -2036,62 +2033,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     };
 
     return { fChangerN, fOublier };
-  }
-
-  async rechercherMembres<T extends infoRésultat>({
-    f,
-    nRésultatsDésirés,
-    fObjectif,
-  }: {
-    f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés?: number;
-    fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fConfiance = async (
-      idCompte: string,
-      fSuivi: schémaFonctionSuivi<number>,
-    ) => {
-      const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
-        idCompte: idCompte,
-        f: fSuivi,
-        profondeur: 4,
-      });
-      return fOublier;
-    };
-
-    const fRecherche = async ({
-      idCompte,
-      fSuivi,
-    }: {
-      idCompte: string;
-      fSuivi: schémaFonctionSuivi<[string]>;
-    }): Promise<schémaFonctionOublier> => {
-      await fSuivi([idCompte]);
-      return faisRien; // Rien à faire parce que nous ne recherchons que le compte
-    };
-
-    const fQualité = async (
-      idCompte: string,
-      fSuivi: schémaFonctionSuivi<number>,
-    ): Promise<schémaFonctionOublier> => {
-      const fRechercherSelonActivité = rechercherProfilsSelonActivité();
-      return await fRechercherSelonActivité(
-        this.client,
-        idCompte,
-        async (résultat) => {
-          await fSuivi(résultat?.score || 0);
-        },
-      );
-    };
-
-    return await this.rechercher({
-      f,
-      nRésultatsDésirés,
-      fRecherche,
-      fConfiance,
-      fQualité,
-      fObjectif,
-    });
   }
 
   async rechercherObjets<T extends infoRésultat>({

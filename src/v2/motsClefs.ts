@@ -93,33 +93,25 @@ export class MotsClefs<
   }): Promise<Oublier> {
     const compte = this.service("compte");
 
-    const autorisée = async ({
-      id: idObjet,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: Suivi<string | undefined>;
-    }) => {
-      return await compte.suivrePermission({
-        idObjet,
-        idCompte,
-        f: async (permission) =>
-          await fSuivreBranche(permission ? idObjet : undefined),
-      });
-    };
-
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
         await this.suivreBd({
           idCompte,
           f: async (motsClefs) =>
             await fSuivreRacine(
-              (motsClefs ? Object.keys(motsClefs) : []).map((m) =>
-                ajouterProtocoleOrbite(m),
-              ),
+              motsClefs
+                ? Object.keys(motsClefs).map(ajouterProtocoleOrbite)
+                : [],
             ),
         }),
-      fBranche: autorisée,
+      fBranche: async ({ id: idObjet, fSuivreBranche }) => {
+        return await compte.suivrePermission({
+          idObjet,
+          idCompte,
+          f: async (permission) =>
+            await fSuivreBranche(permission ? idObjet : undefined),
+        });
+      },
       f,
     });
   }
@@ -433,7 +425,7 @@ export class MotsClefs<
   // Qualité
 
   @cacheSuivi
-  async suivreQualité({
+  async suivreScoreQualité({
     idMotClef,
     f,
   }: {

@@ -1,13 +1,9 @@
 import path from "path";
-import {
-  obtenirAdresseRelai,
-  toutesConnectées,
-} from "@constl/utils-tests";
+import { obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
 import { Crabe } from "@/v2/crabe/crabe.js";
 import { dossierTempoPropre } from "../utils.js";
 import { ServiceLibp2pTest } from "./services/utils.js";
-import type {
-  ServicesLibp2pTest} from "@constl/utils-tests";
+import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 import type { ServicesCrabe, StructureCrabe } from "@/v2/crabe/crabe.js";
 import type {

@@ -10,7 +10,7 @@ import {
   rechercherNuéesSelonNomVariable,
   rechercherNuéesSelonTexte,
   rechercherNuéesSelonVariable,
-} from "@/recherche/nuée.js";
+} from "@/v2/recherche/fonctions/nuées.js";
 import { générerClientsInternes } from "../ressources/utils.js";
 import type { Constellation } from "@/client.js";
 

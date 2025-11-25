@@ -10,10 +10,17 @@ import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-ipa";
 import { créerConstellation, type Constellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import type { TraducsTexte, schémaFonctionOublier, schémaStatut } from "@/types.js";
+import type {
+  TraducsTexte,
+  schémaFonctionOublier,
+  schémaStatut,
+} from "@/types.js";
 
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
-import type { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
+import type {
+  InfoColAvecCatégorie,
+  élémentBdListeDonnées,
+} from "@/tableaux.js";
 
 import type { donnéesNuéeExportation } from "@/nuées.js";
 import type { règleColonne } from "@/valid.js";

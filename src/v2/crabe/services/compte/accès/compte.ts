@@ -6,7 +6,7 @@ import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
 import { MEMBRE, MODÉRATRICE } from "./consts.js";
 import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import type { OrbitDB} from "@orbitdb/core";
+import type { OrbitDB } from "@orbitdb/core";
 
 export const rôlePlusPuissant = (rôles: Set<Rôle>): Rôle | undefined => {
   if (rôles.has(MODÉRATRICE)) return MODÉRATRICE;

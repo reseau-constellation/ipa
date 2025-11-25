@@ -1,13 +1,12 @@
 import { validerCatégorieVal } from "@constl/utils-ipa";
-import {
-  obtIdIndex,
-} from "./bds/tableaux.js";
+import { obtIdIndex } from "./bds/tableaux.js";
 import type { JSONSchemaType } from "ajv";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { PartielRécursif } from "./types.js";
 import type {
   DonnéesRangéeTableau,
-  DonnéesRangéeTableauAvecId} from "./bds/tableaux.js";
+  DonnéesRangéeTableauAvecId,
+} from "./bds/tableaux.js";
 import type { CatégorieVariables } from "./variables.js";
 
 export type SourceRègle =

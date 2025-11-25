@@ -31,13 +31,13 @@ import {
 import type { ServicesLibp2pCrabeDéfaut } from "@/v2/crabe/services/libp2p/config/utils.js";
 import type {
   ServicesLibp2pCrabe,
-  ServicesNécessairesLibp2p} from "@/v2/crabe/services/libp2p/libp2p.js";
+  ServicesNécessairesLibp2p,
+} from "@/v2/crabe/services/libp2p/libp2p.js";
 import type { PrivateKey } from "@libp2p/interface";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
-import type {
-  ServicesLibp2pTest} from "@constl/utils-tests";
-import type { Libp2p, Libp2pOptions} from "libp2p";
+import type { ServicesLibp2pTest } from "@constl/utils-tests";
+import type { Libp2p, Libp2pOptions } from "libp2p";
 import type { Helia } from "helia";
 import type { OrbitDB } from "@orbitdb/core";
 

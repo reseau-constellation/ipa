@@ -5,8 +5,7 @@ import {
   cacheSuivi,
 } from "@/v2/crabe/cache.js";
 import { attendreQue } from "../nébuleuse/utils/fonctions.js";
-import type {
-  RésultatProfondeur} from "@/v2/crabe/cache.js";
+import type { RésultatProfondeur } from "@/v2/crabe/cache.js";
 import type { Suivi, Oublier, RetourRecherche } from "@/v2/crabe/types.js";
 
 describe.only("Cache", function () {

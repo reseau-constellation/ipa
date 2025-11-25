@@ -5,13 +5,14 @@ import {
   rechercherProfilsSelonImage,
   rechercherProfilsSelonCourriel,
   rechercherProfilsSelonTexte,
+  rechercherProfilsSelonActivité,
 } from "./fonctions/profils.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { Profil } from "../crabe/services/profil.js";
-import type { Suivi } from "../crabe/types.js";
+import type { Oublier, Suivi } from "../crabe/types.js";
 import type { Constellation } from "../index.js";
 import type {
   RésultatRecherche,
@@ -21,6 +22,7 @@ import type {
   SuivreObjectifRecherche,
   InfoRésultatTexte,
 } from "./types.js";
+import { faisRien } from "@constl/utils-ipa";
 
 export class RechercheProfils<
   L extends ServicesLibp2pCrabe,
@@ -171,15 +173,45 @@ export class RechercheProfils<
   }): Promise<RetourFonctionRecherche> {
     const réseau = this.service("réseau");
 
+    const fConfiance = async ({idObjet, f: fSuivi}: {
+      idObjet: string,
+      f: Suivi<number>,
+    }) => {
+      const oublier = await réseau.suivreConfiance({
+        idCompte: idObjet,
+        f: fSuivi,
+      });
+      return oublier;
+    };
+
+    const fQualité = async ({
+      idObjet,
+      f
+    }: {
+      idObjet: string,
+      f: Suivi<number>,
+    }): Promise<Oublier> => {
+      const fRechercherSelonActivité = rechercherProfilsSelonActivité();
+      return await fRechercherSelonActivité({
+        constl: this.constl,
+        idObjet,
+        f: async (résultat) => {
+          await f(résultat?.score || 0);
+        },
+      });
+    };
+
     return await this.rechercher<T>({
       f,
       n,
-      fRecherche: async ({ f }) => await réseau.rechercherMembres({ f }),
-      fQualité: async ({ idObjet, f: fSuiviQualité }) =>
-        await this.profils.suivreScoreQualité({
-          idProjet: idObjet,
-          f: fSuiviQualité,
-        }),
+      fRecherche: async ({
+        idCompte,
+        f: fSuivi,
+      }): Promise<Oublier> => {
+        await fSuivi([idCompte]);
+        return faisRien; // Rien à faire parce que nous ne recherchons que le compte
+      },
+      fQualité,
       fObjectif,
       fConfiance,
     });

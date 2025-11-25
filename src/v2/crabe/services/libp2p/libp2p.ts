@@ -5,17 +5,13 @@ import {
   toString as uint8ArrayToString,
 } from "uint8arrays";
 import { keys } from "@libp2p/crypto";
-import {
-  ServiceNébuleuse,
-} from "../../../nébuleuse/index.js";
+import { ServiceNébuleuse } from "../../../nébuleuse/index.js";
 import { obtenirOptionsLibp2p } from "./config/index.js";
-import type { Libp2p, Libp2pOptions} from "libp2p";
+import type { Libp2p, Libp2pOptions } from "libp2p";
 import type { Identify } from "@libp2p/identify";
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
 import type { PrivateKey, ServiceMap } from "@libp2p/interface";
-import type {
-  Nébuleuse,
-  OptionsNébuleuse} from "../../../nébuleuse/index.js";
+import type { Nébuleuse, OptionsNébuleuse } from "../../../nébuleuse/index.js";
 import type { ServiceStockage } from "../stockage.js";
 
 import type { ServiceOrbite } from "../orbite/index.js";

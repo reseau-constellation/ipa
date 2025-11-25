@@ -22,8 +22,7 @@ import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
 import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
-import type {
-  WorkBook} from "xlsx";
+import type { WorkBook } from "xlsx";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   SourceDonnéesImportationFichier,

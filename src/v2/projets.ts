@@ -4,12 +4,12 @@ import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ajouterProtocoleOrbite } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
+import { RechercheProjets } from "./recherche/projets.js";
 import type { JSONSchemaType } from "ajv";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
 import type { Suivi, Oublier } from "./crabe/types.js";
-import { RechercheProjets } from "./recherche/projets.js";
 
 // Types structure
 
@@ -78,7 +78,7 @@ export class Projets<
   L,
   ServicesConstellation<L>
 > {
-  recherche: RechercheProjets<L>
+  recherche: RechercheProjets<L>;
 
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
@@ -93,7 +93,7 @@ export class Projets<
       nuées: this,
       constl: this.nébuleuse,
       service: (clef) => this.service(clef),
-    })
+    });
   }
 
   @cacheSuivi
@@ -198,7 +198,6 @@ export class Projets<
       f: async (projet) => {
         motsClefs.propres = Object.keys(toObject(projet).motsClefs);
         return await fFinale();
-      
       },
     });
 
@@ -270,7 +269,8 @@ export class Projets<
     const bds = this.service("bds");
 
     return await suivreDeFonctionListe({
-      fListe: async ({fSuivreRacine}: {fSuivreRacine: Suivi<string[]>}) => await this.suivreBds({ idProjet, f: fSuivreRacine }),
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
+        await this.suivreBds({ idProjet, f: fSuivreRacine }),
       fBranche: async ({
         id: idBd,
         fSuivreBranche,
@@ -283,8 +283,8 @@ export class Projets<
           f: fSuivreBranche,
         });
       },
-      f
-    })
+      f,
+    });
   }
 
   // Qualité

@@ -1,26 +1,29 @@
 import { typedNested } from "@constl/bohr-db";
+import { suivreDeFonctionListe } from "@constl/utils-ipa";
+import { toObject } from "@orbitdb/nested-db";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { Tableaux, schémaTableau } from "./tableaux.js";
-import { extraireEmpreinte } from "./utils.js";
+import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "./favoris.js";
-import type { TypedNested} from "@constl/bohr-db";
+import { cacheSuivi } from "./crabe/cache.js";
+import { RechercheNuées } from "./recherche/nuées.js";
+import type { TypedNested } from "@constl/bohr-db";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
-import type { Oublier } from "./crabe/types.js";
-import type { StructureTableau} from "./tableaux.js";
+import type { Oublier, Suivi } from "./crabe/types.js";
+import type { StructureTableau } from "./tableaux.js";
 import type {
   Métadonnées,
   PartielRécursif,
   StatutDonnées,
   TraducsTexte,
 } from "./types.js";
-import type {
-  BaseÉpingleFavoris} from "./favoris.js";
+import type { BaseÉpingleFavoris } from "./favoris.js";
 import type { ÉpingleBd } from "./bds/bds.js";
 import type { JSONSchemaType } from "ajv";
 
@@ -93,7 +96,7 @@ export const schémaNuée: JSONSchemaType<PartielRécursif<StructureNuée>> = {
 };
 
 export type StructureServiceNuées = {
-  [motClef: string]: null;
+  [nuée: string]: null;
 };
 
 export const SchémaServiceNuées: JSONSchemaType<
@@ -113,6 +116,7 @@ export class Nuées<
   ServicesConstellation<L>
 > {
   tableaux: Tableaux<L>;
+  recherche: RechercheNuées<L>;
 
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
@@ -125,6 +129,42 @@ export class Nuées<
     });
     this.tableaux = new Tableaux({
       service: (clef) => this.service(clef),
+    });
+    this.recherche = new RechercheNuées({
+      nuées: this,
+      constl: this.nébuleuse,
+      service: (clef) => this.service(clef),
+    });
+  }
+
+  @cacheSuivi
+  async suivreNuées({
+    f,
+    idCompte,
+  }: {
+    f: Suivi<string[] | undefined>;
+    idCompte?: string;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
+        await this.suivreBd({
+          idCompte,
+          f: async (nuées) =>
+            await fSuivreRacine(
+              nuées ? Object.keys(nuées).map(ajouterProtocoleOrbite) : [],
+            ),
+        }),
+      fBranche: async ({ id: idObjet, fSuivreBranche }) => {
+        return await compte.suivrePermission({
+          idObjet,
+          idCompte,
+          f: async (permission) =>
+            await fSuivreBranche(permission ? idObjet : undefined),
+        });
+      },
+      f,
     });
   }
 
@@ -164,7 +204,7 @@ export class Nuées<
     return idNuée;
   }
 
-  async effacerBd({ idNuée }: { idNuée: string }): Promise<void> {
+  async effacerNuée({ idNuée }: { idNuée: string }): Promise<void> {
     const orbite = this.service("orbite");
 
     // D'abord effacer l'entrée dans notre liste de Nuées
@@ -237,5 +277,155 @@ export class Nuées<
       },
     });
     await favoris.épinglerFavori({ idObjet: idNuée, épingle });
+  }
+
+  // Noms
+
+  @cacheSuivi
+  async suivreNoms({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<TraducsTexte>;
+  }): Promise<Oublier> {
+    return await this.service("orbite").suivreDonnéesBd({
+      id: idNuée,
+      type: "nested",
+      schéma: schémaNuée,
+      f: (nuée) => f(toObject(nuée).noms || {}),
+    });
+  }
+
+  // Descriptions
+
+  @cacheSuivi
+  async suivreDescriptions({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<TraducsTexte>;
+  }): Promise<Oublier> {
+    return await this.service("orbite").suivreDonnéesBd({
+      id: idNuée,
+      type: "nested",
+      schéma: schémaNuée,
+      f: (nuée) => f(toObject(nuée).descriptions || {}),
+    });
+  }
+
+  // Mots-clefs
+
+  @cacheSuivi
+  async suivreMotsClefs({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<string[]>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await orbite.suivreDonnéesBd({
+      id: idNuée,
+      type: "nested",
+      schéma: schémaNuée,
+      f: (nuée) => f(Object.keys(toObject(nuée).motsClefs)),
+    });
+  }
+
+  // Variables
+
+  async suivreVariables({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<string[]>;
+  }): Promise<Oublier> {
+    const fFinale = async (variables?: string[]) => {
+      return await f(variables || []);
+    };
+
+    const fBranche = async ({
+      id,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<string[]>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.client.tableaux.suivreVariables({
+        idTableau: id,
+        f: fSuivreBranche,
+      });
+    };
+
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.suivreTableauxNuée({
+        idNuée,
+        f: (x) => fSuivreRacine(x.map((x) => x.id)),
+      });
+    };
+
+    return await suivreDeFonctionListe({
+      fListe,
+      f: fFinale,
+      fBranche,
+    });
+  }
+
+  // Qualité
+
+  @cacheSuivi
+  async suivreScoreQualité({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<number>;
+  }): Promise<Oublier> {
+    const rés: {
+      noms: { [key: string]: string };
+      descr: { [key: string]: string };
+    } = {
+      noms: {},
+      descr: {},
+    };
+    const fFinale = async () => {
+      const scores = [
+        Object.keys(rés.noms).length ? 1 : 0,
+        Object.keys(rés.descr).length ? 1 : 0,
+      ];
+
+      const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
+      await f(qualité);
+    };
+    const oublierNoms = await this.suivreNomsNuée({
+      idNuée,
+      f: (noms) => {
+        rés.noms = noms;
+        fFinale();
+      },
+    });
+
+    const oublierDescr = await this.suivreDescriptionsNuée({
+      idNuée,
+      f: (descr) => {
+        rés.descr = descr;
+        fFinale();
+      },
+    });
+
+    const fOublier = async () => {
+      await oublierNoms();
+      await oublierDescr();
+    };
+
+    return fOublier;
   }
 }

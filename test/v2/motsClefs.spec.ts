@@ -203,7 +203,7 @@ describe.only("Mots-clefs", function () {
 
     it("pas de descriptions pour commencer", async () => {
       const descriptions = await obtenir<TraducsTexte>(({ siDéfini }) =>
-        constl.motsClefs.suivreDescriptionsMotClef({
+        constl.motsClefs.suivreDescriptions({
           idMotClef,
           f: siDéfini(),
         }),
@@ -212,13 +212,13 @@ describe.only("Mots-clefs", function () {
     });
 
     it("ajouter une description", async () => {
-      await constl.motsClefs.sauvegarderDescriptionMotClef({
+      await constl.motsClefs.sauvegarderDescription({
         idMotClef,
         langue: "fr",
         description: "Données liées au domaine de l'hydrologie",
       });
       const descriptions = await obtenir<TraducsTexte>(({ siPasVide }) =>
-        constl.motsClefs.suivreDescriptionsMotClef({
+        constl.motsClefs.suivreDescriptions({
           idMotClef,
           f: siPasVide(),
         }),
@@ -229,7 +229,7 @@ describe.only("Mots-clefs", function () {
     });
 
     it("ajouter des descriptions", async () => {
-      await constl.motsClefs.sauvegarderDescriptionsMotClef({
+      await constl.motsClefs.sauvegarderDescriptions({
         idMotClef,
         descriptions: {
           த: "நீரியல் சம்பந்தமான தரவுகளுக்காக",
@@ -237,7 +237,7 @@ describe.only("Mots-clefs", function () {
         },
       });
       const descriptions = await obtenir<TraducsTexte>(({ si }) =>
-        constl.motsClefs.suivreDescriptionsMotClef({
+        constl.motsClefs.suivreDescriptions({
           idMotClef,
           f: si((x) => !!x && Object.keys(x).length >= 3),
         }),
@@ -251,13 +251,13 @@ describe.only("Mots-clefs", function () {
     });
 
     it("changer une description", async () => {
-      await constl.motsClefs.sauvegarderDescriptionMotClef({
+      await constl.motsClefs.sauvegarderDescription({
         idMotClef,
         langue: "fr",
         description: "Données liées à l'hydrologie",
       });
       const descriptions = await obtenir<TraducsTexte>(({ si }) =>
-        constl.motsClefs.suivreDescriptionsMotClef({
+        constl.motsClefs.suivreDescriptions({
           idMotClef,
           f: si((x) => !x?.fr?.includes("domaine")),
         }),
@@ -267,12 +267,12 @@ describe.only("Mots-clefs", function () {
     });
 
     it("effacer une description", async () => {
-      await constl.motsClefs.effacerDescriptionMotClef({
+      await constl.motsClefs.effacerDescription({
         idMotClef,
         langue: "fr",
       });
       const descriptions = await obtenir<TraducsTexte>(({ si }) =>
-        constl.motsClefs.suivreDescriptionsMotClef({
+        constl.motsClefs.suivreDescriptions({
           idMotClef,
           f: si((x) => !!x && !Object.keys(x).includes("fr")),
         }),
@@ -299,7 +299,7 @@ describe.only("Mots-clefs", function () {
         },
       });
 
-      await constl.motsClefs.sauvegarderDescriptionsMotClef({
+      await constl.motsClefs.sauvegarderDescriptions({
         idMotClef,
         descriptions: {
           த: "நீரியலுக்காக ஒரு சிறப்பு சொலு",
@@ -332,7 +332,7 @@ describe.only("Mots-clefs", function () {
 
     it("les descriptions sont copiées", async () => {
       const descriptions = await obtenir(({ siPasVide }) =>
-        constl.motsClefs.suivreDescriptionsMotClef({
+        constl.motsClefs.suivreDescriptions({
           idMotClef,
           f: siPasVide(),
         }),

@@ -8,13 +8,11 @@ import { detect } from "detect-browser";
 
 import { FaultTolerance } from "@libp2p/interface";
 import { obtStockageDonnées } from "../../utils.js";
-import {
-  découvertePairs,
-  servicesDéfaut,
-} from "./utils.js";
+import { découvertePairs, servicesDéfaut } from "./utils.js";
 import type {
   ConfigOptionsLibp2p,
-  ServicesLibp2pCrabeDéfaut} from "./utils.js";
+  ServicesLibp2pCrabeDéfaut,
+} from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
 
 // https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#recommendations-for-network-operators

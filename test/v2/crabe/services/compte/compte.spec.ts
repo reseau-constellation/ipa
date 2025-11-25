@@ -7,32 +7,26 @@ import {
   ServiceOrbite,
   ServiceStockage,
 } from "@/v2/crabe/index.js";
-import {
-  compilerSchémaCompte,
-} from "@/v2/crabe/services/compte/compte.js";
+import { compilerSchémaCompte } from "@/v2/crabe/services/compte/compte.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { ServiceDonnéesNébuleuse } from "@/v2/crabe/services/services.js";
 import { ServiceJournal } from "@/v2/crabe/services/journal.js";
 import { MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
-import {
-  schémaDispositifs,
-} from "@/v2/crabe/services/dispositifs.js";
+import { schémaDispositifs } from "@/v2/crabe/services/dispositifs.js";
 import { schémaProfil } from "@/v2/crabe/services/profil.js";
-import type { StructureRéseau} from "@/v2/crabe/services/réseau.js";
 import { schémaRéseau } from "@/v2/crabe/services/réseau.js";
 import { mapÀObjet } from "@/v2/crabe/utils.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
-import type { CrabeTest} from "../../utils.js";
 import { créerCrabesTest } from "../../utils.js";
-import type { StructureProfil} from "@/v2/crabe/services/profil.js";
-import type {
-  StructureDispositifs} from "@/v2/crabe/services/dispositifs.js";
+import type { CrabeTest } from "../../utils.js";
+import type { StructureRéseau } from "@/v2/crabe/services/réseau.js";
+import type { StructureProfil } from "@/v2/crabe/services/profil.js";
+import type { StructureDispositifs } from "@/v2/crabe/services/dispositifs.js";
 import type { StructureCrabe } from "@/v2/crabe/crabe.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { PartielRécursif } from "@/v2/types.js";
-import type {
-  ServicesNécessairesCompte} from "@/v2/crabe/services/compte/compte.js";
+import type { ServicesNécessairesCompte } from "@/v2/crabe/services/compte/compte.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";

@@ -1,11 +1,10 @@
-import type {
-
-  MandataireConstellation} from "@constl/mandataire";
 import {
   générerMandataire,
   Mandatairifiable,
   type MessageDIpa,
-  type MessagePourIpa} from "@constl/mandataire";
+  type MessagePourIpa   } from "@constl/mandataire";
+import type {
+ MandataireConstellation } from "@constl/mandataire";
 import type { Constellation } from "@/client.js";
 import type { Crabe, OptionsDeCrabe } from "../crabe.js";
 

@@ -1,13 +1,11 @@
-import {
-  générerMandataire,
-  Mandatairifiable
-} from "@constl/mandataire";
+import { générerMandataire, Mandatairifiable } from "@constl/mandataire";
 import { EnveloppeCrabe } from "./enveloppe.js";
 import type {
   MandataireConstellation,
   MessageDIpa,
   MessageErreurDIpa,
-  MessagePourIpa} from "@constl/mandataire";
+  MessagePourIpa,
+} from "@constl/mandataire";
 
 import type { Crabe } from "../index.js";
 

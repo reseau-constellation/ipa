@@ -12,9 +12,7 @@ import {
   sauvegarderFichierZip,
   uneFois,
 } from "@constl/utils-ipa";
-import {
-  TypedFeed
-} from "@constl/bohr-db";
+import { TypedFeed } from "@constl/bohr-db";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
 
 import sha256 from "crypto-js/sha256.js";
@@ -33,12 +31,7 @@ import { keys } from "@libp2p/crypto";
 import { anySignal } from "any-signal";
 import { AbortError } from "p-retry";
 import { Automatisations } from "@/automatisation.js";
-import {
-  Favoris,
-  INSTALLÉ,
-  TOUS,
-  résoudreDéfauts
-} from "@/favoris.js";
+import { Favoris, INSTALLÉ, TOUS, résoudreDéfauts } from "@/favoris.js";
 import { Licences } from "@/licences.js";
 import { Nuées } from "@/nuées.js";
 import { Projets } from "@/projets.js";
@@ -46,14 +39,10 @@ import { Recherche } from "@/recherche/index.js";
 import { Réseau } from "@/reseau.js";
 import { Tableaux } from "@/tableaux.js";
 
-import {
-  MEMBRE,
-  MODÉRATEUR
-} from "@/v2/crabe/services/compte/accès/consts.js";
+import { MEMBRE, MODÉRATEUR } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Protocoles } from "./protocoles.js";
 import { appelerLorsque, estUnePromesse } from "./utils.js";
-import type {
-  rôles} from "@/v2/crabe/services/compte/accès/consts.js";
+import type { rôles } from "@/v2/crabe/services/compte/accès/consts.js";
 import type {
   Jsonifiable,
   PartielRécursif,
@@ -65,7 +54,8 @@ import type {
 import type {
   ÉpingleCompte,
   ÉpingleFavoris,
-  ÉpingleFavorisAvecId} from "@/favoris.js";
+  ÉpingleFavorisAvecId,
+} from "@/favoris.js";
 import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { Helia } from "helia";
 import type { JSONSchemaType } from "ajv";
@@ -73,8 +63,9 @@ import type {
   TypedKeyValue,
   TypedNested,
   TypedOrderedKeyValue,
-  TypedSet} from "@constl/bohr-db";
-import type { Libp2p , PrivateKey } from "@libp2p/interface";
+  TypedSet,
+} from "@constl/bohr-db";
+import type { Libp2p, PrivateKey } from "@libp2p/interface";
 import type { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type {
@@ -93,12 +84,11 @@ import type {
   KeyValueDatabase,
   OpenDatabaseOptions,
 } from "@orbitdb/core";
-import type {
-  structureBdProfil} from "@/profil.js";
+import type { structureBdProfil } from "@/profil.js";
 import type {
   Store,
   type GestionnaireOrbite,
-  gestionnaireOrbiteGénéral
+  gestionnaireOrbiteGénéral,
 } from "@/orbite.js";
 import {
   type OptionsContrôleurConstellation,
@@ -108,10 +98,7 @@ import {
 import { Épingles } from "@/epingles.js";
 import { MotsClefs } from "@/motsClefs.js";
 import { Variables } from "@/variables.js";
-import {
-  Profil,
-  schémaStructureBdProfil
-} from "@/profil.js";
+import { Profil, schémaStructureBdProfil } from "@/profil.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { BDs } from "@/bds.js";
 import { initSFIP } from "@/sfip/index.js";

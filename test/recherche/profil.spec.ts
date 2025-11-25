@@ -1,11 +1,5 @@
 import { attente as utilsTestAttente } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
-import {
-  rechercherProfilsSelonActivité,
-  rechercherProfilsSelonCourriel,
-  rechercherProfilsSelonNom,
-  rechercherProfilsSelonTexte,
-} from "@/recherche/profil.js";
 import { obtRessourceTest } from "../ressources/index.js";
 import { générerClientsInternes } from "../ressources/utils.js";
 import type { Constellation } from "@/client.js";
@@ -15,6 +9,12 @@ import type {
   résultatObjectifRecherche,
   schémaFonctionOublier,
 } from "@/types.js";
+import {
+  rechercherProfilsSelonActivité,
+  rechercherProfilsSelonCourriel,
+  rechercherProfilsSelonNom,
+  rechercherProfilsSelonTexte,
+} from "@/recherche/profil.js";
 
 describe("Rechercher profil", function () {
   describe("Selon activité", function () {

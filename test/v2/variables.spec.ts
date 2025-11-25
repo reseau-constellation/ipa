@@ -110,7 +110,7 @@ describe.only("Variables", function () {
 
     it("pas de noms pour commencer", async () => {
       const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
-        constl.variables.suivreNomsVariable({
+        constl.variables.suivreNoms({
           idVariable,
           f: siDéfini(),
         }),
@@ -119,13 +119,13 @@ describe.only("Variables", function () {
     });
 
     it("ajouter un nom", async () => {
-      await constl.variables.sauvegarderNomVariable({
+      await constl.variables.sauvegarderNom({
         idVariable,
         langue: "fr",
         nom: "Précipitation",
       });
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
-        constl.variables.suivreNomsVariable({
+        constl.variables.suivreNoms({
           idVariable,
           f: siPasVide(),
         }),
@@ -134,7 +134,7 @@ describe.only("Variables", function () {
     });
 
     it("ajouter des noms", async () => {
-      await constl.variables.sauvegarderNomsVariable({
+      await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           த: "மழை",
@@ -142,7 +142,7 @@ describe.only("Variables", function () {
         },
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreNomsVariable({
+        constl.variables.suivreNoms({
           idVariable,
           f: si((x) => !!x && Object.keys(x).length > 2),
         }),
@@ -155,13 +155,13 @@ describe.only("Variables", function () {
     });
 
     it("changer un nom", async () => {
-      await constl.variables.sauvegarderNomVariable({
+      await constl.variables.sauvegarderNom({
         idVariable,
         langue: "fr",
         nom: "précipitation",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreNomsVariable({
+        constl.variables.suivreNoms({
           idVariable,
           f: si((x) => !!x?.fr && !x.fr.startsWith("P")),
         }),
@@ -170,12 +170,12 @@ describe.only("Variables", function () {
     });
 
     it("effacer un nom", async () => {
-      await constl.variables.effacerNomVariable({
+      await constl.variables.effacerNom({
         idVariable,
         langue: "fr",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreNomsVariable({
+        constl.variables.suivreNoms({
           idVariable,
           f: si((x) => !x?.["fr"]),
         }),
@@ -195,7 +195,7 @@ describe.only("Variables", function () {
 
     it("pas de descriptions pour commencer", async () => {
       const descrs = await obtenir<TraducsTexte>(({ siDéfini }) =>
-        constl.variables.suivreDescriptionsVariable({
+        constl.variables.suivreDescriptions({
           idVariable,
           f: siDéfini(),
         }),
@@ -204,13 +204,13 @@ describe.only("Variables", function () {
     });
 
     it("ajouter une description", async () => {
-      await constl.variables.sauvegarderDescriptionVariable({
+      await constl.variables.sauvegarderDescription({
         idVariable,
         langue: "fr",
         description: "la quantité de précipitation quotidienne",
       });
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreDescriptionsVariable({
+        constl.variables.suivreDescriptions({
           idVariable,
           f: si((x) => !!x?.["fr"]),
         }),
@@ -219,7 +219,7 @@ describe.only("Variables", function () {
     });
 
     it("ajouter des descriptions", async () => {
-      await constl.variables.sauvegarderDescriptionsVariable({
+      await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
           த: "தினசரி மழை",
@@ -227,7 +227,7 @@ describe.only("Variables", function () {
         },
       });
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreDescriptionsVariable({
+        constl.variables.suivreDescriptions({
           idVariable,
           f: si((x) => !!x && Object.keys(x).length > 2),
         }),
@@ -240,13 +240,13 @@ describe.only("Variables", function () {
     });
 
     it("changer une description", async () => {
-      await constl.variables.sauvegarderDescriptionVariable({
+      await constl.variables.sauvegarderDescription({
         idVariable,
         langue: "fr",
         description: "La quantité de précipitation quotidienne",
       });
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreDescriptionsVariable({
+        constl.variables.suivreDescriptions({
           idVariable,
           f: si((x) => !!x?.fr && x["fr"].startsWith("L")),
         }),
@@ -255,12 +255,12 @@ describe.only("Variables", function () {
     });
 
     it("effacer une description", async () => {
-      await constl.variables.effacerDescriptionVariable({
+      await constl.variables.effacerDescription({
         idVariable,
         langue: "fr",
       });
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreDescriptionsVariable({
+        constl.variables.suivreDescriptions({
           idVariable,
           f: si((x) => !x?.["fr"]),
         }),
@@ -283,12 +283,12 @@ describe.only("Variables", function () {
     });
 
     it("changer la catégorie", async () => {
-      await constl.variables.sauvegarderCatégorieVariable({
+      await constl.variables.sauvegarderCatégorie({
         idVariable,
         catégorie: "chaîne",
       });
       const catégorie = await obtenir<CatégorieVariable>(({ si }) =>
-        constl.variables.suivreCatégorieVariable({
+        constl.variables.suivreCatégorie({
           idVariable,
           f: si((x) => x?.catégorie !== "numérique"),
         }),
@@ -323,7 +323,7 @@ describe.only("Variables", function () {
 
     it("règle générique de catégorie pour commencer", async () => {
       const règles = await obtenir<RègleVariableAvecId[]>(({ siPasVide }) =>
-        constl.variables.suivreRèglesVariable({
+        constl.variables.suivreRègles({
           idVariable,
           f: siPasVide(),
         }),
@@ -352,13 +352,13 @@ describe.only("Variables", function () {
         },
       };
 
-      idRègle = await constl.variables.ajouterRègleVariable({
+      idRègle = await constl.variables.ajouterRègle({
         idVariable,
         règle,
       });
 
       const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
-        constl.variables.suivreRèglesVariable({
+        constl.variables.suivreRègles({
           idVariable,
           f: si((x) => !!x && x.length > 1),
         }),
@@ -387,14 +387,14 @@ describe.only("Variables", function () {
         },
       };
 
-      await constl.variables.modifierRègleVariable({
+      await constl.variables.modifierRègle({
         idVariable,
         idRègle,
         règleModifiée,
       });
 
       const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
-        constl.variables.suivreRèglesVariable({
+        constl.variables.suivreRègles({
           idVariable,
           f: si((x) => {
             const règleBornes = x?.find((r) => r.id === idRègle) as
@@ -419,9 +419,9 @@ describe.only("Variables", function () {
     });
 
     it("effacer une règle", async () => {
-      await constl.variables.effacerRègleVariable({ idVariable, idRègle });
+      await constl.variables.effacerRègle({ idVariable, idRègle });
       const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
-        constl.variables.suivreRèglesVariable({
+        constl.variables.suivreRègles({
           idVariable,
           f: si((x) => !!x && x.length < 2),
         }),
@@ -437,12 +437,12 @@ describe.only("Variables", function () {
     });
 
     it("on ne peut pas effacer une règle générique de base", async () => {
-      await constl.variables.effacerRègleVariable({
+      await constl.variables.effacerRègle({
         idVariable,
         idRègle: idRègleCatégorie,
       });
       const règles = await obtenir<RègleVariableAvecId[]>(({ siPasVide }) =>
-        constl.variables.suivreRèglesVariable({
+        constl.variables.suivreRègles({
           idVariable,
           f: siPasVide(),
         }),
@@ -459,7 +459,7 @@ describe.only("Variables", function () {
 
     it("on détecte le changement de catégorie", async () => {
       const pRègles = obtenir<RègleVariableAvecId[]>(({ si }) =>
-        constl.variables.suivreRèglesVariable({
+        constl.variables.suivreRègles({
           idVariable,
           f: si(
             (x) =>
@@ -471,7 +471,7 @@ describe.only("Variables", function () {
           ),
         }),
       );
-      await constl.variables.sauvegarderCatégorieVariable({
+      await constl.variables.sauvegarderCatégorie({
         idVariable,
         catégorie: "horoDatage",
       });
@@ -506,7 +506,7 @@ describe.only("Variables", function () {
 
     it("aucune unité pour commencer", async () => {
       const unités = await obtenir(({ siNul }) =>
-        constl.variables.suivreUnitésVariable({
+        constl.variables.suivreUnités({
           idVariable,
           f: siNul(),
         }),
@@ -515,12 +515,12 @@ describe.only("Variables", function () {
     });
 
     it("changer les unités", async () => {
-      await constl.variables.sauvegarderUnitésVariable({
+      await constl.variables.sauvegarderUnités({
         idVariable,
         idUnité: "mm",
       });
       const unités = await obtenir(({ siPasNul }) =>
-        constl.variables.suivreUnitésVariable({
+        constl.variables.suivreUnités({
           idVariable,
           f: siPasNul(),
         }),
@@ -537,7 +537,7 @@ describe.only("Variables", function () {
         catégorie: "booléen",
       });
       const statut = await obtenir(({ siDéfini }) =>
-        constl.variables.suivreStatutVariable({
+        constl.variables.suivreStatut({
           idVariable,
           f: siDéfini(),
         }),
@@ -555,13 +555,13 @@ describe.only("Variables", function () {
         // Pour une vraie application, utiliser un identifiant valide, bien entendu.
         idNouvelle: "/orbitdb/uneAutreVariable",
       };
-      await constl.variables.sauvegarderStatutVariable({
+      await constl.variables.sauvegarderStatut({
         idVariable,
         statut: nouveauStatut,
       });
 
       const statut = await obtenir<StatutDonnées | null>(({ si }) =>
-        constl.variables.suivreStatutVariable({
+        constl.variables.suivreStatut({
           idVariable,
           f: si((x) => x?.statut !== "active"),
         }),
@@ -587,22 +587,22 @@ describe.only("Variables", function () {
       const idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      await constl.variables.sauvegarderNomsVariable({
+      await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           த: "மழை",
           हिं: "बारिश",
         },
       });
-      await constl.variables.sauvegarderDescriptionsVariable({
+      await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
           த: "தினசரி மழை",
           हिं: "दैनिक बारिश",
         },
       });
-      await constl.variables.ajouterRègleVariable({ idVariable, règle });
-      await constl.variables.sauvegarderUnitésVariable({
+      await constl.variables.ajouterRègle({ idVariable, règle });
+      await constl.variables.sauvegarderUnités({
         idVariable,
         idUnité: "mm",
       });
@@ -623,7 +623,7 @@ describe.only("Variables", function () {
 
     it("les noms sont copiés", async () => {
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreNomsVariable({
+        constl.variables.suivreNoms({
           idVariable: idVariable2,
           f: si((x) => !!x && Object.keys(x).length > 1),
         }),
@@ -633,7 +633,7 @@ describe.only("Variables", function () {
 
     it("les descriptions sont copiées", async () => {
       const descriptions = await obtenir<TraducsTexte>(({ si }) =>
-        constl.variables.suivreDescriptionsVariable({
+        constl.variables.suivreDescriptions({
           idVariable: idVariable2,
           f: si((x) => !!x && Object.keys(x).length > 1),
         }),
@@ -646,7 +646,7 @@ describe.only("Variables", function () {
 
     it("la catégorie est copiée", async () => {
       const catégorie = await obtenir(({ siDéfini }) =>
-        constl.variables.suivreCatégorieVariable({
+        constl.variables.suivreCatégorie({
           idVariable: idVariable2,
           f: siDéfini(),
         }),
@@ -665,7 +665,7 @@ describe.only("Variables", function () {
         },
       };
       const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
-        constl.variables.suivreRèglesVariable({
+        constl.variables.suivreRègles({
           idVariable: idVariable2,
           f: si((x) => !!x && x.length > 1),
         }),
@@ -678,7 +678,7 @@ describe.only("Variables", function () {
 
     it("les unités sont copiés", async () => {
       const val = await obtenir(({ siDéfini }) =>
-        constl.variables.suivreUnitésVariable({
+        constl.variables.suivreUnités({
           idVariable: idVariable2,
           f: siDéfini(),
         }),

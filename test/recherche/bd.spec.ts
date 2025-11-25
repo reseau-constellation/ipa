@@ -11,7 +11,7 @@ import {
   rechercherBdsSelonNomVariable,
   rechercherBdsSelonTexte,
   rechercherBdsSelonVariable,
-} from "@/recherche/bd.js";
+} from "@/v2/recherche/fonctions/bds.js";
 import { générerClientsInternes } from "../ressources/utils.js";
 import type {
   infoRésultatRecherche,

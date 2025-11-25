@@ -1,15 +1,14 @@
 import path from "path";
 import { ServiceLibp2p, ServiceStockage } from "@/v2/crabe/index.js";
-import {
-  Nébuleuse
-} from "@/v2/nébuleuse/nébuleuse.js";
+import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../../utils.js";
 import { obtenirOptionsLibp2pTest } from "./../../crabe/services/utils.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type {
   ConstructeursServicesNébuleuse,
   OptionsNébuleuse,
-  ServicesNébuleuse} from "@/v2/nébuleuse/nébuleuse.js";
+  ServicesNébuleuse,
+} from "@/v2/nébuleuse/nébuleuse.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { ServicesNécessairesLibp2p } from "@/v2/crabe/services/libp2p/libp2p.js";
 

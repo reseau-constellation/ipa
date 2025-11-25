@@ -4,7 +4,7 @@ import {
   rechercherVariablesSelonDescr,
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
-} from "@/recherche/variable.js";
+} from "@/v2/recherche/fonctions/variables.js";
 import { générerClientsInternes } from "../ressources/utils.js";
 import type {
   infoRésultatTexte,

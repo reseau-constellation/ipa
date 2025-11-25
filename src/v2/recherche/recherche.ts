@@ -122,11 +122,16 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
     n?: number;
-    fRecherche;
+    fRecherche: (args: {
+        idCompte: string;
+        f: Suivi<string[] | undefined>;
+      }) => Promise<Oublier>;
     fObjectif: SuivreObjectifRecherche<T>;
     fConfiance: SuivreConfianceRecherche;
     fQualité: SuivreQualitéRecherche;
-  }): Promise<RetourFonctionRecherche> {}
+  }): Promise<RetourFonctionRecherche> {
+
+  }
 
   @cacheRechercheParProfondeur
   async suivreConfianceAuteurs({

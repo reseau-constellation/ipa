@@ -5,7 +5,7 @@ import PQueue from "p-queue";
 import { ServiceNébuleuse } from "./nébuleuse/nébuleuse.js";
 import { idcEtFichierValide } from "./utils.js";
 import type { BaseDatabase } from "@orbitdb/core";
-import type { Nébuleuse} from "./nébuleuse/nébuleuse.js";
+import type { Nébuleuse } from "./nébuleuse/nébuleuse.js";
 import type { Oublier } from "./crabe/types.js";
 import type { ServicesNécessairesOrbite } from "./crabe/services/orbite/orbite.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";

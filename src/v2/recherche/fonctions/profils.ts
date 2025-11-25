@@ -1,7 +1,4 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
-import type { Constellation } from "@/v2/index.js";
-import type { Oublier } from "@/v2/crabe/types.js";
-import type { SuivreObjectifRecherche, InfoRésultatVide, SuiviRecherche, InfoRésultatTexte, RésultatObjectifRecherche } from "../types.js";
 import {
   combinerRecherches,
   rechercherDansTexte,
@@ -10,13 +7,26 @@ import {
   similImages,
   similTexte,
 } from "@/v2/recherche/fonctions/utils.js";
+import type { Constellation } from "@/v2/index.js";
+import type { Oublier } from "@/v2/crabe/types.js";
+import type {
+  SuivreObjectifRecherche,
+  InfoRésultatVide,
+  SuiviRecherche,
+  InfoRésultatTexte,
+  RésultatObjectifRecherche,
+} from "../types.js";
 
 export const rechercherProfilsSelonActivité =
   (): SuivreObjectifRecherche<InfoRésultatVide> => {
-    return async ({ constl, idObjet, f }: {
-      constl: Constellation,
-      idObjet: string,
-      f: SuiviRecherche<InfoRésultatVide>,
+    return async ({
+      constl,
+      idObjet,
+      f,
+    }: {
+      constl: Constellation;
+      idObjet: string;
+      f: SuiviRecherche<InfoRésultatVide>;
     }): Promise<Oublier> => {
       const infosCompte: {
         noms?: { [key: string]: string };
@@ -85,10 +95,14 @@ export const rechercherProfilsSelonActivité =
 export const rechercherProfilsSelonNom = (
   nom: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatTexte>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = (noms: { [key: string]: string }) => {
       const corresp = similTexte(nom, noms);
@@ -116,10 +130,14 @@ export const rechercherProfilsSelonNom = (
 export const rechercherProfilsSelonCourriel = (
   courriel: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatTexte>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = (courrielProfil: string | null | undefined) => {
       const corresp = courrielProfil
@@ -149,10 +167,14 @@ export const rechercherProfilsSelonCourriel = (
 export const rechercherProfilsSelonTexte = (
   texte: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte | InfoRésultatVide> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatTexte | InfoRésultatVide>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatTexte | InfoRésultatVide>;
   }): Promise<Oublier> => {
     const fRechercherNoms = rechercherProfilsSelonNom(texte);
     const fRechercherCourriel = rechercherProfilsSelonCourriel(texte);
@@ -176,10 +198,14 @@ export const rechercherProfilsSelonTexte = (
 export const rechercherProfilsSelonImage = (
   image: Uint8Array,
 ): SuivreObjectifRecherche<InfoRésultatVide> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatVide>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatVide>;
   }): Promise<Oublier> => {
     const fSuivre = (imageCompte: Uint8Array | null) => {
       const score = similImages(image, imageCompte);

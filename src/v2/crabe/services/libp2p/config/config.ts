@@ -15,7 +15,10 @@ import {
   obtOptionsLibp2pTravailleur,
   obtOptionsLibp2pÉlectronPrincipal,
 } from "./index.js";
-import type { ConfigOptionsLibp2p, ServicesLibp2pCrabeDéfaut } from "./utils.js";
+import type {
+  ConfigOptionsLibp2p,
+  ServicesLibp2pCrabeDéfaut,
+} from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
 import type { PrivateKey } from "@libp2p/interface";
 

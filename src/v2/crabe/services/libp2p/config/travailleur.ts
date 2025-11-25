@@ -2,7 +2,10 @@ import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import { webSockets } from "@libp2p/websockets";
 import { webTransport } from "@libp2p/webtransport";
 import { obtOptionsLibp2pNavigateur } from "./navigateur.js";
-import type { ConfigOptionsLibp2p, ServicesLibp2pCrabeDéfaut } from "./utils.js";
+import type {
+  ConfigOptionsLibp2p,
+  ServicesLibp2pCrabeDéfaut,
+} from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
 
 export const obtOptionsLibp2pTravailleur = async (

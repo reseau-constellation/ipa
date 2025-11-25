@@ -1,12 +1,8 @@
 import { toUnicode } from "punycode";
-import {
-  toObject,
-} from "@orbitdb/nested-db";
+import { toObject } from "@orbitdb/nested-db";
 import { AbortError } from "p-retry";
 import { multiaddr } from "@multiformats/multiaddr";
-import type {
-  NestedMapToObject,
-  NestedValueMap} from "@orbitdb/nested-db";
+import type { NestedMapToObject, NestedValueMap } from "@orbitdb/nested-db";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { PartielRécursif } from "../types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";

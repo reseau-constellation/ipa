@@ -4,10 +4,7 @@ import {
   créerOrbitesTest,
   que,
 } from "@constl/utils-tests";
-import {
-  IPFSAccessController,
-  createOrbitDB,
-} from "@orbitdb/core";
+import { IPFSAccessController, createOrbitDB } from "@orbitdb/core";
 import { expect } from "aegir/chai";
 import { createHelia } from "helia";
 import { createLibp2p } from "libp2p";
@@ -29,14 +26,10 @@ import { attendreQue } from "../../nébuleuse/utils/fonctions.js";
 import { ServiceLibp2pTest } from "./utils.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { ServicesNécessairesOrbite } from "@/v2/crabe/services/orbite/orbite.js";
-import type { NestedObjectToMap} from "@orbitdb/nested-db";
+import type { NestedObjectToMap } from "@orbitdb/nested-db";
 import type { JSONSchemaType } from "ajv";
-import type {
-  BaseDatabase,
-  KeyValueDatabase,
-  OrbitDB} from "@orbitdb/core";
-import type {
-  ServicesLibp2pTest} from "@constl/utils-tests";
+import type { BaseDatabase, KeyValueDatabase, OrbitDB } from "@orbitdb/core";
+import type { ServicesLibp2pTest } from "@constl/utils-tests";
 
 describe.only("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pTest>[];

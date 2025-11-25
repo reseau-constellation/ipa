@@ -13,7 +13,7 @@ import {
   rechercherProjetsSelonNomVariable,
   rechercherProjetsSelonTexte,
   rechercherProjetsSelonVariable,
-} from "@/recherche/projet.js";
+} from "@/v2/recherche/fonctions/projets.js";
 import { générerClientsInternes } from "../ressources/utils.js";
 import type {
   infoRésultatRecherche,

@@ -91,10 +91,10 @@ export type ServicesNécessairesProfil<
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
 > = ServicesNécessairesCompte<L> & {
   dispositifs: ServiceDispositifs<L>;
-  profil: ServiceProfil<L>;
+  profil: Profil<L>;
 };
 
-export class ServiceProfil<
+export class Profil<
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
 > extends ServiceDonnéesNébuleuse<
   "profil",
