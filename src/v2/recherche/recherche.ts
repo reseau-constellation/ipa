@@ -48,19 +48,23 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
     n?: number;
     fRecherche: (args: {
       idCompte: string;
-      f: (objets: string[] | undefined) => void;
+      f: Suivi<string[]>;
     }) => Promise<Oublier>;
     fQualité: SuivreQualitéRecherche;
     fObjectif: SuivreObjectifRecherche<T>;
     idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
     if (idCompte) {
-      return await suivreDeFonctionListe({
-        fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-          await fRecherche({
+      const { fOublier, changerN } = await suivreDeFonctionListe({
+        fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
+          const fOublier = await fRecherche({
             idCompte,
             f: ignorerNonDéfinis(fSuivreRacine),
-          }),
+          })
+          // À faire : implémenter fChangerN ?
+          const changerN = async (_n: number) => {}
+          return { fOublier, changerN }
+        },
         fBranche: async ({
           id,
           fSuivreBranche,
@@ -68,9 +72,9 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
           id: string;
           fSuivreBranche: Suivi<RésultatRecherche<T>>;
         }): Promise<Oublier> =>
-          await fObjectifFinal({
+          await fObjectif({
             constl: this.constl,
-            id,
+            idObjet: id,
             f: async (résultat) => {
               if (résultat)
                 return await fSuivreBranche({
@@ -82,27 +86,29 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
         f,
       });
 
-      // Il y a probablement une meilleure façon de faire ça, mais pour l'instant ça passe
+      return { oublier: fOublier, n: changerN }
 
-      return await suivreDeFonctionListe({
-        fListe: async ({
-          fSuivreRacine,
-        }: {
-          fSuivreRacine: (éléments: string[]) => Promise<void>;
-        }): Promise<schémaRetourFonctionRechercheParN> => {
-          return {
-            fOublier: await fRechercheLesMiens(fSuivreRacine),
-            fChangerN: () => Promise.resolve(),
-          }; // À faire : implémenter fChangerN ?
-        },
-        f,
-        fBranche,
-      });
     } else {
+      const fRechercheAvecFavoris = async ({ idCompte, f }: {
+        idCompte: string;
+        f: Suivi<string[]>;
+      }) => {
+        const résultats: { favoris?: string[]; propres?: string[] } = {}
+        const fFinale = async () => {
+          return await f([...new Set([...résultats.propres || [], ...résultats.favoris || []])])
+        }
+        const oublierRecherche = await fRecherche({ idCompte, f: async propres => {résultats.propres = propres; await fFinale() } })
+        const oublierFavoris = await this.constl.favoris.suivreFavoris({ idCompte, f: async favoris => {résultats.favoris = favoris?.map(fav=>fav.idObjet); await fFinale() } })
+        return async () => {
+            await oublierRecherche()
+            await oublierFavoris()
+        };
+      };
+
       return await this.rechercher({
         f,
         n,
-        fRecherche,
+        fRecherche: fRechercheAvecFavoris,
         fObjectif,
         fConfiance: async ({ idObjet, f }) =>
           await this.suivreConfianceAuteurs({ idObjet, f }),
