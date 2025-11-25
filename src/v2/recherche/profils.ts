@@ -1,6 +1,11 @@
 import { profil } from "@/index.js";
 import { cacheRechercheParN } from "../crabe/cache.js";
-import { rechercherProfilsSelonNom, rechercherProfilsSelonImage, rechercherProfilsSelonCourriel, rechercherProfilsSelonTexte } from "./fonctions/profils.js";
+import {
+  rechercherProfilsSelonNom,
+  rechercherProfilsSelonImage,
+  rechercherProfilsSelonCourriel,
+  rechercherProfilsSelonTexte,
+} from "./fonctions/profils.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
 import type { ServicesConstellation } from "../constellation.js";
@@ -8,7 +13,14 @@ import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { Profil } from "../crabe/services/profil.js";
 import type { Suivi } from "../crabe/types.js";
 import type { Constellation } from "../index.js";
-import type { RésultatRecherche, InfoRésultatVide, RetourFonctionRecherche, InfoRésultat, SuivreObjectifRecherche, InfoRésultatTexte } from "./types.js";
+import type {
+  RésultatRecherche,
+  InfoRésultatVide,
+  RetourFonctionRecherche,
+  InfoRésultat,
+  SuivreObjectifRecherche,
+  InfoRésultatTexte,
+} from "./types.js";
 
 export class RechercheProfils<
   L extends ServicesLibp2pCrabe,
@@ -162,8 +174,7 @@ export class RechercheProfils<
     return await this.rechercher<T>({
       f,
       n,
-      fRecherche: async ({ f }) =>
-        await réseau.rechercherMembres({ f }),
+      fRecherche: async ({ f }) => await réseau.rechercherMembres({ f }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
         await this.profils.suivreScoreQualité({
           idProjet: idObjet,

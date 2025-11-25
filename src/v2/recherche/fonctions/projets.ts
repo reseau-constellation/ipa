@@ -97,10 +97,14 @@ export const rechercherProjetsSelonDescription = (
 export const rechercherProjetsSelonIdBd = (
   idBd: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
@@ -128,17 +132,21 @@ export const rechercherProjetsSelonBd = (
     | InfoRésultatVide
   >
 > => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<
         | InfoRésultatTexte
         | InfoRésultatRecherche<InfoRésultatTexte>
         | InfoRésultatVide
       >
-    >,
- } ): Promise<Oublier> => {
+    >;
+  }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
     }: {
@@ -159,10 +167,14 @@ export const rechercherProjetsSelonBd = (
 export const rechercherProjetsSelonIdVariable = (
   idVariable: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
@@ -184,10 +196,14 @@ export const rechercherProjetsSelonIdVariable = (
 export const rechercherProjetsSelonNomVariable = (
   nomVariable: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
@@ -211,12 +227,16 @@ export const rechercherProjetsSelonVariable = (
 ): SuivreObjectifRecherche<
   InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
 > => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
-    >,
+    >;
   }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
@@ -238,10 +258,14 @@ export const rechercherProjetsSelonVariable = (
 export const rechercherProjetsSelonIdMotClef = (
   idMotClef: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
@@ -263,10 +287,14 @@ export const rechercherProjetsSelonIdMotClef = (
 export const rechercherProjetsSelonNomMotClef = (
   nomMotClef: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
-    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
@@ -290,12 +318,16 @@ export const rechercherProjetsSelonMotClef = (
 ): SuivreObjectifRecherche<
   InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
 > => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
-    >,
+    >;
   }): Promise<Oublier> => {
     const fListe = async ({
       fSuivreRacine,
@@ -325,9 +357,13 @@ export const rechercherProjetsSelonTexte = (
     >
   | InfoRésultatVide
 > => {
-  return async ({ constl, idObjet, f }: {
-    constl: Constellation,
-    idObjet: string,
+  return async ({
+    constl,
+    idObjet,
+    f,
+  }: {
+    constl: Constellation;
+    idObjet: string;
     f: SuiviRecherche<
       | InfoRésultatTexte
       | InfoRésultatRecherche<
@@ -336,7 +372,7 @@ export const rechercherProjetsSelonTexte = (
           | InfoRésultatVide
         >
       | InfoRésultatVide
-    >,
+    >;
   }): Promise<Oublier> => {
     const fRechercherNoms = rechercherProjetsSelonNom(texte);
     const fRechercherDescription = rechercherProjetsSelonDescription(texte);

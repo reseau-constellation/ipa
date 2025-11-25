@@ -1,7 +1,17 @@
 import { cacheRechercheParN } from "../crabe/cache.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
-import { rechercherNuéesSelonDescription, rechercherNuéesSelonIdMotClef, rechercherNuéesSelonIdVariable, rechercherNuéesSelonMotClef, rechercherNuéesSelonNom, rechercherNuéesSelonNomMotClef, rechercherNuéesSelonNomVariable, rechercherNuéesSelonTexte, rechercherNuéesSelonVariable } from "./fonctions/nuées.js";
+import {
+  rechercherNuéesSelonDescription,
+  rechercherNuéesSelonIdMotClef,
+  rechercherNuéesSelonIdVariable,
+  rechercherNuéesSelonMotClef,
+  rechercherNuéesSelonNom,
+  rechercherNuéesSelonNomMotClef,
+  rechercherNuéesSelonNomVariable,
+  rechercherNuéesSelonTexte,
+  rechercherNuéesSelonVariable,
+} from "./fonctions/nuées.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
@@ -54,7 +64,6 @@ export class RechercheNuées<
       idCompte,
     });
   }
-
 
   @cacheRechercheParN
   async selonId({
