@@ -22,7 +22,7 @@ import type { ServicesConstellation } from "../constellation.js";
 import type { Constellation } from "../index.js";
 import type { InfoAuteur } from "../types.js";
 
-export abstract class Recherche<L extends ServicesLibp2pCrabe> {
+export class Recherche<L extends ServicesLibp2pCrabe> {
   constl: Constellation;
   service: <T extends keyof ServicesConstellation<L>>(
     service: T,
@@ -40,6 +40,48 @@ export abstract class Recherche<L extends ServicesLibp2pCrabe> {
     this.constl = constl;
     this.service = service;
   }
+
+  @cacheRechercheParN
+  async rechercher<T extends InfoRésultat = InfoRésultat>({
+    f,
+    n,
+    fRecherche,
+    fObjectif,
+    fConfiance,
+    fQualité,
+  }: {
+    f: Suivi<RésultatRecherche<T>[]>;
+    n?: number;
+    fRecherche: (args: {
+      idCompte: string;
+      f: Suivi<string[] | undefined>;
+    }) => Promise<Oublier>;
+    fObjectif: SuivreObjectifRecherche<T>;
+    fConfiance: SuivreConfianceRecherche;
+    fQualité: SuivreQualitéRecherche;
+  }): Promise<RetourFonctionRecherche> {
+    const réseau = this.service("réseau");
+
+    const queue = new PQueue({ concurrency: 1 });
+
+    const fSuivreCompte = async () => {};
+    const { changerProfondeur, oublier: oublierComptes } =
+      await réseau.suivreComptesRéseauEtEnLigne({
+        f: fSuivreCompte,
+        profondeur,
+      });
+    const changerN = async (nouveauN: number) => {};
+
+    const oublier = async () => {
+      oublierComptes();
+      await queue.onIdle();
+    };
+    return { oublier, n: changerN };
+  }
+
+}
+
+export abstract class RechercheObjets<L extends ServicesLibp2pCrabe> extends Recherche<L> {
 
   abstract suivreAuteursObjet({
     idObjet,
@@ -154,43 +196,6 @@ export abstract class Recherche<L extends ServicesLibp2pCrabe> {
     }
   }
 
-  @cacheRechercheParN
-  async rechercher<T extends InfoRésultat = InfoRésultat>({
-    f,
-    n,
-    fRecherche,
-    fObjectif,
-    fConfiance,
-    fQualité,
-  }: {
-    f: Suivi<RésultatRecherche<T>[]>;
-    n?: number;
-    fRecherche: (args: {
-      idCompte: string;
-      f: Suivi<string[] | undefined>;
-    }) => Promise<Oublier>;
-    fObjectif: SuivreObjectifRecherche<T>;
-    fConfiance: SuivreConfianceRecherche;
-    fQualité: SuivreQualitéRecherche;
-  }): Promise<RetourFonctionRecherche> {
-    const réseau = this.service("réseau");
-
-    const queue = new PQueue({ concurrency: 1 });
-
-    const fSuivreCompte = async () => {};
-    const { changerProfondeur, oublier: oublierComptes } =
-      await réseau.suivreComptesRéseauEtEnLigne({
-        f: fSuivreCompte,
-        profondeur,
-      });
-    const changerN = async (nouveauN: number) => {};
-
-    const oublier = async () => {
-      oublierComptes();
-      await queue.onIdle();
-    };
-    return { oublier, n: changerN };
-  }
 
   @cacheRechercheParProfondeur
   async suivreConfianceAuteurs({
@@ -229,7 +234,6 @@ export abstract class Recherche<L extends ServicesLibp2pCrabe> {
         fRacine,
         f,
       });
-      this.suivreObjets({ idCompte: idAuteur });
       return await réseau.suivreConfiance({
         idCompte: idAuteur,
         f: fSuivreBranche,
@@ -250,4 +254,5 @@ export abstract class Recherche<L extends ServicesLibp2pCrabe> {
       fRéduction,
     });
   }
+
 }

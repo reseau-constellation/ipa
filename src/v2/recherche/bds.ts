@@ -12,7 +12,7 @@ import {
   rechercherBdsSelonVariable,
 } from "./fonctions/bds.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
-import { Recherche } from "./recherche.js";
+import { RechercheObjets } from "./recherche.js";
 import type { Bds } from "../bds/bds.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
@@ -29,7 +29,7 @@ import type {
 } from "./types.js";
 import type { InfoAuteur } from "../types.js";
 
-export class RechercheBds<L extends ServicesLibp2pCrabe> extends Recherche<L> {
+export class RechercheBds<L extends ServicesLibp2pCrabe> extends RechercheObjets<L> {
   bds: Bds<L>;
 
   constructor({

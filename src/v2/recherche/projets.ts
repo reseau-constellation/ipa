@@ -1,7 +1,7 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
 import { cacheRechercheParN, cacheSuivi } from "../crabe/cache.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
-import { Recherche } from "./recherche.js";
+import { RechercheObjets } from "./recherche.js";
 import {
   rechercherProjetsSelonBd,
   rechercherProjetsSelonDescription,
@@ -33,7 +33,7 @@ import type {
 
 export class RechercheProjets<
   L extends ServicesLibp2pCrabe,
-> extends Recherche<L> {
+> extends RechercheObjets<L> {
   projets: Projets<L>;
 
   constructor({
