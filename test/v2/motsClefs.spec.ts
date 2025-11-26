@@ -353,10 +353,10 @@ describe.only("Mots-clefs", function () {
       const idMotClef = await constl.motsClefs.créerMotClef();
       await constl.motsClefs.désépinglerMotClef({ idMotClef });
 
-      const épingle = await obtenir(({ si }) =>
+      const épingle = await obtenir(({ siNonDéfini }) =>
         constl.motsClefs.suivreÉpingle({
           idMotClef,
-          f: si((x) => x === undefined),
+          f: siNonDéfini(),
         }),
       );
       expect(épingle).to.be.undefined();

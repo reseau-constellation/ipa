@@ -1,80 +1,83 @@
 import { expect } from "aegir/chai";
-import { obtenir } from "@constl/utils-ipa";
 import {
-  rechercherVariablesSelonDescr,
+  rechercherVariablesSelonDescription,
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "@/v2/recherche/fonctions/variables.js";
-import { générerClientsInternes } from "../../ressources/utils.js";
+import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { Oublier } from "@/v2/crabe/types.js";
+import type { Constellation } from "@/v2/index.js";
 import type {
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
-  schémaFonctionSuivreObjectifRecherche,
-} from "@/types.js";
-import type { Constellation } from "@/client.js";
+  InfoRésultatTexte,
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
+  SuivreObjectifRecherche,
+} from "@/v2/recherche/types.js";
 
 describe("Rechercher variables", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let client: Constellation;
+  let fermer: Oublier;
+  let constls: Constellation[];
+  let constl: Constellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+    ({ fermer, constls } = await créerConstellationsTest({
       n: 1,
+      avecMandataire: false,
     }));
-    client = clients[0];
+    constl = constls[0];
   });
 
   after(async () => {
-    if (fOublierClients) await fOublierClients();
+    if (fermer) await fermer();
   });
 
-  describe("Selon nom", function () {
+  describe("selon nom", function () {
     let idVariable: string;
-    let fRecherche: schémaFonctionSuivreObjectifRecherche<infoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
 
     before(async () => {
-      idVariable = await client.variables.créerVariable({
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
 
-      fRecherche = rechercherVariablesSelonNom("Radiation solaire");
+      recherche = rechercherVariablesSelonNom("Radiation solaire");
     });
 
-    it("Pas de résultat quand la variable n'a pas de nom", async () => {
+    it("pas de résultat quand la variable n'a pas de nom", async () => {
       const résultat = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte> | undefined
-      >(({ si }) =>
-        fRecherche(
-          client,
-          idVariable,
-          si((x) => x === undefined),
-        ),
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ siNonDéfini }) =>
+        recherche({
+          constl,
+          idObjet: idVariable,
+          f: siNonDéfini(),
+        }),
       );
       expect(résultat).to.be.undefined();
     });
-    it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-      await client.variables.sauvegarderNomsVariable({
+
+    it("pas de résultat si le nom n'a vraiment rien à voir", async () => {
+      await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           த: "சூரிய கதிர்வீச்சு",
         },
       });
-      const résultat = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte> | undefined
-      >(({ si }) =>
-        fRecherche(
-          client,
-          idVariable,
-          si((x) => x === undefined),
-        ),
-      );
 
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ siNonDéfini }) =>
+        recherche({
+          constl,
+          idObjet: idVariable,
+          f: siNonDéfini(),
+        }),
+      );
       expect(résultat).to.be.undefined();
     });
-    it("Résultat si la variable est presque exacte", async () => {
-      await client.variables.sauvegarderNomsVariable({
+
+    it("résultat si la variable est presque exacte", async () => {
+      await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           cst: "Radiación solar",
@@ -82,8 +85,10 @@ describe("Rechercher variables", function () {
       });
 
       const résultat = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte>
-      >(({ siDéfini }) => fRecherche(client, idVariable, siDéfini()));
+        RésultatObjectifRecherche<InfoRésultatTexte>
+      >(({ siDéfini }) =>
+        recherche({ constl, idObjet: idVariable, f: siDéfini() }),
+      );
 
       expect(résultat).to.deep.equal({
         type: "résultat",
@@ -98,21 +103,23 @@ describe("Rechercher variables", function () {
         score: 0.2,
       });
     });
-    it("Résultat si le mot-clef est exacte", async () => {
-      await client.variables.sauvegarderNomsVariable({
+
+    it("résultat si le mot-clef est exacte", async () => {
+      await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           fr: "Radiation solaire",
         },
       });
+
       const résultat = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte> | undefined
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
-        fRecherche(
-          client,
-          idVariable,
-          si((x) => x !== undefined && x.score > 0.5),
-        ),
+        recherche({
+          constl,
+          idObjet: idVariable,
+          f: si((x) => x !== undefined && x.score > 0.5),
+        }),
       );
 
       expect(résultat).to.deep.equal({
@@ -130,60 +137,65 @@ describe("Rechercher variables", function () {
     });
   });
 
-  describe("Selon descr", function () {
+  describe("selon description", function () {
     let idVariable: string;
-    let fRecherche: schémaFonctionSuivreObjectifRecherche<infoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
 
     before(async () => {
-      idVariable = await client.variables.créerVariable({
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
 
-      fRecherche = rechercherVariablesSelonDescr("Radiation solaire");
+      recherche = rechercherVariablesSelonDescription("Radiation solaire");
     });
 
-    it("Pas de résultat quand la variable n'a pas de description", async () => {
+    it("pas de résultat quand la variable n'a pas de description", async () => {
       const résultat = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte> | undefined
-      >(({ si }) =>
-        fRecherche(
-          client,
-          idVariable,
-          si((x) => x === undefined),
-        ),
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ siNonDéfini }) =>
+        recherche({
+          constl,
+          idObjet: idVariable,
+          f: siNonDéfini(),
+        }),
       );
 
       expect(résultat).to.be.undefined();
     });
-    it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
-      await client.variables.sauvegarderDescriptionsVariable({
+
+    it("pas de résultat si la description n'a vraiment rien à voir", async () => {
+      await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
           த: "சூரிய கதிர்வீச்சு",
         },
       });
+
       const résultat = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte> | undefined
-      >(({ si }) =>
-        fRecherche(
-          client,
-          idVariable,
-          si((x) => x === undefined),
-        ),
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ siNonDéfini }) =>
+        recherche({
+          constl,
+          idObjet: idVariable,
+          f: siNonDéfini(),
+        }),
       );
 
       expect(résultat).to.be.undefined();
     });
-    it("Résultat si la variable est presque exacte", async () => {
-      await client.variables.sauvegarderDescriptionsVariable({
+
+    it("résultat si la variable est presque exacte", async () => {
+      await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
           cst: "Radiación solar",
         },
       });
       const résultat = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte> | undefined
-      >(({ siDéfini }) => fRecherche(client, idVariable, siDéfini()));
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ siDéfini }) =>
+        recherche({ constl, idObjet: idVariable, f: siDéfini() }),
+      );
 
       expect(résultat).to.deep.equal({
         type: "résultat",
@@ -198,21 +210,23 @@ describe("Rechercher variables", function () {
         score: 0.2,
       });
     });
-    it("Résultat si la description est exacte", async () => {
-      await client.variables.sauvegarderDescriptionsVariable({
+
+    it("résultat si la description est exacte", async () => {
+      await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
           fr: "Radiation solaire",
         },
       });
+
       const résultat = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte> | undefined
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
-        fRecherche(
-          client,
-          idVariable,
-          si((x) => x !== undefined && x.score > 0.5),
-        ),
+        recherche({
+          constl,
+          idObjet: idVariable,
+          f: si((x) => x !== undefined && x.score > 0.5),
+        }),
       );
 
       expect(résultat).to.deep.equal({
@@ -230,25 +244,25 @@ describe("Rechercher variables", function () {
     });
   });
 
-  describe("Selon texte", function () {
+  describe("selon texte", function () {
     let idVariable: string;
-    let fRechercheNom: schémaFonctionSuivreObjectifRecherche<
-      infoRésultatTexte | infoRésultatVide
+    let rechercheNom: SuivreObjectifRecherche<
+      InfoRésultatTexte | InfoRésultatVide
     >;
-    let fRechercheId: schémaFonctionSuivreObjectifRecherche<
-      infoRésultatTexte | infoRésultatVide
+    let rechercheId: SuivreObjectifRecherche<
+      InfoRésultatTexte | InfoRésultatVide
     >;
 
     before(async () => {
-      idVariable = await client.variables.créerVariable({
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
 
-      fRechercheNom = rechercherVariablesSelonTexte("précipitation");
+      rechercheNom = rechercherVariablesSelonTexte("précipitation");
 
-      fRechercheId = rechercherVariablesSelonTexte(idVariable.slice(0, 15));
+      rechercheId = rechercherVariablesSelonTexte(idVariable.slice(0, 15));
 
-      await client.variables.sauvegarderNomsVariable({
+      await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           fr: "précipitation",
@@ -258,8 +272,10 @@ describe("Rechercher variables", function () {
 
     it("Résultat nom détecté", async () => {
       const résultatNom = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
-      >(({ siDéfini }) => fRechercheNom(client, idVariable, siDéfini()));
+        RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
+      >(({ siDéfini }) =>
+        rechercheNom({ constl, idObjet: idVariable, f: siDéfini() }),
+      );
       expect(résultatNom).to.deep.equal({
         type: "résultat",
         clef: "fr",
@@ -274,10 +290,12 @@ describe("Rechercher variables", function () {
       });
     });
 
-    it("Résultat id détecté", async () => {
+    it("résultat id détecté", async () => {
       const résultatId = await obtenir<
-        résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
-      >(({ siDéfini }) => fRechercheId(client, idVariable, siDéfini()));
+        RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
+      >(({ siDéfini }) =>
+        rechercheId({ constl, idObjet: idVariable, f: siDéfini() }),
+      );
       expect(résultatId).to.deep.equal({
         type: "résultat",
         de: "id",

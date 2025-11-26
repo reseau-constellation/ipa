@@ -11,51 +11,46 @@ import {
   rechercherNuéesSelonTexte,
   rechercherNuéesSelonVariable,
 } from "@/v2/recherche/fonctions/nuées.js";
-import { générerClientsInternes } from "../../ressources/utils.js";
-import type { Constellation } from "@/client.js";
+import { générerconstlsInternes } from "../../ressources/utils.js";
+import type { Constellation } from "@/constl.js";
 
 import type {
-  infoRésultatRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
+  InfoRésultatRecherche,
+  InfoRésultatTexte,
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
   schémaFonctionOublier,
 } from "@/types.js";
 
 describe("Rechercher nuées", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let client: Constellation;
+  let fermer: Oublier;
+  let constls: Constellation[];
+  let constl: Constellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+    ({ fermer, constls } = await générerconstlsInternes({
       n: 1,
     }));
-    client = clients[0];
+    constl = constls[0];
   });
 
   after(async () => {
-    if (fOublierClients) await fOublierClients();
+    if (fermer) await fermer();
   });
 
   describe("Selon nom", function () {
     let idNuée: string;
     const résultat = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      RésultatObjectifRecherche<InfoRésultatTexte>
     >();
-    let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée();
+      idNuée = await constl.nuées.créerNuée();
 
-      const fRecherche = rechercherNuéesSelonNom("Météo");
-      fOublier = await fRecherche(client, idNuée, async (r) =>
+      const recherche = rechercherNuéesSelonNom("Météo");
+      fOublier = await recherche(constl, idNuée, async (r) =>
         résultat.mettreÀJour(r),
       );
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
     });
 
     it("Pas de résultat quand la nuée n'a pas de nom", async () => {
@@ -63,7 +58,7 @@ describe("Rechercher nuées", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.nuées.sauvegarderNomsNuée({
+      await constl.nuées.sauvegarderNomsNuée({
         idNuée,
         noms: {
           fr: "Météorologie",
@@ -89,21 +84,16 @@ describe("Rechercher nuées", function () {
   describe("Selon description", function () {
     let idNuée: string;
     const résultat = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      RésultatObjectifRecherche<InfoRésultatTexte>
     >();
-    let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée();
+      idNuée = await constl.nuées.créerNuée();
 
-      const fRecherche = rechercherNuéesSelonDescr("Météo");
-      fOublier = await fRecherche(client, idNuée, async (r) =>
+      const recherche = rechercherNuéesSelonDescr("Météo");
+      fOublier = await recherche(constl, idNuée, async (r) =>
         résultat.mettreÀJour(r),
       );
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
     });
 
     it("Pas de résultat quand la nuée n'a pas de description", async () => {
@@ -111,7 +101,7 @@ describe("Rechercher nuées", function () {
     });
 
     it("Ajout description détecté", async () => {
-      await client.nuées.sauvegarderDescriptionsNuée({
+      await constl.nuées.sauvegarderDescriptionsNuée({
         idNuée,
         descriptions: {
           fr: "Météo historique",
@@ -138,40 +128,38 @@ describe("Rechercher nuées", function () {
     let idNuée: string;
     let idMotClef: string;
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
     const résultatTous = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée();
-      idMotClef = await client.motsClefs.créerMotClef();
+      idNuée = await constl.nuées.créerNuée();
+      idMotClef = await constl.motsClefs.créerMotClef();
 
-      const fRechercheNom = rechercherNuéesSelonNomMotClef("Météo");
+      const rechercheNom = rechercherNuéesSelonNomMotClef("Météo");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, async (r) =>
+        await rechercheNom(constl, idNuée, async (r) =>
           résultatNom.mettreÀJour(r),
         ),
       );
 
-      const fRechercheId = rechercherNuéesSelonIdMotClef(
-        idMotClef.slice(0, 15),
-      );
+      const rechercheId = rechercherNuéesSelonIdMotClef(idMotClef.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idNuée, async (r) =>
+        await rechercheId(constl, idNuée, async (r) =>
           résultatId.mettreÀJour(r),
         ),
       );
 
-      const fRechercheTous = rechercherNuéesSelonMotClef("Météo");
+      const rechercheTous = rechercherNuéesSelonMotClef("Météo");
       fsOublier.push(
-        await fRechercheTous(client, idNuée, async (r) =>
+        await rechercheTous(constl, idNuée, async (r) =>
           résultatTous.mettreÀJour(r),
         ),
       );
@@ -188,13 +176,13 @@ describe("Rechercher nuées", function () {
     });
 
     it("Ajout mot-clef détecté", async () => {
-      await client.nuées.ajouterMotsClefsNuée({
+      await constl.nuées.ajouterMotsClefsNuée({
         idNuée,
         idsMotsClefs: idMotClef,
       });
 
-      const réfRésId: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const réfRésId: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idMotClef,
@@ -217,15 +205,15 @@ describe("Rechercher nuées", function () {
     });
 
     it("Ajout nom mot-clef détecté", async () => {
-      await client.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météo historique pour la région de Montréal",
         },
       });
 
-      const réfRésNom: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const réfRésNom: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idMotClef,
@@ -255,42 +243,42 @@ describe("Rechercher nuées", function () {
     let idNuée: string;
     let idVariable: string;
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
     const résultatTous = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée();
-      idVariable = await client.variables.créerVariable({
+      idNuée = await constl.nuées.créerNuée();
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
 
-      const fRechercheNom = rechercherNuéesSelonNomVariable("Précip");
+      const rechercheNom = rechercherNuéesSelonNomVariable("Précip");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, async (r) =>
+        await rechercheNom(constl, idNuée, async (r) =>
           résultatNom.mettreÀJour(r),
         ),
       );
 
-      const fRechercheId = rechercherNuéesSelonIdVariable(
+      const rechercheId = rechercherNuéesSelonIdVariable(
         idVariable.slice(0, 15),
       );
       fsOublier.push(
-        await fRechercheId(client, idNuée, async (r) =>
+        await rechercheId(constl, idNuée, async (r) =>
           résultatId.mettreÀJour(r),
         ),
       );
 
-      const fRechercheTous = rechercherNuéesSelonVariable("Précip");
+      const rechercheTous = rechercherNuéesSelonVariable("Précip");
       fsOublier.push(
-        await fRechercheTous(client, idNuée, async (r) =>
+        await rechercheTous(constl, idNuée, async (r) =>
           résultatTous.mettreÀJour(r),
         ),
       );
@@ -307,14 +295,14 @@ describe("Rechercher nuées", function () {
     });
 
     it("Ajout variable détecté", async () => {
-      const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
-      await client.nuées.ajouterColonneTableauNuée({
+      const idTableau = await constl.nuées.ajouterTableauNuée({ idNuée });
+      await constl.nuées.ajouterColonneTableauNuée({
         idTableau,
         idVariable,
       });
 
-      const réfRésId: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const réfRésId: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idVariable,
@@ -337,15 +325,15 @@ describe("Rechercher nuées", function () {
     });
 
     it("Ajout nom variable détecté", async () => {
-      await client.variables.sauvegarderNomsVariable({
+      await constl.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Précipitation mensuelle",
         },
       });
 
-      const réfRésNom: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const réfRésNom: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idVariable,
@@ -374,94 +362,94 @@ describe("Rechercher nuées", function () {
   describe("Selon texte", function () {
     let idNuée: string;
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<
-            | infoRésultatTexte
-            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<
+            | InfoRésultatTexte
+            | InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
           >
-        | infoRésultatVide
+        | InfoRésultatVide
       >
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<
-            | infoRésultatTexte
-            | infoRésultatRecherche<infoRésultatTexte>
-            | infoRésultatVide
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<
+            | InfoRésultatTexte
+            | InfoRésultatRecherche<InfoRésultatTexte>
+            | InfoRésultatVide
           >
-        | infoRésultatVide
+        | InfoRésultatVide
       >
     >();
     const résultatDescr = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<
-            | infoRésultatTexte
-            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<
+            | InfoRésultatTexte
+            | InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
           >
-        | infoRésultatVide
+        | InfoRésultatVide
       >
     >();
     const résultatVariable = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<
-            | infoRésultatTexte
-            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<
+            | InfoRésultatTexte
+            | InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
           >
-        | infoRésultatVide
+        | InfoRésultatVide
       >
     >();
 
     const résultatMotClef = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<
-            | infoRésultatTexte
-            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<
+            | InfoRésultatTexte
+            | InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
           >
-        | infoRésultatVide
+        | InfoRésultatVide
       >
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée();
+      idNuée = await constl.nuées.créerNuée();
 
-      const fRechercheNom = rechercherNuéesSelonTexte("Hydrologie");
+      const rechercheNom = rechercherNuéesSelonTexte("Hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, async (r) =>
+        await rechercheNom(constl, idNuée, async (r) =>
           résultatNom.mettreÀJour(r),
         ),
       );
 
-      const fRechercheId = rechercherNuéesSelonTexte(idNuée.slice(0, 15));
+      const rechercheId = rechercherNuéesSelonTexte(idNuée.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idNuée, async (r) =>
+        await rechercheId(constl, idNuée, async (r) =>
           résultatId.mettreÀJour(r),
         ),
       );
 
-      const fRechercheDescr = rechercherNuéesSelonTexte("Montréal");
+      const rechercheDescr = rechercherNuéesSelonTexte("Montréal");
       fsOublier.push(
-        await fRechercheDescr(client, idNuée, async (r) =>
+        await rechercheDescr(constl, idNuée, async (r) =>
           résultatDescr.mettreÀJour(r),
         ),
       );
 
-      const fRechercheVariables = rechercherNuéesSelonTexte("Température");
+      const rechercheVariables = rechercherNuéesSelonTexte("Température");
       fsOublier.push(
-        await fRechercheVariables(client, idNuée, async (r) =>
+        await rechercheVariables(constl, idNuée, async (r) =>
           résultatVariable.mettreÀJour(r),
         ),
       );
 
-      const fRechercheMotsClef = rechercherNuéesSelonTexte("Météo");
+      const rechercheMotsClef = rechercherNuéesSelonTexte("Météo");
       fsOublier.push(
-        await fRechercheMotsClef(client, idNuée, async (r) =>
+        await rechercheMotsClef(constl, idNuée, async (r) =>
           résultatMotClef.mettreÀJour(r),
         ),
       );
@@ -488,7 +476,7 @@ describe("Rechercher nuées", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.nuées.sauvegarderNomsNuée({
+      await constl.nuées.sauvegarderNomsNuée({
         idNuée,
         noms: {
           fr: "Hydrologie",
@@ -511,7 +499,7 @@ describe("Rechercher nuées", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.nuées.sauvegarderDescriptionsNuée({
+      await constl.nuées.sauvegarderDescriptionsNuée({
         idNuée,
         descriptions: {
           fr: "Hydrologie de Montréal",
@@ -533,23 +521,23 @@ describe("Rechercher nuées", function () {
     });
 
     it("Résultat variable détecté", async () => {
-      const idVariable = await client.variables.créerVariable({
+      const idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
-      await client.nuées.ajouterColonneTableauNuée({
+      const idTableau = await constl.nuées.ajouterTableauNuée({ idNuée });
+      await constl.nuées.ajouterColonneTableauNuée({
         idTableau,
         idVariable,
       });
-      await client.variables.sauvegarderNomsVariable({
+      await constl.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Température maximale",
         },
       });
 
-      const résRéf: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const résRéf: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idVariable,
@@ -575,20 +563,20 @@ describe("Rechercher nuées", function () {
     });
 
     it("Résultat mot-clef détecté", async () => {
-      const idMotClef = await client.motsClefs.créerMotClef();
-      await client.motsClefs.sauvegarderNomsMotClef({
+      const idMotClef = await constl.motsClefs.créerMotClef();
+      await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météorologie",
         },
       });
-      await client.nuées.ajouterMotsClefsNuée({
+      await constl.nuées.ajouterMotsClefsNuée({
         idNuée: idNuée,
         idsMotsClefs: idMotClef,
       });
 
-      const résRéf: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const résRéf: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idMotClef,

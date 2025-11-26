@@ -1,60 +1,55 @@
 import { attente as utilsTestAttente } from "@constl/utils-tests";
 
 import { expect } from "aegir/chai";
-import { générerClientsInternes } from "../../ressources/utils.js";
+import { générerconstlsInternes } from "../../ressources/utils.js";
 import type {
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
+  InfoRésultatTexte,
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
   schémaFonctionOublier,
 } from "@/types.js";
-import type { Constellation } from "@/client.js";
+import type { Constellation } from "@/constl.js";
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
 } from "@/recherche/motClef.js";
 
 describe("Rechercher mots clefs", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let client: Constellation;
+  let fermer: Oublier;
+  let constls: Constellation[];
+  let constl: Constellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+    ({ fermer, constls } = await générerconstlsInternes({
       n: 1,
     }));
-    client = clients[0];
+    constl = constls[0];
   });
 
   after(async () => {
-    if (fOublierClients) await fOublierClients();
+    if (fermer) await fermer();
   });
 
   describe("Selon nom", function () {
     let idMotClef: string;
-    let fOublier: schémaFonctionOublier;
     const résultat = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      RésultatObjectifRecherche<InfoRésultatTexte>
     >();
 
     before(async () => {
-      idMotClef = await client.motsClefs.créerMotClef();
+      idMotClef = await constl.motsClefs.créerMotClef();
 
-      const fRecherche = rechercherMotsClefsSelonNom("hydrologie");
-      fOublier = await fRecherche(client, idMotClef, async (r) =>
+      const recherche = rechercherMotsClefsSelonNom("hydrologie");
+      fOublier = await recherche(constl, idMotClef, async (r) =>
         résultat.mettreÀJour(r),
       );
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
     });
 
     it("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
       expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-      await client.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           த: "நீரியல்",
@@ -63,7 +58,7 @@ describe("Rechercher mots clefs", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Résultat si le mot-clef est presque exacte", async () => {
-      await client.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Sciences hydrologiques",
@@ -85,7 +80,7 @@ describe("Rechercher mots clefs", function () {
       });
     });
     it("Résultat si le mot-clef est exacte", async () => {
-      await client.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "hydrologie",
@@ -111,34 +106,32 @@ describe("Rechercher mots clefs", function () {
   describe("Selon texte", function () {
     let idMotClef: string;
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
+      RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
+      RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idMotClef = await client.motsClefs.créerMotClef();
+      idMotClef = await constl.motsClefs.créerMotClef();
 
-      const fRechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
+      const rechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idMotClef, async (r) =>
+        await rechercheNom(constl, idMotClef, async (r) =>
           résultatNom.mettreÀJour(r),
         ),
       );
 
-      const fRechercheId = rechercherMotsClefsSelonTexte(
-        idMotClef.slice(0, 15),
-      );
+      const rechercheId = rechercherMotsClefsSelonTexte(idMotClef.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idMotClef, async (r) =>
+        await rechercheId(constl, idMotClef, async (r) =>
           résultatId.mettreÀJour(r),
         ),
       );
 
-      await client.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "hydrologie",

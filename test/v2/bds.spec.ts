@@ -629,10 +629,10 @@ describe("BDs", function () {
       const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       await constl.bds.désépingler({ idBd });
 
-      const épingle = await obtenir(({ si }) =>
+      const épingle = await obtenir(({ siNonDéfini }) =>
         constl.bds.suivreÉpingle({
           idBd,
-          f: si((x) => x === undefined),
+          f: siNonDéfini(),
         }),
       );
       expect(épingle).to.be.undefined();

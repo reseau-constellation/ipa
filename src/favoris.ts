@@ -9,11 +9,6 @@ export type ÉpingleFavoris =
   | ÉpingleCompte
   | ÉpingleProfil;
 
-export type ÉpingleProjet = BaseÉpingleFavoris & {
-  type: "projet";
-  bds: ÉpingleBd;
-};
-
 export type ÉpingleCompte = BaseÉpingleFavoris & {
   type: "compte";
   profil: ÉpingleProfil;

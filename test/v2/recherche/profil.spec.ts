@@ -1,50 +1,30 @@
-import { attente as utilsTestAttente } from "@constl/utils-tests";
-import { expect } from "aegir/chai";
-import { obtRessourceTest } from "../../ressources/index.js";
-import { générerClientsInternes } from "../../ressources/utils.js";
-import type { Constellation } from "@/client.js";
-import type {
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
-  schémaFonctionOublier,
-} from "@/types.js";
-import {
-  rechercherProfilsSelonActivité,
-  rechercherProfilsSelonCourriel,
-  rechercherProfilsSelonNom,
-  rechercherProfilsSelonTexte,
-} from "@/recherche/profil.js";
+import type { Constellation } from "@/v2/index.js";
 
 describe("Rechercher profil", function () {
-  describe("Selon activité", function () {
-    let fOublierClients: () => Promise<void>;
-    let clients: Constellation[];
-    let client: Constellation;
+  describe("selon activité", function () {
+    let fermer: Oublier;
+    let constls: Constellation[];
+    let constl: Constellation;
     let idCompte: string;
 
-    let fOublier: schémaFonctionOublier;
-
     const rés = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatVide>
+      RésultatObjectifRecherche<InfoRésultatVide>
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+      ({ fermer, constls } = await générerconstlsInternes({
         n: 1,
       }));
-      client = clients[0];
-      idCompte = await client.obtIdCompte();
-      const fRecherche = rechercherProfilsSelonActivité();
-      fOublier = await fRecherche(client, idCompte, async (r) =>
+      constl = constls[0];
+      idCompte = await constl.obtIdCompte();
+      const recherche = rechercherProfilsSelonActivité();
+      fOublier = await recherche(constl, idCompte, async (r) =>
         rés.mettreÀJour(r),
       );
     });
 
     after(async () => {
-      rés.toutAnnuler();
-      if (fOublierClients) await fOublierClients();
-      if (fOublier) await fOublier();
+      if (fermer) await fermer();
     });
 
     it("Score 0 pour commencer", async () => {
@@ -58,13 +38,13 @@ describe("Rechercher profil", function () {
     });
 
     it("On améliore le score en ajoutant notre nom", async () => {
-      await client.profil.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
+      await constl.profil.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
       const val = await rés.attendreQue((x) => !!x && x.score > 0);
       expect(val.score).to.equal(1 / 3);
     });
 
     it("Encore mieux avec un courriel", async () => {
-      await client.profil.sauvegarderCourriel({
+      await constl.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
       const val = await rés.attendreQue((x) => !!x && x.score > 1 / 3);
@@ -76,11 +56,11 @@ describe("Rechercher profil", function () {
         nomFichier: "logo.png",
       });
 
-      await client.profil.sauvegarderImage({
+      await constl.profil.sauvegarderImage({
         image: { contenu: IMAGE, nomFichier: "logo.png" },
       });
       const val = await rés.attendreQue(
-        (x: résultatObjectifRecherche<infoRésultatVide> | undefined) =>
+        (x: RésultatObjectifRecherche<InfoRésultatVide> | undefined) =>
           x?.score === 1,
       );
 
@@ -89,32 +69,29 @@ describe("Rechercher profil", function () {
   });
 
   describe("Selon nom", function () {
-    let fOublierClients: () => Promise<void>;
-    let clients: Constellation[];
-    let client: Constellation;
+    let fermer: Oublier;
+    let constls: Constellation[];
+    let constl: Constellation;
     let idCompte: string;
-    let fOublier: schémaFonctionOublier;
 
     const rés = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      RésultatObjectifRecherche<InfoRésultatTexte>
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+      ({ fermer, constls } = await générerconstlsInternes({
         n: 1,
       }));
-      client = clients[0];
-      idCompte = await client.obtIdCompte();
-      const fRecherche = rechercherProfilsSelonNom("Julien");
-      fOublier = await fRecherche(client, idCompte, async (r) =>
+      constl = constls[0];
+      idCompte = await constl.obtIdCompte();
+      const recherche = rechercherProfilsSelonNom("Julien");
+      fOublier = await recherche(constl, idCompte, async (r) =>
         rés.mettreÀJour(r),
       );
     });
 
     after(async () => {
-      rés.toutAnnuler();
-      if (fOublierClients) await fOublierClients();
-      if (fOublier) await fOublier();
+      if (fermer) await fermer();
     });
 
     it("Rien pour commencer", async () => {
@@ -122,7 +99,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
+      await constl.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
       await rés.attendreQue((x) => !!x && x.score > 0);
 
       expect(rés.val).to.deep.equal({
@@ -135,7 +112,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Meilleur nom détecté", async () => {
-      await client.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
+      await constl.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
       await rés.attendreQue((x) => !!x && x.score > 0.5);
 
       expect(rés.val).to.deep.equal({
@@ -149,32 +126,29 @@ describe("Rechercher profil", function () {
   });
 
   describe("Selon courriel", function () {
-    let fOublierClients: () => Promise<void>;
-    let clients: Constellation[];
-    let client: Constellation;
+    let fermer: Oublier;
+    let constls: Constellation[];
+    let constl: Constellation;
     let idCompte: string;
-    let fOublier: schémaFonctionOublier;
 
     const rés = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      RésultatObjectifRecherche<InfoRésultatTexte>
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+      ({ fermer, constls } = await générerconstlsInternes({
         n: 1,
       }));
-      client = clients[0];
-      idCompte = await client.obtIdCompte();
-      const fRecherche = rechercherProfilsSelonCourriel("julien");
-      fOublier = await fRecherche(client, idCompte, async (r) =>
+      constl = constls[0];
+      idCompte = await constl.obtIdCompte();
+      const recherche = rechercherProfilsSelonCourriel("julien");
+      fOublier = await recherche(constl, idCompte, async (r) =>
         rés.mettreÀJour(r),
       );
     });
 
     after(async () => {
-      rés.toutAnnuler();
-      if (fOublier) await fOublier();
-      if (fOublierClients) await fOublierClients();
+      if (fermer) await fermer();
     });
 
     it("Rien pour commencer", async () => {
@@ -182,7 +156,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout courriel détecté", async () => {
-      await client.profil.sauvegarderCourriel({
+      await constl.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
 
@@ -203,45 +177,38 @@ describe("Rechercher profil", function () {
   });
 
   describe("Selon texte", function () {
-    let fOublierClients: () => Promise<void>;
-    let clients: Constellation[];
-    let client: Constellation;
+    let fermer: Oublier;
+    let constls: Constellation[];
+    let constl: Constellation;
     let idCompte: string;
     const fsOublier: schémaFonctionOublier[] = [];
     const résNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
+      RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
     >();
     const résCourriel = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
+      RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+      ({ fermer, constls } = await générerconstlsInternes({
         n: 1,
       }));
-      client = clients[0];
+      constl = constls[0];
 
-      idCompte = await client.obtIdCompte();
-      const fRechercheNom = rechercherProfilsSelonTexte("Julien Malard");
+      idCompte = await constl.obtIdCompte();
+      const rechercheNom = rechercherProfilsSelonTexte("Julien Malard");
       fsOublier.push(
-        await fRechercheNom(client, idCompte, async (r) =>
+        await rechercheNom(constl, idCompte, async (r) =>
           résNom.mettreÀJour(r),
         ),
       );
 
-      const fRechercherCourriel = rechercherProfilsSelonTexte("julien.");
+      const rechercherCourriel = rechercherProfilsSelonTexte("julien.");
       fsOublier.push(
-        await fRechercherCourriel(client, idCompte, async (r) =>
+        await rechercherCourriel(constl, idCompte, async (r) =>
           résCourriel.mettreÀJour(r),
         ),
       );
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-      résNom.toutAnnuler();
-      résCourriel.toutAnnuler();
-      if (fOublierClients) await fOublierClients();
     });
 
     it("Rien pour commencer", async () => {
@@ -250,7 +217,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.profil.sauvegarderNom({
+      await constl.profil.sauvegarderNom({
         langue: "fr",
         nom: "Julien Malard-Adam",
       });
@@ -284,7 +251,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout courriel détecté", async () => {
-      await client.profil.sauvegarderCourriel({
+      await constl.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
 

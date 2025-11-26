@@ -9,7 +9,7 @@ import type {
 } from "@/v2/recherche/types.js";
 
 describe("Rechercher bds", function () {
-  let fermer: () => Promise<void>;
+  let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
 
@@ -118,38 +118,36 @@ describe("Rechercher bds", function () {
     let idBd: string;
     let idMotClef: string;
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
     const résultatTous = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      idMotClef = await client.motsClefs.créerMotClef();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idMotClef = await constl.motsClefs.créerMotClef();
 
-      const fRechercheNom = rechercherBdsSelonNomMotClef("Météo");
+      const rechercheNom = rechercherBdsSelonNomMotClef("Météo");
       fsOublier.push(
-        await fRechercheNom(client, idBd, async (r) =>
+        await rechercheNom(constl, idBd, async (r) =>
           résultatNom.mettreÀJour(r),
         ),
       );
 
-      const fRechercheId = rechercherBdsSelonIdMotClef(idMotClef.slice(0, 15));
+      const rechercheId = rechercherBdsSelonIdMotClef(idMotClef.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idBd, async (r) =>
-          résultatId.mettreÀJour(r),
-        ),
+        await rechercheId(constl, idBd, async (r) => résultatId.mettreÀJour(r)),
       );
 
-      const fRechercheTous = rechercherBdsSelonMotClef("Météo");
+      const rechercheTous = rechercherBdsSelonMotClef("Météo");
       fsOublier.push(
-        await fRechercheTous(client, idBd, async (r) =>
+        await rechercheTous(constl, idBd, async (r) =>
           résultatTous.mettreÀJour(r),
         ),
       );
@@ -166,13 +164,13 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout mot-clef détecté", async () => {
-      await client.bds.ajouterMotsClefsBd({
+      await constl.bds.ajouterMotsClefsBd({
         idBd,
         idsMotsClefs: idMotClef,
       });
 
-      const réfRésId: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const réfRésId: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idMotClef,
@@ -195,15 +193,15 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout nom mot-clef détecté", async () => {
-      await client.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météo historique pour la région de Montréal",
         },
       });
 
-      const réfRésNom: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const réfRésNom: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idMotClef,
@@ -233,42 +231,38 @@ describe("Rechercher bds", function () {
     let idBd: string;
     let idVariable: string;
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
     const résultatTous = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      RésultatObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>>
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      idVariable = await client.variables.créerVariable({
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
 
-      const fRechercheNom = rechercherBdsSelonNomVariable("Précip");
+      const rechercheNom = rechercherBdsSelonNomVariable("Précip");
       fsOublier.push(
-        await fRechercheNom(client, idBd, async (r) =>
+        await rechercheNom(constl, idBd, async (r) =>
           résultatNom.mettreÀJour(r),
         ),
       );
 
-      const fRechercheId = rechercherBdsSelonIdVariable(
-        idVariable.slice(0, 15),
-      );
+      const rechercheId = rechercherBdsSelonIdVariable(idVariable.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idBd, async (r) =>
-          résultatId.mettreÀJour(r),
-        ),
+        await rechercheId(constl, idBd, async (r) => résultatId.mettreÀJour(r)),
       );
 
-      const fRechercheTous = rechercherBdsSelonVariable("Précip");
+      const rechercheTous = rechercherBdsSelonVariable("Précip");
       fsOublier.push(
-        await fRechercheTous(client, idBd, async (r) =>
+        await rechercheTous(constl, idBd, async (r) =>
           résultatTous.mettreÀJour(r),
         ),
       );
@@ -285,14 +279,14 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout variable détecté", async () => {
-      const idTableau = await client.bds.ajouterTableauBd({ idBd });
-      await client.tableaux.ajouterColonneTableau({
+      const idTableau = await constl.bds.ajouterTableauBd({ idBd });
+      await constl.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
 
-      const réfRésId: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const réfRésId: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idVariable,
@@ -315,15 +309,15 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout nom variable détecté", async () => {
-      await client.variables.sauvegarderNomsVariable({
+      await constl.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Précipitation mensuelle",
         },
       });
 
-      const réfRésNom: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatTexte>
+      const réfRésNom: RésultatObjectifRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte>
       > = {
         type: "résultat",
         clef: idVariable,
@@ -352,77 +346,75 @@ describe("Rechercher bds", function () {
   describe("Selon texte", function () {
     let idBd: string;
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<infoRésultatTexte>
-        | infoRésultatVide
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<InfoRésultatTexte>
+        | InfoRésultatVide
       >
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<infoRésultatTexte>
-        | infoRésultatVide
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<InfoRésultatTexte>
+        | InfoRésultatVide
       >
     >();
     const résultatDescr = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<infoRésultatTexte>
-        | infoRésultatVide
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<InfoRésultatTexte>
+        | InfoRésultatVide
       >
     >();
     const résultatVariable = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<infoRésultatTexte>
-        | infoRésultatVide
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<InfoRésultatTexte>
+        | InfoRésultatVide
       >
     >();
     const résultatMotsClef = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<infoRésultatTexte>
-        | infoRésultatVide
+      RésultatObjectifRecherche<
+        | InfoRésultatTexte
+        | InfoRésultatRecherche<InfoRésultatTexte>
+        | InfoRésultatVide
       >
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
-      const fRechercheNom = rechercherBdsSelonTexte("Hydrologie");
+      const rechercheNom = rechercherBdsSelonTexte("Hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idBd, async (r) =>
+        await rechercheNom(constl, idBd, async (r) =>
           résultatNom.mettreÀJour(r),
         ),
       );
 
-      const fRechercheId = rechercherBdsSelonTexte(idBd.slice(0, 15));
+      const rechercheId = rechercherBdsSelonTexte(idBd.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idBd, async (r) =>
-          résultatId.mettreÀJour(r),
-        ),
+        await rechercheId(constl, idBd, async (r) => résultatId.mettreÀJour(r)),
       );
 
-      const fRechercheDescr = rechercherBdsSelonTexte("Montréal");
+      const rechercheDescr = rechercherBdsSelonTexte("Montréal");
       fsOublier.push(
-        await fRechercheDescr(client, idBd, async (r) =>
+        await rechercheDescr(constl, idBd, async (r) =>
           résultatDescr.mettreÀJour(r),
         ),
       );
 
-      const fRechercheVariables = rechercherBdsSelonTexte("Température");
+      const rechercheVariables = rechercherBdsSelonTexte("Température");
       fsOublier.push(
-        await fRechercheVariables(client, idBd, async (r) =>
+        await rechercheVariables(constl, idBd, async (r) =>
           résultatVariable.mettreÀJour(r),
         ),
       );
 
-      const fRechercheMotsClef = rechercherBdsSelonTexte("Météo");
+      const rechercheMotsClef = rechercherBdsSelonTexte("Météo");
       fsOublier.push(
-        await fRechercheMotsClef(client, idBd, async (r) =>
+        await rechercheMotsClef(constl, idBd, async (r) =>
           résultatMotsClef.mettreÀJour(r),
         ),
       );
@@ -448,7 +440,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.bds.sauvegarderNomsBd({
+      await constl.bds.sauvegarderNomsBd({
         idBd,
         noms: { fr: "Hydrologie" },
       });
@@ -468,7 +460,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.bds.sauvegarderDescriptionsBd({
+      await constl.bds.sauvegarderDescriptionsBd({
         idBd,
         descriptions: {
           fr: "Hydrologie de Montréal",
@@ -490,15 +482,15 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat variable détecté", async () => {
-      const idVariable = await client.variables.créerVariable({
+      const idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      const idTableau = await client.bds.ajouterTableauBd({ idBd });
-      await client.tableaux.ajouterColonneTableau({
+      const idTableau = await constl.bds.ajouterTableauBd({ idBd });
+      await constl.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
-      await client.variables.sauvegarderNomsVariable({
+      await constl.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Température maximale",
@@ -525,12 +517,12 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat mot-clef détecté", async () => {
-      const idMotClef = await client.motsClefs.créerMotClef();
-      await client.bds.ajouterMotsClefsBd({
+      const idMotClef = await constl.motsClefs.créerMotClef();
+      await constl.bds.ajouterMotsClefsBd({
         idBd,
         idsMotsClefs: idMotClef,
       });
-      await client.motsClefs.sauvegarderNomsMotClef({
+      await constl.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météorologie",

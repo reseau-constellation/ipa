@@ -2,9 +2,10 @@ import { isElectron, isElectronMain, isNode } from "wherearewe";
 
 import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
-import { obtenir } from "@constl/utils-ipa";
+
 import { créerConstellation, type Constellation } from "@/index.js";
 import { INSTALLÉ, TOUS } from "@/favoris.js";
+import { obtenir } from "./v2/utils.js";
 import type {
   ÉpingleCompte,
   BooléenniserPropriétés,
@@ -157,10 +158,10 @@ describe("Favoris", function () {
       expect(favoris.length).to.equal(1);
 
       await obtenir<BooléenniserPropriétés<ÉpingleFavoris> | undefined>(
-        ({ si }) =>
+        ({ siNonDéfini }) =>
           client.favoris.suivreEstÉpingléSurDispositif({
             idObjet: idBd,
-            f: si((x) => x === undefined),
+            f: siNonDéfini(),
           }),
       );
     });

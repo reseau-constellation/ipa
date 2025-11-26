@@ -11,6 +11,7 @@ import {
 } from "@/v2/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { Oublier } from "@/v2/crabe/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
   InfoRésultatRecherche,
@@ -21,7 +22,7 @@ import type {
 } from "@/v2/recherche/types.js";
 
 describe("Utils recherche", function () {
-  let fermer: () => Promise<void>;
+  let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
 
@@ -285,10 +286,7 @@ describe("Utils recherche", function () {
 
   describe("sous-recherche", function () {
     type TypeRésultat = RésultatObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
-    >;
-    let recherche: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
+      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
     >;
     let rechercheId: SuivreObjectifRecherche<InfoRésultatTexte>;
 
@@ -297,33 +295,35 @@ describe("Utils recherche", function () {
     });
 
     it("rien pour commencer", async () => {
-      const résultat = await obtenir(({ siNonDéfini }) =>
-        sousRecherche({
-          de: "variable",
-          fListe: async ({ fSuivreRacine }) => {
-            fSuivreRacine([]);
-            return faisRien;
-          },
-          fRechercher: rechercheId,
-          constl,
-          fSuivreRecherche: siNonDéfini(),
-        }),
+      const résultat = await obtenir<RésultatObjectifRecherche>(
+        ({ siNonDéfini }) =>
+          sousRecherche({
+            de: "variable",
+            fListe: async ({ fSuivreRacine }) => {
+              fSuivreRacine([]);
+              return faisRien;
+            },
+            fRechercher: rechercheId,
+            constl,
+            fSuivreRecherche: siNonDéfini(),
+          }),
       );
       expect(résultat).to.be.undefined();
     });
 
     it("ajout variable détecté", async () => {
-      const résultat = await obtenir<TypeRésultat>(({ siNonDéfini }) =>
-        sousRecherche({
-          de: "variable",
-          fListe: async ({ fSuivreRacine }) => {
-            fSuivreRacine(["precipitation"]);
-            return faisRien;
-          },
-          fRechercher: rechercheId,
-          constl,
-          fSuivreRecherche: siNonDéfini(),
-        }),
+      const résultat = await obtenir<RésultatObjectifRecherche>(
+        ({ siNonDéfini }) =>
+          sousRecherche({
+            de: "variable",
+            fListe: async ({ fSuivreRacine }) => {
+              fSuivreRacine(["precipitation"]);
+              return faisRien;
+            },
+            fRechercher: rechercheId,
+            constl,
+            fSuivreRecherche: siNonDéfini(),
+          }),
       );
 
       const réf: TypeRésultat = {
@@ -347,7 +347,7 @@ describe("Utils recherche", function () {
     });
 
     it("ajout meilleure variable détecté", async () => {
-      const résultat = await obtenir<TypeRésultat>(({ si }) =>
+      const résultat = await obtenir<RésultatObjectifRecherche>(({ si }) =>
         sousRecherche({
           de: "variable",
           fListe: async ({ fSuivreRacine }) => {
@@ -357,7 +357,7 @@ describe("Utils recherche", function () {
           },
           fRechercher: rechercheId,
           constl,
-          fSuivreRecherche: si((x) => !!x && x?.score > 0.5),
+          fSuivreRecherche: si((x) => !!x && x.score > 0.5),
         }),
       );
       const réf: TypeRésultat = {

@@ -6,9 +6,13 @@ import { cacheSuivi } from "./crabe/cache.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
-import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
-import type { BaseÉpingleFavoris} from "./favoris.js";
-import type { TypedNested} from "@constl/bohr-db";
+import {
+  DISPOSITIFS_INSTALLÉS,
+  TOUS_DISPOSITIFS,
+  résoudreDéfauts,
+} from "./favoris.js";
+import type { BaseÉpingleFavoris } from "./favoris.js";
+import type { TypedNested } from "@constl/bohr-db";
 import type {
   Rôle,
   AccèsUtilisateur,
@@ -31,7 +35,6 @@ export type ÉpingleProjet = BaseÉpingleFavoris & {
   type: "projet";
   bds: ÉpingleBd;
 };
-
 
 // Types structure
 
@@ -149,7 +152,9 @@ export class Projets<
     });
   }
 
-  async créerProjet({ épingler }: { épingler: true }): Promise<string> {
+  async créerProjet({
+    épingler = true,
+  }: { épingler?: boolean } = {}): Promise<string> {
     const compte = this.service("compte");
 
     const { bd, oublier: oublierBd } = await compte.créerObjet({
@@ -310,8 +315,51 @@ export class Projets<
     await favoris.épinglerFavori({ idObjet: idProjet, épingle });
   }
 
-
   // Noms
+
+  async sauvegarderNoms({
+    idProjet,
+    noms,
+  }: {
+    idProjet: string;
+    noms: { [key: string]: string };
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.put("noms", noms);
+    await oublier();
+  }
+
+  async sauvegarderNom({
+    idProjet,
+    langue,
+    nom,
+  }: {
+    idProjet: string;
+    langue: string;
+    nom: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.set(`noms/${langue}`, nom);
+    await oublier();
+  }
+
+  async effacerNom({
+    idProjet,
+    langue,
+  }: {
+    idProjet: string;
+    langue: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.del(`noms/${langue}`);
+    await oublier();
+  }
 
   @cacheSuivi
   async suivreNoms({
@@ -331,6 +379,50 @@ export class Projets<
 
   // Descriptions
 
+  async sauvegarderDescriptions({
+    idProjet,
+    descriptions,
+  }: {
+    idProjet: string;
+    descriptions: { [key: string]: string };
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.put("descriptions", descriptions);
+    await oublier();
+  }
+
+  async sauvegarderDescription({
+    idProjet,
+    langue,
+    description,
+  }: {
+    idProjet: string;
+    langue: string;
+    description: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.set(`descriptions/${langue}`, description);
+    await oublier();
+  }
+
+  async effacerDescription({
+    idProjet,
+    langue,
+  }: {
+    idProjet: string;
+    langue: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.del(`descriptions/${langue}`);
+    await oublier();
+  }
+
   @cacheSuivi
   async suivreDescriptions({
     idProjet,
@@ -348,6 +440,41 @@ export class Projets<
   }
 
   // Mots-clefs
+
+  async ajouterMotsClefs({
+    idProjet,
+    idsMotsClefs,
+  }: {
+    idProjet: string;
+    idsMotsClefs: string | string[];
+  }): Promise<void> {
+    if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
+
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+
+    for (const id of idsMotsClefs) {
+      await projet.put(`motsClefs/${id}`, null);
+    }
+    await oublier();
+  }
+
+  async effacerMotClef({
+    idProjet,
+    idMotClef,
+  }: {
+    idProjet: string;
+    idMotClef: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+
+    await projet.del(`motsClefs/${idMotClef}`);
+
+    await oublier();
+  }
 
   @cacheSuivi
   async suivreMotsClefs({
@@ -421,6 +548,25 @@ export class Projets<
   }
 
   // Bds
+
+  async ajouterBds({
+    idProjet,
+    idsBds,
+  }: {
+    idProjet: string;
+    idsBds: string | string[];
+  }): Promise<void> {
+    if (!Array.isArray(idsBds)) idsBds = [idsBds];
+
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+
+    for (const id of idsBds) {
+      await projet.put(`bds/${id}`, null);
+    }
+    await oublier();
+  }
 
   @cacheSuivi
   async suivreBds({
