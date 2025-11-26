@@ -97,6 +97,7 @@ export class ServiceHélia<
   }
 
   // Opérations Hélia
+
   async ajouterFichierÀSFIP({
     contenu,
     nomFichier,
@@ -131,6 +132,8 @@ export class ServiceHélia<
     return fs.cat(CID.parse(idc), { path: nomFichier });
   }
 }
+
+// Méthodes internes
 
 export const obtenirOptionsHélia = async <L extends ServicesLibp2pCrabe>({
   libp2p,

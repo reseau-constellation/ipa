@@ -23,6 +23,7 @@ import type { Libp2p } from "libp2p";
 import type { Helia } from "helia";
 import type { OrbitDB } from "@orbitdb/core";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
+import { CID } from "multiformats";
 
 describe.only("Service Hélia", function () {
   describe("options", function () {
@@ -79,7 +80,7 @@ describe.only("Service Hélia", function () {
     });
 
     afterEach(async () => {
-      await nébuleuse.fermer();
+      await nébuleuse?.fermer();
       effacer();
     });
 
@@ -118,8 +119,8 @@ describe.only("Service Hélia", function () {
       ({ dossier, effacer } = await dossierTempoPropre());
     });
 
-    this.afterEach(async () => {
-      if (nébuleuse.estDémarrée) await nébuleuse.fermer();
+    afterEach(async () => {
+      if (nébuleuse?.estDémarrée) await nébuleuse?.fermer();
       effacer();
     });
 
@@ -176,4 +177,55 @@ describe.only("Service Hélia", function () {
       await hélia.stop();
     });
   });
+
+  describe("fonctionnalités", function () {
+    let nébuleuse: Nébuleuse<
+      ServicesNécessairesHélia & { hélia: ServiceHélia }
+    >;
+    let serviceHélia: ServiceHélia
+
+    const contenu = new Uint8Array([0,1,1])
+
+    let idc: string;
+
+    let dossier: string;
+    let effacer: () => void;
+
+    before(async () => {
+      ({ dossier, effacer } = await dossierTempoPropre());
+      nébuleuse = new Nébuleuse<ServicesNécessairesHélia<ServicesLibp2pTest>>({
+        services: {
+          libp2p: ServiceLibp2pTest,
+          hélia: ServiceHélia,
+          stockage: ServiceStockage,
+        },
+        options: {
+          dossier,
+        },
+      });
+      await nébuleuse.démarrer();
+
+      serviceHélia = nébuleuse.services["hélia"];
+    });
+
+    after(async () => {
+      await nébuleuse?.fermer();
+      effacer();
+    });
+
+    it("ajouter fichier à SFIP", async () => {
+      idc = await serviceHélia.ajouterFichierÀSFIP({ contenu, nomFichier: "un fichier.txt"});
+      expect(typeof idc).to.equal("string")
+      
+      const [idcRacine, nomFichier] = idc.split("/");
+      CID.parse(idcRacine)
+      expect(nomFichier).to.equal("un fichier.txt")
+    });
+
+    it("obtenir fichier de SFIP", async () => {
+      const obtenu = await serviceHélia.obtFichierDeSFIP({ id: idc });
+      expect(obtenu).to.deep.equal(contenu);
+    });
+
+  })
 });
