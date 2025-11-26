@@ -12,7 +12,9 @@ export type Constellation = MandataireConstellation<ConstructeurConstellation>;
 
 export const créerConstellation = (
   opts: OptionsConstellation = {},
+  avecMandataire = true,
 ): Constellation => {
+  if (!avecMandataire) return new ConstructeurConstellation(opts);
   if (isWebWorker) {
     console.warn(
       "Constellation a été initialisée dans un processus de travailleur, ce qui pourrait mener à des difficultés de connectivité.",
