@@ -3538,42 +3538,42 @@ describe("tableaux", function () {
   });
 
   describe.only("accès", function () {
-    let fermer: () => Promise<void>;
-    let constls: Constellation[];
+    let fermerAccès: () => Promise<void>;
+    let constlsAccès: Constellation[];
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
+      ({ fermer: fermerAccès, constls: constlsAccès } = await créerConstellationsTest({
         n: 2,
       }));
     });
 
     after(async () => {
-      if (fermer) await fermer();
+      if (fermerAccès) await fermerAccès();
     });
 
     it("l'accès du tableau suit l'accès à la structure originale", async () => {
-      const idBd = await constls[0].bds.créerBd({ licence: "ODBl-1_0" });
-      const idTableau = await constls[0].bds.ajouterTableau({
+      const idBd = await constlsAccès[0].bds.créerBd({ licence: "ODBl-1_0" });
+      const idTableau = await constlsAccès[0].bds.ajouterTableau({
         idBd,
       });
-      const idColonne = await constls[0].bds.tableaux.ajouterColonne({
+      const idColonne = await constlsAccès[0].bds.tableaux.ajouterColonne({
         idStructure: idBd,
         idTableau,
       });
 
-      await constls[0].compte.donnerAccèsObjet({
+      await constlsAccès[0].compte.donnerAccèsObjet({
         idObjet: idBd,
-        identité: await constls[1].compte.obtIdCompte(),
+        identité: await constlsAccès[1].compte.obtIdCompte(),
         rôle: MEMBRE,
       });
 
       // Vérifier la permission
-      const idDonnées = await constls[0].bds.tableaux.obtIdDonnées({
+      const idDonnées = await constlsAccès[0].bds.tableaux.obtIdDonnées({
         idStructure: idBd,
         idTableau,
       });
       const permission = await obtenir<Rôle>(({ siDéfini }) =>
-        constls[1].compte.suivrePermission({
+        constlsAccès[1].compte.suivrePermission({
           idObjet: idDonnées,
           f: siDéfini(),
         }),
@@ -3581,7 +3581,7 @@ describe("tableaux", function () {
       expect(permission).to.equal(MEMBRE);
 
       // Vérifier que l'édition des données fonctionne
-      await constls[1].bds.tableaux.ajouterÉléments({
+      await constlsAccès[1].bds.tableaux.ajouterÉléments({
         idStructure: idBd,
         idTableau,
         éléments: [
@@ -3592,7 +3592,7 @@ describe("tableaux", function () {
       });
 
       const vals = await obtenir(({ siPasVide }) =>
-        constls[0].bds.tableaux.suivreDonnées({
+        constlsAccès[0].bds.tableaux.suivreDonnées({
           idStructure: idBd,
           idTableau,
           f: siPasVide(),
