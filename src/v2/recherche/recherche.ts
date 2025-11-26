@@ -196,7 +196,6 @@ export abstract class RechercheObjets<L extends ServicesLibp2pCrabe> extends Rec
     }
   }
 
-
   @cacheRechercheParProfondeur
   async suivreConfianceAuteurs({
     idObjet,
@@ -230,10 +229,6 @@ export abstract class RechercheObjets<L extends ServicesLibp2pCrabe> extends Rec
       id: string;
       fSuivreBranche: Suivi<number>;
     }): Promise<Oublier> => {
-      return await suivreFonctionImbriquée({
-        fRacine,
-        f,
-      });
       return await réseau.suivreConfiance({
         idCompte: idAuteur,
         f: fSuivreBranche,
@@ -248,8 +243,8 @@ export abstract class RechercheObjets<L extends ServicesLibp2pCrabe> extends Rec
     const fRéduction = (branches: number[]) => branches.flat();
 
     return await suivreDeFonctionListe({
-      fListe,
       f: fFinale,
+      fListe,
       fBranche,
       fRéduction,
     });
