@@ -3542,9 +3542,10 @@ describe("tableaux", function () {
     let constlsAccès: Constellation[];
 
     before(async () => {
-      ({ fermer: fermerAccès, constls: constlsAccès } = await créerConstellationsTest({
-        n: 2,
-      }));
+      ({ fermer: fermerAccès, constls: constlsAccès } =
+        await créerConstellationsTest({
+          n: 2,
+        }));
     });
 
     after(async () => {

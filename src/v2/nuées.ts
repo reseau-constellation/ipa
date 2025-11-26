@@ -12,7 +12,10 @@ import {
 } from "./favoris.js";
 import { cacheSuivi } from "./crabe/cache.js";
 import { RechercheNuées } from "./recherche/nuées.js";
-import type { Rôle, AccèsUtilisateur } from "./crabe/services/compte/accès/types.js";
+import type {
+  Rôle,
+  AccèsUtilisateur,
+} from "./crabe/services/compte/accès/types.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";

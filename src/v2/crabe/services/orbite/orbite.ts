@@ -1,9 +1,9 @@
 import { join } from "path";
 import {
-  type OrbitDB,
   createOrbitDB,
   useDatabaseType,
-  useAccessController} from "@orbitdb/core";
+  useAccessController,
+} from "@orbitdb/core";
 import drain from "it-drain";
 
 import { Nested } from "@orbitdb/nested-db";
@@ -31,10 +31,11 @@ import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js"
 import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
 import { mandatOrbite } from "./mandat.js";
 import type {
-
+  OrbitDB,
   BaseDatabase,
   OpenDatabaseOptions,
-  KeyValueDatabase} from "@orbitdb/core";
+  KeyValueDatabase,
+} from "@orbitdb/core";
 import type { ServiceJournal } from "../journal.js";
 import type { ServicesNécessairesHélia } from "../hélia.js";
 import type { Oublier, Suivi } from "../../types.js";

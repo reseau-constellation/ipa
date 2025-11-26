@@ -208,6 +208,11 @@ export class ServiceRéseau<
   async suivreComptes({ f }: { f: Suivi<string[]> }): Promise<Oublier> {}
 
   @cacheSuivi
-  async suivreConfiance({ idCompte, f }: { idCompte: string, f: Suivi<number>}): Promise<Oublier> {}
-  
+  async suivreConfiance({
+    idCompte,
+    f,
+  }: {
+    idCompte: string;
+    f: Suivi<number>;
+  }): Promise<Oublier> {}
 }

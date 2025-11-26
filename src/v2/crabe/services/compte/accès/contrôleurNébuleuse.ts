@@ -27,14 +27,7 @@ import { base58btc } from "multiformats/bases/base58";
 import { sha256 } from "multiformats/hashes/sha2";
 import * as dagCbor from "@ipld/dag-cbor";
 
-import {
-  ComposedStorage,
-  IPFSBlockStorage,
-  LRUStorage,
-  type IdentitiesType,
-  type LogEntry,
-  type OrbitDB,
-  type Storage   } from "@orbitdb/core";
+import { ComposedStorage, IPFSBlockStorage, LRUStorage } from "@orbitdb/core";
 
 import { v4 as uuidv4 } from "uuid";
 import PQueue from "p-queue";
@@ -44,7 +37,13 @@ import { MODÉRATRICE, rôles } from "./consts.js";
 import { ContrôleurAccès } from "./contrôleurModératrices.js";
 import { AccèsParComptes } from "./compte.js";
 import type {
- DagCborEncodable, KeyValueDatabase } from "@orbitdb/core";
+  DagCborEncodable,
+  KeyValueDatabase,
+  IdentitiesType,
+  LogEntry,
+  OrbitDB,
+  Storage,
+} from "@orbitdb/core";
 import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
 import type { Oublier, Suivi } from "@/v2/crabe/types.js";
 

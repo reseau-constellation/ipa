@@ -1,3 +1,4 @@
+import { ignorerNonDéfinis } from "@constl/utils-ipa";
 import { cacheRechercheParN, cacheSuivi } from "../crabe/cache.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
@@ -363,7 +364,7 @@ export class RechercheProjets<
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.projets.suivreProjets({ f, idCompte }),
+        await this.projets.suivreProjets({ f: ignorerNonDéfinis(f), idCompte }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
         await this.projets.suivreScoreQualité({
           idProjet: idObjet,

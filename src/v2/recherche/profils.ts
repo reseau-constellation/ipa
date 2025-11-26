@@ -1,3 +1,4 @@
+import { faisRien } from "@constl/utils-ipa";
 import { profil } from "@/index.js";
 import { cacheRechercheParN } from "../crabe/cache.js";
 import {
@@ -22,7 +23,6 @@ import type {
   SuivreObjectifRecherche,
   InfoRésultatTexte,
 } from "./types.js";
-import { faisRien } from "@constl/utils-ipa";
 
 export class RechercheProfils<
   L extends ServicesLibp2pCrabe,
@@ -173,9 +173,12 @@ export class RechercheProfils<
   }): Promise<RetourFonctionRecherche> {
     const réseau = this.service("réseau");
 
-    const fConfiance = async ({idObjet, f: fSuivi}: {
-      idObjet: string,
-      f: Suivi<number>,
+    const fConfiance = async ({
+      idObjet,
+      f: fSuivi,
+    }: {
+      idObjet: string;
+      f: Suivi<number>;
     }) => {
       const oublier = await réseau.suivreConfiance({
         idCompte: idObjet,
@@ -186,10 +189,10 @@ export class RechercheProfils<
 
     const fQualité = async ({
       idObjet,
-      f
+      f,
     }: {
-      idObjet: string,
-      f: Suivi<number>,
+      idObjet: string;
+      f: Suivi<number>;
     }): Promise<Oublier> => {
       const fRechercherSelonActivité = rechercherProfilsSelonActivité();
       return await fRechercherSelonActivité({
@@ -204,10 +207,7 @@ export class RechercheProfils<
     return await this.rechercher<T>({
       f,
       n,
-      fRecherche: async ({
-        idCompte,
-        f: fSuivi,
-      }): Promise<Oublier> => {
+      fRecherche: async ({ idCompte, f: fSuivi }): Promise<Oublier> => {
         await fSuivi([idCompte]);
         return faisRien; // Rien à faire parce que nous ne recherchons que le compte
       },

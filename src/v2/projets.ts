@@ -5,7 +5,10 @@ import { cacheSuivi } from "./crabe/cache.js";
 import { ajouterProtocoleOrbite } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
-import type { Rôle, AccèsUtilisateur } from "./crabe/services/compte/accès/types.js";
+import type {
+  Rôle,
+  AccèsUtilisateur,
+} from "./crabe/services/compte/accès/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
