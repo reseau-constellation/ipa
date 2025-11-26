@@ -283,7 +283,7 @@ export class RechercheNuées<
     idObjet: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    return await this.nuées.suivreAuteurs({ idProjet: idObjet, f });
+    return await this.nuées.suivreAuteurs({ idNuée: idObjet, f });
   }
 
   @cacheRechercheParN
