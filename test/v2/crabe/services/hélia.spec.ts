@@ -24,6 +24,7 @@ import type { Helia } from "helia";
 import type { OrbitDB } from "@orbitdb/core";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import { CID } from "multiformats";
+import toBuffer from "it-to-buffer";
 
 describe.only("Service Hélia", function () {
   describe("options", function () {
@@ -184,12 +185,13 @@ describe.only("Service Hélia", function () {
     >;
     let serviceHélia: ServiceHélia
 
-    const contenu = new Uint8Array([0,1,1])
-
     let idc: string;
-
+    
     let dossier: string;
     let effacer: () => void;
+
+    const texte = "வணக்கம்";
+    const contenu = new TextEncoder().encode(texte)
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
@@ -224,7 +226,13 @@ describe.only("Service Hélia", function () {
 
     it("obtenir fichier de SFIP", async () => {
       const obtenu = await serviceHélia.obtFichierDeSFIP({ id: idc });
-      expect(obtenu).to.deep.equal(contenu);
+      expect(new TextDecoder().decode(obtenu!)).to.equal(texte);
+    });
+
+    it("obtenir flux itérable de SFIP", async () => {
+      const flux = await serviceHélia.obtItérableAsyncSFIP({ id: idc });
+      const obtenu = await toBuffer(flux);
+      expect(new TextDecoder().decode(obtenu!)).to.equal(texte);
     });
 
   })
