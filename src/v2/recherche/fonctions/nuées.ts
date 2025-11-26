@@ -30,7 +30,7 @@ export const rechercherNuéesSelonNom = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = (noms: { [key: string]: string }) => {
-      const corresp = similTexte(nomNuée, noms);
+      const corresp = similTexte({ texte: nomNuée, possibilités: noms });
       if (corresp) {
         const { score, clef, info } = corresp;
         f({
@@ -65,7 +65,10 @@ export const rechercherNuéesSelonDescription = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = (descriptions: { [key: string]: string }) => {
-      const corresp = similTexte(descriptionNuée, descriptions);
+      const corresp = similTexte({
+        texte: descriptionNuée,
+        possibilités: descriptions,
+      });
       if (corresp) {
         const { score, clef, info } = corresp;
         f({
@@ -112,7 +115,13 @@ export const rechercherNuéesSelonIdVariable = (
 
     const fRechercher = rechercherSelonId(idVariable);
 
-    return await sousRecherche("variable", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "variable",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -141,7 +150,13 @@ export const rechercherNuéesSelonNomVariable = (
 
     const fRechercher = rechercherVariablesSelonNom(nomVariable);
 
-    return await sousRecherche("variable", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "variable",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -157,15 +172,15 @@ export const rechercherNuéesSelonVariable = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }) => {
-    return await combinerRecherches(
-      {
+    return await combinerRecherches({
+      fsRecherche: {
         id: rechercherNuéesSelonIdVariable(texte),
         nom: rechercherNuéesSelonNomVariable(texte),
       },
       constl,
       idObjet,
-      f,
-    );
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -194,7 +209,13 @@ export const rechercherNuéesSelonIdMotClef = (
 
     const fRechercher = rechercherSelonId(idMotClef);
 
-    return await sousRecherche("motClef", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "motClef",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -223,7 +244,13 @@ export const rechercherNuéesSelonNomMotClef = (
 
     const fRechercher = rechercherMotsClefsSelonNom(nomMotClef);
 
-    return await sousRecherche("motClef", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "motClef",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -239,15 +266,15 @@ export const rechercherNuéesSelonMotClef = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }) => {
-    return await combinerRecherches(
-      {
+    return await combinerRecherches({
+      fsRecherche: {
         id: rechercherNuéesSelonIdMotClef(texte),
         nom: rechercherNuéesSelonNomMotClef(texte),
       },
       constl,
       idObjet,
-      f,
-    );
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -275,8 +302,8 @@ export const rechercherNuéesSelonTexte = (
       | InfoRésultatRecherche<InfoRésultatTexte>
       | InfoRésultatTexte
       | InfoRésultatVide
-    >(
-      {
+    >({
+      fsRecherche: {
         nom: rechercherNuéesSelonNom(texte),
         descr: rechercherNuéesSelonDescription(texte),
         variables: rechercherNuéesSelonVariable(texte),
@@ -286,7 +313,7 @@ export const rechercherNuéesSelonTexte = (
       },
       constl,
       idObjet,
-      f,
-    );
+      fSuivreRecherche: f,
+    });
   };
 };

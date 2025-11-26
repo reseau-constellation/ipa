@@ -27,7 +27,7 @@ export const rechercherVariablesSelonNom = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = async (nomsVariable: { [key: string]: string }) => {
-      const résultat = similTexte(nom, nomsVariable);
+      const résultat = similTexte({ texte: nom, possibilités: nomsVariable });
       if (résultat) {
         const { score, clef, info } = résultat;
         return await f({
@@ -62,7 +62,10 @@ export const rechercherVariablesSelonDescription = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = async (nomsVariable: { [key: string]: string }) => {
-      const résultat = similTexte(description, nomsVariable);
+      const résultat = similTexte({
+        texte: description,
+        possibilités: nomsVariable,
+      });
       if (résultat) {
         const { score, clef, info } = résultat;
         return await f({
@@ -101,8 +104,8 @@ export const rechercherVariablesSelonTexte = (
     const fRechercherId = rechercherSelonId(texte);
     const fRechercherTous = rechercherTousSiVide(texte);
 
-    return await combinerRecherches(
-      {
+    return await combinerRecherches({
+      fsRecherche: {
         noms: fRechercherNoms,
         descriptions: fRechercherDescriptions,
         id: fRechercherId,
@@ -110,7 +113,7 @@ export const rechercherVariablesSelonTexte = (
       },
       constl,
       idObjet,
-      f,
-    );
+      fSuivreRecherche: f,
+    });
   };
 };

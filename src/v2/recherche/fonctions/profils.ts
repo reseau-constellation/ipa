@@ -105,7 +105,7 @@ export const rechercherProfilsSelonNom = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = (noms: { [key: string]: string }) => {
-      const corresp = similTexte(nom, noms);
+      const corresp = similTexte({ texte: nom, possibilités: noms });
       if (corresp) {
         const { score, clef, info } = corresp;
         f({
@@ -141,7 +141,7 @@ export const rechercherProfilsSelonCourriel = (
   }): Promise<Oublier> => {
     const fSuivre = (courrielProfil: string | null | undefined) => {
       const corresp = courrielProfil
-        ? rechercherDansTexte(courriel, courrielProfil)
+        ? rechercherDansTexte({ schéma: courriel, texte: courrielProfil })
         : undefined;
 
       if (corresp && courrielProfil) {
@@ -181,8 +181,8 @@ export const rechercherProfilsSelonTexte = (
     const fRechercherId = rechercherSelonId(texte);
     const fRechercherTous = rechercherTousSiVide(texte);
 
-    return await combinerRecherches(
-      {
+    return await combinerRecherches({
+      fsRecherche: {
         noms: fRechercherNoms,
         courriel: fRechercherCourriel,
         id: fRechercherId,
@@ -190,8 +190,8 @@ export const rechercherProfilsSelonTexte = (
       },
       constl,
       idObjet,
-      f,
-    );
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -208,7 +208,7 @@ export const rechercherProfilsSelonImage = (
     f: SuiviRecherche<InfoRésultatVide>;
   }): Promise<Oublier> => {
     const fSuivre = (imageCompte: Uint8Array | null) => {
-      const score = similImages(image, imageCompte);
+      const score = similImages({ image, imageRéf: imageCompte });
       f({
         type: "résultat",
         score,

@@ -37,7 +37,7 @@ export const rechercherProjetsSelonNom = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = (noms: { [key: string]: string }) => {
-      const corresp = similTexte(nomProjet, noms);
+      const corresp = similTexte({ texte: nomProjet, possibilités: noms });
       if (corresp) {
         const { score, clef, info } = corresp;
         f({
@@ -72,7 +72,7 @@ export const rechercherProjetsSelonDescription = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = (descrs: { [key: string]: string }) => {
-      const corresp = similTexte(descProjet, descrs);
+      const corresp = similTexte({ texte: descProjet, possibilités: descrs });
       if (corresp) {
         const { score, clef, info } = corresp;
         f({
@@ -119,7 +119,13 @@ export const rechercherProjetsSelonIdBd = (
 
     const fRechercher = rechercherSelonId(idBd);
 
-    return await sousRecherche("bd", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "bd",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -160,7 +166,13 @@ export const rechercherProjetsSelonBd = (
 
     const fRechercher = rechercherBdsSelonTexte(texte);
 
-    return await sousRecherche("bd", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "bd",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -189,7 +201,13 @@ export const rechercherProjetsSelonIdVariable = (
 
     const fRechercher = rechercherSelonId(idVariable);
 
-    return await sousRecherche("variable", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "variable",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -218,7 +236,13 @@ export const rechercherProjetsSelonNomVariable = (
 
     const fRechercher = rechercherVariablesSelonNom(nomVariable);
 
-    return await sousRecherche("variable", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "variable",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -251,7 +275,13 @@ export const rechercherProjetsSelonVariable = (
 
     const fRechercher = rechercherVariablesSelonTexte(texte);
 
-    return await sousRecherche("variable", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "variable",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -280,7 +310,13 @@ export const rechercherProjetsSelonIdMotClef = (
 
     const fRechercher = rechercherSelonId(idMotClef);
 
-    return await sousRecherche("motClef", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "motClef",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -309,7 +345,13 @@ export const rechercherProjetsSelonNomMotClef = (
 
     const fRechercher = rechercherMotsClefsSelonNom(nomMotClef);
 
-    return await sousRecherche("motClef", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "motClef",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -342,7 +384,13 @@ export const rechercherProjetsSelonMotClef = (
 
     const fRechercher = rechercherMotsClefsSelonTexte(texte);
 
-    return await sousRecherche("motClef", fListe, fRechercher, constl, f);
+    return await sousRecherche({
+      de: "motClef",
+      fListe,
+      fRechercher,
+      constl,
+      fSuivreRecherche: f,
+    });
   };
 };
 
@@ -390,8 +438,8 @@ export const rechercherProjetsSelonTexte = (
           | InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
         >
       | InfoRésultatVide
-    >(
-      {
+    >({
+      fsRecherche: {
         noms: fRechercherNoms,
         descr: fRechercherDescription,
         bd: fRechercherBd,
@@ -402,7 +450,7 @@ export const rechercherProjetsSelonTexte = (
       },
       constl,
       idObjet,
-      f,
-    );
+      fSuivreRecherche: f,
+    });
   };
 };

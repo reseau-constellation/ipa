@@ -28,7 +28,7 @@ export const rechercherMotsClefsSelonNom = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = async (noms: TraducsTexte) => {
-      const corresp = similTexte(nomMotClef, noms);
+      const corresp = similTexte({ texte: nomMotClef, possibilités: noms });
       if (corresp) {
         const { score, clef, info } = corresp;
         return await f({
@@ -63,7 +63,10 @@ export const rechercherMotsClefsSelonDescription = (
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
     const fSuivre = async (noms: { [key: string]: string }) => {
-      const corresp = similTexte(descriptionMotClef, noms);
+      const corresp = similTexte({
+        texte: descriptionMotClef,
+        possibilités: noms,
+      });
       if (corresp) {
         const { score, clef, info } = corresp;
         return await f({
@@ -102,8 +105,8 @@ export const rechercherMotsClefsSelonTexte = (
     const fRechercherId = rechercherSelonId(texte);
     const fRechercherTous = rechercherTousSiVide(texte);
 
-    return await combinerRecherches(
-      {
+    return await combinerRecherches({
+      fsRecherche: {
         noms: fRechercherNoms,
         id: fRechercherId,
         descr: fRechercherDescr,
@@ -111,7 +114,7 @@ export const rechercherMotsClefsSelonTexte = (
       },
       constl,
       idObjet,
-      f,
-    );
+      fSuivreRecherche: f,
+    });
   };
 };
