@@ -29,7 +29,9 @@ import type {
 } from "./types.js";
 import type { InfoAuteur } from "../types.js";
 
-export class RechercheBds<L extends ServicesLibp2pCrabe> extends RechercheObjets<L> {
+export class RechercheBds<
+  L extends ServicesLibp2pCrabe,
+> extends RechercheObjets<L> {
   bds: Bds<L>;
 
   constructor({

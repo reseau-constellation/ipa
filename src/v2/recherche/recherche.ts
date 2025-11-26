@@ -1,8 +1,4 @@
-import {
-  ignorerNonDéfinis,
-  suivreDeFonctionListe,
-  suivreFonctionImbriquée,
-} from "@constl/utils-ipa";
+import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import PQueue from "p-queue";
 import {
   cacheRechercheParN,
@@ -78,11 +74,11 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
     };
     return { oublier, n: changerN };
   }
-
 }
 
-export abstract class RechercheObjets<L extends ServicesLibp2pCrabe> extends Recherche<L> {
-
+export abstract class RechercheObjets<
+  L extends ServicesLibp2pCrabe,
+> extends Recherche<L> {
   abstract suivreAuteursObjet({
     idObjet,
     f,
@@ -249,5 +245,4 @@ export abstract class RechercheObjets<L extends ServicesLibp2pCrabe> extends Rec
       fRéduction,
     });
   }
-
 }
