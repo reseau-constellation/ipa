@@ -683,7 +683,6 @@ export class Constellation<
     };
   }
 
-
   async signer({ message }: { message: string }): Promise<Signature> {
     const { orbite } = await this.attendreSfipEtOrbite();
     const id = orbite.identity;
@@ -785,7 +784,6 @@ export class Constellation<
     });
   }
 
-
   async obtIdentitéOrbite(): Promise<OrbitDB["identity"]> {
     const { orbite } = await this.attendreSfipEtOrbite();
     return orbite.identity;
@@ -843,7 +841,6 @@ export class Constellation<
     return fOublier;
   }
 
-
   async suivreBdsDeFonctionRecherche<T extends élémentsBd, U, V>({
     fListe,
     f,
@@ -895,9 +892,7 @@ export class Constellation<
     return { fOublier, fChangerProfondeur };
   }
 
-
   async fermer(): Promise<void> {
-
     // Effacer fichier verrou
     await this.effacerVerrou();
   }
@@ -1015,5 +1010,4 @@ export class Constellation<
       throw new Error("Non implémenté");
     }
   }
-
 }

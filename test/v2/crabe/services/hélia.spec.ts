@@ -8,6 +8,8 @@ import { expect } from "aegir/chai";
 import { createHelia } from "helia";
 import { createLibp2p } from "libp2p";
 import { isBrowser } from "wherearewe";
+import { CID } from "multiformats";
+import toBuffer from "it-to-buffer";
 import { ServiceLibp2p } from "@/v2/crabe/services/libp2p/libp2p.js";
 import {
   ServiceHélia,
@@ -23,8 +25,6 @@ import type { Libp2p } from "libp2p";
 import type { Helia } from "helia";
 import type { OrbitDB } from "@orbitdb/core";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
-import { CID } from "multiformats";
-import toBuffer from "it-to-buffer";
 
 describe.only("Service Hélia", function () {
   describe("options", function () {
@@ -183,15 +183,15 @@ describe.only("Service Hélia", function () {
     let nébuleuse: Nébuleuse<
       ServicesNécessairesHélia & { hélia: ServiceHélia }
     >;
-    let serviceHélia: ServiceHélia
+    let serviceHélia: ServiceHélia;
 
     let idc: string;
-    
+
     let dossier: string;
     let effacer: () => void;
 
     const texte = "வணக்கம்";
-    const contenu = new TextEncoder().encode(texte)
+    const contenu = new TextEncoder().encode(texte);
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
@@ -216,12 +216,15 @@ describe.only("Service Hélia", function () {
     });
 
     it("ajouter fichier à SFIP", async () => {
-      idc = await serviceHélia.ajouterFichierÀSFIP({ contenu, nomFichier: "un fichier.txt"});
-      expect(typeof idc).to.equal("string")
-      
+      idc = await serviceHélia.ajouterFichierÀSFIP({
+        contenu,
+        nomFichier: "un fichier.txt",
+      });
+      expect(typeof idc).to.equal("string");
+
       const [idcRacine, nomFichier] = idc.split("/");
-      CID.parse(idcRacine)
-      expect(nomFichier).to.equal("un fichier.txt")
+      CID.parse(idcRacine);
+      expect(nomFichier).to.equal("un fichier.txt");
     });
 
     it("obtenir fichier de SFIP", async () => {
@@ -234,6 +237,5 @@ describe.only("Service Hélia", function () {
       const obtenu = await toBuffer(flux);
       expect(new TextDecoder().decode(obtenu!)).to.equal(texte);
     });
-
-  })
+  });
 });

@@ -1,10 +1,4 @@
-
-
-
-import {
-  attente,
-  dossiers,
-} from "@constl/utils-tests";
+import { attente, dossiers } from "@constl/utils-tests";
 
 import { isElectronMain, isNode } from "wherearewe";
 
@@ -14,7 +8,6 @@ import { créerConstellation } from "@/index.js";
 import { générerClientsInternes } from "./ressources/utils.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import type { Constellation } from "@/client.js";
-
 
 describe("Fermeture sécuritaire", function () {
   let dossier: string;
