@@ -14,10 +14,15 @@ import type {
 } from "../types.js";
 import type { Oublier } from "../../crabe/types.js";
 
-export const rechercherDansTexte = (
-  schéma: string,
-  texte: string,
-): { type: "texte"; score: number; début: number; fin: number } | undefined => {
+export const rechercherDansTexte = ({
+  schéma,
+  texte,
+}: {
+  schéma: string;
+  texte: string;
+}):
+  | { type: "texte"; score: number; début: number; fin: number }
+  | undefined => {
   // Une alternative - https://www.npmjs.com/package/js-levenshtein
   const correspondances = correspTexte(
     texte,
@@ -34,15 +39,18 @@ export const rechercherDansTexte = (
   return undefined;
 };
 
-export const similTexte = (
-  texte: string,
-  possibilités: { [key: string]: string } | string[],
-): { score: number; clef: string; info: InfoRésultatTexte } | undefined => {
+export const similTexte = ({
+  texte,
+  possibilités,
+}: {
+  texte: string;
+  possibilités: { [key: string]: string } | string[];
+}): { score: number; clef: string; info: InfoRésultatTexte } | undefined => {
   if (Array.isArray(possibilités)) {
     possibilités = Object.fromEntries(possibilités.map((x) => [x, x]));
   }
   const similairités = Object.entries(possibilités).map(([clef, val]) => {
-    const corresp = rechercherDansTexte(texte, val);
+    const corresp = rechercherDansTexte({ schéma: texte, texte: val });
     if (corresp) {
       const { score, début, fin } = corresp;
       return {
@@ -61,23 +69,31 @@ export const similTexte = (
   return meilleure;
 };
 
-export const similImages = (
-  image: Uint8Array,
-  imageRef: Uint8Array | null,
-): number => {
-  if (!imageRef) {
+export const similImages = ({
+  image,
+  imageRéf,
+}: {
+  image: Uint8Array;
+  imageRéf: Uint8Array | null;
+}): number => {
+  if (!imageRéf) {
     return 0;
   }
-  const { mssim } = ssim(image, imageRef);
+  const { mssim } = ssim(image, imageRéf);
   return mssim;
 };
 
-export const combinerRecherches = async <T extends InfoRésultat>(
-  fsRecherche: { [key: string]: SuivreObjectifRecherche<T> },
-  constl: Constellation,
-  idObjet: string,
-  fSuivreRecherche: SuiviRecherche<T>,
-): Promise<Oublier> => {
+export const combinerRecherches = async <T extends InfoRésultat>({
+  fsRecherche,
+  constl,
+  idObjet,
+  fSuivreRecherche,
+}: {
+  fsRecherche: { [key: string]: SuivreObjectifRecherche<T> };
+  constl: Constellation;
+  idObjet: string;
+  fSuivreRecherche: SuiviRecherche<T>;
+}): Promise<Oublier> => {
   const fsOublier: Oublier[] = [];
 
   const résultats: { [key: string]: RésultatObjectifRecherche<T> | undefined } =
@@ -105,17 +121,23 @@ export const combinerRecherches = async <T extends InfoRésultat>(
   };
 };
 
-export const sousRecherche = async <T extends InfoRésultat>(
-  de: string,
+export const sousRecherche = async <T extends InfoRésultat>({
+  de,
+  fListe,
+  fRechercher,
+  constl,
+  fSuivreRecherche,
+}: {
+  de: string;
   fListe: ({
     fSuivreRacine,
   }: {
     fSuivreRacine: (ids: string[]) => void;
-  }) => Promise<Oublier>,
-  fRechercher: SuivreObjectifRecherche<T>,
-  constl: Constellation,
-  fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<T>>,
-): Promise<Oublier> => {
+  }) => Promise<Oublier>;
+  fRechercher: SuivreObjectifRecherche<T>;
+  constl: Constellation;
+  fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<T>>;
+}): Promise<Oublier> => {
   const fBranche = async ({
     id: idObjet,
     fSuivreBranche,
@@ -227,7 +249,10 @@ export const rechercherSelonId = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const résultat = rechercherDansTexte(idRecherché, idObjet);
+    const résultat = rechercherDansTexte({
+      schéma: idRecherché,
+      texte: idObjet,
+    });
     if (résultat) {
       const { score, début, fin } = résultat;
       await f({

@@ -14,7 +14,7 @@ import {
   rechercherProjetsSelonTexte,
   rechercherProjetsSelonVariable,
 } from "@/v2/recherche/fonctions/projets.js";
-import { générerClientsInternes } from "../ressources/utils.js";
+import { générerClientsInternes } from "../../ressources/utils.js";
 import type {
   infoRésultatRecherche,
   infoRésultatTexte,

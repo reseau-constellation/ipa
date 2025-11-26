@@ -1,76 +1,59 @@
-import { attente as utilsTestAttente } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
-import { type Constellation } from "@/index.js";
-import {
-  rechercherBdsSelonDescr,
-  rechercherBdsSelonIdMotClef,
-  rechercherBdsSelonIdVariable,
-  rechercherBdsSelonMotClef,
-  rechercherBdsSelonNom,
-  rechercherBdsSelonNomMotClef,
-  rechercherBdsSelonNomVariable,
-  rechercherBdsSelonTexte,
-  rechercherBdsSelonVariable,
-} from "@/v2/recherche/fonctions/bds.js";
-import { générerClientsInternes } from "../ressources/utils.js";
+import { rechercherBdsSelonDescription } from "@/v2/recherche/fonctions/bds.js";
+import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { Constellation } from "@/v2/index.js";
 import type {
-  infoRésultatRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
-  schémaFonctionOublier,
-} from "@/types.js";
+  InfoRésultatTexte,
+  RésultatObjectifRecherche,
+  SuivreObjectifRecherche,
+} from "@/v2/recherche/types.js";
 
 describe("Rechercher bds", function () {
-  let fOublierClients: () => Promise<void>;
-  let client: Constellation;
+  let fermer: () => Promise<void>;
+  let constls: Constellation[];
+  let constl: Constellation;
 
   before(async () => {
-    const { fOublier, clients } = await générerClientsInternes({
+    ({ fermer, constls } = await créerConstellationsTest({
       n: 1,
-    });
-    fOublierClients = fOublier;
-    client = clients[0] as Constellation;
+      avecMandataire: false,
+    }));
+    constl = constls[0];
   });
 
   after(async () => {
-    if (fOublierClients) await fOublierClients();
+    if (fermer) await fermer();
   });
 
-  describe("Selon nom", function () {
+  describe("selon nom", function () {
     let idBd: string;
-    const résultat = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
-    >();
-    let fOublier: schémaFonctionOublier;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      recherche = rechercherBdsSelonDescription("Météo");
+    });
 
-      const fRecherche = rechercherBdsSelonNom("Météo");
-      fOublier = await fRecherche(client, idBd, async (r) =>
-        résultat.mettreÀJour(r),
+    it("pas de résultat quand la bd n'a pas de nom", async () => {
+      const résultat = await obtenir(({ siNonDéfini }) =>
+        recherche({ constl, idObjet: idBd, f: siNonDéfini() }),
       );
+      expect(résultat).to.be.empty();
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
-
-    it("Pas de résultat quand la bd n'a pas de nom", async () => {
-      expect(résultat.val).to.be.undefined();
-    });
-
-    it("Ajout nom détecté", async () => {
-      await client.bds.sauvegarderNomsBd({
+    it("ajout nom détecté", async () => {
+      const pRésultat = obtenir(({ siDéfini }) =>
+        recherche({ constl, idObjet: idBd, f: siDéfini() }),
+      );
+      await constl.bds.sauvegarderNoms({
         idBd,
         noms: {
           fr: "Météorologie",
         },
       });
+      const résultat = await pRésultat;
 
-      const val = await résultat.attendreExiste();
-      expect(val).to.deep.equal({
+      const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -81,44 +64,41 @@ describe("Rechercher bds", function () {
           texte: "Météorologie",
         },
         score: 1,
-      });
+      };
+      expect(résultat).to.deep.equal(réf);
     });
   });
 
-  describe("Selon description", function () {
+  describe("selon description", function () {
     let idBd: string;
-    const résultat = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
-    >();
-    let fOublier: schémaFonctionOublier;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      recherche = rechercherBdsSelonDescription("Météo");
+    });
 
-      const fRecherche = rechercherBdsSelonDescr("Météo");
-      fOublier = await fRecherche(client, idBd, async (r) =>
-        résultat.mettreÀJour(r),
+    it("pas de résultat quand la bd n'a pas de description", async () => {
+      const résultat = await obtenir(({ siNonDéfini }) =>
+        recherche({ constl, idObjet: idBd, f: siNonDéfini() }),
       );
+      expect(résultat).to.be.empty();
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
-
-    it("Pas de résultat quand la bd n'a pas de description", async () => {
-      expect(résultat.val).to.be.undefined();
-    });
-
-    it("Ajout description détecté", async () => {
-      await client.bds.sauvegarderDescriptionsBd({
+    it("ajout description détecté", async () => {
+      const pRésultat = obtenir(({ siDéfini }) =>
+        recherche({ constl, idObjet: idBd, f: siDéfini() }),
+      );
+      await constl.bds.sauvegarderDescriptions({
         idBd,
         descriptions: {
           fr: "Météo historique pour la région de Montréal",
         },
       });
 
-      const val = await résultat.attendreExiste();
-      expect(val).to.deep.equal({
+      const résultat = await pRésultat;
+
+      const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
         clef: "fr",
         de: "descr",
@@ -129,7 +109,8 @@ describe("Rechercher bds", function () {
           texte: "Météo historique pour la région de Montréal",
         },
         score: 1,
-      });
+      };
+      expect(résultat).to.deep.equal(réf);
     });
   });
 

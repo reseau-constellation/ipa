@@ -11,7 +11,7 @@ import {
   rechercherNuéesSelonTexte,
   rechercherNuéesSelonVariable,
 } from "@/v2/recherche/fonctions/nuées.js";
-import { générerClientsInternes } from "../ressources/utils.js";
+import { générerClientsInternes } from "../../ressources/utils.js";
 import type { Constellation } from "@/client.js";
 
 import type {

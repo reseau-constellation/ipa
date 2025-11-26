@@ -1,7 +1,7 @@
 import { attente as utilsTestAttente } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
-import { obtRessourceTest } from "../ressources/index.js";
-import { générerClientsInternes } from "../ressources/utils.js";
+import { obtRessourceTest } from "../../ressources/index.js";
+import { générerClientsInternes } from "../../ressources/utils.js";
 import type { Constellation } from "@/client.js";
 import type {
   infoRésultatTexte,
