@@ -6,7 +6,10 @@ import { isValidAddress } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
 import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
-import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
+import {
+  MEMBRE,
+  MODÉRATRICE,
+} from "@/v2/crabe/services/compte/accès/consts.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
@@ -17,7 +20,12 @@ import type {
   ScoreBd,
   ÉpingleBd,
 } from "@/v2/bds/bds.js";
-import type { InfoAuteur, Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
+import type {
+  InfoAuteur,
+  Métadonnées,
+  StatutDonnées,
+  TraducsTexte,
+} from "@/v2/types.js";
 import type { InfoColonne } from "@/v2/tableaux.js";
 import type {
   DonnéesRangéeTableau,
@@ -38,7 +46,7 @@ describe("BDs", function () {
       n: 1,
     }));
     constl = constls[0];
-    idsComptes = await Promise.all(constls.map(c=>c.compte.obtIdCompte()))
+    idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
   });
 
   after(async () => {
@@ -1995,58 +2003,78 @@ describe("BDs", function () {
   });
 
   describe("auteurs", function () {
-
     let idBd: string;
 
     before(async () => {
-      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" })
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
     });
 
     it("compte créateur autorisé pour commencer", async () => {
-      const auteurs = await obtenir<InfoAuteur[]>(({siPasVide})=>constl.bds.suivreAuteurs({
-        idBd, f: siPasVide()
-      }));
-      const réf: InfoAuteur[] = [{
-        idCompte: idsComptes[0],
-        accepté: true,
-        rôle: MODÉRATRICE
-      }]
-      expect(auteurs).to.deep.equal(réf)
+      const auteurs = await obtenir<InfoAuteur[]>(({ siPasVide }) =>
+        constl.bds.suivreAuteurs({
+          idBd,
+          f: siPasVide(),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
     });
 
     it("inviter compte", async () => {
-      await constl.bds.inviterAuteur({ idBd, idCompte: idsComptes[1], rôle: MEMBRE })
-      const auteurs = await obtenir<InfoAuteur[]>(({si})=>constl.bds.suivreAuteurs({
-        idBd, f: si(x=>!!x && x.length > 1)
-      }));
-      const réf: InfoAuteur[] = [{
-        idCompte: idsComptes[0],
-        accepté: true,
-        rôle: MODÉRATRICE
-      }, {
+      await constl.bds.inviterAuteur({
+        idBd,
         idCompte: idsComptes[1],
-        accepté: false,
-        rôle: MEMBRE
-      }]
-      expect(auteurs).to.deep.equal(réf)
+        rôle: MEMBRE,
+      });
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.bds.suivreAuteurs({
+          idBd,
+          f: si((x) => !!x && x.length > 1),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: false,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
     });
 
     it("acceptation invitation", async () => {
       await constls[1].bds.ajouterÀMesBds({ idBd });
 
-      const auteurs = await obtenir<InfoAuteur[]>(({si})=>constl.bds.suivreAuteurs({
-        idBd, f: si(x=>!!x?.find(a=>a.idCompte === idsComptes[1])?.accepté)
-      }));
-      const réf: InfoAuteur[] = [{
-        idCompte: idsComptes[0],
-        accepté: true,
-        rôle: MODÉRATRICE
-      }, {
-        idCompte: idsComptes[1],
-        accepté: true,
-        rôle: MEMBRE
-      }]
-      expect(auteurs).to.deep.equal(réf)
-    })
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.bds.suivreAuteurs({
+          idBd,
+          f: si((x) => !!x?.find((a) => a.idCompte === idsComptes[1])?.accepté),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
   });
 });

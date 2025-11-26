@@ -1,3 +1,4 @@
+import { ignorerNonDéfinis } from "@constl/utils-ipa";
 import { cacheRechercheParN } from "../crabe/cache.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
@@ -6,6 +7,7 @@ import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "./fonctions/variables.js";
+import type { InfoAuteur } from "../types.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
@@ -19,8 +21,6 @@ import type {
   RetourFonctionRecherche,
   RésultatRecherche,
 } from "./types.js";
-import { InfoAuteur } from "../types.js";
-import { ignorerNonDéfinis } from "@constl/utils-ipa";
 
 export class RechercheVariables<
   L extends ServicesLibp2pCrabe,
@@ -142,8 +142,14 @@ export class RechercheVariables<
 
   // Méthodes internes
 
-  async suivreAuteursObjet({ idObjet, f }: { idObjet: string; f: Suivi<InfoAuteur[]>; }): Promise<Oublier> {
-    return await this.variables.suivreAuteurs({ idVariable:  idObjet, f });
+  async suivreAuteursObjet({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    return await this.variables.suivreAuteurs({ idVariable: idObjet, f });
   }
 
   @cacheRechercheParN
@@ -162,7 +168,10 @@ export class RechercheVariables<
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.variables.suivreVariables({ f: ignorerNonDéfinis(f), idCompte }),
+        await this.variables.suivreVariables({
+          f: ignorerNonDéfinis(f),
+          idCompte,
+        }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
         await this.variables.suivreScoreQualité({
           idVariable: idObjet,

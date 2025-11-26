@@ -8,6 +8,7 @@ import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
 import { schémaTraducsTexte } from "./schémas.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
+import type { Rôle, AccèsUtilisateur } from "./crabe/services/compte/accès/types.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
@@ -18,7 +19,6 @@ import type { Oublier, Suivi } from "./crabe/types.js";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
-import { Rôle, AccèsUtilisateur } from "./crabe/services/compte/accès/types.js";
 
 // Types structure
 
@@ -206,7 +206,7 @@ export class MotsClefs<
   async inviterAuteur({
     idMotClef,
     idCompte,
-    rôle
+    rôle,
   }: {
     idMotClef: string;
     idCompte: string;
@@ -217,33 +217,50 @@ export class MotsClefs<
     return await compte.donnerAccèsObjet({
       idObjet: idMotClef,
       identité: idCompte,
-      rôle
-    })
+      rôle,
+    });
   }
 
-  async suivreAuteurs({ 
+  async suivreAuteurs({
     idMotClef,
-    f
-  }:{
+    f,
+  }: {
     idMotClef: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
     const compte = this.service("compte");
 
     return await suivreDeFonctionListe({
-      fListe: async ({fSuivreRacine}:  {fSuivreRacine: Suivi<AccèsUtilisateur[]>})=> await compte.suivreAutorisations({
-        idObjet: idMotClef,
-        f: fSuivreRacine
-      }),
-      fBranche: async ({ id: idCompte, fSuivreBranche, branche }: { id: string, fSuivreBranche: Suivi<InfoAuteur>, branche: AccèsUtilisateur}) => await this.suivreMotsClefs({ idCompte, f: async (motsClefsCompte) => {
-        return await fSuivreBranche({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
+      }) =>
+        await compte.suivreAutorisations({
+          idObjet: idMotClef,
+          f: fSuivreRacine,
+        }),
+      fBranche: async ({
+        id: idCompte,
+        fSuivreBranche,
+        branche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<InfoAuteur>;
+        branche: AccèsUtilisateur;
+      }) =>
+        await this.suivreMotsClefs({
           idCompte,
-          accepté: (motsClefsCompte || []).includes(idMotClef),
-          rôle: branche.rôle
-        })
-      } }),
-      f
-    })
+          f: async (motsClefsCompte) => {
+            return await fSuivreBranche({
+              idCompte,
+              accepté: (motsClefsCompte || []).includes(idMotClef),
+              rôle: branche.rôle,
+            });
+          },
+        }),
+      f,
+    });
   }
 
   async confirmerPermission({

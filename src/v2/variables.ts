@@ -9,9 +9,15 @@ import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { ajouterProtocoleOrbite } from "./utils.js";
 import { RechercheVariables } from "./recherche/variables.js";
+import type { AccèsUtilisateur, Rôle } from "./crabe/services/compte/accès/index.js";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
-import type { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
+import type {
+  InfoAuteur,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "./types.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
 import type {
   BaseÉpingleFavoris,
@@ -323,6 +329,66 @@ export class Variables<
   }
 
   // Accèss
+
+  async inviterAuteur({
+    idVariable,
+    idCompte,
+    rôle,
+  }: {
+    idVariable: string;
+    idCompte: string;
+    rôle: Rôle;
+  }): Promise<void> {
+    const compte = this.service("compte");
+
+    return await compte.donnerAccèsObjet({
+      idObjet: idVariable,
+      identité: idCompte,
+      rôle,
+    });
+  }
+
+  async suivreAuteurs({
+    idVariable,
+    f,
+  }: {
+    idVariable: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
+      }) =>
+        await compte.suivreAutorisations({
+          idObjet: idVariable,
+          f: fSuivreRacine,
+        }),
+      fBranche: async ({
+        id: idCompte,
+        fSuivreBranche,
+        branche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<InfoAuteur>;
+        branche: AccèsUtilisateur;
+      }) =>
+        await this.suivreVariables({
+          idCompte,
+          f: async (variablesCompte) => {
+            return await fSuivreBranche({
+              idCompte,
+              accepté: (variablesCompte || []).includes(idVariable),
+              rôle: branche.rôle,
+            });
+          },
+        }),
+      f,
+    });
+  }
 
   async confirmerPermission({
     idVariable,

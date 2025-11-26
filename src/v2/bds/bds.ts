@@ -29,7 +29,10 @@ import {
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { TableauxBds } from "./tableaux.js";
-import type { Rôle, AccèsUtilisateur } from "../crabe/services/compte/accès/types.js";
+import type {
+  Rôle,
+  AccèsUtilisateur,
+} from "../crabe/services/compte/accès/types.js";
 import type xlsx from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
@@ -588,13 +591,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     });
   }
 
-
   // Accès
 
   async inviterAuteur({
     idBd,
     idCompte,
-    rôle
+    rôle,
   }: {
     idBd: string;
     idCompte: string;
@@ -605,33 +607,50 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     return await compte.donnerAccèsObjet({
       idObjet: idBd,
       identité: idCompte,
-      rôle
-    })
+      rôle,
+    });
   }
 
-  async suivreAuteurs({ 
+  async suivreAuteurs({
     idBd,
-    f
-  }:{
+    f,
+  }: {
     idBd: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
     const compte = this.service("compte");
 
     return await suivreDeFonctionListe({
-      fListe: async ({fSuivreRacine}:  {fSuivreRacine: Suivi<AccèsUtilisateur[]>})=> await compte.suivreAutorisations({
-        idObjet: idBd,
-        f: fSuivreRacine
-      }),
-      fBranche: async ({ id: idCompte, fSuivreBranche, branche }: { id: string, fSuivreBranche: Suivi<InfoAuteur>, branche: AccèsUtilisateur}) => await this.suivreBds({ idCompte, f: async (bdsCompte) => {
-        return await fSuivreBranche({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
+      }) =>
+        await compte.suivreAutorisations({
+          idObjet: idBd,
+          f: fSuivreRacine,
+        }),
+      fBranche: async ({
+        id: idCompte,
+        fSuivreBranche,
+        branche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<InfoAuteur>;
+        branche: AccèsUtilisateur;
+      }) =>
+        await this.suivreBds({
           idCompte,
-          accepté: (bdsCompte || []).includes(idBd),
-          rôle: branche.rôle
-        })
-      } }),
-      f
-    })
+          f: async (bdsCompte) => {
+            return await fSuivreBranche({
+              idCompte,
+              accepté: (bdsCompte || []).includes(idBd),
+              rôle: branche.rôle,
+            });
+          },
+        }),
+      f,
+    });
   }
 
   async confirmerPermission({ idBd }: { idBd: string }): Promise<void> {
@@ -1536,7 +1555,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     clefUnique: string;
     f: Suivi<string>;
   }): Promise<Oublier> {
-    throw new Error("à vérifier")
+    throw new Error("à vérifier");
     const stockage = this.service("stockage");
     if (!schéma.clefUnique)
       throw new Error("Le schéma doit contenir la propriété `clefUnique`.");

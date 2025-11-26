@@ -1,5 +1,8 @@
 import { expect } from "aegir/chai";
-import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
+import {
+  MEMBRE,
+  MODÉRATRICE,
+} from "@/v2/crabe/services/compte/accès/consts.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
 import type { InfoAuteur, StatutDonnées, TraducsTexte } from "@/v2/types.js";
@@ -22,7 +25,7 @@ describe.only("Variables", function () {
       n: 2,
     }));
     constl = constls[0];
-    idsComptes = await Promise.all(constls.map(c=>c.compte.obtIdCompte()))
+    idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
   });
 
   after(async () => {
@@ -692,58 +695,80 @@ describe.only("Variables", function () {
   });
 
   describe("auteurs", function () {
-
     let idVariable: string;
 
     before(async () => {
-      idVariable = await constl.variables.créerVariable({ catégorie: "géojson" })
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "géojson",
+      });
     });
 
     it("compte créateur autorisé pour commencer", async () => {
-      const auteurs = await obtenir<InfoAuteur[]>(({siPasVide})=>constl.variables.suivreAuteurs({
-        idVariable, f: siPasVide()
-      }));
-      const réf: InfoAuteur[] = [{
-        idCompte: idsComptes[0],
-        accepté: true,
-        rôle: MODÉRATRICE
-      }]
-      expect(auteurs).to.deep.equal(réf)
+      const auteurs = await obtenir<InfoAuteur[]>(({ siPasVide }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: siPasVide(),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
     });
 
     it("inviter compte", async () => {
-      await constl.variables.inviterAuteur({ idVariable, idCompte: idsComptes[1], rôle: MEMBRE })
-      const auteurs = await obtenir<InfoAuteur[]>(({si})=>constl.variables.suivreAuteurs({
-        idVariable, f: si(x=>!!x && x.length > 1)
-      }));
-      const réf: InfoAuteur[] = [{
-        idCompte: idsComptes[0],
-        accepté: true,
-        rôle: MODÉRATRICE
-      }, {
+      await constl.variables.inviterAuteur({
+        idVariable,
         idCompte: idsComptes[1],
-        accepté: false,
-        rôle: MEMBRE
-      }]
-      expect(auteurs).to.deep.equal(réf)
+        rôle: MEMBRE,
+      });
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: si((x) => !!x && x.length > 1),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: false,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
     });
 
     it("acceptation invitation", async () => {
       await constls[1].variables.ajouterÀMesVariables({ idVariable });
 
-      const auteurs = await obtenir<InfoAuteur[]>(({si})=>constl.variables.suivreAuteurs({
-        idVariable, f: si(x=>!!x?.find(a=>a.idCompte === idsComptes[1])?.accepté)
-      }));
-      const réf: InfoAuteur[] = [{
-        idCompte: idsComptes[0],
-        accepté: true,
-        rôle: MODÉRATRICE
-      }, {
-        idCompte: idsComptes[1],
-        accepté: true,
-        rôle: MEMBRE
-      }]
-      expect(auteurs).to.deep.equal(réf)
-    })
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: si((x) => !!x?.find((a) => a.idCompte === idsComptes[1])?.accepté),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
   });
 });

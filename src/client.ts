@@ -2111,41 +2111,6 @@ export class Constellation<
   }
 
   @cacheSuivi
-  async suivreAccèsBd({
-    id,
-    f,
-  }: {
-    id: string;
-    f: schémaFonctionSuivi<infoAccès[]>;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: Store) => {
-      const accès = bd.access;
-      const typeAccès = (accès as AccessController).type;
-      if (typeAccès === "ipfs") {
-        const listeAccès: infoAccès[] = (
-          accès as IPFSAccessController
-        ).write.map((id) => {
-          return {
-            idCompte: id,
-            rôle: MODÉRATEUR,
-          };
-        });
-        await f(listeAccès);
-      } else if (typeAccès === nomTypeContrôleurConstellation) {
-        const fOublierAutorisés = await (
-          accès as ContrôleurConstellation
-        ).suivreUtilisateursAutorisés(f);
-        return fOublierAutorisés;
-      }
-      return faisRien;
-    };
-    return await this.suivreBd({
-      id,
-      f: fFinale,
-    });
-  }
-
-  @cacheSuivi
   async suivreBdsRécursives({
     idBd,
     f,

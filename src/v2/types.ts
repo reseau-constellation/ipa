@@ -1,3 +1,4 @@
+import type { Rôle } from "./crabe/services/compte/accès/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 
 export type TraducsTexte = { [langue: string]: string };
@@ -22,3 +23,9 @@ export type StatutDonnées =
     };
 
 export type Métadonnées = { [clef: string]: DagCborEncodable };
+
+export type InfoAuteur = {
+  idCompte: string;
+  accepté: boolean;
+  rôle: Rôle;
+};

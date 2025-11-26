@@ -430,14 +430,17 @@ describe.only("Service Compte", function () {
     });
 
     it("suivre autorisations objet", async () => {
-      const autorisations = await obtenir<{idCompte: string, rôle: Rôle}[]>(({ siDéfini }) =>
-        comptes[0].suivreAutorisations({ idObjet, f: siDéfini() }),
+      const autorisations = await obtenir<{ idCompte: string; rôle: Rôle }[]>(
+        ({ siDéfini }) =>
+          comptes[0].suivreAutorisations({ idObjet, f: siDéfini() }),
       );
 
-      const réf = [{
-        idCompte: idsComptes[0],
-        rôle: MODÉRATRICE
-      }]
+      const réf = [
+        {
+          idCompte: idsComptes[0],
+          rôle: MODÉRATRICE,
+        },
+      ];
       expect(autorisations).to.deep.equal(réf);
     });
 

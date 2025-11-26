@@ -362,13 +362,6 @@ export class ServiceCompte<
     f: Suivi<Rôle | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    const { bd, oublier: oublierBd } = await this.service("orbite").ouvrirBd({
-      id: idObjet,
-    });
-    const accès = bd.access;
-    if (!estContrôleurNébuleuse(accès))
-      throw new Error(`Type d'accès ${bd.access} non reconnu.`);
-
     let monCompte: string | undefined = undefined;
     let utilisateurs: AccèsUtilisateur[] | undefined = undefined;
 
@@ -378,12 +371,13 @@ export class ServiceCompte<
       );
     };
 
-    const oublierAccès = await accès.suivreUtilisateursAutorisés(
-      async (utilis: AccèsUtilisateur[]) => {
+    const oublierAutorisations = await this.suivreAutorisations({
+      idObjet,
+      f: async (utilis: AccèsUtilisateur[]) => {
         utilisateurs = utilis;
         await fFinale();
       },
-    );
+    });
 
     const oublierIdCompte = await this.suivreIdCompte({
       f: async (id) => {
@@ -393,7 +387,28 @@ export class ServiceCompte<
     });
 
     return async () => {
-      await Promise.all([oublierAccès(), oublierIdCompte(), oublierBd()]);
+      await Promise.all([oublierAutorisations(), oublierIdCompte()]);
+    };
+  }
+
+  async suivreAutorisations({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: Suivi<AccèsUtilisateur[]>;
+  }): Promise<Oublier> {
+    const { bd, oublier: oublierBd } = await this.service("orbite").ouvrirBd({
+      id: idObjet,
+    });
+    const accès = bd.access;
+    if (!estContrôleurNébuleuse(accès))
+      throw new Error(`Type d'accès ${bd.access} non reconnu.`);
+
+    const oublierAccès = await accès.suivreUtilisateursAutorisés(f);
+
+    return async () => {
+      await Promise.all([oublierAccès(), oublierBd()]);
     };
   }
 

@@ -12,15 +12,7 @@ export type Jsonifiable =
       [key: string]: Jsonifiable;
     };
 
-export interface infoAuteur {
-  idCompte: string;
-  accepté: boolean;
-  rôle: keyof objRôles;
-}
-
 export type schémaRetourFonctionRechercheParProfondeur = {
   fOublier: Oublier;
   fChangerProfondeur: (p: number) => Promise<void>;
 };
-
-export type PasNondéfini<T = unknown> = T extends undefined ? never : T;
