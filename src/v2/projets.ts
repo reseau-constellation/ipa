@@ -1,10 +1,14 @@
 import { suivreDeFonctionListe } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
+import { typedNested } from "@constl/bohr-db";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { cacheSuivi } from "./crabe/cache.js";
-import { ajouterProtocoleOrbite } from "./utils.js";
+import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
+import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
+import type { BaseÉpingleFavoris} from "./favoris.js";
+import type { TypedNested} from "@constl/bohr-db";
 import type {
   Rôle,
   AccèsUtilisateur,
@@ -19,6 +23,15 @@ import type {
   TraducsTexte,
 } from "./types.js";
 import type { Suivi, Oublier } from "./crabe/types.js";
+import type { ÉpingleBd } from "./bds/bds.js";
+
+// Types épingles
+
+export type ÉpingleProjet = BaseÉpingleFavoris & {
+  type: "projet";
+  bds: ÉpingleBd;
+};
+
 
 // Types structure
 
@@ -136,6 +149,69 @@ export class Projets<
     });
   }
 
+  async créerProjet({ épingler }: { épingler: true }): Promise<string> {
+    const compte = this.service("compte");
+
+    const { bd, oublier: oublierBd } = await compte.créerObjet({
+      type: "nested",
+    });
+    const idProjet = bd.address;
+    await oublierBd();
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+
+    await this.ajouterÀMesProjets({ idProjet });
+
+    if (épingler) await this.épingler({ idProjet });
+
+    await projet.put({
+      type: "projet",
+      statut: { statut: "active" },
+    });
+
+    await oublier();
+
+    return idProjet;
+  }
+
+  async effacerProjet({ idProjet }: { idProjet: string }): Promise<void> {
+    const orbite = this.service("orbite");
+
+    // D'abord effacer l'entrée dans notre liste de Projets
+    await this.enleverDeMesProjets({ idProjet });
+
+    // On court-circuite `this.service("favoris")`
+    const favoris = this.nébuleuse.services["favoris"];
+    await favoris.désépinglerFavori({ idObjet: idProjet });
+
+    // enfin, effacer le Projet lui-même
+    await orbite.effacerBd({ id: idProjet });
+  }
+
+  async ajouterÀMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
+    const bd = await this.bd();
+    await bd.put(extraireEmpreinte(idProjet), null);
+  }
+
+  async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
+    const bd = await this.bd();
+    await bd.del(extraireEmpreinte(idProjet));
+  }
+
+  async ouvrirProjet({
+    idProjet,
+  }: {
+    idProjet: string;
+  }): Promise<{ projet: TypedNested<StructureProjet>; oublier: Oublier }> {
+    const { bd, oublier } = await this.service("orbite").ouvrirBd({
+      id: idProjet,
+      type: "nested",
+    });
+    return {
+      projet: typedNested<StructureProjet>({ db: bd, schema: schémaProjet }),
+      oublier,
+    };
+  }
+
   // Accès
 
   async inviterAuteur({
@@ -206,6 +282,34 @@ export class Projets<
         `Permission de modification refusée pour le projet ${idProjet}.`,
       );
   }
+
+  // Épingles
+
+  async épingler({
+    idProjet,
+    options = {},
+  }: {
+    idProjet: string;
+    options?: PartielRécursif<ÉpingleProjet>;
+  }) {
+    // On court-circuite `this.service("favoris")`
+    const favoris = this.nébuleuse.services["favoris"];
+
+    const épingle: ÉpingleProjet = résoudreDéfauts(options, {
+      type: "projet",
+      base: TOUS_DISPOSITIFS,
+      bds: {
+        type: "bd",
+        base: TOUS_DISPOSITIFS,
+        données: {
+          tableaux: TOUS_DISPOSITIFS,
+          fichiers: DISPOSITIFS_INSTALLÉS,
+        },
+      },
+    });
+    await favoris.épinglerFavori({ idObjet: idProjet, épingle });
+  }
+
 
   // Noms
 
