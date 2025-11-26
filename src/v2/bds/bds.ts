@@ -28,6 +28,7 @@ import {
   extraireEmpreinte,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
+import { RechercheBds } from "../recherche/bds.js";
 import { TableauxBds } from "./tableaux.js";
 import type {
   Rôle,
@@ -227,6 +228,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   ServicesConstellation<L>
 > {
   tableaux: TableauxBds<L>;
+  recherche: RechercheBds<L>;
 
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
@@ -238,6 +240,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       },
     });
     this.tableaux = new TableauxBds({
+      service: (clef) => this.service(clef),
+    });
+    this.recherche = new RechercheBds({
+      bds: this,
       service: (clef) => this.service(clef),
     });
   }
