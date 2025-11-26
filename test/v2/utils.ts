@@ -99,6 +99,7 @@ export const obtenir = async <T>(
       f: (x: T | undefined) => boolean | Promise<boolean>,
     ) => (x: T | undefined) => void;
     siDéfini: () => (x: T | undefined) => void;
+    siNonDéfini: () => (x: T | undefined) => void;
     siVide: () => (x: T) => void;
     siNul: () => (x: T) => void;
     siPasVide: () => (x: T | undefined) => void;
@@ -117,9 +118,15 @@ export const obtenir = async <T>(
       }
     };
   };
+
   const siDéfini = (): ((x: T | undefined) => void) => {
     return si((x: T | undefined): x is T => x !== undefined);
   };
+
+  const siNonDéfini = (): ((x: T | undefined) => void) => {
+    return si((x: T | undefined) => x === undefined);
+  };
+
   const siVide = (): ((x: T) => void) => {
     return si((x) => {
       if (Array.isArray(x)) return x.length === 0;
@@ -152,6 +159,7 @@ export const obtenir = async <T>(
   const fOublier = await f({
     si,
     siDéfini,
+    siNonDéfini,
     siVide,
     siNul,
     siPasVide,
@@ -165,8 +173,10 @@ export const obtenir = async <T>(
 
 export const créerConstellationsTest = async ({
   n,
+  avecMandataire = true,
 }: {
   n: number;
+  avecMandataire?: boolean;
 }): Promise<{
   constls: Constellation[];
   fermer: Oublier;
@@ -176,14 +186,17 @@ export const créerConstellationsTest = async ({
   const constls: Constellation[] = [];
 
   for (const i in [...Array(n).entries()]) {
-    const constl = créerConstellation({
-      dossier: path.join(dossier, i),
-      services: {
-        libp2p: {
-          libp2p: obtenirOptionsLibp2pTest(),
+    const constl = créerConstellation(
+      {
+        dossier: path.join(dossier, i),
+        services: {
+          libp2p: {
+            libp2p: obtenirOptionsLibp2pTest(),
+          },
         },
       },
-    });
+      avecMandataire,
+    );
     constls.push(constl);
   }
 
