@@ -29,9 +29,11 @@ import {
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { TableauxBds } from "./tableaux.js";
+import type { Rôle, AccèsUtilisateur } from "../crabe/services/compte/accès/types.js";
 import type xlsx from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
+  InfoAuteur,
   Métadonnées,
   PartielRécursif,
   StatutDonnées,
@@ -338,15 +340,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await bd.del(extraireEmpreinte(idBd));
   }
 
-  async confirmerPermission({ idBd }: { idBd: string }): Promise<void> {
-    const compte = this.service("compte");
-
-    if (!(await compte.permission({ idObjet: idBd })))
-      throw new Error(
-        `Permission de modification refusée pour la base de données ${idBd}.`,
-      );
-  }
-
   async créerSchémaDeBd({ idBd }: { idBd: string }): Promise<SchémaBd> {
     const licence = await uneFois<string>((f) =>
       this.suivreLicence({ idBd, f }),
@@ -593,6 +586,61 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       schéma: schémaBd,
       f: (bd) => f(mapÀObjet(bd)?.copiéeDe),
     });
+  }
+
+
+  // Accès
+
+  async inviterAuteur({
+    idBd,
+    idCompte,
+    rôle
+  }: {
+    idBd: string;
+    idCompte: string;
+    rôle: Rôle;
+  }): Promise<void> {
+    const compte = this.service("compte");
+
+    return await compte.donnerAccèsObjet({
+      idObjet: idBd,
+      identité: idCompte,
+      rôle
+    })
+  }
+
+  async suivreAuteurs({ 
+    idBd,
+    f
+  }:{
+    idBd: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({fSuivreRacine}:  {fSuivreRacine: Suivi<AccèsUtilisateur[]>})=> await compte.suivreAutorisations({
+        idObjet: idBd,
+        f: fSuivreRacine
+      }),
+      fBranche: async ({ id: idCompte, fSuivreBranche, branche }: { id: string, fSuivreBranche: Suivi<InfoAuteur>, branche: AccèsUtilisateur}) => await this.suivreBds({ idCompte, f: async (bdsCompte) => {
+        return await fSuivreBranche({
+          idCompte,
+          accepté: (bdsCompte || []).includes(idBd),
+          rôle: branche.rôle
+        })
+      } }),
+      f
+    })
+  }
+
+  async confirmerPermission({ idBd }: { idBd: string }): Promise<void> {
+    const compte = this.service("compte");
+
+    if (!(await compte.permission({ idObjet: idBd })))
+      throw new Error(
+        `Permission de modification refusée pour la base de données ${idBd}.`,
+      );
   }
 
   // Épingles
@@ -1488,6 +1536,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     clefUnique: string;
     f: Suivi<string>;
   }): Promise<Oublier> {
+    throw new Error("à vérifier")
     const stockage = this.service("stockage");
     if (!schéma.clefUnique)
       throw new Error("Le schéma doit contenir la propriété `clefUnique`.");

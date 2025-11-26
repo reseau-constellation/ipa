@@ -1,7 +1,8 @@
 import { expect } from "aegir/chai";
+import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
-import type { StatutDonnées, TraducsTexte } from "@/v2/types.js";
+import type { InfoAuteur, StatutDonnées, TraducsTexte } from "@/v2/types.js";
 import type { CatégorieVariables as CatégorieVariable } from "@/v2/variables.js";
 import type {
   RègleBornes,
@@ -14,11 +15,14 @@ describe.only("Variables", function () {
   let constls: Constellation[];
   let constl: Constellation;
 
+  let idsComptes: string[];
+
   before("préparer constls", async () => {
     ({ fermer, constls } = await créerConstellationsTest({
-      n: 1,
+      n: 2,
     }));
     constl = constls[0];
+    idsComptes = await Promise.all(constls.map(c=>c.compte.obtIdCompte()))
   });
 
   after(async () => {
@@ -685,5 +689,61 @@ describe.only("Variables", function () {
       );
       expect(val).to.equal("mm");
     });
+  });
+
+  describe("auteurs", function () {
+
+    let idVariable: string;
+
+    before(async () => {
+      idVariable = await constl.variables.créerVariable({ catégorie: "géojson" })
+    });
+
+    it("compte créateur autorisé pour commencer", async () => {
+      const auteurs = await obtenir<InfoAuteur[]>(({siPasVide})=>constl.variables.suivreAuteurs({
+        idVariable, f: siPasVide()
+      }));
+      const réf: InfoAuteur[] = [{
+        idCompte: idsComptes[0],
+        accepté: true,
+        rôle: MODÉRATRICE
+      }]
+      expect(auteurs).to.deep.equal(réf)
+    });
+
+    it("inviter compte", async () => {
+      await constl.variables.inviterAuteur({ idVariable, idCompte: idsComptes[1], rôle: MEMBRE })
+      const auteurs = await obtenir<InfoAuteur[]>(({si})=>constl.variables.suivreAuteurs({
+        idVariable, f: si(x=>!!x && x.length > 1)
+      }));
+      const réf: InfoAuteur[] = [{
+        idCompte: idsComptes[0],
+        accepté: true,
+        rôle: MODÉRATRICE
+      }, {
+        idCompte: idsComptes[1],
+        accepté: false,
+        rôle: MEMBRE
+      }]
+      expect(auteurs).to.deep.equal(réf)
+    });
+
+    it("acceptation invitation", async () => {
+      await constls[1].variables.ajouterÀMesVariables({ idVariable });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({si})=>constl.variables.suivreAuteurs({
+        idVariable, f: si(x=>!!x?.find(a=>a.idCompte === idsComptes[1])?.accepté)
+      }));
+      const réf: InfoAuteur[] = [{
+        idCompte: idsComptes[0],
+        accepté: true,
+        rôle: MODÉRATRICE
+      }, {
+        idCompte: idsComptes[1],
+        accepté: true,
+        rôle: MEMBRE
+      }]
+      expect(auteurs).to.deep.equal(réf)
+    })
   });
 });

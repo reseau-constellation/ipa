@@ -2,19 +2,23 @@ import { expect } from "aegir/chai";
 import { TOUS_DISPOSITIFS } from "@/v2/favoris.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
-import type { PartielRécursif, TraducsTexte } from "@/v2/types.js";
+import type { InfoAuteur, PartielRécursif, TraducsTexte } from "@/v2/types.js";
 import type { ÉpingleMotClef } from "@/v2/motsClefs.js";
+import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 
 describe.only("Mots-clefs", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
 
+  let idsComptes: string[];
+
   before("préparer constls", async () => {
     ({ fermer, constls } = await créerConstellationsTest({
-      n: 1,
+      n: 2,
     }));
     constl = constls[0];
+    idsComptes = await Promise.all(constls.map(c=>c.compte.obtIdCompte()))
   });
 
   after(async () => {
@@ -388,5 +392,61 @@ describe.only("Mots-clefs", function () {
       );
       expect([...résolution]).to.have.members(["n'importe"]);
     });
+  });
+
+  describe("auteurs", function () {
+
+    let idMotClef: string;
+
+    before(async () => {
+      idMotClef = await constl.motsClefs.créerMotClef()
+    });
+
+    it("compte créateur autorisé pour commencer", async () => {
+      const auteurs = await obtenir<InfoAuteur[]>(({siPasVide})=>constl.motsClefs.suivreAuteurs({
+        idMotClef, f: siPasVide()
+      }));
+      const réf: InfoAuteur[] = [{
+        idCompte: idsComptes[0],
+        accepté: true,
+        rôle: MODÉRATRICE
+      }]
+      expect(auteurs).to.deep.equal(réf)
+    });
+
+    it("inviter compte", async () => {
+      await constl.motsClefs.inviterAuteur({ idMotClef, idCompte: idsComptes[1], rôle: MEMBRE })
+      const auteurs = await obtenir<InfoAuteur[]>(({si})=>constl.motsClefs.suivreAuteurs({
+        idMotClef, f: si(x=>!!x && x.length > 1)
+      }));
+      const réf: InfoAuteur[] = [{
+        idCompte: idsComptes[0],
+        accepté: true,
+        rôle: MODÉRATRICE
+      }, {
+        idCompte: idsComptes[1],
+        accepté: false,
+        rôle: MEMBRE
+      }]
+      expect(auteurs).to.deep.equal(réf)
+    });
+
+    it("acceptation invitation", async () => {
+      await constls[1].motsClefs.ajouterÀMesMotsClefs({ idMotClef });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({si})=>constl.motsClefs.suivreAuteurs({
+        idMotClef, f: si(x=>!!x?.find(a=>a.idCompte === idsComptes[1])?.accepté)
+      }));
+      const réf: InfoAuteur[] = [{
+        idCompte: idsComptes[0],
+        accepté: true,
+        rôle: MODÉRATRICE
+      }, {
+        idCompte: idsComptes[1],
+        accepté: true,
+        rôle: MEMBRE
+      }]
+      expect(auteurs).to.deep.equal(réf)
+    })
   });
 });

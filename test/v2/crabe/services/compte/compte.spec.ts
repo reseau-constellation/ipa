@@ -19,6 +19,7 @@ import { mapÀObjet } from "@/v2/crabe/utils.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
 import { créerCrabesTest } from "../../utils.js";
+import type { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
 import type { CrabeTest } from "../../utils.js";
 import type { StructureRéseau } from "@/v2/crabe/services/réseau.js";
 import type { StructureProfil } from "@/v2/crabe/services/profil.js";
@@ -426,6 +427,18 @@ describe.only("Service Compte", function () {
         comptes[0].suivrePermission({ idObjet, f: siDéfini() }),
       );
       expect(permission).to.equal(MODÉRATRICE);
+    });
+
+    it("suivre autorisations objet", async () => {
+      const autorisations = await obtenir<{idCompte: string, rôle: Rôle}[]>(({ siDéfini }) =>
+        comptes[0].suivreAutorisations({ idObjet, f: siDéfini() }),
+      );
+
+      const réf = [{
+        idCompte: idsComptes[0],
+        rôle: MODÉRATRICE
+      }]
+      expect(autorisations).to.deep.equal(réf);
     });
 
     it("le nouveau dispositif peut modifier les objets crées par le compte", async () => {
