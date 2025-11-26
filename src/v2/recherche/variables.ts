@@ -1,5 +1,5 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
-import { cacheRechercheParN } from "../crabe/cache.js";
+import { cacheRechercheParN, cacheSuivi } from "../crabe/cache.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
 import {
@@ -142,6 +142,7 @@ export class RechercheVariables<
 
   // Méthodes internes
 
+  @cacheSuivi
   async suivreAuteursObjet({
     idObjet,
     f,

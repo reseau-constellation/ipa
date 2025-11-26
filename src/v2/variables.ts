@@ -9,7 +9,10 @@ import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { ajouterProtocoleOrbite } from "./utils.js";
 import { RechercheVariables } from "./recherche/variables.js";
-import type { AccèsUtilisateur, Rôle } from "./crabe/services/compte/accès/index.js";
+import type {
+  AccèsUtilisateur,
+  Rôle,
+} from "./crabe/services/compte/accès/index.js";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {

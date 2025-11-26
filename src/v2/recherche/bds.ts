@@ -1,4 +1,5 @@
-import { cacheRechercheParN } from "../crabe/cache.js";
+import { ignorerNonDéfinis } from "@constl/utils-ipa";
+import { cacheRechercheParN, cacheSuivi } from "../crabe/cache.js";
 import {
   rechercherBdsSelonDescription,
   rechercherBdsSelonIdMotClef,
@@ -15,7 +16,7 @@ import { Recherche } from "./recherche.js";
 import type { Bds } from "../bds/bds.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import type { Suivi } from "../crabe/types.js";
+import type { Oublier, Suivi } from "../crabe/types.js";
 import type { Constellation } from "../index.js";
 import type {
   RésultatRecherche,
@@ -26,6 +27,7 @@ import type {
   InfoRésultat,
   SuivreObjectifRecherche,
 } from "./types.js";
+import type { InfoAuteur } from "../types.js";
 
 export class RechercheBds<L extends ServicesLibp2pCrabe> extends Recherche<L> {
   bds: Bds<L>;
@@ -271,6 +273,17 @@ export class RechercheBds<L extends ServicesLibp2pCrabe> extends Recherche<L> {
 
   // Méthodes internes
 
+  @cacheSuivi
+  async suivreAuteursObjet({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    return await this.bds.suivreAuteurs({ idBd: idObjet, f });
+  }
+
   @cacheRechercheParN
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
@@ -287,7 +300,7 @@ export class RechercheBds<L extends ServicesLibp2pCrabe> extends Recherche<L> {
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.bds.suivreBds({ f, idCompte }),
+        await this.bds.suivreBds({ f: ignorerNonDéfinis(f), idCompte }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
         await this.bds.suivreScoreQualité({
           idBd: idObjet,

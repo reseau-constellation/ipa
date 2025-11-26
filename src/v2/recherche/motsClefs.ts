@@ -1,4 +1,5 @@
-import { cacheRechercheParN } from "../crabe/cache.js";
+import { ignorerNonDéfinis } from "@constl/utils-ipa";
+import { cacheRechercheParN, cacheSuivi } from "../crabe/cache.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
 import {
@@ -6,10 +7,11 @@ import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
 } from "./fonctions/motsClefs.js";
+import type { InfoAuteur } from "../types.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import type { Suivi } from "../crabe/types.js";
+import type { Oublier, Suivi } from "../crabe/types.js";
 import type { MotsClefs } from "../motsClefs.js";
 import type {
   InfoRésultat,
@@ -140,6 +142,17 @@ export class RechercheMotsClefs<
 
   // Méthodes internes
 
+  @cacheSuivi
+  async suivreAuteursObjet({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    return await this.motsClefs.suivreAuteurs({ idMotClef: idObjet, f });
+  }
+
   @cacheRechercheParN
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
@@ -156,7 +169,10 @@ export class RechercheMotsClefs<
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.motsClefs.suivreMotsClefs({ f, idCompte }),
+        await this.motsClefs.suivreMotsClefs({
+          f: ignorerNonDéfinis(f),
+          idCompte,
+        }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
         await this.motsClefs.suivreScoreQualité({
           idMotClef: idObjet,

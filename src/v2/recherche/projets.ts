@@ -1,4 +1,4 @@
-import { cacheRechercheParN } from "../crabe/cache.js";
+import { cacheRechercheParN, cacheSuivi } from "../crabe/cache.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
 import {
@@ -14,10 +14,11 @@ import {
   rechercherProjetsSelonTexte,
   rechercherProjetsSelonVariable,
 } from "./fonctions/projets.js";
+import type { InfoAuteur } from "../types.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import type { Suivi } from "../crabe/types.js";
+import type { Oublier, Suivi } from "../crabe/types.js";
 import type { Projets } from "../projets.js";
 import type {
   InfoRésultat,
@@ -334,6 +335,17 @@ export class RechercheProjets<
   }
 
   // Méthodes internes
+
+  @cacheSuivi
+  async suivreAuteursObjet({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    return await this.projets.suivreAuteurs({ idProjet: idObjet, f });
+  }
 
   @cacheRechercheParN
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({

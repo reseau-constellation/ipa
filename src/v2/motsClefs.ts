@@ -8,7 +8,10 @@ import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
 import { schémaTraducsTexte } from "./schémas.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
-import type { Rôle, AccèsUtilisateur } from "./crabe/services/compte/accès/types.js";
+import type {
+  Rôle,
+  AccèsUtilisateur,
+} from "./crabe/services/compte/accès/types.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,

@@ -12,12 +12,14 @@ import {
 } from "./favoris.js";
 import { cacheSuivi } from "./crabe/cache.js";
 import { RechercheNuées } from "./recherche/nuées.js";
+import type { Rôle, AccèsUtilisateur } from "./crabe/services/compte/accès/types.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
 import type { StructureTableau } from "./tableaux.js";
 import type {
+  InfoAuteur,
   Métadonnées,
   PartielRécursif,
   StatutDonnées,
@@ -229,15 +231,6 @@ export class Nuées<
     await bd.del(extraireEmpreinte(idNuée));
   }
 
-  async confirmerPermission({ idNuée }: { idNuée: string }): Promise<void> {
-    const compte = this.service("compte");
-
-    if (!(await compte.permission({ idObjet: idNuée })))
-      throw new Error(
-        `Permission de modification refusée pour la nuée ${idNuée}.`,
-      );
-  }
-
   async ouvrirNuée({
     idNuée,
   }: {
@@ -251,6 +244,77 @@ export class Nuées<
       nuée: typedNested<StructureNuée>({ db: bd, schema: schémaNuée }),
       oublier,
     };
+  }
+
+  // Accès
+
+  async inviterAuteur({
+    idNuée,
+    idCompte,
+    rôle,
+  }: {
+    idNuée: string;
+    idCompte: string;
+    rôle: Rôle;
+  }): Promise<void> {
+    const compte = this.service("compte");
+
+    return await compte.donnerAccèsObjet({
+      idObjet: idNuée,
+      identité: idCompte,
+      rôle,
+    });
+  }
+
+  async suivreAuteurs({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
+      }) =>
+        await compte.suivreAutorisations({
+          idObjet: idNuée,
+          f: fSuivreRacine,
+        }),
+      fBranche: async ({
+        id: idCompte,
+        fSuivreBranche,
+        branche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<InfoAuteur>;
+        branche: AccèsUtilisateur;
+      }) =>
+        await this.suivreNuées({
+          idCompte,
+          f: async (nuéesCompte) => {
+            return await fSuivreBranche({
+              idCompte,
+              accepté: (nuéesCompte || []).includes(idNuée),
+              rôle: branche.rôle,
+            });
+          },
+        }),
+      f,
+    });
+  }
+
+  async confirmerPermission({ idNuée }: { idNuée: string }): Promise<void> {
+    const compte = this.service("compte");
+
+    if (!(await compte.permission({ idObjet: idNuée })))
+      throw new Error(
+        `Permission de modification refusée pour la nuée ${idNuée}.`,
+      );
   }
 
   // Épingles

@@ -1,4 +1,9 @@
-import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
+import {
+  ignorerNonDéfinis,
+  suivreDeFonctionListe,
+  suivreFonctionImbriquée,
+} from "@constl/utils-ipa";
+import PQueue from "p-queue";
 import {
   cacheRechercheParN,
   cacheRechercheParProfondeur,
@@ -15,8 +20,9 @@ import type {
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { Constellation } from "../index.js";
+import type { InfoAuteur } from "../types.js";
 
-export class Recherche<L extends ServicesLibp2pCrabe> {
+export abstract class Recherche<L extends ServicesLibp2pCrabe> {
   constl: Constellation;
   service: <T extends keyof ServicesConstellation<L>>(
     service: T,
@@ -34,6 +40,14 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
     this.constl = constl;
     this.service = service;
   }
+
+  abstract suivreAuteursObjet({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier>;
 
   @cacheRechercheParN
   async rechercherObjets<T extends InfoRésultat = InfoRésultat>({
@@ -56,14 +70,18 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
   }): Promise<RetourFonctionRecherche> {
     if (idCompte) {
       const { fOublier, changerN } = await suivreDeFonctionListe({
-        fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: Suivi<string[]>;
+        }) => {
           const fOublier = await fRecherche({
             idCompte,
             f: ignorerNonDéfinis(fSuivreRacine),
-          })
+          });
           // À faire : implémenter fChangerN ?
-          const changerN = async (_n: number) => {}
-          return { fOublier, changerN }
+          const changerN = async (_n: number) => {};
+          return { fOublier, changerN };
         },
         fBranche: async ({
           id,
@@ -86,22 +104,41 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
         f,
       });
 
-      return { oublier: fOublier, n: changerN }
-
+      return { oublier: fOublier, n: changerN };
     } else {
-      const fRechercheAvecFavoris = async ({ idCompte, f }: {
+      const fRechercheAvecFavoris = async ({
+        idCompte,
+        f,
+      }: {
         idCompte: string;
         f: Suivi<string[]>;
       }) => {
-        const résultats: { favoris?: string[]; propres?: string[] } = {}
+        const résultats: { favoris?: string[]; propres?: string[] } = {};
         const fFinale = async () => {
-          return await f([...new Set([...résultats.propres || [], ...résultats.favoris || []])])
-        }
-        const oublierRecherche = await fRecherche({ idCompte, f: async propres => {résultats.propres = propres; await fFinale() } })
-        const oublierFavoris = await this.constl.favoris.suivreFavoris({ idCompte, f: async favoris => {résultats.favoris = favoris?.map(fav=>fav.idObjet); await fFinale() } })
+          return await f([
+            ...new Set([
+              ...(résultats.propres || []),
+              ...(résultats.favoris || []),
+            ]),
+          ]);
+        };
+        const oublierRecherche = await fRecherche({
+          idCompte,
+          f: async (propres) => {
+            résultats.propres = propres;
+            await fFinale();
+          },
+        });
+        const oublierFavoris = await this.constl.favoris.suivreFavoris({
+          idCompte,
+          f: async (favoris) => {
+            résultats.favoris = favoris?.map((fav) => fav.idObjet);
+            await fFinale();
+          },
+        });
         return async () => {
-            await oublierRecherche()
-            await oublierFavoris()
+          await oublierRecherche();
+          await oublierFavoris();
         };
       };
 
@@ -129,14 +166,30 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
     f: Suivi<RésultatRecherche<T>[]>;
     n?: number;
     fRecherche: (args: {
-        idCompte: string;
-        f: Suivi<string[] | undefined>;
-      }) => Promise<Oublier>;
+      idCompte: string;
+      f: Suivi<string[] | undefined>;
+    }) => Promise<Oublier>;
     fObjectif: SuivreObjectifRecherche<T>;
     fConfiance: SuivreConfianceRecherche;
     fQualité: SuivreQualitéRecherche;
   }): Promise<RetourFonctionRecherche> {
+    const réseau = this.service("réseau");
 
+    const queue = new PQueue({ concurrency: 1 });
+
+    const fSuivreCompte = async () => {};
+    const { changerProfondeur, oublier: oublierComptes } =
+      await réseau.suivreComptesRéseauEtEnLigne({
+        f: fSuivreCompte,
+        profondeur,
+      });
+    const changerN = async (nouveauN: number) => {};
+
+    const oublier = async () => {
+      oublierComptes();
+      await queue.onIdle();
+    };
+    return { oublier, n: changerN };
   }
 
   @cacheRechercheParProfondeur
@@ -152,12 +205,11 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
     const fListe = async ({
       fSuivreRacine,
     }: {
-      fSuivreRacine: (auteurs: string[]) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
+      fSuivreRacine: Suivi<string[]>;
+    }): Promise<Oublier> => {
       return await this.suivreAuteursObjet({
-        idObjet: idItem,
-        clef,
-        f: async (auteurs: infoAuteur[]) => {
+        idObjet,
+        f: async (auteurs: InfoAuteur[]) => {
           const idsAuteurs = auteurs
             .filter((a) => a.accepté)
             .map((a) => a.idCompte);
@@ -171,19 +223,22 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
       fSuivreBranche,
     }: {
       id: string;
-      fSuivreBranche: schémaFonctionSuivi<number>;
-    }): Promise<schémaFonctionOublier> => {
-      const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
+      fSuivreBranche: Suivi<number>;
+    }): Promise<Oublier> => {
+      return await suivreFonctionImbriquée({
+        fRacine,
+        f,
+      });
+      this.suivreObjets({ idCompte: idAuteur });
+      return await réseau.suivreConfiance({
         idCompte: idAuteur,
         f: fSuivreBranche,
-        profondeur: 4,
       });
-      return fOublier;
     };
 
     const fFinale = async (confiances: number[]) => {
       const confiance = confiances.reduce((a, b) => a + b, 0);
-      await f(confiance);
+      await f(confiance / (confiances.length || 1));
     };
 
     const fRéduction = (branches: number[]) => branches.flat();

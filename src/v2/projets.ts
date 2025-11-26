@@ -5,10 +5,16 @@ import { cacheSuivi } from "./crabe/cache.js";
 import { ajouterProtocoleOrbite } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
+import type { Rôle, AccèsUtilisateur } from "./crabe/services/compte/accès/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
-import type { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
+import type {
+  InfoAuteur,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "./types.js";
 import type { Suivi, Oublier } from "./crabe/types.js";
 
 // Types structure
@@ -90,7 +96,7 @@ export class Projets<
       },
     });
     this.recherche = new RechercheProjets({
-      nuées: this,
+      projets: this,
       constl: this.nébuleuse,
       service: (clef) => this.service(clef),
     });
@@ -125,6 +131,77 @@ export class Projets<
       },
       f,
     });
+  }
+
+  // Accès
+
+  async inviterAuteur({
+    idProjet,
+    idCompte,
+    rôle,
+  }: {
+    idProjet: string;
+    idCompte: string;
+    rôle: Rôle;
+  }): Promise<void> {
+    const compte = this.service("compte");
+
+    return await compte.donnerAccèsObjet({
+      idObjet: idProjet,
+      identité: idCompte,
+      rôle,
+    });
+  }
+
+  async suivreAuteurs({
+    idProjet,
+    f,
+  }: {
+    idProjet: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
+      }) =>
+        await compte.suivreAutorisations({
+          idObjet: idProjet,
+          f: fSuivreRacine,
+        }),
+      fBranche: async ({
+        id: idCompte,
+        fSuivreBranche,
+        branche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<InfoAuteur>;
+        branche: AccèsUtilisateur;
+      }) =>
+        await this.suivreProjets({
+          idCompte,
+          f: async (projetsCompte) => {
+            return await fSuivreBranche({
+              idCompte,
+              accepté: (projetsCompte || []).includes(idProjet),
+              rôle: branche.rôle,
+            });
+          },
+        }),
+      f,
+    });
+  }
+
+  async confirmerPermission({ idProjet }: { idProjet: string }): Promise<void> {
+    const compte = this.service("compte");
+
+    if (!(await compte.permission({ idObjet: idProjet })))
+      throw new Error(
+        `Permission de modification refusée pour le projet ${idProjet}.`,
+      );
   }
 
   // Noms
