@@ -1,168 +1,262 @@
+import { expect } from "aegir/chai";
+import { rechercherProfilsSelonActivité, rechercherProfilsSelonNom, rechercherProfilsSelonCourriel, rechercherProfilsSelonTexte } from "@/v2/recherche/fonctions/profils.js";
+import { rechercherVariablesSelonTexte } from "@/v2/recherche/fonctions/variables.js";
+import { obtRessourceTest } from "test/ressources/index.js";
+import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { RésultatObjectifRecherche, InfoRésultatVide, InfoRésultatTexte, SuivreObjectifRecherche } from "@/v2/recherche/types.js";
+import type { Oublier } from "@/v2/crabe/types.js";
 import type { Constellation } from "@/v2/index.js";
 
 describe("Rechercher profil", function () {
+  
   describe("selon activité", function () {
-    let fermer: Oublier;
     let constls: Constellation[];
     let constl: Constellation;
-    let idCompte: string;
+    let fermer: Oublier;
 
-    const rés = new utilsTestAttente.AttendreRésultat<
-      RésultatObjectifRecherche<InfoRésultatVide>
-    >();
+    let idCompte: string;
+    let recherche: SuivreObjectifRecherche<InfoRésultatVide>
 
     before(async () => {
-      ({ fermer, constls } = await générerconstlsInternes({
+      ({ fermer, constls } = await créerConstellationsTest({
         n: 1,
+        avecMandataire: false,
       }));
-      constl = constls[0];
-      idCompte = await constl.obtIdCompte();
-      const recherche = rechercherProfilsSelonActivité();
-      fOublier = await recherche(constl, idCompte, async (r) =>
-        rés.mettreÀJour(r),
-      );
+      constl = constls[0] as Constellation;
+
+      idCompte = await constl.compte.obtIdCompte();
+      recherche = rechercherProfilsSelonActivité();
+
     });
 
     after(async () => {
       if (fermer) await fermer();
     });
 
-    it("Score 0 pour commencer", async () => {
-      const val = await rés.attendreExiste();
-      expect(val).to.deep.equal({
+    it("score de 0 pour commencer", async () => {
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatVide>
+      >(({ siDéfini }) =>
+        recherche({
+          constl,
+          idObjet: idCompte,
+          f: siDéfini(),
+        }),
+      );
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
         type: "résultat",
         score: 0,
         de: "activité",
         info: { type: "vide" },
-      });
+      }
+      expect(résultat).to.deep.equal(réf);
     });
 
-    it("On améliore le score en ajoutant notre nom", async () => {
+    it("on améliore le score en ajoutant notre nom", async () => {
+      const pRésultat = obtenir<
+        RésultatObjectifRecherche<InfoRésultatVide>
+      >(({ si }) =>
+        recherche({
+          constl,
+          idObjet: idCompte,
+          f: si(r => !!r && r.score > 0),
+        }),
+      );
+
       await constl.profil.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
-      const val = await rés.attendreQue((x) => !!x && x.score > 0);
-      expect(val.score).to.equal(1 / 3);
+
+      const résultat = await pRésultat;
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        score: 1 / 3,
+        de: "activité",
+        info: { type: "vide" },
+      }
+      expect(résultat).to.deep.equal(réf);
     });
 
-    it("Encore mieux avec un courriel", async () => {
+    it("encore mieux avec une adresse courriel", async () => {
+      const pRésultat = obtenir<
+        RésultatObjectifRecherche<InfoRésultatVide>
+      >(({ si }) =>
+        recherche({
+          constl,
+          idObjet: idCompte,
+          f: si(r => !!r && r.score >  1 / 3),
+        }),
+      );
+
       await constl.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
-      const val = await rés.attendreQue((x) => !!x && x.score > 1 / 3);
-      expect(val.score).to.equal(2 / 3);
+
+      const résultat = await pRésultat;
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        score: 2 / 3,
+        de: "activité",
+        info: { type: "vide" },
+      }
+      expect(résultat).to.deep.equal(réf);
     });
 
-    it("C'est parfait avec un photo !", async () => {
+    it("...et c'est parfait avec un photo !", async () => {
+      const pRésultat = obtenir<
+        RésultatObjectifRecherche<InfoRésultatVide>
+      >(({ si }) =>
+        recherche({
+          constl,
+          idObjet: idCompte,
+          f: si(r => !!r && r.score >  2 / 3),
+        }),
+      );
+      
       const IMAGE = await obtRessourceTest({
         nomFichier: "logo.png",
       });
-
       await constl.profil.sauvegarderImage({
         image: { contenu: IMAGE, nomFichier: "logo.png" },
       });
-      const val = await rés.attendreQue(
-        (x: RésultatObjectifRecherche<InfoRésultatVide> | undefined) =>
-          x?.score === 1,
-      );
 
-      expect(val.score).to.equal(1);
+      const résultat = await pRésultat;
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        score: 1,
+        de: "activité",
+        info: { type: "vide" },
+      }
+      expect(résultat).to.deep.equal(réf);
     });
   });
 
-  describe("Selon nom", function () {
-    let fermer: Oublier;
+  describe("selon nom", function () {
     let constls: Constellation[];
     let constl: Constellation;
-    let idCompte: string;
+    let fermer: Oublier;
 
-    const rés = new utilsTestAttente.AttendreRésultat<
-      RésultatObjectifRecherche<InfoRésultatTexte>
-    >();
+    let idCompte: string;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>
 
     before(async () => {
-      ({ fermer, constls } = await générerconstlsInternes({
+      ({ fermer, constls } = await créerConstellationsTest({
         n: 1,
+        avecMandataire: false,
       }));
-      constl = constls[0];
-      idCompte = await constl.obtIdCompte();
-      const recherche = rechercherProfilsSelonNom("Julien");
-      fOublier = await recherche(constl, idCompte, async (r) =>
-        rés.mettreÀJour(r),
-      );
+      constl = constls[0] as Constellation;
+
+      idCompte = await constl.compte.obtIdCompte();
+      recherche = rechercherProfilsSelonNom("Julien");
     });
 
     after(async () => {
       if (fermer) await fermer();
     });
 
-    it("Rien pour commencer", async () => {
-      expect(rés.val).to.be.undefined();
+    it("rien pour commencer", async () => {
+      const résultat = await obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
+        ({ siNonDéfini }) =>
+          recherche({
+            constl,
+            idObjet: idCompte,
+            f: siNonDéfini(),
+          }),
+      );
+      expect(résultat).to.be.undefined();
     });
 
-    it("Ajout nom détecté", async () => {
-      await constl.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
-      await rés.attendreQue((x) => !!x && x.score > 0);
+    it("ajout nom détecté", async () => {
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
+        ({ siDéfini }) =>
+          recherche({ constl, idObjet: idCompte, f: siDéfini() }),
+      );
 
-      expect(rés.val).to.deep.equal({
+      await constl.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
+      
+      const résultat = await pRésultat;
+
+      const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
         clef: "cst",
         score: 0.5,
         de: "nom",
         info: { type: "texte", texte: "Julián", début: 0, fin: 6 },
-      });
+      }
+      expect(résultat).to.deep.equal(réf);
     });
 
-    it("Meilleur nom détecté", async () => {
-      await constl.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
-      await rés.attendreQue((x) => !!x && x.score > 0.5);
+    it("meilleur nom détecté", async () => {
 
-      expect(rés.val).to.deep.equal({
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
+        ({ si }) =>
+          recherche({ constl, idObjet: idCompte, f: si(r => !!r && r.score > 0.5) }),
+      );
+      await constl.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
+      
+      const résultat = await pRésultat;
+
+      const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
         clef: "fr",
         score: 1,
         de: "nom",
         info: { type: "texte", texte: "Julien", début: 0, fin: 6 },
-      });
+      }
+      expect(résultat).to.deep.equal(réf);
     });
   });
 
-  describe("Selon courriel", function () {
-    let fermer: Oublier;
+  describe("selon courriel", function () {
     let constls: Constellation[];
     let constl: Constellation;
-    let idCompte: string;
+    let fermer: Oublier;
 
-    const rés = new utilsTestAttente.AttendreRésultat<
-      RésultatObjectifRecherche<InfoRésultatTexte>
-    >();
+    let idCompte: string;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>
 
     before(async () => {
-      ({ fermer, constls } = await générerconstlsInternes({
+      ({ fermer, constls } = await créerConstellationsTest({
         n: 1,
+        avecMandataire: false,
       }));
-      constl = constls[0];
-      idCompte = await constl.obtIdCompte();
-      const recherche = rechercherProfilsSelonCourriel("julien");
-      fOublier = await recherche(constl, idCompte, async (r) =>
-        rés.mettreÀJour(r),
-      );
+      constl = constls[0] as Constellation;
+
+      idCompte = await constl.compte.obtIdCompte();
+      recherche = rechercherProfilsSelonCourriel("julien");
     });
 
     after(async () => {
       if (fermer) await fermer();
     });
-
-    it("Rien pour commencer", async () => {
-      expect(rés.val).to.be.undefined();
+    
+    it("rien pour commencer", async () => {
+      const résultat = await obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
+        ({ siNonDéfini }) =>
+          recherche({
+            constl,
+            idObjet: idCompte,
+            f: siNonDéfini(),
+          }),
+      );
+      expect(résultat).to.be.undefined();
     });
 
-    it("Ajout courriel détecté", async () => {
+    it("ajout courriel détecté", async () => {
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
+        ({ si }) =>
+          recherche({ constl, idObjet: idCompte, f: si(r => !!r && r.score > 0) }),
+      );
+
       await constl.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
+      
+      const résultat = await pRésultat;
 
-      await rés.attendreQue((x) => !!x && x.score > 0);
-
-      expect(rés.val).to.deep.equal({
+      const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
         score: 1,
         de: "courriel",
@@ -172,57 +266,117 @@ describe("Rechercher profil", function () {
           début: 0,
           fin: 6,
         },
-      });
+      }
+
+      expect(résultat).to.deep.equal(réf);
     });
   });
 
-  describe("Selon texte", function () {
-    let fermer: Oublier;
+  describe("selon texte", function () {
     let constls: Constellation[];
     let constl: Constellation;
+    let fermer: Oublier;
+
     let idCompte: string;
-    const fsOublier: schémaFonctionOublier[] = [];
-    const résNom = new utilsTestAttente.AttendreRésultat<
-      RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
-    >();
-    const résCourriel = new utilsTestAttente.AttendreRésultat<
-      RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
-    >();
+
+    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide
+
+    let rechercheId: SuivreObjectifRecherche<TypeRésultat>
+    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>
+    let rechercheCourriel: SuivreObjectifRecherche<TypeRésultat>
+    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>
 
     before(async () => {
-      ({ fermer, constls } = await générerconstlsInternes({
+      ({ fermer, constls } = await créerConstellationsTest({
         n: 1,
+        avecMandataire: false,
       }));
-      constl = constls[0];
+      constl = constls[0] as Constellation;
 
-      idCompte = await constl.obtIdCompte();
-      const rechercheNom = rechercherProfilsSelonTexte("Julien Malard");
-      fsOublier.push(
-        await rechercheNom(constl, idCompte, async (r) =>
-          résNom.mettreÀJour(r),
-        ),
-      );
-
-      const rechercherCourriel = rechercherProfilsSelonTexte("julien.");
-      fsOublier.push(
-        await rechercherCourriel(constl, idCompte, async (r) =>
-          résCourriel.mettreÀJour(r),
-        ),
-      );
+      idCompte = await constl.compte.obtIdCompte();
+      rechercheId = rechercherProfilsSelonTexte(idCompte.slice(0, 15));
+      rechercheNom = rechercherProfilsSelonTexte("Julien Malard");
+      rechercheCourriel = rechercherProfilsSelonTexte("julien.");
+      rechercheVide = rechercherVariablesSelonTexte("");
     });
 
-    it("Rien pour commencer", async () => {
-      expect(résNom.val).to.be.undefined();
-      expect(résCourriel.val).to.be.undefined();
+    after(async () => {
+      if (fermer) await fermer();
     });
 
-    it("Ajout nom détecté", async () => {
+    it("résultat id détecté", async () => {
+      const résultatId = await obtenir<
+        RésultatObjectifRecherche<TypeRésultat>
+      >(({ siDéfini }) =>
+        rechercheId({ constl, idObjet: idCompte, f: siDéfini() }),
+      );
+
+      const réf: RésultatObjectifRecherche<TypeRésultat> = {
+        type: "résultat",
+        de: "id",
+        info: {
+          type: "texte",
+          début: 0,
+          fin: 15,
+          texte: idCompte,
+        },
+        score: 1,
+      }
+      expect(résultatId).to.deep.equal(réf);
+    })
+    
+    it("rien d'autre pour commencer", async () => {
+      const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siNonDéfini }) =>
+          rechercheId({
+            constl,
+            idObjet: idCompte,
+            f: siNonDéfini(),
+          }),
+      );
+      const résultatNom = await obtenir<
+        RésultatObjectifRecherche<TypeRésultat>
+      >(({ siNonDéfini }) =>
+        rechercheNom({
+          constl,
+          idObjet: idCompte,
+          f: siNonDéfini(),
+        }),
+      );
+      const résultatCourriel = await obtenir<
+        RésultatObjectifRecherche<TypeRésultat>
+      >(({ siNonDéfini }) =>
+        rechercheCourriel({
+          constl,
+          idObjet: idCompte,
+          f: siNonDéfini(),
+        }),
+      );
+
+      expect(résultatId).to.be.undefined();
+      expect(résultatNom).to.be.undefined();
+      expect(résultatCourriel).to.be.undefined();
+    });
+
+    it("ajout nom détecté", async () => {
+      const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheNom({ constl, idObjet: idCompte, f: siDéfini() }),
+      );
+      const pRésultatCourriel = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheCourriel({ constl, idObjet: idCompte, f: siDéfini() }),
+      );
+
       await constl.profil.sauvegarderNom({
         langue: "fr",
         nom: "Julien Malard-Adam",
       });
-      const valNom = await résNom.attendreExiste();
-      expect(valNom).to.deep.equal({
+
+      const résultatNom = pRésultatNom
+      const résultatCourriel = pRésultatCourriel;
+
+      const réfNom: RésultatObjectifRecherche<TypeRésultat> = {
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -233,10 +387,10 @@ describe("Rechercher profil", function () {
           texte: "Julien Malard-Adam",
         },
         score: 1,
-      });
+      }
+      expect(résultatNom).to.deep.equal(réfNom);
 
-      const valCourriel = await résCourriel.attendreExiste();
-      expect(valCourriel).to.deep.equal({
+      const réfCourriel: RésultatObjectifRecherche<TypeRésultat> = {
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -247,18 +401,23 @@ describe("Rechercher profil", function () {
           texte: "Julien Malard-Adam",
         },
         score: 1 / 3,
-      });
+      }
+      expect(résultatCourriel).to.deep.equal(réfCourriel);
     });
 
-    it("Ajout courriel détecté", async () => {
+    it("ajout courriel détecté", async () => {
+      const pRésultatCourriel = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ si }) =>
+          rechercheCourriel({ constl, idObjet: idCompte, f: si(r => !!r && r.score > 1 / 3) }),
+      );
+
       await constl.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
 
-      const val = await résCourriel.attendreQue((x) =>
-        Boolean(x && x.score > 1 / 3),
-      );
-      expect(val).to.deep.equal({
+      const résultatCourriel = await pRésultatCourriel;
+
+      const réf: RésultatObjectifRecherche<TypeRésultat> = {
         type: "résultat",
         de: "courriel",
         info: {
@@ -268,7 +427,24 @@ describe("Rechercher profil", function () {
           texte: "julien.malard@mail.mcgill.ca",
         },
         score: 1,
-      });
+      }
+      expect(résultatCourriel).to.deep.equal(réf);
+    });
+
+    it("résultat recherche vide", async () => {
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
+        rechercheVide({ constl, idObjet: idCompte, f: siDéfini() }),
+      );
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        de: "*",
+        info: {
+          type: "vide"
+        },
+        score: 1
+      }
+      expect(résultat).to.deep.equal(réf)
     });
   });
 });
