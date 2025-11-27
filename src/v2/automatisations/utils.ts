@@ -535,7 +535,7 @@ export const chronoDynamiqueExportation = async (
   };
   await suiviÉtat(nouvelÉtat);
 
-  const oublierChangements =
+  const oublierChangements = suivreEmpreinteTêtesObjet({ idObjet: auto.idObjet, typeObjet: auto.typeObjet });
     auto.typeObjet === "nuée"
       ? await constl.nuées.suivreEmpreinteTêtesBdsNuée({
           idNuée: auto.idObjet,
