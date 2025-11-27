@@ -2179,7 +2179,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     langues,
     nomFichier,
     patience = 500,
-    formatDocu: formatDoc,
+    formatDocu,
     dossier = "",
     inclureDocuments = true,
   }: {
@@ -2201,7 +2201,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     const hélia = this.service("hélia");
     return await sauvegarderDonnéesExportées({
       données: donnéesExportées,
-      formatDoc,
+      formatDocu,
       obtItérableAsyncSFIP: hélia.obtItérableAsyncSFIP.bind(hélia),
       dossier,
       inclureDocuments,
