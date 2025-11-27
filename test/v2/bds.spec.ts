@@ -12,7 +12,7 @@ import {
 } from "@/v2/crabe/services/compte/accès/consts.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
-import type { Constellation } from "@/v2/index.js";
+import { créerConstellation, type Constellation } from "@/v2/index.js";
 import type {
   DifférenceBds,
   DonnéesBdExportées,
@@ -33,6 +33,7 @@ import type {
 } from "@/v2/bds/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
+import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -1817,6 +1818,53 @@ describe("BDs", function () {
       expect(nouvelIdBdUnique).to.not.equal(idBdUnique);
     });
 
+    it("persistance à la réouverture", async () => {
+      const { constls: constlsTestRéouverture, fermer: fermerTestRéouverture } =
+        await créerConstellationsTest({ n: 1 });
+      const constlTestRéouverture = constlsTestRéouverture[0];
+
+      const idBdUniqueTestRéouverture = await constl.bds.obtenirBdUnique({
+        schéma,
+      });
+      const éléments: DonnéesRangéeTableau[] = [
+        {
+          [idColonneLangue]: "తె",
+          [idColonneTraduc]: "నక్షత్రరాశి",
+        },
+      ];
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBdUniqueTestRéouverture,
+        idTableau,
+        éléments,
+      });
+
+      const dossierOriginal = await constlTestRéouverture.dossier();
+
+      await constlTestRéouverture.fermer();
+
+      const constlRéouverte = créerConstellation({
+        dossier: dossierOriginal,
+        services: {
+          libp2p: {
+            libp2p: obtenirOptionsLibp2pTest(),
+          },
+        },
+      });
+
+      const données = await obtenir<
+        DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
+      >(({ si }) =>
+        constlRéouverte.bds.suivreDonnéesBdUnique({
+          schéma,
+          idTableau,
+          f: si((d) => !!d && d.length >= 2),
+        }),
+      );
+
+      await fermerTestRéouverture();
+      expect(données.map((d) => d.données)).to.have.deep.members(éléments);
+    });
+
     it("erreur si pas de clef unique", async () => {
       const schémaSansClefUnique: SchémaBd = {
         licence: "ODbl-1_0",
@@ -1834,11 +1882,15 @@ describe("BDs", function () {
             ],
           },
         },
-      }
-      await expect(constl.bds.obtenirBdUnique({
-        schéma: schémaSansClefUnique
-      })).to.eventually.be.rejectedWith("Le schéma doit contenir la propriété `clefUnique`.")
-    })
+      };
+      await expect(
+        constl.bds.obtenirBdUnique({
+          schéma: schémaSansClefUnique,
+        }),
+      ).to.eventually.be.rejectedWith(
+        "Le schéma doit contenir la propriété `clefUnique`.",
+      );
+    });
   });
 
   describe("exportation", function () {
