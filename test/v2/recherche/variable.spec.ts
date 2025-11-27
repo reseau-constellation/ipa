@@ -77,6 +77,11 @@ describe("Rechercher variables", function () {
     });
 
     it("résultat si la variable est presque exacte", async () => {
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
+        ({ siDéfini }) =>
+          recherche({ constl, idObjet: idVariable, f: siDéfini() }),
+      );
+
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
@@ -84,11 +89,7 @@ describe("Rechercher variables", function () {
         },
       });
 
-      const résultat = await obtenir<
-        RésultatObjectifRecherche<InfoRésultatTexte>
-      >(({ siDéfini }) =>
-        recherche({ constl, idObjet: idVariable, f: siDéfini() }),
-      );
+      const résultat = await pRésultat;
 
       expect(résultat).to.deep.equal({
         type: "résultat",
@@ -105,14 +106,7 @@ describe("Rechercher variables", function () {
     });
 
     it("résultat si le mot-clef est exacte", async () => {
-      await constl.variables.sauvegarderNoms({
-        idVariable,
-        noms: {
-          fr: "Radiation solaire",
-        },
-      });
-
-      const résultat = await obtenir<
+      const pRésultat = obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
         recherche({
@@ -121,6 +115,15 @@ describe("Rechercher variables", function () {
           f: si((x) => x !== undefined && x.score > 0.5),
         }),
       );
+
+      await constl.variables.sauvegarderNoms({
+        idVariable,
+        noms: {
+          fr: "Radiation solaire",
+        },
+      });
+
+      const résultat = await pRésultat;
 
       expect(résultat).to.deep.equal({
         type: "résultat",
