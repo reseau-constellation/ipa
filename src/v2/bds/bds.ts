@@ -1262,22 +1262,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   // Tableaux
 
-  @cacheSuivi
-  async suivreTableaux({
-    idBd,
-    f,
-  }: {
-    idBd: string;
-    f: Suivi<string[]>;
-  }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: (bd) => f(Object.keys(mapÀObjet(bd)?.tableaux || {})),
-    });
-  }
-
   async ajouterTableau({
     idBd,
     idTableau,
@@ -1300,6 +1284,22 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<void> {
     // L'interface du tableau s'occupe de tout !
     await this.tableaux.effacerTableau({ idStructure: idBd, idTableau });
+  }
+
+  @cacheSuivi
+  async suivreTableaux({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<string[]>;
+  }): Promise<Oublier> {
+    return await this.service("orbite").suivreDonnéesBd({
+      id: idBd,
+      type: "nested",
+      schéma: schémaBd,
+      f: (bd) => f(Object.keys(mapÀObjet(bd)?.tableaux || {})),
+    });
   }
 
   // Variables
