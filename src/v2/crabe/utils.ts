@@ -2,11 +2,11 @@ import { toUnicode } from "punycode";
 import { toObject } from "@orbitdb/nested-db";
 import { AbortError } from "p-retry";
 import { multiaddr } from "@multiformats/multiaddr";
+import type { Suivi } from "./types.js";
 import type { NestedMapToObject, NestedValueMap } from "@orbitdb/nested-db";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { PartielRécursif } from "../types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
-import { Suivi } from "./types.js";
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {
   return new Promise<void>((résoudre) => {
