@@ -7,7 +7,6 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { pipe } from "it-pipe";
 import { pushable } from "it-pushable";
 import {
-  faisRien,
   suivreFonctionImbriquée,
   suivreDeFonctionListe,
   uneFois,
@@ -19,18 +18,16 @@ import {
   CLEF_N_CHANGEMENT_COMPTES,
   schémaStructureBdCompte,
 } from "@/client.js";
-import { rechercherTous } from "@/v2/recherche/fonctions/utils.js";
 import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
-import { appelerLorsque, dépunicodifier } from "./utils.js";
+import { appelerLorsque } from "./utils.js";
 import type { Constellation, Signature, infoAccès } from "@/client.js";
 import type { JSONSchemaType } from "ajv";
 import type { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 import type { Pushable } from "it-pushable";
 
 import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
-import type { infoScore } from "@/bds.js";
 import type {
   Connection,
   Libp2pEvents,
@@ -54,10 +51,7 @@ import type {
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
 import type { erreurValidation } from "@/valid.js";
-import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
-
-type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
 export type infoDispositif = {
   idLibp2p: string;
