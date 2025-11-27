@@ -9,8 +9,6 @@ import type { PartielRécursif } from "./types.js";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
-import type { ÉpingleMotClef } from "./motsClefs.js";
-import type { ÉpingleBd } from "./bds/bds.js";
 
 // Types épingles
 
@@ -71,6 +69,13 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
   return copieDéfauts;
 };
 
+// Type résolveur
+
+export type Résolveur<T extends BaseÉpingleFavoris> = (args: {
+  épingle: ÉpingleFavorisAvecIdBooléennisée<T>;
+  f: Suivi<Set<string>>;
+}) => Promise<Oublier>
+
 // Structure données
 
 const schémaÉpingleFavoris: JSONSchemaType<
@@ -113,15 +118,18 @@ export class Favoris extends ServiceDonnéesNébuleuse<
   ServicesConstellation,
   { oublier: Oublier }
 > {
+  résolveurs: Map<string, Résolveur>;
+
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
       clef: "favoris",
       nébuleuse,
-      dépendances: ["compte", "épingles", "bds", "motsClefs"],
+      dépendances: ["compte", "épingles"],
       options: {
         schéma: SchémaServiceFavoris,
       },
     });
+    this.résolveurs = new Map();
   }
 
   async démarrer(): Promise<{ oublier: Oublier }> {
@@ -189,6 +197,16 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     return await super.fermer();
   }
 
+  async inscrireRésolution<T extends BaseÉpingleFavoris>({
+    clef,
+    résolution,
+  }: {
+    clef: string;
+    résolution: Résolveur<T>
+  }): Promise<void> {
+    this.résolveurs.set(clef, résolution);
+  }
+
   async suivreRésolutionÉpingle({
     épingle,
     f,
@@ -206,52 +224,17 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     const compte = this.service("compte");
     const ceDispositif = await compte.obtIdDispositif();
 
+    const résolveur = this.résolveurs.get(épingle.épingle.type);
+    if (!résolveur) return;
+
     const épingleBooléennisée = this.résoudreÉpinglesSurDispositif({
       épingle: épingle.épingle,
       ceDispositif,
     });
-    switch (épingleBooléennisée.type) {
-      case "mot-clef":
-        return await this.service("motsClefs").suivreRésolutionÉpingle({
-          épingle: {
-            idObjet: ajouterProtocoleOrbite(épingle.idObjet),
-            épingle: épingleBooléennisée,
-          } as ÉpingleFavorisAvecIdBooléennisée<ÉpingleMotClef>,
-          f,
-        });
-      case "variable":
-        return await this.service("variables").suivreRésolutionÉpingle({
-          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleVariable>,
-          f,
-        });
-      case "bd":
-        return await this.service("bds").suivreRésolutionÉpingle({
-          épingle: {
-            idObjet: ajouterProtocoleOrbite(épingle.idObjet),
-            épingle: épingleBooléennisée,
-          } as ÉpingleFavorisAvecIdBooléennisée<ÉpingleBd>,
-          f,
-        });
-      case "projet":
-        return await this.service("projets").suivreRésolutionÉpingle({
-          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleProjet>,
-          f,
-        });
-      case "nuée":
-        return await this.service("nuées").suivreRésolutionÉpingle({
-          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleNuée>,
-          f,
-        });
-      case "compte":
-        return await this.service("suivreRésolutionÉpingle")({
-          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleCompte>,
-          f,
-          ignorer,
-        });
-
-      default:
-        throw new Error(JSON.stringify(épingle, undefined, 2));
-    }
+    return await résolveur({ f, épingle: {
+      idObjet: ajouterProtocoleOrbite(épingle.idObjet),
+      épingle: épingleBooléennisée,
+    } });
   }
 
   // Fonctionalités

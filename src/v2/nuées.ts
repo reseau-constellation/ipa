@@ -31,7 +31,7 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "./types.js";
-import type { BaseÉpingleFavoris } from "./favoris.js";
+import type { BaseÉpingleFavoris, ÉpingleFavorisAvecIdBooléennisée } from "./favoris.js";
 import type { ÉpingleBd } from "./bds/bds.js";
 import type { JSONSchemaType } from "ajv";
 
@@ -39,7 +39,7 @@ import type { JSONSchemaType } from "ajv";
 
 export type ÉpingleNuée = BaseÉpingleFavoris & {
   type: "nuée";
-  données: ÉpingleBd;
+  bds: ÉpingleBd;
 };
 
 // Types structure
@@ -130,7 +130,7 @@ export class Nuées<
     super({
       clef: "nuées",
       nébuleuse,
-      dépendances: ["compte", "orbite", "hélia"],
+      dépendances: ["bds", "compte", "orbite", "hélia"],
       options: {
         schéma: SchémaServiceNuées,
       },
@@ -144,6 +144,9 @@ export class Nuées<
       constl: this.nébuleuse,
       service: (clef) => this.service(clef),
     });
+
+    const favoris = this.service("favoris");
+    favoris.inscrireRésolution({ clef: "nuée", résolution: this.suivreRésolutionÉpingle.bind(this) })
   }
 
   @cacheSuivi
@@ -219,8 +222,7 @@ export class Nuées<
     // D'abord effacer l'entrée dans notre liste de Nuées
     await this.enleverDeMesNuées({ idNuée });
 
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
     await favoris.désépinglerFavori({ idObjet: idNuée });
 
     // enfin, effacer la Nuée elle-même
@@ -340,13 +342,12 @@ export class Nuées<
     idNuée: string;
     options?: PartielRécursif<ÉpingleNuée>;
   }) {
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
 
     const épingle: ÉpingleNuée = résoudreDéfauts(options, {
       type: "nuée",
       base: TOUS_DISPOSITIFS,
-      données: {
+      bds: {
         type: "bd",
         base: TOUS_DISPOSITIFS,
         données: {
@@ -356,6 +357,122 @@ export class Nuées<
       },
     });
     await favoris.épinglerFavori({ idObjet: idNuée, épingle });
+  }
+
+  async désépingler({ idNuée }: { idNuée: string }): Promise<void> {
+    const favoris = this.service("favoris");
+
+    await favoris.désépinglerFavori({ idObjet: idNuée });
+  }
+
+  async suivreÉpingle({
+    idNuée,
+    f,
+    idCompte,
+  }: {
+    idNuée: string;
+    f: Suivi<PartielRécursif<ÉpingleNuée> | undefined>;
+    idCompte?: string;
+  }): Promise<Oublier> {
+    const favoris = this.service("favoris");
+
+    return await favoris.suivreÉtatFavori({
+      idObjet: idNuée,
+      f: async (épingle) => {
+        if (épingle?.type === "nuée")
+          await f(épingle as PartielRécursif<ÉpingleNuée>);
+        else await f(undefined);
+      },
+      idCompte,
+    });
+  }
+
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisAvecIdBooléennisée<ÉpingleNuée>;
+    f: Suivi<Set<string>>;
+  }): Promise<Oublier> {
+    const info: {
+      base?: (string | undefined)[];
+      bds?: (string | undefined)[];
+    } = {};
+
+    const fFinale = async () => {
+      return await f(
+        new Set(
+          Object.values(info)
+            .flat()
+            .filter((x) => !!x) as string[],
+        ),
+      );
+    };
+
+    const fsOublier: Oublier[] = [];
+    const orbite = this.service("orbite");
+    if (épingle.épingle.base) {
+      const fOublierBase = await orbite.suivreBdTypée({
+        id: épingle.idObjet,
+        type: "nested",
+        schéma: schémaNuée,
+        f: async (bd) => {
+          try {
+            const image = await bd.get("image");
+            info.base = [épingle.idObjet, image];
+          } catch {
+            return; // Si la structure n'est pas valide.
+          }
+          await fFinale();
+        },
+      });
+      fsOublier.push(fOublierBase);
+    }
+
+    // Bds associées
+    const { bds: épingleBds } = épingle.épingle;
+    if (épingleBds) {
+      const serviceBds = this.service("bds")
+      const fOublierTableaux = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (éléments: string[]) => Promise<void>;
+        }) => {
+          return await this.suivreBds({
+            idNuée: épingle.idObjet,
+            f: (bds) => fSuivreRacine(bds || []),
+          });
+        },
+        fBranche: async ({
+          id: idBd,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: Suivi<Set<string>>;
+        }) => {
+          return await serviceBds.suivreRésolutionÉpingle({
+            épingle: {
+              idObjet: idBd,
+              épingle: {
+                ...épingleBds,
+                type: "bd",
+              },
+            },
+            f: fSuivreBranche,
+          });
+        },
+        f: async (bds: string[]) => {
+          info.bds = bds;
+          await fFinale();
+        },
+      });
+      fsOublier.push(fOublierTableaux);
+    }
+
+    return async () => {
+      await Promise.allSettled(fsOublier.map((f) => f()));
+    };
   }
 
   // Noms

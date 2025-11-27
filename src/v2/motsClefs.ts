@@ -74,7 +74,7 @@ export class MotsClefs<
     super({
       clef: "motsClefs",
       nébuleuse,
-      dépendances: ["réseau", "compte", "orbite"],
+      dépendances: ["favoris", "réseau", "compte", "orbite"],
       options: {
         schéma: schémaServiceMotsClefs,
       },
@@ -85,6 +85,9 @@ export class MotsClefs<
       constl: this.nébuleuse,
       service: (clef) => this.service(clef),
     });
+    
+    const favoris = this.service("favoris");
+    favoris.inscrireRésolution({ clef: "mot-clef", résolution: this.suivreRésolutionÉpingle.bind(this) })
   }
 
   @cacheSuivi
@@ -163,8 +166,7 @@ export class MotsClefs<
     // Effacer l'entrée dans notre liste de mots-clefs
     await this.enleverDeMesMotsClefs({ idMotClef });
 
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
     await favoris.désépinglerFavori({ idObjet: idMotClef });
 
     // Effacer le mot-clef lui-même
@@ -301,8 +303,7 @@ export class MotsClefs<
       base: TOUS_DISPOSITIFS,
     });
 
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
     await favoris.épinglerFavori({ idObjet: idMotClef, épingle });
   }
 
@@ -315,8 +316,7 @@ export class MotsClefs<
     f: Suivi<PartielRécursif<ÉpingleMotClef> | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
 
     return await favoris.suivreÉtatFavori({
       idObjet: idMotClef,
@@ -336,8 +336,7 @@ export class MotsClefs<
   }: {
     idMotClef: string;
   }): Promise<void> {
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
 
     await favoris.désépinglerFavori({ idObjet: idMotClef });
   }

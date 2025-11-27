@@ -166,6 +166,9 @@ export class Variables<
       constl: this.nébuleuse,
       service: (clef) => this.service(clef),
     });
+
+    const favoris = this.service("favoris");
+    favoris.inscrireRésolution({ clef: "variable", résolution: this.suivreRésolutionÉpingle.bind(this) })
   }
 
   @cacheSuivi
@@ -325,6 +328,7 @@ export class Variables<
   async effacerVariable({ idVariable }: { idVariable: string }): Promise<void> {
     // Effacer l'entrée dans notre liste de variables
     await this.enleverDeMesVariables({ idVariable });
+
     await this.service("favoris").désépinglerFavori({ idObjet: idVariable });
 
     // Effacer la variable elle-même
@@ -427,8 +431,7 @@ export class Variables<
       type: "variable",
       base: TOUS_DISPOSITIFS,
     });
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
     await favoris.épinglerFavori({ idObjet: idVariable, épingle });
   }
 
@@ -441,8 +444,7 @@ export class Variables<
     f: Suivi<PartielRécursif<ÉpingleVariable> | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
 
     return await favoris.suivreÉtatFavori({
       idObjet: idVariable,
@@ -458,8 +460,7 @@ export class Variables<
   }
 
   async désépingler({ idVariable }: { idVariable: string }): Promise<void> {
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
 
     await favoris.désépinglerFavori({ idObjet: idVariable });
   }

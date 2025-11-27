@@ -247,6 +247,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       bds: this,
       service: (clef) => this.service(clef),
     });
+
+    const favoris = this.service("favoris");
+    favoris.inscrireRésolution({ clef: "bd", résolution: this.suivreRésolutionÉpingle.bind(this) })
   }
 
   // Création et gestion
@@ -317,8 +320,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     // D'abord effacer l'entrée dans notre liste de BDs
     await this.enleverDeMesBds({ idBd });
 
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
     await favoris.désépinglerFavori({ idObjet: idBd });
 
     // aussi effacer les tableaux
@@ -686,8 +688,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     options?: PartielRécursif<ÉpingleBd>;
   }) {
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
 
     const épingle: ÉpingleBd = résoudreDéfauts(options, {
       type: "bd",
@@ -702,8 +703,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   async désépingler({ idBd }: { idBd: string }): Promise<void> {
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
 
     await favoris.désépinglerFavori({ idObjet: idBd });
   }
@@ -717,8 +717,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     f: Suivi<PartielRécursif<ÉpingleBd> | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    // On court-circuite `this.service("favoris")`
-    const favoris = this.nébuleuse.services["favoris"];
+    const favoris = this.service("favoris");
 
     return await favoris.suivreÉtatFavori({
       idObjet: idBd,

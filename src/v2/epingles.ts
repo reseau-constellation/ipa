@@ -142,7 +142,7 @@ export class Épingles<
 
     await Promise.allSettled(
       [...this.bdsOuvertes.values()].map(
-        async ({ bd, oublier }) => await oublier(),
+        async ({ oublier }) => await oublier(),
       ),
     );
 
