@@ -30,6 +30,7 @@ describe("Rechercher projets", function () {
   before(async () => {
     ({ fermer, constls } = await créerConstellationsTest({
       n: 1,
+      avecMandataire: false,
     }));
     constl = constls[0] as Constellation;
   });
