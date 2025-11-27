@@ -358,7 +358,6 @@ export class Nuées<
 
   // Noms
 
-
   async sauvegarderNoms({
     idNuée,
     noms,
