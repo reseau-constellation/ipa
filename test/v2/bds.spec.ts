@@ -11,8 +11,9 @@ import {
   MODÉRATRICE,
 } from "@/v2/crabe/services/compte/accès/consts.js";
 import { obtRessourceTest } from "test/ressources/index.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
 import { créerConstellation, type Constellation } from "@/v2/index.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
+import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
 import type {
   DifférenceBds,
   DonnéesBdExportées,
@@ -33,7 +34,6 @@ import type {
 } from "@/v2/bds/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
-import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
