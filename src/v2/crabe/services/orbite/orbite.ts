@@ -21,7 +21,6 @@ import {
 import { anySignal } from "any-signal";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
-import { suivreDeFonctionListe } from "@constl/utils-ipa";
 import { CID } from "multiformats";
 import { STATUTS } from "@/v2/nébuleuse/consts.js";
 import { cacheSuivi } from "../../cache.js";
