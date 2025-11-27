@@ -1749,7 +1749,7 @@ describe("BDs", function () {
     };
 
     it("création bd unique", async () => {
-      idBdUnique = await constl.bds.obtenirBdUnique({ schéma, clefUnique });
+      idBdUnique = await constl.bds.obtenirBdUnique({ schéma });
 
       expect(isValidAddress(idBdUnique)).to.be.true();
     });
@@ -1757,7 +1757,6 @@ describe("BDs", function () {
     it("détection de la même bd unique", async () => {
       const idBdUniqueMaintenant = await constl.bds.obtenirBdUnique({
         schéma,
-        clefUnique,
       });
       expect(idBdUniqueMaintenant).to.equal(idBdUnique);
     });
@@ -1773,7 +1772,6 @@ describe("BDs", function () {
         ({ siPasVide }) =>
           constl.bds.suivreDonnéesBdUnique({
             schéma,
-            clefUnique,
             idTableau,
             f: siPasVide(),
           }),
@@ -1801,7 +1799,6 @@ describe("BDs", function () {
       const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
         constl.bds.suivreDonnéesBdUnique({
           schéma,
-          clefUnique,
           idTableau,
           f: si((x) => !!x && x.length >= réf.length),
         }),
@@ -1814,12 +1811,34 @@ describe("BDs", function () {
       await constl.bds.effacerBd({ idBd: idBdUnique });
       const nouvelIdBdUnique = await constl.bds.obtenirBdUnique({
         schéma,
-        clefUnique,
       });
 
       expect(isValidAddress(nouvelIdBdUnique)).to.be.true();
       expect(nouvelIdBdUnique).to.not.equal(idBdUnique);
     });
+
+    it("erreur si pas de clef unique", async () => {
+      const schémaSansClefUnique: SchémaBd = {
+        licence: "ODbl-1_0",
+        tableaux: {
+          [idTableau]: {
+            cols: [
+              {
+                idColonne: idColonneLangue,
+                index: true,
+              },
+              {
+                idColonne: idColonneTraduc,
+                index: false,
+              },
+            ],
+          },
+        },
+      }
+      await expect(constl.bds.obtenirBdUnique({
+        schéma: schémaSansClefUnique
+      })).to.eventually.be.rejectedWith("Le schéma doit contenir la propriété `clefUnique`.")
+    })
   });
 
   describe("exportation", function () {
