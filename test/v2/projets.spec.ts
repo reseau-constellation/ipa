@@ -5,7 +5,7 @@ import type { InfoAuteur } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 
-describe("Nuées", function () {
+describe("Projets", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
@@ -24,40 +24,17 @@ describe("Nuées", function () {
     if (fermer) await fermer()
   })
 
-  
-  describe("autorisations", function () {
-    it("nuée ouverte - tous peuvent écrire");
-    it("nuée ouverte - bloquer compte");
-    it("nuée ouverte - débloquer compte");
-    it("nuée par invitation - compte créateur peut écrire");
-    it("nuée par invitation - compte membre peut écrire");
-    it("nuée par invitation - les autres ne peuvent pas écrire");
-    it("nuée par invitation - inviter compte");
-    it("nuée par invitation - désinviter compte");
-
-    it("convertir à ouverte");
-    it("reconvertir à par invitation - invités persistent");
-
-    it("convertir à par invitation");
-    it("reconvertir à ouverte - bloqués persistent");
-
-    it("erreur nuée ouverte - bloquer compte créateur nuée");
-    it("erreur nuée ouverte - bloquer compte créateur nuée");
-    it("erreur nuée par invitation - désinviter compte membre nuée");
-    it("erreur nuée par invitation - désinviter compte membre nuée");
-  });
-
   describe("auteurs", function () {
-    let idNuée: string;
+    let idProjet: string;
 
     before(async () => {
-      idNuée = await constl.nuées.créerNuée();
+      idProjet = await constl.projets.créerProjet();
     });
 
     it("compte créateur autorisé pour commencer", async () => {
       const auteurs = await obtenir<InfoAuteur[]>(({ siPasVide }) =>
-        constl.nuées.suivreAuteurs({
-          idNuée,
+        constl.projets.suivreAuteurs({
+          idProjet,
           f: siPasVide(),
         }),
       );
@@ -72,14 +49,14 @@ describe("Nuées", function () {
     });
 
     it("inviter compte", async () => {
-      await constl.nuées.inviterAuteur({
-        idNuée,
+      await constl.projets.inviterAuteur({
+        idProjet,
         idCompte: idsComptes[1],
         rôle: MEMBRE,
       });
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
-        constl.nuées.suivreAuteurs({
-          idNuée,
+        constl.projets.suivreAuteurs({
+          idProjet,
           f: si((x) => !!x && x.length > 1),
         }),
       );
@@ -99,11 +76,11 @@ describe("Nuées", function () {
     });
 
     it("acceptation invitation", async () => {
-      await constls[1].nuées.ajouterÀMesNuées({ idNuée });
+      await constls[1].projets.ajouterÀMesProjets({ idProjet });
 
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
-        constl.nuées.suivreAuteurs({
-          idNuée,
+        constl.projets.suivreAuteurs({
+          idProjet,
           f: si((x) => !!x?.find((a) => a.idCompte === idsComptes[1])?.accepté),
         }),
       );
@@ -124,11 +101,11 @@ describe("Nuées", function () {
 
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-      await constl.nuées.inviterAuteur({ idNuée, idCompte: compteHorsLigne, rôle: MEMBRE});
+      await constl.projets.inviterAuteur({ idProjet, idCompte: compteHorsLigne, rôle: MEMBRE});
       
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
-        constl.nuées.suivreAuteurs({
-          idNuée,
+        constl.projets.suivreAuteurs({
+          idProjet,
           f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne)),
         }),
       );

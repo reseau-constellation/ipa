@@ -43,7 +43,7 @@ describe("BDs", function () {
 
   before(async () => {
     ({ fermer, constls } = await créerConstellationsTest({
-      n: 1,
+      n: 2,
     }));
     constl = constls[0];
     idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
@@ -2073,6 +2073,36 @@ describe("BDs", function () {
           accepté: true,
           rôle: MEMBRE,
         },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("inviter compte hors ligne", async () => {
+      const compteHorsLigne = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      await constl.bds.inviterAuteur({ idBd, idCompte: compteHorsLigne, rôle: MEMBRE});
+      
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.bds.suivreAuteurs({
+          idBd,
+          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne)),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MEMBRE,
+        },
+        {
+          idCompte: compteHorsLigne,
+          accepté: false,
+          rôle: MEMBRE,
+        }
       ];
       expect(auteurs).to.deep.equal(réf);
     });

@@ -468,5 +468,35 @@ describe.only("Mots-clefs", function () {
       ];
       expect(auteurs).to.deep.equal(réf);
     });
+
+    it("inviter compte hors ligne", async () => {
+      const compteHorsLigne = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      await constl.motsClefs.inviterAuteur({ idMotClef, idCompte: compteHorsLigne, rôle: MEMBRE});
+      
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.motsClefs.suivreAuteurs({
+          idMotClef,
+          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne)),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MEMBRE,
+        },
+        {
+          idCompte: compteHorsLigne,
+          accepté: false,
+          rôle: MEMBRE,
+        }
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
   });
 });
