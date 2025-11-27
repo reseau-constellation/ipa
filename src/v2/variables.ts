@@ -378,8 +378,14 @@ export class Variables<
         id: string;
         fSuivreBranche: Suivi<InfoAuteur>;
         branche: AccèsUtilisateur;
-      }) =>
-        await this.suivreVariables({
+      }) => {
+        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
+        await fSuivreBranche({
+          idCompte,
+          accepté: false,
+          rôle: branche.rôle,
+        });
+        return await this.suivreVariables({
           idCompte,
           f: async (variablesCompte) => {
             return await fSuivreBranche({
@@ -388,7 +394,9 @@ export class Variables<
               rôle: branche.rôle,
             });
           },
-        }),
+        });
+      },
+      fIdDeBranche: (x) => x.idCompte,
       f,
     });
   }

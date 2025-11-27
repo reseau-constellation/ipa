@@ -296,8 +296,14 @@ export class Nuées<
         id: string;
         fSuivreBranche: Suivi<InfoAuteur>;
         branche: AccèsUtilisateur;
-      }) =>
-        await this.suivreNuées({
+      }) => {
+        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
+        await fSuivreBranche({
+          idCompte,
+          accepté: false,
+          rôle: branche.rôle,
+        });
+        return await this.suivreNuées({
           idCompte,
           f: async (nuéesCompte) => {
             return await fSuivreBranche({
@@ -306,7 +312,9 @@ export class Nuées<
               rôle: branche.rôle,
             });
           },
-        }),
+        });
+      },
+      fIdDeBranche: (x) => x.idCompte,
       f,
     });
   }

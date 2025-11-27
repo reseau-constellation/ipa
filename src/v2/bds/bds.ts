@@ -644,8 +644,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         id: string;
         fSuivreBranche: Suivi<InfoAuteur>;
         branche: AccèsUtilisateur;
-      }) =>
-        await this.suivreBds({
+      }) => {
+        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
+        await fSuivreBranche({
+          idCompte,
+          accepté: false,
+          rôle: branche.rôle,
+        });
+        return await this.suivreBds({
           idCompte,
           f: async (bdsCompte) => {
             return await fSuivreBranche({
@@ -654,7 +660,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
               rôle: branche.rôle,
             });
           },
-        }),
+        });
+      },
+      fIdDeBranche: (x) => x.idCompte,
       f,
     });
   }

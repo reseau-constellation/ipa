@@ -251,8 +251,14 @@ export class MotsClefs<
         id: string;
         fSuivreBranche: Suivi<InfoAuteur>;
         branche: AccèsUtilisateur;
-      }) =>
-        await this.suivreMotsClefs({
+      }) => {
+        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
+        await fSuivreBranche({
+          idCompte,
+          accepté: false,
+          rôle: branche.rôle,
+        });
+        return await this.suivreMotsClefs({
           idCompte,
           f: async (motsClefsCompte) => {
             return await fSuivreBranche({
@@ -261,7 +267,9 @@ export class MotsClefs<
               rôle: branche.rôle,
             });
           },
-        }),
+        });
+      },
+      fIdDeBranche: (x) => x.idCompte,
       f,
     });
   }
