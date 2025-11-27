@@ -58,7 +58,7 @@ export class ServiceRéseau<
     return await super.fermer();
   }
 
-  // Méthodes publiques
+  // Suivi connexions
 
   @cacheSuivi
   async suivreConnexionsLibp2p({
@@ -215,4 +215,14 @@ export class ServiceRéseau<
     idCompte: string;
     f: Suivi<number>;
   }): Promise<Oublier> {}
+
+  // Gestion réseau
+  async faireConfianceAuCompte(): Promise<void> {}
+  async neplusFaireConfianceAuCompte(): Promise<void> {}
+  async bloquerCompte(): Promise<void> {}
+  async débloquerCompte(): Promise<void> {}
+  @cacheSuivi
+  async suivreComptesFiables(): Promise<Oublier> {}
+  @cacheSuivi
+  async suivreComtesBloqués(): Promise<Oublier> {}
 }
