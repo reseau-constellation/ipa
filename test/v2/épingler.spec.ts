@@ -1,7 +1,7 @@
 import { expect } from "aegir/chai";
 import { CID } from "multiformats";
 import { que } from "@constl/utils-tests";
-import { diviserIdcEtFichier, idcEtFichierValide } from "@/v2/epingles.js";
+import { diviserIdcEtFichier, idcEtFichierValide } from "@/v2/utils.js";
 import { obtRessourceTest } from "../ressources/index.js";
 import { créerConstellationsTest } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
