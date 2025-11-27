@@ -1,5 +1,14 @@
 import { expect } from "aegir/chai";
-import { rechercherBdsSelonDescription, rechercherBdsSelonIdMotClef, rechercherBdsSelonIdVariable, rechercherBdsSelonMotClef, rechercherBdsSelonNomMotClef, rechercherBdsSelonNomVariable, rechercherBdsSelonTexte, rechercherBdsSelonVariable } from "@/v2/recherche/fonctions/bds.js";
+import {
+  rechercherBdsSelonDescription,
+  rechercherBdsSelonIdMotClef,
+  rechercherBdsSelonIdVariable,
+  rechercherBdsSelonMotClef,
+  rechercherBdsSelonNomMotClef,
+  rechercherBdsSelonNomVariable,
+  rechercherBdsSelonTexte,
+  rechercherBdsSelonVariable,
+} from "@/v2/recherche/fonctions/bds.js";
 import { rechercherVariablesSelonTexte } from "@/v2/recherche/fonctions/variables.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
 import type { Oublier } from "@/v2/crabe/types.js";
@@ -122,7 +131,7 @@ describe("Rechercher bds", function () {
     let idBd: string;
     let idMotClef: string;
 
-    type TypeRésultat = InfoRésultatRecherche<InfoRésultatTexte>
+    type TypeRésultat = InfoRésultatRecherche<InfoRésultatTexte>;
 
     let rechercheNomMotClef: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheIdMotClef: SuivreObjectifRecherche<TypeRésultat>;
@@ -340,7 +349,7 @@ describe("Rechercher bds", function () {
       });
 
       const résultatId = await pRésultatId;
-      const résultatTous = await pRésultatTous
+      const résultatTous = await pRésultatTous;
 
       const réfRésId: RésultatObjectifRecherche<
         InfoRésultatRecherche<InfoRésultatTexte>
@@ -419,9 +428,10 @@ describe("Rechercher bds", function () {
   describe("selon texte", function () {
     let idBd: string;
 
-    type TypeRésultatBd = InfoRésultatTexte
+    type TypeRésultatBd =
+      | InfoRésultatTexte
       | InfoRésultatRecherche<InfoRésultatTexte>
-      | InfoRésultatVide
+      | InfoRésultatVide;
 
     let rechercheId: SuivreObjectifRecherche<TypeRésultatBd>;
     let rechercheNom: SuivreObjectifRecherche<TypeRésultatBd>;
@@ -459,15 +469,14 @@ describe("Rechercher bds", function () {
           texte: idBd,
         },
         score: 1,
-      }
+      };
       expect(résultatId).to.deep.equal(réf);
     });
 
     it("résultat nom détecté", async () => {
-      const pRésultatNom = obtenir<
-        RésultatObjectifRecherche<TypeRésultatBd>
-      >(({ siDéfini }) =>
-        rechercheNom({ constl, idObjet: idBd, f: siDéfini() }),
+      const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultatBd>>(
+        ({ siDéfini }) =>
+          rechercheNom({ constl, idObjet: idBd, f: siDéfini() }),
       );
       await constl.bds.sauvegarderNoms({
         idBd,
@@ -476,7 +485,7 @@ describe("Rechercher bds", function () {
 
       const résulatNoms = await pRésultatNom;
 
-      const réf: RésultatObjectifRecherche<TypeRésultatBd> = ({
+      const réf: RésultatObjectifRecherche<TypeRésultatBd> = {
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -487,7 +496,7 @@ describe("Rechercher bds", function () {
           texte: "Hydrologie",
         },
         score: 1,
-      });
+      };
       expect(résulatNoms).to.deep.equal(réf);
     });
 
@@ -526,9 +535,18 @@ describe("Rechercher bds", function () {
       const pRésultatVariable = obtenir<
         RésultatObjectifRecherche<TypeRésultatBd>
       >(({ si }) =>
-        rechercheVariables({ constl, idObjet: idBd, f: si(r =>
-          !!r && r.type === "résultat" && r.de === "variable" && r.info.type === "résultat" && r.info.de === "nom"
-        ) }),
+        rechercheVariables({
+          constl,
+          idObjet: idBd,
+          f: si(
+            (r) =>
+              !!r &&
+              r.type === "résultat" &&
+              r.de === "variable" &&
+              r.info.type === "résultat" &&
+              r.info.de === "nom",
+          ),
+        }),
       );
 
       const idVariable = await constl.variables.créerVariable({
@@ -548,7 +566,7 @@ describe("Rechercher bds", function () {
       });
 
       const résulatVariable = await pRésultatVariable;
-      
+
       const réf: RésultatObjectifRecherche<TypeRésultatBd> = {
         type: "résultat",
         clef: idVariable,
@@ -599,7 +617,7 @@ describe("Rechercher bds", function () {
       });
 
       const résulatMotClef = await pRésultatMotClef;
-      
+
       const réf: RésultatObjectifRecherche<TypeRésultatBd> = {
         type: "résultat",
         clef: idMotClef,
@@ -621,19 +639,20 @@ describe("Rechercher bds", function () {
     });
 
     it("résultat recherche vide", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultatBd>>(({ siDéfini }) =>
-        rechercheVide({ constl, idObjet: idBd, f: siDéfini() }),
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultatBd>>(
+        ({ siDéfini }) =>
+          rechercheVide({ constl, idObjet: idBd, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
         type: "résultat",
         de: "*",
         info: {
-          type: "vide"
+          type: "vide",
         },
-        score: 1
-      }
-      expect(résultat).to.deep.equal(réf)
-    })
+        score: 1,
+      };
+      expect(résultat).to.deep.equal(réf);
+    });
   });
 });

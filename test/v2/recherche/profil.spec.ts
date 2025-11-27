@@ -1,21 +1,30 @@
 import { expect } from "aegir/chai";
-import { rechercherProfilsSelonActivité, rechercherProfilsSelonNom, rechercherProfilsSelonCourriel, rechercherProfilsSelonTexte } from "@/v2/recherche/fonctions/profils.js";
+import {
+  rechercherProfilsSelonActivité,
+  rechercherProfilsSelonNom,
+  rechercherProfilsSelonCourriel,
+  rechercherProfilsSelonTexte,
+} from "@/v2/recherche/fonctions/profils.js";
 import { rechercherVariablesSelonTexte } from "@/v2/recherche/fonctions/variables.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
-import type { RésultatObjectifRecherche, InfoRésultatVide, InfoRésultatTexte, SuivreObjectifRecherche } from "@/v2/recherche/types.js";
+import type {
+  RésultatObjectifRecherche,
+  InfoRésultatVide,
+  InfoRésultatTexte,
+  SuivreObjectifRecherche,
+} from "@/v2/recherche/types.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { Constellation } from "@/v2/index.js";
 
 describe("Rechercher profil", function () {
-  
   describe("selon activité", function () {
     let constls: Constellation[];
     let constl: Constellation;
     let fermer: Oublier;
 
     let idCompte: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatVide>
+    let recherche: SuivreObjectifRecherche<InfoRésultatVide>;
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
@@ -26,7 +35,6 @@ describe("Rechercher profil", function () {
 
       idCompte = await constl.compte.obtIdCompte();
       recherche = rechercherProfilsSelonActivité();
-
     });
 
     after(async () => {
@@ -49,19 +57,18 @@ describe("Rechercher profil", function () {
         score: 0,
         de: "activité",
         info: { type: "vide" },
-      }
+      };
       expect(résultat).to.deep.equal(réf);
     });
 
     it("on améliore le score en ajoutant notre nom", async () => {
-      const pRésultat = obtenir<
-        RésultatObjectifRecherche<InfoRésultatVide>
-      >(({ si }) =>
-        recherche({
-          constl,
-          idObjet: idCompte,
-          f: si(r => !!r && r.score > 0),
-        }),
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
+        ({ si }) =>
+          recherche({
+            constl,
+            idObjet: idCompte,
+            f: si((r) => !!r && r.score > 0),
+          }),
       );
 
       await constl.profil.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
@@ -73,19 +80,18 @@ describe("Rechercher profil", function () {
         score: 1 / 3,
         de: "activité",
         info: { type: "vide" },
-      }
+      };
       expect(résultat).to.deep.equal(réf);
     });
 
     it("encore mieux avec une adresse courriel", async () => {
-      const pRésultat = obtenir<
-        RésultatObjectifRecherche<InfoRésultatVide>
-      >(({ si }) =>
-        recherche({
-          constl,
-          idObjet: idCompte,
-          f: si(r => !!r && r.score >  1 / 3),
-        }),
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
+        ({ si }) =>
+          recherche({
+            constl,
+            idObjet: idCompte,
+            f: si((r) => !!r && r.score > 1 / 3),
+          }),
       );
 
       await constl.profil.sauvegarderCourriel({
@@ -99,21 +105,20 @@ describe("Rechercher profil", function () {
         score: 2 / 3,
         de: "activité",
         info: { type: "vide" },
-      }
+      };
       expect(résultat).to.deep.equal(réf);
     });
 
     it("...et c'est parfait avec un photo !", async () => {
-      const pRésultat = obtenir<
-        RésultatObjectifRecherche<InfoRésultatVide>
-      >(({ si }) =>
-        recherche({
-          constl,
-          idObjet: idCompte,
-          f: si(r => !!r && r.score >  2 / 3),
-        }),
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
+        ({ si }) =>
+          recherche({
+            constl,
+            idObjet: idCompte,
+            f: si((r) => !!r && r.score > 2 / 3),
+          }),
       );
-      
+
       const IMAGE = await obtRessourceTest({
         nomFichier: "logo.png",
       });
@@ -128,7 +133,7 @@ describe("Rechercher profil", function () {
         score: 1,
         de: "activité",
         info: { type: "vide" },
-      }
+      };
       expect(résultat).to.deep.equal(réf);
     });
   });
@@ -139,7 +144,7 @@ describe("Rechercher profil", function () {
     let fermer: Oublier;
 
     let idCompte: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
@@ -157,13 +162,14 @@ describe("Rechercher profil", function () {
     });
 
     it("rien pour commencer", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
-        ({ siNonDéfini }) =>
-          recherche({
-            constl,
-            idObjet: idCompte,
-            f: siNonDéfini(),
-          }),
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte>
+      >(({ siNonDéfini }) =>
+        recherche({
+          constl,
+          idObjet: idCompte,
+          f: siNonDéfini(),
+        }),
       );
       expect(résultat).to.be.undefined();
     });
@@ -175,7 +181,7 @@ describe("Rechercher profil", function () {
       );
 
       await constl.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
-      
+
       const résultat = await pRésultat;
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
@@ -184,18 +190,21 @@ describe("Rechercher profil", function () {
         score: 0.5,
         de: "nom",
         info: { type: "texte", texte: "Julián", début: 0, fin: 6 },
-      }
+      };
       expect(résultat).to.deep.equal(réf);
     });
 
     it("meilleur nom détecté", async () => {
-
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ si }) =>
-          recherche({ constl, idObjet: idCompte, f: si(r => !!r && r.score > 0.5) }),
+          recherche({
+            constl,
+            idObjet: idCompte,
+            f: si((r) => !!r && r.score > 0.5),
+          }),
       );
       await constl.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
-      
+
       const résultat = await pRésultat;
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
@@ -204,7 +213,7 @@ describe("Rechercher profil", function () {
         score: 1,
         de: "nom",
         info: { type: "texte", texte: "Julien", début: 0, fin: 6 },
-      }
+      };
       expect(résultat).to.deep.equal(réf);
     });
   });
@@ -215,7 +224,7 @@ describe("Rechercher profil", function () {
     let fermer: Oublier;
 
     let idCompte: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
@@ -231,15 +240,16 @@ describe("Rechercher profil", function () {
     after(async () => {
       if (fermer) await fermer();
     });
-    
+
     it("rien pour commencer", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
-        ({ siNonDéfini }) =>
-          recherche({
-            constl,
-            idObjet: idCompte,
-            f: siNonDéfini(),
-          }),
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte>
+      >(({ siNonDéfini }) =>
+        recherche({
+          constl,
+          idObjet: idCompte,
+          f: siNonDéfini(),
+        }),
       );
       expect(résultat).to.be.undefined();
     });
@@ -247,13 +257,17 @@ describe("Rechercher profil", function () {
     it("ajout courriel détecté", async () => {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ si }) =>
-          recherche({ constl, idObjet: idCompte, f: si(r => !!r && r.score > 0) }),
+          recherche({
+            constl,
+            idObjet: idCompte,
+            f: si((r) => !!r && r.score > 0),
+          }),
       );
 
       await constl.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
-      
+
       const résultat = await pRésultat;
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
@@ -266,7 +280,7 @@ describe("Rechercher profil", function () {
           début: 0,
           fin: 6,
         },
-      }
+      };
 
       expect(résultat).to.deep.equal(réf);
     });
@@ -279,12 +293,12 @@ describe("Rechercher profil", function () {
 
     let idCompte: string;
 
-    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide
+    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat>
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>
-    let rechercheCourriel: SuivreObjectifRecherche<TypeRésultat>
-    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>
+    let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheCourriel: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>;
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
@@ -305,10 +319,9 @@ describe("Rechercher profil", function () {
     });
 
     it("résultat id détecté", async () => {
-      const résultatId = await obtenir<
-        RésultatObjectifRecherche<TypeRésultat>
-      >(({ siDéfini }) =>
-        rechercheId({ constl, idObjet: idCompte, f: siDéfini() }),
+      const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheId({ constl, idObjet: idCompte, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<TypeRésultat> = {
@@ -321,10 +334,10 @@ describe("Rechercher profil", function () {
           texte: idCompte,
         },
         score: 1,
-      }
+      };
       expect(résultatId).to.deep.equal(réf);
-    })
-    
+    });
+
     it("rien d'autre pour commencer", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
@@ -363,9 +376,10 @@ describe("Rechercher profil", function () {
         ({ siDéfini }) =>
           rechercheNom({ constl, idObjet: idCompte, f: siDéfini() }),
       );
-      const pRésultatCourriel = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
-        ({ siDéfini }) =>
-          rechercheCourriel({ constl, idObjet: idCompte, f: siDéfini() }),
+      const pRésultatCourriel = obtenir<
+        RésultatObjectifRecherche<TypeRésultat>
+      >(({ siDéfini }) =>
+        rechercheCourriel({ constl, idObjet: idCompte, f: siDéfini() }),
       );
 
       await constl.profil.sauvegarderNom({
@@ -373,7 +387,7 @@ describe("Rechercher profil", function () {
         nom: "Julien Malard-Adam",
       });
 
-      const résultatNom = pRésultatNom
+      const résultatNom = pRésultatNom;
       const résultatCourriel = pRésultatCourriel;
 
       const réfNom: RésultatObjectifRecherche<TypeRésultat> = {
@@ -387,7 +401,7 @@ describe("Rechercher profil", function () {
           texte: "Julien Malard-Adam",
         },
         score: 1,
-      }
+      };
       expect(résultatNom).to.deep.equal(réfNom);
 
       const réfCourriel: RésultatObjectifRecherche<TypeRésultat> = {
@@ -401,14 +415,19 @@ describe("Rechercher profil", function () {
           texte: "Julien Malard-Adam",
         },
         score: 1 / 3,
-      }
+      };
       expect(résultatCourriel).to.deep.equal(réfCourriel);
     });
 
     it("ajout courriel détecté", async () => {
-      const pRésultatCourriel = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
-        ({ si }) =>
-          rechercheCourriel({ constl, idObjet: idCompte, f: si(r => !!r && r.score > 1 / 3) }),
+      const pRésultatCourriel = obtenir<
+        RésultatObjectifRecherche<TypeRésultat>
+      >(({ si }) =>
+        rechercheCourriel({
+          constl,
+          idObjet: idCompte,
+          f: si((r) => !!r && r.score > 1 / 3),
+        }),
       );
 
       await constl.profil.sauvegarderCourriel({
@@ -427,24 +446,25 @@ describe("Rechercher profil", function () {
           texte: "julien.malard@mail.mcgill.ca",
         },
         score: 1,
-      }
+      };
       expect(résultatCourriel).to.deep.equal(réf);
     });
 
     it("résultat recherche vide", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
-        rechercheVide({ constl, idObjet: idCompte, f: siDéfini() }),
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheVide({ constl, idObjet: idCompte, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
         type: "résultat",
         de: "*",
         info: {
-          type: "vide"
+          type: "vide",
         },
-        score: 1
-      }
-      expect(résultat).to.deep.equal(réf)
+        score: 1,
+      };
+      expect(résultat).to.deep.equal(réf);
     });
   });
 });

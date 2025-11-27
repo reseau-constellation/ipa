@@ -990,7 +990,9 @@ describe("Rechercher projets", function () {
     });
 
     it("résultat recherche vide", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultatProjet>>(({ siDéfini }) =>
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<TypeRésultatProjet>
+      >(({ siDéfini }) =>
         rechercheVide({ constl, idObjet: idProjet, f: siDéfini() }),
       );
 
@@ -998,11 +1000,11 @@ describe("Rechercher projets", function () {
         type: "résultat",
         de: "*",
         info: {
-          type: "vide"
+          type: "vide",
         },
-        score: 1
-      }
-      expect(résultat).to.deep.equal(réf)
-    })
+        score: 1,
+      };
+      expect(résultat).to.deep.equal(réf);
+    });
   });
 });

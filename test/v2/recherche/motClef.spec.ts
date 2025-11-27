@@ -1,6 +1,9 @@
 import { expect } from "aegir/chai";
 
-import { rechercherMotsClefsSelonNom, rechercherMotsClefsSelonTexte } from "@/v2/recherche/fonctions/motsClefs.js";
+import {
+  rechercherMotsClefsSelonNom,
+  rechercherMotsClefsSelonTexte,
+} from "@/v2/recherche/fonctions/motsClefs.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { Constellation } from "@/v2/index.js";
@@ -138,7 +141,7 @@ describe("Rechercher mots-clefs", function () {
   describe("selon texte", function () {
     let idMotClef: string;
 
-    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide
+    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide;
     let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
@@ -154,10 +157,11 @@ describe("Rechercher mots-clefs", function () {
     });
 
     it("résultat id détecté", async () => {
-      const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
-        rechercheId({ constl, idObjet: idMotClef, f: siDéfini() }),
+      const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheId({ constl, idObjet: idMotClef, f: siDéfini() }),
       );
-      
+
       expect(résultatId).to.deep.equal({
         type: "résultat",
         de: "id",
@@ -172,8 +176,9 @@ describe("Rechercher mots-clefs", function () {
     });
 
     it("résultat nom détecté", async () => {
-      const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
-        rechercheNom({ constl, idObjet: idMotClef, f: siDéfini() }),
+      const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheNom({ constl, idObjet: idMotClef, f: siDéfini() }),
       );
 
       await constl.motsClefs.sauvegarderNoms({
@@ -199,7 +204,9 @@ describe("Rechercher mots-clefs", function () {
     });
 
     it("résultat description détecté", async () => {
-      const pRésultatDescription = obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
+      const pRésultatDescription = obtenir<
+        RésultatObjectifRecherche<TypeRésultat>
+      >(({ siDéfini }) =>
         rechercheDescription({ constl, idObjet: idMotClef, f: siDéfini() }),
       );
 
@@ -227,19 +234,20 @@ describe("Rechercher mots-clefs", function () {
     });
 
     it("résultat recherche vide", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
-        rechercheVide({ constl, idObjet: idMotClef, f: siDéfini() }),
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheVide({ constl, idObjet: idMotClef, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
         type: "résultat",
         de: "*",
         info: {
-          type: "vide"
+          type: "vide",
         },
-        score: 1
-      }
-      expect(résultat).to.deep.equal(réf)
-    })
+        score: 1,
+      };
+      expect(résultat).to.deep.equal(réf);
+    });
   });
 });

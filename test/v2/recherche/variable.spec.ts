@@ -250,8 +250,8 @@ describe("Rechercher variables", function () {
   describe("selon texte", function () {
     let idVariable: string;
 
-    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide
-    
+    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide;
+
     let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
@@ -314,9 +314,10 @@ describe("Rechercher variables", function () {
       });
     });
 
-
     it("résultat description détecté", async () => {
-      const pRésultatDescription = obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
+      const pRésultatDescription = obtenir<
+        RésultatObjectifRecherche<TypeRésultat>
+      >(({ siDéfini }) =>
         rechercheDescription({ constl, idObjet: idVariable, f: siDéfini() }),
       );
 
@@ -344,20 +345,20 @@ describe("Rechercher variables", function () {
     });
 
     it("résultat recherche vide", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
-        rechercheVide({ constl, idObjet: idVariable, f: siDéfini() }),
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheVide({ constl, idObjet: idVariable, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
         type: "résultat",
         de: "*",
         info: {
-          type: "vide"
+          type: "vide",
         },
-        score: 1
-      }
-      expect(résultat).to.deep.equal(réf)
-    })
-
+        score: 1,
+      };
+      expect(résultat).to.deep.equal(réf);
+    });
   });
 });

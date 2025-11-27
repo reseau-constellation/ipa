@@ -294,7 +294,7 @@ describe("Rechercher nuées", function () {
       rechercheTous = rechercherNuéesSelonVariable("Précip");
     });
 
-    it("Pas de résultat quand la nuée n'a pas de variable", async () => {
+    it("pas de résultat quand la nuée n'a pas de variable", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
           rechercheId({
@@ -439,10 +439,9 @@ describe("Rechercher nuées", function () {
     });
 
     it("résultat id détecté", async () => {
-      const résultatId = await obtenir<
-        RésultatObjectifRecherche<TypeRésultat>
-      >(({ siDéfini }) =>
-        rechercheId({ constl, idObjet: idNuée, f: siDéfini() }),
+      const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheId({ constl, idObjet: idNuée, f: siDéfini() }),
       );
       expect(résultatId).to.deep.equal({
         type: "résultat",
@@ -460,7 +459,11 @@ describe("Rechercher nuées", function () {
     it("résultat nom détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ si }) =>
-          rechercheNom({ constl, idObjet: idNuée, f: si(r => !!r && r.de === "nom") }),
+          rechercheNom({
+            constl,
+            idObjet: idNuée,
+            f: si((r) => !!r && r.de === "nom"),
+          }),
       );
 
       await constl.nuées.sauvegarderNoms({
@@ -626,19 +629,20 @@ describe("Rechercher nuées", function () {
     });
 
     it("résultat recherche vide", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
-        rechercheVide({ constl, idObjet: idNuée, f: siDéfini() }),
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheVide({ constl, idObjet: idNuée, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
         type: "résultat",
         de: "*",
         info: {
-          type: "vide"
+          type: "vide",
         },
-        score: 1
-      }
-      expect(résultat).to.deep.equal(réf)
-    })
+        score: 1,
+      };
+      expect(résultat).to.deep.equal(réf);
+    });
   });
 });
