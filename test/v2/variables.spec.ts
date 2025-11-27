@@ -772,9 +772,14 @@ describe.only("Variables", function () {
     });
 
     it("inviter compte hors ligne", async () => {
-      const compteHorsLigne = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-      await constl.variables.inviterAuteur({ idVariable, idCompte: compteHorsLigne, rôle: MEMBRE});
-      
+      const compteHorsLigne =
+        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      await constl.variables.inviterAuteur({
+        idVariable,
+        idCompte: compteHorsLigne,
+        rôle: MEMBRE,
+      });
+
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.variables.suivreAuteurs({
           idVariable,
@@ -796,7 +801,7 @@ describe.only("Variables", function () {
           idCompte: compteHorsLigne,
           accepté: false,
           rôle: MEMBRE,
-        }
+        },
       ];
       expect(auteurs).to.deep.equal(réf);
     });

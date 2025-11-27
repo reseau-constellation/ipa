@@ -1,6 +1,6 @@
 import { expect } from "aegir/chai";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
-import { obtenir , créerConstellationsTest} from "./utils.js";
+import { obtenir, créerConstellationsTest } from "./utils.js";
 import type { InfoAuteur } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
@@ -21,10 +21,9 @@ describe("Nuées", function () {
   });
 
   after(async () => {
-    if (fermer) await fermer()
-  })
+    if (fermer) await fermer();
+  });
 
-  
   describe("autorisations", function () {
     it("nuée ouverte - tous peuvent écrire");
     it("nuée ouverte - bloquer compte");
@@ -123,9 +122,14 @@ describe("Nuées", function () {
     });
 
     it("inviter compte hors ligne", async () => {
-      const compteHorsLigne = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-      await constl.nuées.inviterAuteur({ idNuée, idCompte: compteHorsLigne, rôle: MEMBRE});
-      
+      const compteHorsLigne =
+        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      await constl.nuées.inviterAuteur({
+        idNuée,
+        idCompte: compteHorsLigne,
+        rôle: MEMBRE,
+      });
+
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.nuées.suivreAuteurs({
           idNuée,
@@ -147,7 +151,7 @@ describe("Nuées", function () {
           idCompte: compteHorsLigne,
           accepté: false,
           rôle: MEMBRE,
-        }
+        },
       ];
       expect(auteurs).to.deep.equal(réf);
     });

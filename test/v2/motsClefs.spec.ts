@@ -470,9 +470,14 @@ describe.only("Mots-clefs", function () {
     });
 
     it("inviter compte hors ligne", async () => {
-      const compteHorsLigne = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-      await constl.motsClefs.inviterAuteur({ idMotClef, idCompte: compteHorsLigne, rôle: MEMBRE});
-      
+      const compteHorsLigne =
+        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      await constl.motsClefs.inviterAuteur({
+        idMotClef,
+        idCompte: compteHorsLigne,
+        rôle: MEMBRE,
+      });
+
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.motsClefs.suivreAuteurs({
           idMotClef,
@@ -494,7 +499,7 @@ describe.only("Mots-clefs", function () {
           idCompte: compteHorsLigne,
           accepté: false,
           rôle: MEMBRE,
-        }
+        },
       ];
       expect(auteurs).to.deep.equal(réf);
     });

@@ -1,6 +1,6 @@
 import { expect } from "aegir/chai";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
-import { obtenir , créerConstellationsTest} from "./utils.js";
+import { obtenir, créerConstellationsTest } from "./utils.js";
 import type { InfoAuteur } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
@@ -21,8 +21,8 @@ describe("Projets", function () {
   });
 
   after(async () => {
-    if (fermer) await fermer()
-  })
+    if (fermer) await fermer();
+  });
 
   describe("auteurs", function () {
     let idProjet: string;
@@ -100,9 +100,14 @@ describe("Projets", function () {
     });
 
     it("inviter compte hors ligne", async () => {
-      const compteHorsLigne = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-      await constl.projets.inviterAuteur({ idProjet, idCompte: compteHorsLigne, rôle: MEMBRE});
-      
+      const compteHorsLigne =
+        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      await constl.projets.inviterAuteur({
+        idProjet,
+        idCompte: compteHorsLigne,
+        rôle: MEMBRE,
+      });
+
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.projets.suivreAuteurs({
           idProjet,
@@ -124,7 +129,7 @@ describe("Projets", function () {
           idCompte: compteHorsLigne,
           accepté: false,
           rôle: MEMBRE,
-        }
+        },
       ];
       expect(auteurs).to.deep.equal(réf);
     });
