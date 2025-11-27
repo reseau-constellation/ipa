@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { idcValide } from "@constl/utils-ipa";
+import { RechercheProfils } from "@/v2/recherche/profils.js";
 import { cacheSuivi } from "../cache.js";
 import { mapÀObjet } from "../utils.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
@@ -102,6 +103,8 @@ export class Profil<
   L,
   ServicesNécessairesProfil<L>
 > {
+  recherche: RechercheProfils<L>
+
   constructor({
     nébuleuse,
   }: {
@@ -115,6 +118,11 @@ export class Profil<
         schéma: schémaProfil,
       },
     });
+    this.recherche = new RechercheProfils<L>({
+      profils: this,
+      constl: this.nébuleuse,
+      service: (clef) => this.service(clef),
+    })
   }
 
   async initialiser(): Promise<void> {
