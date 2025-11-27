@@ -19,7 +19,7 @@ import {
   typedSet,
 } from "@constl/bohr-db";
 import { anySignal } from "any-signal";
-import Base64 from "crypto-js";
+import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { suivreDeFonctionListe } from "@constl/utils-ipa";
 import { CID } from "multiformats";
@@ -488,7 +488,7 @@ export class ServiceOrbite<
   }
 
   @cacheSuivi
-  async suivreEmpreinteTêtesBdRécursive({
+  async suivreEmpreinteTêteBd({
     idBd,
     f,
   }: {
@@ -502,41 +502,12 @@ export class ServiceOrbite<
     };
     const calculerEmpreinte = (texte: string) => Base64.stringify(md5(texte));
 
-    const fFinale = async (têtes: string[]) => {
-      await f(calculerEmpreinte(têtes.sort().join()));
-    };
-
-    const fListe = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: Suivi<string[]>;
-    }): Promise<Oublier> => {
-      return await this.suivreBdsRécursives({
-        idBd,
-        f: async (bds) => await fSuivreRacine(bds),
-      });
-    };
-
-    const fBranche = async ({
-      id,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: Suivi<string>;
-    }): Promise<Oublier> => {
-      return await this.suivreBd({
-        id,
-        f: async (bd) => {
-          const tête = await obtTêteBd(bd);
-          await fSuivreBranche(tête);
-        },
-      });
-    };
-
-    return await suivreDeFonctionListe({
-      fListe,
-      f: fFinale,
-      fBranche,
+    return await this.suivreBd({
+      id: idBd,
+      f: async (bd) => {
+        const tête = await obtTêteBd(bd);
+        await f(calculerEmpreinte(tête));
+      },
     });
   }
 }
