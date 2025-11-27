@@ -6,6 +6,7 @@ import type { NestedMapToObject, NestedValueMap } from "@orbitdb/nested-db";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { PartielRécursif } from "../types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
+import { Suivi } from "./types.js";
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {
   return new Promise<void>((résoudre) => {
@@ -85,3 +86,28 @@ export const dépunicodifier = (ma: Multiaddr): Multiaddr => {
   );
   return multiaddr(composantesDépunicodifiées);
 };
+
+export const stabiliser = (n = 100) => <T>(f: Suivi<T>): Suivi<T> => {
+  let déjàAppellée = false;
+  let val: string | undefined = undefined;
+  let dernierT = 0;
+  let annulerRebours: () => void = () => {};
+  
+  return async (v: T) => {
+    if (déjàAppellée && JSON.stringify(v) === val) return;
+
+    annulerRebours();
+    déjàAppellée = true;
+    val = JSON.stringify(v);
+    dernierT = Date.now();
+
+    const crono = setTimeout(async () => await f(v), n);
+    annulerRebours = () => {
+      if (dernierT) {
+        const dif = Date.now() - dernierT
+        n += dif * 0.5
+      }
+      clearTimeout(crono);
+    };
+  }
+}
