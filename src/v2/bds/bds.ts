@@ -12,7 +12,8 @@ import {
 import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "xlsx";
-import { Semaphore } from "@chriscdn/promise-semaphore";
+import { TimeoutController } from 'timeout-abort-controller'
+import PQueue from "p-queue";
 import { cacheSuivi } from "../crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import {
@@ -22,7 +23,7 @@ import {
 } from "../favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import { schémaTableau } from "../tableaux.js";
-import { mapÀObjet } from "../crabe/utils.js";
+import { mapÀObjet, stabiliser } from "../crabe/utils.js";
 import {
   ajouterProtocoleOrbite,
   extraireEmpreinte,
@@ -1562,32 +1563,42 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   @cacheSuivi
   async suivreBdUnique({
     schéma,
-    clefUnique,
     f,
   }: {
     schéma: SchémaBd;
-    clefUnique: string;
     f: Suivi<string>;
   }): Promise<Oublier> {
-    throw new Error("à vérifier");
     const stockage = this.service("stockage");
-    if (!schéma.clefUnique)
+
+    const { clefUnique } = schéma;
+    if (!clefUnique)
       throw new Error("Le schéma doit contenir la propriété `clefUnique`.");
 
     const clefStockageLocal = "bdUnique : " + clefUnique;
 
-    // On peut mettre le verrou ici car `@cacheSuivi` assure que cette fonction ne sera appellée
+    // On peut mettre la queue ici car `@cacheSuivi` assure que cette fonction ne sera appellée
     // qu'une seule fois en même temps
-    const verrouBdUnique = new Semaphore();
+    const queue = new PQueue({ concurrency: 1 });
 
     const déjàCombinées = new Set();
 
-    const fFinale = async (bds: string[]): Promise<void> => {
-      let idBd: string;
-
-      await verrouBdUnique.acquire(clefUnique);
-      try {
-        const idBdLocale = await stockage.obtenirItem(clefStockageLocal);
+    const tâche = (bds: string[]): (()=> Promise<void>) => {
+      return async () => {
+        let idBd: string;
+      
+        let idBdLocale = await stockage.obtenirItem(clefStockageLocal);
+        if (idBdLocale) {
+          const crono = new TimeoutController(1000)
+          try { 
+            await orbite.ouvrirBd({ id: idBdLocale, signal: crono.signal})
+          } catch (e) {
+            if (e.toString().includes("AbortError")) {
+              idBdLocale = null;
+            } else {
+              throw(e)
+            }
+          }
+        }
 
         switch (bds.length) {
           case 0: {
@@ -1596,24 +1607,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
             } else {
               idBd = await this.créerBdDeSchéma({ schéma });
               await stockage.sauvegarderItem(clefStockageLocal, idBd);
-            }
-            break;
-          }
-          case 1: {
-            idBd = bds[0];
-            await stockage.sauvegarderItem(clefStockageLocal, idBd);
-            if (
-              idBdLocale &&
-              idBd !== idBdLocale &&
-              !déjàCombinées.has(idBdLocale)
-            ) {
-              déjàCombinées.add(idBdLocale);
-
-              await this.combinerBds({
-                idBdDestinataire: idBdLocale,
-                idBdSource: idBd,
-              });
-              await this.effacerBd({ idBd: idBdLocale });
             }
             break;
           }
@@ -1636,14 +1629,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
             break;
           }
         }
-      } finally {
-        verrouBdUnique.release(clefUnique);
+        
+        await f(idBd);
       }
-      await f(idBd);
     };
 
     const orbite = this.service("orbite");
 
+    const stabilité = stabiliser()
     const oublier = await suivreDeFonctionListe({
       fListe: ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
         this.suivreBds({ f: ignorerNonDéfinis(fSuivreRacine) }),
@@ -1656,26 +1649,20 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
             await fSuivreBranche({ id, clefUnique: mapÀObjet(bd)?.clefUnique }),
         });
       },
-      f: async (bds: { id: string; clefUnique?: string }[]) =>
-        await fFinale(
-          bds.filter((bd) => bd.clefUnique === clefUnique).map((bd) => bd.id),
-        ),
+      f: stabilité(async (bds: { id: string; clefUnique?: string }[]) => {
+          queue.add(
+            tâche(bds.filter((bd) => bd.clefUnique === clefUnique).map((bd) => bd.id)),
+          )
+        }),
     });
 
     return oublier;
   }
 
-  async obtenirBdUnique({
-    schéma,
-    clefUnique,
-  }: {
-    schéma: SchémaBd;
-    clefUnique: string;
-  }): Promise<string> {
+  async obtenirBdUnique({ schéma }: { schéma: SchémaBd }): Promise<string> {
     return await uneFois(async (fSuivi: Suivi<string>) => {
       return await this.suivreBdUnique({
         schéma,
-        clefUnique,
         f: ignorerNonDéfinis(fSuivi),
       });
     });
@@ -1684,12 +1671,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   @cacheSuivi
   async suivreDonnéesBdUnique({
     schéma,
-    clefUnique,
     idTableau,
     f,
   }: {
     schéma: SchémaBd;
-    clefUnique: string;
     idTableau: string;
     f: Suivi<DonnéesRangéeTableauAvecId[]>;
   }): Promise<Oublier> {
@@ -1718,7 +1703,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     }): Promise<Oublier> => {
       return await this.suivreBdUnique({
         schéma,
-        clefUnique,
         f: ignorerNonDéfinis(fSuivreRacine),
       });
     };
