@@ -728,6 +728,7 @@ describe("Rechercher projets", function () {
     let rechercheBds: SuivreObjectifRecherche<TypeRésultatProjet>;
     let rechercheVariables: SuivreObjectifRecherche<TypeRésultatProjet>;
     let rechercheMotsClefs: SuivreObjectifRecherche<TypeRésultatProjet>;
+    let rechercheVide: SuivreObjectifRecherche<TypeRésultatProjet>;
 
     before(async () => {
       idProjet = await constl.projets.créerProjet();
@@ -739,6 +740,7 @@ describe("Rechercher projets", function () {
       rechercheBds = rechercherProjetsSelonTexte(idBd);
       rechercheVariables = rechercherProjetsSelonTexte("Température");
       rechercheMotsClefs = rechercherProjetsSelonTexte("Météo");
+      rechercheVide = rechercherProjetsSelonTexte("");
     });
 
     it("résultat id détecté", async () => {
@@ -985,5 +987,21 @@ describe("Rechercher projets", function () {
         expect(résulatMotClef).to.deep.equal(résRéfMotClef);
       }
     });
+
+    it("résultat recherche vide", async () => {
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultatProjet>>(({ siDéfini }) =>
+        rechercheVide({ constl, idObjet: idProjet, f: siDéfini() }),
+      );
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        de: "*",
+        info: {
+          type: "vide"
+        },
+        score: 1
+      }
+      expect(résultat).to.deep.equal(réf)
+    })
   });
 });

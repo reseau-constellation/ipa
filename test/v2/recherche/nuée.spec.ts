@@ -425,6 +425,7 @@ describe("Rechercher nuées", function () {
     let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheVariable: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheMotClef: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -434,6 +435,7 @@ describe("Rechercher nuées", function () {
       rechercheDescription = rechercherNuéesSelonTexte("Montréal");
       rechercheVariable = rechercherNuéesSelonTexte("Température");
       rechercheMotClef = rechercherNuéesSelonTexte("Météo");
+      rechercheVide = rechercherNuéesSelonTexte("");
     });
 
     it("résultat id détecté", async () => {
@@ -622,5 +624,21 @@ describe("Rechercher nuées", function () {
       };
       expect(résultatMotClef).to.deep.equal(résRéf);
     });
+
+    it("résultat recherche vide", async () => {
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
+        rechercheVide({ constl, idObjet: idNuée, f: siDéfini() }),
+      );
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        de: "*",
+        info: {
+          type: "vide"
+        },
+        score: 1
+      }
+      expect(résultat).to.deep.equal(réf)
+    })
   });
 });

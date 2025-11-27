@@ -13,7 +13,6 @@ import type {
   RésultatObjectifRecherche,
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
-import { variables } from "@/index.js";
 
 describe("Rechercher variables", function () {
   let fermer: Oublier;
@@ -256,6 +255,7 @@ describe("Rechercher variables", function () {
     let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>;
 
     before(async () => {
       idVariable = await constl.variables.créerVariable({
@@ -265,6 +265,7 @@ describe("Rechercher variables", function () {
       rechercheId = rechercherVariablesSelonTexte(idVariable.slice(0, 15));
       rechercheNom = rechercherVariablesSelonTexte("précipitation");
       rechercheDescription = rechercherVariablesSelonTexte("neige");
+      rechercheVide = rechercherVariablesSelonTexte("");
 
       await constl.variables.sauvegarderNoms({
         idVariable,
@@ -341,6 +342,22 @@ describe("Rechercher variables", function () {
         score: 1,
       });
     });
+
+    it("résultat recherche vide", async () => {
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
+        rechercheVide({ constl, idObjet: idVariable, f: siDéfini() }),
+      );
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        de: "*",
+        info: {
+          type: "vide"
+        },
+        score: 1
+      }
+      expect(résultat).to.deep.equal(réf)
+    })
 
   });
 });

@@ -142,6 +142,7 @@ describe("Rechercher mots-clefs", function () {
     let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
     let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>;
 
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
@@ -149,6 +150,7 @@ describe("Rechercher mots-clefs", function () {
       rechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
       rechercheDescription = rechercherMotsClefsSelonTexte("domaine de l'eau");
       rechercheId = rechercherMotsClefsSelonTexte(idMotClef.slice(0, 15));
+      rechercheVide = rechercherMotsClefsSelonTexte("");
     });
 
     it("résultat id détecté", async () => {
@@ -223,5 +225,21 @@ describe("Rechercher mots-clefs", function () {
         score: 1,
       });
     });
+
+    it("résultat recherche vide", async () => {
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
+        rechercheVide({ constl, idObjet: idMotClef, f: siDéfini() }),
+      );
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        de: "*",
+        info: {
+          type: "vide"
+        },
+        score: 1
+      }
+      expect(résultat).to.deep.equal(réf)
+    })
   });
 });
