@@ -179,7 +179,7 @@ describe("Nuées", function () {
       let idNuée: string;
       let fOublier: schémaFonctionOublier;
 
-      const descr = new utilsTestAttente.AttendreRésultat<{
+      const descriptions = new utilsTestAttente.AttendreRésultat<{
         [key: string]: string;
       }>();
 
@@ -187,7 +187,7 @@ describe("Nuées", function () {
         idNuée = await client.nuées.créerNuée();
         fOublier = await client.nuées.suivreDescriptionsNuée({
           idNuée,
-          f: (n) => descr.mettreÀJour(n),
+          f: (n) => descriptions.mettreÀJour(n),
         });
       });
 
@@ -196,7 +196,7 @@ describe("Nuées", function () {
       });
 
       it("Pas de descriptions pour commencer", async () => {
-        const val = await descr.attendreExiste();
+        const val = await descriptions.attendreExiste();
         expect(Object.keys(val).length).to.equal(0);
       });
 
@@ -205,7 +205,7 @@ describe("Nuées", function () {
           idNuée,
           descriptions: { fr: "Alphabets" },
         });
-        const val = await descr.attendreQue((x) => Object.keys(x).length > 0);
+        const val = await descriptions.attendreQue((x) => Object.keys(x).length > 0);
         expect(val.fr).to.equal("Alphabets");
       });
 
@@ -217,7 +217,7 @@ describe("Nuées", function () {
             हिं: "वर्णमाला",
           },
         });
-        const val = await descr.attendreQue((x) => !!x.हिं);
+        const val = await descriptions.attendreQue((x) => !!x.हिं);
         expect(val).to.deep.equal({
           fr: "Alphabets",
           த: "எழுத்துகள்",
@@ -230,7 +230,7 @@ describe("Nuées", function () {
           idNuée,
           descriptions: { fr: "Systèmes d'écriture" },
         });
-        const val = await descr.attendreQue((x) => x.fr !== "Alphabets");
+        const val = await descriptions.attendreQue((x) => x.fr !== "Alphabets");
         expect(val?.fr).to.equal("Systèmes d'écriture");
       });
 
@@ -239,7 +239,7 @@ describe("Nuées", function () {
           idNuée,
           langue: "fr",
         });
-        const val = await descr.attendreQue((x) => !x.fr);
+        const val = await descriptions.attendreQue((x) => !x.fr);
         expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
       });
     });

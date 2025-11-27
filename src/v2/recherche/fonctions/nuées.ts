@@ -76,7 +76,7 @@ export const rechercherNuéesSelonDescription = (
           score,
           clef,
           info,
-          de: "descr",
+          de: "descriptions",
         });
       } else {
         f();
@@ -305,7 +305,7 @@ export const rechercherNuéesSelonTexte = (
     >({
       fsRecherche: {
         nom: rechercherNuéesSelonNom(texte),
-        descr: rechercherNuéesSelonDescription(texte),
+        descriptions: rechercherNuéesSelonDescription(texte),
         variables: rechercherNuéesSelonVariable(texte),
         motsClefs: rechercherNuéesSelonMotClef(texte),
         id: rechercherSelonId(texte),

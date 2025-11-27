@@ -129,7 +129,7 @@ describe("Rechercher nuées", function () {
         expect(résultat).to.deep.equal({
           type: "résultat",
           clef: "fr",
-          de: "descr",
+          de: "descriptions",
           info: {
             type: "texte",
             début: 0,
@@ -503,7 +503,7 @@ describe("Rechercher nuées", function () {
       expect(résultatDescription).to.deep.equal({
         type: "résultat",
         clef: "fr",
-        de: "descr",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 14,

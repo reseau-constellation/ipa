@@ -141,7 +141,7 @@ describe("Rechercher projets", function () {
       expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
-        de: "descr",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 0,
@@ -584,7 +584,7 @@ describe("Rechercher projets", function () {
         info: {
           type: "résultat",
           clef: "fr",
-          de: "descr",
+          de: "descriptions",
           info: {
             type: "texte",
             début: 14,
@@ -812,7 +812,7 @@ describe("Rechercher projets", function () {
       const réf: RésultatObjectifRecherche<TypeRésultatProjet> = {
         type: "résultat",
         clef: "fr",
-        de: "descr",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 14,

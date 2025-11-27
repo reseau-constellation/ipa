@@ -635,15 +635,15 @@ export class Nuées<
   }): Promise<Oublier> {
     const rés: {
       noms: { [key: string]: string };
-      descr: { [key: string]: string };
+      descriptions: { [key: string]: string };
     } = {
       noms: {},
-      descr: {},
+      descriptions: {},
     };
     const fFinale = async () => {
       const scores = [
         Object.keys(rés.noms).length ? 1 : 0,
-        Object.keys(rés.descr).length ? 1 : 0,
+        Object.keys(rés.descriptions).length ? 1 : 0,
       ];
 
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
@@ -659,8 +659,8 @@ export class Nuées<
 
     const oublierDescr = await this.suivreDescriptions({
       idNuée,
-      f: (descr) => {
-        rés.descr = descr;
+      f: (descriptions) => {
+        rés.descriptions = descriptions;
         fFinale();
       },
     });

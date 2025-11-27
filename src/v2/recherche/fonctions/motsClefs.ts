@@ -74,7 +74,7 @@ export const rechercherMotsClefsSelonDescription = (
           score,
           clef,
           info,
-          de: "descr",
+          de: "descriptions",
         });
       } else {
         return await f();
@@ -101,7 +101,7 @@ export const rechercherMotsClefsSelonTexte = (
     f: SuiviRecherche<InfoRésultatTexte | InfoRésultatVide>;
   }): Promise<Oublier> => {
     const fRechercherNoms = rechercherMotsClefsSelonNom(texte);
-    const fRechercherDescr = rechercherMotsClefsSelonDescription(texte);
+    const fRechercherDescriptions = rechercherMotsClefsSelonDescription(texte);
     const fRechercherId = rechercherSelonId(texte);
     const fRechercherTous = rechercherTousSiVide(texte);
 
@@ -109,7 +109,7 @@ export const rechercherMotsClefsSelonTexte = (
       fsRecherche: {
         noms: fRechercherNoms,
         id: fRechercherId,
-        descr: fRechercherDescr,
+        descriptions: fRechercherDescriptions,
         vide: fRechercherTous,
       },
       constl,

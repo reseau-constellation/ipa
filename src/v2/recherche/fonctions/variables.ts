@@ -71,7 +71,7 @@ export const rechercherVariablesSelonDescription = (
         return await f({
           type: "résultat",
           score,
-          de: "descr",
+          de: "descriptions",
           clef,
           info,
         });

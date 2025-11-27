@@ -80,7 +80,7 @@ export const rechercherProjetsSelonDescription = (
           score,
           clef,
           info,
-          de: "descr",
+          de: "descriptions",
         });
       } else {
         f();
@@ -441,7 +441,7 @@ export const rechercherProjetsSelonTexte = (
     >({
       fsRecherche: {
         noms: fRechercherNoms,
-        descr: fRechercherDescription,
+        descriptions: fRechercherDescription,
         bd: fRechercherBd,
         variable: fRechercherVariable,
         motClef: fRechercherMotClef,

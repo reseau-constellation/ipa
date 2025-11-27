@@ -101,7 +101,7 @@ describe("Rechercher bds", function () {
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
         clef: "fr",
-        de: "descr",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 0,
@@ -459,7 +459,7 @@ describe("Rechercher bds", function () {
       });
     });
 
-    it("Résultat descr détecté", async () => {
+    it("Résultat descriptions détecté", async () => {
       await constl.bds.sauvegarderDescriptionsBd({
         idBd,
         descriptions: {
@@ -470,7 +470,7 @@ describe("Rechercher bds", function () {
       expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
-        de: "descr",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 14,

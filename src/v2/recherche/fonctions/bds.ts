@@ -76,7 +76,7 @@ export const rechercherBdsSelonDescription = (
           score,
           clef,
           info,
-          de: "descr",
+          de: "descriptions",
         });
       } else {
         return await f();
@@ -305,7 +305,7 @@ export const rechercherBdsSelonTexte = (
     >({
       fsRecherche: {
         nom: rechercherBdsSelonNom(texte),
-        descr: rechercherBdsSelonDescription(texte),
+        descriptions: rechercherBdsSelonDescription(texte),
         variables: rechercherBdsSelonVariable(texte),
         motsClefs: rechercherBdsSelonMotClef(texte),
         id: rechercherSelonId(texte),

@@ -846,17 +846,17 @@ export class Variables<
   }): Promise<Oublier> {
     const info: {
       noms?: { [key: string]: string };
-      descr?: { [key: string]: string };
+      descriptions?: { [key: string]: string };
       règles?: RègleVariableAvecId<RègleVariable>[];
       unités?: string | null;
       catégorie?: CatégorieVariables;
     } = {};
 
     const fFinale = async () => {
-      const { noms, descr, catégorie, unités, règles } = info;
+      const { noms, descriptions, catégorie, unités, règles } = info;
       const scores = [
         noms && Object.keys(noms).length ? 1 : 0,
-        descr && Object.keys(descr).length ? 1 : 0,
+        descriptions && Object.keys(descriptions).length ? 1 : 0,
       ];
       if (catégorie?.catégorie === "numérique") {
         scores.push(unités ? 1 : 0);
@@ -875,8 +875,8 @@ export class Variables<
 
     const oublierDescr = await this.suivreDescriptions({
       idVariable,
-      f: async (descr) => {
-        info.descr = descr;
+      f: async (descriptions) => {
+        info.descriptions = descriptions;
         await fFinale();
       },
     });
