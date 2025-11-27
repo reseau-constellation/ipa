@@ -168,7 +168,10 @@ export class Variables<
     });
 
     const favoris = this.service("favoris");
-    favoris.inscrireRésolution({ clef: "variable", résolution: this.suivreRésolutionÉpingle.bind(this) })
+    favoris.inscrireRésolution({
+      clef: "variable",
+      résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
   }
 
   @cacheSuivi

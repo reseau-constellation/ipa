@@ -18,8 +18,8 @@ describe("Favoris", function () {
   });
 
   describe("résolution épingles", function () {
-    it("inscrire résolution")
-    it("erreur si résolution non inscrite")
+    it("inscrire résolution");
+    it("erreur si résolution non inscrite");
     it("résoudre sous-bds", async () => {
       throw new Error("à faire");
     });

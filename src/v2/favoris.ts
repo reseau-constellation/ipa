@@ -74,7 +74,7 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
 export type Résolveur<T extends BaseÉpingleFavoris> = (args: {
   épingle: ÉpingleFavorisAvecIdBooléennisée<T>;
   f: Suivi<Set<string>>;
-}) => Promise<Oublier>
+}) => Promise<Oublier>;
 
 // Structure données
 
@@ -202,7 +202,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     résolution,
   }: {
     clef: string;
-    résolution: Résolveur<T>
+    résolution: Résolveur<T>;
   }): Promise<void> {
     this.résolveurs.set(clef, résolution);
   }
@@ -225,16 +225,28 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     const ceDispositif = await compte.obtIdDispositif();
 
     const résolveur = this.résolveurs.get(épingle.épingle.type);
-    if (!résolveur) return;
+    if (!résolveur) {
+      const journal = this.service("journal");
+      await journal.écrire(
+        `Résolveur pour épingle de type ${épingle.épingle.type} non disponible. Cet objet ne sera pas épinglé.`,
+      );
+
+      // On épingle la racine de l'objet ; c'est tout ce qu'on peut faire dans ce cas.
+      await f(new Set([épingle.idObjet]));
+      return faisRien;
+    }
 
     const épingleBooléennisée = this.résoudreÉpinglesSurDispositif({
       épingle: épingle.épingle,
       ceDispositif,
     });
-    return await résolveur({ f, épingle: {
-      idObjet: ajouterProtocoleOrbite(épingle.idObjet),
-      épingle: épingleBooléennisée,
-    } });
+    return await résolveur({
+      f,
+      épingle: {
+        idObjet: ajouterProtocoleOrbite(épingle.idObjet),
+        épingle: épingleBooléennisée,
+      },
+    });
   }
 
   // Fonctionalités

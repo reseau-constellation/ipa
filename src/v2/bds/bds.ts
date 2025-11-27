@@ -12,7 +12,7 @@ import {
 import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "xlsx";
-import { TimeoutController } from 'timeout-abort-controller'
+import { TimeoutController } from "timeout-abort-controller";
 import PQueue from "p-queue";
 import { cacheSuivi } from "../crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
@@ -249,7 +249,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     });
 
     const favoris = this.service("favoris");
-    favoris.inscrireRésolution({ clef: "bd", résolution: this.suivreRésolutionÉpingle.bind(this) })
+    favoris.inscrireRésolution({
+      clef: "bd",
+      résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
   }
 
   // Création et gestion
@@ -1581,20 +1584,20 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     const déjàCombinées = new Set();
 
-    const tâche = (bds: string[]): (()=> Promise<void>) => {
+    const tâche = (bds: string[]): (() => Promise<void>) => {
       return async () => {
         let idBd: string;
-      
+
         let idBdLocale = await stockage.obtenirItem(clefStockageLocal);
         if (idBdLocale) {
-          const crono = new TimeoutController(1000)
-          try { 
-            await orbite.ouvrirBd({ id: idBdLocale, signal: crono.signal})
+          const crono = new TimeoutController(1000);
+          try {
+            await orbite.ouvrirBd({ id: idBdLocale, signal: crono.signal });
           } catch (e) {
             if (e.toString().includes("AbortError")) {
               idBdLocale = null;
             } else {
-              throw(e)
+              throw e;
             }
           }
         }
@@ -1628,14 +1631,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
             break;
           }
         }
-        
+
         await f(idBd);
-      }
+      };
     };
 
     const orbite = this.service("orbite");
 
-    const stabilité = stabiliser()
+    const stabilité = stabiliser();
     const oublier = await suivreDeFonctionListe({
       fListe: ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
         this.suivreBds({ f: ignorerNonDéfinis(fSuivreRacine) }),
@@ -1649,10 +1652,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         });
       },
       f: stabilité(async (bds: { id: string; clefUnique?: string }[]) => {
-          queue.add(
-            tâche(bds.filter((bd) => bd.clefUnique === clefUnique).map((bd) => bd.id)),
-          )
-        }),
+        queue.add(
+          tâche(
+            bds.filter((bd) => bd.clefUnique === clefUnique).map((bd) => bd.id),
+          ),
+        );
+      }),
     });
 
     return oublier;

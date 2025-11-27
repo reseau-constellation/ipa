@@ -11,7 +11,10 @@ import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "./favoris.js";
-import type { BaseÉpingleFavoris, ÉpingleFavorisAvecIdBooléennisée } from "./favoris.js";
+import type {
+  BaseÉpingleFavoris,
+  ÉpingleFavorisAvecIdBooléennisée,
+} from "./favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type {
   Rôle,
@@ -121,7 +124,10 @@ export class Projets<
     });
 
     const favoris = this.service("favoris");
-    favoris.inscrireRésolution({ clef: "projet", résolution: this.suivreRésolutionÉpingle.bind(this) })
+    favoris.inscrireRésolution({
+      clef: "projet",
+      résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
   }
 
   @cacheSuivi
@@ -397,7 +403,7 @@ export class Projets<
     // Bds associées
     const { bds: épingleBds } = épingle.épingle;
     if (épingleBds) {
-      const serviceBds = this.service("bds")
+      const serviceBds = this.service("bds");
       const fOublierTableaux = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,

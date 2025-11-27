@@ -1,6 +1,6 @@
 import { expect } from "aegir/chai";
 import { créerConstellationsTest, rechercher } from "../utils.js";
-import type { ObtRecherche} from "../utils.js";
+import type { ObtRecherche } from "../utils.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
@@ -79,15 +79,16 @@ describe("Rechercher dans réseau", function () {
   });
 
   describe("profil", function () {
-
     describe("selon id", () => {
       let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        recherche = await rechercher<InfoRésultatTexte>(({f}) => constls[1].profil.recherche.selonId({
-          idCompte: idsComptes[0],
-          f
-        }));
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].profil.recherche.selonId({
+            idCompte: idsComptes[0],
+            f,
+          }),
+        );
       });
 
       it("id membre détecté", async () => {
@@ -114,11 +115,15 @@ describe("Rechercher dans réseau", function () {
     describe("selon nom", function () {
       let rechercheSurCompte1: ObtRecherche<InfoRésultatTexte>;
       let rechercheSurCompte2: ObtRecherche<InfoRésultatTexte>;
-      
+
       before(async () => {
-        rechercheSurCompte1 = await rechercher<InfoRésultatTexte>(({f}) => constls[0].profil.recherche.selonNom({ nom: "Julien", f }))
-        rechercheSurCompte2 = await rechercher<InfoRésultatTexte>(({f}) => constls[1].profil.recherche.selonNom({ nom: "Julien", f }))
-        
+        rechercheSurCompte1 = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[0].profil.recherche.selonNom({ nom: "Julien", f }),
+        );
+        rechercheSurCompte2 = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].profil.recherche.selonNom({ nom: "Julien", f }),
+        );
+
         réfconstl2 = {
           id: idsComptes[1],
           résultatObjectif: {
@@ -175,7 +180,7 @@ describe("Rechercher dans réseau", function () {
 
       it("diminuer N désiré", async () => {
         const pRésultat = rechercheSurCompte1.siPasPlusQue(1);
-        await rechercheSurCompte1.n(1)
+        await rechercheSurCompte1.n(1);
 
         const résultat = await pRésultat;
         vérifierRecherche(résultat, [réfconstl2]);
@@ -183,7 +188,7 @@ describe("Rechercher dans réseau", function () {
 
       it("augmenter N désiré", async () => {
         const pRésultat = rechercheSurCompte1.siAuMoins(2);
-        await rechercheSurCompte1.n(4)
+        await rechercheSurCompte1.n(4);
 
         const résultat = await pRésultat;
         vérifierRecherche(résultat, [réfconstl2, réfconstl3]);
@@ -258,58 +263,63 @@ describe("Rechercher dans réseau", function () {
         expect(val.length).to.equal(0);
       });
     });
-
   });
 
   describe("mots-clefs", () => {
     describe("selon id", () => {
       let idMotClef: string;
-      
-      let recherche: ObtRecherche<InfoRésultatTexte>
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
         idMotClef = await constls[0].motsClefs.créerMotClef();
-        recherche = await rechercher<InfoRésultatTexte>(({f}) => constls[1].motsClefs.recherche.selonId({ idMotClef, f }))
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].motsClefs.recherche.selonId({ idMotClef, f }),
+        );
       });
 
       it("id mot-clef détecté", async () => {
-        const résultat = await recherche.siPasVide()
+        const résultat = await recherche.siPasVide();
 
-        const réf: RésultatRecherche<InfoRésultatTexte>[] = [{
-          id: idMotClef,
-          résultatObjectif: {
-            score: 0,
-            type: "résultat",
-            de: "id",
-            info: {
-              type: "texte",
-              texte: idMotClef,
-              début: 0,
-              fin: idMotClef.length,
+        const réf: RésultatRecherche<InfoRésultatTexte>[] = [
+          {
+            id: idMotClef,
+            résultatObjectif: {
+              score: 0,
+              type: "résultat",
+              de: "id",
+              info: {
+                type: "texte",
+                texte: idMotClef,
+                début: 0,
+                fin: idMotClef.length,
+              },
             },
           },
-        }];
+        ];
         vérifierRecherche(résultat, réf);
       });
     });
 
     describe("selon nom", () => {
       let idMotClef: string;
-      let recherche: ObtRecherche<InfoRésultatTexte>
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        recherche = await rechercher<InfoRésultatTexte>(({f}) => constls[1].motsClefs.recherche.selonNom({ nomMotClef: "hydro", f }))
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].motsClefs.recherche.selonNom({ nomMotClef: "hydro", f }),
+        );
       });
 
       it("rien pour commencer", async () => {
-        const résultat = await recherche.siDéfini()
+        const résultat = await recherche.siDéfini();
         expect(résultat).to.be.empty();
       });
 
       it("rien si pas de nom", async () => {
         idMotClef = await constls[0].motsClefs.créerMotClef();
 
-        const résultat = await recherche.siDéfini()
+        const résultat = await recherche.siDéfini();
         expect(résultat).to.be.empty();
       });
 
@@ -346,10 +356,12 @@ describe("Rechercher dans réseau", function () {
 
     describe("tous", () => {
       let idMotClef: string;
-      let recherche: ObtRecherche<InfoRésultatVide>
+      let recherche: ObtRecherche<InfoRésultatVide>;
 
       before(async () => {
-        recherche = await rechercher<InfoRésultatVide>(({f}) => constls[1].motsClefs.recherche.tous({ f }))
+        recherche = await rechercher<InfoRésultatVide>(({ f }) =>
+          constls[1].motsClefs.recherche.tous({ f }),
+        );
       });
 
       it("mots-clefs détectés", async () => {
@@ -378,12 +390,14 @@ describe("Rechercher dans réseau", function () {
   describe("variables", () => {
     describe("selon id", () => {
       let idVariable: string;
-      
-      let recherche: ObtRecherche<InfoRésultatTexte>
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
         idVariable = await constls[0].motsClefs.créerMotClef();
-        recherche = await rechercher<InfoRésultatTexte>(({f}) => constls[1].variables.recherche.selonId({ idVariable, f }))
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].variables.recherche.selonId({ idVariable, f }),
+        );
       });
 
       before(async () => {
@@ -395,7 +409,7 @@ describe("Rechercher dans réseau", function () {
       it("id variable détecté", async () => {
         const résultat = await recherche.siPasVide();
 
-        const réf: RésultatRecherche<InfoRésultatTexte> =  {
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
           id: idVariable,
           résultatObjectif: {
             score: 0,
@@ -408,31 +422,36 @@ describe("Rechercher dans réseau", function () {
               fin: idVariable.length,
             },
           },
-        }
+        };
         vérifierRecherche(résultat, [réf]);
       });
     });
 
     describe("selon nom", () => {
       let idVariable: string;
-      
-      let recherche: ObtRecherche<InfoRésultatTexte>
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        recherche = await rechercher<InfoRésultatTexte>((({f})=>constls[1].variables.recherche.selonNom({
-          nomVariable: "précip", f
-        })));
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].variables.recherche.selonNom({
+            nomVariable: "précip",
+            f,
+          }),
+        );
       });
 
       it("rien pour commencer", async () => {
-        const résultat = await recherche.siDéfini()
+        const résultat = await recherche.siDéfini();
         expect(résultat).to.be.empty();
       });
 
       it("rien si pas de nom", async () => {
-        idVariable = await constls[0].variables.créerVariable({ catégorie: "audio" });
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "audio",
+        });
 
-        const résultat = await recherche.siDéfini()
+        const résultat = await recherche.siDéfini();
         expect(résultat).to.be.empty();
       });
 

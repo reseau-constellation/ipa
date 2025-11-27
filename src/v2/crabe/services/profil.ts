@@ -103,7 +103,7 @@ export class Profil<
   L,
   ServicesNécessairesProfil<L>
 > {
-  recherche: RechercheProfils<L>
+  recherche: RechercheProfils<L>;
 
   constructor({
     nébuleuse,
@@ -122,7 +122,7 @@ export class Profil<
       profils: this,
       constl: this.nébuleuse,
       service: (clef) => this.service(clef),
-    })
+    });
   }
 
   async initialiser(): Promise<void> {

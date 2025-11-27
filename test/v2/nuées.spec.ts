@@ -1,10 +1,10 @@
 import { expect } from "aegir/chai";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
+import { obtRessourceTest } from "test/ressources/index.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type { InfoAuteur, Métadonnées, TraducsTexte } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import { obtRessourceTest } from "test/ressources/index.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -98,7 +98,7 @@ describe("Nuées", function () {
       );
       expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
-  })
+  });
 
   describe("descriptions", function () {
     let idNuée: string;
@@ -169,11 +169,14 @@ describe("Nuées", function () {
       await constl.nuées.effacerDescription({ idNuée, langue: "fr" });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.nuées.suivreDescriptions({ idNuée, f: si((x) => !!x && !x["fr"]) }),
+        constl.nuées.suivreDescriptions({
+          idNuée,
+          f: si((x) => !!x && !x["fr"]),
+        }),
       );
       expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
-  })
+  });
 
   describe("métadonnées", function () {
     let idNuée: string;
@@ -343,7 +346,6 @@ describe("Nuées", function () {
       expect(image).to.be.null();
     });
   });
-
 
   describe("autorisations", function () {
     it("nuée ouverte - tous peuvent écrire");

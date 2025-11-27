@@ -474,21 +474,25 @@ describe.only("Service Orbite", function () {
     it("suivre empreinte tête bd", async () => {
       const orbite = nébuleuse.services["orbite"];
 
-      const { bd, oublier } = await orbite.créerBd({ type: "keyvalue" })
+      const { bd, oublier } = await orbite.créerBd({ type: "keyvalue" });
       const idBd = bd.address;
 
-      const tête = await obtenir<string>(({siDéfini})=> orbite.suivreEmpreinteTêteBd({ idBd, f: siDéfini() }))
+      const tête = await obtenir<string>(({ siDéfini }) =>
+        orbite.suivreEmpreinteTêteBd({ idBd, f: siDéfini() }),
+      );
       expect(tête).to.equal("");
 
-      await bd.put("a", 1)
+      await bd.put("a", 1);
 
-      const pTêteMaintenant = obtenir<string>(({si})=> orbite.suivreEmpreinteTêteBd({ idBd, f: si(t=>t !== tête) }));
+      const pTêteMaintenant = obtenir<string>(({ si }) =>
+        orbite.suivreEmpreinteTêteBd({ idBd, f: si((t) => t !== tête) }),
+      );
 
       const têteMaintenant = await pTêteMaintenant;
       await oublier();
 
-      expect(têteMaintenant.length).to.be.greaterThan(0)
-    })
+      expect(têteMaintenant.length).to.be.greaterThan(0);
+    });
   });
 
   describe("fermeture", function () {

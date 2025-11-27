@@ -31,7 +31,10 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "./types.js";
-import type { BaseÉpingleFavoris, ÉpingleFavorisAvecIdBooléennisée } from "./favoris.js";
+import type {
+  BaseÉpingleFavoris,
+  ÉpingleFavorisAvecIdBooléennisée,
+} from "./favoris.js";
 import type { ÉpingleBd } from "./bds/bds.js";
 import type { JSONSchemaType } from "ajv";
 
@@ -146,7 +149,10 @@ export class Nuées<
     });
 
     const favoris = this.service("favoris");
-    favoris.inscrireRésolution({ clef: "nuée", résolution: this.suivreRésolutionÉpingle.bind(this) })
+    favoris.inscrireRésolution({
+      clef: "nuée",
+      résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
   }
 
   @cacheSuivi
@@ -432,7 +438,7 @@ export class Nuées<
     // Bds associées
     const { bds: épingleBds } = épingle.épingle;
     if (épingleBds) {
-      const serviceBds = this.service("bds")
+      const serviceBds = this.service("bds");
       const fOublierTableaux = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
@@ -615,7 +621,7 @@ export class Nuées<
     });
   }
 
-  // Image 
+  // Image
 
   async sauvegarderImage({
     idNuée,

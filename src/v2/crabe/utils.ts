@@ -87,27 +87,29 @@ export const dépunicodifier = (ma: Multiaddr): Multiaddr => {
   return multiaddr(composantesDépunicodifiées);
 };
 
-export const stabiliser = (n = 100) => <T>(f: Suivi<T>): Suivi<T> => {
-  let déjàAppellée = false;
-  let val: string | undefined = undefined;
-  let dernierT = 0;
-  let annulerRebours: () => void = () => {};
-  
-  return async (v: T) => {
-    if (déjàAppellée && JSON.stringify(v) === val) return;
+export const stabiliser =
+  (n = 100) =>
+  <T>(f: Suivi<T>): Suivi<T> => {
+    let déjàAppellée = false;
+    let val: string | undefined = undefined;
+    let dernierT = 0;
+    let annulerRebours: () => void = () => {};
 
-    annulerRebours();
-    déjàAppellée = true;
-    val = JSON.stringify(v);
-    dernierT = Date.now();
+    return async (v: T) => {
+      if (déjàAppellée && JSON.stringify(v) === val) return;
 
-    const crono = setTimeout(async () => await f(v), n);
-    annulerRebours = () => {
-      if (dernierT) {
-        const dif = Date.now() - dernierT
-        n += dif * 0.5
-      }
-      clearTimeout(crono);
+      annulerRebours();
+      déjàAppellée = true;
+      val = JSON.stringify(v);
+      dernierT = Date.now();
+
+      const crono = setTimeout(async () => await f(v), n);
+      annulerRebours = () => {
+        if (dernierT) {
+          const dif = Date.now() - dernierT;
+          n += dif * 0.5;
+        }
+        clearTimeout(crono);
+      };
     };
-  }
-}
+  };

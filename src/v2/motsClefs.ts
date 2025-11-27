@@ -85,9 +85,12 @@ export class MotsClefs<
       constl: this.nébuleuse,
       service: (clef) => this.service(clef),
     });
-    
+
     const favoris = this.service("favoris");
-    favoris.inscrireRésolution({ clef: "mot-clef", résolution: this.suivreRésolutionÉpingle.bind(this) })
+    favoris.inscrireRésolution({
+      clef: "mot-clef",
+      résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
   }
 
   @cacheSuivi

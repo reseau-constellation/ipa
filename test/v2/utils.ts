@@ -9,7 +9,11 @@ import { créerConstellation } from "@/v2/index.js";
 import { attendreQue } from "./nébuleuse/utils/fonctions.js";
 import { connecterCrabes } from "./crabe/utils.js";
 import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
-import type { InfoRésultat, RetourFonctionRecherche, RésultatRecherche } from "@/v2/recherche/types.js";
+import type {
+  InfoRésultat,
+  RetourFonctionRecherche,
+  RésultatRecherche,
+} from "@/v2/recherche/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier, Suivi } from "@/v2/crabe/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
@@ -187,26 +191,30 @@ export type ObtRecherche<T extends InfoRésultat = InfoRésultat> = {
   tous: () => Promise<RésultatRecherche<T>[]>;
 
   n: (n: number) => Promise<void>;
-}
+};
 
 export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
   f: (args: {
-    f: Suivi<RésultatRecherche<T>[]>
+    f: Suivi<RésultatRecherche<T>[]>;
   }) => Promise<RetourFonctionRecherche>,
 ): Promise<ObtRecherche<T>> => {
-  const événements = new TypedEmitter<{ trouvé: (x: RésultatRecherche<T>[]) => void }>();
+  const événements = new TypedEmitter<{
+    trouvé: (x: RésultatRecherche<T>[]) => void;
+  }>();
 
   const si = (
-    fTest: (x: RésultatRecherche<T>[] | undefined) => boolean | Promise<boolean>,
+    fTest: (
+      x: RésultatRecherche<T>[] | undefined,
+    ) => boolean | Promise<boolean>,
   ): Promise<RésultatRecherche<T>[]> => {
-    return new Promise<RésultatRecherche<T>[]>(résoudre => {
+    return new Promise<RésultatRecherche<T>[]>((résoudre) => {
       const fTrouvé = async (x: RésultatRecherche<T>[]) => {
         if (await fTest(x)) {
-          événements.off("trouvé", fTrouvé)
-          résoudre(x)
+          événements.off("trouvé", fTrouvé);
+          résoudre(x);
         }
-      }
-      événements.on("trouvé", fTrouvé)
+      };
+      événements.on("trouvé", fTrouvé);
     });
   };
 
@@ -215,7 +223,7 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
   };
 
   const siNonDéfini = (): Promise<RésultatRecherche<T>[]> => {
-    return si(x => x === undefined);
+    return si((x) => x === undefined);
   };
 
   const siVide = (): Promise<RésultatRecherche<T>[]> => {
@@ -228,7 +236,7 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
   };
 
   const siNul = (): Promise<RésultatRecherche<T>[]> => {
-    return si(x => isNull(x));
+    return si((x) => isNull(x));
   };
 
   const siPasVide = (): Promise<RésultatRecherche<T>[]> => {
@@ -241,7 +249,7 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
   };
 
   const siPasNul = (): Promise<RésultatRecherche<T>[]> => {
-    return si(x => !isNull(x));
+    return si((x) => !isNull(x));
   };
 
   const siAuMoins = (n: number): Promise<RésultatRecherche<T>[]> => {
@@ -257,7 +265,9 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
   };
 
   const { oublier, n: changerN } = await f({
-    f: x => { événements.emit("trouvé", x) }
+    f: (x) => {
+      événements.emit("trouvé", x);
+    },
   });
   after(async () => await oublier());
 
