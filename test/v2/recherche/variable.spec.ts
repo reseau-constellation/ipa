@@ -13,6 +13,7 @@ import type {
   RésultatObjectifRecherche,
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
+import { variables } from "@/index.js";
 
 describe("Rechercher variables", function () {
   let fermer: Oublier;
@@ -203,7 +204,7 @@ describe("Rechercher variables", function () {
       expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "cst",
-        de: "descr",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 0,
@@ -235,7 +236,7 @@ describe("Rechercher variables", function () {
       expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
-        de: "descr",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 0,
@@ -249,47 +250,27 @@ describe("Rechercher variables", function () {
 
   describe("selon texte", function () {
     let idVariable: string;
-    let rechercheNom: SuivreObjectifRecherche<
-      InfoRésultatTexte | InfoRésultatVide
-    >;
-    let rechercheId: SuivreObjectifRecherche<
-      InfoRésultatTexte | InfoRésultatVide
-    >;
+
+    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide
+    
+    let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
 
     before(async () => {
       idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
 
-      rechercheNom = rechercherVariablesSelonTexte("précipitation");
-
       rechercheId = rechercherVariablesSelonTexte(idVariable.slice(0, 15));
+      rechercheNom = rechercherVariablesSelonTexte("précipitation");
+      rechercheDescription = rechercherVariablesSelonTexte("neige");
 
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           fr: "précipitation",
         },
-      });
-    });
-
-    it("Résultat nom détecté", async () => {
-      const résultatNom = await obtenir<
-        RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
-      >(({ siDéfini }) =>
-        rechercheNom({ constl, idObjet: idVariable, f: siDéfini() }),
-      );
-      expect(résultatNom).to.deep.equal({
-        type: "résultat",
-        clef: "fr",
-        de: "nom",
-        info: {
-          type: "texte",
-          début: 0,
-          fin: 13,
-          texte: "précipitation",
-        },
-        score: 1,
       });
     });
 
@@ -311,5 +292,55 @@ describe("Rechercher variables", function () {
         score: 1,
       });
     });
+
+    it("résultat nom détecté", async () => {
+      const résultatNom = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
+      >(({ siDéfini }) =>
+        rechercheNom({ constl, idObjet: idVariable, f: siDéfini() }),
+      );
+      expect(résultatNom).to.deep.equal({
+        type: "résultat",
+        clef: "fr",
+        de: "nom",
+        info: {
+          type: "texte",
+          début: 0,
+          fin: 13,
+          texte: "précipitation",
+        },
+        score: 1,
+      });
+    });
+
+
+    it("résultat description détecté", async () => {
+      const pRésultatDescription = obtenir<RésultatObjectifRecherche<TypeRésultat>>(({ siDéfini }) =>
+        rechercheDescription({ constl, idObjet: idVariable, f: siDéfini() }),
+      );
+
+      await constl.variables.sauvegarderDescriptions({
+        idVariable,
+        descriptions: {
+          fr: "Pluie ou neige",
+        },
+      });
+
+      const résultatDescription = await pRésultatDescription;
+
+      expect(résultatDescription).to.deep.equal({
+        type: "résultat",
+        clef: "fr",
+        de: "nom",
+        info: {
+          type: "texte",
+          début: 9,
+          fin: 14,
+          texte: "neige",
+        },
+        score: 1,
+      });
+    });
+
   });
 });
