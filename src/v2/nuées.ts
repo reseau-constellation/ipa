@@ -13,6 +13,8 @@ import {
 } from "./favoris.js";
 import { cacheSuivi } from "./crabe/cache.js";
 import { RechercheNuées } from "./recherche/nuées.js";
+import { mapÀObjet } from "./crabe/utils.js";
+import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   Rôle,
   AccèsUtilisateur,
@@ -493,6 +495,132 @@ export class Nuées<
       type: "nested",
       schéma: schémaNuée,
       f: (nuée) => f(toObject(nuée).descriptions || {}),
+    });
+  }
+
+  // Image 
+
+  async sauvegarderImage({
+    idNuée,
+    image,
+  }: {
+    idNuée: string;
+    image: { contenu: Uint8Array; nomFichier: string };
+  }): Promise<string> {
+    const maxTailleImage =
+      this.service("compte").options.consts.maxTailleImageSauvegarder;
+
+    if (image.contenu.byteLength > maxTailleImage) {
+      throw new Error("Taille maximale excédée");
+    }
+
+    const idImage = await this.service("hélia").ajouterFichierÀSFIP(image);
+
+    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
+    await nuée.set("image", idImage);
+    await oublier();
+
+    return idImage;
+  }
+
+  async effacerImage({ idNuée }: { idNuée: string }): Promise<void> {
+    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
+    await nuée.del("image");
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreImage({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<{ image: Uint8Array; idImage: string } | null>;
+  }): Promise<Oublier> {
+    const maxTailleImage =
+      this.service("compte").options.consts.maxTailleImageVisualiser;
+
+    return await this.service("orbite").suivreDonnéesBd({
+      id: idNuée,
+      type: "nested",
+      schéma: schémaNuée,
+      f: async (nuée) => {
+        const idImage = nuée.get("image");
+        if (!idImage) {
+          return await f(null);
+        } else {
+          const image = await this.service("hélia").obtFichierDeSFIP({
+            id: idImage,
+            max: maxTailleImage,
+          });
+          return await f(image ? { image, idImage } : null);
+        }
+      },
+    });
+  }
+
+  // Métadonnées
+
+  async sauvegarderMétadonnées({
+    idNuée,
+    métadonnées,
+  }: {
+    idNuée: string;
+    métadonnées: Métadonnées;
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+
+    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
+
+    await nuée.put("métadonnées", métadonnées);
+    await oublier();
+  }
+
+  async sauvegarderMétadonnée({
+    idNuée,
+    clef,
+    valeur,
+  }: {
+    idNuée: string;
+    clef: string;
+    valeur: DagCborEncodable;
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+
+    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
+    await nuée.set(`métadonnées/${clef}`, valeur);
+    await oublier();
+  }
+
+  async effacerMétadonnée({
+    idNuée,
+    clef,
+  }: {
+    idNuée: string;
+    clef: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+
+    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
+    await nuée.del(`métadonnées/${clef}`);
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreMétadonnées({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<Métadonnées>;
+  }): Promise<Oublier> {
+    return await this.service("orbite").suivreDonnéesBd({
+      id: idNuée,
+      type: "nested",
+      schéma: schémaNuée,
+      f: async (nuée) => {
+        await f(mapÀObjet(nuée.get("métadonnées")) || {});
+      },
     });
   }
 
