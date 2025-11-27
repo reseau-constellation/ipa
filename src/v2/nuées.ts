@@ -1,6 +1,7 @@
 import { typedNested } from "@constl/bohr-db";
 import { suivreDeFonctionListe } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
+import { v4 as uuidv4 } from "uuid";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { Tableaux, schémaTableau } from "./tableaux.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
@@ -357,6 +358,62 @@ export class Nuées<
 
   // Noms
 
+
+  async sauvegarderNoms({
+    idNuée,
+    noms,
+  }: {
+    idNuée: string;
+    noms: { [key: string]: string };
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+
+    const { nuée, oublier } = await this.ouvrirNuée({
+      idNuée,
+    });
+
+    for (const lng in noms) {
+      await nuée.set(`noms/${lng}`, noms[lng]);
+    }
+
+    await oublier();
+  }
+
+  async sauvegarderNom({
+    idNuée,
+    langue,
+    nom,
+  }: {
+    idNuée: string;
+    langue: string;
+    nom: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+
+    const { nuée, oublier } = await this.ouvrirNuée({
+      idNuée,
+    });
+
+    await nuée.set(`noms/${langue}`, nom);
+    await oublier();
+  }
+
+  async effacerNom({
+    idNuée,
+    langue,
+  }: {
+    idNuée: string;
+    langue: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+    const { nuée, oublier } = await this.ouvrirNuée({
+      idNuée,
+    });
+    await nuée.del(`noms/${langue}`);
+
+    await oublier();
+  }
+
   @cacheSuivi
   async suivreNoms({
     idNuée,
@@ -374,6 +431,55 @@ export class Nuées<
   }
 
   // Descriptions
+
+  async sauvegarderDescriptions({
+    idNuée,
+    descriptions,
+  }: {
+    idNuée: string;
+    descriptions: { [key: string]: string };
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+    const { nuée, oublier } = await this.ouvrirNuée({
+      idNuée,
+    });
+    for (const lng in descriptions) {
+      await nuée.set(`descriptions/${lng}`, descriptions[lng]);
+    }
+    await oublier();
+  }
+
+  async sauvegarderDescription({
+    idNuée,
+    langue,
+    description,
+  }: {
+    idNuée: string;
+    langue: string;
+    description: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+    const { nuée, oublier } = await this.ouvrirNuée({
+      idNuée,
+    });
+    await nuée.set(`descriptions/${langue}`, description);
+    await oublier();
+  }
+
+  async effacerDescription({
+    idNuée,
+    langue,
+  }: {
+    idNuée: string;
+    langue: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+    const { nuée, oublier } = await this.ouvrirNuée({
+      idNuée,
+    });
+    await nuée.del(`descriptions/${langue}`);
+    await oublier();
+  }
 
   @cacheSuivi
   async suivreDescriptions({
@@ -393,6 +499,41 @@ export class Nuées<
 
   // Mots-clefs
 
+  async ajouterMotsClefs({
+    idNuée,
+    idsMotsClefs,
+  }: {
+    idNuée: string;
+    idsMotsClefs: string | string[];
+  }): Promise<void> {
+    if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
+
+    await this.confirmerPermission({ idNuée });
+
+    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
+
+    for (const id of idsMotsClefs) {
+      await nuée.put(`motsClefs/${id}`, null);
+    }
+    await oublier();
+  }
+
+  async effacerMotClef({
+    idNuée,
+    idMotClef,
+  }: {
+    idNuée: string;
+    idMotClef: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idNuée });
+
+    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
+
+    await nuée.del(`motsClefs/${idMotClef}`);
+
+    await oublier();
+  }
+
   @cacheSuivi
   async suivreMotsClefs({
     idNuée,
@@ -409,6 +550,32 @@ export class Nuées<
       schéma: schémaNuée,
       f: (nuée) => f(Object.keys(toObject(nuée).motsClefs)),
     });
+  }
+
+  // Tableaux
+
+  async ajouterTableau({
+    idNuée,
+    idTableau,
+  }: {
+    idNuée: string;
+    idTableau?: string;
+  }): Promise<string> {
+    await this.confirmerPermission({ idNuée });
+
+    idTableau = idTableau || uuidv4();
+    return await this.tableaux.créerTableau({ idStructure: idNuée, idTableau });
+  }
+
+  async effacerTableau({
+    idNuée,
+    idTableau,
+  }: {
+    idNuée: string;
+    idTableau: string;
+  }): Promise<void> {
+    // L'interface du tableau s'occupe de tout !
+    await this.tableaux.effacerTableau({ idStructure: idNuée, idTableau });
   }
 
   // Variables
