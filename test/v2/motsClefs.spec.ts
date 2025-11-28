@@ -351,7 +351,7 @@ describe.only("Mots-clefs", function () {
   describe("épingler", function () {
     it("désépingler", async () => {
       const idMotClef = await constl.motsClefs.créerMotClef();
-      await constl.motsClefs.désépinglerMotClef({ idMotClef });
+      await constl.motsClefs.désépingler({ idMotClef });
 
       const épingle = await obtenir(({ siNonDéfini }) =>
         constl.motsClefs.suivreÉpingle({

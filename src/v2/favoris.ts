@@ -23,8 +23,12 @@ export type DispositifsÉpingle =
   | typeof DISPOSITIFS_INSTALLÉS
   | typeof AUCUN_DISPOSITIF;
 
+export type ÉpingleFavoris<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {
+  type: string,
+  épingle?: PartielRécursif<T>
+}
+
 export type BaseÉpingleFavoris = {
-  type: string;
   base: DispositifsÉpingle;
 };
 
@@ -32,14 +36,14 @@ export type ÉpingleFavorisAvecId<
   T extends BaseÉpingleFavoris = BaseÉpingleFavoris,
 > = {
   idObjet: string;
-  épingle: T;
+  épingle: ÉpingleFavoris<T>;
 };
 
-export type BooléenniserÉpingle<T extends BaseÉpingleFavoris> =
-  BooléenniserPropriétés<Omit<T, "type">> & { type: T["type"] };
+export type BooléenniserÉpingle<T extends ÉpingleFavoris> =
+  { type: T["type"], épingle: PartielRécursif<BooléenniserPropriétés<T["épingle"]>> };
 
-export type ÉpingleFavorisAvecIdBooléennisée<
-  T extends BaseÉpingleFavoris = BaseÉpingleFavoris,
+export type ÉpingleFavorisBooléenniséeAvecId<
+  T extends ÉpingleFavoris = ÉpingleFavoris,
 > = {
   idObjet: string;
   épingle: BooléenniserÉpingle<T>;
@@ -71,37 +75,44 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
 
 // Type résolveur
 
-export type Résolveur<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = (args: {
-  épingle: ÉpingleFavorisAvecIdBooléennisée<T>;
+export type Résolveur<T extends ÉpingleFavoris = ÉpingleFavoris> = (args: {
+  épingle: ÉpingleFavorisBooléenniséeAvecId<T>;
   f: Suivi<Set<string>>;
 }) => Promise<Oublier>;
 
 // Structure données
 
 const schémaÉpingleFavoris: JSONSchemaType<
-  PartielRécursif<BaseÉpingleFavoris>
+  PartielRécursif<ÉpingleFavoris>
 > = {
   type: "object",
   properties: {
     type: { type: "string", nullable: true },
-    base: {
-      type: ["string", "array"],
-      anyOf: [
-        {
-          type: "string",
+    épingle: {
+      type: "object",
+      properties: {
+        base: {
+          type: ["string", "array"],
+          anyOf: [
+            {
+              type: "string",
+            },
+            {
+              type: "array",
+              items: { type: "string" },
+            },
+          ],
+          nullable: true,
         },
-        {
-          type: "array",
-          items: { type: "string" },
-        },
-      ],
+      },
+      additionalProperties: true,
       nullable: true,
-    },
+    }
   },
   required: [],
 };
 
-type StructureServiceFavoris = { [idObjet: string]: BaseÉpingleFavoris };
+type StructureServiceFavoris = { [idObjet: string]: ÉpingleFavoris };
 
 const SchémaServiceFavoris: JSONSchemaType<
   PartielRécursif<StructureServiceFavoris>
@@ -110,6 +121,12 @@ const SchémaServiceFavoris: JSONSchemaType<
   additionalProperties: schémaÉpingleFavoris,
   required: [],
 };
+
+// Fonctions
+
+const typeÉpinglePrésent = (épingle?: PartielRécursif<ÉpingleFavoris>): épingle is ÉpingleFavoris => {
+  return épingle?.type !== undefined
+}
 
 export class Favoris extends ServiceDonnéesNébuleuse<
   "favoris",
@@ -148,16 +165,20 @@ export class Favoris extends ServiceDonnéesNébuleuse<
       fSuivreRacine,
     }: {
       fSuivreRacine: (
-        éléments: PartielRécursif<ÉpingleFavorisAvecId>[],
+        éléments: ÉpingleFavorisAvecId[],
       ) => Promise<void>;
     }) => {
       return await this.suivreBd({
         f: (x) => {
           return fSuivreRacine(
-            Object.entries(x || {}).map(([idObjet, épingle]) => ({
-              idObjet,
-              épingle,
-            })),
+            Object.entries(x || {}).map(([idObjet, épingle]) => {
+              if (typeÉpinglePrésent(épingle))
+                return ({
+                  idObjet,
+                  épingle,
+                })
+              return undefined
+            }).filter((x): x is { idObjet: string, épingle: ÉpingleFavoris} => !!x),
           );
         },
       });
@@ -167,7 +188,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
       branche,
     }: {
       fSuivreBranche: Suivi<Set<string>>;
-      branche: PartielRécursif<ÉpingleFavorisAvecId>;
+      branche: ÉpingleFavorisAvecId;
     }) => {
       if (branche.idObjet && branche.épingle?.type)
         return await this.suivreRésolutionÉpingle({
@@ -176,7 +197,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
         });
       return faisRien;
     };
-    const fIdDeBranche = (b: PartielRécursif<ÉpingleFavorisAvecId>) =>
+    const fIdDeBranche = (b: ÉpingleFavorisAvecId<BaseÉpingleFavoris>) =>
       b.idObjet;
 
     const oublier = await suivreDeFonctionListe({
@@ -197,7 +218,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     return await super.fermer();
   }
 
-  async inscrireRésolution<T extends BaseÉpingleFavoris>({
+  async inscrireRésolution<T extends ÉpingleFavoris>({
     clef,
     résolution,
   }: {
@@ -221,9 +242,6 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     if (ignorer.has(épingle.idObjet)) return faisRien;
     ignorer.add(épingle.idObjet);
 
-    const compte = this.service("compte");
-    const ceDispositif = await compte.obtIdDispositif();
-
     const résolveur = this.résolveurs.get(épingle.épingle.type);
     if (!résolveur) {
       const journal = this.service("journal");
@@ -236,9 +254,8 @@ export class Favoris extends ServiceDonnéesNébuleuse<
       return faisRien;
     }
 
-    const épingleBooléennisée = this.résoudreÉpinglesSurDispositif({
+    const épingleBooléennisée = await this.résoudreÉpinglesSurDispositif({
       épingle: épingle.épingle,
-      ceDispositif,
     });
     return await résolveur({
       f,
@@ -256,7 +273,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     épingle,
   }: {
     idObjet: string;
-    épingle: BaseÉpingleFavoris;
+    épingle: ÉpingleFavoris;
   }): Promise<void> {
     const bd = await this.bd();
 
@@ -279,18 +296,20 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     idCompte?: string;
   }): Promise<Oublier> {
     const fFinale = async (
-      favoris?: PartielRécursif<{ [key: string]: BaseÉpingleFavoris }>,
+      favoris?: PartielRécursif<{ [key: string]: ÉpingleFavoris }> | null,
     ) => {
       if (!favoris) return await f(undefined);
 
-      const favorisFinaux = Object.entries(favoris).map(
+      const favorisFinaux: ÉpingleFavorisAvecId[] = Object.entries(favoris).map(
         ([empreinte, épingle]) => {
-          return {
-            idObjet: ajouterProtocoleOrbite(empreinte),
-            épingle,
-          };
+          if (typeÉpinglePrésent(épingle))
+            return {
+              idObjet: ajouterProtocoleOrbite(empreinte),
+              épingle,
+            };
+          return undefined
         },
-      );
+      ).filter((x): x is ÉpingleFavorisAvecId =>!!x);
       await f(favorisFinaux);
     };
 
@@ -301,31 +320,33 @@ export class Favoris extends ServiceDonnéesNébuleuse<
   }
 
   @cacheSuivi
-  async suivreÉtatFavori({
+  async suivreFavorisObjet({
     idObjet,
     f,
     idCompte,
   }: {
     idObjet: string;
-    f: Suivi<PartielRécursif<BaseÉpingleFavoris> | undefined>;
+    f: Suivi<ÉpingleFavoris | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
     const empreinte = extraireEmpreinte(idObjet);
     return await this.suivreBd({
-      f: (favoris) => f(favoris ? favoris[empreinte] : undefined),
+      f: async (favoris) => {
+        const favorisObjet = favoris?.[empreinte]
+        await f(typeÉpinglePrésent(favorisObjet) ? favorisObjet : undefined)
+      },
       idCompte,
     });
   }
 
-  estÉpingléSurDispositif({
+  async estÉpingléSurDispositif({
     dispositifs,
-    ceDispositif,
     idDispositif,
   }: {
     dispositifs: DispositifsÉpingle;
-    ceDispositif: string;
     idDispositif?: string;
-  }): boolean {
+  }): Promise<boolean> {
+    const ceDispositif = await this.service("compte").obtIdDispositif();
     idDispositif = idDispositif || ceDispositif;
 
     if (dispositifs === "AUCUN") {
@@ -350,16 +371,20 @@ export class Favoris extends ServiceDonnéesNébuleuse<
   async suivreEstÉpingléSurDispositif({
     idObjet,
     f,
+    idDispositif,
   }: {
     idObjet: string;
-    f: Suivi<BooléenniserPropriétés<BaseÉpingleFavoris> | undefined>;
+    f: Suivi<BooléenniserÉpingle<ÉpingleFavoris> | undefined>;
+    idDispositif?: string;
   }): Promise<Oublier> {
     return await this.suivreBd({
       f: async (favoris) => {
-        if (favoris?.[idObjet])
+        const favorisObjet = favoris?.[idObjet];
+        if (typeÉpinglePrésent(favorisObjet))
           await f(
-            this.résoudreÉpinglesSurDispositif({
-              épingle: favoris[idObjet],
+            await this.résoudreÉpinglesSurDispositif({
+              épingle: favorisObjet,
+              idDispositif
             }),
           );
         else await f(undefined);
@@ -367,43 +392,38 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     });
   }
 
-  résoudreÉpinglesSurDispositif<T extends BaseÉpingleFavoris>({
+  async résoudreÉpinglesSurDispositif<T extends BaseÉpingleFavoris>({
     épingle,
-    ceDispositif,
     idDispositif,
   }: {
-    épingle: T;
-    ceDispositif: string;
+    épingle: ÉpingleFavoris<T>;
     idDispositif?: string;
-  }): BooléenniserÉpingle<T> {
+  }): Promise<BooléenniserÉpingle<ÉpingleFavoris<T>>> {
     const résultat = Object.fromEntries([
       ["type", épingle.type],
-      ...Object.entries(épingle)
-        .filter(([clef, _val]) => clef !== "type")
-        .map(([clef, val]) => {
+      ...(await Promise.all(Object.entries(épingle.épingle || {})
+        .map(async ([clef, val]) => {
           if (Array.isArray(val) || typeof val === "string") {
-            const x = [
+            return [
               clef,
-              this.estÉpingléSurDispositif({
+              await this.estÉpingléSurDispositif({
                 dispositifs: val,
                 idDispositif,
-                ceDispositif,
               }),
             ];
-            return x;
           } else {
-            const x = [
-              clef,
-              this.résoudreÉpinglesSurDispositif({
-                épingle: val,
-                idDispositif,
-                ceDispositif,
-              }),
-            ];
-            return x;
+            if(typeÉpinglePrésent(val as PartielRécursif<ÉpingleFavoris>))
+              return [
+                clef,
+                await this.résoudreÉpinglesSurDispositif({
+                  épingle: val,
+                  idDispositif,
+                }),
+              ];
+            return undefined;
           }
-        }),
-    ]) as BooléenniserÉpingle<T>;
+        }))).filter((x): x is [string, BooléenniserÉpingle<ÉpingleFavoris>] => !!x)
+    ]) as BooléenniserÉpingle<ÉpingleFavoris<T>>;
     return résultat;
   }
 }

@@ -5,13 +5,14 @@ import {
 } from "@/v2/crabe/services/compte/accès/consts.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
-import type { InfoAuteur, StatutDonnées, TraducsTexte } from "@/v2/types.js";
-import type { CatégorieVariables as CatégorieVariable } from "@/v2/variables.js";
+import type { InfoAuteur, PartielRécursif, StatutDonnées, TraducsTexte } from "@/v2/types.js";
+import type { CatégorieVariables as CatégorieVariable, ÉpingleVariable } from "@/v2/variables.js";
 import type {
   RègleBornes,
   RègleCatégorie,
   RègleVariableAvecId,
 } from "@/v2/règles.js";
+import { TOUS_DISPOSITIFS } from "@/v2/favoris.js";
 
 describe.only("Variables", function () {
   let fermer: () => Promise<void>;
@@ -691,6 +692,52 @@ describe.only("Variables", function () {
         }),
       );
       expect(val).to.equal("mm");
+    });
+  });
+
+  describe("épingler", function () {
+    let idVariable: string;
+
+    before(async () => {
+      idVariable = await constl.variables.créerVariable({ catégorie: "image" })
+    })
+
+      
+    it("désépingler", async () => {
+      await constl.variables.désépingler({ idVariable });
+      
+      const épingle = await obtenir<PartielRécursif<ÉpingleVariable>>(({ siNonDéfini })=>constl.variables.suivreÉpingle({ idVariable, f: siNonDéfini() }))
+
+      expect(épingle).to.be.undefined();
+    })
+
+    it("épingler", async () => {
+      await constl.variables.épingler({ idVariable });
+      
+      const épingle = await obtenir<PartielRécursif<ÉpingleVariable>>(({ siDéfini })=>constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }))
+
+      const réf: ÉpingleVariable = {
+        type: "variable",
+        base: TOUS_DISPOSITIFS
+      }
+      expect(épingle).to.deep.equal(réf)
+    });
+
+
+    it("résoudre épingle", async () => {
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        constl.variables.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idVariable,
+            épingle: {
+              type: "variable",
+              base: true,
+            },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolution]).to.have.members([idVariable]);
     });
   });
 

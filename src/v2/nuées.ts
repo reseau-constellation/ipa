@@ -1,5 +1,5 @@
 import { typedNested } from "@constl/bohr-db";
-import { ignorerNonDéfinis, suivreDeFonctionListe, suivreFonctionImbriquée, uneFois } from "@constl/utils-ipa";
+import { faisRien, ignorerNonDéfinis, suivreDeFonctionListe, suivreFonctionImbriquée, uneFois } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
@@ -33,15 +33,19 @@ import type {
 } from "./types.js";
 import type {
   BaseÉpingleFavoris,
-  ÉpingleFavorisAvecIdBooléennisée,
+  ÉpingleFavorisBooléenniséeAvecId,
 } from "./favoris.js";
 import type { DifférenceBDTableauManquant, DifférenceBDTableauSupplémentaire, DifférenceBds, DifférenceTableauxBds, ÉpingleBd } from "./bds/bds.js";
 import type { JSONSchemaType } from "ajv";
 
 // Types épingles
 
-export type ÉpingleNuée = BaseÉpingleFavoris & {
+export type ÉpingleNuée = {
   type: "nuée";
+  épingle: ContenuÉpingleNuée;
+};
+
+export type ContenuÉpingleNuée = BaseÉpingleFavoris & {
   bds: ÉpingleBd;
 };
 
@@ -601,23 +605,24 @@ export class Nuées<
     options = {},
   }: {
     idNuée: string;
-    options?: PartielRécursif<ÉpingleNuée>;
+    options?: PartielRécursif<ContenuÉpingleNuée>;
   }) {
     const favoris = this.service("favoris");
 
-    const épingle: ÉpingleNuée = résoudreDéfauts(options, {
-      type: "nuée",
+    const épingle: ContenuÉpingleNuée = résoudreDéfauts(options, {
       base: TOUS_DISPOSITIFS,
       bds: {
         type: "bd",
-        base: TOUS_DISPOSITIFS,
-        données: {
-          tableaux: TOUS_DISPOSITIFS,
-          fichiers: DISPOSITIFS_INSTALLÉS,
-        },
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          données: {
+            tableaux: TOUS_DISPOSITIFS,
+            fichiers: DISPOSITIFS_INSTALLÉS,
+          },
+        }
       },
     });
-    await favoris.épinglerFavori({ idObjet: idNuée, épingle });
+    await favoris.épinglerFavori({ idObjet: idNuée, épingle: {type: "nuée", épingle} });
   }
 
   async désépingler({ idNuée }: { idNuée: string }): Promise<void> {
@@ -637,7 +642,7 @@ export class Nuées<
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreÉtatFavori({
+    return await favoris.suivreFavorisObjet({
       idObjet: idNuée,
       f: async (épingle) => {
         if (épingle?.type === "nuée")
@@ -652,7 +657,7 @@ export class Nuées<
     épingle,
     f,
   }: {
-    épingle: ÉpingleFavorisAvecIdBooléennisée<ÉpingleNuée>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleNuée>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
     const info: {
@@ -672,7 +677,7 @@ export class Nuées<
 
     const fsOublier: Oublier[] = [];
     const orbite = this.service("orbite");
-    if (épingle.épingle.base) {
+    if (épingle.épingle.épingle.base) {
       const oublierBase = await orbite.suivreBdTypée({
         id: épingle.idObjet,
         type: "nested",
@@ -691,7 +696,7 @@ export class Nuées<
     }
 
     // Bds associées
-    const { bds: épingleBds } = épingle.épingle;
+    const { bds: épingleBds } = épingle.épingle.épingle;
     if (épingleBds) {
       const serviceBds = this.service("bds");
       const oublierTableaux = await suivreDeFonctionListe({
@@ -712,16 +717,19 @@ export class Nuées<
           id: string;
           fSuivreBranche: Suivi<Set<string>>;
         }) => {
-          return await serviceBds.suivreRésolutionÉpingle({
-            épingle: {
-              idObjet: idBd,
+          if (épingleBds.épingle)
+            return await serviceBds.suivreRésolutionÉpingle({
               épingle: {
-                ...épingleBds,
-                type: "bd",
+                idObjet: idBd,
+                épingle: {
+                  type: "bd",
+                  épingle: épingleBds.épingle
+                },
               },
-            },
-            f: fSuivreBranche,
-          });
+              f: fSuivreBranche,
+            });
+          else 
+            return faisRien;
         },
         f: async (bds: string[]) => {
           info.bds = bds;
@@ -1372,6 +1380,10 @@ export class Nuées<
     })
   }
 
+  // Bds
+  async suivreBds({idNuée, f}: {idNuée: string, f: Suivi<string[]> }): Promise<Oublier> {
+
+  }
 
   // Qualité
 

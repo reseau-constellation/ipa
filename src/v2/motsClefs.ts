@@ -15,7 +15,7 @@ import type {
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
-  ÉpingleFavorisAvecIdBooléennisée,
+  ÉpingleFavorisBooléenniséeAvecId,
 } from "./favoris.js";
 import type { InfoAuteur, PartielRécursif, TraducsTexte } from "./types.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
@@ -56,9 +56,12 @@ export const schémaMotClef: JSONSchemaType<PartielRécursif<StructureMotClef>> 
 
 // Types épingles
 
-export type ÉpingleMotClef = BaseÉpingleFavoris & {
-  type: "mot-clef";
+export type ÉpingleMotClef = {
+  type: "mot-clef",
+  épingle: ContenuÉpingleMotClef
 };
+
+export type ContenuÉpingleMotClef = BaseÉpingleFavoris
 
 export class MotsClefs<
   L extends ServicesLibp2pCrabe,
@@ -299,15 +302,14 @@ export class MotsClefs<
     options = {},
   }: {
     idMotClef: string;
-    options?: PartielRécursif<ÉpingleMotClef>;
+    options?: PartielRécursif<ContenuÉpingleMotClef>;
   }) {
-    const épingle: ÉpingleMotClef = résoudreDéfauts(options, {
-      type: "mot-clef",
+    const épingle: ContenuÉpingleMotClef = résoudreDéfauts(options, {
       base: TOUS_DISPOSITIFS,
     });
 
     const favoris = this.service("favoris");
-    await favoris.épinglerFavori({ idObjet: idMotClef, épingle });
+    await favoris.épinglerFavori({ idObjet: idMotClef, épingle: { type: "mot-clef", épingle } });
   }
 
   async suivreÉpingle({
@@ -321,7 +323,7 @@ export class MotsClefs<
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreÉtatFavori({
+    return await favoris.suivreFavorisObjet({
       idObjet: idMotClef,
       f: async (épingle) => {
         await f(
@@ -334,7 +336,7 @@ export class MotsClefs<
     });
   }
 
-  async désépinglerMotClef({
+  async désépingler({
     idMotClef,
   }: {
     idMotClef: string;
@@ -348,10 +350,10 @@ export class MotsClefs<
     épingle,
     f,
   }: {
-    épingle: ÉpingleFavorisAvecIdBooléennisée<ÉpingleMotClef>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleMotClef>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
-    await f(new Set(épingle.épingle.base ? [épingle.idObjet] : []));
+    await f(new Set(épingle.épingle.épingle.base ? [épingle.idObjet] : []));
 
     return faisRien;
   }

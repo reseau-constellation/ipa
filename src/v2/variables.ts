@@ -24,7 +24,7 @@ import type {
 import type { Oublier, Suivi } from "./crabe/types.js";
 import type {
   BaseÉpingleFavoris,
-  ÉpingleFavorisAvecIdBooléennisée,
+  ÉpingleFavorisBooléenniséeAvecId,
 } from "./favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
@@ -112,9 +112,12 @@ export type CatégorieVariables =
 
 // Types épingles
 
-export type ÉpingleVariable = BaseÉpingleFavoris & {
+export type ÉpingleVariable = {
   type: "variable";
+  épingle: ContenuÉpingleVariable
 };
+
+export type ContenuÉpingleVariable = BaseÉpingleFavoris
 
 // Types service
 
@@ -428,14 +431,13 @@ export class Variables<
     options = {},
   }: {
     idVariable: string;
-    options?: PartielRécursif<ÉpingleVariable>;
+    options?: PartielRécursif<ContenuÉpingleVariable>;
   }) {
-    const épingle: ÉpingleVariable = résoudreDéfauts(options, {
-      type: "variable",
+    const épingle: ContenuÉpingleVariable = résoudreDéfauts(options, {
       base: TOUS_DISPOSITIFS,
     });
     const favoris = this.service("favoris");
-    await favoris.épinglerFavori({ idObjet: idVariable, épingle });
+    await favoris.épinglerFavori({ idObjet: idVariable, épingle: { type: "variable", épingle } });
   }
 
   async suivreÉpingle({
@@ -449,7 +451,7 @@ export class Variables<
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreÉtatFavori({
+    return await favoris.suivreFavorisObjet({
       idObjet: idVariable,
       f: async (épingle) => {
         await f(
@@ -472,10 +474,10 @@ export class Variables<
     épingle,
     f,
   }: {
-    épingle: ÉpingleFavorisAvecIdBooléennisée<ÉpingleVariable>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleVariable>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
-    await f(new Set(épingle.épingle.base ? [épingle.idObjet] : []));
+    await f(new Set(épingle.épingle.épingle.base ? [épingle.idObjet] : []));
 
     return faisRien;
   }

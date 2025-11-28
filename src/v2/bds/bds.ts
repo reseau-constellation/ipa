@@ -50,7 +50,7 @@ import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
-  ÉpingleFavorisAvecIdBooléennisée,
+  ÉpingleFavorisBooléenniséeAvecId,
 } from "../favoris.js";
 import type {
   StructureTableau,
@@ -69,13 +69,17 @@ import type { JSONSchemaType } from "ajv";
 
 // Types épingles
 
-export type ÉpingleBd = BaseÉpingleFavoris & {
-  type: "bd";
+export type ÉpingleBd = {
+  type: "bd",
+  épingle: ContenuÉpingleBd
+};
+
+export type ContenuÉpingleBd = BaseÉpingleFavoris & {
   données: {
     tableaux: DispositifsÉpingle;
     fichiers: DispositifsÉpingle;
   };
-};
+}
 
 // Types différences
 
@@ -688,12 +692,11 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     options = {},
   }: {
     idBd: string;
-    options?: PartielRécursif<ÉpingleBd>;
+    options?: PartielRécursif<ContenuÉpingleBd>;
   }) {
     const favoris = this.service("favoris");
 
-    const épingle: ÉpingleBd = résoudreDéfauts(options, {
-      type: "bd",
+    const épingle: ContenuÉpingleBd = résoudreDéfauts(options, {
       base: TOUS_DISPOSITIFS,
       données: {
         tableaux: TOUS_DISPOSITIFS,
@@ -701,7 +704,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       },
     });
 
-    await favoris.épinglerFavori({ idObjet: idBd, épingle });
+    await favoris.épinglerFavori({ idObjet: idBd, épingle: { type: "bd", épingle } });
   }
 
   async désépingler({ idBd }: { idBd: string }): Promise<void> {
@@ -716,16 +719,16 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idCompte,
   }: {
     idBd: string;
-    f: Suivi<PartielRécursif<ÉpingleBd> | undefined>;
+    f: Suivi<PartielRécursif<ContenuÉpingleBd> | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreÉtatFavori({
+    return await favoris.suivreFavorisObjet({
       idObjet: idBd,
       f: async (épingle) => {
         if (épingle?.type === "bd")
-          await f(épingle as PartielRécursif<ÉpingleBd>);
+          await f(épingle as PartielRécursif<ContenuÉpingleBd>);
         else await f(undefined);
       },
       idCompte,
@@ -736,7 +739,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     épingle,
     f,
   }: {
-    épingle: ÉpingleFavorisAvecIdBooléennisée<ÉpingleBd>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleBd>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
     const info: {
@@ -757,7 +760,8 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     const fsOublier: Oublier[] = [];
     const orbite = this.service("orbite");
-    if (épingle.épingle.base) {
+
+    if (épingle.épingle.épingle.base) {
       const oublierBase = await orbite.suivreBdTypée({
         id: épingle.idObjet,
         type: "nested",
@@ -776,7 +780,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     }
 
     // Données des tableaux
-    if (épingle.épingle.données?.tableaux) {
+    if (épingle.épingle.épingle.données?.tableaux) {
       const oublierTableaux = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
@@ -810,7 +814,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     }
 
     // Fichiers présents dans les données
-    if (épingle.épingle.données?.fichiers) {
+    if (épingle.épingle.épingle.données?.fichiers) {
       const oublierDonnées = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,

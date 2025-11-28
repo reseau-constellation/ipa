@@ -1,5 +1,5 @@
 import { join } from "path";
-import { attendreStabilité, suivreDeFonctionListe, traduire, uneFois, zipper } from "@constl/utils-ipa";
+import { attendreStabilité, faisRien, suivreDeFonctionListe, traduire, uneFois, zipper } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { typedNested } from "@constl/bohr-db";
 import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
@@ -19,7 +19,7 @@ import type { BookType, WorkBook} from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   BaseÉpingleFavoris,
-  ÉpingleFavorisAvecIdBooléennisée,
+  ÉpingleFavorisBooléenniséeAvecId,
 } from "./favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type {
@@ -41,8 +41,12 @@ import type { DonnéesBdExportées, ÉpingleBd } from "./bds/bds.js";
 
 // Types épingles
 
-export type ÉpingleProjet = BaseÉpingleFavoris & {
+export type ÉpingleProjet = {
   type: "projet";
+  épingle: ContenuÉpingleProjet;
+};
+
+export type ContenuÉpingleProjet = BaseÉpingleFavoris & {
   bds: ÉpingleBd;
 };
 
@@ -392,23 +396,24 @@ export class Projets<
     options = {},
   }: {
     idProjet: string;
-    options?: PartielRécursif<ÉpingleProjet>;
+    options?: PartielRécursif<ContenuÉpingleProjet>;
   }) {
     const favoris = this.service("favoris");
 
-    const épingle: ÉpingleProjet = résoudreDéfauts(options, {
-      type: "projet",
+    const épingle: ContenuÉpingleProjet = résoudreDéfauts(options, {
       base: TOUS_DISPOSITIFS,
       bds: {
         type: "bd",
-        base: TOUS_DISPOSITIFS,
-        données: {
-          tableaux: TOUS_DISPOSITIFS,
-          fichiers: DISPOSITIFS_INSTALLÉS,
-        },
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          données: {
+            tableaux: TOUS_DISPOSITIFS,
+            fichiers: DISPOSITIFS_INSTALLÉS,
+          },
+        }
       },
     });
-    await favoris.épinglerFavori({ idObjet: idProjet, épingle });
+    await favoris.épinglerFavori({ idObjet: idProjet, épingle: { type: "projet", épingle } });
   }
 
   async désépingler({ idProjet }: { idProjet: string }): Promise<void> {
@@ -428,7 +433,7 @@ export class Projets<
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreÉtatFavori({
+    return await favoris.suivreFavorisObjet({
       idObjet: idProjet,
       f: async (épingle) => {
         if (épingle?.type === "projet")
@@ -443,7 +448,7 @@ export class Projets<
     épingle,
     f,
   }: {
-    épingle: ÉpingleFavorisAvecIdBooléennisée<ÉpingleProjet>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleProjet>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
     const info: {
@@ -463,7 +468,7 @@ export class Projets<
 
     const fsOublier: Oublier[] = [];
     const orbite = this.service("orbite");
-    if (épingle.épingle.base) {
+    if (épingle.épingle.épingle.base) {
       const oublierBase = await orbite.suivreBdTypée({
         id: épingle.idObjet,
         type: "nested",
@@ -482,7 +487,7 @@ export class Projets<
     }
 
     // Bds associées
-    const { bds: épingleBds } = épingle.épingle;
+    const { bds: épingleBds } = épingle.épingle.épingle;
     if (épingleBds) {
       const serviceBds = this.service("bds");
       const oublierBds = await suivreDeFonctionListe({
@@ -503,16 +508,19 @@ export class Projets<
           id: string;
           fSuivreBranche: Suivi<Set<string>>;
         }) => {
-          return await serviceBds.suivreRésolutionÉpingle({
-            épingle: {
-              idObjet: idBd,
+          if (épingleBds.épingle)
+            return await serviceBds.suivreRésolutionÉpingle({
               épingle: {
-                ...épingleBds,
-                type: "bd",
+                idObjet: idBd,
+                épingle: {
+                  type: "bd",
+                  épingle: épingleBds.épingle,
+                },
               },
-            },
-            f: fSuivreBranche,
-          });
+              f: fSuivreBranche,
+            });
+          else
+            return faisRien
         },
         f: async (bds: string[]) => {
           info.bds = bds;

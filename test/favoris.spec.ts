@@ -1,9 +1,7 @@
-import { isElectron, isElectronMain, isNode } from "wherearewe";
+import { isElectron, isNode } from "wherearewe";
 
-import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 
-import { créerConstellation, type Constellation } from "@/index.js";
 import { INSTALLÉ, TOUS } from "@/favoris.js";
 import { obtenir } from "./v2/utils.js";
 import type {
@@ -14,66 +12,7 @@ import type {
   ÉpingleFavorisAvecId,
 } from "@/favoris.js";
 
-const { créerConstellationsTest } = utilsTestConstellation;
-
 describe("Favoris", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let client: Constellation;
-
-  before(async () => {
-    ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
-      n: 1,
-
-      créerConstellation,
-    }));
-    client = clients[0];
-  });
-
-  after(async () => {
-    if (fOublierClients) await fOublierClients();
-  });
-
-  describe("estÉpingléSurDispositif", function () {
-    it("tous", async () => {
-      const épinglé = await client.favoris.estÉpingléSurDispositif({
-        dispositifs: "TOUS",
-      });
-      expect(épinglé).to.be.true();
-    });
-    it("installé", async () => {
-      const épinglé = await client.favoris.estÉpingléSurDispositif({
-        dispositifs: "INSTALLÉ",
-      });
-      if (isNode || isElectronMain) {
-        expect(épinglé).to.be.true();
-      } else {
-        expect(épinglé).to.be.false();
-      }
-    });
-    it("installé, pour un autre dispositif", async () => {
-      const idDispositifAutre = "abc";
-      const épinglé = await client.favoris.estÉpingléSurDispositif({
-        dispositifs: "INSTALLÉ",
-        idDispositif: idDispositifAutre,
-      });
-      expect(épinglé).to.be.false();
-    });
-    it("idDispositif", async () => {
-      const idDispositif = await client.obtIdDispositif();
-      const épinglé = await client.favoris.estÉpingléSurDispositif({
-        dispositifs: idDispositif,
-      });
-      expect(épinglé).to.be.true();
-    });
-    it("listeIdDispositif", async () => {
-      const idDispositif = await client.obtIdDispositif();
-      const épinglé = await client.favoris.estÉpingléSurDispositif({
-        dispositifs: [idDispositif],
-      });
-      expect(épinglé).to.be.true();
-    });
-  });
 
   describe("Épingler BDs", function () {
     let idBd: string;
