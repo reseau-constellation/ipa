@@ -40,7 +40,7 @@ export type ÉpingleFavorisAvecId<
 };
 
 export type BooléenniserÉpingle<T extends ÉpingleFavoris> =
-  { type: T["type"], épingle: PartielRécursif<BooléenniserPropriétés<T["épingle"]>> };
+  { type: T["type"], épingle: T["épingle"] extends object ? PartielRécursif<BooléenniserPropriétés<T["épingle"]>> : undefined };
 
 export type ÉpingleFavorisBooléenniséeAvecId<
   T extends ÉpingleFavoris = ÉpingleFavoris,
