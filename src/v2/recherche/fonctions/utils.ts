@@ -183,12 +183,12 @@ export const sousRecherche = async <T extends InfoRésultat>({
     }
   };
 
-  const fOublier = await suivreDeFonctionListe({
+  const oublier = await suivreDeFonctionListe({
     fListe,
     f: fFinale,
     fBranche,
   });
-  return fOublier;
+  return oublier;
 };
 
 const aMieuxQueB = <T extends InfoRésultat>(

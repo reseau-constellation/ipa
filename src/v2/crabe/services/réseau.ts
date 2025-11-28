@@ -169,7 +169,7 @@ export class ServiceRéseau<
     };
 
     const compte = this.service("compte");
-    const fOublierDispositifsAutorisés = await suivreFonctionImbriquée({
+    const oublierDispositifsAutorisés = await suivreFonctionImbriquée({
       fRacine: async ({
         fSuivreRacine,
       }: {
@@ -189,7 +189,7 @@ export class ServiceRéseau<
       fSuivre: fSuivi,
     });
 
-    const fOublierInfosDispositifs = await this.suivreConnexionsDispositifs({
+    const oublierInfosDispositifs = await this.suivreConnexionsDispositifs({
       f: async (x) => {
         info.infos = x;
         return await fFinale();
@@ -198,8 +198,8 @@ export class ServiceRéseau<
 
     return async () => {
       await Promise.allSettled([
-        fOublierDispositifsAutorisés(),
-        fOublierInfosDispositifs(),
+        oublierDispositifsAutorisés(),
+        oublierInfosDispositifs(),
       ]);
     };
   }

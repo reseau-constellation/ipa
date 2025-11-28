@@ -909,7 +909,7 @@ export class Variables<
       },
     });
 
-    const fOublier = async () => {
+    const oublier = async () => {
       await Promise.allSettled([
         oublierNoms(),
         oublierDescr(),
@@ -919,6 +919,6 @@ export class Variables<
       ]);
     };
 
-    return fOublier;
+    return oublier;
   }
 }

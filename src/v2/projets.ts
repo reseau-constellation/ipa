@@ -11,6 +11,8 @@ import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "./favoris.js";
+import { mapÀObjet } from "./crabe/utils.js";
+import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisAvecIdBooléennisée,
@@ -25,6 +27,7 @@ import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {
   InfoAuteur,
+  Métadonnées,
   PartielRécursif,
   StatutDonnées,
   TraducsTexte,
@@ -48,6 +51,7 @@ export type StructureProjet = {
   image: string;
   motsClefs: { [id: string]: null };
   bds: { [id: string]: null };
+  métadonnées: Métadonnées;
   statut: StatutDonnées;
   copiéDe: { id: string };
 };
@@ -74,6 +78,12 @@ export const schémaProjet: JSONSchemaType<PartielRécursif<StructureProjet>> = 
         type: "null",
         nullable: true,
       },
+    },
+    métadonnées: {
+      type: "object",
+      additionalProperties: true,
+      required: [],
+      nullable: true,
     },
     statut: schémaStatutDonnées,
     copiéDe: {
@@ -208,6 +218,60 @@ export class Projets<
   async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const bd = await this.bd();
     await bd.del(extraireEmpreinte(idProjet));
+  }
+
+  async copierProjet({
+    idProjet,
+  }: {
+    idProjet: string;
+  }): Promise<string> {
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    
+    const idNouveauProjet = await this.créerProjet();
+
+    const métadonnées = mapÀObjet(await projet.get("métadonnées"));
+    if (métadonnées) {
+      await this.sauvegarderMétadonnées({ idProjet: idNouveauProjet, métadonnées });
+    }
+
+    const noms = mapÀObjet(await projet.get("noms"));
+    if (noms) {
+      await this.sauvegarderNoms({ idProjet: idNouveauProjet, noms });
+    }
+
+    const descriptions = mapÀObjet(await projet.get("descriptions"));
+    if (descriptions) {
+      await this.sauvegarderDescriptions({
+        idProjet: idNouveauProjet,
+        descriptions,
+      });
+    }
+
+    const motsClefs = await projet.get("motsClefs");
+    if (motsClefs)
+      await this.ajouterMotsClefs({
+        idProjet: idNouveauProjet,
+        idsMotsClefs: Object.keys(mapÀObjet(motsClefs)!),
+      });
+
+    const statut = await projet.get("statut");
+    if (statut)
+      await this.sauvegarderStatut({
+        idProjet: idNouveauProjet,
+        statut: mapÀObjet(statut)!,
+      });
+
+    const { projet: nouveauProjet, oublier: oublierNouveau } = await this.ouvrirProjet({
+      idProjet: idNouveauProjet,
+    });
+
+    const image = await projet.get("image");
+    if (image) await nouveauProjet.set(`image`, image);
+
+    await nouveauProjet.set("copiéDe", { id: idProjet });
+
+    await Promise.allSettled([oublier(), oublierNouveau()]);
+    return idNouveauProjet;
   }
 
   async ouvrirProjet({
@@ -383,7 +447,7 @@ export class Projets<
     const fsOublier: Oublier[] = [];
     const orbite = this.service("orbite");
     if (épingle.épingle.base) {
-      const fOublierBase = await orbite.suivreBdTypée({
+      const oublierBase = await orbite.suivreBdTypée({
         id: épingle.idObjet,
         type: "nested",
         schéma: schémaProjet,
@@ -397,14 +461,14 @@ export class Projets<
           await fFinale();
         },
       });
-      fsOublier.push(fOublierBase);
+      fsOublier.push(oublierBase);
     }
 
     // Bds associées
     const { bds: épingleBds } = épingle.épingle;
     if (épingleBds) {
       const serviceBds = this.service("bds");
-      const fOublierTableaux = await suivreDeFonctionListe({
+      const oublierBds = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
         }: {
@@ -438,7 +502,7 @@ export class Projets<
           await fFinale();
         },
       });
-      fsOublier.push(fOublierTableaux);
+      fsOublier.push(oublierBds);
     }
 
     return async () => {
@@ -553,6 +617,133 @@ export class Projets<
     await projet.del(`descriptions/${langue}`);
     await oublier();
   }
+
+  // Image
+
+  async sauvegarderImage({
+    idProjet,
+    image,
+  }: {
+    idProjet: string;
+    image: { contenu: Uint8Array; nomFichier: string };
+  }): Promise<string> {
+    const maxTailleImage =
+      this.service("compte").options.consts.maxTailleImageSauvegarder;
+
+    if (image.contenu.byteLength > maxTailleImage) {
+      throw new Error("Taille maximale excédée");
+    }
+
+    const idImage = await this.service("hélia").ajouterFichierÀSFIP(image);
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.set("image", idImage);
+    await oublier();
+
+    return idImage;
+  }
+
+  async effacerImage({ idProjet }: { idProjet: string }): Promise<void> {
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.del("image");
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreImage({
+    idProjet,
+    f,
+  }: {
+    idProjet: string;
+    f: Suivi<{ image: Uint8Array; idImage: string } | null>;
+  }): Promise<Oublier> {
+    const maxTailleImage =
+      this.service("compte").options.consts.maxTailleImageVisualiser;
+
+    return await this.service("orbite").suivreDonnéesBd({
+      id: idProjet,
+      type: "nested",
+      schéma: schémaProjet,
+      f: async (projet) => {
+        const idImage = projet.get("image");
+        if (!idImage) {
+          return await f(null);
+        } else {
+          const image = await this.service("hélia").obtFichierDeSFIP({
+            id: idImage,
+            max: maxTailleImage,
+          });
+          return await f(image ? { image, idImage } : null);
+        }
+      },
+    });
+  }
+
+  // Métadonnées
+
+  async sauvegarderMétadonnées({
+    idProjet,
+    métadonnées,
+  }: {
+    idProjet: string;
+    métadonnées: Métadonnées;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+
+    await projet.put("métadonnées", métadonnées);
+    await oublier();
+  }
+
+  async sauvegarderMétadonnée({
+    idProjet,
+    clef,
+    valeur,
+  }: {
+    idProjet: string;
+    clef: string;
+    valeur: DagCborEncodable;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.set(`métadonnées/${clef}`, valeur);
+    await oublier();
+  }
+
+  async effacerMétadonnée({
+    idProjet,
+    clef,
+  }: {
+    idProjet: string;
+    clef: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    await projet.del(`métadonnées/${clef}`);
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreMétadonnées({
+    idProjet,
+    f,
+  }: {
+    idProjet: string;
+    f: Suivi<Métadonnées>;
+  }): Promise<Oublier> {
+    return await this.service("orbite").suivreDonnéesBd({
+      id: idProjet,
+      type: "nested",
+      schéma: schémaProjet,
+      f: async (projet) => {
+        await f(mapÀObjet(projet.get("métadonnées")) || {});
+      },
+    });
+  }
+
 
   @cacheSuivi
   async suivreDescriptions({
@@ -699,6 +890,22 @@ export class Projets<
     await oublier();
   }
 
+  async enleverBd({
+    idProjet,
+    idBd,
+  }: {
+    idProjet: string;
+    idBd: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idProjet });
+
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+
+    await projet.del(`bds/${idBd}`);
+
+    await oublier();
+  }
+
   @cacheSuivi
   async suivreBds({
     idProjet,
@@ -745,6 +952,38 @@ export class Projets<
         });
       },
       f,
+    });
+  }
+
+
+  // Statut
+
+  async sauvegarderStatut({
+    idProjet,
+    statut,
+  }: {
+    idProjet: string;
+    statut: StatutDonnées;
+  }): Promise<void> {
+    const { projet, oublier } = await this.ouvrirProjet({ idProjet });
+    projet.set("statut", statut);
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreStatut({
+    idProjet,
+    f,
+  }: {
+    idProjet: string;
+    f: Suivi<StatutDonnées | null>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+    return await orbite.suivreDonnéesBd({
+      id: idProjet,
+      type: "nested",
+      schéma: schémaProjet,
+      f: (projet) => f(mapÀObjet(projet)?.statut || null),
     });
   }
 

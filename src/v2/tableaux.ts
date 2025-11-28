@@ -1175,7 +1175,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       await f(différences);
     };
 
-    const fOublierColonnesTableau = await this.suivreColonnes({
+    const oublierColonnesTableau = await this.suivreColonnes({
       ...tableau,
       f: async (x) => {
         info.colonnesTableau = x;
@@ -1183,7 +1183,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       },
     });
 
-    const fOublierColonnesRéf = await this.suivreColonnes({
+    const oublierColonnesRéf = await this.suivreColonnes({
       ...tableauRéf,
       f: async (x) => {
         info.colonnesTableauRéf = x;
@@ -1192,7 +1192,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     });
 
     return async () => {
-      await Promise.allSettled([fOublierColonnesTableau, fOublierColonnesRéf]);
+      await Promise.allSettled([oublierColonnesTableau, oublierColonnesRéf]);
     };
   }
 }

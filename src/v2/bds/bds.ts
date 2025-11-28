@@ -204,7 +204,6 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
       properties: {
         id: { type: "string", nullable: true },
       },
-      required: [],
       nullable: true,
     },
   },
@@ -759,7 +758,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     const fsOublier: Oublier[] = [];
     const orbite = this.service("orbite");
     if (épingle.épingle.base) {
-      const fOublierBase = await orbite.suivreBdTypée({
+      const oublierBase = await orbite.suivreBdTypée({
         id: épingle.idObjet,
         type: "nested",
         schéma: schémaBd,
@@ -773,12 +772,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
           await fFinale();
         },
       });
-      fsOublier.push(fOublierBase);
+      fsOublier.push(oublierBase);
     }
 
     // Données des tableaux
     if (épingle.épingle.données?.tableaux) {
-      const fOublierTableaux = await suivreDeFonctionListe({
+      const oublierTableaux = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
         }: {
@@ -807,12 +806,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
           await fFinale();
         },
       });
-      fsOublier.push(fOublierTableaux);
+      fsOublier.push(oublierTableaux);
     }
 
     // Fichiers présents dans les données
     if (épingle.épingle.données?.fichiers) {
-      const fOublierDonnées = await suivreDeFonctionListe({
+      const oublierDonnées = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
         }: {
@@ -846,7 +845,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
           await fFinale();
         },
       });
-      fsOublier.push(fOublierDonnées);
+      fsOublier.push(oublierDonnées);
     }
 
     return async () => {
@@ -2068,7 +2067,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       });
     };
 
-    const fOublierDonnées = await suivreDeFonctionListe({
+    const oublierDonnées = await suivreDeFonctionListe({
       fListe: async ({
         fSuivreRacine,
       }: {
@@ -2100,17 +2099,17 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         });
       },
     });
-    fsOublier.push(fOublierDonnées);
+    fsOublier.push(oublierDonnées);
 
     if (langues) {
-      const fOublierNomsBd = await this.suivreNoms({
+      const oublierNomsBd = await this.suivreNoms({
         idBd,
         f: async (noms) => {
           info.nomsBd = noms;
           await fFinale();
         },
       });
-      fsOublier.push(fOublierNomsBd);
+      fsOublier.push(oublierNomsBd);
     }
 
     return async () => {

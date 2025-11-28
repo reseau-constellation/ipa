@@ -44,11 +44,11 @@ export const rechercherNuéesSelonNom = (
         f();
       }
     };
-    const fOublier = await constl.nuées.suivreNoms({
+    const oublier = await constl.nuées.suivreNoms({
       idNuée: idObjet,
       f: fSuivre,
     });
-    return fOublier;
+    return oublier;
   };
 };
 
@@ -82,11 +82,11 @@ export const rechercherNuéesSelonDescription = (
         f();
       }
     };
-    const fOublier = await constl.nuées.suivreDescriptions({
+    const oublier = await constl.nuées.suivreDescriptions({
       idNuée: idObjet,
       f: fSuivre,
     });
-    return fOublier;
+    return oublier;
   };
 };
 

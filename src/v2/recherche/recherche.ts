@@ -107,7 +107,7 @@ export abstract class RechercheObjets<
     idCompte?: string;
   }): Promise<RetourFonctionRecherche> {
     if (idCompte) {
-      const { fOublier, changerN } = await suivreDeFonctionListe({
+      const { oublier, changerN } = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
         }: {

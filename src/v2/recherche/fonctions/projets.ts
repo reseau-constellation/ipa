@@ -51,11 +51,11 @@ export const rechercherProjetsSelonNom = (
         f();
       }
     };
-    const fOublier = await constl.projets.suivreNoms({
+    const oublier = await constl.projets.suivreNoms({
       idProjet: idObjet,
       f: fSuivre,
     });
-    return fOublier;
+    return oublier;
   };
 };
 
@@ -86,11 +86,11 @@ export const rechercherProjetsSelonDescription = (
         f();
       }
     };
-    const fOublier = await constl.projets.suivreDescriptions({
+    const oublier = await constl.projets.suivreDescriptions({
       idProjet: idObjet,
       f: fSuivre,
     });
-    return fOublier;
+    return oublier;
   };
 };
 

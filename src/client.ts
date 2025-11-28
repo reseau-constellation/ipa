@@ -1,18 +1,10 @@
-import { Semaphore } from "@chriscdn/promise-semaphore";
 import { எண்ணிக்கை } from "ennikkai";
 import indexedDbStream from "indexed-db-stream";
-import plateforme from "platform";
-import { v4 as uuidv4 } from "uuid";
 import {
-  adresseOrbiteValide,
   suivreFonctionImbriquée,
   suivreDeFonctionListe,
-  faisRien,
-  ignorerNonDéfinis,
   sauvegarderFichierZip,
-  uneFois,
 } from "@constl/utils-ipa";
-import { TypedFeed } from "@constl/bohr-db";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
 
 import sha256 from "crypto-js/sha256.js";
@@ -20,16 +12,8 @@ import { randomBytes } from "@noble/hashes/utils";
 import bs58 from "bs58";
 
 import JSZip from "jszip";
-import { isBrowser, isElectronMain, isNode } from "wherearewe";
-import { isValidAddress } from "@orbitdb/core";
+import { isElectronMain, isNode } from "wherearewe";
 import { TypedEmitter } from "tiny-typed-emitter";
-import {
-  fromString as uint8ArrayFromString,
-  toString as uint8ArrayToString,
-} from "uint8arrays";
-import { keys } from "@libp2p/crypto";
-import { anySignal } from "any-signal";
-import { AbortError } from "p-retry";
 import { Automatisations } from "@/automatisation.js";
 import { Favoris, INSTALLÉ, TOUS, résoudreDéfauts } from "@/favoris.js";
 import { Licences } from "@/licences.js";
@@ -39,10 +23,7 @@ import { Recherche } from "@/recherche/index.js";
 import { Réseau } from "@/reseau.js";
 import { Tableaux } from "@/tableaux.js";
 
-import { MEMBRE, MODÉRATEUR } from "@/v2/crabe/services/compte/accès/consts.js";
 import { Protocoles } from "./protocoles.js";
-import { appelerLorsque, estUnePromesse } from "./utils.js";
-import type { rôles } from "@/v2/crabe/services/compte/accès/consts.js";
 import type {
   Jsonifiable,
   PartielRécursif,
@@ -56,52 +37,29 @@ import type {
   ÉpingleFavoris,
   ÉpingleFavorisAvecId,
 } from "@/favoris.js";
-import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { Helia } from "helia";
 import type { JSONSchemaType } from "ajv";
-import type {
-  TypedKeyValue,
-  TypedNested,
-  TypedOrderedKeyValue,
-  TypedSet,
-} from "@constl/bohr-db";
-import type { Libp2p, PrivateKey } from "@libp2p/interface";
+import type { Libp2p } from "@libp2p/interface";
 import type { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type {
   ContenuMessageRejoindreCompte,
-  statutDispositif,
 } from "@/reseau.js";
-import type { AccèsUtilisateur, objRôles } from "@/accès/types.js";
-import type { SetDatabaseType } from "@orbitdb/set-db";
-import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
-import type { FeedDatabaseType } from "@orbitdb/feed-db";
+import type { objRôles } from "@/accès/types.js";
 import type {
   createOrbitDB,
-  IPFSAccessController as générerIPFSAccessController,
   OrbitDB,
-  AccessController,
-  KeyValueDatabase,
-  OpenDatabaseOptions,
 } from "@orbitdb/core";
 import type { structureBdProfil } from "@/profil.js";
 import type {
-  Store,
   type GestionnaireOrbite,
   gestionnaireOrbiteGénéral,
 } from "@/orbite.js";
-import {
-  type OptionsContrôleurConstellation,
-  ContrôleurConstellation as générerContrôleurConstellation,
-  nomType as nomTypeContrôleurConstellation,
-} from "@/accès/cntrlConstellation.js";
 import { Épingles } from "@/epingles.js";
 import { MotsClefs } from "@/motsClefs.js";
 import { Variables } from "@/variables.js";
 import { Profil, schémaStructureBdProfil } from "@/profil.js";
-import { cacheSuivi } from "@/décorateursCache.js";
 import { BDs } from "@/bds.js";
-import { initSFIP } from "@/sfip/index.js";
 import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
@@ -344,10 +302,6 @@ export class Constellation<
     this._initialiser();
   }
 
-  async dossier(): Promise<string> {
-    return await obtDossierConstellation(this._opts);
-  }
-
   async _initialiser(): Promise<void> {
     try {
       await this.verrouillerDossier({ message: this._opts.messageVerrou });
@@ -440,31 +394,6 @@ export class Constellation<
       },
       idCompte: idCompteQuiÉpingle,
     });
-  }
-
-  détecterTypeDispositif(): string | undefined {
-    if (isElectronMain) {
-      return "ordinateur";
-    } else if (isNode) {
-      return "serveur";
-    } else if (isBrowser) {
-      if (
-        ["Pad", "Kindle", "Nexus", "Nook", "PlayBook"].find((x) =>
-          plateforme.product?.includes(x),
-        )
-      ) {
-        return "tablette";
-      } else if (
-        plateforme.name?.includes("Mobile") ||
-        ["Phone", "Android", "iOS"].find((x) =>
-          plateforme.os?.family?.includes(x),
-        )
-      ) {
-        return "téléphone";
-      }
-      return "navigateur";
-    }
-    return undefined;
   }
 
   async verrouillerDossier({ message }: { message?: string }): Promise<void> {

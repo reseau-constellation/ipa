@@ -5,6 +5,7 @@ import type { Oublier } from "@/v2/crabe/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
   InfoRésultat,
+  InfoRésultatRecherche,
   InfoRésultatTexte,
   InfoRésultatVide,
   RésultatObjectifRecherche,
@@ -60,25 +61,25 @@ const vérifierRecherche = (
 };
 
 describe("Rechercher dans réseau", function () {
-  let fermer: Oublier;
-  let constls: Constellation[];
-  let idsComptes: string[];
-
-  before(async () => {
-    ({ fermer, constls } = await créerConstellationsTest({
-      n: 3,
-    }));
-
-    idsComptes = await Promise.all(
-      constls.map(async (c) => await c.compte.obtIdCompte()),
-    );
-  });
-
-  after(async () => {
-    if (fermer) await fermer();
-  });
-
   describe("profil", function () {
+    let fermer: Oublier;
+    let constls: Constellation[];
+    let idsComptes: string[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 3,
+      }));
+
+      idsComptes = await Promise.all(
+        constls.map(async (c) => await c.compte.obtIdCompte()),
+      );
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
     describe("selon id", () => {
       let recherche: ObtRecherche<InfoRésultatTexte>;
 
@@ -266,6 +267,20 @@ describe("Rechercher dans réseau", function () {
   });
 
   describe("mots-clefs", () => {
+    let fermer: Oublier;
+    let constls: Constellation[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 2,
+      }));
+
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
     describe("selon id", () => {
       let idMotClef: string;
 
@@ -388,22 +403,32 @@ describe("Rechercher dans réseau", function () {
   });
 
   describe("variables", () => {
+    let fermer: Oublier;
+    let constls: Constellation[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 2,
+      }));
+
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
     describe("selon id", () => {
       let idVariable: string;
 
       let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        idVariable = await constls[0].motsClefs.créerMotClef();
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "horoDatage",
+        });
         recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
           constls[1].variables.recherche.selonId({ idVariable, f }),
         );
-      });
-
-      before(async () => {
-        idVariable = await constls[1].variables.créerVariable({
-          catégorie: "numérique",
-        });
       });
 
       it("id variable détecté", async () => {
@@ -458,11 +483,7 @@ describe("Rechercher dans réseau", function () {
       it("nom variable détecté", async () => {
         const pRésultat = recherche.siPasVide();
 
-        idVariable = await constls[1].variables.créerVariable({
-          catégorie: "numérique",
-        });
-
-        await constls[1].variables.sauvegarderNoms({
+        await constls[0].variables.sauvegarderNoms({
           idVariable,
           noms: {
             fr: "précipitation",
@@ -491,28 +512,49 @@ describe("Rechercher dans réseau", function () {
     });
 
     describe("selon descriptions", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+      let idVariable: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier } =
-          await constls[0].recherche.rechercherVariablesSelonDescr({
-            descrVariable: "précip",
-            f: (variables) => rés.mettreÀJour(variables),
-            nRésultatsDésirés: 2,
-          }));
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].variables.recherche.selonDescription({
+            descriptionVariable: "précip",
+            f,
+          }),
+        );
       });
 
-      it("Rien pour commencer", async () => {
-        const val = await rés.attendreExiste();
-        expect(val.length).to.equal(0);
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
       });
 
-      it("Nouvelle variable détectée", async () => {
-        const idVariable = await constls[1].variables.créerVariable({
+      it("rien si pas de nom", async () => {
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "audio",
+        });
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("description variable détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        idVariable = await constls[0].variables.créerVariable({
           catégorie: "numérique",
         });
+
+        await constls[0].variables.sauvegarderDescriptions({
+          idVariable,
+          descriptions: {
+            fr: "précipitation",
+          },
+        });
+
+        const résultat = await pRésultat;
+
         const réf: RésultatRecherche<InfoRésultatTexte> = {
           id: idVariable,
           résultatObjectif: {
@@ -529,46 +571,50 @@ describe("Rechercher dans réseau", function () {
           },
         };
 
-        await constls[1].variables.sauvegarderDescriptionsVariable({
-          idVariable,
-          descriptions: {
-            fr: "précipitation",
-          },
-        });
-
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
-    describe("tous", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+    describe("toutes", () => {
+      let idVariable: string;
+      let recherche: ObtRecherche<InfoRésultatVide>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherVariables({
-          f: (variables) => rés.mettreÀJour(variables),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatVide>(({ f }) =>
+          constls[1].variables.recherche.toutes({ f }),
+        );
       });
 
-      it("Variables détectées", async () => {
-        await rés.attendreQue((x) => x.length > 0);
+      it("variables détectées", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        idVariable = await constls[0].motsClefs.créerMotClef();
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatVide> = {
+          id: idVariable,
+          résultatObjectif: {
+            score: 1,
+            type: "résultat",
+            de: "*",
+            info: {
+              type: "vide",
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
       });
     });
   });
 
-  describe("Bds", () => {
-    let idBd: string;
-
+  describe("bds", () => {
     let fermer: Oublier;
     let constls: Constellation[];
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
         n: 2,
-        créerConstellation,
       }));
     });
 
@@ -577,21 +623,20 @@ describe("Rechercher dans réseau", function () {
     });
 
     describe("selon id", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
-
-        ({ fOublier } = await constls[0].recherche.rechercherBdsSelonId({
-          idBd,
-          f: (bds) => rés.mettreÀJour(bds),
-          nRésultatsDésirés: 2,
-        }));
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].bds.recherche.selonId({ idBd, f }),
+        );
       });
 
-      it("Bd détectée", async () => {
+      it("id bd détecté", async () => {
+        const résultat = await recherche.siPasVide();
+
         const réf: RésultatRecherche<InfoRésultatTexte> = {
           id: idBd,
           résultatObjectif: {
@@ -606,25 +651,45 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
     describe("selon nom", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherBdsSelonNom({
-          nomBd: "météo",
-          f: (bds) => rés.mettreÀJour(bds),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].bds.recherche.selonNom({ nomBd: "météo", f }),
+        );
       });
 
-      it("Bd détectée", async () => {
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de nom", async () => {
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nom bd détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].bds.sauvegarderNoms({
+          idBd,
+          noms: {
+            fr: "météorologie",
+          },
+        });
+
+        const résultat = await pRésultat;
+
         const réf: RésultatRecherche<InfoRésultatTexte> = {
           id: idBd,
           résultatObjectif: {
@@ -640,35 +705,54 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        await constls[1].bds.sauvegarderNomsBd({
-          idBd,
-          noms: { fr: "météorologie" },
-        });
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
     describe("selon descriptions", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherBdsSelonDescr({
-          descrBd: "météo",
-          f: (bds) => rés.mettreÀJour(bds),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].bds.recherche.selonDescription({
+            descriptionBd: "météo",
+            f,
+          }),
+        );
       });
 
-      it("Bd détectée", async () => {
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de description", async () => {
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("description bd détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[1].bds.sauvegarderDescriptions({
+          idBd,
+          descriptions: {
+            fr: "Météorologie de la région de Montpellier.",
+          },
+        });
+
+        const résultat = await pRésultat;
+
         const réf: RésultatRecherche<InfoRésultatTexte> = {
           id: idBd,
           résultatObjectif: {
             score: 0,
             type: "résultat",
-            de: "descriptions",
+            de: "description",
             clef: "fr",
             info: {
               type: "texte",
@@ -678,47 +762,53 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        await constls[1].bds.sauvegarderDescriptionsBd({
-          idBd,
-          descriptions: {
-            fr: "Météorologie de la région de Montpellier.",
-          },
-        });
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
     describe("selon variables", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]
-      >();
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherBdsSelonVariable({
-          texte: "précipitation",
-          f: (bds) => rés.mettreÀJour(bds),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatRecherche<InfoRésultatTexte>>(
+          ({ f }) =>
+            constls[1].bds.recherche.selonVariable({
+              texte: "précipitation",
+              f,
+            }),
+        );
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
       });
 
-      it("Nouvelle variable détectée", async () => {
-        const idVariable = await constls[1].variables.créerVariable({
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nouvelle variable détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        const idVariable = await constls[0].variables.créerVariable({
           catégorie: "numérique",
         });
-        const idTableau = await constls[1].bds.ajouterTableauBd({
+        const idTableau = await constls[0].bds.ajouterTableau({
           idBd,
         });
-        await constls[1].tableaux.ajouterColonneTableau({
+        await constls[0].bds.tableaux.ajouterColonne({
+          idStructure: idBd,
           idTableau,
           idVariable,
         });
-        await constls[1].variables.sauvegarderNomsVariable({
+        await constls[0].variables.sauvegarderNoms({
           idVariable,
           noms: {
             fr: "Précipitation",
           },
         });
+
+        const résultat = await pRésultat;
 
         const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
           {
@@ -741,37 +831,44 @@ describe("Rechercher dans réseau", function () {
               },
             },
           };
-
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
     describe("selon mots-clefs", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]
-      >();
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherBdsSelonMotClef({
-          texte: "meteorología",
-          f: (bds) => rés.mettreÀJour(bds),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatRecherche<InfoRésultatTexte>>(
+          ({ f }) =>
+            constls[1].bds.recherche.selonMotClef({ texte: "meteorología", f }),
+        );
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
       });
 
-      it("Nouveau mot-clef détecté", async () => {
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nouveau mot-clef détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
         const idMotClef = await constls[1].motsClefs.créerMotClef();
-        await constls[1].bds.ajouterMotsClefsBd({
+        await constls[0].bds.ajouterMotsClefs({
           idBd,
           idsMotsClefs: idMotClef,
         });
-        await constls[1].motsClefs.sauvegarderNomsMotClef({
+        await constls[0].motsClefs.sauvegarderNoms({
           idMotClef,
           noms: {
             cst: "Meteorología",
           },
         });
+
+        const résultat = await pRésultat;
 
         const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
           {
@@ -794,25 +891,32 @@ describe("Rechercher dans réseau", function () {
               },
             },
           };
-
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
-    describe("tous", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+    describe("toutes", () => {
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte | InfoRésultatVide>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherBds({
-          f: (bds) => rés.mettreÀJour(bds),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatTexte | InfoRésultatVide>(
+          ({ f }) => constls[1].bds.recherche.toutes({ f }),
+        );
       });
 
-      it("Bd détectée", async () => {
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("bds détectées", async () => {
+        const pRésultat = recherche.siPasVide();
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const résultat = await pRésultat;
+
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idBd,
           résultatObjectif: {
@@ -824,29 +928,20 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        await constls[1].bds.sauvegarderNomsBd({
-          idBd,
-          noms: {
-            fr: "Météorologie de la région de Montpellier.",
-          },
-        });
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
   });
 
-  describe("Nuées", () => {
-    let idNuée: string;
-
+  describe("nuées", () => {
     let fermer: Oublier;
     let constls: Constellation[];
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
         n: 2,
-        créerConstellation,
       }));
+
     });
 
     after(async () => {
@@ -854,21 +949,20 @@ describe("Rechercher dans réseau", function () {
     });
 
     describe("selon id", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        idNuée = await constls[1].nuées.créerNuée();
-
-        ({ fOublier } = await constls[0].recherche.rechercherNuéesSelonId({
-          idNuée,
-          f: (nuées) => rés.mettreÀJour(nuées),
-          nRésultatsDésirés: 2,
-        }));
+        idNuée = await constls[0].nuées.créerNuée();
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].nuées.recherche.selonId({ idNuée, f }),
+        );
       });
 
-      it("Nuée détectée", async () => {
+      it("id nuée détecté", async () => {
+        const résultat = await recherche.siPasVide();
+
         const réf: RésultatRecherche<InfoRésultatTexte> = {
           id: idNuée,
           résultatObjectif: {
@@ -883,24 +977,45 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
+
     describe("selon nom", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherNuéesSelonNom({
-          nomNuée: "météo",
-          f: (nuées) => rés.mettreÀJour(nuées),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].nuées.recherche.selonNom({ nomNuée: "météo", f }),
+        );
       });
 
-      it("Nuée détectée", async () => {
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de nom", async () => {
+        idNuée = await constls[0].nuées.créerNuée();
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nom nuée détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].nuées.sauvegarderNoms({
+          idNuée,
+          noms: {
+            fr: "météorologie",
+          },
+        });
+
+        const résultat = await pRésultat;
+
         const réf: RésultatRecherche<InfoRésultatTexte> = {
           id: idNuée,
           résultatObjectif: {
@@ -916,35 +1031,51 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        await constls[1].nuées.sauvegarderNomsNuée({
-          idNuée,
-          noms: { fr: "météorologie" },
-        });
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
-    describe("selon descriptions", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+    describe("selon description", () => {
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherNuéesSelonDescr({
-          descrNuée: "météo",
-          f: (nuées) => rés.mettreÀJour(nuées),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].nuées.recherche.selonDescription({ descriptionNuée: "météo", f }),
+        );
       });
 
-      it("Nuée détectée", async () => {
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de description", async () => {
+        idNuée = await constls[0].nuées.créerNuée();
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("description nuée détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].nuées.sauvegarderDescriptions({
+          idNuée,
+          descriptions: {
+            fr: "Météorologie de la région de Montpellier.",
+          },
+        });
+
+        const résultat = await pRésultat;
+
         const réf: RésultatRecherche<InfoRésultatTexte> = {
           id: idNuée,
           résultatObjectif: {
             score: 0,
             type: "résultat",
-            de: "descriptions",
+            de: "description",
             clef: "fr",
             info: {
               type: "texte",
@@ -954,44 +1085,44 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        await constls[1].nuées.sauvegarderDescriptionsNuée({
-          idNuée,
-          descriptions: {
-            fr: "Météorologie de la région de Montpellier.",
-          },
-        });
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
     describe("selon variables", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]
-      >();
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherNuéesSelonVariable(
-          {
-            texte: "précipitation",
-            f: (nuées) => rés.mettreÀJour(nuées),
-            nRésultatsDésirés: 2,
-          },
-        ));
+        recherche = await rechercher<InfoRésultatRecherche<InfoRésultatTexte>>(
+          ({ f }) =>
+            constls[1].nuées.recherche.selonVariable({
+              texte: "précipitation",
+              f,
+            }),
+        );
+        idNuée = await constls[0].nuées.créerNuée();
       });
 
-      it("Nouvelle variable détectée", async () => {
-        const idVariable = await constls[1].variables.créerVariable({
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nouvelle variable détectée", async () => {
+        const idVariable = await constls[0].variables.créerVariable({
           catégorie: "numérique",
         });
-        const idTableau = await constls[1].nuées.ajouterTableauNuée({
+        const idTableau = await constls[0].nuées.ajouterTableau({
           idNuée,
         });
-        await constls[1].nuées.ajouterColonneTableauNuée({
+        await constls[0].nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
           idTableau,
           idVariable,
         });
-        await constls[1].variables.sauvegarderNomsVariable({
+        await constls[0].variables.sauvegarderNoms({
           idVariable,
           noms: {
             fr: "Précipitation",
@@ -1019,32 +1150,38 @@ describe("Rechercher dans réseau", function () {
               },
             },
           };
-
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
     describe("selon mots-clefs", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]
-      >();
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherNuéesSelonMotClef({
-          texte: "meteorología",
-          f: (nuées) => rés.mettreÀJour(nuées),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatRecherche<InfoRésultatTexte>>(
+          ({ f }) =>
+            constls[1].nuées.recherche.selonMotClef({
+              texte: "meteorología",
+              f,
+            }),
+        );
+        idNuée = await constls[0].nuées.créerNuée();
       });
 
-      it("Nouveau mot-clef détecté", async () => {
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nouveau mot-clef détecté", async () => {
         const idMotClef = await constls[1].motsClefs.créerMotClef();
-        await constls[1].nuées.ajouterMotsClefsNuée({
+        await constls[1].nuées.ajouterMotsClefs({
           idNuée,
           idsMotsClefs: idMotClef,
         });
-        await constls[1].motsClefs.sauvegarderNomsMotClef({
+        await constls[1].motsClefs.sauvegarderNoms({
           idMotClef,
           noms: {
             cst: "Meteorología",
@@ -1072,25 +1209,32 @@ describe("Rechercher dans réseau", function () {
               },
             },
           };
-
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
-    describe("tous", () => {
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
+    describe("toutes", () => {
+      let idNuée: string
+
+      let recherche: ObtRecherche<InfoRésultatTexte | InfoRésultatVide>;
 
       before(async () => {
-        ({ fOublier } = await constls[0].recherche.rechercherNuées({
-          f: (nuées) => rés.mettreÀJour(nuées),
-          nRésultatsDésirés: 2,
-        }));
+        recherche = await rechercher<InfoRésultatTexte | InfoRésultatVide>(
+          ({ f }) => constls[1].bds.recherche.toutes({ f }),
+        );
       });
 
-      it("Nuée détectée", async () => {
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nuées détectées", async () => {
+        const pRésultat = recherche.siPasVide();
+        idNuée = await constls[0].nuées.créerNuée();
+
+        const résultat = await pRésultat;
+
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idNuée,
           résultatObjectif: {
@@ -1102,36 +1246,25 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        await constls[1].nuées.sauvegarderNomsNuée({
-          idNuée,
-          noms: {
-            fr: "Météorologie de la région de Montpellier.",
-          },
-        });
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réf]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
   });
 
-  describe("Projets", () => {
-    let idProjet: string;
-    let idBd: string;
-
+  describe("projets", () => {
     let fermer: Oublier;
     let constls: Constellation[];
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
         n: 2,
-        créerConstellation,
       }));
+
     });
 
     after(async () => {
       if (fermer) await fermer();
     });
-
     describe("selon id", () => {
       const rés = new utilsTestAttente.AttendreRésultat<
         RésultatRecherche<InfoRésultatTexte>[]

@@ -41,11 +41,11 @@ export const rechercherVariablesSelonNom = (
         return await f();
       }
     };
-    const fOublier = await constl.variables.suivreNoms({
+    const oublier = await constl.variables.suivreNoms({
       idVariable: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
-    return fOublier;
+    return oublier;
   };
 };
 
@@ -79,11 +79,11 @@ export const rechercherVariablesSelonDescription = (
         return await f();
       }
     };
-    const fOublier = await constl.variables.suivreDescriptions({
+    const oublier = await constl.variables.suivreDescriptions({
       idVariable: idObjet,
       f: fSuivre,
     });
-    return fOublier;
+    return oublier;
   };
 };
 

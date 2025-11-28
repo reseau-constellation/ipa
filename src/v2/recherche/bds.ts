@@ -108,13 +108,13 @@ export class RechercheBds<
   }
 
   @cacheRechercheParN
-  async selonDescr({
-    descrBd,
+  async selonDescription({
+    descriptionBd,
     f,
     n,
     idCompte,
   }: {
-    descrBd: string;
+    descriptionBd: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
@@ -122,7 +122,7 @@ export class RechercheBds<
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: rechercherBdsSelonDescription(descrBd),
+      fObjectif: rechercherBdsSelonDescription(descriptionBd),
       idCompte,
     });
   }

@@ -42,11 +42,11 @@ export const rechercherMotsClefsSelonNom = (
         return await f();
       }
     };
-    const fOublier = await constl.motsClefs.suivreNoms({
+    const oublier = await constl.motsClefs.suivreNoms({
       idMotClef: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
-    return fOublier;
+    return oublier;
   };
 };
 
@@ -80,11 +80,11 @@ export const rechercherMotsClefsSelonDescription = (
         return await f();
       }
     };
-    const fOublier = await constl.motsClefs.suivreDescriptions({
+    const oublier = await constl.motsClefs.suivreDescriptions({
       idMotClef: idObjet,
       f: fSuivre,
     });
-    return fOublier;
+    return oublier;
   };
 };
 

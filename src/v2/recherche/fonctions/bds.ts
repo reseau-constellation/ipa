@@ -47,11 +47,11 @@ export const rechercherBdsSelonNom = (
         return await f();
       }
     };
-    const fOublier = await constl.bds.suivreNoms({
+    const oublier = await constl.bds.suivreNoms({
       idBd: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
-    return fOublier;
+    return oublier;
   };
 };
 
@@ -82,11 +82,11 @@ export const rechercherBdsSelonDescription = (
         return await f();
       }
     };
-    const fOublier = await constl.bds.suivreDescriptions({
+    const oublier = await constl.bds.suivreDescriptions({
       idBd: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
-    return fOublier;
+    return oublier;
   };
 };
 

@@ -479,4 +479,14 @@ describe("Nuées", function () {
       expect(auteurs).to.deep.equal(réf);
     });
   });
+
+  describe("comparaisons")
+
+  describe("ascendance", function () {
+    describe("suivre parents", function () {
+      it("vide si aucun parent")
+      it("ascendance transitive")
+      it("pas d'erreur si récursif")
+    })
+  });
 });

@@ -71,7 +71,7 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
 
 // Type résolveur
 
-export type Résolveur<T extends BaseÉpingleFavoris> = (args: {
+export type Résolveur<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = (args: {
   épingle: ÉpingleFavorisAvecIdBooléennisée<T>;
   f: Suivi<Set<string>>;
 }) => Promise<Oublier>;
@@ -204,7 +204,7 @@ export class Favoris extends ServiceDonnéesNébuleuse<
     clef: string;
     résolution: Résolveur<T>;
   }): Promise<void> {
-    this.résolveurs.set(clef, résolution);
+    this.résolveurs.set(clef, résolution as Résolveur);
   }
 
   async suivreRésolutionÉpingle({

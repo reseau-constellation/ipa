@@ -67,28 +67,28 @@ export const rechercherProfilsSelonActivité =
         f(calculerScore());
       };
 
-      const fOublierNoms = await constl.profil.suivreNoms({
+      const oublierNoms = await constl.profil.suivreNoms({
         idCompte: idObjet,
         f: ignorerNonDéfinis(fSuivreNoms),
       });
-      const fOublierImage = await constl.profil.suivreImage({
+      const oublierImage = await constl.profil.suivreImage({
         idCompte: idObjet,
         f: fSuivreImage,
       });
-      const fOublierCourriel = await constl.profil.suivreCourriel({
+      const oublierCourriel = await constl.profil.suivreCourriel({
         idCompte: idObjet,
         f: fSuivreCourriel,
       });
 
-      const fOublier = async () => {
+      const oublier = async () => {
         await Promise.allSettled([
-          fOublierNoms(),
-          fOublierImage(),
-          fOublierCourriel(),
+          oublierNoms(),
+          oublierImage(),
+          oublierCourriel(),
         ]);
       };
 
-      return fOublier;
+      return oublier;
     };
   };
 
@@ -119,11 +119,11 @@ export const rechercherProfilsSelonNom = (
         f();
       }
     };
-    const fOublier = await constl.profil.suivreNoms({
+    const oublier = await constl.profil.suivreNoms({
       idCompte: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
-    return fOublier;
+    return oublier;
   };
 };
 
@@ -156,11 +156,11 @@ export const rechercherProfilsSelonCourriel = (
         f();
       }
     };
-    const fOublier = await constl.profil.suivreCourriel({
+    const oublier = await constl.profil.suivreCourriel({
       idCompte: idObjet,
       f: fSuivre,
     });
-    return fOublier;
+    return oublier;
   };
 };
 
@@ -216,10 +216,10 @@ export const rechercherProfilsSelonImage = (
         info: { type: "vide" },
       });
     };
-    const fOublier = await constl.profil.suivreImage({
+    const oublier = await constl.profil.suivreImage({
       idCompte: idObjet,
       f: (x) => fSuivre(x?.image || null),
     });
-    return fOublier;
+    return oublier;
   };
 };
