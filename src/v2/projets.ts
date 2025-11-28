@@ -1,9 +1,12 @@
-import { suivreDeFonctionListe } from "@constl/utils-ipa";
+import { join } from "path";
+import { attendreStabilité, suivreDeFonctionListe, traduire, uneFois, zipper } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { typedNested } from "@constl/bohr-db";
+import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
+import toBuffer from "it-to-buffer";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { cacheSuivi } from "./crabe/cache.js";
-import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
+import { ajouterProtocoleOrbite, conversionsTypes, extraireEmpreinte } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
 import {
@@ -12,6 +15,7 @@ import {
   résoudreDéfauts,
 } from "./favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
+import type { BookType, WorkBook} from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   BaseÉpingleFavoris,
@@ -33,7 +37,7 @@ import type {
   TraducsTexte,
 } from "./types.js";
 import type { Suivi, Oublier } from "./crabe/types.js";
-import type { ÉpingleBd } from "./bds/bds.js";
+import type { DonnéesBdExportées, ÉpingleBd } from "./bds/bds.js";
 
 // Types épingles
 
@@ -41,6 +45,19 @@ export type ÉpingleProjet = BaseÉpingleFavoris & {
   type: "projet";
   bds: ÉpingleBd;
 };
+
+// Types données
+
+export type DonnéesProjetExportées = {
+  nomProjet: string;
+  bds: DonnéesBdExportées[];
+};
+
+export type DonnéesFichierProjetExportées = {
+  docs: { doc: WorkBook; nom: string }[];
+  fichiersSFIP: Set<string>;
+  nomFichier: string;
+}
 
 // Types structure
 
@@ -122,7 +139,7 @@ export class Projets<
     super({
       clef: "projets",
       nébuleuse,
-      dépendances: ["compte", "orbite", "hélia"],
+      dépendances: ["bds", "compte", "orbite", "hélia"],
       options: {
         schéma: SchémaServiceProjets,
       },
@@ -1034,5 +1051,207 @@ export class Projets<
       fBranche,
       fRéduction,
     });
+  }
+
+  // Exportation
+
+  async suivreDonnéesExportation({
+    idProjet,
+    langues,
+    f,
+  }: {
+    idProjet: string;
+    langues?: string[];
+    f: Suivi<DonnéesProjetExportées>;
+  }): Promise<Oublier> {
+    const bds = this.service("bds");
+
+    const info: {
+      nomsProjet?: TraducsTexte;
+      données?: DonnéesBdExportées[];
+    } = {};
+    const fsOublier: Oublier[] = [];
+
+    const fFinale = async () => {
+      const { nomsProjet, données } = info;
+      if (!données) return;
+
+      const idCourt = idProjet.split("/").pop()!;
+      const nomProjet =
+        nomsProjet && langues
+          ? traduire(nomsProjet, langues) || idCourt
+          : idCourt;
+      return await f({
+        nomProjet,
+        bds: données,
+      });
+    };
+
+    const oublierDonnées = await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: (éléments: string[]) => Promise<void>;
+      }) => {
+        return await this.suivreBds({ idProjet, f: fSuivreRacine });
+      },
+      f: async (données: DonnéesBdExportées[]) => {
+        info.données = données;
+        await fFinale();
+      },
+      fBranche: async ({
+        id,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<DonnéesBdExportées>;
+      }): Promise<Oublier> => {
+        return await bds.suivreDonnéesExportation({
+          idBd: id,
+          langues,
+          f: fSuivreBranche,
+        });
+      },
+    });
+    fsOublier.push(oublierDonnées);
+
+    if (langues) {
+      const oublierNomsProjet = await this.suivreNoms({
+        idProjet,
+        f: async (noms) => {
+          info.nomsProjet = noms;
+          await fFinale();
+        },
+      });
+      fsOublier.push(oublierNomsProjet);
+    }
+
+    return async () => {
+      await Promise.allSettled(fsOublier.map((f) => f()));
+    };
+  }
+
+  async exporterDonnées({
+    idProjet,
+    langues,
+    nomFichier,
+    patience = 500,
+  }: {
+    idProjet: string;
+    langues?: string[];
+    nomFichier?: string;
+    patience?: number;
+  }): Promise<DonnéesFichierProjetExportées> {
+    const données = await uneFois(
+      async (
+        fSuivi: Suivi<DonnéesProjetExportées>,
+      ): Promise<Oublier> => {
+        return await this.suivreDonnéesExportation({
+          idProjet,
+          langues,
+          f: fSuivi,
+        });
+      },
+      attendreStabilité(patience),
+    );
+
+    nomFichier = nomFichier || données.nomProjet;
+
+    const fichiersSFIP = new Set<string>();
+    données.bds.forEach((bd) => {
+      bd.tableaux.forEach((t) =>
+        t.fichiersSFIP.forEach((x) => fichiersSFIP.add(x)),
+      );
+    });
+
+    return {
+      docs: données.bds.map((donnéesBd) => {
+        const doc = xlsxUtils.book_new();
+        for (const tableau of donnéesBd.tableaux) {
+          /* Créer le tableau */
+          const tableauXLSX = xlsxUtils.json_to_sheet(tableau.données);
+
+          /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
+          xlsxUtils.book_append_sheet(
+            doc,
+            tableauXLSX,
+            tableau.nomTableau.slice(0, 30),
+          );
+        }
+        return { doc, nom: donnéesBd.nomBd };
+      }),
+      fichiersSFIP,
+      nomFichier,
+    };
+  }
+
+  async exporterProjetÀFichier({
+    idProjet,
+    langues,
+    nomFichier,
+    patience = 500,
+    formatDocu,
+    dossier = "",
+    inclureDocuments = true,
+  }: {
+    idProjet: string;
+    langues?: string[];
+    nomFichier?: string;
+    patience?: number;
+    formatDocu: BookType | "xls";
+    dossier?: string;
+    inclureDocuments?: boolean;
+  }): Promise<string> {
+    const donnéesExportées = await this.exporterDonnées({
+      idProjet,
+      langues,
+      nomFichier,
+      patience,
+    });
+    return await this.documentDonnéesÀFichier({
+      données: donnéesExportées,
+      formatDocu,
+      dossier,
+      inclureDocuments,
+    });
+  }
+
+  async documentDonnéesÀFichier({
+    données,
+    formatDocu,
+    dossier = "",
+    inclureDocuments = true,
+  }: {
+    données: DonnéesFichierProjetExportées;
+    formatDocu: BookType | "xls";
+    dossier?: string;
+    inclureDocuments?: boolean;
+  }): Promise<string> {
+    const hélia = this.service("hélia");
+
+    const { docs, fichiersSFIP, nomFichier } = données;
+
+    const bookType: BookType = conversionsTypes[formatDocu] || formatDocu;
+
+    const fichiersDocs = docs.map((d) => {
+      return {
+        nom: `${d.nom}.${formatDocu}`,
+        octets: xlsxWrite(d.doc, { bookType, type: "buffer" }),
+      };
+    });
+    const fichiersDeSFIP = inclureDocuments
+      ? await Promise.all(
+          [...fichiersSFIP].map(async (fichier) => {
+            return {
+              nom: fichier.replace("/", "-"),
+              octets: await toBuffer(
+                await hélia.obtItérableAsyncSFIP({ id: fichier }),
+              ),
+            };
+          }),
+        )
+      : [];
+    await zipper(fichiersDocs, fichiersDeSFIP, join(dossier, nomFichier));
+    return join(dossier, nomFichier);
   }
 }
