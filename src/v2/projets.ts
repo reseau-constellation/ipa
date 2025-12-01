@@ -450,10 +450,12 @@ export class Projets<
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleProjet = épingles?.find(({idObjet, épingle})=> {
-          return idObjet === idProjet && épingle.type === "projet" ? (épingle) : undefined;
+        const épingleProjet = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === idProjet && épingle.type === "projet"
+            ? épingle
+            : undefined;
         }) as ÉpingleProjet | undefined;
-        await f(épingleProjet)
+        await f(épingleProjet);
       },
     });
   }

@@ -444,6 +444,23 @@ describe("Nuées", function () {
       expect(auteurs).to.deep.equal(réf);
     });
 
+    it("modification par le nouvel auteur", async () => {
+      await obtenir(({ siDéfini }) =>
+        constls[1].compte.suivrePermission({ idObjet: idNuée, f: siDéfini() }),
+      );
+
+      // Modification de la nuée
+      await constls[1].nuées.sauvegarderNom({
+        idNuée,
+        langue: "fr",
+        nom: "Pédologie",
+      });
+      const noms = await obtenir(({ siPasVide }) =>
+        constls[0].nuées.suivreNoms({ idNuée, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal({ fr: "Pédologie" });
+    });
+
     it("promotion à modératrice", async () => {
       await constl.nuées.inviterAuteur({
         idNuée,
@@ -454,7 +471,11 @@ describe("Nuées", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.nuées.suivreAuteurs({
           idNuée,
-          f: si((x) => !!x && x.find(a=>a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE),
+          f: si(
+            (x) =>
+              !!x &&
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -470,7 +491,7 @@ describe("Nuées", function () {
         },
       ];
       expect(auteurs).to.deep.equal(réf);
-    })
+    });
 
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne =

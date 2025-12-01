@@ -469,6 +469,23 @@ describe.only("Mots-clefs", function () {
       expect(auteurs).to.deep.equal(réf);
     });
 
+    it("modification par le nouvel auteur", async () => {
+      await obtenir(({ siDéfini }) =>
+        constls[1].compte.suivrePermission({ idObjet: idMotClef, f: siDéfini() }),
+      );
+
+      // Modification du mot-clef
+      await constls[1].motsClefs.sauvegarderNom({
+        idMotClef,
+        langue: "fr",
+        nom: "Pédologie",
+      });
+      const noms = await obtenir(({ siPasVide }) =>
+        constls[0].motsClefs.suivreNoms({ idMotClef, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal({ fr: "Pédologie" });
+    });
+
     it("promotion à modératrice", async () => {
       await constl.motsClefs.inviterAuteur({
         idMotClef,
@@ -479,7 +496,11 @@ describe.only("Mots-clefs", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.motsClefs.suivreAuteurs({
           idMotClef,
-          f: si((x) => !!x && x.find(a=>a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE),
+          f: si(
+            (x) =>
+              !!x &&
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -495,7 +516,7 @@ describe.only("Mots-clefs", function () {
         },
       ];
       expect(auteurs).to.deep.equal(réf);
-    })
+    });
 
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne =

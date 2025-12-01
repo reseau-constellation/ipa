@@ -732,10 +732,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleBd = épingles?.find(({idObjet, épingle})=> {
-          return idObjet === idBd && épingle.type === "bd" ? (épingle) : undefined;
+        const épingleBd = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === idBd && épingle.type === "bd"
+            ? épingle
+            : undefined;
         }) as ÉpingleBd | undefined;
-        await f(épingleBd)
+        await f(épingleBd);
       },
     });
   }

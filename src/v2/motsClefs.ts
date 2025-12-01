@@ -329,10 +329,12 @@ export class MotsClefs<
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleMotClef = épingles?.find(({idObjet, épingle})=> {
-          return idObjet === idMotClef && épingle.type === "mot-clef" ? (épingle) : undefined;
+        const épingleMotClef = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === idMotClef && épingle.type === "mot-clef"
+            ? épingle
+            : undefined;
         }) as ÉpingleMotClef | undefined;
-        await f(épingleMotClef)
+        await f(épingleMotClef);
       },
     });
   }

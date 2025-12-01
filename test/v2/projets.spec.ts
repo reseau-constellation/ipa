@@ -99,6 +99,23 @@ describe("Projets", function () {
       expect(auteurs).to.deep.equal(réf);
     });
 
+    it("modification par le nouvel auteur", async () => {
+      await obtenir(({ siDéfini }) =>
+        constls[1].compte.suivrePermission({ idObjet: idProjet, f: siDéfini() }),
+      );
+
+      // Modification du projet
+      await constls[1].projets.sauvegarderNom({
+        idProjet,
+        langue: "fr",
+        nom: "Pédologie",
+      });
+      const noms = await obtenir(({ siPasVide }) =>
+        constls[0].projets.suivreNoms({ idProjet, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal({ fr: "Pédologie" });
+    });
+
     it("promotion à modératrice", async () => {
       await constl.projets.inviterAuteur({
         idProjet,
@@ -109,7 +126,11 @@ describe("Projets", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.projets.suivreAuteurs({
           idProjet,
-          f: si((x) => !!x && x.find(a=>a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE),
+          f: si(
+            (x) =>
+              !!x &&
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -125,7 +146,7 @@ describe("Projets", function () {
         },
       ];
       expect(auteurs).to.deep.equal(réf);
-    })
+    });
 
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne =

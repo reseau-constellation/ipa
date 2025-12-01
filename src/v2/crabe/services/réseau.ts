@@ -254,7 +254,6 @@ export class ServiceRéseau<
     f: Suivi<number>;
   }): Promise<Oublier> {}
 
-
   // Comptes bloqués et de confiance
 
   async faireConfianceAuCompte({
@@ -426,6 +425,4 @@ export class ServiceRéseau<
   }
 
   // Confiance réseau
-
-
 }

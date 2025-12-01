@@ -2078,9 +2078,16 @@ describe("BDs", function () {
 
   describe("auteurs", function () {
     let idBd: string;
+    let idTableau: string;
+    let idColonne: string;
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idTableau = await constl.bds.ajouterTableau({ idBd });
+      idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+      });
     });
 
     it("compte créateur autorisé pour commencer", async () => {
@@ -2151,6 +2158,39 @@ describe("BDs", function () {
       expect(auteurs).to.deep.equal(réf);
     });
 
+    it("modification par le nouvel auteur", async () => {
+      await obtenir(({ siDéfini }) =>
+        constls[1].compte.suivrePermission({ idObjet: idBd, f: siDéfini() }),
+      );
+
+      // Modification de la base de données
+      await constls[1].bds.sauvegarderNom({
+        idBd,
+        langue: "fr",
+        nom: "Niveaux d'eau",
+      });
+      const noms = await obtenir(({ siPasVide }) =>
+        constls[0].bds.suivreNoms({ idBd, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal({ fr: "Niveaux d'eau" });
+
+      // Modification des données
+      await constls[1].bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
+        idTableau,
+        éléments: [{ [idColonne]: 2.5 }],
+      });
+      const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
+        ({ siPasVide }) =>
+          constls[0].bds.tableaux.suivreDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: siPasVide(),
+          }),
+      );
+      expect(données.map((d) => d.données)).to.deep.equal({ [idColonne]: 2.5 });
+    });
+
     it("promotion à modératrice", async () => {
       await constl.bds.inviterAuteur({
         idBd,
@@ -2161,7 +2201,11 @@ describe("BDs", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.bds.suivreAuteurs({
           idBd,
-          f: si((x) => !!x && x.find(a=>a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE),
+          f: si(
+            (x) =>
+              !!x &&
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -2177,7 +2221,7 @@ describe("BDs", function () {
         },
       ];
       expect(auteurs).to.deep.equal(réf);
-    })
+    });
 
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne =

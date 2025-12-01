@@ -457,10 +457,12 @@ export class Variables<
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleVariable = épingles?.find(({idObjet, épingle})=> {
-          return idObjet === idVariable && épingle.type === "variable" ? (épingle) : undefined;
+        const épingleVariable = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === idVariable && épingle.type === "variable"
+            ? épingle
+            : undefined;
         }) as ÉpingleVariable | undefined;
-        await f(épingleVariable)
+        await f(épingleVariable);
       },
     });
   }

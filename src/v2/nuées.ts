@@ -690,10 +690,12 @@ export class Nuées<
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleNuée = épingles?.find(({idObjet, épingle})=> {
-          return idObjet === idNuée && épingle.type === "nuée" ? (épingle) : undefined;
+        const épingleNuée = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === idNuée && épingle.type === "nuée"
+            ? épingle
+            : undefined;
         }) as ÉpingleNuée | undefined;
-        await f(épingleNuée)
+        await f(épingleNuée);
       },
     });
   }
