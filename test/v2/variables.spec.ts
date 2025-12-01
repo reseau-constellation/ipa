@@ -830,6 +830,34 @@ describe.only("Variables", function () {
       expect(auteurs).to.deep.equal(réf);
     });
 
+    it("promotion à modératrice", async () => {
+      await constl.variables.inviterAuteur({
+        idVariable,
+        idCompte: idsComptes[1],
+        rôle: MODÉRATRICE,
+      });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: si((x) => !!x && x.find(a=>a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    })
+
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne =
         "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
