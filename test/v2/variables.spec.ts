@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 import {
   MEMBRE,
   MODÉRATRICE,
@@ -41,7 +42,8 @@ describe.only("Variables", function () {
     if (fermer) await fermer();
   });
 
-  describe("création", function () {
+  
+  describe("création variables", function () {
     let idVariable: string;
 
     it("pas de variables pour commencer", async () => {
@@ -53,65 +55,68 @@ describe.only("Variables", function () {
       expect(variables).to.be.an.empty("array");
     });
 
-    it("créer des variables", async () => {
-      idVariable = await constl.variables.créerVariable({
-        catégorie: "numérique",
-      });
-      const variables = await obtenir(({ siPasVide }) =>
-        constl.variables.suivreVariables({
-          f: siPasVide(),
-        }),
-      );
-      expect(variables).to.deep.equal([idVariable]);
+    it("création", async () => {
+      idVariable = await constl.variables.créerVariable({ catégorie: "numérique" });
+      expect(adresseOrbiteValide(idVariable)).to.be.true();
     });
 
-    it("effacer une variable", async () => {
-      await constl.variables.effacerVariable({ idVariable });
-      const variables = await obtenir(({ siVide }) =>
-        constl.variables.suivreVariables({
-          f: siVide(),
+    it("accès", async () => {
+      const permission = await obtenir(({ siDéfini }) =>
+        constl.compte.suivrePermission({
+          idObjet: idVariable,
+          f: siDéfini(),
         }),
       );
-      expect(variables).to.be.an.empty("array");
-    });
-  });
-
-  describe("mes variables", function () {
-    let idVariable: string;
-
-    before("Créer variable", async () => {
-      idVariable = await constl.variables.créerVariable({
-        catégorie: "numérique",
-      });
+      expect(permission).to.equal(MODÉRATRICE);
     });
 
-    it("la variable est déjà ajoutée", async () => {
-      const variables = await obtenir(({ siPasVide }) =>
+    it("automatiquement ajoutée à mes variables", async () => {
+      const mesVariables = await obtenir<string[]>(({ siDéfini }) =>
         constl.variables.suivreVariables({
-          f: siPasVide(),
+          f: siDéfini(),
         }),
       );
-      expect(variables).to.contain(idVariable);
+      expect(mesVariables).to.be.an("array").and.to.contain(idVariable);
+    });
+
+    it("détectée sur un autre compte", async () => {
+      const sesVariables = await obtenir<string[]>(({ siDéfini }) =>
+        constls[1].variables.suivreVariables({
+          f: siDéfini(),
+          idCompte: idsComptes[0],
+        }),
+      );
+      expect(sesVariables).have.members([idVariable]);
     });
 
     it("enlever de mes variables", async () => {
       await constl.variables.enleverDeMesVariables({ idVariable });
-      const variables = await obtenir(({ siVide }) =>
+      const mesVariables = await obtenir<string[] | undefined>(({ siVide }) =>
         constl.variables.suivreVariables({
           f: siVide(),
         }),
       );
-      expect(variables).not.to.contain(idVariable);
+      expect(mesVariables).to.be.an.empty("array");
     });
 
-    it("ajouter à mes variables", async () => {
+    it("ajouter manuellement à mes variables", async () => {
       await constl.variables.ajouterÀMesVariables({ idVariable });
-      const variables = await obtenir(({ siPasVide }) =>
+      const mesVariables = await obtenir<string[]>(({ siPasVide }) =>
         constl.variables.suivreVariables({
           f: siPasVide(),
         }),
       );
-      expect(variables).to.contain(idVariable);
+      expect(mesVariables).to.have.members([idVariable]);
+    });
+
+    it("effacer variable", async () => {
+      await constl.variables.effacerVariable({ idVariable });
+      const mesVariables = await obtenir<string[] | undefined>(({ siVide }) =>
+        constl.variables.suivreVariables({
+          f: siVide(),
+        }),
+      );
+      expect(mesVariables).to.be.empty();
     });
   });
 

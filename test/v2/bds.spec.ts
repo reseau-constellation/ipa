@@ -60,6 +60,15 @@ describe("BDs", function () {
   describe("création bds", function () {
     let idBd: string;
 
+    it("pas de bds pour commencer", async () => {
+      const bds = await obtenir(({ siDéfini }) =>
+        constl.bds.suivreBds({
+          f: siDéfini(),
+        }),
+      );
+      expect(bds).to.be.an.empty("array");
+    });
+
     it("création", async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       expect(adresseOrbiteValide(idBd)).to.be.true();
@@ -82,6 +91,16 @@ describe("BDs", function () {
         }),
       );
       expect(mesBds).to.be.an("array").and.to.contain(idBd);
+    });
+
+    it("détectée sur un autre compte", async () => {
+      const sesBds = await obtenir<string[]>(({ siDéfini }) =>
+        constls[1].bds.suivreBds({
+          f: siDéfini(),
+          idCompte: idsComptes[0],
+        }),
+      );
+      expect(sesBds).have.members([idBd]);
     });
 
     it("enlever de mes bds", async () => {

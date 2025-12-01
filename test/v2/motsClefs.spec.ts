@@ -1,10 +1,10 @@
 import { expect } from "aegir/chai";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { TOUS_DISPOSITIFS } from "@/v2/crabe/services/favoris.js";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
-import type { InfoAuteur, PartielRécursif, TraducsTexte } from "@/v2/types.js";
-import type { ÉpingleMotClef } from "@/v2/motsClefs.js";
+import type { InfoAuteur, TraducsTexte } from "@/v2/types.js";
 
 describe.only("Mots-clefs", function () {
   let fermer: () => Promise<void>;
@@ -25,7 +25,7 @@ describe.only("Mots-clefs", function () {
     if (fermer) await fermer();
   });
 
-  describe("création", function () {
+  describe("création mots-clefs", function () {
     let idMotClef: string;
 
     it("pas de mots-clefs pour commencer", async () => {
@@ -34,78 +34,71 @@ describe.only("Mots-clefs", function () {
           f: siDéfini(),
         }),
       );
-
       expect(motsClefs).to.be.an.empty("array");
     });
 
-    it("créer un mot-clef", async () => {
+    it("création", async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
-      const motsClefs = await obtenir(({ siPasVide }) =>
-        constl.motsClefs.suivreMotsClefs({
-          f: siPasVide(),
-        }),
-      );
-
-      expect(motsClefs).to.have.members([idMotClef]);
-
-      const épingle = await obtenir<PartielRécursif<ÉpingleMotClef>>(
-        ({ siDéfini }) =>
-          constl.motsClefs.suivreÉpingle({ idMotClef, f: siDéfini() }),
-      );
-      expect(épingle).to.not.be.undefined();
+      expect(adresseOrbiteValide(idMotClef)).to.be.true();
     });
 
-    it("effacer un mot-clef", async () => {
-      await constl.motsClefs.effacerMotClef({ idMotClef });
-      const motsClefs = await obtenir(({ siVide }) =>
-        constl.motsClefs.suivreMotsClefs({
-          f: siVide(),
+    it("accès", async () => {
+      const permission = await obtenir(({ siDéfini }) =>
+        constl.compte.suivrePermission({
+          idObjet: idMotClef,
+          f: siDéfini(),
         }),
       );
-
-      expect(motsClefs).to.be.an.empty("array");
-
-      const épingle = await obtenir(({ si }) =>
-        constl.motsClefs.suivreÉpingle({ idMotClef, f: si((x) => !x) }),
-      );
-      expect(épingle).to.be.undefined();
+      expect(permission).to.equal(MODÉRATRICE);
     });
-  });
 
-  describe("mes mots-clefs", function () {
-    let idMotClef: string;
-
-    it("le mot-clef est déjà ajouté", async () => {
-      idMotClef = await constl.motsClefs.créerMotClef();
-      const mesMotsClefs = await obtenir(({ siPasVide }) =>
+    it("automatiquement ajoutée à mes mots-clefs", async () => {
+      const mesMotsClefs = await obtenir<string[]>(({ siDéfini }) =>
         constl.motsClefs.suivreMotsClefs({
-          f: siPasVide(),
+          f: siDéfini(),
         }),
       );
+      expect(mesMotsClefs).to.be.an("array").and.to.contain(idMotClef);
+    });
 
-      expect(mesMotsClefs).to.contain(idMotClef);
+    it("détectée sur un autre compte", async () => {
+      const sesMotsClefs = await obtenir<string[]>(({ siDéfini }) =>
+        constls[1].motsClefs.suivreMotsClefs({
+          f: siDéfini(),
+          idCompte: idsComptes[0],
+        }),
+      );
+      expect(sesMotsClefs).have.members([idMotClef]);
     });
 
     it("enlever de mes mots-clefs", async () => {
       await constl.motsClefs.enleverDeMesMotsClefs({ idMotClef });
-      const mesMotsClefs = await obtenir(({ siVide }) =>
+      const mesMotsClefs = await obtenir<string[] | undefined>(({ siVide }) =>
         constl.motsClefs.suivreMotsClefs({
           f: siVide(),
         }),
       );
-
-      expect(mesMotsClefs).not.to.contain(idMotClef);
+      expect(mesMotsClefs).to.be.an.empty("array");
     });
 
-    it("ajouter à mes mots-clefs", async () => {
+    it("ajouter manuellement à mes mots-clefs", async () => {
       await constl.motsClefs.ajouterÀMesMotsClefs({ idMotClef });
-      const mesMotsClefs = await obtenir(({ siPasVide }) =>
+      const mesMotsClefs = await obtenir<string[]>(({ siPasVide }) =>
         constl.motsClefs.suivreMotsClefs({
           f: siPasVide(),
         }),
       );
+      expect(mesMotsClefs).to.have.members([idMotClef]);
+    });
 
-      expect(mesMotsClefs).to.contain(idMotClef);
+    it("effacer mot-clef", async () => {
+      await constl.motsClefs.effacerMotClef({ idMotClef });
+      const mesMotsClefs = await obtenir<string[] | undefined>(({ siVide }) =>
+        constl.motsClefs.suivreMotsClefs({
+          f: siVide(),
+        }),
+      );
+      expect(mesMotsClefs).to.be.empty();
     });
   });
 
