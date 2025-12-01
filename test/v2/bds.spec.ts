@@ -673,12 +673,14 @@ describe("BDs", function () {
       );
 
       const réf: ÉpingleBd = {
-        base: TOUS_DISPOSITIFS,
         type: "bd",
-        données: {
-          tableaux: TOUS_DISPOSITIFS,
-          fichiers: DISPOSITIFS_INSTALLÉS,
-        },
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          données: {
+            tableaux: TOUS_DISPOSITIFS,
+            fichiers: DISPOSITIFS_INSTALLÉS,
+          },
+        }
       };
       expect(épingle).to.deep.equal(réf);
     });
@@ -691,7 +693,7 @@ describe("BDs", function () {
             idObjet: idBd,
             épingle: {
               type: "bd",
-              base: true,
+              épingle: {base: true},
             },
           },
           f: siDéfini(),
@@ -714,9 +716,11 @@ describe("BDs", function () {
             idObjet: idBd,
             épingle: {
               type: "bd",
-              base: true,
-              données: {
-                tableaux: true,
+              épingle: {
+                base: true,
+                données: {
+                  tableaux: true,
+                }
               },
             },
           },
@@ -732,7 +736,9 @@ describe("BDs", function () {
               idObjet: idBd,
               épingle: {
                 type: "bd",
-                base: true,
+                épingle: {
+                  base: true
+                },
               },
             },
             f: siDéfini(),
@@ -771,11 +777,13 @@ describe("BDs", function () {
             idObjet: idBd,
             épingle: {
               type: "bd",
-              base: true,
-              données: {
-                tableaux: true,
-                fichiers: true,
-              },
+              épingle: {
+                base: true,
+                données: {
+                  tableaux: true,
+                  fichiers: true,
+                },
+              }
             },
           },
           f: siDéfini(),
@@ -789,7 +797,9 @@ describe("BDs", function () {
             idObjet: idBd,
             épingle: {
               type: "bd",
-              base: true,
+              épingle: {
+                base: true,
+              }
             },
           },
           f: siDéfini(),
@@ -824,11 +834,13 @@ describe("BDs", function () {
             idObjet: idBd,
             épingle: {
               type: "bd",
-              base: true,
-              données: {
-                tableaux: true,
-                fichiers: true,
-              },
+              épingle: {
+                base: true,
+                données: {
+                  tableaux: true,
+                  fichiers: true,
+                },
+              }
             },
           },
           f: siDéfini(),

@@ -5,6 +5,7 @@ import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
 import type { InfoAuteur, TraducsTexte } from "@/v2/types.js";
+import { ÉpingleMotClef } from "@/v2/motsClefs.js";
 
 describe.only("Mots-clefs", function () {
   let fermer: () => Promise<void>;
@@ -361,13 +362,15 @@ describe.only("Mots-clefs", function () {
       });
       await constl.motsClefs.épingler({ idMotClef });
 
-      const épingle = await obtenir(({ siDéfini }) =>
+      const épingle = await obtenir<ÉpingleMotClef>(({ siDéfini }) =>
         constl.motsClefs.suivreÉpingle({ idMotClef, f: siDéfini() }),
       );
-      expect(épingle).to.deep.equal({
-        base: TOUS_DISPOSITIFS,
+
+      const réf: ÉpingleMotClef = {
         type: "mot-clef",
-      });
+        épingle: { base : TOUS_DISPOSITIFS},
+      }
+      expect(épingle).to.deep.equal(réf);
     });
 
     it("résoudre épingle", async () => {
@@ -377,7 +380,9 @@ describe.only("Mots-clefs", function () {
             idObjet: "n'importe",
             épingle: {
               type: "mot-clef",
-              base: true,
+              épingle: {
+                base: true,
+              }
             },
           },
           f: siDéfini(),

@@ -729,14 +729,16 @@ describe.only("Variables", function () {
     it("épingler", async () => {
       await constl.variables.épingler({ idVariable });
 
-      const épingle = await obtenir<PartielRécursif<ÉpingleVariable>>(
+      const épingle = await obtenir<ÉpingleVariable>(
         ({ siDéfini }) =>
           constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }),
       );
 
       const réf: ÉpingleVariable = {
         type: "variable",
-        base: TOUS_DISPOSITIFS,
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+        }
       };
       expect(épingle).to.deep.equal(réf);
     });
@@ -748,7 +750,9 @@ describe.only("Variables", function () {
             idObjet: idVariable,
             épingle: {
               type: "variable",
-              base: true,
+              épingle: {
+                base: true,
+              }
             },
           },
           f: siDéfini(),
