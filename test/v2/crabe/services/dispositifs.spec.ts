@@ -1,4 +1,3 @@
-import { dossierTempo } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import {

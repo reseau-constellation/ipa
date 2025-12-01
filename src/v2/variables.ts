@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
-import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
+import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { ajouterProtocoleOrbite } from "./utils.js";
 import { RechercheVariables } from "./recherche/variables.js";
@@ -25,7 +25,7 @@ import type { Oublier, Suivi } from "./crabe/types.js";
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
-} from "./favoris.js";
+} from "./crabe/services/favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type {
@@ -114,10 +114,10 @@ export type CatégorieVariables =
 
 export type ÉpingleVariable = {
   type: "variable";
-  épingle: ContenuÉpingleVariable
+  épingle: ContenuÉpingleVariable;
 };
 
-export type ContenuÉpingleVariable = BaseÉpingleFavoris
+export type ContenuÉpingleVariable = BaseÉpingleFavoris;
 
 // Types service
 
@@ -437,7 +437,10 @@ export class Variables<
       base: TOUS_DISPOSITIFS,
     });
     const favoris = this.service("favoris");
-    await favoris.épinglerFavori({ idObjet: idVariable, épingle: { type: "variable", épingle } });
+    await favoris.épinglerFavori({
+      idObjet: idVariable,
+      épingle: { type: "variable", épingle },
+    });
   }
 
   async suivreÉpingle({
@@ -446,21 +449,19 @@ export class Variables<
     idCompte,
   }: {
     idVariable: string;
-    f: Suivi<PartielRécursif<ÉpingleVariable> | undefined>;
+    f: Suivi<ÉpingleVariable | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreFavorisObjet({
-      idObjet: idVariable,
-      f: async (épingle) => {
-        await f(
-          épingle?.type === "variable"
-            ? (épingle as PartielRécursif<ÉpingleVariable>)
-            : undefined,
-        );
-      },
+    return await favoris.suivreFavoris({
       idCompte,
+      f: async (épingles) => {
+        const épingleVariable = épingles?.find(({idObjet, épingle})=> {
+          return idObjet === idVariable && épingle.type === "variable" ? (épingle) : undefined;
+        }) as ÉpingleVariable | undefined;
+        await f(épingleVariable)
+      },
     });
   }
 

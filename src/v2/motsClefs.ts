@@ -4,7 +4,7 @@ import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./favoris.js";
+import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";
 import { schémaTraducsTexte } from "./schémas.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
@@ -16,7 +16,7 @@ import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
-} from "./favoris.js";
+} from "./crabe/services/favoris.js";
 import type { InfoAuteur, PartielRécursif, TraducsTexte } from "./types.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
 import type { Constellation, ServicesConstellation } from "./constellation.js";
@@ -57,11 +57,11 @@ export const schémaMotClef: JSONSchemaType<PartielRécursif<StructureMotClef>> 
 // Types épingles
 
 export type ÉpingleMotClef = {
-  type: "mot-clef",
-  épingle: ContenuÉpingleMotClef
+  type: "mot-clef";
+  épingle: ContenuÉpingleMotClef;
 };
 
-export type ContenuÉpingleMotClef = BaseÉpingleFavoris
+export type ContenuÉpingleMotClef = BaseÉpingleFavoris;
 
 export class MotsClefs<
   L extends ServicesLibp2pCrabe,
@@ -309,7 +309,10 @@ export class MotsClefs<
     });
 
     const favoris = this.service("favoris");
-    await favoris.épinglerFavori({ idObjet: idMotClef, épingle: { type: "mot-clef", épingle } });
+    await favoris.épinglerFavori({
+      idObjet: idMotClef,
+      épingle: { type: "mot-clef", épingle },
+    });
   }
 
   async suivreÉpingle({
@@ -318,29 +321,23 @@ export class MotsClefs<
     idCompte,
   }: {
     idMotClef: string;
-    f: Suivi<PartielRécursif<ÉpingleMotClef> | undefined>;
+    f: Suivi<ÉpingleMotClef | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreFavorisObjet({
-      idObjet: idMotClef,
-      f: async (épingle) => {
-        await f(
-          épingle?.type === "mot-clef"
-            ? (épingle as PartielRécursif<ÉpingleMotClef>)
-            : undefined,
-        );
-      },
+    return await favoris.suivreFavoris({
       idCompte,
+      f: async (épingles) => {
+        const épingleMotClef = épingles?.find(({idObjet, épingle})=> {
+          return idObjet === idMotClef && épingle.type === "mot-clef" ? (épingle) : undefined;
+        }) as ÉpingleMotClef | undefined;
+        await f(épingleMotClef)
+      },
     });
   }
 
-  async désépingler({
-    idMotClef,
-  }: {
-    idMotClef: string;
-  }): Promise<void> {
+  async désépingler({ idMotClef }: { idMotClef: string }): Promise<void> {
     const favoris = this.service("favoris");
 
     await favoris.désépinglerFavori({ idObjet: idMotClef });

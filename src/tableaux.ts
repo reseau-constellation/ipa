@@ -8,7 +8,7 @@ import { schémaStructureBdNoms, élémentsBd } from "@/types.js";
 import { cholqij } from "@/dates.js";
 import { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import { DonnéesRangéeTableau } from "./v2/bds/tableaux.js";
-import { idcEtFichierValide } from "./v2/epingles.js";
+import { idcEtFichierValide } from "./v2/crabe/services/epingles.js";
 import type {
   ConversionDonnées,
   OpérationConversionNumérique,

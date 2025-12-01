@@ -7,6 +7,12 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import { ServiceNébuleuse } from "@/v2/nébuleuse/index.js";
+import {
+  AUCUN_DISPOSITIF,
+  DISPOSITIFS_INSTALLÉS,
+  TOUS_DISPOSITIFS,
+  résoudreDéfauts,
+} from "@/v2/crabe/services/favoris.js";
 import { cacheSuivi } from "../../cache.js";
 import { ServiceDonnéesNébuleuse } from "../services.js";
 import {
@@ -16,12 +22,19 @@ import {
   MAX_TAILLE_IMAGE_VISUALISER,
 } from "../consts.js";
 import { appelerLorsque } from "../utils.js";
+import { mapÀObjet } from "../../utils.js";
 import {
   ContrôleurNébuleuse,
   MEMBRE,
   MODÉRATRICE,
   estContrôleurNébuleuse,
 } from "./accès/index.js";
+import type {
+  BaseÉpingleFavoris,
+  DispositifsÉpingle,
+  ServiceFavoris,
+  ÉpingleFavorisBooléenniséeAvecId,
+} from "@/v2/crabe/services/favoris.js";
 import type { Nébuleuse } from "@/v2/nébuleuse/index.js";
 import type { PartielRécursif, RequisRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../../types.js";
@@ -36,11 +49,22 @@ import type {
 import type { NestedValueObject } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
+import type { ServiceÉpingles } from "../epingles.js";
 
 export type MesDispositifs = {
   idDispositif: string;
   statut: "invité" | "accepté";
 }[];
+
+export type ÉpingleCompte = {
+  type: "compte";
+  épingle: ContenuÉpingleCompte;
+};
+
+export type ContenuÉpingleCompte = BaseÉpingleFavoris & {
+  image: DispositifsÉpingle;
+  // favoris: DispositifsÉpingle;
+};
 
 export type ConstsCompte = {
   maxTailleImageSauvegarder: number;
@@ -66,6 +90,8 @@ export type ServicesNécessairesCompte<
   L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
 > = ServicesNécessairesOrbite<L> & {
   compte: ServiceCompte<{ [clef: string]: NestedValueObject }, L>;
+  épingles: ServiceÉpingles<L>;
+  favoris: ServiceFavoris<L>;
 };
 
 export const compilerSchémaCompte = <
@@ -286,6 +312,144 @@ export class ServiceCompte<
       (nChangementsCompte + 1).toString(),
     );
     this.événements.emit("changementCompte", { idCompte });
+  }
+
+  // Épingles
+
+  async épingler({
+    idCompte,
+    options = {},
+  }: {
+    idCompte: string;
+    options?: PartielRécursif<ContenuÉpingleCompte>;
+  }) {
+    const favoris = this.service("favoris");
+
+    const épingle: ContenuÉpingleCompte = résoudreDéfauts(options, {
+      base: TOUS_DISPOSITIFS,
+      image: DISPOSITIFS_INSTALLÉS,
+      favoris: AUCUN_DISPOSITIF,
+    });
+    await favoris.épinglerFavori({
+      idObjet: idCompte,
+      épingle: { type: "compte", épingle },
+    });
+  }
+
+  async désépingler({ idCompte }: { idCompte: string }): Promise<void> {
+    const favoris = this.service("favoris");
+
+    await favoris.désépinglerFavori({ idObjet: idCompte });
+  }
+
+  async suivreÉpingleCompte({
+    idCompte,
+    f,
+    idCompteQuiÉpingle,
+  }: {
+    idCompte: string;
+    f: Suivi<ÉpingleCompte | undefined>;
+    idCompteQuiÉpingle?: string;
+  }): Promise<Oublier> {
+    const favoris = this.service("favoris");
+
+    return await favoris.suivreFavorisObjet({
+      idObjet: idCompte,
+      f: async (épingle) => {
+        if (épingle?.type === "compte") await f(épingle);
+        else await f(undefined);
+      },
+      idCompte: idCompteQuiÉpingle,
+    });
+  }
+
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+    ignorer,
+  }: {
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleCompte>;
+    f: Suivi<Set<string>>;
+    ignorer?: Set<string>;
+  }) {
+    const favoris = this.nébuleuse.services["favoris"];
+
+    const épinglerProfil = épingle.épingle.profil;
+    const épinglerFavoris = await this.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.favoris || "AUCUN",
+    });
+
+    const info: {
+      base?: string;
+      imageProfil?: string[];
+      favoris?: string[];
+    } = {};
+
+    const fFinale = async () => {
+      return await f(
+        new Set(
+          Object.values(info)
+            .flat()
+            .filter((x) => !!x) as string[],
+        ),
+      );
+    };
+
+    const fsOublier: Oublier[] = [];
+    if (épingle.épingle.épingle.base) {
+      info.base = épingle.idObjet;
+      await fFinale();
+    }
+    if (épinglerProfil) {
+      const fOublierProfil = await this.suivreBd({
+        idCompte: épingle.idObjet,
+        f: async (bd) => {
+          info.imageProfil = mapÀObjet(await bd?.all()).profil.image;
+          await fFinale();
+        },
+      });
+      fsOublier.push(fOublierProfil);
+    }
+
+    if (épinglerFavoris) {
+      const fOublierFavoris = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (
+            éléments: ÉpingleFavorisAvecId<ÉpingleFavoris>[],
+          ) => Promise<void>;
+        }) => {
+          return await this.favoris.suivreFavoris({
+            f: fSuivreRacine,
+            idCompte: épingle.idObjet,
+          });
+        },
+        fBranche: async ({
+          fSuivreBranche,
+          branche,
+        }: {
+          fSuivreBranche: schémaFonctionSuivi<Set<string>>;
+          branche: ÉpingleFavorisAvecId;
+        }) => {
+          return await this.favoris.suivreRésolutionÉpingle({
+            épingle: branche,
+            f: fSuivreBranche,
+            ignorer,
+          });
+        },
+        f: async (favoris: Set<string>[]) => {
+          info.favoris = favoris.map((f) => [...f]).flat();
+          return await fFinale();
+        },
+        fIdDeBranche: (b) => b.idObjet,
+      });
+      fsOublier.push(fOublierFavoris);
+    }
+
+    return async () => {
+      await Promise.allSettled(fsOublier.map((f) => f()));
+    };
   }
 
   // Données compte

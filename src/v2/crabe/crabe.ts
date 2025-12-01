@@ -10,6 +10,7 @@ import { ServiceDispositifs } from "./services/dispositifs.js";
 import { Profil } from "./services/profil.js";
 import { ServiceRéseau } from "./services/réseau.js";
 import { ServiceJournal } from "./services/journal.js";
+import type { ServiceÉpingles } from "./services/epingles.js";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 import type {
   ConstructeursServicesNébuleuse,
@@ -24,6 +25,7 @@ import type {
   ServicesDonnées,
   ServicesNécessairesCompte,
 } from "./services/compte/compte.js";
+import type { ServiceFavoris } from "./services/favoris.js";
 
 export type StructureCrabe = {
   dispositifs: StructureDispositifs;
@@ -39,6 +41,8 @@ export type ServicesCrabe<
   dispositifs: ServiceDispositifs<L>;
   profil: Profil<L>;
   réseau: ServiceRéseau<L>;
+  épingles: ServiceÉpingles<L>;
+  favoris: ServiceFavoris<L>;
 };
 
 export const validerOptionsServicesCrabe = <

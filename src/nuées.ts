@@ -66,7 +66,6 @@ export type statutMembreNuée = {
   statut: "exclus" | "accepté";
 };
 
-
 export type donnéesNuéeExportation = {
   nomNuée: string;
   tableaux: donnéesTableauExportation[];
@@ -1936,5 +1935,4 @@ export class Nuées extends ComposanteClientListe<string> {
 
     return schéma;
   }
-
 }

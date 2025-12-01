@@ -2,7 +2,6 @@ import { isElectron, isNode } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
-import { INSTALLÉ, TOUS } from "@/favoris.js";
 import { obtenir } from "./v2/utils.js";
 import type {
   ÉpingleCompte,
@@ -11,9 +10,9 @@ import type {
   ÉpingleFavoris,
   ÉpingleFavorisAvecId,
 } from "@/favoris.js";
+import { INSTALLÉ, TOUS } from "@/favoris.js";
 
 describe("Favoris", function () {
-
   describe("Épingler BDs", function () {
     let idBd: string;
 

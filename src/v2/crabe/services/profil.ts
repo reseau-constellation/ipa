@@ -10,8 +10,8 @@ import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
-  ÉpingleFavorisAvecIdBooléennisée,
-} from "@/v2/favoris.js";
+  ÉpingleFavorisBooléenniséeAvecId,
+} from "@/v2/crabe/services/favoris.js";
 import type { Suivi, Oublier } from "../types.js";
 import type { PartielRécursif, TraducsTexte } from "../../types.js";
 import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
@@ -357,6 +357,7 @@ export class Profil<
   }
 
   // Épingle
+
   async suivreRésolutionÉpingle({
     épingle,
     f,

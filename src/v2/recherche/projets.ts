@@ -110,7 +110,7 @@ export class RechercheProjets<
   }
 
   @cacheRechercheParN
-  async selonDescr({
+  async selonDescription({
     descriptionProjet,
     f,
     n,

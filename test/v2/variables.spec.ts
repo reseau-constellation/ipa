@@ -3,16 +3,24 @@ import {
   MEMBRE,
   MODÉRATRICE,
 } from "@/v2/crabe/services/compte/accès/consts.js";
+import { TOUS_DISPOSITIFS } from "@/v2/crabe/services/favoris.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
-import type { InfoAuteur, PartielRécursif, StatutDonnées, TraducsTexte } from "@/v2/types.js";
-import type { CatégorieVariables as CatégorieVariable, ÉpingleVariable } from "@/v2/variables.js";
+import type {
+  InfoAuteur,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "@/v2/types.js";
+import type {
+  CatégorieVariables as CatégorieVariable,
+  ÉpingleVariable,
+} from "@/v2/variables.js";
 import type {
   RègleBornes,
   RègleCatégorie,
   RègleVariableAvecId,
 } from "@/v2/règles.js";
-import { TOUS_DISPOSITIFS } from "@/v2/favoris.js";
 
 describe.only("Variables", function () {
   let fermer: () => Promise<void>;
@@ -699,30 +707,34 @@ describe.only("Variables", function () {
     let idVariable: string;
 
     before(async () => {
-      idVariable = await constl.variables.créerVariable({ catégorie: "image" })
-    })
+      idVariable = await constl.variables.créerVariable({ catégorie: "image" });
+    });
 
-      
     it("désépingler", async () => {
       await constl.variables.désépingler({ idVariable });
-      
-      const épingle = await obtenir<PartielRécursif<ÉpingleVariable>>(({ siNonDéfini })=>constl.variables.suivreÉpingle({ idVariable, f: siNonDéfini() }))
+
+      const épingle = await obtenir<PartielRécursif<ÉpingleVariable>>(
+        ({ siNonDéfini }) =>
+          constl.variables.suivreÉpingle({ idVariable, f: siNonDéfini() }),
+      );
 
       expect(épingle).to.be.undefined();
-    })
+    });
 
     it("épingler", async () => {
       await constl.variables.épingler({ idVariable });
-      
-      const épingle = await obtenir<PartielRécursif<ÉpingleVariable>>(({ siDéfini })=>constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }))
+
+      const épingle = await obtenir<PartielRécursif<ÉpingleVariable>>(
+        ({ siDéfini }) =>
+          constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }),
+      );
 
       const réf: ÉpingleVariable = {
         type: "variable",
-        base: TOUS_DISPOSITIFS
-      }
-      expect(épingle).to.deep.equal(réf)
+        base: TOUS_DISPOSITIFS,
+      };
+      expect(épingle).to.deep.equal(réf);
     });
-
 
     it("résoudre épingle", async () => {
       const résolution = await obtenir<Set<string>>(({ siDéfini }) =>

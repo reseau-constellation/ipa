@@ -5,7 +5,10 @@ import { expect } from "aegir/chai";
 import { isValidAddress } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
-import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/favoris.js";
+import {
+  DISPOSITIFS_INSTALLÉS,
+  TOUS_DISPOSITIFS,
+} from "@/v2/crabe/services/favoris.js";
 import {
   MEMBRE,
   MODÉRATRICE,

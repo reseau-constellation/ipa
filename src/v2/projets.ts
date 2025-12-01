@@ -1,26 +1,37 @@
 import { join } from "path";
-import { attendreStabilité, faisRien, suivreDeFonctionListe, traduire, uneFois, zipper } from "@constl/utils-ipa";
+import {
+  attendreStabilité,
+  faisRien,
+  suivreDeFonctionListe,
+  traduire,
+  uneFois,
+  zipper,
+} from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { typedNested } from "@constl/bohr-db";
 import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
 import toBuffer from "it-to-buffer";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { cacheSuivi } from "./crabe/cache.js";
-import { ajouterProtocoleOrbite, conversionsTypes, extraireEmpreinte } from "./utils.js";
+import {
+  ajouterProtocoleOrbite,
+  conversionsTypes,
+  extraireEmpreinte,
+} from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
-} from "./favoris.js";
+} from "./crabe/services/favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import type { BookType, WorkBook} from "xlsx";
+import type { BookType, WorkBook } from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
-} from "./favoris.js";
+} from "./crabe/services/favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type {
   Rôle,
@@ -61,7 +72,7 @@ export type DonnéesFichierProjetExportées = {
   docs: { doc: WorkBook; nom: string }[];
   fichiersSFIP: Set<string>;
   nomFichier: string;
-}
+};
 
 // Types structure
 
@@ -241,18 +252,17 @@ export class Projets<
     await bd.del(extraireEmpreinte(idProjet));
   }
 
-  async copierProjet({
-    idProjet,
-  }: {
-    idProjet: string;
-  }): Promise<string> {
+  async copierProjet({ idProjet }: { idProjet: string }): Promise<string> {
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
-    
+
     const idNouveauProjet = await this.créerProjet();
 
     const métadonnées = mapÀObjet(await projet.get("métadonnées"));
     if (métadonnées) {
-      await this.sauvegarderMétadonnées({ idProjet: idNouveauProjet, métadonnées });
+      await this.sauvegarderMétadonnées({
+        idProjet: idNouveauProjet,
+        métadonnées,
+      });
     }
 
     const noms = mapÀObjet(await projet.get("noms"));
@@ -282,9 +292,10 @@ export class Projets<
         statut: mapÀObjet(statut)!,
       });
 
-    const { projet: nouveauProjet, oublier: oublierNouveau } = await this.ouvrirProjet({
-      idProjet: idNouveauProjet,
-    });
+    const { projet: nouveauProjet, oublier: oublierNouveau } =
+      await this.ouvrirProjet({
+        idProjet: idNouveauProjet,
+      });
 
     const image = await projet.get("image");
     if (image) await nouveauProjet.set(`image`, image);
@@ -410,10 +421,13 @@ export class Projets<
             tableaux: TOUS_DISPOSITIFS,
             fichiers: DISPOSITIFS_INSTALLÉS,
           },
-        }
+        },
       },
     });
-    await favoris.épinglerFavori({ idObjet: idProjet, épingle: { type: "projet", épingle } });
+    await favoris.épinglerFavori({
+      idObjet: idProjet,
+      épingle: { type: "projet", épingle },
+    });
   }
 
   async désépingler({ idProjet }: { idProjet: string }): Promise<void> {
@@ -428,19 +442,19 @@ export class Projets<
     idCompte,
   }: {
     idProjet: string;
-    f: Suivi<PartielRécursif<ÉpingleProjet> | undefined>;
+    f: Suivi<ÉpingleProjet | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreFavorisObjet({
-      idObjet: idProjet,
-      f: async (épingle) => {
-        if (épingle?.type === "projet")
-          await f(épingle as PartielRécursif<ÉpingleProjet>);
-        else await f(undefined);
-      },
+    return await favoris.suivreFavoris({
       idCompte,
+      f: async (épingles) => {
+        const épingleProjet = épingles?.find(({idObjet, épingle})=> {
+          return idObjet === idProjet && épingle.type === "projet" ? (épingle) : undefined;
+        }) as ÉpingleProjet | undefined;
+        await f(épingleProjet)
+      },
     });
   }
 
@@ -519,8 +533,7 @@ export class Projets<
               },
               f: fSuivreBranche,
             });
-          else
-            return faisRien
+          else return faisRien;
         },
         f: async (bds: string[]) => {
           info.bds = bds;
@@ -769,7 +782,6 @@ export class Projets<
     });
   }
 
-
   @cacheSuivi
   async suivreDescriptions({
     idProjet,
@@ -980,7 +992,6 @@ export class Projets<
     });
   }
 
-
   // Statut
 
   async sauvegarderStatut({
@@ -1151,9 +1162,7 @@ export class Projets<
     patience?: number;
   }): Promise<DonnéesFichierProjetExportées> {
     const données = await uneFois(
-      async (
-        fSuivi: Suivi<DonnéesProjetExportées>,
-      ): Promise<Oublier> => {
+      async (fSuivi: Suivi<DonnéesProjetExportées>): Promise<Oublier> => {
         return await this.suivreDonnéesExportation({
           idProjet,
           langues,

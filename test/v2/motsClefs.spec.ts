@@ -1,5 +1,5 @@
 import { expect } from "aegir/chai";
-import { TOUS_DISPOSITIFS } from "@/v2/favoris.js";
+import { TOUS_DISPOSITIFS } from "@/v2/crabe/services/favoris.js";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";

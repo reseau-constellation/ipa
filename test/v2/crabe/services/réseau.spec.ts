@@ -2,7 +2,10 @@ import { expect } from "aegir/chai";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { créerConstellationsTest, obtenir } from "test/v2/utils.js";
-import type { ConnexionLibp2p } from "@/v2/crabe/services/réseau.js";
+import type {
+  ConnexionDispositif,
+  ConnexionLibp2p,
+} from "@/v2/crabe/services/réseau.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { Constellation } from "@/v2/index.js";
 
@@ -65,12 +68,13 @@ describe("Réseau", function () {
             constl.réseau.suivreConnexionsDispositifs({
               f: si(
                 (x) =>
-                  !!x && autresIds.every((id) => x.find((c) => c.pair === id)),
+                  !!x &&
+                  autresIds.every((id) => x.find((c) => c.idDispositif === id)),
               ),
             }),
         );
         expect(
-          connexionsDispositifs.map((c) => c.pair),
+          connexionsDispositifs.map((c) => c.idDispositif),
         ).to.include.deep.members(autresIds);
       }
     });
@@ -129,11 +133,16 @@ describe("Réseau", function () {
         const connexionsDispositifsAutre = await obtenir<ConnexionDispositif[]>(
           ({ si }) =>
             constl.réseau.suivreConnexionsDispositifs({
-              f: si((c) => !!c && !c.find((c) => c.pair === idsDispositifs[0])),
+              f: si(
+                (c) =>
+                  !!c && !c.find((c) => c.idDispositif === idsDispositifs[0]),
+              ),
             }),
         );
         expect(
-          connexionsDispositifsAutre.find((c) => c.pair === idsDispositifs[0]),
+          connexionsDispositifsAutre.find(
+            (c) => c.idDispositif === idsDispositifs[0],
+          ),
         ).to.be.undefined();
       }
     });
@@ -158,5 +167,14 @@ describe("Réseau", function () {
     });
   });
 
+  describe("confiance", function () {
+    describe("membres fiables");
+    describe("membres bloqués", function () {
+      it("persistance après redémarrage");
+    });
+  });
+
   describe("reconnexion après réouverture");
+
+  describe("automatisation ajout dispositif");
 });

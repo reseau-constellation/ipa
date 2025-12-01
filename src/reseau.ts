@@ -227,7 +227,6 @@ const attendreSuccès = async <T>({
 
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: Constellation;
-  bloquésPrivés: Set<string>;
   verrouFlux: Semaphore;
 
   dispositifsEnLigne: {
@@ -250,8 +249,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
 
     this.client = client;
-
-    this.bloquésPrivés = new Set();
 
     this.dispositifsEnLigne = {};
     this.connexionsDirectes = {};
@@ -807,190 +804,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     }
   }
 
-  async faireConfianceAuMembre({
-    idCompte,
-  }: {
-    idCompte: string;
-  }): Promise<void> {
-    const { bd, fOublier } = await this.obtBd();
-    await bd.set(idCompte, "FIABLE");
-    await fOublier();
-  }
-
-  async nePlusFaireConfianceAuMembre({
-    idCompte,
-  }: {
-    idCompte: string;
-  }): Promise<void> {
-    const { bd, fOublier } = await this.obtBd();
-    if (
-      Object.keys(await bd.allAsJSON()).includes(idCompte) &&
-      (await bd.get(idCompte)) === "FIABLE"
-    ) {
-      await bd.del(idCompte);
-    }
-    await fOublier();
-  }
-
-  @cacheSuivi
-  async suivreFiables({
-    f,
-    idCompte,
-  }: {
-    f: schémaFonctionSuivi<string[]>;
-    idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (membres: {
-      [key: string]: statutConfianceMembre;
-    }): Promise<void> => {
-      const fiables = Object.keys(membres).filter(
-        (m) => membres[m] === "FIABLE",
-      );
-      return await f(fiables);
-    };
-
-    return await this.suivreBdPrincipale({
-      idCompte,
-      f: fFinale,
-    });
-  }
-
-  async _initaliserBloquésPrivés(): Promise<void> {
-    const bloquésPrivésChaîne = await this.client.obtDeStockageLocal({
-      clef: "membresBloqués",
-    });
-    if (bloquésPrivésChaîne) {
-      JSON.parse(bloquésPrivésChaîne).forEach((b: string) =>
-        this.bloquésPrivés.add(b),
-      );
-      this.événements.emit("changementMembresBloqués");
-    }
-  }
-
-  async _sauvegarderBloquésPrivés(): Promise<void> {
-    const bloqués = [...this.bloquésPrivés];
-
-    this.client.sauvegarderAuStockageLocal({
-      clef: "membresBloqués",
-      val: JSON.stringify(bloqués),
-    });
-  }
-
-  async bloquerMembre({
-    idCompte,
-    privé = false,
-  }: {
-    idCompte: string;
-    privé?: boolean;
-  }): Promise<void> {
-    if (privé) {
-      await this.débloquerMembre({ idCompte }); // Enlever du régistre publique s'il y est déjà
-      this.bloquésPrivés.add(idCompte);
-      await this._sauvegarderBloquésPrivés();
-    } else {
-      const { bd, fOublier } = await this.obtBd();
-      // Enlever du régistre privé s'il y existe
-      await this.débloquerMembre({ idCompte });
-      await bd.set(idCompte, "BLOQUÉ");
-      await fOublier();
-    }
-    this.événements.emit("changementMembresBloqués");
-  }
-
-  async débloquerMembre({ idCompte }: { idCompte: string }): Promise<void> {
-    const { bd, fOublier } = await this.obtBd();
-    if (
-      Object.keys(await bd.allAsJSON()).includes(idCompte) &&
-      (await bd.get(idCompte)) === "BLOQUÉ"
-    ) {
-      await bd.del(idCompte);
-    }
-    await fOublier();
-
-    if (this.bloquésPrivés.has(idCompte)) {
-      this.bloquésPrivés.delete(idCompte);
-      await this._sauvegarderBloquésPrivés();
-    }
-    this.événements.emit("changementMembresBloqués");
-  }
-
-  @cacheSuivi
-  async suivreBloquésPubliques({
-    f,
-    idCompte,
-  }: {
-    f: schémaFonctionSuivi<string[]>;
-    idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (membres: {
-      [key: string]: statutConfianceMembre;
-    }): Promise<void> => {
-      const bloqués = Object.keys(membres).filter(
-        (m) => membres[m] === "BLOQUÉ",
-      );
-      return await f(bloqués);
-    };
-
-    return await this.suivreBdPrincipale({
-      idCompte,
-      f: fFinale,
-    });
-  }
-
-  @cacheSuivi
-  async suivreBloqués({
-    f,
-    idCompte,
-  }: {
-    f: schémaFonctionSuivi<infoBloqué[]>;
-    idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    const fsOublier: schémaFonctionOublier[] = [];
-
-    let bloquésPubliques: string[] = [];
-
-    const fFinale = async () => {
-      const listeBloqués = [
-        ...new Set([
-          ...[...this.bloquésPrivés].map((m) => {
-            return { idCompte: m, privé: true };
-          }),
-          ...bloquésPubliques.map((m) => {
-            return { idCompte: m, privé: false };
-          }),
-        ]),
-      ];
-
-      return await f(listeBloqués);
-    };
-
-    fsOublier.push(
-      await this.suivreBloquésPubliques({
-        f: async (blqs: string[]) => {
-          bloquésPubliques = blqs;
-          return await fFinale();
-        },
-        idCompte,
-      }),
-    );
-
-    if (idCompte === undefined || idCompte === this.client.idCompte) {
-      await this._initaliserBloquésPrivés();
-      fsOublier.push(
-        appelerLorsque({
-          émetteur: this.événements,
-          événement: "changementMembresBloqués",
-          f: fFinale,
-        }),
-      );
-      await fFinale();
-    }
-
-    return async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-    };
-  }
-
   @cacheSuivi
   async suivreRelationsImmédiates({
     f,
@@ -1102,7 +915,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           }) => {
             return await this.client.suivreAccèsBd({
               id,
-              // Enlever nous-même de la liste des coauteurs
+              // Enlever notre propre compte de la liste des coauteurs
               f: (accès: infoAccès[]) =>
                 fSuivreBranche(
                   accès.map((a) => a.idCompte).filter((id) => id !== idCompte),
@@ -1993,22 +1806,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     };
 
     return { fChangerN, fOublier };
-  }
-
-  @cacheSuivi
-  async suivreBdsMembre({
-    idCompte,
-    f,
-  }: {
-    idCompte: string;
-    f: schémaFonctionSuivi<string[]>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.suivreObjetsMembre({
-      idCompte,
-      fListeObjets: async ({ fSuivreRacine }) =>
-        await this.client.bds.suivreBds({ f: fSuivreRacine, idCompte }),
-      fSuivi: f,
-    });
   }
 
   async suivreFavorisObjet({

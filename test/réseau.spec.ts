@@ -10,7 +10,6 @@ import { peerIdFromString } from "@libp2p/peer-id";
 import { MEMBRE, MODÉRATEUR } from "@/v2/crabe/services/compte/accès/consts.js";
 
 import { type Constellation, créerConstellation } from "@/index.js";
-import { INSTALLÉ, TOUS, type ÉpingleFavorisAvecId } from "@/favoris.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import type {
   infoAuteur,
@@ -31,6 +30,7 @@ import type {
   élémentDeMembre,
 } from "@/reseau.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
+import { INSTALLÉ, TOUS, type ÉpingleFavorisAvecId } from "@/favoris.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 

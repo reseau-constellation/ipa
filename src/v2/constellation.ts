@@ -2,8 +2,8 @@ import { Variables } from "./variables.js";
 import { MotsClefs } from "./motsClefs.js";
 import { Crabe } from "./crabe/crabe.js";
 import { Bds } from "./bds/bds.js";
-import { Favoris } from "./favoris.js";
-import { Épingles } from "./epingles.js";
+import { ServiceFavoris } from "./crabe/services/favoris.js";
+import { ServiceÉpingles } from "./crabe/services/epingles.js";
 import { Nuées } from "./nuées.js";
 import type { Projets } from "./projets.js";
 import type {
@@ -29,8 +29,8 @@ export type OptionsConstellation<
 export type ServicesSpécifiquesConstellation<L extends ServicesLibp2pCrabe> = {
   motsClefs: MotsClefs<L>;
   bds: Bds<L>;
-  favoris: Favoris;
-  épingles: Épingles;
+  favoris: ServiceFavoris;
+  épingles: ServiceÉpingles;
   variables: Variables<L>;
   nuées: Nuées<L>;
   automatisations: Automatisations<L>;
@@ -53,8 +53,8 @@ export class Constellation<
   bds: Bds<L>;
   motsClefs: MotsClefs<L>;
   nuées: Nuées<L>;
-  favoris: Favoris;
-  épingles: Épingles;
+  favoris: ServiceFavoris;
+  épingles: ServiceÉpingles;
   variables: Variables<L>;
   automatisations: Automatisations<L>;
   projets: Projets<L>;
@@ -69,8 +69,8 @@ export class Constellation<
       services: {
         bds: Bds,
         motsClefs: MotsClefs,
-        favoris: Favoris,
-        épingles: Épingles,
+        favoris: ServiceFavoris,
+        épingles: ServiceÉpingles,
         variables: Variables,
         nuées: Nuées,
         ...(services || {}),
