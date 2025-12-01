@@ -4,6 +4,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "../../utils.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
+import type { RetourFonctionRecherche } from "@/v2/recherche/types.js";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "../../types.js";
@@ -11,7 +12,6 @@ import type { Oublier, Suivi } from "../types.js";
 import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import type { ServicesCrabe } from "../crabe.js";
 import type { ServicesNécessairesOrbite } from "./orbite/orbite.js";
-import { RetourFonctionRecherche } from "@/v2/recherche/types.js";
 
 // Types épingles
 

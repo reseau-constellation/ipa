@@ -101,7 +101,10 @@ describe("Projets", function () {
 
     it("modification par le nouvel auteur", async () => {
       await obtenir(({ siDéfini }) =>
-        constls[1].compte.suivrePermission({ idObjet: idProjet, f: siDéfini() }),
+        constls[1].compte.suivrePermission({
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
       );
 
       // Modification du projet

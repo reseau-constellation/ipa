@@ -832,7 +832,10 @@ describe.only("Variables", function () {
 
     it("modification par le nouvel auteur", async () => {
       await obtenir(({ siDéfini }) =>
-        constls[1].compte.suivrePermission({ idObjet: idVariable, f: siDéfini() }),
+        constls[1].compte.suivrePermission({
+          idObjet: idVariable,
+          f: siDéfini(),
+        }),
       );
 
       // Modification de la variable

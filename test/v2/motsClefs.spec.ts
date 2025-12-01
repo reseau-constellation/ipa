@@ -471,7 +471,10 @@ describe.only("Mots-clefs", function () {
 
     it("modification par le nouvel auteur", async () => {
       await obtenir(({ siDéfini }) =>
-        constls[1].compte.suivrePermission({ idObjet: idMotClef, f: siDéfini() }),
+        constls[1].compte.suivrePermission({
+          idObjet: idMotClef,
+          f: siDéfini(),
+        }),
       );
 
       // Modification du mot-clef
