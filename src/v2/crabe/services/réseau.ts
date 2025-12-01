@@ -3,9 +3,11 @@ import {
   ignorerNonDéfinis,
   suivreFonctionImbriquée,
 } from "@constl/utils-ipa";
+import { TypedEmitter } from "tiny-typed-emitter";
 import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
+import { appelerLorsque } from "./utils.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
@@ -13,8 +15,6 @@ import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import type { ServicesNécessairesCompte } from "./compte/compte.js";
-import { appelerLorsque } from "./utils.js";
-import { TypedEmitter } from "tiny-typed-emitter";
 
 // Types connexions
 
