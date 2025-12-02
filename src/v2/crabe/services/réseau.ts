@@ -43,7 +43,7 @@ const ÉVÉNEMENT_BLOQUÉ_PRIVÉ = "changement bloqués privé";
 // Types structure
 
 export type StructureRéseau = {
-  [idCompte: string]: string;
+  [idCompte: string]: typeof FIABLE | typeof BLOQUÉ;
 };
 
 export const schémaRéseau: JSONSchemaType<PartielRécursif<StructureRéseau>> = {
@@ -64,6 +64,11 @@ export class ServiceRéseau<
 
   bloquésPrivé: Set<string>;
 
+  résolutionsConfiance: Map<
+    string,
+    (args: { de: string; pour: string; f: Suivi<number[]> }) => Promise<Oublier>
+  >;
+
   constructor({
     nébuleuse,
   }: {
@@ -80,9 +85,11 @@ export class ServiceRéseau<
 
     this.bloquésPrivé = new Set();
     this.événements = new TypedEmitter();
+    this.résolutionsConfiance = new Map();
   }
 
   // Cycle de vie
+
   async démarrer(): Promise<unknown> {
     await this.restaurerBloquésPrivé();
     return await super.démarrer();
@@ -90,6 +97,20 @@ export class ServiceRéseau<
 
   async fermer(): Promise<void> {
     return await super.fermer();
+  }
+
+  async inscrireRésolutionConfiance({
+    clef,
+    résolution,
+  }: {
+    clef: string;
+    résolution: (args: {
+      de: string;
+      pour: string;
+      f: Suivi<number[]>;
+    }) => Promise<Oublier>;
+  }) {
+    this.résolutionsConfiance.set(clef, résolution);
   }
 
   // Suivi connexions
@@ -245,16 +266,7 @@ export class ServiceRéseau<
   @cacheSuivi
   async suivreComptes({ f }: { f: Suivi<string[]> }): Promise<Oublier> {}
 
-  @cacheSuivi
-  async suivreConfiance({
-    idCompte,
-    f,
-  }: {
-    idCompte: string;
-    f: Suivi<number>;
-  }): Promise<Oublier> {}
-
-  // Comptes bloqués et de confiance
+  // Spécification explicite de confiance
 
   async faireConfianceAuCompte({
     idCompte,
@@ -424,5 +436,66 @@ export class ServiceRéseau<
     };
   }
 
-  // Confiance réseau
+  // Confiance implicite réseau
+
+  @cacheSuivi
+  async suivreConfianceDirecte({
+    de,
+    pour,
+    f,
+  }: {
+    de: string;
+    pour: string;
+    f: Suivi<number>;
+  }): Promise<Oublier> {
+    const àOublier: Oublier[] = [];
+
+    let statut: typeof FIABLE | typeof BLOQUÉ | undefined = undefined;
+    const confiances: { [clef: string]: number[] } = {};
+
+    const fFinale = async () => {
+      if (statut === FIABLE) return await f(1);
+      else if (statut === BLOQUÉ) return await f(-1);
+      else {
+        const points = Object.values(confiances).flat();
+        const confiance =
+          1 - points.map((p) => 1 - p).reduce((total, c) => c * total, 1);
+        return await f(confiance);
+      }
+    };
+
+    for (const [clef, résolution] of this.résolutionsConfiance.entries()) {
+      const oublier = await résolution({
+        de,
+        pour,
+        f: async (confiance) => {
+          confiances[clef] = confiance;
+          await fFinale();
+        },
+      });
+      àOublier.push(oublier);
+    }
+
+    const oublierStatut = await this.suivreBd({
+      idCompte: de,
+      f: async (statuts) => {
+        statut = statuts?.[pour];
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await Promise.allSettled(àOublier.map((oublier) => oublier()));
+      await oublierStatut();
+    };
+  }
+
+  @cacheSuivi
+  async suivreConfiance({
+    idCompte,
+    f,
+  }: {
+    idCompte: string;
+    f: Suivi<number>;
+  }): Promise<Oublier> {}
 }

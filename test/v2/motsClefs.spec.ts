@@ -3,9 +3,9 @@ import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { TOUS_DISPOSITIFS } from "@/v2/crabe/services/favoris.js";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { ÉpingleMotClef } from "@/v2/motsClefs.js";
 import type { Constellation } from "@/v2/index.js";
 import type { InfoAuteur, TraducsTexte } from "@/v2/types.js";
-import { ÉpingleMotClef } from "@/v2/motsClefs.js";
 
 describe.only("Mots-clefs", function () {
   let fermer: () => Promise<void>;
@@ -368,8 +368,8 @@ describe.only("Mots-clefs", function () {
 
       const réf: ÉpingleMotClef = {
         type: "mot-clef",
-        épingle: { base : TOUS_DISPOSITIFS},
-      }
+        épingle: { base: TOUS_DISPOSITIFS },
+      };
       expect(épingle).to.deep.equal(réf);
     });
 
@@ -382,7 +382,7 @@ describe.only("Mots-clefs", function () {
               type: "mot-clef",
               épingle: {
                 base: true,
-              }
+              },
             },
           },
           f: siDéfini(),

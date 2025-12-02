@@ -1,6 +1,10 @@
 import { typedNested } from "@constl/bohr-db";
 import { toObject } from "@orbitdb/nested-db";
-import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
+import {
+  faisRien,
+  ignorerNonDéfinis,
+  suivreDeFonctionListe,
+} from "@constl/utils-ipa";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { mapÀObjet } from "./crabe/utils.js";
@@ -8,6 +12,7 @@ import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js
 import { schémaTraducsTexte } from "./schémas.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
+import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
 import type {
   Rôle,
   AccèsUtilisateur,
@@ -93,6 +98,12 @@ export class MotsClefs<
     favoris.inscrireRésolution({
       clef: "mot-clef",
       résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
+
+    const réseau = this.service("réseau");
+    réseau.inscrireRésolutionConfiance({
+      clef: this.clef,
+      résolution: this.résolutionConfiance.bind(this),
     });
   }
 
@@ -293,6 +304,38 @@ export class MotsClefs<
       throw new Error(
         `Permission de modification refusée pour le mot-clef ${idMotClef}.`,
       );
+  }
+
+  async résolutionConfiance({
+    de,
+    pour,
+    f,
+  }: {
+    de: string;
+    pour: string;
+    f: Suivi<number[]>;
+  }): Promise<Oublier> {
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
+        return await this.suivreMotsClefs({
+          idCompte: de,
+          f: ignorerNonDéfinis(fSuivreRacine),
+        });
+      },
+      fBranche: async ({
+        id: idMotClef,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<InfoAuteur[]>;
+      }) => {
+        return await this.suivreAuteurs({ idMotClef, f: fSuivreBranche });
+      },
+      f: async (auteurs: InfoAuteur[]) => {
+        const n = auteurs.map((a) => a.accepté && a.idCompte === pour).length;
+        return await f(Array(n).fill(CONFIANCE_DE_COAUTEUR));
+      },
+    });
   }
 
   // Épingler

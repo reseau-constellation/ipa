@@ -42,7 +42,6 @@ describe.only("Variables", function () {
     if (fermer) await fermer();
   });
 
-  
   describe("création variables", function () {
     let idVariable: string;
 
@@ -56,7 +55,9 @@ describe.only("Variables", function () {
     });
 
     it("création", async () => {
-      idVariable = await constl.variables.créerVariable({ catégorie: "numérique" });
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
       expect(adresseOrbiteValide(idVariable)).to.be.true();
     });
 
@@ -729,16 +730,15 @@ describe.only("Variables", function () {
     it("épingler", async () => {
       await constl.variables.épingler({ idVariable });
 
-      const épingle = await obtenir<ÉpingleVariable>(
-        ({ siDéfini }) =>
-          constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }),
+      const épingle = await obtenir<ÉpingleVariable>(({ siDéfini }) =>
+        constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }),
       );
 
       const réf: ÉpingleVariable = {
         type: "variable",
         épingle: {
           base: TOUS_DISPOSITIFS,
-        }
+        },
       };
       expect(épingle).to.deep.equal(réf);
     });
@@ -752,7 +752,7 @@ describe.only("Variables", function () {
               type: "variable",
               épingle: {
                 base: true,
-              }
+              },
             },
           },
           f: siDéfini(),

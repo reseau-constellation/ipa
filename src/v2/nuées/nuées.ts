@@ -1,18 +1,23 @@
 import { typedNested } from "@constl/bohr-db";
 import {
+  attendreStabilité,
   faisRien,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   suivreFonctionImbriquée,
+  traduire,
   uneFois,
 } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
+import { utils as xlsxUtils } from "xlsx";
+import { TypedEmitter } from "tiny-typed-emitter";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import { schémaTableau } from "../tableaux.js";
 import {
   ajouterProtocoleOrbite,
   extraireEmpreinte as enleverProtocoleOrbite,
+  sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import {
@@ -23,8 +28,21 @@ import {
 import { cacheSuivi } from "../crabe/cache.js";
 import { RechercheNuées } from "../recherche/nuées.js";
 import { mapÀObjet } from "../crabe/utils.js";
-import type { DonnéesRangéeTableauAvecId } from "../bds/tableaux.js";
-import type { InfoRésultatVide, RésultatObjectifRecherche, RésultatRecherche, SuivreObjectifRecherche } from "../recherche/types.js";
+import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
+import { appelerLorsque } from "../crabe/services/utils.js";
+import { TableauxNuées } from "./tableaux.js";
+import type { DonnéesFichierBdExportées } from "../utils.js";
+import type {
+  DonnéesRangéeTableauAvecId,
+  DonnéesTableauExportées,
+  FiltresDonnées,
+} from "../bds/tableaux.js";
+import type {
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
+  RésultatRecherche,
+  SuivreObjectifRecherche,
+} from "../recherche/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   Rôle,
@@ -55,13 +73,13 @@ import type {
   DifférenceBDTableauSupplémentaire,
   DifférenceBds,
   DifférenceTableauxBds,
+  DonnéesBdExportées,
   SchémaBd,
   SchémaTableau,
   ÉpingleBd,
 } from "../bds/bds.js";
 import type { JSONSchemaType } from "ajv";
-import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
-import { TableauxNuées } from "./tableaux.js";
+import type xlsx from "xlsx";
 
 // Types épingles
 
@@ -74,6 +92,16 @@ export type ContenuÉpingleNuée = BaseÉpingleFavoris & {
   bds: ÉpingleBd;
 };
 
+// Types filtres
+
+export type Héritage = ("descendance" | "ascendance")[];
+
+export type FiltresBds = {
+  licences?: string[];
+  enforcerAutorisation: boolean;
+  toujoursInclureLesMiennes: boolean;
+};
+
 // Types tableaux
 
 export type InfoTableauNuée = {
@@ -82,9 +110,9 @@ export type InfoTableauNuée = {
 };
 
 export type ValeurAscendance<T> = {
-  val: T,
+  val: T;
   source: string;
-}
+};
 
 // Types données
 
@@ -988,9 +1016,7 @@ export class Nuées<
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
-    const fFinale = async (
-      descriptions: ValeurAscendance<TraducsTexte>[],
-    ) => {
+    const fFinale = async (descriptions: ValeurAscendance<TraducsTexte>[]) => {
       await f(Object.assign({}, ...descriptions.map(({ val }) => val)));
     };
 
@@ -1124,9 +1150,7 @@ export class Nuées<
     f: Suivi<Métadonnées>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
-    const fFinale = async (
-      métadonnées: ValeurAscendance<Métadonnées>[],
-    ) => {
+    const fFinale = async (métadonnées: ValeurAscendance<Métadonnées>[]) => {
       await f(Object.assign({}, ...métadonnées.map(({ val }) => val)));
     };
 
@@ -1356,6 +1380,7 @@ export class Nuées<
 
   // Autorisations
 
+  @cacheSuivi
   async suivreAutorisation({
     idNuée,
     f,
@@ -1675,7 +1700,7 @@ export class Nuées<
   }
 
   @cacheSuivi
-  async suivreDéscendants({
+  async suivreDescendants({
     idNuée,
     f,
   }: {
@@ -1688,28 +1713,26 @@ export class Nuées<
       de: "*",
       info: {
         type: "vide",
-      }
-    }
+      },
+    };
 
     const fObjectif: SuivreObjectifRecherche = async ({ idObjet, f }) => {
       return await this.suivreAscendants({
         idNuée: idObjet,
         f: async (ascendants) => {
-          await f(ascendants.includes(idNuée) ? résultatPositif : undefined)
-        }
-      })
+          await f(ascendants.includes(idNuée) ? résultatPositif : undefined);
+        },
+      });
     };
 
-    const fFinale = async (
-      résultats: RésultatRecherche[],
-    ) => {
+    const fFinale = async (résultats: RésultatRecherche[]) => {
       await f(résultats.map((r) => r.id));
     };
 
     return await this.recherche.selonObjectif({
       f: fFinale,
-      fObjectif
-    })
+      fObjectif,
+    });
   }
 
   // Bds
@@ -1718,35 +1741,159 @@ export class Nuées<
   async suivreBds({
     idNuée,
     f,
+    héritage,
+    filtres,
   }: {
     idNuée: string;
     f: Suivi<string[]>;
+    héritage?: Héritage;
+    filtres?: FiltresBds;
   }): Promise<Oublier> {
+    const àOublier: Oublier[] = [];
     const bds = this.service("bds");
 
-    const fObjectif: SuivreObjectifRecherche = async ({ idObjet: idBd, f }) => {
-      return await bds.suivreNuées({
-        idBd,
-        f: async (nuées) =>
-          await f(
-            nuées.includes(idNuée)
-              ? {
-                  type: "résultat",
-                  score: 1,
-                  de: "*",
-                  info: {
-                    type: "vide",
-                  },
-                }
-              : undefined,
-          ),
-      });
+    const événements = new TypedEmitter<{ parentée: () => void }>();
+
+    const parentéeNuée: { ascendants: string[]; descendants: string[] } = {
+      ascendants: [],
+      descendants: [],
     };
 
-    return await bds.recherche.selonObjectif({
+    const résultatPositif: RésultatObjectifRecherche<InfoRésultatVide> = {
+      type: "résultat",
+      score: 1,
+      de: "*",
+      info: {
+        type: "vide",
+      },
+    };
+
+    if (héritage?.includes("ascendance")) {
+      àOublier.push(
+        await this.suivreAscendants({
+          idNuée,
+          f: (ascendants) => {
+            parentéeNuée.ascendants = ascendants;
+            événements.emit("parentée");
+          },
+        }),
+      );
+    } else if (héritage?.includes("descendance")) {
+      àOublier.push(
+        await this.suivreDescendants({
+          idNuée,
+          f: (descendants) => {
+            parentéeNuée.descendants = descendants;
+            événements.emit("parentée");
+          },
+        }),
+      );
+    }
+
+    const fObjectif: SuivreObjectifRecherche = async ({ idObjet: idBd, f }) => {
+      const àOublierObjectif: Oublier[] = [];
+
+      let monCompte: string;
+
+      const infoBd: {
+        auteurs?: InfoAuteur[];
+        autorisée?: boolean;
+        licence?: string;
+        nuées?: string[];
+      } = {};
+
+      const fFinale = async () => {
+        const bonneNuée = infoBd.nuées?.some((nuée) =>
+          [
+            idNuée,
+            ...parentéeNuée.ascendants,
+            ...parentéeNuée.descendants,
+          ].includes(nuée),
+        );
+        const bonneLicence = filtres?.licences
+          ? infoBd.licence && filtres.licences.includes(infoBd.licence)
+          : true;
+        const autoriséeCarLaMienne =
+          filtres?.toujoursInclureLesMiennes &&
+          infoBd.auteurs?.find(
+            ({ idCompte, accepté }) => accepté && idCompte === monCompte,
+          );
+        const bienAutorisée = filtres?.enforcerAutorisation
+          ? infoBd.autorisée
+          : true;
+
+        await f(
+          bonneNuée && bonneLicence && (bienAutorisée || autoriséeCarLaMienne)
+            ? résultatPositif
+            : undefined,
+        );
+      };
+
+      // Suivre mon id compte
+      const oublierIdCompte = await this.service("compte").suivreIdCompte({
+        f: async (idCompte) => {
+          monCompte = idCompte;
+          await fFinale();
+        },
+      });
+
+      // Suivre les changements de parentée
+      const oublierRéactionParentée = appelerLorsque({
+        émetteur: événements,
+        événement: "parentée",
+        f: fFinale,
+      });
+      àOublierObjectif.push(oublierRéactionParentée);
+
+      // Accepter toutes les licences par défaut
+      if (filtres?.licences) {
+        const oublierLicences = await bds.suivreLicence({
+          idBd,
+          f: async (licence) => {
+            infoBd.licence = licence;
+            await fFinale();
+          },
+        });
+        àOublierObjectif.push(oublierLicences);
+      }
+
+      // Enforcer autorisation par défaut
+      if (filtres?.enforcerAutorisation !== false) {
+        const oublierAutorisée = await this.suivreAutorisationBd({
+          idNuée,
+          idBd,
+          f: async (autorisée) => {
+            infoBd.autorisée = autorisée;
+            await fFinale();
+          },
+        });
+        àOublierObjectif.push(oublierAutorisée);
+      }
+
+      const oublierNuées = await bds.suivreNuées({
+        idBd,
+        f: async (nuées) => {
+          infoBd.nuées = nuées;
+          await fFinale();
+        },
+      });
+      àOublierObjectif.push(oublierNuées);
+
+      return async () => {
+        await Promise.all(àOublierObjectif.map((f) => f()));
+        await oublierIdCompte();
+      };
+    };
+
+    const oublierRecherche = await bds.recherche.selonObjectif({
       fObjectif,
       f: async (résultats) => await f(résultats.map((r) => r.id)),
     });
+
+    return async () => {
+      await Promise.all(àOublier.map((f) => f()));
+      await oublierRecherche();
+    };
   }
 
   @cacheSuivi
@@ -1810,22 +1957,38 @@ export class Nuées<
 
   // Données
 
+  /*
+    ignorerErreursFormatTableau = false,
+    ignorerErreursDonnéesTableau = true,
+    */
+
   async suivreDonnées({
     idNuée,
     idTableau,
     f,
+    héritage,
+    filtresBds,
+    filtresDonnées,
     clefsSelonVariables,
   }: {
     idNuée: string;
     idTableau: string;
     f: Suivi<DonnéesRangéeNuée[]>;
+    héritage?: Héritage;
+    filtresBds?: FiltresBds;
+    filtresDonnées?: FiltresDonnées;
     clefsSelonVariables?: boolean;
   }): Promise<Oublier> {
     const bds = this.service("bds");
 
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-        await this.suivreBds({ idNuée, f: fSuivreRacine }),
+        await this.suivreBds({
+          idNuée,
+          f: fSuivreRacine,
+          héritage,
+          filtres: filtresBds,
+        }),
       fBranche: async ({
         id: idBd,
         fSuivreBranche,
@@ -1840,6 +2003,7 @@ export class Nuées<
           idStructure: idBd,
           idTableau,
           f: async (données) => await fSuivreBranche({ idBd, données }),
+          filtresDonnées,
           clefsSelonVariables,
         });
       },
@@ -1905,5 +2069,187 @@ export class Nuées<
     };
 
     return oublier;
+  }
+
+  // Exportation
+
+  async suivreDonnéesExportation({
+    idNuée,
+    langues,
+    f,
+    héritage,
+    idsTableaux,
+  }: {
+    idNuée: string;
+    langues?: string[];
+    f: Suivi<DonnéesBdExportées>;
+    héritage?: Héritage[];
+    idsTableaux?: string[];
+  }): Promise<Oublier> {
+    const info: {
+      nomsNuée?: TraducsTexte;
+      données?: DonnéesTableauExportées[];
+    } = {};
+    const fsOublier: Oublier[] = [];
+
+    const fFinale = async () => {
+      const { nomsNuée, données } = info;
+      if (!données) return;
+
+      const idCourt = idNuée.replace("/orbitdb/", "");
+      const nomNuée =
+        nomsNuée && langues ? traduire(nomsNuée, langues) || idCourt : idCourt;
+
+      await f({
+        nomBd: nomNuée,
+        tableaux: données,
+      });
+    };
+
+    const oublierDonnées = await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: (éléments: string[]) => Promise<void>;
+      }) => {
+        if (idsTableaux) {
+          await fSuivreRacine(idsTableaux);
+          return faisRien;
+        }
+        return await this.suivreTableaux({
+          idNuée,
+          f: ignorerNonDéfinis(
+            async (tableaux) =>
+              await fSuivreRacine(tableaux.map((tbl) => tbl.id)),
+          ),
+        });
+      },
+
+      f: async (données: DonnéesTableauExportées[]) => {
+        info.données = données;
+        await fFinale();
+      },
+
+      fBranche: async ({
+        id,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<DonnéesTableauExportées>;
+      }): Promise<Oublier> => {
+        return await this.tableaux.suivreDonnéesExportation({
+          idStructure: idNuée,
+          idTableau: id,
+          langues,
+          f: async (données) => {
+            return await fSuivreBranche(données);
+          },
+          héritage,
+        });
+      },
+    });
+    fsOublier.push(oublierDonnées);
+
+    if (langues) {
+      const oublierNomsNuée = await this.suivreNoms({
+        idNuée,
+        f: async (noms) => {
+          info.nomsNuée = noms;
+          await fFinale();
+        },
+      });
+      fsOublier.push(oublierNomsNuée);
+    }
+
+    return async () => {
+      await Promise.allSettled(fsOublier.map((f) => f()));
+    };
+  }
+
+  async exporterDonnées({
+    idNuée,
+    langues,
+    nomFichier,
+    héritage,
+    idsTableaux,
+    patience = 500,
+  }: {
+    idNuée: string;
+    langues?: string[];
+    nomFichier?: string;
+    héritage?: ("descendance" | "ascendance")[];
+    idsTableaux?: string[];
+    patience?: number;
+  }): Promise<DonnéesFichierBdExportées> {
+    const docu = xlsxUtils.book_new();
+
+    const données = await uneFois(
+      async (fSuivi: Suivi<DonnéesBdExportées>): Promise<Oublier> => {
+        return await this.suivreDonnéesExportation({
+          idNuée,
+          langues,
+          héritage,
+          idsTableaux,
+          f: fSuivi,
+        });
+      },
+      attendreStabilité(patience),
+    );
+
+    nomFichier = nomFichier || données.nomBd;
+
+    const fichiersSFIP = new Set<string>();
+
+    for (const tableau of données.tableaux) {
+      tableau.fichiersSFIP.forEach((x) => fichiersSFIP.add(x));
+
+      /* Créer le tableau */
+      const tableauXLSX = xlsxUtils.json_to_sheet(tableau.données);
+
+      /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
+      xlsxUtils.book_append_sheet(
+        docu,
+        tableauXLSX,
+        tableau.nomTableau.slice(0, 30),
+      );
+    }
+    return { docu, fichiersSFIP, nomFichier };
+  }
+
+  async exporterÀFichier({
+    idNuée,
+    langues,
+    nomFichier,
+    héritage,
+    patience = 500,
+    formatDocu,
+    dossier = "",
+    inclureDocuments = true,
+  }: {
+    idNuée: string;
+    langues?: string[];
+    nomFichier?: string;
+    héritage?: ("descendance" | "ascendance")[];
+    patience?: number;
+    formatDocu: xlsx.BookType | "xls";
+    dossier?: string;
+    inclureDocuments?: boolean;
+  }): Promise<string> {
+    const donnéesExportées = await this.exporterDonnées({
+      idNuée,
+      langues,
+      nomFichier,
+      héritage,
+      patience,
+    });
+
+    const hélia = this.service("hélia");
+    return await sauvegarderDonnéesExportées({
+      données: donnéesExportées,
+      formatDocu,
+      obtItérableAsyncSFIP: hélia.obtItérableAsyncSFIP.bind(hélia),
+      dossier,
+      inclureDocuments,
+    });
   }
 }

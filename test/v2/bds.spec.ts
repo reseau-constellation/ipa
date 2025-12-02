@@ -680,7 +680,7 @@ describe("BDs", function () {
             tableaux: TOUS_DISPOSITIFS,
             fichiers: DISPOSITIFS_INSTALLÉS,
           },
-        }
+        },
       };
       expect(épingle).to.deep.equal(réf);
     });
@@ -693,7 +693,7 @@ describe("BDs", function () {
             idObjet: idBd,
             épingle: {
               type: "bd",
-              épingle: {base: true},
+              épingle: { base: true },
             },
           },
           f: siDéfini(),
@@ -720,7 +720,7 @@ describe("BDs", function () {
                 base: true,
                 données: {
                   tableaux: true,
-                }
+                },
               },
             },
           },
@@ -737,7 +737,7 @@ describe("BDs", function () {
               épingle: {
                 type: "bd",
                 épingle: {
-                  base: true
+                  base: true,
                 },
               },
             },
@@ -783,7 +783,7 @@ describe("BDs", function () {
                   tableaux: true,
                   fichiers: true,
                 },
-              }
+              },
             },
           },
           f: siDéfini(),
@@ -799,7 +799,7 @@ describe("BDs", function () {
               type: "bd",
               épingle: {
                 base: true,
-              }
+              },
             },
           },
           f: siDéfini(),
@@ -840,7 +840,7 @@ describe("BDs", function () {
                   tableaux: true,
                   fichiers: true,
                 },
-              }
+              },
             },
           },
           f: siDéfini(),

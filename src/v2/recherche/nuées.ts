@@ -18,7 +18,7 @@ import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "../crabe/types.js";
-import type { Nuées } from "../nuées.js";
+import type { Nuées } from "../nuées/nuées.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,

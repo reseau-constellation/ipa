@@ -1,17 +1,29 @@
 import deepEqual from "deep-equal";
-import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
+import {
+  faisRien,
+  ignorerNonDéfinis,
+  suivreDeFonctionListe,
+} from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "../../utils.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
+import { CONFIANCE_DE_FAVORIS } from "./consts.js";
 import type { RetourFonctionRecherche } from "@/v2/recherche/types.js";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { JSONSchemaType } from "ajv";
-import type { PartielRécursif } from "../../types.js";
+import type { InfoAuteur, PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import type { ServicesCrabe } from "../crabe.js";
 import type { ServicesNécessairesOrbite } from "./orbite/orbite.js";
+import type { AccèsUtilisateur } from "./compte/accès/types.js";
+
+// Types réplications
+export type Réplication = {
+  idDispositif: string;
+  vuÀ?: number; // -Infinité -> jamais ; undefined -> en ligne
+};
 
 // Types épingles
 
@@ -155,12 +167,18 @@ export class ServiceFavoris<
     super({
       clef: "favoris",
       nébuleuse,
-      dépendances: ["compte", "épingles"],
+      dépendances: ["compte", "réseau", "épingles"],
       options: {
         schéma: SchémaServiceFavoris,
       },
     });
     this.résolveurs = new Map();
+
+    const réseau = this.service("réseau");
+    réseau.inscrireRésolutionConfiance({
+      clef: this.clef,
+      résolution: this.résolutionConfiance.bind(this),
+    });
   }
 
   async démarrer(): Promise<{ oublier: Oublier }> {
@@ -284,7 +302,7 @@ export class ServiceFavoris<
     });
   }
 
-  // Fonctionalités
+  // Fonctionalités publiques
 
   async épinglerFavori({
     idObjet,
@@ -338,13 +356,15 @@ export class ServiceFavoris<
   }
 
   @cacheRechercheParN
-  async rechercherFavoris({
+  async suivreRéplications({
     idObjet,
     f,
   }: {
     idObjet: string;
-    f;
+    f: Suivi<Réplication>;
   }): Promise<RetourFonctionRecherche> {}
+
+  // Méthodes internes
 
   async estÉpingléSurDispositif({
     dispositifs,
@@ -435,5 +455,43 @@ export class ServiceFavoris<
       ).filter((x): x is [string, BooléenniserÉpingle<ÉpingleFavoris>] => !!x),
     ]) as BooléenniserÉpingle<ÉpingleFavoris<T>>;
     return résultat;
+  }
+
+  async résolutionConfiance({
+    de,
+    pour,
+    f,
+  }: {
+    de: string;
+    pour: string;
+    f: Suivi<number[]>;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
+        return await this.suivreFavoris({
+          idCompte: de,
+          f: async (favoris) =>
+            await fSuivreRacine(favoris?.map((fav) => fav.idObjet) || []),
+        });
+      },
+      fBranche: async ({
+        id: idVariable,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<AccèsUtilisateur[]>;
+      }) => {
+        return await compte.suivreAutorisations({
+          idObjet: idVariable,
+          f: fSuivreBranche,
+        });
+      },
+      f: async (auteurs: AccèsUtilisateur[]) => {
+        const n = auteurs.map((a) => a.idCompte === pour).length;
+        return await f(Array(n).fill(CONFIANCE_DE_FAVORIS));
+      },
+    });
   }
 }

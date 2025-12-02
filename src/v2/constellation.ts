@@ -4,7 +4,7 @@ import { Crabe } from "./crabe/crabe.js";
 import { Bds } from "./bds/bds.js";
 import { ServiceFavoris } from "./crabe/services/favoris.js";
 import { ServiceÉpingles } from "./crabe/services/epingles.js";
-import { Nuées } from "./nuées.js";
+import { Nuées } from "./nuées/nuées.js";
 import type { Projets } from "./projets.js";
 import type {
   ConstructeursServicesNébuleuse,

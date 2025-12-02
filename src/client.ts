@@ -17,7 +17,6 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { Automatisations } from "@/automatisation.js";
 import { Licences } from "@/licences.js";
 import { Nuées } from "@/nuées.js";
-import { Recherche } from "@/recherche/index.js";
 import { Réseau } from "@/reseau.js";
 import { Tableaux } from "@/tableaux.js";
 
@@ -48,6 +47,7 @@ import type {
   type GestionnaireOrbite,
   gestionnaireOrbiteGénéral,
 } from "@/orbite.js";
+import { Recherche } from "@/recherche/index.js";
 import { Projets } from "@/projets.js";
 import { Favoris, INSTALLÉ, TOUS, résoudreDéfauts } from "@/favoris.js";
 import { Épingles } from "@/epingles.js";
@@ -533,58 +533,6 @@ export class Constellation<
   async obtIdentitéOrbite(): Promise<OrbitDB["identity"]> {
     const { orbite } = await this.attendreSfipEtOrbite();
     return orbite.identity;
-  }
-
-  async suivreTypeObjet({
-    idObjet,
-    f,
-  }: {
-    idObjet: string;
-    f: schémaFonctionSuivi<
-      "motClef" | "variable" | "bd" | "projet" | "nuée" | undefined
-    >;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (vals: { [key: string]: string }) => {
-      let typeFinal = undefined as
-        | "motClef"
-        | "variable"
-        | "bd"
-        | "projet"
-        | "nuée"
-        | undefined;
-
-      const { type } = vals;
-      if (type) {
-        typeFinal = ["motClef", "variable", "bd", "projet", "nuée"].includes(
-          type,
-        )
-          ? (type as "motClef" | "variable" | "bd" | "projet" | "nuée")
-          : undefined;
-      } else {
-        if (vals.bds) typeFinal = "projet";
-        else if (vals.tableaux) typeFinal = "bd";
-        else if (vals.catégorie) typeFinal = "variable";
-        else if (vals.nom) typeFinal = "motClef";
-      }
-      await f(typeFinal);
-    };
-    type structureObjet = {
-      type?: string;
-    };
-    const schémaObjet: JSONSchemaType<structureObjet> = {
-      type: "object",
-      properties: {
-        type: { type: "string", nullable: true },
-      },
-      additionalProperties: true,
-    };
-
-    const fOublier = await this.suivreBdDic({
-      id: idObjet,
-      schéma: schémaObjet,
-      f: fFinale,
-    });
-    return fOublier;
   }
 
   async suivreBdsDeFonctionRecherche<T extends élémentsBd, U, V>({

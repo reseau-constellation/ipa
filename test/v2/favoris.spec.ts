@@ -79,6 +79,21 @@ describe("Favoris", function () {
     });
   });
 
+  describe("gestion favoris", function () {
+    it("épingler favoris", async () => {
+      throw new Error("à faire");
+    });
+    it("détecter sur autre compte", async () => {
+      throw new Error("à faire");
+    });
+    it("rechercher favoris objet", async () => {
+      throw new Error("à faire");
+    });
+    it("désépingler favoris", async () => {
+      throw new Error("à faire");
+    });
+  });
+
   describe("désépingler", function () {
     it("épingle retirée", async () => {
       throw new Error("à faire");

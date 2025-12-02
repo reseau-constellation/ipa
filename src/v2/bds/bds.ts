@@ -30,6 +30,7 @@ import {
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { RechercheBds } from "../recherche/bds.js";
+import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
 import { TableauxBds } from "./tableaux.js";
 import type {
   Rôle,
@@ -258,6 +259,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     favoris.inscrireRésolution({
       clef: "bd",
       résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
+
+    const réseau = this.service("réseau");
+    réseau.inscrireRésolutionConfiance({
+      clef: this.clef,
+      résolution: this.résolutionConfiance.bind(this),
     });
   }
 
@@ -686,6 +693,38 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       throw new Error(
         `Permission de modification refusée pour la base de données ${idBd}.`,
       );
+  }
+
+  async résolutionConfiance({
+    de,
+    pour,
+    f,
+  }: {
+    de: string;
+    pour: string;
+    f: Suivi<number[]>;
+  }): Promise<Oublier> {
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
+        return await this.suivreBds({
+          idCompte: de,
+          f: ignorerNonDéfinis(fSuivreRacine),
+        });
+      },
+      fBranche: async ({
+        id: idBd,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<InfoAuteur[]>;
+      }) => {
+        return await this.suivreAuteurs({ idBd, f: fSuivreBranche });
+      },
+      f: async (auteurs: InfoAuteur[]) => {
+        const n = auteurs.map((a) => a.accepté && a.idCompte === pour).length;
+        return await f(Array(n).fill(CONFIANCE_DE_COAUTEUR));
+      },
+    });
   }
 
   // Épingles
