@@ -19,25 +19,20 @@ import type { RègleColonne } from "../règles.js";
 // Types filtres
 
 export type FiltresDonnées = {
-  différencesTableaux?: DifférenceTableaux["type"][];
-  erreursDonnées?: boolean;
+  exclureAvecDifférencesTableaux?: DifférenceTableaux["type"][];
+  exclureAvecErreursDonnées?: boolean;
 }
 
 // Types données et exportation
 
-export type DonnéesRangéeTableauAvecIdEtContributrice = {
+export type DonnéesRangéeNuée = {
+  idBd: string;
   données: DonnéesRangéeTableauAvecId;
-  idBd: string;
-};
-
-export type DonnéesRangéeTableauAvecContributrice = {
-  données: DonnéesRangéeTableau;
-  idBd: string;
 };
 
 export type DonnéesTableauNuéeExportées = {
   nomTableau: string;
-  données: DonnéesRangéeTableauAvecContributrice[];
+  données: DonnéesRangéeNuée[];
   fichiersSFIP: Set<string>;
 };
 
@@ -170,7 +165,7 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
   }: {
     idStructure: string;
     idTableau: string;
-    f: Suivi<DonnéesRangéeTableauAvecIdEtContributrice[]>;
+    f: Suivi<DonnéesRangéeNuée[]>;
     héritage?: Héritage;
     filtresBds?: FiltresBds;
     filtresDonnées?: FiltresDonnées;
@@ -191,15 +186,24 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         fSuivreBranche,
       }: {
         id: string;
-        fSuivreBranche: Suivi<DonnéesRangéeTableauAvecIdEtContributrice[]>;
-      }) =>
-        await serviceBds.tableaux.suivreDonnées({
+        fSuivreBranche: Suivi<DonnéesRangéeNuée[]>;
+      }) =>{
+        if (filtresDonnées?.exclureAvecErreursDonnées) {
+          await this.suivreRègles({ idStructure, })
+        }
+        if (filtresDonnées?.exclureAvecDifférencesTableaux) {}
+        const oublierDonnées = await serviceBds.tableaux.suivreDonnées({
           idStructure: idBd,
           idTableau,
           f: async (données) =>
             await fSuivreBranche(données.map((d) => ({ idBd, données: d }))),
           clefsSelonVariables,
-        }),
+        });
+        return async () => {
+          await Promise.all(àOublier.map(f=>f()));
+          await oublierDonnées();
+        }
+        },
       f,
     });
   }
@@ -229,7 +233,7 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       nomsTableau?: { [clef: string]: string };
       nomsVariables?: { [idVar: string]: TraducsTexte };
       colonnes?: InfoColonneAvecCatégorie[];
-      données?: DonnéesRangéeTableauAvecIdEtContributrice[];
+      données?: DonnéesRangéeNuée[];
       traducs?: TraducsTexte;
     } = {};
     const fsOublier: Oublier[] = [];

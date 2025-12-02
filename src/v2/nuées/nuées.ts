@@ -30,7 +30,7 @@ import { RechercheNuées } from "../recherche/nuées.js";
 import { mapÀObjet } from "../crabe/utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
-import { TableauxNuées } from "./tableaux.js";
+import { DonnéesTableauNuéeExportées, TableauxNuées } from "./tableaux.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 import type {
   DonnéesRangéeTableauAvecId,
@@ -112,13 +112,6 @@ export type InfoTableauNuée = {
 export type ValeurAscendance<T> = {
   val: T;
   source: string;
-};
-
-// Types données
-
-export type DonnéesRangéeNuée = {
-  idBd: string;
-  données: DonnéesRangéeTableauAvecId;
 };
 
 // Types structure
@@ -1955,72 +1948,6 @@ export class Nuées<
     };
   }
 
-  // Données
-
-  /*
-    ignorerErreursFormatTableau = false,
-    ignorerErreursDonnéesTableau = true,
-    */
-
-  async suivreDonnées({
-    idNuée,
-    idTableau,
-    f,
-    héritage,
-    filtresBds,
-    filtresDonnées,
-    clefsSelonVariables,
-  }: {
-    idNuée: string;
-    idTableau: string;
-    f: Suivi<DonnéesRangéeNuée[]>;
-    héritage?: Héritage;
-    filtresBds?: FiltresBds;
-    filtresDonnées?: FiltresDonnées;
-    clefsSelonVariables?: boolean;
-  }): Promise<Oublier> {
-    const bds = this.service("bds");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-        await this.suivreBds({
-          idNuée,
-          f: fSuivreRacine,
-          héritage,
-          filtres: filtresBds,
-        }),
-      fBranche: async ({
-        id: idBd,
-        fSuivreBranche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<{
-          idBd: string;
-          données: DonnéesRangéeTableauAvecId[];
-        }>;
-      }) => {
-        return await bds.tableaux.suivreDonnées({
-          idStructure: idBd,
-          idTableau,
-          f: async (données) => await fSuivreBranche({ idBd, données }),
-          filtresDonnées,
-          clefsSelonVariables,
-        });
-      },
-      f: async (
-        donnéesNuée: { idBd: string; données: DonnéesRangéeTableauAvecId[] }[],
-      ) => {
-        return await f(
-          donnéesNuée
-            .map(({ idBd, données: donnéesBd }) =>
-              donnéesBd.map((données) => ({ idBd, données })),
-            )
-            .flat(),
-        );
-      },
-    });
-  }
-
   // Qualité
 
   @cacheSuivi
@@ -2078,12 +2005,16 @@ export class Nuées<
     langues,
     f,
     héritage,
+    filtresBds,
+    filtresDonnées,
     idsTableaux,
   }: {
     idNuée: string;
     langues?: string[];
     f: Suivi<DonnéesBdExportées>;
-    héritage?: Héritage[];
+    héritage?: Héritage;
+    filtresBds?: FiltresBds;
+    filtresDonnées?: FiltresDonnées;
     idsTableaux?: string[];
   }): Promise<Oublier> {
     const info: {
@@ -2135,7 +2066,7 @@ export class Nuées<
         fSuivreBranche,
       }: {
         id: string;
-        fSuivreBranche: Suivi<DonnéesTableauExportées>;
+        fSuivreBranche: Suivi<DonnéesTableauNuéeExportées>;
       }): Promise<Oublier> => {
         return await this.tableaux.suivreDonnéesExportation({
           idStructure: idNuée,
@@ -2145,6 +2076,8 @@ export class Nuées<
             return await fSuivreBranche(données);
           },
           héritage,
+          filtresBds,
+          filtresDonnées
         });
       },
     });

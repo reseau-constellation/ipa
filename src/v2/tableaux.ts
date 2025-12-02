@@ -2,7 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 import {
   adresseOrbiteValide,
   faisRien,
+  idcValide,
   suivreDeFonctionListe,
+  traduire,
 } from "@constl/utils-ipa";
 import { asSplitKey, joinKey } from "@orbitdb/nested-db";
 import { cacheSuivi } from "./crabe/cache.js";
@@ -10,6 +12,7 @@ import { brancheBd } from "./crabe/services/services.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { schémaSpécificationRègleColonne } from "./règles.js";
 import { typer } from "./crabe/services/orbite/orbite.js";
+import type { DagCborEncodable } from "@orbitdb/core";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { NestedValueObject } from "node_modules/@orbitdb/nested-db/dist/types.js";
@@ -34,7 +37,13 @@ import type {
   ErreurColonneVariableDédoublée,
   SpécificationRègleColonne,
 } from "./règles.js";
-import type { CatégorieVariables } from "./variables.js";
+import type { CatégorieBaseVariables, CatégorieVariables } from "./variables.js";
+
+// Types éléments
+
+export type DonnéesRangéeTableau = {
+  [key: string]: DagCborEncodable;
+};
 
 // Types tableaux
 
@@ -1194,5 +1203,73 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     return async () => {
       await Promise.allSettled([oublierColonnesTableau, oublierColonnesRéf]);
     };
+  }
+
+  // Éléments
+
+  async formaterÉlément({
+    é,
+    colonnes,
+    fichiersSFIP,
+    langues,
+    traducs,
+  }: {
+    é: DonnéesRangéeTableau;
+    colonnes: InfoColonneAvecCatégorie[];
+    fichiersSFIP: Set<string>;
+    langues?: string[];
+    traducs?: TraducsTexte;
+  }): Promise<DonnéesRangéeTableau> {
+    const élémentFinal: DonnéesRangéeTableau = {};
+
+    const formaterValeur = async (
+      v: DagCborEncodable,
+      catégorie: CatégorieBaseVariables,
+    ): Promise<string | number | undefined> => {
+      switch (typeof v) {
+        case "object": {
+          return JSON.stringify(v);
+        }
+        case "boolean":
+          return v.toString();
+        case "number":
+          return v;
+        case "string":
+          if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
+            if (idcValide(v)) fichiersSFIP.add(v);
+
+            return v;
+          } else if (catégorie === "chaîne") {
+            return traduire(traducs || {}, langues || []) || v;
+          }
+          return v;
+        default:
+          return;
+      }
+    };
+
+    for (const col of Object.keys(é)) {
+      const colonne = colonnes.find((c) => c.id === col);
+      if (!colonne) continue;
+
+      const { catégorie } = colonne;
+
+      let val: string | number | undefined = undefined;
+      const élément = é[col];
+      if (catégorie?.type === "simple") {
+        val = await formaterValeur(élément, catégorie.catégorie);
+      } else if (catégorie?.type === "liste") {
+        if (Array.isArray(élément)) {
+          val = JSON.stringify(
+            await Promise.allSettled(
+              élément.map((x) => formaterValeur(x, catégorie.catégorie)),
+            ),
+          );
+        }
+      }
+      if (val !== undefined) élémentFinal[col] = val;
+    }
+
+    return élémentFinal;
   }
 }

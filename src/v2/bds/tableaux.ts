@@ -1,7 +1,6 @@
 import {
   attendreStabilité,
   faisRien,
-  idcValide,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   suivreFonctionImbriquée,
@@ -30,9 +29,8 @@ import type {
   FonctionValidation,
   RègleColonne,
 } from "../règles.js";
-import type { InfoColonne, InfoColonneAvecCatégorie } from "../tableaux.js";
+import type { DonnéesRangéeTableau, InfoColonne, InfoColonneAvecCatégorie } from "../tableaux.js";
 import type { Oublier, Suivi } from "../crabe/types.js";
-import type { CatégorieBaseVariables } from "../variables.js";
 import type { PartielRécursif, TraducsTexte } from "../types.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 
@@ -44,10 +42,6 @@ export interface DonnéesRangéeTableauAvecId<
   données: T;
   id: string;
 }
-
-export type DonnéesRangéeTableau = {
-  [key: string]: DagCborEncodable;
-};
 
 export type DonnéesTableauExportées = {
   nomTableau: string;
@@ -940,69 +934,4 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     });
   }
 
-  async formaterÉlément({
-    é,
-    colonnes,
-    fichiersSFIP,
-    langues,
-    traducs,
-  }: {
-    é: DonnéesRangéeTableau;
-    colonnes: InfoColonneAvecCatégorie[];
-    fichiersSFIP: Set<string>;
-    langues?: string[];
-    traducs?: TraducsTexte;
-  }): Promise<DonnéesRangéeTableau> {
-    const élémentFinal: DonnéesRangéeTableau = {};
-
-    const formaterValeur = async (
-      v: DagCborEncodable,
-      catégorie: CatégorieBaseVariables,
-    ): Promise<string | number | undefined> => {
-      switch (typeof v) {
-        case "object": {
-          return JSON.stringify(v);
-        }
-        case "boolean":
-          return v.toString();
-        case "number":
-          return v;
-        case "string":
-          if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
-            if (idcValide(v)) fichiersSFIP.add(v);
-
-            return v;
-          } else if (catégorie === "chaîne") {
-            return traduire(traducs || {}, langues || []) || v;
-          }
-          return v;
-        default:
-          return;
-      }
-    };
-
-    for (const col of Object.keys(é)) {
-      const colonne = colonnes.find((c) => c.id === col);
-      if (!colonne) continue;
-
-      const { catégorie } = colonne;
-
-      let val: string | number | undefined = undefined;
-      const élément = é[col];
-      if (catégorie?.type === "simple") {
-        val = await formaterValeur(élément, catégorie.catégorie);
-      } else if (catégorie?.type === "liste") {
-        if (Array.isArray(élément)) {
-          val = JSON.stringify(
-            await Promise.allSettled(
-              élément.map((x) => formaterValeur(x, catégorie.catégorie)),
-            ),
-          );
-        }
-      }
-      if (val !== undefined) élémentFinal[col] = val;
-    }
-
-    return élémentFinal;
-  }
 }
