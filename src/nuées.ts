@@ -1,19 +1,9 @@
-import {
-  suivreDeFonctionListe,
-} from "@constl/utils-ipa";
-import Base64 from "crypto-js/enc-base64.js";
-import md5 from "crypto-js/md5.js";
-
 import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
-import type {
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
-} from "@/types.js";
+import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { schémaBdTableauxDeBd } from "@/bds.js";
 
 export class Nuées extends ComposanteClientListe<string> {
-
   /*
   async bloquerContenu({
     idNuée,
@@ -139,48 +129,6 @@ export class Nuées extends ComposanteClientListe<string> {
         Object.values(ascendance).map((a) => a.fOublier()),
       );
     };
-  }
-
-  @cacheSuivi
-  async suivreEmpreinteTêtesBdsNuée({
-    idNuée,
-    f,
-    héritage,
-  }: {
-    idNuée: string;
-    f: schémaFonctionSuivi<string>;
-    héritage?: ("descendance" | "ascendance")[];
-  }): Promise<schémaFonctionOublier> {
-    return await suivreDeFonctionListe({
-      fListe: async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: (éléments: string[]) => Promise<void>;
-      }) => {
-        const { fOublier } = await this.suivreBdsCorrespondantes({
-          idNuée,
-          f: async (bds) => await fSuivreRacine([idNuée, ...bds]),
-          héritage,
-        });
-        return fOublier;
-      },
-      f: async (empreintes: string[]) => {
-        const empreinte = Base64.stringify(md5(empreintes.join(":")));
-        return await f(empreinte);
-      },
-      fBranche: async ({
-        id,
-        fSuivreBranche,
-      }: {
-        id: string;
-        fSuivreBranche: schémaFonctionSuivi<string>;
-      }) => {
-        return await this.client.suivreEmpreinteTêtesBdRécursive({
-          idBd: id,
-          f: fSuivreBranche,
-        });
-      },
-    });
   }
 
 }

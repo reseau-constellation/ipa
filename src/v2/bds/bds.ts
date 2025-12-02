@@ -14,6 +14,8 @@ import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "xlsx";
 import { TimeoutController } from "timeout-abort-controller";
 import PQueue from "p-queue";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
 import { cacheSuivi } from "../crabe/cache.js";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import {
@@ -1779,6 +1781,60 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await bd.set("clefUnique", clefUnique);
 
     await oublier();
+  }
+
+  // Empreintes
+
+  async suivreEmpreinteTête({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<string>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    const empreintes: { tableaux?: string[]; bd?: string } = {};
+    const fFinale = async () => {
+      const texte = [empreintes.bd, ...(empreintes.tableaux || [])]
+        .toSorted()
+        .join("/");
+      await f(Base64.stringify(md5(texte)));
+    };
+
+    const oublierEmpreinteBd = await orbite.suivreEmpreinteTêteBd({
+      idBd,
+      f: async (x) => {
+        empreintes.bd = x;
+        await fFinale();
+      },
+    });
+
+    const oublierEmpreintesTableaux = await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }) =>
+        await this.suivreTableaux({ idBd, f: fSuivreRacine }),
+      fBranche: async ({
+        id: idTableau,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<string>;
+      }) =>
+        await this.tableaux.suivreEmpreinteTête({
+          idStructure: idBd,
+          idTableau,
+          f: fSuivreBranche,
+        }),
+      f: async (x: string[]) => {
+        empreintes.tableaux = x;
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await oublierEmpreintesTableaux();
+      await oublierEmpreinteBd();
+    };
   }
 
   // Qualité

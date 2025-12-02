@@ -29,7 +29,11 @@ import type {
   FonctionValidation,
   RègleColonne,
 } from "../règles.js";
-import type { DonnéesRangéeTableau, InfoColonne, InfoColonneAvecCatégorie } from "../tableaux.js";
+import type {
+  DonnéesRangéeTableau,
+  InfoColonne,
+  InfoColonneAvecCatégorie,
+} from "../tableaux.js";
 import type { Oublier, Suivi } from "../crabe/types.js";
 import type { PartielRécursif, TraducsTexte } from "../types.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
@@ -414,7 +418,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
 
     const oublierDonnées = await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) =>
-        this.suivreTableau({
+        await this.suivreTableau({
           idStructure,
           idTableau,
           f: async (tableau) => await fSuivreRacine(tableau.données),
@@ -634,6 +638,32 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       await oublierVarsÀColonnes();
     };
     return oublier;
+  }
+
+  // Empreintes
+
+  async suivreEmpreinteTête({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<string>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await suivreFonctionImbriquée({
+      fRacine: async ({ fSuivreRacine }) =>
+        await this.suivreTableau({
+          idStructure,
+          idTableau,
+          f: async (tableau) => await fSuivreRacine(tableau.données),
+        }),
+      fSuivre: async ({ id: idDonnées, fSuivreBd }) =>
+        await orbite.suivreEmpreinteTêteBd({ idBd: idDonnées, f: fSuivreBd }),
+      f: ignorerNonDéfinis(f),
+    });
   }
 
   // Importation
@@ -933,5 +963,4 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       obtItérableAsyncSFIP: hélia.obtItérableAsyncSFIP.bind(hélia),
     });
   }
-
 }

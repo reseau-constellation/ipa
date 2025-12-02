@@ -1,18 +1,23 @@
 import {
+  faisRien,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   traduire,
 } from "@constl/utils-ipa";
 import { Tableaux } from "../tableaux.js";
 import type {
-  DonnéesRangéeTableau,
   DonnéesRangéeTableauAvecId,
 } from "../bds/tableaux.js";
 import type { TraducsTexte } from "../types.js";
 import type { Suivi, Oublier } from "../crabe/types.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { FiltresBds, Héritage, Nuées, ValeurAscendance } from "./nuées.js";
-import type { DifférenceTableaux, InfoColonne, InfoColonneAvecCatégorie } from "../tableaux.js";
+import type {
+  DifférenceTableaux,
+  DonnéesRangéeTableau,
+  InfoColonne,
+  InfoColonneAvecCatégorie,
+} from "../tableaux.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { RègleColonne } from "../règles.js";
 
@@ -21,7 +26,7 @@ import type { RègleColonne } from "../règles.js";
 export type FiltresDonnées = {
   exclureAvecDifférencesTableaux?: DifférenceTableaux["type"][];
   exclureAvecErreursDonnées?: boolean;
-}
+};
 
 // Types données et exportation
 
@@ -160,7 +165,7 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     f,
     héritage,
     filtresBds,
-    filtresDonnées,
+    filtresDonnées = { exclureAvecDifférencesTableaux: ["variableColonne"] },
     clefsSelonVariables,
   }: {
     idStructure: string;
@@ -175,11 +180,43 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
 
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-        await this.nuées.suivreBds({
-          idNuée: idStructure,
+        await suivreDeFonctionListe({
+          fListe: async ({ fSuivreRacine }) =>
+            await this.nuées.suivreBds({
+              idNuée: idStructure,
+              f: fSuivreRacine,
+              héritage,
+              filtres: filtresBds,
+            }),
+          fBranche: async ({ id: idBd, fSuivreBranche }) => {
+            if (filtresDonnées?.exclureAvecDifférencesTableaux) {
+              return await this.suivreDifférencesAvecTableau({
+                tableau: {
+                  idStructure: idBd,
+                  idTableau,
+                },
+                tableauRéf: {
+                  idStructure,
+                  idTableau,
+                },
+                f: async (différences) => {
+                  if (
+                    différences.some((d) =>
+                      filtresDonnées.exclureAvecDifférencesTableaux?.includes(
+                        d.type,
+                      ),
+                    )
+                  )
+                    await fSuivreBranche(undefined);
+                  else await fSuivreBranche(idBd);
+                },
+              });
+            } else {
+              await fSuivreBranche(idBd);
+              return faisRien;
+            }
+          },
           f: fSuivreRacine,
-          héritage,
-          filtres: filtresBds,
         }),
       fBranche: async ({
         id: idBd,
@@ -187,11 +224,10 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       }: {
         id: string;
         fSuivreBranche: Suivi<DonnéesRangéeNuée[]>;
-      }) =>{
+      }) => {
         if (filtresDonnées?.exclureAvecErreursDonnées) {
-          await this.suivreRègles({ idStructure, })
+          await this.suivreRègles({ idStructure });
         }
-        if (filtresDonnées?.exclureAvecDifférencesTableaux) {}
         const oublierDonnées = await serviceBds.tableaux.suivreDonnées({
           idStructure: idBd,
           idTableau,
@@ -200,10 +236,9 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
           clefsSelonVariables,
         });
         return async () => {
-          await Promise.all(àOublier.map(f=>f()));
           await oublierDonnées();
-        }
-        },
+        };
+      },
       f,
     });
   }

@@ -12,6 +12,8 @@ import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
 import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import { schémaTableau } from "../tableaux.js";
 import {
@@ -30,7 +32,8 @@ import { RechercheNuées } from "../recherche/nuées.js";
 import { mapÀObjet } from "../crabe/utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
-import { DonnéesTableauNuéeExportées, TableauxNuées } from "./tableaux.js";
+import { TableauxNuées } from "./tableaux.js";
+import type { DonnéesTableauNuéeExportées} from "./tableaux.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 import type {
   DonnéesRangéeTableauAvecId,
@@ -1889,6 +1892,61 @@ export class Nuées<
     };
   }
 
+  // Empreinte
+
+  @cacheSuivi
+  async suivreEmpreinteTête({
+    idNuée,
+    f,
+    héritage,
+    filtres,
+  }: {
+    idNuée: string;
+    f: Suivi<string>;
+    héritage?: Héritage;
+    filtres?: FiltresBds;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+    const bds = this.service("bds");
+
+    const empreintes: { bds?: string[]; nuée?: string } = {};
+    const fFinale = async () => {
+      const texte = [empreintes.nuée, ...(empreintes.bds || [])]
+        .toSorted()
+        .join("/");
+      await f(Base64.stringify(md5(texte)));
+    };
+
+    const oublierEmpreinteNuée = await orbite.suivreEmpreinteTêteBd({
+      idBd: idNuée,
+      f: async (x) => {
+        empreintes.nuée = x;
+        await fFinale();
+      },
+    });
+
+    const oublierEmpreintesBds = await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }) =>
+        await this.suivreBds({ idNuée, f: fSuivreRacine, héritage, filtres }),
+      fBranche: async ({
+        id: idBd,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<string>;
+      }) => await bds.suivreEmpreinteTête({ idBd, f: fSuivreBranche }),
+      f: async (x: string[]) => {
+        empreintes.bds = x;
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await oublierEmpreintesBds();
+      await oublierEmpreinteNuée();
+    };
+  }
+
   @cacheSuivi
   async suivreAutorisationBd({
     idNuée,
@@ -2077,7 +2135,7 @@ export class Nuées<
           },
           héritage,
           filtresBds,
-          filtresDonnées
+          filtresDonnées,
         });
       },
     });

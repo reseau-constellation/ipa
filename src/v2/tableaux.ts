@@ -37,7 +37,10 @@ import type {
   ErreurColonneVariableDédoublée,
   SpécificationRègleColonne,
 } from "./règles.js";
-import type { CatégorieBaseVariables, CatégorieVariables } from "./variables.js";
+import type {
+  CatégorieBaseVariables,
+  CatégorieVariables,
+} from "./variables.js";
 
 // Types éléments
 
