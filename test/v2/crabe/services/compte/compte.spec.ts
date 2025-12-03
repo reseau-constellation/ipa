@@ -1,5 +1,4 @@
 import { expect } from "aegir/chai";
-import { NestedObjectToMap } from "@orbitdb/nested-db";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import {
   ServiceCompte,
@@ -26,7 +25,7 @@ import type { StructureProfil } from "@/v2/crabe/services/profil.js";
 import type { StructureDispositifs } from "@/v2/crabe/services/dispositifs.js";
 import type { StructureCrabe } from "@/v2/crabe/crabe.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import type { PartielRécursif } from "@/v2/types.js";
+import type { PartielRécursif, TraducsTexte } from "@/v2/types.js";
 import type { ServicesNécessairesCompte } from "@/v2/crabe/services/compte/compte.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { NestedValueObject } from "@orbitdb/nested-db";
@@ -343,6 +342,11 @@ describe.only("Service Compte", function () {
       idsComptes = await Promise.all(
         comptes.map((compte) => compte.obtIdCompte()),
       );
+
+      await crabes[0].profil.sauvegarderNom({
+        nom: "Julien Malard-Adam",
+        langue: "fr",
+      });
     });
 
     after(async () => {
@@ -461,5 +465,28 @@ describe.only("Service Compte", function () {
 
       expect(val).to.equal(1);
     });
+
+    it("le nouveau dispositif suit le profil", async () => {
+      const noms = await obtenir<TraducsTexte | undefined>(({ si }) =>
+        crabes[1].profil.suivreNoms({
+          f: si((x) => !!x && Object.keys(x).includes("fr")),
+        }),
+      );
+
+      expect(noms?.fr).to.equal("Julien Malard-Adam");
+    });
+
+    it("le nouveau dispositif peut modifier le compte", async () => {
+      await crabes[1].profil.sauvegarderNom({ langue: "த", nom: "ம.-அதான் ஜூலீஎன்"})
+
+      const pNoms = obtenir<TraducsTexte | undefined>(({ si }) =>
+        crabes[0].profil.suivreNoms({
+          f: si((x) => !!x && Object.keys(x).includes("த")),
+        }),
+      );
+      
+      const noms = await pNoms
+      expect(noms).to.deep.equal({fr: "Julien Malard-Adam", த: "ம.-அதான் ஜூலீஎன்"});
+    })
   });
 });
