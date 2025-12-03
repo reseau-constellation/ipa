@@ -33,12 +33,10 @@ import { mapÀObjet } from "../crabe/utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
 import { TableauxNuées } from "./tableaux.js";
-import type { DonnéesTableauNuéeExportées} from "./tableaux.js";
+import type { DonnéesTableauNuéeExportées, FiltresDonnées } from "./tableaux.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 import type {
-  DonnéesRangéeTableauAvecId,
   DonnéesTableauExportées,
-  FiltresDonnées,
 } from "../bds/tableaux.js";
 import type {
   InfoRésultatVide,
