@@ -2,14 +2,26 @@ import { expect } from "aegir/chai";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { obtRessourceTest } from "test/ressources/index.js";
-import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/crabe/services/favoris.js";
+import {
+  DISPOSITIFS_INSTALLÉS,
+  TOUS_DISPOSITIFS,
+} from "@/v2/crabe/services/favoris.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
-import type { InfoAuteur, Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
+import type {
+  InfoAuteur,
+  Métadonnées,
+  StatutDonnées,
+  TraducsTexte,
+} from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
 import type { DifférenceBds } from "@/v2/bds/bds.js";
 import type { InfoColonne } from "@/v2/tableaux.js";
-import type { InfoTableauNuée, ÉpingleNuée } from "@/v2/nuées/nuées.js";
+import type {
+  AutorisationNuée,
+  InfoTableauNuée,
+  ÉpingleNuée,
+} from "@/v2/nuées/nuées.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -482,7 +494,7 @@ describe("Nuées", function () {
         }),
       );
 
-      const réf: InfoTableauNuée[] = [{id: idTableau, source: idNuée}]
+      const réf: InfoTableauNuée[] = [{ id: idTableau, source: idNuée }];
       expect(tableaux).to.have.members(réf);
     });
 
@@ -663,8 +675,8 @@ describe("Nuées", function () {
                 tableaux: TOUS_DISPOSITIFS,
                 fichiers: DISPOSITIFS_INSTALLÉS,
               },
-            }
-          }
+            },
+          },
         },
       };
       expect(épingle).to.deep.equal(réf);
@@ -715,8 +727,8 @@ describe("Nuées", function () {
                       tableaux: true,
                     },
                   },
-                }
-              }
+                },
+              },
             },
           },
           f: si((x) => !!x && x.size > 1),
@@ -741,8 +753,8 @@ describe("Nuées", function () {
                         tableaux: false,
                       },
                     },
-                  }
-                }
+                  },
+                },
               },
             },
             f: siDéfini(),
@@ -762,9 +774,12 @@ describe("Nuées", function () {
         idStructure: idNuée,
         idTableau,
         idVariable,
-      })
+      });
 
-      const schéma = await constl.nuées.créerSchémaDeNuée({ idNuée, licence: "ODbl-1_0" });
+      const schéma = await constl.nuées.créerSchémaDeNuée({
+        idNuée,
+        licence: "ODbl-1_0",
+      });
 
       const idBd = await constl.bds.créerBdDeSchéma({ schéma });
 
@@ -798,8 +813,8 @@ describe("Nuées", function () {
                     },
                   },
                 },
-              }
-            }
+              },
+            },
           },
           f: siDéfini(),
         }),
@@ -811,7 +826,7 @@ describe("Nuées", function () {
           épingle: {
             idObjet: idNuée,
             épingle: {
-              type:"nuée",
+              type: "nuée",
               épingle: {
                 base: true,
                 bds: {
@@ -823,39 +838,40 @@ describe("Nuées", function () {
                       fichiers: false,
                     },
                   },
-                }
-              }
-            },
-          },
-          f: siDéfini(),
-        })
-      );
-      expect([...résolutionSansFichers]).to.have.members([idNuée, idBd]);
-
-      const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(({ siDéfini }) =>
-        constl.nuées.suivreRésolutionÉpingle({
-          épingle: {
-            idObjet: idNuée,
-            épingle: {
-              type: "nuée",
-              épingle: {
-                base: true,
-                bds: {
-                  type: "bd",
-                  épingle: {
-                    base: true,
-                  },
-                }
+                },
               },
             },
           },
           f: siDéfini(),
         }),
       );
+      expect([...résolutionSansFichers]).to.have.members([idNuée, idBd]);
+
+      const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(
+        ({ siDéfini }) =>
+          constl.nuées.suivreRésolutionÉpingle({
+            épingle: {
+              idObjet: idNuée,
+              épingle: {
+                type: "nuée",
+                épingle: {
+                  base: true,
+                  bds: {
+                    type: "bd",
+                    épingle: {
+                      base: true,
+                    },
+                  },
+                },
+              },
+            },
+            f: siDéfini(),
+          }),
+      );
       expect([...résolutionSansFichersOuTableaux]).to.have.members([idNuée]);
     });
   });
-  
+
   describe("différences", function () {
     let idBd: string;
     let idNuée: string;
@@ -953,8 +969,200 @@ describe("Nuées", function () {
       expect(différencesAprès).to.be.empty();
     });
   });
-  
-  describe("copier");
+
+  describe("copier", function () {
+    let idNuéeSource: string;
+
+    let idNuéeOrig: string;
+    let idNuéeCopie: string;
+
+    let idMotClef: string;
+    let idVariable: string;
+    let idTableau: string;
+    let idColonne: string;
+
+    let IMAGE: Uint8Array;
+    let idImage: string;
+
+    const réfNoms = {
+      த: "மழை",
+      हिं: "बारिश",
+    };
+    const réfDescrs = {
+      த: "தினசரி மழை",
+      हिं: "दैनिक बारिश",
+    };
+    const réfMétadonnées = { clef: true };
+
+    const réfStatut: StatutDonnées = { statut: "interne" };
+
+    const réfBloqués = ["pas chouette", "méchant", "pas gentil"];
+
+    before(async () => {
+      IMAGE = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+
+      idNuéeSource = await constl.nuées.créerNuée();
+
+      idNuéeOrig = await constl.nuées.créerNuée({
+        parent: idNuéeSource,
+        autorisation: "ouverte",
+      });
+
+      for (const méchant of réfBloqués) {
+        await constl.nuées.bloquerCompte({
+          idNuée: idNuéeSource,
+          idCompte: méchant,
+        });
+      }
+
+      await constl.nuées.sauvegarderNoms({
+        idNuée: idNuéeOrig,
+        noms: réfNoms,
+      });
+      await constl.nuées.sauvegarderDescriptions({
+        idNuée: idNuéeOrig,
+        descriptions: réfDescrs,
+      });
+
+      idMotClef = await constl.motsClefs.créerMotClef();
+      await constl.nuées.ajouterMotsClefs({
+        idNuée: idNuéeOrig,
+        idsMotsClefs: idMotClef,
+      });
+      await constl.nuées.sauvegarderMétadonnées({
+        idNuée: idNuéeOrig,
+        métadonnées: réfMétadonnées,
+      });
+      idImage = await constl.nuées.sauvegarderImage({
+        idNuée: idNuéeOrig,
+        image: { contenu: IMAGE, nomFichier: "logo.svg" },
+      });
+
+      idTableau = await constl.nuées.ajouterTableau({ idNuée: idNuéeOrig });
+
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+
+      idColonne = await constl.nuées.tableaux.ajouterColonne({
+        idStructure: idNuéeOrig,
+        idTableau,
+        idVariable,
+      });
+    });
+
+    it("copier la nuée", async () => {
+      idNuéeCopie = await constl.nuées.copierNuée({ idNuée: idNuéeOrig });
+      expect(idNuéeCopie).to.be.a("string");
+    });
+
+    it("les noms sont copiés", async () => {
+      const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
+        constl.nuées.suivreNoms({ idNuée: idNuéeCopie, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal(réfNoms);
+    });
+
+    it("les descriptions sont copiées", async () => {
+      const descrs = await obtenir<TraducsTexte>(({ siPasVide }) =>
+        constl.nuées.suivreDescriptions({
+          idNuée: idNuéeCopie,
+          f: siPasVide(),
+        }),
+      );
+      expect(descrs).to.deep.equal(réfDescrs);
+    });
+
+    it("les métadonnées sont copiées", async () => {
+      const métadonnées = await obtenir<Métadonnées>(({ siPasVide }) =>
+        constl.nuées.suivreMétadonnées({ idNuée: idNuéeCopie, f: siPasVide() }),
+      );
+      expect(métadonnées).to.deep.equal(réfMétadonnées);
+    });
+
+    it("les mots-clefs sont copiés", async () => {
+      const motsClefs = await obtenir<string[]>(({ siPasVide }) =>
+        constl.nuées.suivreMotsClefs({ idNuée: idNuéeCopie, f: siPasVide() }),
+      );
+      expect(motsClefs).to.have.members([idMotClef]);
+    });
+
+    it("le statut est copié", async () => {
+      const statut = await obtenir<StatutDonnées | null>(({ siDéfini }) =>
+        constl.nuées.suivreStatut({ idNuée: idNuéeCopie, f: siDéfini() }),
+      );
+      expect(statut).to.deep.equal(réfStatut);
+    });
+
+    it("l'image est copiée'", async () => {
+      const image = await obtenir<{
+        image: Uint8Array;
+        idImage: string;
+      } | null>(({ siDéfini }) =>
+        constl.nuées.suivreImage({ idNuée: idNuéeCopie, f: siDéfini() }),
+      );
+      expect(image).to.deep.equal({ idImage, image: IMAGE });
+    });
+
+    it("les tableaux sont copiés", async () => {
+      const tableaux = await obtenir<InfoTableauNuée[]>(({ siPasVide }) =>
+        constl.nuées.suivreTableaux({ idNuée: idNuéeCopie, f: siPasVide() }),
+      );
+      expect(tableaux).to.have.members([idTableau]);
+    });
+
+    it("les colonnes sont copiés", async () => {
+      const colonnes = await obtenir<InfoColonne[]>(({ siPasVide }) =>
+        constl.nuées.tableaux.suivreColonnes({
+          idStructure: idNuéeCopie,
+          idTableau,
+          f: siPasVide(),
+        }),
+      );
+
+      const réf: InfoColonne[] = [
+        {
+          id: idColonne,
+          variable: idVariable,
+        },
+      ];
+      expect(colonnes).to.have.deep.members(réf);
+    });
+
+    it("les variables sont copiées", async () => {
+      const variables = await obtenir<string[]>(({ siPasVide }) =>
+        constl.nuées.suivreVariables({ idNuée: idNuéeCopie, f: siPasVide() }),
+      );
+      expect(variables).to.have.members([idVariable]);
+    });
+
+    it("les autorisations sont copiées", async () => {
+      const autorisation = await obtenir<AutorisationNuée>(({ siDéfini }) =>
+        constl.nuées.suivreAutorisation({ idNuée: idNuéeCopie, f: siDéfini() }),
+      );
+      const réf: AutorisationNuée = {
+        type: "ouverte",
+        bloqués: réfBloqués,
+      };
+      expect(autorisation).to.deep.equal(réf);
+    });
+
+    it("l'ascendance est copiée", async () => {
+      const ascendance = await obtenir<string[]>(({ siDéfini }) =>
+        constl.nuées.suivreAscendants({ idNuée: idNuéeCopie, f: siDéfini() }),
+      );
+      expect(ascendance).to.have.deep.members([idNuéeSource]);
+    });
+
+    it("source copie établie", async () => {
+      const copiéeDe = await obtenir<{ id: string }>(({ siDéfini }) =>
+        constl.nuées.suivreSource({ idNuée: idNuéeCopie, f: siDéfini() }),
+      );
+      expect(copiéeDe).to.deep.equal({ id: idNuéeOrig });
+    });
+  });
 
   describe("empreinte", function () {
     let idNuée: string;
@@ -1008,7 +1216,11 @@ describe("Nuées", function () {
     });
 
     it("changement nom bds détecté", async () => {
-      await constl.bds.sauvegarderNom({ idBd, langue: "fr", nom: "Insectes de Montréal" });
+      await constl.bds.sauvegarderNom({
+        idBd,
+        langue: "fr",
+        nom: "Insectes de Montréal",
+      });
 
       empreinte = await obtenir<string>(({ si }) =>
         constl.nuées.suivreEmpreinteTête({
@@ -1052,8 +1264,14 @@ describe("Nuées", function () {
     });
 
     it("changement noms variable détecté", async () => {
-      throw new Error("Fonctionalité à implémenter dans `constl.nuées.suivreEmpreinteTête`")
-      await constl.variables.sauvegarderNom({ idVariable, langue: "fr", nom: "Population observée" });
+      throw new Error(
+        "Fonctionalité à implémenter dans `constl.nuées.suivreEmpreinteTête`",
+      );
+      await constl.variables.sauvegarderNom({
+        idVariable,
+        langue: "fr",
+        nom: "Population observée",
+      });
 
       empreinte = await obtenir<string>(({ si }) =>
         constl.nuées.suivreEmpreinteTête({
@@ -1062,8 +1280,8 @@ describe("Nuées", function () {
         }),
       );
       expect(empreinte).to.be.a.not.empty("string");
-    })
-  })
+    });
+  });
 
   describe("score");
 
@@ -1235,5 +1453,5 @@ describe("Nuées", function () {
     });
   });
 
-  describe("exportation")
+  describe("exportation");
 });
