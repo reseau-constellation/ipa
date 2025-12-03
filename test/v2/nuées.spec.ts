@@ -15,7 +15,7 @@ import type {
 } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import type { DifférenceBds } from "@/v2/bds/bds.js";
+import type { DifférenceBds, SchémaBd } from "@/v2/bds/bds.js";
 import type { InfoColonne } from "@/v2/tableaux.js";
 import type {
   AutorisationNuée,
@@ -869,6 +869,182 @@ describe("Nuées", function () {
           }),
       );
       expect([...résolutionSansFichersOuTableaux]).to.have.members([idNuée]);
+    });
+  });
+
+  describe("schémas", function () {
+    const idColonneLangue = "langue";
+    const idColonneClef = "clef";
+    const idColonneTraduc = "traduc";
+    const idColonneNomLangue = "nom langue";
+
+    const idTableauTraducs = "tableau traducs";
+    const idTableauLangues = "tableau langues";
+
+    const licence = "ODbl-1_0";
+    const licenceContenu = "CC-BY-SA-4_0";
+
+    const métadonnées = { clef: true, clef2: [1, 2, 3] };
+    const statut: StatutDonnées = { statut: "interne" };
+
+    let idVarClef: string;
+    let idVarTraduc: string;
+    let idVarLangue: string;
+    let idVarNomLangue: string;
+
+    let idMotClef: string;
+    let idNuée: string;
+
+    let schéma: SchémaBd;
+
+    before(async () => {
+      idVarClef = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
+      idVarTraduc = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
+      idVarLangue = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
+
+      idMotClef = await constl.motsClefs.créerMotClef();
+      idNuée = await constl.nuées.créerNuée();
+
+      schéma = {
+        licence,
+        licenceContenu,
+        motsClefs: [idMotClef],
+        métadonnées,
+        statut,
+        tableaux: {
+          [idTableauTraducs]: {
+            cols: [
+              {
+                idVariable: idVarClef,
+                idColonne: idColonneClef,
+                index: true,
+              },
+              {
+                idVariable: idVarLangue,
+                idColonne: idColonneLangue,
+                index: true,
+              },
+              {
+                idVariable: idVarTraduc,
+                idColonne: idColonneTraduc,
+              },
+            ],
+          },
+          [idTableauLangues]: {
+            cols: [
+              {
+                idVariable: idVarLangue,
+                idColonne: idColonneLangue,
+              },
+              {
+                idVariable: idVarNomLangue,
+                idColonne: idColonneNomLangue,
+              },
+            ],
+          },
+        },
+      };
+    });
+
+    describe("création nuée à partir de schéma", function () {
+      before(async () => {
+        idNuée = await constl.nuées.créerNuéeDeSchéma({ schéma });
+      });
+
+      it("métadonnées", async () => {
+        const métadonnéesNuée = await obtenir<Métadonnées>(({ si }) =>
+          constl.nuées.suivreMétadonnées({
+            idNuée,
+            f: si((x) => !!x && Object.keys(x).length > 0),
+          }),
+        );
+
+        expect(métadonnéesNuée).to.deep.equal(métadonnées);
+      });
+
+      it("mots-clefs", async () => {
+        const motsClefs = await obtenir<string[]>(({ siPasVide }) =>
+          constl.nuées.suivreMotsClefs({ idNuée, f: siPasVide() }),
+        );
+
+        expect(motsClefs).to.have.members([idMotClef]);
+      });
+
+      it("statut", async () => {
+        const statutNuée = await obtenir<StatutDonnées | null>(({ siPasNul }) =>
+          constl.nuées.suivreStatut({
+            idNuée,
+            f: siPasNul(),
+          }),
+        );
+
+        expect(statutNuée).to.deep.equal(statut);
+      });
+
+      it("tableaux", async () => {
+        const tableaux = await obtenir<InfoTableauNuée[]>(({ siPasVide }) =>
+          constl.nuées.suivreTableaux({
+            idNuée,
+            f: siPasVide(),
+          }),
+        );
+
+        const réf: InfoTableauNuée[] = [
+          { id: idTableauTraducs, source: idNuée },
+          { id: idTableauLangues, source: idNuée },
+        ]
+        expect(tableaux).to.have.deep.members(réf);
+      });
+
+      it("colonnes", async () => {
+        const colonnes = await obtenir<InfoColonne[]>(({ si }) =>
+          constl.nuées.tableaux.suivreColonnes({
+            idStructure: idNuée,
+            idTableau: idTableauTraducs,
+            f: si((c) => c !== undefined && c.length > 1),
+          }),
+        );
+
+        const réf: InfoColonne[] = [
+          {
+            id: idColonneClef,
+            variable: idVarClef,
+            index: true,
+          },
+          {
+            id: idColonneLangue,
+            variable: idVarLangue,
+            index: true,
+          },
+          {
+            id: idColonneTraduc,
+            variable: idVarTraduc,
+          },
+        ];
+        expect(colonnes).to.have.deep.members(réf);
+      });
+
+    });
+
+    describe("génération de schéma", async () => {
+      it("schéma complet", async () => {
+        const schémaGénéré = await constl.nuées.créerSchémaDeNuée({ idNuée, licence, licenceContenu });
+
+        expect(schémaGénéré).to.deep.equal(Object.assign({}, schéma, { licence, licenceContenu, nuées: [idNuée], }));
+      });
+
+      it("schéma de nuée avec ascendance", async () => {
+        const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
+        const schémaGénéré = await constl.nuées.créerSchémaDeNuée({ idNuée: idNuéeEnfant, licence, licenceContenu });
+
+        expect(schémaGénéré).to.deep.equal(Object.assign({}, schéma, { licence, licenceContenu, nuées: [idNuéeEnfant], }));
+      });
     });
   });
 
