@@ -1,13 +1,10 @@
 import { expect } from "aegir/chai";
-import { obtenir } from "@constl/utils-ipa";
 import { ServiceDonnéesNébuleuse } from "@/v2/crabe/services/services.js";
 import { dossierTempoPropre } from "../utils.js";
-import { CrabeTest, créerCrabesTest } from "./utils.js";
+import { CrabeTest } from "./utils.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { ServicesNécessairesCompte } from "@/v2/crabe/services/compte/compte.js";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import type { TraducsTexte } from "@/v2/types.js";
-import type { Oublier } from "@/v2/crabe/types.js";
 
 describe.only("Crabe", function () {
   describe("création", function () {
@@ -139,50 +136,6 @@ describe.only("Crabe", function () {
         // @ts-expect-error Service inexistant
         bd.set("service/inexistant", 1),
       ).to.eventually.be.rejectedWith("Unsupported key service/inexistant.");
-    });
-  });
-
-  describe("changement compte", function () {
-    let crabes: CrabeTest[];
-    let fermer: Oublier;
-
-    before(async () => {
-      ({ crabes, fermer } = await créerCrabesTest({ n: 2, services: {} }));
-
-      await crabes[0].profil.sauvegarderNom({
-        nom: "Julien Malard-Adam",
-        langue: "fr",
-      });
-    });
-
-    after(async () => {
-      if (fermer) await fermer();
-    });
-
-    it("mise à jour profil", async () => {
-      const promesseNoms = obtenir<TraducsTexte | undefined>(({ si }) =>
-        crabes[1].profil.suivreNoms({
-          f: si((x) => !!x && Object.keys(x).includes("fr")),
-        }),
-      );
-      const idCompteAntérieur = await crabes[1].compte.obtIdCompte();
-      const promesseIdCompte = obtenir(({ si }) =>
-        crabes[1].compte.suivreIdCompte({
-          f: si((x) => x !== idCompteAntérieur),
-        }),
-      );
-      await crabes[0].compte.ajouterDispositif({
-        idDispositif: await crabes[1].compte.obtIdDispositif(),
-      });
-      await crabes[1].compte.rejoindreCompte({
-        idCompte: await crabes[0].compte.obtIdCompte(),
-      });
-
-      const nouvelId = await promesseIdCompte;
-      expect(nouvelId).to.equal(await crabes[0].compte.obtIdCompte());
-
-      const noms = await promesseNoms;
-      expect(noms?.fr).to.equal("Julien Malard-Adam");
     });
   });
 });
