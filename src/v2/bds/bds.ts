@@ -601,7 +601,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   @cacheSuivi
-  async suivreParent({
+  async suivreSource({
     idBd,
     f,
   }: {
