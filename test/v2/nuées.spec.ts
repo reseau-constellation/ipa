@@ -451,7 +451,7 @@ describe("Nuées", function () {
 
       beforeEach(async () => {
         idNuée = await constl.nuées.créerNuée({ autorisation: "ouverte" });
-      })
+      });
 
       it("le compte créateur peut contribuer", async () => {
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
@@ -512,11 +512,18 @@ describe("Nuées", function () {
       });
 
       it("convertir à par invitation", async () => {
-        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" });
+        await constl.nuées.modifierTypeAutorisation({
+          idNuée,
+          type: "par invitation",
+        });
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
-        
+
         const autorisation = await obtenir<boolean>(({ si }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== true) }),
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== true),
+          }),
         );
         expect(autorisation).to.be.false();
       });
@@ -524,23 +531,41 @@ describe("Nuées", function () {
       it("reconvertir à ouverte - bloqués persistent", async () => {
         await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
 
-        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" });
+        await constl.nuées.modifierTypeAutorisation({
+          idNuée,
+          type: "par invitation",
+        });
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
-        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" });
-        
+        await constl.nuées.modifierTypeAutorisation({
+          idNuée,
+          type: "ouverte",
+        });
+
         const autorisation = await obtenir<boolean>(({ si }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== true) }),
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== true),
+          }),
         );
         expect(autorisation).to.be.false();
       });
 
       it("erreur - bloquer compte membre nuée", async () => {
-        await expect(constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[0] })).to.eventually.be.rejectedWith("Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même")
+        await expect(
+          constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[0] }),
+        ).to.eventually.be.rejectedWith(
+          "Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même",
+        );
       });
-      
+
       it("erreur - désinviter compte", async () => {
-        await expect(constl.nuées.désinviterCompte({ idNuée, idCompte: idsComptes[1] })).to.eventually.be.rejectedWith("est à accès par invitation. Bloquez les comptes avec `constl.nuéesbloquerCompte({ idNuée, idCompte })`.")
+        await expect(
+          constl.nuées.désinviterCompte({ idNuée, idCompte: idsComptes[1] }),
+        ).to.eventually.be.rejectedWith(
+          "est à accès par invitation. Bloquez les comptes avec `constl.nuéesbloquerCompte({ idNuée, idCompte })`.",
+        );
       });
     });
 
@@ -548,8 +573,10 @@ describe("Nuées", function () {
       let idNuée: string;
 
       beforeEach(async () => {
-        idNuée = await constl.nuées.créerNuée({ autorisation: "par invitation" });
-      })
+        idNuée = await constl.nuées.créerNuée({
+          autorisation: "par invitation",
+        });
+      });
 
       it("le compte créateur peut contribuer", async () => {
         const idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
@@ -564,13 +591,21 @@ describe("Nuées", function () {
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
         const autorisation = await obtenir<boolean>(({ siDéfini }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd: idBd, f: siDéfini() }),
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd: idBd,
+            f: siDéfini(),
+          }),
         );
         expect(autorisation).to.be.false();
       });
 
       it("un compte membre peut écrire", async () => {
-        await constl.nuées.inviterAuteur({ idNuée, idCompte: idsComptes[1], rôle: MEMBRE });
+        await constl.nuées.inviterAuteur({
+          idNuée,
+          idCompte: idsComptes[1],
+          rôle: MEMBRE,
+        });
 
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
@@ -581,7 +616,7 @@ describe("Nuées", function () {
       });
 
       it("inviter compte", async () => {
-        await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] })
+        await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
 
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
@@ -592,28 +627,46 @@ describe("Nuées", function () {
       });
 
       it("désinviter compte", async () => {
-        await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] })
+        await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
 
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
         await obtenir<boolean>(({ si }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x === true) }),
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x === true),
+          }),
         );
 
-        await constl.nuées.désinviterCompte({ idNuée, idCompte: idsComptes[1] })
+        await constl.nuées.désinviterCompte({
+          idNuée,
+          idCompte: idsComptes[1],
+        });
 
         const autorisation = await obtenir<boolean>(({ si }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== true) }),
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== true),
+          }),
         );
         expect(autorisation).to.be.false();
       });
 
       it("convertir à ouverte", async () => {
-        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" });
+        await constl.nuées.modifierTypeAutorisation({
+          idNuée,
+          type: "ouverte",
+        });
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
-        
+
         const autorisation = await obtenir<boolean>(({ si }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== false) }),
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== false),
+          }),
         );
         expect(autorisation).to.be.true();
       });
@@ -621,25 +674,43 @@ describe("Nuées", function () {
       it("reconvertir à par invitation - invités persistent", async () => {
         await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
 
-        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" });
+        await constl.nuées.modifierTypeAutorisation({
+          idNuée,
+          type: "ouverte",
+        });
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
-        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" });
-        
+        await constl.nuées.modifierTypeAutorisation({
+          idNuée,
+          type: "par invitation",
+        });
+
         const autorisation = await obtenir<boolean>(({ si }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== false) }),
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== false),
+          }),
         );
         expect(autorisation).to.be.true();
       });
 
       it("erreur - désinviter compte membre nuée", async () => {
-        await expect(constl.nuées.désinviterCompte({ idNuée, idCompte: idsComptes[0] })).to.eventually.be.rejectedWith("Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même")
+        await expect(
+          constl.nuées.désinviterCompte({ idNuée, idCompte: idsComptes[0] }),
+        ).to.eventually.be.rejectedWith(
+          "Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même",
+        );
       });
-      
+
       it("erreur - bloquer compte", async () => {
-        await expect(constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] })).to.eventually.be.rejectedWith("est d'accès ouvert. Invitéz les comptes avec `constl.nuées.inviterCompte({ idNuée, idCompte })`.")
+        await expect(
+          constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] }),
+        ).to.eventually.be.rejectedWith(
+          "est d'accès ouvert. Invitéz les comptes avec `constl.nuées.inviterCompte({ idNuée, idCompte })`.",
+        );
       });
-    });    
+    });
   });
 
   describe("tableaux", function () {
@@ -1694,14 +1765,109 @@ describe("Nuées", function () {
   });
 
   describe("ascendance", function () {
-    it("vide si aucun parent");
-    it("ascendance transitive");
-    it("grand-parent enlevé avec parent");
-    it("pas d'erreur si récursif");
+    let idNuée: string;
+
+    beforeEach(async () => {
+      idNuée = await constl.nuées.créerNuée();
+    });
+
+    it("vide si aucun parent", async () => {
+      const ascendants = await obtenir(({ siDéfini }) =>
+        constl.nuées.suivreAscendants({ idNuée, f: siDéfini() }),
+      );
+      expect(ascendants).to.be.empty();
+    });
+
+    it("ascendance immédiate", async () => {
+      const idNuéeParent = await constl.nuées.créerNuée();
+
+      await constl.nuées.préciserParent({ idNuée, idNuéeParent });
+      const ascendants = await obtenir(({ siPasVide }) =>
+        constl.nuées.suivreAscendants({ idNuée, f: siPasVide() }),
+      );
+      expect(ascendants).to.have.ordered.members([idNuéeParent]);
+    });
+
+    it("ascendance transitive", async () => {
+      const idNuéeParent = await constl.nuées.créerNuée();
+      const idNuéeGrandParent = await constl.nuées.créerNuée();
+
+      await constl.nuées.préciserParent({ idNuée, idNuéeParent });
+      await constl.nuées.préciserParent({
+        idNuée: idNuéeParent,
+        idNuéeParent: idNuéeGrandParent,
+      });
+
+      const ascendants = await obtenir(({ siPasVide }) =>
+        constl.nuées.suivreAscendants({ idNuée, f: siPasVide() }),
+      );
+      expect(ascendants).to.have.ordered.members([
+        idNuéeParent,
+        idNuéeGrandParent,
+      ]);
+    });
+
+    it("grand-parent enlevé avec parent", async () => {
+      const idNuéeParent = await constl.nuées.créerNuée();
+      const idNuéeGrandParent = await constl.nuées.créerNuée();
+
+      await constl.nuées.préciserParent({ idNuée, idNuéeParent });
+      await constl.nuées.préciserParent({
+        idNuée: idNuéeParent,
+        idNuéeParent: idNuéeGrandParent,
+      });
+
+      await obtenir(({ siPasVide }) =>
+        constl.nuées.suivreAscendants({ idNuée, f: siPasVide() }),
+      );
+      await constl.nuées.enleverParent({ idNuée });
+
+      const ascendants = await obtenir(({ siVide }) =>
+        constl.nuées.suivreAscendants({ idNuée, f: siVide() }),
+      );
+      expect(ascendants).to.be.empty();
+    });
+
+    it("pas d'erreur si récursif", async () => {
+      const idNuéeParent = await constl.nuées.créerNuée();
+      const idNuéeGrandParent = await constl.nuées.créerNuée();
+
+      await constl.nuées.préciserParent({ idNuée, idNuéeParent });
+      await constl.nuées.préciserParent({
+        idNuée: idNuéeParent,
+        idNuéeParent: idNuéeGrandParent,
+      });
+      await constl.nuées.préciserParent({
+        idNuée: idNuéeGrandParent,
+        idNuéeParent: idNuée,
+      });
+
+      const ascendants = await obtenir<string[]>(({ si }) =>
+        constl.nuées.suivreAscendants({
+          idNuée,
+          f: si((x) => !!x && x.length >= 3),
+        }),
+      );
+
+      expect(ascendants).to.have.ordered.members([
+        idNuéeParent,
+        idNuéeGrandParent,
+        idNuée,
+      ]);
+    });
   });
 
   describe("descendance", function () {
-    it("vide si aucun descendant");
+    let idNuée: string;
+
+    beforeEach(async () => {
+      idNuée = await constl.nuées.créerNuée();
+    });
+
+    it("vide si aucun descendant", async () => {
+      const descendants = await obtenir<string[]>(({ siDéfini })=>constl.nuées.suivreDescendants({ idNuée, f: siDéfini() }));
+      expect (descendants).to.be.empty()
+    });
     it("descendance transitive");
     it("petit-enfant enlevé avec enfant");
     it("pas d'erreur si récursif");
