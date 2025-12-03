@@ -15,7 +15,11 @@ import type {
 } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import type { DifférenceBds, SchémaBd } from "@/v2/bds/bds.js";
+import type {
+  DifférenceBds,
+  DonnéesBdExportées,
+  SchémaBd,
+} from "@/v2/bds/bds.js";
 import type { InfoColonne } from "@/v2/tableaux.js";
 import type {
   AutorisationNuée,
@@ -442,25 +446,200 @@ describe("Nuées", function () {
   });
 
   describe("autorisations", function () {
-    it("nuée ouverte - tous peuvent écrire");
-    it("nuée ouverte - bloquer compte");
-    it("nuée ouverte - débloquer compte");
-    it("nuée par invitation - compte créateur peut écrire");
-    it("nuée par invitation - compte membre peut écrire");
-    it("nuée par invitation - les autres ne peuvent pas écrire");
-    it("nuée par invitation - inviter compte");
-    it("nuée par invitation - désinviter compte");
+    describe("nuée ouverte", function () {
+      let idNuée: string;
 
-    it("convertir à ouverte");
-    it("reconvertir à par invitation - invités persistent");
+      beforeEach(async () => {
+        idNuée = await constl.nuées.créerNuée({ autorisation: "ouverte" });
+      })
 
-    it("convertir à par invitation");
-    it("reconvertir à ouverte - bloqués persistent");
+      it("le compte créateur peut contribuer", async () => {
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+        );
 
-    it("erreur nuée ouverte - bloquer compte créateur nuée");
-    it("erreur nuée ouverte - bloquer compte créateur nuée");
-    it("erreur nuée par invitation - désinviter compte membre nuée");
-    it("erreur nuée par invitation - désinviter compte membre nuée");
+        expect(autorisation).to.be.true();
+      });
+
+      it("tous peuvent contribuer", async () => {
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+        );
+
+        expect(autorisation).to.be.true();
+      });
+
+      it("bloquer compte", async () => {
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== true),
+          }),
+        );
+
+        expect(autorisation).to.be.false();
+      });
+
+      it("débloquer compte", async () => {
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
+        await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== true),
+          }),
+        );
+
+        await constl.nuées.débloquerCompte({ idNuée, idCompte: idsComptes[1] });
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== false),
+          }),
+        );
+
+        expect(autorisation).to.be.true();
+      });
+
+      it("convertir à par invitation", async () => {
+        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" });
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+        
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== true) }),
+        );
+        expect(autorisation).to.be.false();
+      });
+
+      it("reconvertir à ouverte - bloqués persistent", async () => {
+        await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
+
+        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" });
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" });
+        
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== true) }),
+        );
+        expect(autorisation).to.be.false();
+      });
+
+      it("erreur - bloquer compte membre nuée", async () => {
+        await expect(constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[0] })).to.eventually.be.rejectedWith("Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même")
+      });
+      
+      it("erreur - désinviter compte", async () => {
+        await expect(constl.nuées.désinviterCompte({ idNuée, idCompte: idsComptes[1] })).to.eventually.be.rejectedWith("est à accès par invitation. Bloquez les comptes avec `constl.nuéesbloquerCompte({ idNuée, idCompte })`.")
+      });
+    });
+
+    describe("nuée par invitation", async () => {
+      let idNuée: string;
+
+      beforeEach(async () => {
+        idNuée = await constl.nuées.créerNuée({ autorisation: "par invitation" });
+      })
+
+      it("le compte créateur peut contribuer", async () => {
+        const idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+        );
+        expect(autorisation).to.be.true();
+      });
+
+      it("le grand public ne peut pas contribuer", async () => {
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd: idBd, f: siDéfini() }),
+        );
+        expect(autorisation).to.be.false();
+      });
+
+      it("un compte membre peut écrire", async () => {
+        await constl.nuées.inviterAuteur({ idNuée, idCompte: idsComptes[1], rôle: MEMBRE });
+
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+        );
+        expect(autorisation).to.be.true();
+      });
+
+      it("inviter compte", async () => {
+        await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] })
+
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+        );
+        expect(autorisation).to.be.true();
+      });
+
+      it("désinviter compte", async () => {
+        await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] })
+
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x === true) }),
+        );
+
+        await constl.nuées.désinviterCompte({ idNuée, idCompte: idsComptes[1] })
+
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== true) }),
+        );
+        expect(autorisation).to.be.false();
+      });
+
+      it("convertir à ouverte", async () => {
+        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" });
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+        
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== false) }),
+        );
+        expect(autorisation).to.be.true();
+      });
+
+      it("reconvertir à par invitation - invités persistent", async () => {
+        await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
+
+        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" });
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+
+        await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" });
+        
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== false) }),
+        );
+        expect(autorisation).to.be.true();
+      });
+
+      it("erreur - désinviter compte membre nuée", async () => {
+        await expect(constl.nuées.désinviterCompte({ idNuée, idCompte: idsComptes[0] })).to.eventually.be.rejectedWith("Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même")
+      });
+      
+      it("erreur - bloquer compte", async () => {
+        await expect(constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] })).to.eventually.be.rejectedWith("est d'accès ouvert. Invitéz les comptes avec `constl.nuées.inviterCompte({ idNuée, idCompte })`.")
+      });
+    });    
   });
 
   describe("tableaux", function () {
@@ -870,6 +1049,25 @@ describe("Nuées", function () {
       );
       expect([...résolutionSansFichersOuTableaux]).to.have.members([idNuée]);
     });
+
+    it("résourde épingle - ascendance", async () => {
+      const idParent = await constl.nuées.créerNuée();
+      const idNuée = await constl.nuées.créerNuée({ parent: idParent });
+
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        constl.nuées.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idNuée,
+            épingle: {
+              type: "nuée",
+              épingle: { base: true },
+            },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolution]).to.have.members([idNuée, idParent]);
+    });
   });
 
   describe("schémas", function () {
@@ -998,7 +1196,7 @@ describe("Nuées", function () {
         const réf: InfoTableauNuée[] = [
           { id: idTableauTraducs, source: idNuée },
           { id: idTableauLangues, source: idNuée },
-        ]
+        ];
         expect(tableaux).to.have.deep.members(réf);
       });
 
@@ -1029,23 +1227,59 @@ describe("Nuées", function () {
         ];
         expect(colonnes).to.have.deep.members(réf);
       });
-
     });
 
     describe("génération de schéma", async () => {
       it("schéma complet", async () => {
-        const schémaGénéré = await constl.nuées.créerSchémaDeNuée({ idNuée, licence, licenceContenu });
+        const schémaGénéré = await constl.nuées.créerSchémaDeNuée({
+          idNuée,
+          licence,
+          licenceContenu,
+        });
 
-        expect(schémaGénéré).to.deep.equal(Object.assign({}, schéma, { licence, licenceContenu, nuées: [idNuée], }));
+        expect(schémaGénéré).to.deep.equal(
+          Object.assign({}, schéma, {
+            licence,
+            licenceContenu,
+            nuées: [idNuée],
+          }),
+        );
       });
 
       it("schéma de nuée avec ascendance", async () => {
         const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
-        const schémaGénéré = await constl.nuées.créerSchémaDeNuée({ idNuée: idNuéeEnfant, licence, licenceContenu });
+        const schémaGénéré = await constl.nuées.créerSchémaDeNuée({
+          idNuée: idNuéeEnfant,
+          licence,
+          licenceContenu,
+        });
 
-        expect(schémaGénéré).to.deep.equal(Object.assign({}, schéma, { licence, licenceContenu, nuées: [idNuéeEnfant], }));
+        expect(schémaGénéré).to.deep.equal(
+          Object.assign({}, schéma, {
+            licence,
+            licenceContenu,
+            nuées: [idNuéeEnfant],
+          }),
+        );
       });
     });
+  });
+
+  describe("bds", function () {
+    it("aucune bd pour commencer");
+    it("nouvelle bd détectée");
+    it("bd exclue si pas autorisée");
+    it("filtres - par licence");
+    it("filtres - pas enforcer autorisation");
+    it("filtres - toujours inclure les miennes");
+    it("filtres - toujours inclure les miennes avec nuée indisponible");
+  });
+
+  describe("données", function () {
+    it("filtrer bds");
+    it("filtrer données - exclure différences tableaux");
+    it("filtrer données - exclure erreurs données");
+    it("clefs selon variables");
   });
 
   describe("différences", function () {
@@ -1459,6 +1693,38 @@ describe("Nuées", function () {
     });
   });
 
+  describe("ascendance", function () {
+    it("vide si aucun parent");
+    it("ascendance transitive");
+    it("grand-parent enlevé avec parent");
+    it("pas d'erreur si récursif");
+  });
+
+  describe("descendance", function () {
+    it("vide si aucun descendant");
+    it("descendance transitive");
+    it("petit-enfant enlevé avec enfant");
+    it("pas d'erreur si récursif");
+  });
+
+  describe("héritage", function () {
+    describe("noms");
+    describe("descriptions");
+    describe("mots-clefs");
+    describe("tableaux");
+    describe("colonnes");
+    describe("règles");
+    describe("autorisations");
+    describe("bds", function () {
+      it("ascendance");
+      it("descendance");
+      it("ascendance et descendance");
+    });
+    describe("données", function () {
+      it("nuée parent non disponible");
+    });
+  });
+
   describe("score");
 
   describe("auteurs", function () {
@@ -1621,13 +1887,239 @@ describe("Nuées", function () {
     });
   });
 
-  describe("ascendance", function () {
-    describe("suivre parents", function () {
-      it("vide si aucun parent");
-      it("ascendance transitive");
-      it("pas d'erreur si récursif");
+  describe("exportation", function () {
+    let idc: string;
+
+    before(async () => {
+      const octets = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+      idc = await constl.services["hélia"].ajouterFichierÀSFIP({
+        contenu: octets,
+        nomFichier: "logo.svg",
+      });
+    });
+
+    describe("suivi données exportation", function () {
+      let idNuée: string;
+      let idTableau1: string;
+      let idTableau2: string;
+      let idColFichier: string;
+      let idBd: string;
+
+      let schéma: SchémaBd;
+
+      let données: DonnéesBdExportées;
+
+      const nomNuéeFr = "mon projet de science citoyenne";
+
+      before(async () => {
+        idNuée = await constl.nuées.créerNuée();
+        idTableau1 = await constl.nuées.ajouterTableau({ idNuée });
+        idTableau2 = await constl.nuées.ajouterTableau({ idNuée });
+
+        idColFichier = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
+          idTableau: idTableau1,
+        });
+
+        schéma = await constl.nuées.créerSchémaDeNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+        idBd = await constl.bds.créerBdDeSchéma({ schéma });
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau: idTableau1,
+          éléments: [
+            {
+              [idColFichier]: idc,
+            },
+          ],
+        });
+
+        await constl.nuées.sauvegarderNom({
+          idNuée,
+          langue: "fr",
+          nom: nomNuéeFr,
+        });
+
+        données = await obtenir<DonnéesBdExportées>(({ siDéfini }) =>
+          constl.nuées.suivreDonnéesExportation({
+            idNuée,
+            langues: ["fr"],
+            f: siDéfini(),
+          }),
+        );
+      });
+
+      it("noms nuée", async () => {
+        expect(données.nomBd).to.equal(nomNuéeFr);
+      });
+
+      it("tableaux", async () => {
+        expect(
+          données.tableaux.map((t) => t.nomTableau),
+        ).to.have.ordered.members([idTableau1, idTableau2]);
+      });
+
+      it("nuée non disponible", async () => {
+        const idNuéeNonDisponible = "/orbitdb/cette nuée n'existe pas";
+        const schémaAvecNuéeNonDisponible: SchémaBd = Object.assign(
+          {},
+          schéma,
+          { nuées: [...(schéma.nuées || []), idNuéeNonDisponible] },
+        );
+        const idBdNuéeNonDisponible = await constl.bds.créerBdDeSchéma({
+          schéma: schémaAvecNuéeNonDisponible,
+        });
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBdNuéeNonDisponible,
+          idTableau: idTableau1,
+          éléments: [
+            {
+              [idColFichier]: idc,
+            },
+          ],
+        });
+
+        const donnéesDeNuéeNonDisponible = await obtenir<DonnéesBdExportées>(
+          ({ siDéfini }) =>
+            constl.nuées.suivreDonnéesExportation({
+              idNuée: idNuéeNonDisponible,
+              langues: ["fr"],
+              f: siDéfini(),
+              idsTableaux: [idTableau1, idTableau2], // Nécessaire si la nuée n'est pas disponible
+            }),
+        );
+
+        expect(
+          donnéesDeNuéeNonDisponible.tableaux.map((t) => t.nomTableau),
+        ).to.have.ordered.members([idTableau1, idTableau2]);
+        expect(
+          donnéesDeNuéeNonDisponible.tableaux[1].données,
+        ).to.have.deep.members([
+          {
+            [idColFichier]: idc,
+          },
+        ]);
+      });
+    });
+
+    describe("à document", function () {
+      let idBd: string;
+      let idTableau1: string;
+      let idTableau2: string;
+
+      let données: DonnéesFichierBdExportées;
+
+      before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idTableau1 = await constl.bds.ajouterTableau({ idBd });
+        idTableau2 = await constl.bds.ajouterTableau({ idBd });
+
+        const idColonne = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau: idTableau1,
+        });
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau: idTableau1,
+          éléments: [{ [idColonne]: idc }],
+        });
+      });
+
+      it("nom document - spécifié", async () => {
+        const docu = await constl.bds.exporterDonnées({
+          idBd,
+          nomFichier: "mon fichier",
+        });
+        expect(docu.nomFichier).to.equal("mon fichier");
+      });
+
+      it("nom document - non spécifié", async () => {
+        const docu = await constl.bds.exporterDonnées({ idBd });
+        expect(docu.nomFichier).to.equal(idBd.replace("/orbitdb/", ""));
+      });
+
+      it("document données - tableaux créés", async () => {
+        expect(Array.isArray(données.docu.SheetNames));
+        expect(données.docu.SheetNames).to.have.members([
+          idTableau1,
+          idTableau2,
+        ]);
+      });
+
+      it("document données - fichiers SFIP", async () => {
+        expect([...données.fichiersSFIP]).to.have.members([idc]);
+      });
+    });
+
+    describe("à fichier", function () {
+      let idBd: string;
+      let idTableau: string;
+
+      let zip = JSZip;
+
+      let dossier: string;
+      let effacer: () => void;
+
+      const nomTableauFr = "voici un tableau";
+      const nomFichier = "mes données";
+
+      before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idTableau = await constl.bds.ajouterTableau({ idBd });
+        await constl.bds.tableaux.sauvegarderNom({
+          idStructure: idBd,
+          idTableau,
+          langue: "fr",
+          nom: nomTableauFr,
+        });
+
+        const idColonne = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+        });
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments: [{ [idColonne]: idc }],
+        });
+      });
+
+      after(async () => {
+        if (effacer) effacer();
+      });
+
+      it("le fichier zip existe", async () => {
+        await constl.bds.exporterÀFichier({
+          idBd,
+          nomFichier,
+          dossier,
+          formatDocu: "ods",
+        });
+
+        const nomZip = join(dossier, nomFichier + ".zip");
+        expect(existsSync(nomZip)).to.be.true();
+        zip = await JSZip.loadAsync(readFileSync(nomZip));
+      });
+
+      it("les données sont exportées", async () => {
+        const contenu = zip.files[nomFichier + ".ods"];
+        expect(contenu).to.exist();
+      });
+
+      it("le dossier pour les données SFIP existe", async () => {
+        const contenu = zip.files["sfip/"];
+        expect(contenu?.dir).to.be.true();
+      });
+
+      it("les fichiers SFIP existent", async () => {
+        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        expect(contenu).to.exist();
+      });
     });
   });
-
-  describe("exportation");
 });
