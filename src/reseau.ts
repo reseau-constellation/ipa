@@ -18,16 +18,13 @@ import {
   CLEF_N_CHANGEMENT_COMPTES,
   schémaStructureBdCompte,
 } from "@/client.js";
-import { ComposanteClientDic } from "./v2/nébuleuse/services.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque } from "./utils.js";
-import type { Constellation, Signature, infoAccès } from "@/client.js";
-import type { JSONSchemaType } from "ajv";
+import type { Constellation, Signature } from "@/client.js";
 import type { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 import type { Pushable } from "it-pushable";
 
-import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
 import type {
   Connection,
   Libp2pEvents,
@@ -35,9 +32,7 @@ import type {
   PeerUpdate,
   Stream,
 } from "@libp2p/interface";
-import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
-  infoAuteur,
   infoRésultat,
   infoRésultatRecherche,
   résultatObjectifRecherche,
@@ -50,7 +45,6 @@ import type {
   schémaRetourFonctionRechercheParN,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
-import type { erreurValidation } from "@/valid.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
 
 export type infoDispositif = {
@@ -66,15 +60,6 @@ export type statutDispositif = {
   infoDispositif: infoDispositif;
   vuÀ?: number;
 };
-
-export type élémentBdMembres = {
-  idCompte: string;
-  dispositifs: string[];
-};
-
-export type itemRechercheProfondeur = {
-  profondeur: number;
-} & { [key: string]: unknown };
 
 export type infoMembreRéseau = {
   idCompte: string;
@@ -94,11 +79,6 @@ export interface infoConfiance {
   confiance: number;
 }
 
-export interface infoBloqué {
-  idCompte: string;
-  privé: boolean;
-}
-
 export interface infoMembre {
   idCompte: string;
   protocoles: string[];
@@ -110,17 +90,6 @@ export interface statutMembre {
   vuÀ?: number;
 }
 
-export interface infoRéplications {
-  membres: statutMembre[];
-  dispositifs: {
-    épingle: ÉpingleFavorisAvecId;
-    dispositif: {
-      idDispositif: string;
-      vuÀ?: number;
-    };
-  }[];
-}
-
 export interface résultatRechercheSansScore<T extends infoRésultat> {
   id: string;
   objectif: résultatObjectifRecherche<T>;
@@ -128,20 +97,6 @@ export interface résultatRechercheSansScore<T extends infoRésultat> {
   qualité: number;
 }
 
-export type élémentDeMembre<T extends élémentBdListeDonnées> = {
-  idCompte: string;
-  élément: élémentDonnées<T>;
-};
-
-export type élémentDeMembreAvecValid<T extends élémentBdListeDonnées> =
-  élémentDeMembre<T> & {
-    valid: erreurValidation[];
-  };
-
-export type bdDeMembre = {
-  idCompte: string;
-  bd: string;
-};
 
 export type MessageDirecte =
   | MessageDirecteRequêteRejoindreCompte
@@ -180,24 +135,9 @@ export type MessageDirecteTexte = {
   contenu: { message: string };
 };
 
-export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
-
-type structureBdPrincipaleRéseau = {
-  [idCompte: string]: statutConfianceMembre;
-};
-
-const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> = {
-  type: "object",
-  additionalProperties: {
-    type: "string",
-  },
-  required: [],
-};
-
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
 const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
-const CONFIANCE_DE_COAUTEUR = 0.9;
-const CONFIANCE_DE_FAVORIS = 0.7;
+
 const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30; // 1 mois
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
@@ -225,7 +165,7 @@ const attendreSuccès = async <T>({
   return await attendreSuccès({ f, n: n - 1, t: t * 2, signal });
 };
 
-export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
+export class Réseau {
   client: Constellation;
   verrouFlux: Semaphore;
 
@@ -1601,390 +1541,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     };
 
     return { fChangerN, fOublier };
-  }
-
-  async suivreFavorisObjet({
-    idObjet,
-    f,
-    profondeur,
-  }: {
-    idObjet: string;
-    f: schémaFonctionSuivi<
-      { épingle: ÉpingleFavorisAvecId; idCompte: string }[]
-    >;
-    profondeur: number;
-  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    const fFinale = async (
-      favoris: { épingle: ÉpingleFavorisAvecId; idCompte: string }[],
-    ) => {
-      const favorisDIntérêt = favoris.filter(
-        (f) => f.épingle.idObjet === idObjet,
-      );
-      await f(favorisDIntérêt);
-    };
-
-    const fListe = async (
-      fSuivreRacine: (membres: string[]) => Promise<void>,
-    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
-      const fSuivreComptes = async (infosMembres: infoMembreRéseau[]) => {
-        // On s'ajoute à la liste des comptes
-        const monCompte = await this.client.obtIdCompte();
-        return await fSuivreRacine([
-          monCompte,
-          ...infosMembres.map((i) => i.idCompte),
-        ]);
-      };
-
-      return await this.suivreComptesRéseauEtEnLigne({
-        f: fSuivreComptes,
-        profondeur,
-        idCompteDébut: this.client.idCompte!,
-      });
-    };
-
-    const fBranche = async ({
-      id: idCompte,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<
-        { épingle: ÉpingleFavorisAvecId; idCompte: string }[] | undefined
-      >;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreFavorisMembre({
-        idCompte: idCompte,
-        f: (favoris: ÉpingleFavorisAvecId[] | undefined) =>
-          fSuivreBranche(
-            favoris
-              ? favoris.map((fav) => {
-                  return { idCompte, épingle: fav };
-                })
-              : undefined,
-          ),
-      });
-    };
-
-    return await this.client.suivreBdsDeFonctionRecherche({
-      fListe,
-      f: fFinale,
-      fBranche,
-    });
-  }
-
-  async suivreRéplications({
-    idObjet,
-    f,
-    profondeur,
-  }: {
-    idObjet: string;
-    f: schémaFonctionSuivi<infoRéplications>;
-    profondeur: number;
-  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    const résultats: {
-      connexionsMembres: statutMembre[];
-      connexionsDispositifs: statutDispositif[];
-      favoris: {
-        favoris: ÉpingleFavoris & { idObjet: string; idCompte: string };
-        dispositifs: string[];
-      }[];
-    } = { connexionsMembres: [], connexionsDispositifs: [], favoris: [] };
-
-    const fFinale = async () => {
-      const { connexionsMembres, favoris } = résultats;
-      const idsMembres = favoris.map((fav) => fav.favoris.idCompte);
-      const membres = connexionsMembres.filter((c) =>
-        idsMembres.includes(c.infoMembre.idCompte),
-      );
-
-      const dispositifs: {
-        épingle: ÉpingleFavorisAvecId;
-        dispositif: {
-          idDispositif: string;
-          idCompte?: string;
-          vuÀ?: number;
-        };
-      }[] = (
-        await Promise.all(
-          favoris.map(async (fav) => {
-            const { favoris, dispositifs } = fav;
-
-            return await Promise.all(
-              dispositifs.map(async (d) => {
-                const vuÀ = résultats.connexionsDispositifs.find(
-                  (c) => c.infoDispositif.idDispositif === d,
-                )?.vuÀ;
-                const idCompte = résultats.connexionsDispositifs.find(
-                  (c) => c.infoDispositif.idDispositif === d,
-                )?.infoDispositif.idCompte;
-
-                const dispositifsRéplication: {
-                  épingle: ÉpingleFavorisAvecId;
-                  dispositif: {
-                    idDispositif: string;
-                    idCompte?: string;
-                    vuÀ?: number;
-                  };
-                } = {
-                  épingle: { idObjet, épingle: favoris },
-                  dispositif: {
-                    idDispositif: d,
-                    idCompte,
-                    vuÀ,
-                  },
-                };
-                return dispositifsRéplication;
-              }),
-            );
-          }),
-        )
-      ).flat();
-      const réplications: infoRéplications = {
-        membres,
-        dispositifs,
-      };
-      return await f(réplications);
-    };
-
-    const fOublierConnexionsMembres = await this.suivreConnexionsMembres({
-      f: async (connexions) => {
-        résultats.connexionsMembres = connexions;
-        return await fFinale();
-      },
-    });
-
-    const fOublierConnexionsDispositifs =
-      await this.suivreConnexionsDispositifs({
-        f: async (connexions) => {
-          résultats.connexionsDispositifs = connexions;
-          return await fFinale();
-        },
-      });
-
-    const fSuivreFavoris = async (
-      favoris: {
-        favoris: ÉpingleFavoris & { idObjet: string; idCompte: string };
-        dispositifs: string[];
-      }[],
-    ) => {
-      résultats.favoris = favoris;
-      return await fFinale();
-    };
-
-    const fListeFavoris = async (
-      fSuivreRacine: (
-        favoris: { épingle: ÉpingleFavorisAvecId; idCompte: string }[],
-      ) => void,
-    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
-      return await this.suivreFavorisObjet({
-        idObjet,
-        f: fSuivreRacine,
-        profondeur,
-      });
-    };
-
-    const fBrancheFavoris = async ({
-      id,
-      fSuivreBranche,
-      branche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<{
-        favoris: { épingle: ÉpingleFavorisAvecId; idCompte: string };
-        dispositifs: string[];
-      }>;
-      branche: { épingle: ÉpingleFavorisAvecId; idCompte: string };
-    }): Promise<schémaFonctionOublier> => {
-      const fSuivreDispositifsMembre = async (dispositifs: string[]) => {
-        return await fSuivreBranche({ favoris: branche, dispositifs });
-      };
-
-      const fOublierDispositifsMembre = await this.client.suivreDispositifs({
-        f: fSuivreDispositifsMembre,
-        idCompte: id,
-      });
-
-      return async () => {
-        await fOublierDispositifsMembre();
-      };
-    };
-
-    const { fOublier: fOublierFavoris, fChangerProfondeur } =
-      await this.client.suivreBdsDeFonctionRecherche({
-        fListe: fListeFavoris,
-        f: fSuivreFavoris,
-        fBranche: fBrancheFavoris,
-        fIdDeBranche: (x) => x.idCompte,
-      });
-
-    const fOublier = async () => {
-      await fOublierFavoris();
-      await fOublierConnexionsMembres();
-      await fOublierConnexionsDispositifs();
-    };
-    return { fOublier, fChangerProfondeur };
-  }
-
-  @cacheRechercheParProfondeur
-  async suivreBdsDeNuée({
-    idNuée,
-    f,
-    nRésultatsDésirés,
-  }: {
-    idNuée: string;
-    f: schémaFonctionSuivi<string[]>;
-    nRésultatsDésirés?: number;
-  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    const fBranche = async ({
-      id: idCompte,
-      fSuivreBranche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<string[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.bds.rechercherBdsParNuée({
-        idNuée,
-        f: fSuivreBranche,
-        idCompte,
-      });
-    };
-
-    const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
-    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
-      return await this.suivreComptesRéseauEtEnLigne({
-        f: async (résultats) =>
-          await fSuivreRacine(résultats.map((r) => r.idCompte)),
-        profondeur: nRésultatsDésirés,
-      });
-    };
-
-    return await this.client.suivreBdsDeFonctionRecherche({
-      fListe,
-      f,
-      fBranche,
-    });
-  }
-
-  async suivreÉlémentsDeTableauxUniques<T extends élémentBdListeDonnées>({
-    idNuéeUnique,
-    clef,
-    f,
-    nBds = 100,
-  }: {
-    idNuéeUnique: string;
-    clef: string;
-    f: schémaFonctionSuivi<élémentDeMembre<T>[]>;
-    nBds?: number;
-  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    const fListe = async (
-      fSuivreRacine: (bds: bdDeMembre[]) => Promise<void>,
-    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
-      const fListeListe = async (
-        fSuivreRacineListe: (bds: string[]) => Promise<void>,
-      ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
-        return await this.suivreBdsDeNuée({
-          idNuée: idNuéeUnique,
-          f: fSuivreRacineListe,
-          nRésultatsDésirés: nBds,
-        });
-      };
-
-      const fBrancheListe = async ({
-        id: idBd,
-        fSuivreBranche,
-      }: {
-        id: string;
-        fSuivreBranche: schémaFonctionSuivi<bdDeMembre | undefined>;
-      }): Promise<schémaFonctionOublier> => {
-        return await this.suivreAuteursBd({
-          idBd,
-          f: async (auteurs: infoAuteur[]) => {
-            const idCompte = auteurs.find((a) => a.accepté)?.idCompte;
-            const infoBdDeMembre: bdDeMembre | undefined = idCompte
-              ? {
-                  bd: idBd,
-                  idCompte,
-                }
-              : undefined;
-            return await fSuivreBranche(infoBdDeMembre);
-          },
-        });
-      };
-      return await this.client.suivreBdsDeFonctionRecherche({
-        fListe: fListeListe,
-        f: fSuivreRacine,
-        fBranche: fBrancheListe,
-      });
-    };
-
-    const fBranche = async ({
-      id: idBd,
-      fSuivreBranche,
-      branche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<élémentDeMembre<T>[]>;
-      branche: bdDeMembre;
-    }): Promise<schémaFonctionOublier> => {
-      const { idCompte } = branche;
-
-      const fSuivreTableaux = async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: (nouvelIdBdCible: string) => Promise<void>;
-      }): Promise<schémaFonctionOublier> => {
-        return await this.client.bds.suivreIdTableauParClef({
-          idBd,
-          clef,
-          f: (idTableau?: string) => {
-            if (idTableau) fSuivreRacine(idTableau);
-          },
-        });
-      };
-
-      const fSuivreDonnéesDeTableau = async ({
-        id,
-        fSuivreBd,
-      }: {
-        id: string;
-        fSuivreBd: schémaFonctionSuivi<élémentDeMembre<T>[]>;
-      }) => {
-        const fSuivreDonnéesTableauFinale = async (
-          données: élémentDonnées<T>[],
-        ) => {
-          const donnéesMembre: élémentDeMembre<T>[] = données.map((d) => {
-            return {
-              idCompte,
-              élément: d,
-            };
-          });
-          return await fSuivreBd(donnéesMembre);
-        };
-        return await this.client.tableaux.suivreDonnées({
-          idTableau: id,
-          f: fSuivreDonnéesTableauFinale,
-        });
-      };
-
-      const fFinale = async (données?: élémentDeMembre<T>[]) => {
-        return await fSuivreBranche(données || []);
-      };
-
-      return await suivreFonctionImbriquée({
-        fRacine: fSuivreTableaux,
-        f: fFinale,
-        fSuivre: fSuivreDonnéesDeTableau,
-      });
-    };
-
-    const fIdDeBranche = (b: bdDeMembre) => b.bd;
-
-    return await this.client.suivreBdsDeFonctionRecherche({
-      fListe,
-      f,
-      fBranche,
-      fIdDeBranche,
-    });
   }
 
   async fermer(): Promise<void> {

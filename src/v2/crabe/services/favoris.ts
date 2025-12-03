@@ -3,6 +3,7 @@ import {
   faisRien,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
+  suivreFonctionImbriquée,
 } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
@@ -12,7 +13,7 @@ import { CONFIANCE_DE_FAVORIS } from "./consts.js";
 import type { RetourFonctionRecherche } from "@/v2/recherche/types.js";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { JSONSchemaType } from "ajv";
-import type { InfoAuteur, PartielRécursif } from "../../types.js";
+import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import type { ServicesCrabe } from "../crabe.js";
@@ -22,7 +23,7 @@ import type { AccèsUtilisateur } from "./compte/accès/types.js";
 // Types réplications
 export type Réplication = {
   idDispositif: string;
-  vuÀ?: number; // -Infinité -> jamais ; undefined -> en ligne
+  épingle: BooléenniserÉpingle<ÉpingleFavoris>;
 };
 
 // Types épingles
@@ -355,14 +356,114 @@ export class ServiceFavoris<
     });
   }
 
+  @cacheSuivi
+  async suivreÉpinglesObjet({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: Suivi<{ idCompte: string; épingle: ÉpingleFavorisAvecId }[]>;
+  }): Promise<Oublier> {
+    const réseau = this.service("réseau");
+
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }) =>
+        await réseau.suivreComptes({ f: fSuivreRacine }),
+      fBranche: async ({ id: idCompte, fSuivreBranche }) =>
+        await this.suivreFavoris({
+          idCompte,
+          f: async (favoris) =>
+            await fSuivreBranche({
+              idCompte,
+              favoris: favoris?.find((f) => f.idObjet === idObjet),
+            }),
+        }),
+      f: async (
+        épingles: { idCompte: string; épingle?: ÉpingleFavorisAvecId }[],
+      ) => {
+        return await f(
+          épingles.filter(
+            (x): x is { idCompte: string; épingle: ÉpingleFavorisAvecId } =>
+              !!x.épingle,
+          ),
+        );
+      },
+    });
+  }
+
   @cacheRechercheParN
   async suivreRéplications({
     idObjet,
     f,
   }: {
     idObjet: string;
-    f: Suivi<Réplication>;
-  }): Promise<RetourFonctionRecherche> {}
+    f: Suivi<Réplication[]>;
+  }): Promise<Oublier> {
+    const réseau = this.service("réseau");
+
+    const suivreÉpinglesCompte = async ({
+      idCompte,
+      idObjet,
+      f,
+    }: {
+      idCompte: string;
+      idObjet: string;
+      f: Suivi<Réplication[]>;
+    }): Promise<Oublier> => {
+      return await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: Suivi<string[]>;
+        }) =>
+          await réseau.suivreDispositifsCompte({
+            idCompte,
+            f: async (dispositifs) =>
+              await fSuivreRacine(
+                dispositifs
+                  .filter((d) => d.statut === "accepté")
+                  .map((d) => d.idDispositif),
+              ),
+          }),
+        fBranche: async ({
+          id: idDispositif,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: Suivi<Réplication | undefined>;
+        }) =>
+          await this.suivreEstÉpingléSurDispositif({
+            idObjet,
+            f: async épingle => await fSuivreBranche(épingle ? { idDispositif, épingle } : undefined),
+            idDispositif,
+          }),
+        f,
+      });
+    };
+
+    return await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: Suivi<
+          {
+            idCompte: string;
+            épingle: ÉpingleFavorisAvecId<BaseÉpingleFavoris>;
+          }[]
+        >;
+      }) => await this.suivreÉpinglesObjet({ idObjet, f: fSuivreRacine }),
+      fBranche: async ({
+        id: idCompte,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<
+          Réplication[] | undefined
+        >;
+      }) => await suivreÉpinglesCompte({ idCompte, idObjet, f: fSuivreBranche}),
+      f,
+    });
+  }
 
   // Méthodes internes
 
