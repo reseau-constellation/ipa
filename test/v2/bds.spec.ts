@@ -30,9 +30,8 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "@/v2/types.js";
-import type { InfoColonne } from "@/v2/tableaux.js";
+import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
 import type {
-  DonnéesRangéeTableau,
   DonnéesRangéeTableauAvecId,
 } from "@/v2/bds/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
