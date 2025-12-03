@@ -33,11 +33,12 @@ import { mapÀObjet } from "../crabe/utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
 import { TableauxNuées } from "./tableaux.js";
-import type { DonnéesTableauNuéeExportées, FiltresDonnées } from "./tableaux.js";
-import type { DonnéesFichierBdExportées } from "../utils.js";
 import type {
-  DonnéesTableauExportées,
-} from "../bds/tableaux.js";
+  DonnéesTableauNuéeExportées,
+  FiltresDonnées,
+} from "./tableaux.js";
+import type { DonnéesFichierBdExportées } from "../utils.js";
+import type { DonnéesTableauExportées } from "../bds/tableaux.js";
 import type {
   InfoRésultatVide,
   RésultatObjectifRecherche,
@@ -115,9 +116,25 @@ export type ValeurAscendance<T> = {
   source: string;
 };
 
+// Types autorisation
+
+export type AutorisationNuée =
+  | AutorisationNuéeOuverte
+  | AutorisationNuéeParInvitation;
+
+export type AutorisationNuéeOuverte = {
+  type: "ouverte";
+  bloqués: string[];
+};
+
+export type AutorisationNuéeParInvitation = {
+  type: "par invitation";
+  invités: string[];
+};
+
 // Types structure
 
-export type AutorisationNuée = {
+export type StructureAutorisationNuée = {
   type: "ouverte" | "par invitation";
   bloqués: { [id: string]: null };
   invités: { [id: string]: null };
@@ -131,7 +148,7 @@ export type StructureNuée = {
   motsClefs: { [id: string]: null };
   métadonnées: Métadonnées;
   statut: StatutDonnées;
-  autorisation: AutorisationNuée;
+  autorisation: StructureAutorisationNuée;
   tableaux: { [clef: string]: StructureTableau };
   parent: string;
   copiéeDe: { id: string };
@@ -548,6 +565,24 @@ export class Nuées<
     return idNouvelleNuée;
   }
 
+  @cacheSuivi
+  async suivreSource({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<{ id: string } | undefined>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await orbite.suivreDonnéesBd({
+      id: idNuée,
+      type: "nested",
+      schéma: schémaNuée,
+      f: (nuée) => f(mapÀObjet(nuée)?.copiéeDe),
+    });
+  }
+
   // Accès
 
   async inviterAuteur({
@@ -657,64 +692,6 @@ export class Nuées<
         return await f(Array(n).fill(CONFIANCE_DE_COAUTEUR));
       },
     });
-  }
-
-  // Autorisations contribution données
-
-  async inviter({
-    idNuée,
-    idCompte,
-  }: {
-    idNuée: string;
-    idCompte: string;
-  }): Promise<void> {
-    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
-
-    await nuée.put("autorisation/invités", {
-      [enleverProtocoleOrbite(idCompte)]: null,
-    });
-    await oublier();
-  }
-
-  async désinviter({
-    idNuée,
-    idCompte,
-  }: {
-    idNuée: string;
-    idCompte: string;
-  }): Promise<void> {
-    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
-
-    await nuée.del(`autorisation/invités/${enleverProtocoleOrbite(idCompte)}`);
-    await oublier();
-  }
-
-  async bloquer({
-    idNuée,
-    idCompte,
-  }: {
-    idNuée: string;
-    idCompte: string;
-  }): Promise<void> {
-    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
-
-    await nuée.put("autorisation/bloqués", {
-      [enleverProtocoleOrbite(idCompte)]: null,
-    });
-    await oublier();
-  }
-
-  async débloquer({
-    idNuée,
-    idCompte,
-  }: {
-    idNuée: string;
-    idCompte: string;
-  }): Promise<void> {
-    const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
-
-    await nuée.del(`autorisation/bloqués/${enleverProtocoleOrbite(idCompte)}`);
-    await oublier();
   }
 
   // Épingles
@@ -1383,12 +1360,31 @@ export class Nuées<
     f: Suivi<AutorisationNuée>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
+
+    const résoudreAutorisation = (
+      autorisation: StructureAutorisationNuée,
+    ): AutorisationNuée => {
+      if (autorisation.type === "ouverte") {
+        const autorisationOuverte: AutorisationNuéeOuverte = {
+          type: "ouverte",
+          bloqués: Object.keys(autorisation.bloqués),
+        };
+        return autorisationOuverte;
+      } else {
+        const autorisationParInvitation: AutorisationNuéeParInvitation = {
+          type: "par invitation",
+          invités: Object.keys(autorisation.invités),
+        };
+        return autorisationParInvitation;
+      }
+    };
+
     return await orbite.suivreDonnéesBd({
       id: idNuée,
       type: "nested",
       schéma: schémaNuée,
       f: async (nuée) => {
-        await f(toObject(nuée).autorisation);
+        await f(résoudreAutorisation(toObject(nuée).autorisation));
       },
     });
   }
@@ -1418,7 +1414,10 @@ export class Nuées<
         `La nuée ${idNuée} est à accès par invitation. Désinvitéz les comptes avec \`constl.nuées.désinviterCompte({ idNuée, idCompte })\`.`,
       );
 
-    await nuée.put(`autorisation/bloqués/${idCompte}`, null);
+    await nuée.put(
+      `autorisation/bloqués/${enleverProtocoleOrbite(idCompte)}`,
+      null,
+    );
 
     await oublier();
   }
@@ -1436,7 +1435,10 @@ export class Nuées<
         `La nuée ${idNuée} est d'accès ouvert. Débloquez les comptes avec \`constl.nuées.débloquerCompte({ idNuée, idCompte })\`.`,
       );
 
-    await nuée.put(`autorisation/invités/${idCompte}`, null);
+    await nuée.put(
+      `autorisation/invités/${enleverProtocoleOrbite(idCompte)}`,
+      null,
+    );
 
     await oublier();
   }
@@ -1454,7 +1456,7 @@ export class Nuées<
         `La nuée ${idNuée} est d'accès ouvert. Invitéz les comptes avec \`constl.nuées.inviterCompte({ idNuée, idCompte })\`.`,
       );
 
-    await nuée.del(`autorisation/bloqués/${idCompte}`);
+    await nuée.del(`autorisation/bloqués/${enleverProtocoleOrbite(idCompte)}`);
 
     await oublier();
   }
@@ -1472,7 +1474,7 @@ export class Nuées<
         `La nuée ${idNuée} est à accès par invitation. Bloquez les comptes avec \`constl.nuéesbloquerCompte({ idNuée, idCompte })\`.`,
       );
 
-    await nuée.del(`autorisation/invités/${idCompte}`);
+    await nuée.del(`autorisation/invités/${enleverProtocoleOrbite(idCompte)}`);
 
     await oublier();
   }

@@ -31,9 +31,7 @@ import type {
   TraducsTexte,
 } from "@/v2/types.js";
 import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
-import type {
-  DonnéesRangéeTableauAvecId,
-} from "@/v2/bds/tableaux.js";
+import type { DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 
@@ -1343,7 +1341,7 @@ describe("BDs", function () {
       expect(métadonnées).to.deep.equal(réfMétadonnées);
     });
 
-    it("La licence est copiée", async () => {
+    it("la licence est copiée", async () => {
       const licence = await obtenir<string>(({ siDéfini }) =>
         constl.bds.suivreLicence({ idBd: idBdCopie, f: siDéfini() }),
       );
@@ -1407,9 +1405,9 @@ describe("BDs", function () {
       expect(données).to.have.members(donnéesRéf);
     });
 
-    it("parentée établie", async () => {
+    it("source copie établie", async () => {
       const copiéeDe = await obtenir<{ id: string }>(({ siDéfini }) =>
-        constl.bds.suivreParent({ idBd: idBdCopie, f: siDéfini() }),
+        constl.bds.suivreSource({ idBd: idBdCopie, f: siDéfini() }),
       );
       expect(copiéeDe).to.deep.equal({ id: idBdOrig });
     });
