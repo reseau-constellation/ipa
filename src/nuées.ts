@@ -130,5 +130,4 @@ export class Nuées extends ComposanteClientListe<string> {
       );
     };
   }
-
 }

@@ -5,9 +5,7 @@ import {
   traduire,
 } from "@constl/utils-ipa";
 import { Tableaux } from "../tableaux.js";
-import type {
-  DonnéesRangéeTableauAvecId,
-} from "../bds/tableaux.js";
+import type { DonnéesRangéeTableauAvecId } from "../bds/tableaux.js";
 import type { TraducsTexte } from "../types.js";
 import type { Suivi, Oublier } from "../crabe/types.js";
 import type { ServicesConstellation } from "../constellation.js";
