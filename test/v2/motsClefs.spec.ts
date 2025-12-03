@@ -53,7 +53,7 @@ describe.only("Mots-clefs", function () {
       expect(permission).to.equal(MODÉRATRICE);
     });
 
-    it("automatiquement ajoutée à mes mots-clefs", async () => {
+    it("automatiquement ajouté à mes mots-clefs", async () => {
       const mesMotsClefs = await obtenir<string[]>(({ siDéfini }) =>
         constl.motsClefs.suivreMotsClefs({
           f: siDéfini(),
@@ -62,7 +62,7 @@ describe.only("Mots-clefs", function () {
       expect(mesMotsClefs).to.be.an("array").and.to.contain(idMotClef);
     });
 
-    it("détectée sur un autre compte", async () => {
+    it("détecté sur un autre compte", async () => {
       const sesMotsClefs = await obtenir<string[]>(({ siDéfini }) =>
         constls[1].motsClefs.suivreMotsClefs({
           f: siDéfini(),
