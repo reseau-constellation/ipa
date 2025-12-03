@@ -441,7 +441,7 @@ export class Nuées<
     schéma: SchémaBd;
     épingler?: boolean;
   }): Promise<string> {
-    const { tableaux, motsClefs, statut } = schéma;
+    const { tableaux, motsClefs, métadonnées, statut } = schéma;
 
     const idNuée = await this.créerNuée({
       épingler,
@@ -449,6 +449,10 @@ export class Nuées<
 
     if (motsClefs) {
       await this.ajouterMotsClefs({ idNuée, idsMotsClefs: motsClefs });
+    }
+
+    if (métadonnées) {
+      await this.sauvegarderMétadonnées({ idNuée, métadonnées });
     }
 
     if (statut) {
