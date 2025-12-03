@@ -1,10 +1,15 @@
 import { expect } from "aegir/chai";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { obtRessourceTest } from "test/ressources/index.js";
+import { DISPOSITIFS_INSTALLÉS, TOUS_DISPOSITIFS } from "@/v2/crabe/services/favoris.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
-import type { InfoAuteur, Métadonnées, TraducsTexte } from "@/v2/types.js";
+import type { InfoAuteur, Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
+import type { DifférenceBds } from "@/v2/bds/bds.js";
+import type { InfoColonne } from "@/v2/tableaux.js";
+import type { InfoTableauNuée, ÉpingleNuée } from "@/v2/nuées/nuées.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -23,6 +28,83 @@ describe("Nuées", function () {
 
   after(async () => {
     if (fermer) await fermer();
+  });
+
+  describe("création nuées", function () {
+    let idNuée: string;
+
+    it("pas de nuées pour commencer", async () => {
+      const nuées = await obtenir(({ siDéfini }) =>
+        constl.nuées.suivreNuées({
+          f: siDéfini(),
+        }),
+      );
+      expect(nuées).to.be.an.empty("array");
+    });
+
+    it("création", async () => {
+      idNuée = await constl.nuées.créerNuée();
+      expect(adresseOrbiteValide(idNuée)).to.be.true();
+    });
+
+    it("accès", async () => {
+      const permission = await obtenir(({ siDéfini }) =>
+        constl.compte.suivrePermission({
+          idObjet: idNuée,
+          f: siDéfini(),
+        }),
+      );
+      expect(permission).to.equal(MODÉRATRICE);
+    });
+
+    it("automatiquement ajoutée à mes nuées", async () => {
+      const mesNuées = await obtenir<string[]>(({ siDéfini }) =>
+        constl.nuées.suivreNuées({
+          f: siDéfini(),
+        }),
+      );
+      expect(mesNuées).to.be.an("array").and.to.contain(idNuée);
+    });
+
+    it("détectée sur un autre compte", async () => {
+      const sesNuées = await obtenir<string[]>(({ siDéfini }) =>
+        constls[1].nuées.suivreNuées({
+          f: siDéfini(),
+          idCompte: idsComptes[0],
+        }),
+      );
+      expect(sesNuées).have.members([idNuée]);
+    });
+
+    it("enlever de mes nuées", async () => {
+      await constl.nuées.enleverDeMesNuées({ idNuée });
+      const mesNuées = await obtenir<string[] | undefined>(({ siVide }) =>
+        constl.nuées.suivreNuées({
+          f: siVide(),
+        }),
+      );
+      expect(mesNuées).to.be.an.empty("array");
+    });
+
+    it("ajouter manuellement à mes nuées", async () => {
+      await constl.nuées.ajouterÀMesNuées({ idNuée });
+      const mesNuées = await obtenir<string[]>(({ siPasVide }) =>
+        constl.nuées.suivreNuées({
+          f: siPasVide(),
+        }),
+      );
+      expect(mesNuées).to.have.members([idNuée]);
+    });
+
+    it("effacer nuée", async () => {
+      await constl.nuées.effacerNuée({ idNuée });
+      const mesNuées = await obtenir<string[] | undefined>(({ siVide }) =>
+        constl.nuées.suivreNuées({
+          f: siVide(),
+        }),
+      );
+      expect(mesNuées).to.be.empty();
+    });
   });
 
   describe("noms", function () {
@@ -369,6 +451,622 @@ describe("Nuées", function () {
     it("erreur nuée par invitation - désinviter compte membre nuée");
   });
 
+  describe("tableaux", function () {
+    let idTableau: string;
+    let idNuée: string;
+
+    before(async () => {
+      idNuée = await constl.nuées.créerNuée();
+    });
+
+    it("pas de tableaux pour commencer", async () => {
+      const tableaux = await obtenir<InfoTableauNuée[]>(({ siDéfini }) =>
+        constl.nuées.suivreTableaux({
+          idNuée,
+          f: siDéfini(),
+        }),
+      );
+      expect(tableaux).to.be.an.empty("array");
+    });
+
+    it("ajout d'un tableau", async () => {
+      idTableau = await constl.nuées.ajouterTableau({
+        idNuée,
+      });
+      expect(typeof idTableau).to.equal("string");
+
+      const tableaux = await obtenir<InfoTableauNuée[]>(({ siPasVide }) =>
+        constl.nuées.suivreTableaux({
+          idNuée,
+          f: siPasVide(),
+        }),
+      );
+
+      const réf: InfoTableauNuée[] = [{id: idTableau, source: idNuée}]
+      expect(tableaux).to.have.members(réf);
+    });
+
+    it("suivre colonnes tableau", async () => {
+      const idVariable = await constl.variables.créerVariable({
+        catégorie: "vidéo",
+      });
+      const idColonne = await constl.nuées.tableaux.ajouterColonne({
+        idStructure: idNuée,
+        idTableau,
+        idVariable,
+      });
+      const colonnes = await obtenir<InfoColonne[]>(({ siPasVide }) =>
+        constl.nuées.tableaux.suivreColonnes({
+          idStructure: idNuée,
+          idTableau,
+          f: siPasVide(),
+        }),
+      );
+      const réf: InfoColonne[] = [
+        {
+          id: idColonne,
+          variable: idVariable,
+        },
+      ];
+      expect(colonnes).to.have.deep.members(réf);
+    });
+
+    it.skip("réordonner tableaux", async () => {
+      console.log("pas encore possible");
+    });
+
+    it("effacer un tableau", async () => {
+      await constl.nuées.effacerTableau({ idNuée, idTableau });
+
+      const tableaux = await obtenir<InfoTableauNuée[]>(({ siVide }) =>
+        constl.nuées.suivreTableaux({
+          idNuée,
+          f: siVide(),
+        }),
+      );
+      expect(tableaux).to.be.an.empty("array");
+    });
+  });
+
+  describe("variables", function () {
+    let idTableau: string;
+    let idVariable: string;
+    let idColonne: string;
+    let idNuée: string;
+
+    before(async () => {
+      idNuée = await constl.nuées.créerNuée();
+    });
+
+    it("pas de variables pour commencer", async () => {
+      const variables = await obtenir<string[]>(({ siDéfini }) =>
+        constl.nuées.suivreVariables({
+          idNuée,
+          f: siDéfini(),
+        }),
+      );
+      expect(variables).to.be.an.empty("array");
+    });
+
+    it("ajout d'un tableau et d'une variable", async () => {
+      idTableau = await constl.nuées.ajouterTableau({ idNuée });
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+
+      idColonne = await constl.nuées.tableaux.ajouterColonne({
+        idStructure: idNuée,
+        idTableau,
+        idVariable,
+      });
+
+      const variables = await obtenir<string[]>(({ siPasVide }) =>
+        constl.nuées.suivreVariables({
+          idNuée,
+          f: siPasVide(),
+        }),
+      );
+      expect(Array.isArray(variables)).to.be.true();
+      expect(variables.length).to.equal(1);
+      expect(variables[0]).to.equal(idVariable);
+    });
+
+    it("effacer une variable", async () => {
+      await constl.nuées.tableaux.effacerColonne({
+        idStructure: idNuée,
+        idTableau,
+        idColonne,
+      });
+      const variables = await obtenir<string[]>(({ siVide }) =>
+        constl.nuées.suivreVariables({
+          idNuée,
+          f: siVide(),
+        }),
+      );
+      expect(variables).to.be.an.empty("array");
+    });
+  });
+
+  describe("statut", function () {
+    let idNuée: string;
+
+    it("statut actif par défaut", async () => {
+      idNuée = await constl.nuées.créerNuée();
+      const statut = await obtenir(({ siDéfini }) =>
+        constl.nuées.suivreStatut({
+          idNuée,
+          f: siDéfini(),
+        }),
+      );
+
+      const réf: StatutDonnées = {
+        statut: "active",
+      };
+      expect(statut).to.deep.equal(réf);
+    });
+
+    it("changer statut", async () => {
+      const nouveauStatut: StatutDonnées = {
+        statut: "obsolète",
+        // Pour une vraie application, utiliser un identifiant valide, bien entendu.
+        idNouvelle: "/orbitdb/uneAutreBaseDeDonnées",
+      };
+      await constl.nuées.sauvegarderStatut({
+        idNuée,
+        statut: nouveauStatut,
+      });
+
+      const statut = await obtenir<StatutDonnées | null>(({ si }) =>
+        constl.nuées.suivreStatut({
+          idNuée,
+          f: si((x) => x?.statut !== "active"),
+        }),
+      );
+
+      expect(statut).to.deep.equal(nouveauStatut);
+    });
+  });
+
+  describe("épingles", function () {
+    it("désépingler nuée", async () => {
+      const idNuée = await constl.nuées.créerNuée();
+      await constl.nuées.désépingler({ idNuée });
+
+      const épingle = await obtenir(({ siNonDéfini }) =>
+        constl.nuées.suivreÉpingle({
+          idNuée,
+          f: siNonDéfini(),
+        }),
+      );
+      expect(épingle).to.be.undefined();
+    });
+
+    it("épingler nuée", async () => {
+      const idNuée = await constl.nuées.créerNuée({
+        épingler: false,
+      });
+      await constl.nuées.épingler({ idNuée });
+
+      const épingle = await obtenir(({ siDéfini }) =>
+        constl.nuées.suivreÉpingle({ idNuée, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleNuée = {
+        type: "nuée",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          bds: {
+            type: "bd",
+            épingle: {
+              base: TOUS_DISPOSITIFS,
+              données: {
+                tableaux: TOUS_DISPOSITIFS,
+                fichiers: DISPOSITIFS_INSTALLÉS,
+              },
+            }
+          }
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
+    it("résoudre épingle - base", async () => {
+      const idNuée = await constl.nuées.créerNuée();
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        constl.nuées.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idNuée,
+            épingle: {
+              type: "nuée",
+              épingle: { base: true },
+            },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolution]).to.have.members([idNuée]);
+    });
+
+    it("résoudre épingle - bds", async () => {
+      const idNuée = await constl.nuées.créerNuée();
+
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      const idTableau = await constl.nuées.ajouterTableau({ idNuée });
+
+      await constl.bds.ajouterTableau({ idBd, idTableau });
+      const idDonnéesTableau = await constl.bds.tableaux.obtIdDonnées({
+        idStructure: idNuée,
+        idTableau,
+      });
+
+      const résolution = await obtenir<Set<string>>(({ si }) =>
+        constl.nuées.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idNuée,
+            épingle: {
+              type: "nuée",
+              épingle: {
+                base: true,
+                bds: {
+                  type: "bd",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: true,
+                    },
+                  },
+                }
+              }
+            },
+          },
+          f: si((x) => !!x && x.size > 1),
+        }),
+      );
+      expect([...résolution]).to.have.members([idNuée, idBd, idDonnéesTableau]);
+
+      const résolutionSansTableaux = await obtenir<Set<string>>(
+        ({ siDéfini }) =>
+          constl.nuées.suivreRésolutionÉpingle({
+            épingle: {
+              idObjet: idNuée,
+              épingle: {
+                type: "nuée",
+                épingle: {
+                  base: true,
+                  bds: {
+                    type: "bd",
+                    épingle: {
+                      base: true,
+                      données: {
+                        tableaux: false,
+                      },
+                    },
+                  }
+                }
+              },
+            },
+            f: siDéfini(),
+          }),
+      );
+      expect([...résolutionSansTableaux]).to.have.members([idNuée, idBd]);
+    });
+
+    it("résoudre épingle - fichiers", async () => {
+      const idNuée = await constl.nuées.créerNuée();
+
+      const idTableau = await constl.nuées.ajouterTableau({ idNuée });
+      const idVariable = await constl.variables.créerVariable({
+        catégorie: "fichier",
+      });
+      const idColonne = await constl.nuées.tableaux.ajouterColonne({
+        idStructure: idNuée,
+        idTableau,
+        idVariable,
+      })
+
+      const schéma = await constl.nuées.créerSchémaDeNuée({ idNuée, licence: "ODbl-1_0" });
+
+      const idBd = await constl.bds.créerBdDeSchéma({ schéma });
+
+      const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4";
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idNuée,
+        idTableau,
+        éléments: [{ [idColonne]: idc }],
+      });
+
+      const idDonnéesTableau = await constl.bds.tableaux.obtIdDonnées({
+        idStructure: idBd,
+        idTableau,
+      });
+
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        constl.nuées.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idNuée,
+            épingle: {
+              type: "nuée",
+              épingle: {
+                base: true,
+                bds: {
+                  type: "bd",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: true,
+                      fichiers: true,
+                    },
+                  },
+                },
+              }
+            }
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolution]).to.have.members([idNuée, idDonnéesTableau, idc]);
+
+      const résolutionSansFichers = await obtenir<Set<string>>(({ siDéfini }) =>
+        constl.nuées.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idNuée,
+            épingle: {
+              type:"nuée",
+              épingle: {
+                base: true,
+                bds: {
+                  type: "bd",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: true,
+                      fichiers: false,
+                    },
+                  },
+                }
+              }
+            },
+          },
+          f: siDéfini(),
+        })
+      );
+      expect([...résolutionSansFichers]).to.have.members([idNuée, idBd]);
+
+      const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(({ siDéfini }) =>
+        constl.nuées.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idNuée,
+            épingle: {
+              type: "nuée",
+              épingle: {
+                base: true,
+                bds: {
+                  type: "bd",
+                  épingle: {
+                    base: true,
+                  },
+                }
+              },
+            },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolutionSansFichersOuTableaux]).to.have.members([idNuée]);
+    });
+  });
+  
+  describe("différences", function () {
+    let idBd: string;
+    let idNuée: string;
+
+    before(async () => {
+      idBd = await constl.bds.créerBd({ licence: "ODBl-1_0" });
+      idNuée = await constl.nuées.créerNuée();
+    });
+
+    it("vide pour commencer", async () => {
+      const différences = await obtenir(({ siVide }) =>
+        constl.nuées.suivreDifférencesAvecBd({ idBd, idNuée, f: siVide() }),
+      );
+      expect(différences).to.be.empty();
+    });
+
+    it("tableau manquant", async () => {
+      const idTableau = await constl.nuées.ajouterTableau({ idNuée });
+      const différences = await obtenir<DifférenceBds[]>(({ siPasVide }) =>
+        constl.nuées.suivreDifférencesAvecBd({ idBd, idNuée, f: siPasVide() }),
+      );
+
+      const réf: DifférenceBds[] = [
+        {
+          type: "tableauManquant",
+          sévère: true,
+          clefManquante: idTableau,
+        },
+      ];
+      expect(différences).to.have.deep.members(réf);
+
+      await constl.bds.ajouterTableau({ idBd, idTableau });
+      const différencesAprès = await obtenir(({ siVide }) =>
+        constl.nuées.suivreDifférencesAvecBd({ idBd, idNuée, f: siVide() }),
+      );
+      expect(différencesAprès).to.be.empty();
+    });
+
+    it("tableau supplémentaire", async () => {
+      const idTableau = await constl.bds.ajouterTableau({ idBd });
+      const différences = await obtenir(({ siPasVide }) =>
+        constl.nuées.suivreDifférencesAvecBd({ idBd, idNuée, f: siPasVide() }),
+      );
+
+      const réf: DifférenceBds[] = [
+        {
+          type: "tableauSupplémentaire",
+          sévère: false,
+          clefExtra: idTableau,
+        },
+      ];
+      expect(différences).to.have.deep.members(réf);
+
+      await constl.bds.effacerTableau({ idBd, idTableau });
+      const différencesAprès = await obtenir(({ siVide }) =>
+        constl.nuées.suivreDifférencesAvecBd({ idBd, idNuée, f: siVide() }),
+      );
+      expect(différencesAprès).to.be.empty();
+    });
+
+    it("différences tableau", async () => {
+      const idTableau = await constl.nuées.ajouterTableau({ idNuée });
+      await constl.bds.ajouterTableau({ idBd, idTableau });
+
+      const idColonne = await constl.nuées.tableaux.ajouterColonne({
+        idStructure: idNuée,
+        idTableau,
+      });
+      const différences = await obtenir(({ siPasVide }) =>
+        constl.nuées.suivreDifférencesAvecBd({ idBd, idNuée, f: siPasVide() }),
+      );
+
+      const réf: DifférenceBds[] = [
+        {
+          type: "tableau",
+          idTableau,
+          sévère: true,
+          différence: {
+            type: "colonneManquante",
+            idColonneManquante: idColonne,
+            sévère: true,
+          },
+        },
+      ];
+      expect(différences).to.have.deep.members(réf);
+
+      await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idColonne,
+      });
+      const différencesAprès = await obtenir(({ siVide }) =>
+        constl.nuées.suivreDifférencesAvecBd({ idBd, idNuée, f: siVide() }),
+      );
+      expect(différencesAprès).to.be.empty();
+    });
+  });
+  
+  describe("copier");
+
+  describe("empreinte", function () {
+    let idNuée: string;
+    let idBd: string;
+    let idTableau: string;
+    let idVariable: string;
+    let idColonne: string;
+
+    let empreinte: string;
+
+    before(async () => {
+      idNuée = await constl.nuées.créerNuée();
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+
+      idTableau = await constl.nuées.ajouterTableau({ idNuée });
+      idColonne = await constl.nuées.tableaux.ajouterColonne({
+        idStructure: idNuée,
+        idTableau,
+        idVariable,
+      });
+    });
+
+    it("sans bds", async () => {
+      empreinte = await obtenir<string>(({ siDéfini }) =>
+        constl.nuées.suivreEmpreinteTête({
+          idNuée,
+          f: siDéfini(),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("ajout bds", async () => {
+      const schéma = await constl.nuées.créerSchémaDeNuée({
+        idNuée,
+        licence: "ODBl-1_0",
+      });
+      idBd = await constl.bds.créerBdDeSchéma({
+        schéma,
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.nuées.suivreEmpreinteTête({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement nom bds détecté", async () => {
+      await constl.bds.sauvegarderNom({ idBd, langue: "fr", nom: "Insectes de Montréal" });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.nuées.suivreEmpreinteTête({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement nom nuée détecté", async () => {
+      await constl.nuées.sauvegarderNom({
+        idNuée,
+        langue: "fr",
+        nom: "Science citoyenne",
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.nuées.suivreEmpreinteTête({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement données bds détecté", async () => {
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
+        idTableau,
+        éléments: [{ [idColonne]: 2 }],
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.nuées.suivreEmpreinteTête({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement noms variable détecté", async () => {
+      throw new Error("Fonctionalité à implémenter dans `constl.nuées.suivreEmpreinteTête`")
+      await constl.variables.sauvegarderNom({ idVariable, langue: "fr", nom: "Population observée" });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.nuées.suivreEmpreinteTête({
+          idNuée,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    })
+  })
+
+  describe("score");
+
   describe("auteurs", function () {
     let idNuée: string;
 
@@ -529,8 +1227,6 @@ describe("Nuées", function () {
     });
   });
 
-  describe("comparaisons");
-
   describe("ascendance", function () {
     describe("suivre parents", function () {
       it("vide si aucun parent");
@@ -538,4 +1234,6 @@ describe("Nuées", function () {
       it("pas d'erreur si récursif");
     });
   });
+
+  describe("exportation")
 });
