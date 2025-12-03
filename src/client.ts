@@ -1,7 +1,6 @@
 import { எண்ணிக்கை } from "ennikkai";
 import indexedDbStream from "indexed-db-stream";
 import {
-  suivreFonctionImbriquée,
   suivreDeFonctionListe,
   sauvegarderFichierZip,
 } from "@constl/utils-ipa";
@@ -29,11 +28,7 @@ import type {
   schémaRetourFonctionRechercheParProfondeur,
   élémentsBd,
 } from "@/types.js";
-import type {
-  ÉpingleCompte,
-  ÉpingleFavoris,
-  ÉpingleFavorisAvecId,
-} from "@/favoris.js";
+import type { ÉpingleCompte } from "@/favoris.js";
 import type { Helia } from "helia";
 import type { JSONSchemaType } from "ajv";
 import type { Libp2p } from "@libp2p/interface";
@@ -49,7 +44,7 @@ import type {
 } from "@/orbite.js";
 import { Recherche } from "@/recherche/index.js";
 import { Projets } from "@/projets.js";
-import { Favoris, INSTALLÉ, TOUS, résoudreDéfauts } from "@/favoris.js";
+import { Favoris, TOUS } from "@/favoris.js";
 import { Épingles } from "@/epingles.js";
 import { MotsClefs } from "@/motsClefs.js";
 import { Variables } from "@/variables.js";
@@ -66,22 +61,6 @@ type ÉvénementsClient<T extends ServicesLibp2p = ServicesLibp2p> = {
     sfip: Helia<Libp2p<T>>;
     orbite: GestionnaireOrbite;
   }) => void;
-};
-
-const estOrbiteDB = (x: unknown): x is OrbitDB => {
-  if (!x) return false;
-  const xCommeOrbite = x as OrbitDB;
-  return !!(
-    xCommeOrbite.id &&
-    typeof xCommeOrbite.open === "function" &&
-    typeof xCommeOrbite.stop === "function" &&
-    xCommeOrbite.ipfs
-  );
-};
-
-export type infoAccès = {
-  idCompte: string;
-  rôle: keyof objRôles;
 };
 
 export interface Signature {
