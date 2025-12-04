@@ -304,7 +304,7 @@ export class Nuées<
 
   async créerNuée({
     parent,
-    autorisation = "ouverte",
+    autorisation,
     épingler = true,
   }: {
     parent?: string;
@@ -320,10 +320,6 @@ export class Nuées<
     await oublierBd();
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
 
-    await this.ajouterÀMesNuées({ idNuée });
-
-    if (épingler) await this.épingler({ idNuée });
-
     await nuée.put({
       type: "nuée",
       autorisation: {
@@ -332,6 +328,10 @@ export class Nuées<
       statut: { statut: "active" },
       parent,
     });
+
+    await this.ajouterÀMesNuées({ idNuée });
+
+    if (épingler) await this.épingler({ idNuée });
 
     await oublier();
 
@@ -1185,12 +1185,23 @@ export class Nuées<
     f,
   }: {
     idNuée: string;
-    f: Suivi<string[]>;
+    f: Suivi<ValeurAscendance<string>[]>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
     const fFinale = async (motsClefs: ValeurAscendance<string[]>[]) => {
-      f([...new Set(motsClefs.map((m) => m.val).flat())]);
+      const liste = motsClefs
+        .map(({ source, val }) => val.map((v) => ({ source, val: v })))
+        .flat();
+
+      const déjàVus = new Set<string>();
+      await f(
+        liste.filter((motClef) => {
+          if (déjàVus.has(motClef.val)) return false;
+          déjàVus.add(motClef.val);
+          return true;
+        }),
+      );
     };
 
     return await this.suivreDeParents({
@@ -1366,30 +1377,72 @@ export class Nuées<
     const orbite = this.service("orbite");
 
     const résoudreAutorisation = (
-      autorisation: StructureAutorisationNuée,
+      autorisation: PartielRécursif<StructureAutorisationNuée>,
+      type: AutorisationNuée["type"],
     ): AutorisationNuée => {
-      if (autorisation.type === "ouverte") {
+      if (type === "ouverte") {
         const autorisationOuverte: AutorisationNuéeOuverte = {
           type: "ouverte",
-          bloqués: Object.keys(autorisation.bloqués),
+          bloqués: Object.keys(autorisation.bloqués || []),
         };
         return autorisationOuverte;
       } else {
         const autorisationParInvitation: AutorisationNuéeParInvitation = {
           type: "par invitation",
-          invités: Object.keys(autorisation.invités),
+          invités: Object.keys(autorisation.invités || []),
         };
         return autorisationParInvitation;
       }
     };
 
-    return await orbite.suivreDonnéesBd({
-      id: idNuée,
-      type: "nested",
-      schéma: schémaNuée,
-      f: async (nuée) => {
-        await f(résoudreAutorisation(toObject(nuée).autorisation));
-      },
+    const fFinale = async (autorisations: StructureAutorisationNuée[]) => {
+      // On choisi le premier type d'autorisation déterminé en remontant l'ascendance ; ouverte par défaut
+      const type =
+        autorisations.find((a) => a.type !== undefined)?.type || "ouverte";
+      const autorisationsÀCombiner = autorisations
+        .filter((a) => a.type === type || a.type === undefined)
+        .map((a) => résoudreAutorisation(a, type));
+
+      let autorisationFinale: AutorisationNuée;
+      if (type === "ouverte") {
+        autorisationFinale = {
+          type: "ouverte",
+          bloqués: [
+            ...new Set(
+              autorisationsÀCombiner
+                .map((a) => (a as AutorisationNuéeOuverte).bloqués || [])
+                .flat(),
+            ),
+          ],
+        };
+      } else {
+        autorisationFinale = {
+          type: "par invitation",
+          invités: [
+            ...new Set(
+              autorisationsÀCombiner
+                .map((a) => (a as AutorisationNuéeParInvitation).invités || [])
+                .flat(),
+            ),
+          ],
+        };
+      }
+
+      return await f(autorisationFinale);
+    };
+
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents: async ({ idNuée: idParent, f: fParent }) =>
+        await orbite.suivreDonnéesBd({
+          id: idParent,
+          type: "nested",
+          schéma: schémaNuée,
+          f: async (nuée) => {
+            await fParent(toObject(nuée).autorisation);
+          },
+        }),
     });
   }
 
@@ -1412,10 +1465,23 @@ export class Nuées<
     idNuée: string;
     idCompte: string;
   }): Promise<void> {
+    const compte = this.service("compte");
+
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
     if ((await nuée.get("autorisation/type")) === "par invitation")
       throw new Error(
         `La nuée ${idNuée} est à accès par invitation. Désinvitéz les comptes avec \`constl.nuées.désinviterCompte({ idNuée, idCompte })\`.`,
+      );
+
+    const auteurs = await uneFois<AccèsUtilisateur[]>((f) =>
+      compte.suivreAutorisations({
+        idObjet: idNuée,
+        f,
+      }),
+    );
+    if (auteurs.find((a) => a.idCompte === idCompte))
+      throw new Error(
+        `Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même (nuée ${idNuée}, compte ${idCompte}).`,
       );
 
     await nuée.put(
@@ -1454,10 +1520,23 @@ export class Nuées<
     idNuée: string;
     idCompte: string;
   }): Promise<void> {
+    const compte = this.service("compte");
+
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
     if ((await nuée.get("autorisation/type")) === "par invitation")
       throw new Error(
         `La nuée ${idNuée} est d'accès ouvert. Invitéz les comptes avec \`constl.nuées.inviterCompte({ idNuée, idCompte })\`.`,
+      );
+
+    const auteurs = await uneFois<AccèsUtilisateur[]>((f) =>
+      compte.suivreAutorisations({
+        idObjet: idNuée,
+        f,
+      }),
+    );
+    if (auteurs.find((a) => a.idCompte === idCompte))
+      throw new Error(
+        `Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même (nuée ${idNuée}, compte ${idCompte}).`,
       );
 
     await nuée.del(`autorisation/bloqués/${enleverProtocoleOrbite(idCompte)}`);
@@ -1472,10 +1551,23 @@ export class Nuées<
     idNuée: string;
     idCompte: string;
   }): Promise<void> {
+    const compte = this.service("compte");
+
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
     if ((await nuée.get("autorisation/type")) === "ouverte")
       throw new Error(
         `La nuée ${idNuée} est à accès par invitation. Bloquez les comptes avec \`constl.nuéesbloquerCompte({ idNuée, idCompte })\`.`,
+      );
+
+    const auteurs = await uneFois<AccèsUtilisateur[]>((f) =>
+      compte.suivreAutorisations({
+        idObjet: idNuée,
+        f,
+      }),
+    );
+    if (auteurs.find((a) => a.idCompte === idCompte))
+      throw new Error(
+        `Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même (nuée ${idNuée}, compte ${idCompte}).`,
       );
 
     await nuée.del(`autorisation/invités/${enleverProtocoleOrbite(idCompte)}`);
