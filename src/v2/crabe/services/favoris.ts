@@ -1,16 +1,10 @@
 import deepEqual from "deep-equal";
-import {
-  faisRien,
-  ignorerNonDéfinis,
-  suivreDeFonctionListe,
-  suivreFonctionImbriquée,
-} from "@constl/utils-ipa";
+import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { ajouterProtocoleOrbite, extraireEmpreinte } from "../../utils.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
-import type { RetourFonctionRecherche } from "@/v2/recherche/types.js";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "../../types.js";
@@ -58,9 +52,13 @@ export type ÉpingleFavorisAvecId<
 
 export type BooléenniserÉpingle<T extends ÉpingleFavoris> = {
   type: T["type"];
-  épingle: T["épingle"] extends object
-    ? PartielRécursif<BooléenniserPropriétés<T["épingle"]>>
-    : undefined;
+  épingle: {
+    [clef in keyof T["épingle"]]?: T["épingle"][clef] extends ÉpingleFavoris
+      ? BooléenniserÉpingle<T["épingle"][clef]>
+      : T["épingle"][clef] extends object
+        ? PartielRécursif<BooléenniserPropriétés<T["épingle"][clef]>>
+        : boolean;
+  };
 };
 
 export type ÉpingleFavorisBooléenniséeAvecId<
@@ -411,11 +409,7 @@ export class ServiceFavoris<
       f: Suivi<Réplication[]>;
     }): Promise<Oublier> => {
       return await suivreDeFonctionListe({
-        fListe: async ({
-          fSuivreRacine,
-        }: {
-          fSuivreRacine: Suivi<string[]>;
-        }) =>
+        fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
           await réseau.suivreDispositifsCompte({
             idCompte,
             f: async (dispositifs) =>
@@ -434,7 +428,10 @@ export class ServiceFavoris<
         }) =>
           await this.suivreEstÉpingléSurDispositif({
             idObjet,
-            f: async épingle => await fSuivreBranche(épingle ? { idDispositif, épingle } : undefined),
+            f: async (épingle) =>
+              await fSuivreBranche(
+                épingle ? { idDispositif, épingle } : undefined,
+              ),
             idDispositif,
           }),
         f,
@@ -457,10 +454,9 @@ export class ServiceFavoris<
         fSuivreBranche,
       }: {
         id: string;
-        fSuivreBranche: Suivi<
-          Réplication[] | undefined
-        >;
-      }) => await suivreÉpinglesCompte({ idCompte, idObjet, f: fSuivreBranche}),
+        fSuivreBranche: Suivi<Réplication[] | undefined>;
+      }) =>
+        await suivreÉpinglesCompte({ idCompte, idObjet, f: fSuivreBranche }),
       f,
     });
   }
