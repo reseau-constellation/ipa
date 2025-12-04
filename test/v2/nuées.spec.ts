@@ -1422,6 +1422,14 @@ describe("Nuées", function () {
   });
 
   describe("bds", function () {
+    let idNuée: string;
+    let idBd: string;
+
+    beforeEach(async () => {
+      idNuée = await constl.nuées.créerNuée();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" })
+    })
+
     it("aucune bd pour commencer", async () => {
       const bds = await obtenir<string[]>(({ siDéfini }) =>
         constl.nuées.suivreBds({ idNuée, f: siDéfini() }),
@@ -1430,12 +1438,66 @@ describe("Nuées", function () {
       expect(bds).to.be.empty();
     });
 
-    it("nouvelle bd détectée");
-    it("bd exclue si pas autorisée");
-    it("filtres - par licence");
-    it("filtres - pas enforcer autorisation");
-    it("filtres - toujours inclure les miennes");
-    it("filtres - toujours inclure les miennes avec nuée indisponible");
+    it("nouvelle bd détectée", async () => {
+      await constl.bds.rejoindreNuée({ idBd, idNuée });
+
+      const bds = await obtenir<string[]>(({ siDéfini }) =>
+        constl.nuées.suivreBds({ idNuée, f: siDéfini() }),
+      );
+      expect(bds).to.have.members([idBd])
+    });
+    
+    it("bd exclue si pas autorisée", async () => {
+      await constl.bds.rejoindreNuée({ idBd, idNuée });
+      obtenir(({ siPasVide }) => constl.nuées.suivreBds({ idNuée, f: siPasVide() }));
+
+      await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] })
+
+      const bds = await obtenir<string[]>(({ siVide }) =>
+        constl.nuées.suivreBds({ idNuée, f: siVide() }),
+      );
+      expect(bds).to.be.empty()
+    });
+
+    it("filtres - par licence", async () => {
+      await constl.bds.changerLicence({ idBd, licence: "ODC-BY-1_0" })
+
+      // La bd est exclue même si enforcerAutorisation !== false et que nous sommes l'auteur
+      const bds = await obtenir<string[]>(({ siVide }) =>
+        constl.nuées.suivreBds({ idNuée, f: siVide(), filtres: { licences: ["ODbl-1_0"] } }),
+      );
+
+      expect(bds).to.be.empty();
+    });
+
+    it("filtres - ignorer autorisation", async () => {
+      await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" })
+      const bds = await obtenir<string[]>(({ siPasVide }) =>
+        constl.nuées.suivreBds({ idNuée, f: siPasVide(), filtres: { ignorerAutorisation: true } }),
+      );
+
+      expect(bds).to.have.members([idBd]);
+    });
+
+    it("filtres - ne pas ignorer l'autorisation même pour mes données", async () => {
+      await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" })
+      const bds = await obtenir<string[]>(({ siDéfini }) =>
+        constl.nuées.suivreBds({ idNuée, f: siDéfini(), filtres: { ignorerAutorisation: false } }),
+      );
+
+      expect(bds).to.be.empty();
+    });
+
+    it("filtres - toujours inclure mes données même avec nuée indisponible", async () => {
+      const idNuéeIndisponible = "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF"
+      await constl.nuées.modifierTypeAutorisation({ idNuée: idNuéeIndisponible, type: "par invitation" })
+
+      const bds = await obtenir<string[]>(({ siPasVide }) =>
+        constl.nuées.suivreBds({ idNuée: idNuéeIndisponible, f: siPasVide() }),
+      );
+
+      expect(bds).to.have.members([idBd]);
+    });
   });
 
   describe("données", function () {

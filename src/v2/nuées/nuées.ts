@@ -100,8 +100,7 @@ export type Héritage = ("descendance" | "ascendance")[];
 
 export type FiltresBds = {
   licences?: string[];
-  enforcerAutorisation: boolean;
-  toujoursInclureLesMiennes: boolean;
+  ignorerAutorisation?: boolean | 'les miennes';
 };
 
 // Types tableaux
@@ -1905,14 +1904,14 @@ export class Nuées<
         const bonneLicence = filtres?.licences
           ? infoBd.licence && filtres.licences.includes(infoBd.licence)
           : true;
-        const autoriséeCarLaMienne =
-          filtres?.toujoursInclureLesMiennes &&
+        
+        const ignorerAutorisation = filtres?.ignorerAutorisation ?? "les miennes"
+        const autoriséeCarLaMienne = ignorerAutorisation === "les miennes" &&
           infoBd.auteurs?.find(
             ({ idCompte, accepté }) => accepté && idCompte === monCompte,
           );
-        const bienAutorisée = filtres?.enforcerAutorisation
-          ? infoBd.autorisée
-          : true;
+        const bienAutorisée = ignorerAutorisation === true
+          ? true : infoBd.autorisée;
 
         await f(
           bonneNuée && bonneLicence && (bienAutorisée || autoriséeCarLaMienne)
@@ -1950,7 +1949,7 @@ export class Nuées<
       }
 
       // Enforcer autorisation par défaut
-      if (filtres?.enforcerAutorisation !== false) {
+      if (filtres?.ignorerAutorisation !== true) {
         const oublierAutorisée = await this.suivreAutorisationBd({
           idNuée,
           idBd,
