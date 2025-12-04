@@ -27,6 +27,8 @@ import type {
   ValeurAscendance,
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
+import { RègleBornes, RègleColonne } from "@/v2/règles.js";
+import { stabiliser } from "@/v2/crabe/utils.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -1422,6 +1424,7 @@ describe("Nuées", function () {
     it("filtrer données - exclure différences tableaux");
     it("filtrer données - exclure erreurs données");
     it("clefs selon variables");
+    it("données locales même si nuée non disponible");
   });
 
   describe("différences", function () {
@@ -2322,7 +2325,12 @@ describe("Nuées", function () {
       let idNuée: string;
 
       let idTableau: string;
+      
+      let idVariable: string;
 
+      let idColonne1: string;
+      let idColonne2: string;
+      
       before(async () => {
         idNuéeGrandParent = await constl.nuées.créerNuée();
         idNuéeParent = await constl.nuées.créerNuée({
@@ -2333,39 +2341,47 @@ describe("Nuées", function () {
         idTableau = await constl.nuées.ajouterTableau({
           idNuée: idNuéeGrandParent,
         });
+
+        idVariable = await constl.variables.créerVariable({ catégorie: "vidéo" })
       });
 
       it("colonnes ascendance", async () => {
         idColonne1 = await constl.nuées.tableaux.ajouterColonne({ idStructure: idNuéeGrandParent, idTableau })
+        idColonne2 = await constl.nuées.tableaux.ajouterColonne({ idStructure: idNuéeGrandParent, idTableau, idVariable, index: true })
 
-        const colonnes = await obtenir(({ siDéfini }) =>
-          constl.nuées.tableaux.suivreColonnes({ idStructure: idNuée, idTableau, f: siDéfini() }),
+        const colonnes = await obtenir(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreColonnes({ idStructure: idNuée, idTableau, f: siPasVide() }),
         );
 
         const réf: InfoColonne[] = [
           { id: idColonne1 },
+          { id: idColonne2, variable: idVariable, index: true },
         ];
         expect(colonnes).to.have.deep.members(réf);
 
-        const colonnesAvecSource = await obtenir(({ siDéfini }) =>
-          constl.nuées.tableaux.suivreSourceColonnes({ idStructure: idNuée, idTableau, f: siDéfini() }),
+        const colonnesAvecSource = await obtenir(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreSourceColonnes({ idStructure: idNuée, idTableau, f: siPasVide() }),
         );
 
         const réfSource: ValeurAscendance<InfoColonne[]>[] = [
           { source: idNuéeGrandParent, val: [{ id: idColonne1 }] },
+          { source: idNuéeGrandParent, val: [{ id: idColonne2, variable: idVariable, index: true }] },
         ];
         expect(colonnesAvecSource).to.have.deep.members(réfSource);
       });
 
-      it("tableaux ascendance immédiate", async () => {
-        idTableau2 = await constl.nuées.ajouterTableau({
-          idNuée: idNuéeParent,
+      it("colonnes ascendance immédiate", async () => {
+        await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuéeParent,
+          idTableau,
+          idColonne: idColonne2,
         });
 
-        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
-          constl.nuées.suivreTableaux({
-            idNuée,
-            f: si((x) => !!x && x.length >= 2),
+        const colonnes = await obtenir<InfoColonne[]>(({ si }) =>
+          constl.nuées.tableaux.suivreColonnes({
+            idStructure: idNuée,
+            idTableau,
+            f: si((x) => !!x?.every(col => col.index !== true)),
           }),
         );
 
@@ -2376,7 +2392,7 @@ describe("Nuées", function () {
         expect(tableaux).to.have.deep.members(réf);
       });
 
-      it("duplication tableaux dans l'ascendance", async () => {
+      it("duplication colonnes dans l'ascendance", async () => {
         await constl.nuées.ajouterTableau({
           idNuée: idNuéeParent,
           idTableau: idTableau1
@@ -2396,7 +2412,7 @@ describe("Nuées", function () {
         expect(tableaux).to.have.deep.members(réf);
       });
 
-      it("tableaux nuée", async () => {
+      it("colonnes nuée", async () => {
         idTableau3 = await constl.nuées.ajouterTableau({
           idNuée: idNuéeParent,
         });
@@ -2417,15 +2433,195 @@ describe("Nuées", function () {
       });
     });
 
-    describe("règles");
-    describe("autorisations");
+    describe("règles", function () {
+      let idNuéeGrandParent: string;
+      let idNuéeParent: string;
+      let idNuée: string;
+
+      let idTableau: string;
+      let idColonne: string;
+      
+      let idRègleGrandParent: string;
+      let idRègleParent: string;
+      let idRègleNuée: string;
+
+      const règleGrandParent: RègleBornes = {
+        type: "bornes",
+        détails: {
+          type: "fixe",
+          op: ">=",
+          val: 0,
+        }
+      }
+
+      const règleParent: RègleBornes = {
+        type: "bornes",
+        détails: {
+          type: "fixe",
+          op: "<=",
+          val: 1000,
+        }
+      }
+
+      const règleNuée: RègleBornes = {
+        type: "bornes",
+        détails: {
+          type: "fixe",
+          op: "<=",
+          val: 500,
+        }
+      }
+
+      before(async () => {
+        idNuéeGrandParent = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({
+          parent: idNuéeGrandParent,
+        });
+        idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+
+        idTableau = await constl.nuées.ajouterTableau({ idNuée: idNuéeGrandParent });
+        idColonne = await constl.nuées.tableaux.ajouterColonne({ idStructure: idNuéeGrandParent, idTableau });
+      });
+
+      it("rien pour commencer", async () => {
+        const règles = await obtenir<RègleColonne[]>(({siDéfini}) => constl.nuées.tableaux.suivreRègles({
+          idStructure: idNuée, idTableau,
+          f: siDéfini(),
+        }));
+        
+        expect(règles).to.be.empty();
+      })
+
+      it("règles ascendance", async () => {
+        idRègleGrandParent = await constl.nuées.tableaux.ajouterRègle({
+          idStructure: idNuéeGrandParent, idTableau, idColonne, règle: règleGrandParent
+        })
+
+        const règles = await obtenir<RègleColonne[]>(({siPasVide}) => constl.nuées.tableaux.suivreRègles({
+          idStructure: idNuée, idTableau,
+          f: siPasVide(),
+        }));
+        
+        const réf: RègleColonne[] = [
+          {
+            règle: {id: idRègleGrandParent, règle: règleGrandParent},
+            source: { type: "tableau", idStructure: idNuéeGrandParent, idTableau },
+            colonne: idColonne
+          }
+        ]
+        expect(règles).to.have.deep.members(réf);
+      });
+
+      it("règles ascendance immédiate", async () => {
+        idRègleParent = await constl.nuées.tableaux.ajouterRègle({
+          idStructure: idNuéeParent, idTableau, idColonne, règle: règleParent
+        })
+
+        const règles = await obtenir<RègleColonne[]>(({si}) => constl.nuées.tableaux.suivreRègles({
+          idStructure: idNuée, idTableau,
+          f: si(x=>!!x && x.length >= 2),
+        }));
+        
+        const réf: RègleColonne[] = [
+          {
+            règle: {id: idRègleGrandParent, règle: règleGrandParent},
+            source: { type: "tableau", idStructure: idNuéeGrandParent, idTableau },
+            colonne: idColonne
+          },
+          {
+            règle: {id: idRègleParent, règle: règleParent},
+            source: { type: "tableau", idStructure: idNuéeParent, idTableau },
+            colonne: idColonne
+          }
+        ]
+        expect(règles).to.have.deep.members(réf);
+      });
+
+      it("règles nuée", async () => {
+        idRègleNuée = await constl.nuées.tableaux.ajouterRègle({
+          idStructure: idNuée, idTableau, idColonne, règle: règleNuée
+        })
+
+        const règles = await obtenir<RègleColonne[]>(({si}) => constl.nuées.tableaux.suivreRègles({
+          idStructure: idNuée, idTableau,
+          f: si(x=>!!x && x.length >= 3),
+        }));
+        
+        const réf: RègleColonne[] = [
+          {
+            règle: {id: idRègleGrandParent, règle: règleGrandParent},
+            source: { type: "tableau", idStructure: idNuéeGrandParent, idTableau },
+            colonne: idColonne
+          },
+          {
+            règle: {id: idRègleParent, règle: règleParent},
+            source: { type: "tableau", idStructure: idNuéeParent, idTableau },
+            colonne: idColonne
+          },
+          {
+            règle: {id: idRègleNuée, règle: règleNuée},
+            source: { type: "tableau", idStructure: idNuée, idTableau },
+            colonne: idColonne
+          }
+        ]
+        expect(règles).to.have.deep.members(réf);
+      });
+
+      it("règles variable", async () => {
+        const idVariable = await constl.variables.créerVariable({ catégorie: "numérique" })
+        await constl.nuées.tableaux.modifierVariableColonne({ idStructure: idNuéeGrandParent, idTableau, idColonne, idVariable });
+        
+        // Donner une chance de se stabiliser pour s'assurer que la règle variable n'est pas dupliquée dans l'ascendance
+        const stable = stabiliser(100)
+        const règles = await obtenir<RègleColonne[]>(({si}) => constl.nuées.tableaux.suivreRègles({
+          idStructure: idNuée, idTableau,
+          f: stable(si(x=>!!x?.find(r=>r.source.type === "variable"))),
+        }));
+
+        const idRègleVariable = règles.find(r=>r.source.type === "variable")?.règle.id as string;
+
+        const réf: RègleColonne[] = [
+          {
+            règle: {id: idRègleGrandParent, règle: règleGrandParent},
+            source: { type: "tableau", idStructure: idNuéeGrandParent, idTableau },
+            colonne: idColonne
+          },
+          {
+            règle: {id: idRègleParent, règle: règleParent},
+            source: { type: "tableau", idStructure: idNuéeParent, idTableau },
+            colonne: idColonne
+          },
+          {
+            règle: {id: idRègleNuée, règle: règleNuée},
+            source: { type: "tableau", idStructure: idNuée, idTableau },
+            colonne: idColonne
+          },
+          {
+            règle: {id: idRègleVariable, règle: { type: "catégorie", détails: { catégorie: { type: "simple", catégorie: "numérique" } }}},
+            source: { type: "variable", id: idVariable },
+            colonne: idColonne
+          }
+        ]
+        expect(règles).to.have.deep.members(réf);
+      })
+    });
+
+    describe("autorisations", function () {
+
+    });
+
     describe("bds", function () {
       it("ascendance");
       it("descendance");
       it("ascendance et descendance");
     });
+
     describe("données", function () {
-      it("nuée parent non disponible");
+      it("données ascendance")
+      it("données descendance")
+      it("données nuée")
+      it("données locales même si nuée parent non disponible");
+      it("données locales même si nuée non disponible");
     });
   });
 
