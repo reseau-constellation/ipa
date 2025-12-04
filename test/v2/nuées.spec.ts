@@ -1152,7 +1152,7 @@ describe("Nuées", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolution]).to.have.members([idNuée, idDonnéesTableau, idc]);
+      expect([...résolution]).to.have.members([idNuée, idBd, idDonnéesTableau, idc]);
 
       const résolutionSansFichers = await obtenir<Set<string>>(({ siDéfini }) =>
         constl.nuées.suivreRésolutionÉpingle({
@@ -1178,7 +1178,7 @@ describe("Nuées", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolutionSansFichers]).to.have.members([idNuée, idBd]);
+      expect([...résolutionSansFichers]).to.have.members([idNuée, idBd, idDonnéesTableau]);
 
       const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(
         ({ siDéfini }) =>
@@ -1201,7 +1201,7 @@ describe("Nuées", function () {
             f: siDéfini(),
           }),
       );
-      expect([...résolutionSansFichersOuTableaux]).to.have.members([idNuée]);
+      expect([...résolutionSansFichersOuTableaux]).to.have.members([idNuée, idBd]);
     });
 
     it("résourde épingle - ascendance", async () => {
@@ -3265,11 +3265,62 @@ describe("Nuées", function () {
     });
 
     describe("données", function () {
-      it("données ascendance");
-      it("données descendance");
-      it("données nuée");
+      let idNuéeParent: string;
+      let idNuée: string;
+      let idNuéeEnfant: string;
+
+      let idTableau: string;
+
+      before(async () => {
+        idNuéeParent = await constl.nuées.créerNuée();
+        idNuée = await constl.nuées.créerNuée({
+          parent: idNuéeParent,
+        });
+        idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
+
+        let idTableau = await constl.nuées.ajouterTableau({ idNuée: idNuéeParent });
+      });
+
+      it("données ascendance", async () => {
+        const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuée,
+            idTableau,
+            héritage: { ascendance: true },
+            f: siPasVide(),
+          }),
+        );
+
+        expect(données).to.have.deep.members(réf);
+      });
+
+      it("données descendance", async () => {
+        const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuée,
+            idTableau,
+            héritage: { descendance: true },
+            f: siPasVide(),
+          }),
+        );
+
+        expect(données).to.have.deep.members(réf);
+      });
+
+      it("données nuée", async () => {
+        const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuée,
+            idTableau,
+            héritage: {},
+            f: siPasVide(),
+          }),
+        );
+
+        expect(données).to.have.deep.members(réf);
+      });
+
       it("données locales même si nuée parent non disponible");
-      it("données locales même si nuée non disponible");
     });
   });
 
