@@ -1545,6 +1545,8 @@ describe("Nuées", function () {
     let élémentsNuées: DonnéesRangéeNuée[];
     let élémentsNuéesPDDL: DonnéesRangéeNuée[];
 
+    const idNuéeIndisponible = "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
       idTableau = await constl.nuées.ajouterTableau({ idNuée });
@@ -1577,6 +1579,8 @@ describe("Nuées", function () {
         licence: "ODbl-1_0",
       });
       idBd = await constl.bds.créerBdDeSchéma({ schéma });
+      // Créer une différence avec les colonnes d'origine
+      await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne, index: true});
 
       idsÉléments = await constl.bds.tableaux.ajouterÉléments({
         idStructure: idBd,
@@ -1589,9 +1593,10 @@ describe("Nuées", function () {
         données: { id: idsÉléments[i], données: élément },
       }));
 
-      idBdPDDL = await constl.bds.créerBdDeSchéma({ schéma });
+      // La deuxième bd existe sur un autre compte
+      idBdPDDL = await constls[1].bds.créerBdDeSchéma({ schéma });
 
-      idsÉlémentsPDDL = await constl.bds.tableaux.ajouterÉléments({
+      idsÉlémentsPDDL = await constls[1].bds.tableaux.ajouterÉléments({
         idStructure: idBdPDDL,
         idTableau,
         éléments,
@@ -1601,6 +1606,10 @@ describe("Nuées", function () {
         idBd: idBdPDDL,
         données: { id: idsÉlémentsPDDL[i], données: élément },
       }));
+
+      // Ajouter une autre nuée (indisponible) aux bds
+      await constl.bds.rejoindreNuée({ idBd, idNuée: idNuéeIndisponible})
+      await constls[1].bds.rejoindreNuée({ idBd: idBdPDDL, idNuée: idNuéeIndisponible})
     });
 
     it("donnnées autorisées", async () => {
@@ -1631,7 +1640,18 @@ describe("Nuées", function () {
       expect(données).to.have.deep.members(élémentsNuéesPDDL);
     });
 
-    it("filtrer données - exclure différences tableaux");
+    it("filtrer données - exclure différences tableaux", async () => {
+      const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+        constl.nuées.tableaux.suivreDonnées({
+          idStructure: idNuée,
+          idTableau,
+          filtresDonnées: { exclureAvecDifférencesTableaux: ["indexColonne"] },
+          f: siPasVide(),
+        }),
+      );
+      
+      expect(données).to.have.deep.members(élémentsNuéesPDDL);
+    });
 
     it("filtrer données - exclure erreurs données", async () => {
       const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
@@ -1677,7 +1697,18 @@ describe("Nuées", function () {
       expect(données).to.have.deep.members(réf);
     });
 
-    it("données locales même si nuée non disponible");
+    it("données locales même si nuée non disponible", async () => {
+      const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+        constl.nuées.tableaux.suivreDonnées({
+          idStructure: idNuéeIndisponible,
+          idTableau,
+          f: siPasVide(),
+        }),
+      );
+
+      // Uniquement les données locales
+      expect(données).to.have.deep.members(élémentsNuées);
+    });
   });
 
   describe("différences", function () {
@@ -3481,18 +3512,19 @@ describe("Nuées", function () {
       });
 
       it("nuée non disponible", async () => {
-        const idNuéeNonDisponible = "/orbitdb/cette nuée n'existe pas";
-        const schémaAvecNuéeNonDisponible: SchémaBd = Object.assign(
+        const idNuéeIndisponible =
+          "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+        const schémaAvecNuéeIndisponible: SchémaBd = Object.assign(
           {},
           schéma,
-          { nuées: [...(schéma.nuées || []), idNuéeNonDisponible] },
+          { nuées: [...(schéma.nuées || []), idNuéeIndisponible] },
         );
-        const idBdNuéeNonDisponible = await constl.bds.créerBdDeSchéma({
-          schéma: schémaAvecNuéeNonDisponible,
+        const idBdNuéeIndisponible = await constl.bds.créerBdDeSchéma({
+          schéma: schémaAvecNuéeIndisponible,
         });
 
         await constl.bds.tableaux.ajouterÉléments({
-          idStructure: idBdNuéeNonDisponible,
+          idStructure: idBdNuéeIndisponible,
           idTableau: idTableau1,
           éléments: [
             {
@@ -3501,10 +3533,10 @@ describe("Nuées", function () {
           ],
         });
 
-        const donnéesDeNuéeNonDisponible = await obtenir<DonnéesBdExportées>(
+        const donnéesDeNuéeIndisponible = await obtenir<DonnéesBdExportées>(
           ({ siDéfini }) =>
             constl.nuées.suivreDonnéesExportation({
-              idNuée: idNuéeNonDisponible,
+              idNuée: idNuéeIndisponible,
               langues: ["fr"],
               f: siDéfini(),
               idsTableaux: [idTableau1, idTableau2], // Nécessaire si la nuée n'est pas disponible
@@ -3512,10 +3544,10 @@ describe("Nuées", function () {
         );
 
         expect(
-          donnéesDeNuéeNonDisponible.tableaux.map((t) => t.nomTableau),
+          donnéesDeNuéeIndisponible.tableaux.map((t) => t.nomTableau),
         ).to.have.ordered.members([idTableau1, idTableau2]);
         expect(
-          donnéesDeNuéeNonDisponible.tableaux[1].données,
+          donnéesDeNuéeIndisponible.tableaux[1].données,
         ).to.have.deep.members([
           {
             [idColFichier]: idc,
