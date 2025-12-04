@@ -1,13 +1,22 @@
 import { expect } from "aegir/chai";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
+import { obtRessourceTest } from "test/ressources/index.js";
+import {
+  TOUS_DISPOSITIFS,
+  DISPOSITIFS_INSTALLÉS,
+} from "@/v2/crabe/services/favoris.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
-import type { InfoAuteur, Métadonnées, StatutDonnées, TraducsTexte } from "@/v2/types.js";
+import type {
+  InfoAuteur,
+  Métadonnées,
+  StatutDonnées,
+  TraducsTexte,
+} from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import { obtRessourceTest } from "test/ressources/index.js";
-import { TOUS_DISPOSITIFS, DISPOSITIFS_INSTALLÉS } from "@/v2/crabe/services/favoris.js";
-import { ÉpingleProjet } from "@/v2/projets.js";
+import type { MotClefProjet, ÉpingleProjet } from "@/v2/projets.js";
 
 describe("Projets", function () {
   let fermer: Oublier;
@@ -202,7 +211,10 @@ describe("Projets", function () {
       });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.projets.suivreDescriptions({ idProjet, f: si((x) => !!x?.["fr"]) }),
+        constl.projets.suivreDescriptions({
+          idProjet,
+          f: si((x) => !!x?.["fr"]),
+        }),
       );
       expect(descrs.fr).to.equal("Alphabets");
     });
@@ -422,6 +434,162 @@ describe("Projets", function () {
     });
   });
 
+  describe("bds", function () {
+    let idProjet: string;
+    let idBd: string;
+
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+    });
+
+    it("pas de bds pour commencer", async () => {
+      const bds = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreBds({ idProjet, f: siDéfini() }),
+      );
+      expect(bds).to.be.empty();
+    });
+
+    it("ajout d'une bd", async () => {
+      await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
+
+      const bds = await obtenir(({ siPasVide }) =>
+        constl.projets.suivreBds({ idProjet, f: siPasVide() }),
+      );
+      expect(bds).to.have.members([idBd]);
+    });
+
+    it("effacer une bd", async () => {
+      await constl.projets.enleverBd({ idProjet, idBd });
+
+      const bds = await obtenir(({ siVide }) =>
+        constl.projets.suivreBds({ idProjet, f: siVide() }),
+      );
+      expect(bds).to.be.empty();
+    });
+  });
+
+  describe("mots-clefs", function () {
+    let idProjet: string;
+    let idBd: string;
+
+    let idMotClef: string;
+    let idMotClefBd: string;
+
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idMotClef = await constl.motsClefs.créerMotClef();
+    });
+
+    it("rien pour commencer", async () => {
+      const motsClefs = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreMotsClefs({ idProjet, f: siDéfini() }),
+      );
+      expect(motsClefs).to.be.empty();
+    });
+
+    it("ajouter mot-clef propre", async () => {
+      await constl.projets.ajouterMotsClefs({
+        idProjet,
+        idsMotsClefs: [idMotClef],
+      });
+      const motsClefs = await obtenir<MotClefProjet[]>(({ siPasVide }) =>
+        constl.projets.suivreMotsClefs({ idProjet, f: siPasVide() }),
+      );
+
+      const réf: MotClefProjet[] = [{ idMotClef, source: "projet" }];
+      expect(motsClefs).to.have.deep.members(réf);
+    });
+
+    it("mots-clefs bd détectés", async () => {
+      idMotClefBd = await constl.motsClefs.créerMotClef();
+      await constl.bds.ajouterMotsClefs({
+        idBd,
+        idsMotsClefs: idMotClefBd,
+      });
+
+      const motsClefs = await obtenir<MotClefProjet[]>(({ si }) =>
+        constl.projets.suivreMotsClefs({
+          idProjet,
+          f: si((x) => !!x?.find((m) => m.source === "bds")),
+        }),
+      );
+
+      const réf: MotClefProjet[] = [
+        { idMotClef, source: "projet" },
+        { idMotClef: idMotClefBd, source: "bds" },
+      ];
+      expect(motsClefs).to.have.deep.members(réf);
+    });
+
+    it("enlever mot-clef propre", async () => {
+      await constl.projets.effacerMotClef({
+        idProjet,
+        idMotClef,
+      });
+
+      const motsClefs = await obtenir<MotClefProjet[]>(({ si }) =>
+        constl.projets.suivreMotsClefs({
+          idProjet,
+          f: si((x) => !!x && x.length <= 1),
+        }),
+      );
+
+      const réf: MotClefProjet[] = [{ idMotClef: idMotClefBd, source: "bds" }];
+      expect(motsClefs).to.have.deep.members(réf);
+    });
+  });
+
+  describe("variables", function () {
+    let idProjet: string;
+    let idBd: string;
+
+    let idVariable: string;
+
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "horoDatage",
+      });
+    });
+
+    it("rien pour commencer", async () => {
+      const variables = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreVariables({ idProjet, f: siDéfini() }),
+      );
+      expect(variables).to.be.empty();
+    });
+
+    it("ajouter bd et variable", async () => {
+      await constl.projets.ajouterBds({ idProjet, idsBds: [idBd] });
+      const idTableau = await constl.bds.ajouterTableau({ idBd });
+      await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idVariable,
+      });
+      const variables = await obtenir<string[]>(({ siPasVide }) =>
+        constl.projets.suivreVariables({ idProjet, f: siPasVide() }),
+      );
+
+      expect(variables).to.have.members([idVariable]);
+    });
+
+    it("enlever bd et variable", async () => {
+      await constl.projets.enleverBd({
+        idProjet,
+        idBd,
+      });
+
+      const variables = await obtenir(({ siVide }) =>
+        constl.projets.suivreVariables({ idProjet, f: siVide() }),
+      );
+      expect(variables).to.be.empty();
+    });
+  });
+
   describe("épingles", function () {
     it("désépingler projet", async () => {
       const idProjet = await constl.projets.créerProjet();
@@ -516,7 +684,11 @@ describe("Projets", function () {
           f: si((x) => !!x && x.size > 1),
         }),
       );
-      expect([...résolution]).to.have.members([idProjet, idBd, idDonnéesTableau]);
+      expect([...résolution]).to.have.members([
+        idProjet,
+        idBd,
+        idDonnéesTableau,
+      ]);
 
       const résolutionSansTableaux = await obtenir<Set<string>>(
         ({ siDéfini }) =>
@@ -595,7 +767,12 @@ describe("Projets", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolution]).to.have.members([idProjet, idBd, idDonnéesTableau, idc]);
+      expect([...résolution]).to.have.members([
+        idProjet,
+        idBd,
+        idDonnéesTableau,
+        idc,
+      ]);
 
       const résolutionSansFichers = await obtenir<Set<string>>(({ siDéfini }) =>
         constl.projets.suivreRésolutionÉpingle({
@@ -648,6 +825,128 @@ describe("Projets", function () {
     });
   });
 
+  describe("copier", function () {
+    let idProjetOrig: string;
+    let idProjetCopie: string;
+
+    let idMotClef: string;
+    let idBd: string;
+
+    let IMAGE: Uint8Array;
+    let idImage: string;
+
+    const réfNoms = {
+      த: "மழை",
+      हिं: "बारिश",
+    };
+    const réfDescrs = {
+      த: "தினசரி மழை",
+      हिं: "दैनिक बारिश",
+    };
+    const réfMétadonnées = { clef: true };
+
+    const réfStatut: StatutDonnées = { statut: "interne" };
+
+    before(async () => {
+      IMAGE = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+
+      idProjetOrig = await constl.projets.créerProjet();
+      idMotClef = await constl.motsClefs.créerMotClef();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+
+      await constl.projets.sauvegarderNoms({
+        idProjet: idProjetOrig,
+        noms: réfNoms,
+      });
+      await constl.projets.sauvegarderDescriptions({
+        idProjet: idProjetOrig,
+        descriptions: réfDescrs,
+      });
+      await constl.projets.ajouterMotsClefs({
+        idProjet: idProjetOrig,
+        idsMotsClefs: idMotClef,
+      });
+      await constl.projets.sauvegarderMétadonnées({
+        idProjet: idProjetOrig,
+        métadonnées: réfMétadonnées,
+      });
+      idImage = await constl.projets.sauvegarderImage({
+        idProjet: idProjetOrig,
+        image: { contenu: IMAGE, nomFichier: "logo.svg" },
+      });
+
+      await constl.projets.ajouterBds({
+        idProjet: idProjetOrig,
+        idsBds: [idBd]
+      })
+    });
+
+    it("copier le projet", async () => {
+      idProjetCopie = await constl.projets.copierProjet({ idProjet: idProjetOrig });
+      expect(isValidAddress(idProjetCopie)).to.be.true();
+    });
+
+    it("les noms sont copiés", async () => {
+      const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
+        constl.projets.suivreNoms({ idProjet: idProjetCopie, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal(réfNoms);
+    });
+
+    it("les descriptions sont copiées", async () => {
+      const descrs = await obtenir<TraducsTexte>(({ siPasVide }) =>
+        constl.projets.suivreDescriptions({ idProjet: idProjetCopie, f: siPasVide() }),
+      );
+      expect(descrs).to.deep.equal(réfDescrs);
+    });
+
+    it("les métadonnées sont copiées", async () => {
+      const métadonnées = await obtenir<Métadonnées>(({ siPasVide }) =>
+        constl.projets.suivreMétadonnées({ idProjet: idProjetCopie, f: siPasVide() }),
+      );
+      expect(métadonnées).to.deep.equal(réfMétadonnées);
+    });
+
+    it("les mots-clefs sont copiés", async () => {
+      const motsClefs = await obtenir<MotClefProjet[]>(({ siPasVide }) =>
+        constl.projets.suivreMotsClefs({ idProjet: idProjetCopie, f: siPasVide() }),
+      );
+      expect(motsClefs).to.have.deep.members([{ idMotClef, source: "projet" }]);
+    });
+
+    it("le statut est copié", async () => {
+      const statut = await obtenir<StatutDonnées | null>(({ siDéfini }) =>
+        constl.projets.suivreStatut({ idProjet: idProjetCopie, f: siDéfini() }),
+      );
+      expect(statut).to.deep.equal(réfStatut);
+    });
+
+    it("l'image est copiée'", async () => {
+      const image = await obtenir<{
+        image: Uint8Array;
+        idImage: string;
+      } | null>(({ siDéfini }) =>
+        constl.projets.suivreImage({ idProjet: idProjetCopie, f: siDéfini() }),
+      );
+      expect(image).to.deep.equal({ idImage, image: IMAGE });
+    });
+
+    it("les bds sont copiées", async () => {
+      const bds = await obtenir<string[]>(({ siPasVide }) =>
+        constl.projets.suivreBds({ idProjet: idProjetCopie, f: siPasVide() }),
+      );
+      expect(bds).to.have.members([idBd]);
+    });
+
+    it("source copie établie", async () => {
+      const copiéeDe = await obtenir<{ id: string }>(({ siDéfini }) =>
+        constl.projets.suivreSource({ idProjet: idProjetCopie, f: siDéfini() }),
+      );
+      expect(copiéeDe).to.deep.equal({ id: idProjetOrig });
+    });
+  });
 
   describe("auteurs", function () {
     let idProjet: string;

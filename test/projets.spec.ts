@@ -1,11 +1,9 @@
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
-
 import {
   attente,
   dossiers,
-  attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 
@@ -34,139 +32,6 @@ describe("Projets", function () {
 
   after(async () => {
     if (fOublierClients) await fOublierClients();
-  });
-
-  describe("Mots-clefs", function () {
-    let fOublier: schémaFonctionOublier;
-    let idMotClef: string;
-
-    const motsClefs = new attente.AttendreRésultat<
-      { source: "projet" | "bds"; idMotClef: string }[]
-    >();
-    before(async () => {
-      fOublier = await client.projets.suivreMotsClefsProjet({
-        idProjet: idProjet,
-        f: (m) => motsClefs.mettreÀJour(m),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
-    it("Pas de mots-clefs pour commencer", async () => {
-      const val = await motsClefs.attendreExiste();
-      expect(val).to.be.an.empty("array");
-    });
-    it("Ajout d'un mot-clef", async () => {
-      idMotClef = await client.motsClefs.créerMotClef();
-      await client.projets.ajouterMotsClefsProjet({
-        idProjet,
-        idsMotsClefs: idMotClef,
-      });
-      const val = await motsClefs.attendreQue((x) => x.length > 0);
-      expect(val).to.be.an("array").with.lengthOf(1);
-    });
-    it("Effacer un mot-clef", async () => {
-      await client.projets.effacerMotClefProjet({ idProjet, idMotClef });
-
-      const val = await motsClefs.attendreQue((x) => x.length === 0);
-      expect(val).to.be.an.empty("array");
-    });
-  });
-
-
-  describe("BDs", function () {
-    let idBd: string;
-
-    const bds = new attente.AttendreRésultat<string[]>();
-    const variables = new attente.AttendreRésultat<string[]>();
-
-    const motsClefs = new utilsTestAttente.AttendreRésultat<
-      { source: "projet" | "bds"; idMotClef: string }[]
-    >();
-
-    const fsOublier: schémaFonctionOublier[] = [];
-
-    before(async () => {
-      fsOublier.push(
-        await client.projets.suivreBdsProjet({
-          idProjet,
-          f: (b) => bds.mettreÀJour(b),
-        }),
-      );
-      fsOublier.push(
-        await client.projets.suivreMotsClefsProjet({
-          idProjet,
-          f: (m) => motsClefs.mettreÀJour(m),
-        }),
-      );
-      fsOublier.push(
-        await client.projets.suivreVariablesProjet({
-          idProjet,
-          f: (v) => variables.mettreÀJour(v),
-        }),
-      );
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-      variables.toutAnnuler();
-      bds.toutAnnuler();
-      motsClefs.toutAnnuler();
-    });
-
-    it("Pas de BDs pour commencer", async () => {
-      const val = await bds.attendreExiste();
-      expect(val).to.be.an.empty("array");
-    });
-
-    it("Ajout d'une BD", async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      await client.projets.ajouterBdProjet({ idProjet, idBd });
-
-      const val = await bds.attendreQue((x) => x.length > 0);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(1);
-      expect(val[0]).to.equal(idBd);
-    });
-
-    it("Mots-clefs BD détectés", async () => {
-      const idMotClef = await client.motsClefs.créerMotClef();
-      await client.bds.ajouterMotsClefsBd({
-        idBd,
-        idsMotsClefs: idMotClef,
-      });
-
-      const val = await motsClefs.attendreQue((x) => !!x && x.length > 0);
-      expect(val).to.have.deep.members([{ source: "bds", idMotClef }]);
-    });
-
-    it("Variables BD détectées", async () => {
-      let val = await variables.attendreExiste();
-      expect(val).to.be.an.empty("array");
-
-      const idVariable = await client.variables.créerVariable({
-        catégorie: "numérique",
-      });
-      const idTableau = await client.bds.ajouterTableauBd({ idBd });
-
-      await client.tableaux.ajouterColonneTableau({
-        idTableau,
-        idVariable,
-      });
-
-      val = await variables.attendreQue((x) => x.length > 0);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(1);
-      expect(val[0]).to.equal(idVariable);
-    });
-
-    it("Effacer une BD", async () => {
-      await client.projets.effacerBdProjet({ idProjet, idBd });
-
-      const val = await bds.attendreQue((x) => !x.length);
-      expect(val).to.be.an.empty("array");
-    });
   });
 
   describe("Copier projet", function () {
