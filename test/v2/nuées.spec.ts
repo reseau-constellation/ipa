@@ -22,13 +22,14 @@ import type {
   DonnéesBdExportées,
   SchémaBd,
 } from "@/v2/bds/bds.js";
-import type { InfoColonne } from "@/v2/tableaux.js";
+import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
 import type {
   AutorisationNuée,
   InfoTableauNuée,
   ValeurAscendance,
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
+import { DonnéesRangéeNuée } from "@/v2/nuées/tableaux.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -1320,7 +1321,7 @@ describe("Nuées", function () {
       });
 
       it("mots-clefs", async () => {
-        const motsClefs = await obtenir<ValeurAscendance<string[]> | undefined>(
+        const motsClefs = await obtenir<ValeurAscendance<string>[] | undefined>(
           ({ siPasVide }) =>
             constl.nuées.suivreMotsClefs({ idNuée, f: siPasVide() }),
         );
@@ -1525,7 +1526,56 @@ describe("Nuées", function () {
   });
 
   describe("données", function () {
+    let idNuée: string;
+    let idBd: string;
+    let idTableau: string;
+    let idVariable: string;
+
+    const idColonne = "précipitation"
+    const éléments: DonnéesRangéeTableau[] = [{ [idColonne]: 12, }, { [idColonne]: -1 }, { [idColonne]: 3 }]
+
+    let idsÉléments: string[]
+    let élémentsNuées: DonnéesRangéeNuée[];
+
+    before(async () => {
+      idNuée = await constl.nuées.créerNuée();
+      idTableau = await constl.nuées.ajouterTableau({ idNuée })
+      idVariable = await constl.variables.créerVariable({ catégorie: "numérique" })
+      await constl.nuées.tableaux.ajouterColonne({ idStructure: idNuée, idTableau, idColonne, idVariable });
+
+      await constl.nuées.tableaux.ajouterRègle({ idStructure: idNuée, idTableau, idColonne, règle: {
+        type: "bornes",
+        détails: {
+          type: "fixe",
+          op: ">=",
+          val: 0
+        }
+      } })
+
+      const schéma = await constl.nuées.créerSchémaDeNuée({ idNuée, licence: "ODbl-1_0" })
+      idBd = await constl.bds.créerBdDeSchéma({ schéma });
+
+      idsÉléments = await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
+        idTableau,
+        éléments
+      });
+
+      élémentsNuées = éléments.map((élément, i) => ({ idBd, données: { id: idsÉléments[i], données: élément } }))
+    });
+
+    it("donnnées autorisées", async () => {
+      const données = await obtenir<DonnéesRangéeNuée[]>(({siPasVide})=> constl.nuées.tableaux.suivreDonnées({
+        idStructure: idNuée,
+        idTableau,
+        f: siPasVide()
+      }));
+
+      expect(données).to.deep.equal(élémentsNuées);
+    });
+
     it("filtrer bds");
+
     it("filtrer données - exclure différences tableaux");
     it("filtrer données - exclure erreurs données");
     it("clefs selon variables");
@@ -1743,7 +1793,7 @@ describe("Nuées", function () {
     });
 
     it("les mots-clefs sont copiés", async () => {
-      const motsClefs = await obtenir<string[]>(({ siPasVide }) =>
+      const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ siPasVide }) =>
         constl.nuées.suivreMotsClefs({ idNuée: idNuéeCopie, f: siPasVide() }),
       );
       expect(motsClefs).to.have.members([idMotClef]);
@@ -2951,18 +3001,32 @@ describe("Nuées", function () {
     });
 
     describe("bds", function () {
+      let idNuéeGrandParent: string;
       let idNuéeParent: string;
       let idNuée: string;
+      let idNuéeSœure: string;
       let idNuéeEnfant: string;
 
+      let idBdNuéeGrandParent: string;
       let idBdNuéeParent: string;
       let idBdNuée: string;
+      let idBdNuéeSœure: string;
       let idBdNuéeEnfant: string;
 
       before(async () => {
-        idNuéeEnfant = await constl.nuées.créerNuée();
-        idNuéeParent = await constl.nuées.créerNuée({ parent: idBdNuéeEnfant });
+        idNuéeGrandParent = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({ parent: idNuéeGrandParent });
         idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+        idNuéeSœure = await constl.nuées.créerNuée({ parent: idNuéeParent });
+        idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
+
+        const schémaGrandParent = await constl.nuées.créerSchémaDeNuée({
+          idNuée: idNuéeGrandParent,
+          licence: "ODbl-1_0",
+        });
+        idBdNuéeGrandParent = await constl.bds.créerBdDeSchéma({
+          schéma: schémaGrandParent,
+        });
 
         const schémaParent = await constl.nuées.créerSchémaDeNuée({
           idNuée: idNuéeParent,
@@ -2977,6 +3041,14 @@ describe("Nuées", function () {
           licence: "ODbl-1_0",
         });
         idBdNuée = await constl.bds.créerBdDeSchéma({ schéma });
+
+        const schémaSœure = await constl.nuées.créerSchémaDeNuée({
+          idNuée: idNuéeSœure,
+          licence: "ODbl-1_0",
+        });
+        idBdNuéeSœure = await constl.bds.créerBdDeSchéma({
+          schéma: schémaSœure,
+        });
 
         const schémaEnfant = await constl.nuées.créerSchémaDeNuée({
           idNuée: idNuéeEnfant,
@@ -3008,7 +3080,7 @@ describe("Nuées", function () {
           }),
         );
 
-        expect(bds).to.have.members([idBdNuée, idBdNuéeParent]);
+        expect(bds).to.have.members([idBdNuée, idBdNuéeParent, idBdNuéeGrandParent]);
       });
 
       it("descendance", async () => {
@@ -3021,7 +3093,18 @@ describe("Nuées", function () {
         );
 
         expect(bds).to.have.members([idBdNuée, idBdNuéeEnfant]);
+
+        const bdsNuéeParent = obtenir<string[]>(({ siPasVide }) =>
+          constl.nuées.suivreBds({
+            idNuée: idNuéeParent,
+            f: siPasVide(),
+            héritage: { descendance: true },
+          }),
+        );
+
+        expect(bdsNuéeParent).to.have.members([idBdNuéeParent, idBdNuée, idBdNuéeSœure, idBdNuéeEnfant]);
       });
+
       it("ascendance et descendance", async () => {
         const bds = obtenir<string[]>(({ siPasVide }) =>
           constl.nuées.suivreBds({
@@ -3031,7 +3114,7 @@ describe("Nuées", function () {
           }),
         );
 
-        expect(bds).to.have.members([idBdNuée, idBdNuéeParent, idBdNuéeParent]);
+        expect(bds).to.have.members([idBdNuée, idBdNuéeParent, idBdNuéeParent, idBdNuéeGrandParent]);
       });
     });
 
