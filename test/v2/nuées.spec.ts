@@ -24,6 +24,7 @@ import type { InfoColonne } from "@/v2/tableaux.js";
 import type {
   AutorisationNuée,
   InfoTableauNuée,
+  ValeurAscendance,
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
 
@@ -556,9 +557,19 @@ describe("Nuées", function () {
         await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[2] });
 
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
-        await constls[1].bds.inviterAuteur({ idBd, idCompte: idsComptes[2], rôle: MEMBRE });
+        await constls[1].bds.inviterAuteur({
+          idBd,
+          idCompte: idsComptes[2],
+          rôle: MEMBRE,
+        });
 
-        await obtenir(({siDéfini})=>constl.compte.suivrePermission({ idObjet: idBd, idCompte: idsComptes[2], f: siDéfini() }))
+        await obtenir(({ siDéfini }) =>
+          constl.compte.suivrePermission({
+            idObjet: idBd,
+            idCompte: idsComptes[2],
+            f: siDéfini(),
+          }),
+        );
 
         // Bloquée même si invitation non acceptée
         const autorisation = await obtenir<boolean>(({ si }) =>
@@ -569,7 +580,7 @@ describe("Nuées", function () {
           }),
         );
         expect(autorisation).to.be.true();
-      })
+      });
 
       it("erreur - bloquer compte membre nuée", async () => {
         await expect(
@@ -718,9 +729,19 @@ describe("Nuées", function () {
         await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[2] });
 
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
-        await constls[1].bds.inviterAuteur({ idBd, idCompte: idsComptes[2], rôle: MEMBRE });
+        await constls[1].bds.inviterAuteur({
+          idBd,
+          idCompte: idsComptes[2],
+          rôle: MEMBRE,
+        });
 
-        await obtenir(({siDéfini})=>constl.compte.suivrePermission({ idObjet: idBd, idCompte: idsComptes[2], f: siDéfini() }))
+        await obtenir(({ siDéfini }) =>
+          constl.compte.suivrePermission({
+            idObjet: idBd,
+            idCompte: idsComptes[2],
+            f: siDéfini(),
+          }),
+        );
 
         // Pas incluse si invitation pas encore acceptée
         const autorisationAvant = await obtenir<boolean>(({ si }) =>
@@ -733,7 +754,7 @@ describe("Nuées", function () {
         expect(autorisationAvant).to.be.false();
 
         // Incluse si invitation acceptée
-        await constls[2].bds.ajouterÀMesBds({ idBd })
+        await constls[2].bds.ajouterÀMesBds({ idBd });
 
         const autorisationAprès = await obtenir<boolean>(({ si }) =>
           constl.nuées.suivreAutorisationBd({
@@ -743,7 +764,7 @@ describe("Nuées", function () {
           }),
         );
         expect(autorisationAprès).to.be.true();
-      })
+      });
 
       it("erreur - désinviter compte membre nuée", async () => {
         await expect(
@@ -1991,15 +2012,411 @@ describe("Nuées", function () {
 
   describe("héritage", function () {
     describe("noms", function () {
-      it("noms ascendance")
-      it("priorité noms ascendance immédiate")
-      it("priorité noms nuée")
+      let idNuéeGrandParent: string;
+      let idNuéeParent: string;
+      let idNuée: string;
+
+      before(async () => {
+        idNuéeGrandParent = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({
+          parent: idNuéeGrandParent,
+        });
+        idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+      });
+
+      it("descriptions ascendance", async () => {
+        await constl.nuées.sauvegarderNoms({
+          idNuée: idNuéeGrandParent,
+          noms: { fr: "Science citoyenne", ctl: "Ciència ciutadana" },
+        });
+        const noms = await obtenir(({ siPasVide }) =>
+          constl.nuées.suivreNoms({ idNuée, f: siPasVide() }),
+        );
+
+        expect(noms).to.deep.equal({
+          fr: "Science citoyenne",
+          ctl: "Ciència ciutadana",
+        });
+      });
+
+      it("priorité descriptions ascendance immédiate", async () => {
+        await constl.nuées.sauvegarderNoms({
+          idNuée: idNuéeParent,
+          noms: { ctl: "Projete de ciència ciutadana" },
+        });
+        const noms = await obtenir<TraducsTexte>(({ si }) =>
+          constl.nuées.suivreNoms({
+            idNuée,
+            f: si((x) => !!x && !x.ctl?.startsWith("Ciència")),
+          }),
+        );
+
+        expect(noms).to.deep.equal({
+          fr: "Science citoyenne",
+          ctl: "Projete de ciència ciutadana",
+        });
+      });
+
+      it("priorité noms nuée", async () => {
+        await constl.nuées.sauvegarderNoms({
+          idNuée,
+          noms: { ctl: "Projete de ciència ciutadana hidrològica" },
+        });
+        const noms = await obtenir<TraducsTexte>(({ si }) =>
+          constl.nuées.suivreNoms({
+            idNuée,
+            f: si((x) => !!x && !x.ctl?.endsWith("ciutadana")),
+          }),
+        );
+
+        expect(noms).to.deep.equal({
+          fr: "Science citoyenne",
+          ctl: "Projete de ciència ciutadana hidrològica",
+        });
+      });
     });
 
-    describe("descriptions");
-    describe("mots-clefs");
-    describe("tableaux");
-    describe("colonnes");
+    describe("descriptions", function () {
+      let idNuéeGrandParent: string;
+      let idNuéeParent: string;
+      let idNuée: string;
+
+      before(async () => {
+        idNuéeGrandParent = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({
+          parent: idNuéeGrandParent,
+        });
+        idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+      });
+
+      it("descriptions ascendance", async () => {
+        await constl.nuées.sauvegarderDescriptions({
+          idNuée: idNuéeGrandParent,
+          descriptions: { fr: "Science citoyenne", ctl: "Ciència ciutadana" },
+        });
+        const descriptions = await obtenir(({ siPasVide }) =>
+          constl.nuées.suivreDescriptions({ idNuée, f: siPasVide() }),
+        );
+
+        expect(descriptions).to.deep.equal({
+          fr: "Science citoyenne",
+          ctl: "Ciència ciutadana",
+        });
+      });
+
+      it("priorité descriptions ascendance immédiate", async () => {
+        await constl.nuées.sauvegarderDescriptions({
+          idNuée: idNuéeParent,
+          descriptions: { ctl: "Projete de ciència ciutadana" },
+        });
+        const descriptions = await obtenir<TraducsTexte>(({ si }) =>
+          constl.nuées.suivreDescriptions({
+            idNuée,
+            f: si((x) => !!x && !x.ctl?.startsWith("Ciència")),
+          }),
+        );
+
+        expect(descriptions).to.deep.equal({
+          fr: "Science citoyenne",
+          ctl: "Projete de ciència ciutadana",
+        });
+      });
+
+      it("priorité descriptions nuée", async () => {
+        await constl.nuées.sauvegarderDescriptions({
+          idNuée,
+          descriptions: { ctl: "Projete de ciència ciutadana hidrològica" },
+        });
+        const descriptions = await obtenir<TraducsTexte>(({ si }) =>
+          constl.nuées.suivreDescriptions({
+            idNuée,
+            f: si((x) => !!x && !x.ctl?.endsWith("ciutadana")),
+          }),
+        );
+
+        expect(descriptions).to.deep.equal({
+          fr: "Science citoyenne",
+          ctl: "Projete de ciència ciutadana hidrològica",
+        });
+      });
+    });
+
+    describe("mots-clefs", function () {
+      let idNuéeGrandParent: string;
+      let idNuéeParent: string;
+      let idNuée: string;
+
+      let idMotClefEnvironnement: string;
+      let idMotClefHydrologie: string;
+      let idMotClefPotamologie: string;
+
+      before(async () => {
+        idNuéeGrandParent = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({
+          parent: idNuéeGrandParent,
+        });
+        idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+
+        idMotClefEnvironnement = await constl.motsClefs.créerMotClef();
+        idMotClefHydrologie = await constl.motsClefs.créerMotClef();
+        idMotClefPotamologie = await constl.motsClefs.créerMotClef();
+      });
+
+      it("mots-clefs ascendance", async () => {
+        await constl.nuées.ajouterMotsClefs({
+          idNuée: idNuéeGrandParent,
+          idsMotsClefs: [idMotClefEnvironnement],
+        });
+
+        const motsClefs = await obtenir(({ siDéfini }) =>
+          constl.nuées.suivreMotsClefs({ idNuée, f: siDéfini() }),
+        );
+
+        const réf: ValeurAscendance<string>[] = [
+          { val: idMotClefEnvironnement, source: idNuéeGrandParent },
+        ];
+        expect(motsClefs).to.have.deep.members(réf);
+      });
+
+      it("mots-clefs ascendance immédiate", async () => {
+        await constl.nuées.ajouterMotsClefs({
+          idNuée: idNuéeParent,
+          idsMotsClefs: [idMotClefEnvironnement],
+        });
+        await constl.nuées.ajouterMotsClefs({
+          idNuée: idNuéeParent,
+          idsMotsClefs: [idMotClefHydrologie],
+        });
+
+        const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ si }) =>
+          constl.nuées.suivreMotsClefs({
+            idNuée,
+            f: si((x) => !!x && x.length >= 2),
+          }),
+        );
+
+        const réf: ValeurAscendance<string>[] = [
+          { val: idMotClefEnvironnement, source: idNuéeParent },
+          { val: idMotClefHydrologie, source: idNuéeParent },
+        ];
+        expect(motsClefs).to.have.deep.members(réf);
+      });
+
+      it("mots-clefs nuée", async () => {
+        await constl.nuées.ajouterMotsClefs({
+          idNuée: idNuéeParent,
+          idsMotsClefs: [idMotClefPotamologie],
+        });
+
+        const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ si }) =>
+          constl.nuées.suivreMotsClefs({
+            idNuée,
+            f: si((x) => !!x && x.length >= 3),
+          }),
+        );
+
+        const réf: ValeurAscendance<string>[] = [
+          { val: idMotClefEnvironnement, source: idNuéeParent },
+          { val: idMotClefHydrologie, source: idNuéeParent },
+          { val: idMotClefPotamologie, source: idNuée },
+        ];
+        expect(motsClefs).to.have.deep.members(réf);
+      });
+    });
+
+    describe("tableaux", function () {
+      let idNuéeGrandParent: string;
+      let idNuéeParent: string;
+      let idNuée: string;
+
+      let idTableau1: string;
+      let idTableau2: string;
+      let idTableau3: string;
+
+      before(async () => {
+        idNuéeGrandParent = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({
+          parent: idNuéeGrandParent,
+        });
+        idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+      });
+
+      it("tableaux ascendance", async () => {
+        idTableau1 = await constl.nuées.ajouterTableau({
+          idNuée: idNuéeGrandParent,
+        });
+
+        const tableaux = await obtenir(({ siDéfini }) =>
+          constl.nuées.suivreTableaux({ idNuée, f: siDéfini() }),
+        );
+
+        const réf: InfoTableauNuée[] = [
+          { id: idTableau1, source: idNuéeGrandParent },
+        ];
+        expect(tableaux).to.have.deep.members(réf);
+      });
+
+      it("tableaux ascendance immédiate", async () => {
+        idTableau2 = await constl.nuées.ajouterTableau({
+          idNuée: idNuéeParent,
+        });
+
+        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
+          constl.nuées.suivreTableaux({
+            idNuée,
+            f: si((x) => !!x && x.length >= 2),
+          }),
+        );
+
+        const réf: InfoTableauNuée[] = [
+          { id: idTableau1, source: idNuéeGrandParent },
+          { id: idTableau2, source: idNuéeParent },
+        ];
+        expect(tableaux).to.have.deep.members(réf);
+      });
+
+      it("duplication tableaux dans l'ascendance", async () => {
+        await constl.nuées.ajouterTableau({
+          idNuée: idNuéeParent,
+          idTableau: idTableau1
+        });
+
+        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
+          constl.nuées.suivreTableaux({
+            idNuée,
+            f: si((x) => !!x?.every(x=>x.source === idNuéeParent)),
+          }),
+        );
+
+        const réf: InfoTableauNuée[] = [
+          { id: idTableau1, source: idNuéeParent },
+          { id: idTableau2, source: idNuéeParent },
+        ];
+        expect(tableaux).to.have.deep.members(réf);
+      });
+
+      it("tableaux nuée", async () => {
+        idTableau3 = await constl.nuées.ajouterTableau({
+          idNuée: idNuéeParent,
+        });
+
+        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
+          constl.nuées.suivreTableaux({
+            idNuée,
+            f: si((x) => !!x && x.length >= 3),
+          }),
+        );
+
+        const réf: ValeurAscendance<string>[] = [
+          { val: idTableau1, source: idNuéeParent },
+          { val: idTableau2, source: idNuéeParent },
+          { val: idTableau3, source: idNuée },
+        ];
+        expect(tableaux).to.have.deep.members(réf);
+      });
+    });
+
+    describe("colonnes", function () {
+      let idNuéeGrandParent: string;
+      let idNuéeParent: string;
+      let idNuée: string;
+
+      let idTableau: string;
+
+      before(async () => {
+        idNuéeGrandParent = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({
+          parent: idNuéeGrandParent,
+        });
+        idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+
+        idTableau = await constl.nuées.ajouterTableau({
+          idNuée: idNuéeGrandParent,
+        });
+      });
+
+      it("colonnes ascendance", async () => {
+        idColonne1 = await constl.nuées.tableaux.ajouterColonne({ idStructure: idNuéeGrandParent, idTableau })
+
+        const colonnes = await obtenir(({ siDéfini }) =>
+          constl.nuées.tableaux.suivreColonnes({ idStructure: idNuée, idTableau, f: siDéfini() }),
+        );
+
+        const réf: InfoColonne[] = [
+          { id: idColonne1 },
+        ];
+        expect(colonnes).to.have.deep.members(réf);
+
+        const colonnesAvecSource = await obtenir(({ siDéfini }) =>
+          constl.nuées.tableaux.suivreSourceColonnes({ idStructure: idNuée, idTableau, f: siDéfini() }),
+        );
+
+        const réfSource: ValeurAscendance<InfoColonne[]>[] = [
+          { source: idNuéeGrandParent, val: [{ id: idColonne1 }] },
+        ];
+        expect(colonnesAvecSource).to.have.deep.members(réfSource);
+      });
+
+      it("tableaux ascendance immédiate", async () => {
+        idTableau2 = await constl.nuées.ajouterTableau({
+          idNuée: idNuéeParent,
+        });
+
+        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
+          constl.nuées.suivreTableaux({
+            idNuée,
+            f: si((x) => !!x && x.length >= 2),
+          }),
+        );
+
+        const réf: InfoTableauNuée[] = [
+          { id: idTableau1, source: idNuéeGrandParent },
+          { id: idTableau2, source: idNuéeParent },
+        ];
+        expect(tableaux).to.have.deep.members(réf);
+      });
+
+      it("duplication tableaux dans l'ascendance", async () => {
+        await constl.nuées.ajouterTableau({
+          idNuée: idNuéeParent,
+          idTableau: idTableau1
+        });
+
+        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
+          constl.nuées.suivreTableaux({
+            idNuée,
+            f: si((x) => !!x?.every(x=>x.source === idNuéeParent)),
+          }),
+        );
+
+        const réf: InfoTableauNuée[] = [
+          { id: idTableau1, source: idNuéeParent },
+          { id: idTableau2, source: idNuéeParent },
+        ];
+        expect(tableaux).to.have.deep.members(réf);
+      });
+
+      it("tableaux nuée", async () => {
+        idTableau3 = await constl.nuées.ajouterTableau({
+          idNuée: idNuéeParent,
+        });
+
+        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
+          constl.nuées.suivreMotsClefs({
+            idNuée,
+            f: si((x) => !!x && x.length >= 3),
+          }),
+        );
+
+        const réf: ValeurAscendance<string>[] = [
+          { val: idTableau1, source: idNuéeParent },
+          { val: idTableau2, source: idNuéeParent },
+          { val: idTableau3, source: idNuée },
+        ];
+        expect(tableaux).to.have.deep.members(réf);
+      });
+    });
+
     describe("règles");
     describe("autorisations");
     describe("bds", function () {
