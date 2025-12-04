@@ -96,11 +96,11 @@ export type ContenuÉpingleNuée = BaseÉpingleFavoris & {
 
 // Types filtres
 
-export type Héritage = ("descendance" | "ascendance")[];
+export type Héritage = { descendance?: boolean; ascendance?: boolean };
 
 export type FiltresBds = {
   licences?: string[];
-  ignorerAutorisation?: boolean | 'les miennes';
+  ignorerAutorisation?: boolean | "les miennes";
 };
 
 // Types tableaux
@@ -1859,7 +1859,7 @@ export class Nuées<
       },
     };
 
-    if (héritage?.includes("ascendance")) {
+    if (héritage?.ascendance) {
       àOublier.push(
         await this.suivreAscendants({
           idNuée,
@@ -1869,7 +1869,8 @@ export class Nuées<
           },
         }),
       );
-    } else if (héritage?.includes("descendance")) {
+    }
+    if (héritage?.descendance) {
       àOublier.push(
         await this.suivreDescendants({
           idNuée,
@@ -1904,14 +1905,16 @@ export class Nuées<
         const bonneLicence = filtres?.licences
           ? infoBd.licence && filtres.licences.includes(infoBd.licence)
           : true;
-        
-        const ignorerAutorisation = filtres?.ignorerAutorisation ?? "les miennes"
-        const autoriséeCarLaMienne = ignorerAutorisation === "les miennes" &&
+
+        const ignorerAutorisation =
+          filtres?.ignorerAutorisation ?? "les miennes";
+        const autoriséeCarLaMienne =
+          ignorerAutorisation === "les miennes" &&
           infoBd.auteurs?.find(
             ({ idCompte, accepté }) => accepté && idCompte === monCompte,
           );
-        const bienAutorisée = ignorerAutorisation === true
-          ? true : infoBd.autorisée;
+        const bienAutorisée =
+          ignorerAutorisation === true ? true : infoBd.autorisée;
 
         await f(
           bonneNuée && bonneLicence && (bienAutorisée || autoriséeCarLaMienne)
@@ -2277,13 +2280,17 @@ export class Nuées<
     langues,
     nomFichier,
     héritage,
+    filtresBds,
+    filtresDonnées,
     idsTableaux,
     patience = 500,
   }: {
     idNuée: string;
     langues?: string[];
     nomFichier?: string;
-    héritage?: ("descendance" | "ascendance")[];
+    héritage?: Héritage;
+    filtresBds?: FiltresBds;
+    filtresDonnées?: FiltresDonnées;
     idsTableaux?: string[];
     patience?: number;
   }): Promise<DonnéesFichierBdExportées> {
@@ -2295,6 +2302,8 @@ export class Nuées<
           idNuée,
           langues,
           héritage,
+          filtresBds,
+          filtresDonnées,
           idsTableaux,
           f: fSuivi,
         });
@@ -2327,6 +2336,8 @@ export class Nuées<
     langues,
     nomFichier,
     héritage,
+    filtresBds,
+    filtresDonnées,
     patience = 500,
     formatDocu,
     dossier = "",
@@ -2335,7 +2346,9 @@ export class Nuées<
     idNuée: string;
     langues?: string[];
     nomFichier?: string;
-    héritage?: ("descendance" | "ascendance")[];
+    héritage?: Héritage;
+    filtresBds: FiltresBds;
+    filtresDonnées: FiltresDonnées;
     patience?: number;
     formatDocu: xlsx.BookType | "xls";
     dossier?: string;
@@ -2346,6 +2359,8 @@ export class Nuées<
       langues,
       nomFichier,
       héritage,
+      filtresBds,
+      filtresDonnées,
       patience,
     });
 
