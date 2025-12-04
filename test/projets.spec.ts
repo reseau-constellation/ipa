@@ -2,7 +2,6 @@ import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
 import {
-  attente,
   dossiers,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
@@ -10,7 +9,6 @@ import {
 import { expect } from "aegir/chai";
 import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import type { schémaFonctionOublier } from "@/types.js";
 import type xlsx from "xlsx";
 
 const { créerConstellationsTest } = utilsTestConstellation;
@@ -19,8 +17,6 @@ describe("Projets", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
-
-  let idProjet: string;
 
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
@@ -34,113 +30,6 @@ describe("Projets", function () {
     if (fOublierClients) await fOublierClients();
   });
 
-  describe("Copier projet", function () {
-    let idProjetOrig: string;
-    let idProjetCopie: string;
-
-    let idMotClef: string;
-    let idBd: string;
-
-    const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
-    const descrs = new attente.AttendreRésultat<{
-      [key: string]: string;
-    }>();
-    const motsClefs = new attente.AttendreRésultat<
-      { source: "projet" | "bds"; idMotClef: string }[]
-    >();
-    const bds = new attente.AttendreRésultat<string[]>();
-
-    const réfNoms = {
-      த: "மழை",
-      हिं: "बारिश",
-    };
-    const réfDescrs = {
-      த: "தினசரி மழை",
-      हिं: "दैनिक बारिश",
-    };
-
-    const fsOublier: schémaFonctionOublier[] = [];
-
-    before(async () => {
-      idProjetOrig = await client.projets.créerProjet();
-
-      await client.projets.sauvegarderNomsProjet({
-        idProjet: idProjetOrig,
-        noms: réfNoms,
-      });
-      await client.projets.sauvegarderDescriptionsProjet({
-        idProjet: idProjetOrig,
-        descriptions: réfDescrs,
-      });
-
-      idMotClef = await client.motsClefs.créerMotClef();
-      await client.projets.ajouterMotsClefsProjet({
-        idProjet: idProjetOrig,
-        idsMotsClefs: idMotClef,
-      });
-
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      await client.projets.ajouterBdProjet({
-        idProjet: idProjetOrig,
-        idBd,
-      });
-
-      idProjetCopie = await client.projets.copierProjet({
-        idProjet: idProjetOrig,
-      });
-
-      fsOublier.push(
-        await client.projets.suivreNomsProjet({
-          idProjet: idProjetCopie,
-          f: (x) => noms.mettreÀJour(x),
-        }),
-      );
-      fsOublier.push(
-        await client.projets.suivreDescriptionsProjet({
-          idProjet: idProjetCopie,
-          f: (x) => descrs.mettreÀJour(x),
-        }),
-      );
-      fsOublier.push(
-        await client.projets.suivreMotsClefsProjet({
-          idProjet: idProjetCopie,
-          f: (x) => motsClefs.mettreÀJour(x),
-        }),
-      );
-      fsOublier.push(
-        await client.projets.suivreBdsProjet({
-          idProjet: idProjetCopie,
-          f: (x) => bds.mettreÀJour(x),
-        }),
-      );
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-      noms.toutAnnuler();
-      descrs.toutAnnuler();
-      motsClefs.toutAnnuler();
-      bds.toutAnnuler();
-    });
-
-    it("Les noms sont copiés", async () => {
-      const val = await noms.attendreExiste();
-      expect(val).to.deep.equal(réfNoms);
-    });
-    it("Les descriptions sont copiées", async () => {
-      const val = await descrs.attendreExiste();
-      expect(val).to.deep.equal(réfDescrs);
-    });
-    it("Les mots-clefs sont copiés", async () => {
-      const val = await motsClefs.attendreExiste();
-      expect(val).to.have.deep.members([{ source: "projet", idMotClef }]);
-    });
-    it("Les BDs sont copiées", async () => {
-      const val = await bds.attendreQue((x) => x.length > 0);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(1);
-    });
-  });
 
   describe("Exporter données", function () {
     let idProjet: string;

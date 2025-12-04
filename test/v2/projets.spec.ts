@@ -879,12 +879,14 @@ describe("Projets", function () {
 
       await constl.projets.ajouterBds({
         idProjet: idProjetOrig,
-        idsBds: [idBd]
-      })
+        idsBds: [idBd],
+      });
     });
 
     it("copier le projet", async () => {
-      idProjetCopie = await constl.projets.copierProjet({ idProjet: idProjetOrig });
+      idProjetCopie = await constl.projets.copierProjet({
+        idProjet: idProjetOrig,
+      });
       expect(isValidAddress(idProjetCopie)).to.be.true();
     });
 
@@ -897,21 +899,30 @@ describe("Projets", function () {
 
     it("les descriptions sont copiées", async () => {
       const descrs = await obtenir<TraducsTexte>(({ siPasVide }) =>
-        constl.projets.suivreDescriptions({ idProjet: idProjetCopie, f: siPasVide() }),
+        constl.projets.suivreDescriptions({
+          idProjet: idProjetCopie,
+          f: siPasVide(),
+        }),
       );
       expect(descrs).to.deep.equal(réfDescrs);
     });
 
     it("les métadonnées sont copiées", async () => {
       const métadonnées = await obtenir<Métadonnées>(({ siPasVide }) =>
-        constl.projets.suivreMétadonnées({ idProjet: idProjetCopie, f: siPasVide() }),
+        constl.projets.suivreMétadonnées({
+          idProjet: idProjetCopie,
+          f: siPasVide(),
+        }),
       );
       expect(métadonnées).to.deep.equal(réfMétadonnées);
     });
 
     it("les mots-clefs sont copiés", async () => {
       const motsClefs = await obtenir<MotClefProjet[]>(({ siPasVide }) =>
-        constl.projets.suivreMotsClefs({ idProjet: idProjetCopie, f: siPasVide() }),
+        constl.projets.suivreMotsClefs({
+          idProjet: idProjetCopie,
+          f: siPasVide(),
+        }),
       );
       expect(motsClefs).to.have.deep.members([{ idMotClef, source: "projet" }]);
     });

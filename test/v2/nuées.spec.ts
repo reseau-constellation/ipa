@@ -1152,7 +1152,12 @@ describe("Nuées", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolution]).to.have.members([idNuée, idBd, idDonnéesTableau, idc]);
+      expect([...résolution]).to.have.members([
+        idNuée,
+        idBd,
+        idDonnéesTableau,
+        idc,
+      ]);
 
       const résolutionSansFichers = await obtenir<Set<string>>(({ siDéfini }) =>
         constl.nuées.suivreRésolutionÉpingle({
@@ -1178,7 +1183,11 @@ describe("Nuées", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolutionSansFichers]).to.have.members([idNuée, idBd, idDonnéesTableau]);
+      expect([...résolutionSansFichers]).to.have.members([
+        idNuée,
+        idBd,
+        idDonnéesTableau,
+      ]);
 
       const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(
         ({ siDéfini }) =>
@@ -1201,7 +1210,10 @@ describe("Nuées", function () {
             f: siDéfini(),
           }),
       );
-      expect([...résolutionSansFichersOuTableaux]).to.have.members([idNuée, idBd]);
+      expect([...résolutionSansFichersOuTableaux]).to.have.members([
+        idNuée,
+        idBd,
+      ]);
     });
 
     it("résourde épingle - ascendance", async () => {
@@ -1545,7 +1557,8 @@ describe("Nuées", function () {
     let élémentsNuées: DonnéesRangéeNuée[];
     let élémentsNuéesPDDL: DonnéesRangéeNuée[];
 
-    const idNuéeIndisponible = "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+    const idNuéeIndisponible =
+      "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -1580,7 +1593,12 @@ describe("Nuées", function () {
       });
       idBd = await constl.bds.créerBdDeSchéma({ schéma });
       // Créer une différence avec les colonnes d'origine
-      await constl.bds.tableaux.modifierIndexColonne({ idStructure: idBd, idTableau, idColonne, index: true});
+      await constl.bds.tableaux.modifierIndexColonne({
+        idStructure: idBd,
+        idTableau,
+        idColonne,
+        index: true,
+      });
 
       idsÉléments = await constl.bds.tableaux.ajouterÉléments({
         idStructure: idBd,
@@ -1608,8 +1626,11 @@ describe("Nuées", function () {
       }));
 
       // Ajouter une autre nuée (indisponible) aux bds
-      await constl.bds.rejoindreNuée({ idBd, idNuée: idNuéeIndisponible})
-      await constls[1].bds.rejoindreNuée({ idBd: idBdPDDL, idNuée: idNuéeIndisponible})
+      await constl.bds.rejoindreNuée({ idBd, idNuée: idNuéeIndisponible });
+      await constls[1].bds.rejoindreNuée({
+        idBd: idBdPDDL,
+        idNuée: idNuéeIndisponible,
+      });
     });
 
     it("donnnées autorisées", async () => {
@@ -1649,7 +1670,7 @@ describe("Nuées", function () {
           f: siPasVide(),
         }),
       );
-      
+
       expect(données).to.have.deep.members(élémentsNuéesPDDL);
     });
 
@@ -3278,7 +3299,9 @@ describe("Nuées", function () {
         });
         idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
 
-        let idTableau = await constl.nuées.ajouterTableau({ idNuée: idNuéeParent });
+        const idTableau = await constl.nuées.ajouterTableau({
+          idNuée: idNuéeParent,
+        });
       });
 
       it("données ascendance", async () => {
@@ -3565,11 +3588,9 @@ describe("Nuées", function () {
       it("nuée non disponible", async () => {
         const idNuéeIndisponible =
           "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
-        const schémaAvecNuéeIndisponible: SchémaBd = Object.assign(
-          {},
-          schéma,
-          { nuées: [...(schéma.nuées || []), idNuéeIndisponible] },
-        );
+        const schémaAvecNuéeIndisponible: SchémaBd = Object.assign({}, schéma, {
+          nuées: [...(schéma.nuées || []), idNuéeIndisponible],
+        });
         const idBdNuéeIndisponible = await constl.bds.créerBdDeSchéma({
           schéma: schémaAvecNuéeIndisponible,
         });
