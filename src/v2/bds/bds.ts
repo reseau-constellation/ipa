@@ -1794,8 +1794,11 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
-    const empreintes: { tableaux?: string[]; variables?: string[]; bd?: string } =
-      {};
+    const empreintes: {
+      tableaux?: string[];
+      variables?: string[];
+      bd?: string;
+    } = {};
     const fFinale = async () => {
       const texte = [
         empreintes.bd,

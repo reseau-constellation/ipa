@@ -104,6 +104,7 @@ export const diviserIdcEtFichier = (val: string) => {
   const premièreBarreOblique = val.indexOf("/");
 
   if (premièreBarreOblique === -1)
+    // eslint-disable-next-line no-irregular-whitespace
     throw new Error(`Chemin IDC et fichier non valide : ${val}`);
 
   const idc = val.slice(0, premièreBarreOblique);

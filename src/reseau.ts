@@ -97,7 +97,6 @@ export interface résultatRechercheSansScore<T extends infoRésultat> {
   qualité: number;
 }
 
-
 export type MessageDirecte =
   | MessageDirecteRequêteRejoindreCompte
   | MessageDirecteSalut

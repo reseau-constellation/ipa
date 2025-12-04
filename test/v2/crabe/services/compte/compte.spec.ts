@@ -477,16 +477,22 @@ describe.only("Service Compte", function () {
     });
 
     it("le nouveau dispositif peut modifier le compte", async () => {
-      await crabes[1].profil.sauvegarderNom({ langue: "த", nom: "ம.-அதான் ஜூலீஎன்"})
+      await crabes[1].profil.sauvegarderNom({
+        langue: "த",
+        nom: "ம.-அதான் ஜூலீஎன்",
+      });
 
       const pNoms = obtenir<TraducsTexte | undefined>(({ si }) =>
         crabes[0].profil.suivreNoms({
           f: si((x) => !!x && Object.keys(x).includes("த")),
         }),
       );
-      
-      const noms = await pNoms
-      expect(noms).to.deep.equal({fr: "Julien Malard-Adam", த: "ம.-அதான் ஜூலீஎன்"});
-    })
+
+      const noms = await pNoms;
+      expect(noms).to.deep.equal({
+        fr: "Julien Malard-Adam",
+        த: "ம.-அதான் ஜூலீஎன்",
+      });
+    });
   });
 });
