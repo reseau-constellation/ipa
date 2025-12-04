@@ -1794,9 +1794,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
-    const empreintes: { tableaux?: string[]; bd?: string } = {};
+    const empreintes: { tableaux?: string[]; variables?: string; bd?: string } =
+      {};
     const fFinale = async () => {
-      const texte = [empreintes.bd, ...(empreintes.tableaux || [])]
+      const texte = [
+        empreintes.bd,
+        ...(empreintes.tableaux || []),
+        ...(empreintes.variables || []),
+      ]
         .toSorted()
         .join("/");
       await f(Base64.stringify(md5(texte)));
@@ -1831,8 +1836,23 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       },
     });
 
+    const oublierEmpreinteVariables = await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }) =>
+        await this.suivreVariables({ idNuée, f: fSuivreRacine }),
+      fBranche: async ({ id: idVariable, fSuivreBranche }) =>
+        await orbite.suivreEmpreinteTêteBd({
+          idBd: idVariable,
+          f: fSuivreBranche,
+        }),
+      f: async (x: string[]) => {
+        empreintes.variables = x;
+        await fFinale();
+      },
+    });
+
     return async () => {
       await oublierEmpreintesTableaux();
+      await oublierEmpreinteVariables();
       await oublierEmpreinteBd();
     };
   }
