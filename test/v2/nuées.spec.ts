@@ -6,7 +6,9 @@ import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
 } from "@/v2/crabe/services/favoris.js";
+import { stabiliser } from "@/v2/crabe/utils.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
+import type { RègleBornes, RègleColonne } from "@/v2/règles.js";
 import type {
   InfoAuteur,
   Métadonnées,
@@ -27,8 +29,6 @@ import type {
   ValeurAscendance,
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
-import { RègleBornes, RègleColonne } from "@/v2/règles.js";
-import { stabiliser } from "@/v2/crabe/utils.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -366,11 +366,12 @@ describe("Nuées", function () {
     });
 
     it("pas de mots-clefs pour commencer", async () => {
-      const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ siDéfini }) =>
-        constl.nuées.suivreMotsClefs({
-          idNuée,
-          f: siDéfini(),
-        }),
+      const motsClefs = await obtenir<ValeurAscendance<string>[]>(
+        ({ siDéfini }) =>
+          constl.nuées.suivreMotsClefs({
+            idNuée,
+            f: siDéfini(),
+          }),
       );
       expect(motsClefs).to.be.an.empty("array");
     });
@@ -382,25 +383,29 @@ describe("Nuées", function () {
         idsMotsClefs: idMotClef,
       });
 
-      const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ siPasVide }) =>
-        constl.nuées.suivreMotsClefs({ idNuée, f: siPasVide() }),
+      const motsClefs = await obtenir<ValeurAscendance<string>[]>(
+        ({ siPasVide }) =>
+          constl.nuées.suivreMotsClefs({ idNuée, f: siPasVide() }),
       );
 
-      const réf: ValeurAscendance<string>[] = [{
-        val: idMotClef,
-        source: idNuée
-      }]
+      const réf: ValeurAscendance<string>[] = [
+        {
+          val: idMotClef,
+          source: idNuée,
+        },
+      ];
       expect(motsClefs).to.have.deep.members(réf);
     });
 
     it("effacer un mot-clef", async () => {
       await constl.nuées.effacerMotClef({ idNuée, idMotClef });
 
-      const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ siVide }) =>
-        constl.nuées.suivreMotsClefs({
-          idNuée,
-          f: siVide(),
-        }),
+      const motsClefs = await obtenir<ValeurAscendance<string>[]>(
+        ({ siVide }) =>
+          constl.nuées.suivreMotsClefs({
+            idNuée,
+            f: siVide(),
+          }),
       );
       expect(motsClefs).to.be.an.empty("array");
     });
@@ -1315,11 +1320,14 @@ describe("Nuées", function () {
       });
 
       it("mots-clefs", async () => {
-        const motsClefs = await obtenir<ValeurAscendance<string[]> | undefined>(({ siPasVide }) =>
-          constl.nuées.suivreMotsClefs({ idNuée, f: siPasVide() }),
+        const motsClefs = await obtenir<ValeurAscendance<string[]> | undefined>(
+          ({ siPasVide }) =>
+            constl.nuées.suivreMotsClefs({ idNuée, f: siPasVide() }),
         );
 
-        expect(motsClefs).to.have.deep.members([{ val: [idMotClef], source: idNuée }]);
+        expect(motsClefs).to.have.deep.members([
+          { val: [idMotClef], source: idNuée },
+        ]);
       });
 
       it("statut", async () => {
@@ -1414,7 +1422,14 @@ describe("Nuées", function () {
   });
 
   describe("bds", function () {
-    it("aucune bd pour commencer");
+    it("aucune bd pour commencer", async () => {
+      const bds = await obtenir<string[]>(({ siDéfini }) =>
+        constl.nuées.suivreBds({ idNuée, f: siDéfini() }),
+      );
+
+      expect(bds).to.be.empty();
+    });
+
     it("nouvelle bd détectée");
     it("bd exclue si pas autorisée");
     it("filtres - par licence");
@@ -1823,9 +1838,6 @@ describe("Nuées", function () {
     });
 
     it("changement noms variable détecté", async () => {
-      throw new Error(
-        "Fonctionalité à implémenter dans `constl.nuées.suivreEmpreinteTête`",
-      );
       await constl.variables.sauvegarderNom({
         idVariable,
         langue: "fr",
@@ -2285,13 +2297,13 @@ describe("Nuées", function () {
       it("duplication tableaux dans l'ascendance", async () => {
         await constl.nuées.ajouterTableau({
           idNuée: idNuéeParent,
-          idTableau: idTableau1
+          idTableau: idTableau1,
         });
 
         const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
           constl.nuées.suivreTableaux({
             idNuée,
-            f: si((x) => !!x?.every(x=>x.source === idNuéeParent)),
+            f: si((x) => !!x?.every((x) => x.source === idNuéeParent)),
           }),
         );
 
@@ -2329,12 +2341,12 @@ describe("Nuées", function () {
       let idNuée: string;
 
       let idTableau: string;
-      
+
       let idVariable: string;
 
       let idColonne1: string;
       let idColonne2: string;
-      
+
       before(async () => {
         idNuéeGrandParent = await constl.nuées.créerNuée();
         idNuéeParent = await constl.nuées.créerNuée({
@@ -2346,15 +2358,29 @@ describe("Nuées", function () {
           idNuée: idNuéeGrandParent,
         });
 
-        idVariable = await constl.variables.créerVariable({ catégorie: "vidéo" })
+        idVariable = await constl.variables.créerVariable({
+          catégorie: "vidéo",
+        });
       });
 
       it("colonnes ascendance", async () => {
-        idColonne1 = await constl.nuées.tableaux.ajouterColonne({ idStructure: idNuéeGrandParent, idTableau })
-        idColonne2 = await constl.nuées.tableaux.ajouterColonne({ idStructure: idNuéeGrandParent, idTableau, idVariable, index: true })
+        idColonne1 = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuéeGrandParent,
+          idTableau,
+        });
+        idColonne2 = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuéeGrandParent,
+          idTableau,
+          idVariable,
+          index: true,
+        });
 
         const colonnes = await obtenir(({ siPasVide }) =>
-          constl.nuées.tableaux.suivreColonnes({ idStructure: idNuée, idTableau, f: siPasVide() }),
+          constl.nuées.tableaux.suivreColonnes({
+            idStructure: idNuée,
+            idTableau,
+            f: siPasVide(),
+          }),
         );
 
         const réf: InfoColonne[] = [
@@ -2364,12 +2390,19 @@ describe("Nuées", function () {
         expect(colonnes).to.have.deep.members(réf);
 
         const colonnesAvecSource = await obtenir(({ siPasVide }) =>
-          constl.nuées.tableaux.suivreSourceColonnes({ idStructure: idNuée, idTableau, f: siPasVide() }),
+          constl.nuées.tableaux.suivreSourceColonnes({
+            idStructure: idNuée,
+            idTableau,
+            f: siPasVide(),
+          }),
         );
 
         const réfSource: ValeurAscendance<InfoColonne[]>[] = [
           { source: idNuéeGrandParent, val: [{ id: idColonne1 }] },
-          { source: idNuéeGrandParent, val: [{ id: idColonne2, variable: idVariable, index: true }] },
+          {
+            source: idNuéeGrandParent,
+            val: [{ id: idColonne2, variable: idVariable, index: true }],
+          },
         ];
         expect(colonnesAvecSource).to.have.deep.members(réfSource);
       });
@@ -2385,7 +2418,7 @@ describe("Nuées", function () {
           constl.nuées.tableaux.suivreColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si((x) => !!x?.every(col => col.index !== true)),
+            f: si((x) => !!x?.every((col) => col.index !== true)),
           }),
         );
 
@@ -2399,13 +2432,13 @@ describe("Nuées", function () {
       it("duplication colonnes dans l'ascendance", async () => {
         await constl.nuées.ajouterTableau({
           idNuée: idNuéeParent,
-          idTableau: idTableau1
+          idTableau: idTableau1,
         });
 
         const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
           constl.nuées.suivreTableaux({
             idNuée,
-            f: si((x) => !!x?.every(x=>x.source === idNuéeParent)),
+            f: si((x) => !!x?.every((x) => x.source === idNuéeParent)),
           }),
         );
 
@@ -2444,7 +2477,7 @@ describe("Nuées", function () {
 
       let idTableau: string;
       let idColonne: string;
-      
+
       let idRègleGrandParent: string;
       let idRègleParent: string;
       let idRègleNuée: string;
@@ -2455,8 +2488,8 @@ describe("Nuées", function () {
           type: "fixe",
           op: ">=",
           val: 0,
-        }
-      }
+        },
+      };
 
       const règleParent: RègleBornes = {
         type: "bornes",
@@ -2464,8 +2497,8 @@ describe("Nuées", function () {
           type: "fixe",
           op: "<=",
           val: 1000,
-        }
-      }
+        },
+      };
 
       const règleNuée: RègleBornes = {
         type: "bornes",
@@ -2473,8 +2506,8 @@ describe("Nuées", function () {
           type: "fixe",
           op: "<=",
           val: 500,
-        }
-      }
+        },
+      };
 
       before(async () => {
         idNuéeGrandParent = await constl.nuées.créerNuée();
@@ -2483,131 +2516,194 @@ describe("Nuées", function () {
         });
         idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
 
-        idTableau = await constl.nuées.ajouterTableau({ idNuée: idNuéeGrandParent });
-        idColonne = await constl.nuées.tableaux.ajouterColonne({ idStructure: idNuéeGrandParent, idTableau });
+        idTableau = await constl.nuées.ajouterTableau({
+          idNuée: idNuéeGrandParent,
+        });
+        idColonne = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuéeGrandParent,
+          idTableau,
+        });
       });
 
       it("rien pour commencer", async () => {
-        const règles = await obtenir<RègleColonne[]>(({siDéfini}) => constl.nuées.tableaux.suivreRègles({
-          idStructure: idNuée, idTableau,
-          f: siDéfini(),
-        }));
-        
+        const règles = await obtenir<RègleColonne[]>(({ siDéfini }) =>
+          constl.nuées.tableaux.suivreRègles({
+            idStructure: idNuée,
+            idTableau,
+            f: siDéfini(),
+          }),
+        );
+
         expect(règles).to.be.empty();
-      })
+      });
 
       it("règles ascendance", async () => {
         idRègleGrandParent = await constl.nuées.tableaux.ajouterRègle({
-          idStructure: idNuéeGrandParent, idTableau, idColonne, règle: règleGrandParent
-        })
+          idStructure: idNuéeGrandParent,
+          idTableau,
+          idColonne,
+          règle: règleGrandParent,
+        });
 
-        const règles = await obtenir<RègleColonne[]>(({siPasVide}) => constl.nuées.tableaux.suivreRègles({
-          idStructure: idNuée, idTableau,
-          f: siPasVide(),
-        }));
-        
+        const règles = await obtenir<RègleColonne[]>(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreRègles({
+            idStructure: idNuée,
+            idTableau,
+            f: siPasVide(),
+          }),
+        );
+
         const réf: RègleColonne[] = [
           {
-            règle: {id: idRègleGrandParent, règle: règleGrandParent},
-            source: { type: "tableau", idStructure: idNuéeGrandParent, idTableau },
-            colonne: idColonne
-          }
-        ]
+            règle: { id: idRègleGrandParent, règle: règleGrandParent },
+            source: {
+              type: "tableau",
+              idStructure: idNuéeGrandParent,
+              idTableau,
+            },
+            colonne: idColonne,
+          },
+        ];
         expect(règles).to.have.deep.members(réf);
       });
 
       it("règles ascendance immédiate", async () => {
         idRègleParent = await constl.nuées.tableaux.ajouterRègle({
-          idStructure: idNuéeParent, idTableau, idColonne, règle: règleParent
-        })
+          idStructure: idNuéeParent,
+          idTableau,
+          idColonne,
+          règle: règleParent,
+        });
 
-        const règles = await obtenir<RègleColonne[]>(({si}) => constl.nuées.tableaux.suivreRègles({
-          idStructure: idNuée, idTableau,
-          f: si(x=>!!x && x.length >= 2),
-        }));
-        
+        const règles = await obtenir<RègleColonne[]>(({ si }) =>
+          constl.nuées.tableaux.suivreRègles({
+            idStructure: idNuée,
+            idTableau,
+            f: si((x) => !!x && x.length >= 2),
+          }),
+        );
+
         const réf: RègleColonne[] = [
           {
-            règle: {id: idRègleGrandParent, règle: règleGrandParent},
-            source: { type: "tableau", idStructure: idNuéeGrandParent, idTableau },
-            colonne: idColonne
+            règle: { id: idRègleGrandParent, règle: règleGrandParent },
+            source: {
+              type: "tableau",
+              idStructure: idNuéeGrandParent,
+              idTableau,
+            },
+            colonne: idColonne,
           },
           {
-            règle: {id: idRègleParent, règle: règleParent},
+            règle: { id: idRègleParent, règle: règleParent },
             source: { type: "tableau", idStructure: idNuéeParent, idTableau },
-            colonne: idColonne
-          }
-        ]
+            colonne: idColonne,
+          },
+        ];
         expect(règles).to.have.deep.members(réf);
       });
 
       it("règles nuée", async () => {
         idRègleNuée = await constl.nuées.tableaux.ajouterRègle({
-          idStructure: idNuée, idTableau, idColonne, règle: règleNuée
-        })
+          idStructure: idNuée,
+          idTableau,
+          idColonne,
+          règle: règleNuée,
+        });
 
-        const règles = await obtenir<RègleColonne[]>(({si}) => constl.nuées.tableaux.suivreRègles({
-          idStructure: idNuée, idTableau,
-          f: si(x=>!!x && x.length >= 3),
-        }));
-        
+        const règles = await obtenir<RègleColonne[]>(({ si }) =>
+          constl.nuées.tableaux.suivreRègles({
+            idStructure: idNuée,
+            idTableau,
+            f: si((x) => !!x && x.length >= 3),
+          }),
+        );
+
         const réf: RègleColonne[] = [
           {
-            règle: {id: idRègleGrandParent, règle: règleGrandParent},
-            source: { type: "tableau", idStructure: idNuéeGrandParent, idTableau },
-            colonne: idColonne
+            règle: { id: idRègleGrandParent, règle: règleGrandParent },
+            source: {
+              type: "tableau",
+              idStructure: idNuéeGrandParent,
+              idTableau,
+            },
+            colonne: idColonne,
           },
           {
-            règle: {id: idRègleParent, règle: règleParent},
+            règle: { id: idRègleParent, règle: règleParent },
             source: { type: "tableau", idStructure: idNuéeParent, idTableau },
-            colonne: idColonne
+            colonne: idColonne,
           },
           {
-            règle: {id: idRègleNuée, règle: règleNuée},
+            règle: { id: idRègleNuée, règle: règleNuée },
             source: { type: "tableau", idStructure: idNuée, idTableau },
-            colonne: idColonne
-          }
-        ]
+            colonne: idColonne,
+          },
+        ];
         expect(règles).to.have.deep.members(réf);
       });
 
       it("règles variable", async () => {
-        const idVariable = await constl.variables.créerVariable({ catégorie: "numérique" })
-        await constl.nuées.tableaux.modifierVariableColonne({ idStructure: idNuéeGrandParent, idTableau, idColonne, idVariable });
-        
-        // Donner une chance de se stabiliser pour s'assurer que la règle variable n'est pas dupliquée dans l'ascendance
-        const stable = stabiliser(100)
-        const règles = await obtenir<RègleColonne[]>(({si}) => constl.nuées.tableaux.suivreRègles({
-          idStructure: idNuée, idTableau,
-          f: stable(si(x=>!!x?.find(r=>r.source.type === "variable"))),
-        }));
+        const idVariable = await constl.variables.créerVariable({
+          catégorie: "numérique",
+        });
+        await constl.nuées.tableaux.modifierVariableColonne({
+          idStructure: idNuéeGrandParent,
+          idTableau,
+          idColonne,
+          idVariable,
+        });
 
-        const idRègleVariable = règles.find(r=>r.source.type === "variable")?.règle.id as string;
+        // Donner une chance de se stabiliser pour s'assurer que la règle variable n'est pas dupliquée dans l'ascendance
+        const stable = stabiliser(100);
+        const règles = await obtenir<RègleColonne[]>(({ si }) =>
+          constl.nuées.tableaux.suivreRègles({
+            idStructure: idNuée,
+            idTableau,
+            f: stable(
+              si((x) => !!x?.find((r) => r.source.type === "variable")),
+            ),
+          }),
+        );
+
+        const idRègleVariable = règles.find((r) => r.source.type === "variable")
+          ?.règle.id as string;
 
         const réf: RègleColonne[] = [
           {
-            règle: {id: idRègleGrandParent, règle: règleGrandParent},
-            source: { type: "tableau", idStructure: idNuéeGrandParent, idTableau },
-            colonne: idColonne
+            règle: { id: idRègleGrandParent, règle: règleGrandParent },
+            source: {
+              type: "tableau",
+              idStructure: idNuéeGrandParent,
+              idTableau,
+            },
+            colonne: idColonne,
           },
           {
-            règle: {id: idRègleParent, règle: règleParent},
+            règle: { id: idRègleParent, règle: règleParent },
             source: { type: "tableau", idStructure: idNuéeParent, idTableau },
-            colonne: idColonne
+            colonne: idColonne,
           },
           {
-            règle: {id: idRègleNuée, règle: règleNuée},
+            règle: { id: idRègleNuée, règle: règleNuée },
             source: { type: "tableau", idStructure: idNuée, idTableau },
-            colonne: idColonne
+            colonne: idColonne,
           },
           {
-            règle: {id: idRègleVariable, règle: { type: "catégorie", détails: { catégorie: { type: "simple", catégorie: "numérique" } }}},
+            règle: {
+              id: idRègleVariable,
+              règle: {
+                type: "catégorie",
+                détails: {
+                  catégorie: { type: "simple", catégorie: "numérique" },
+                },
+              },
+            },
             source: { type: "variable", id: idVariable },
-            colonne: idColonne
-          }
-        ]
+            colonne: idColonne,
+          },
+        ];
         expect(règles).to.have.deep.members(réf);
-      })
+      });
     });
 
     describe("autorisations", function () {
@@ -2618,50 +2714,76 @@ describe("Nuées", function () {
         let idBd: string;
 
         beforeEach(async () => {
-          idNuéeParent = await constl.nuées.créerNuée({ autorisation: "ouverte" });
+          idNuéeParent = await constl.nuées.créerNuée({
+            autorisation: "ouverte",
+          });
           idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
 
           idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
         });
 
         it("autorisation héritée", async () => {
-          await constl.nuées.bloquerCompte({ idNuée: idNuéeParent, idCompte: idsComptes[1] })
-          const autorisation = await obtenir<AutorisationNuée>(({siDéfini}) => constl.nuées.suivreAutorisation({ idNuée, f: siDéfini() }))
+          await constl.nuées.bloquerCompte({
+            idNuée: idNuéeParent,
+            idCompte: idsComptes[1],
+          });
+          const autorisation = await obtenir<AutorisationNuée>(({ siDéfini }) =>
+            constl.nuées.suivreAutorisation({ idNuée, f: siDéfini() }),
+          );
 
           const réf: AutorisationNuée = {
             type: "ouverte",
             bloqués: [idsComptes[1]],
-          }
+          };
           expect(autorisation).to.deep.equal(réf);
-        })
-        
+        });
+
         it("bloquer comptes ascendance immédiate", async () => {
-          await constl.nuées.bloquerCompte({ idNuée: idNuéeParent, idCompte: idsComptes[1] });
-          
-          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          await constl.nuées.bloquerCompte({
+            idNuée: idNuéeParent,
+            idCompte: idsComptes[1],
+          });
+
+          const autorisée = await obtenir<boolean>(({ siDéfini }) =>
+            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+          );
           expect(autorisée).to.be.false();
-        })
-  
+        });
+
         it("bloquer comptes nuée", async () => {
           await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
-  
-          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+
+          const autorisée = await obtenir<boolean>(({ siDéfini }) =>
+            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+          );
           expect(autorisée).to.be.false();
-        })
+        });
 
         it("nuée enfant par invitation", async () => {
-          await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" })
+          await constl.nuées.modifierTypeAutorisation({
+            idNuée,
+            type: "par invitation",
+          });
 
-          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          const autorisée = await obtenir<boolean>(({ siDéfini }) =>
+            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+          );
           expect(autorisée).to.be.false();
 
           // On peut inviter des comptes sur la nuée enfant
-          await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] })
+          await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
 
-          const autoriséeAprèsInvitation = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          const autoriséeAprèsInvitation = await obtenir<boolean>(
+            ({ siDéfini }) =>
+              constl.nuées.suivreAutorisationBd({
+                idNuée,
+                idBd,
+                f: siDéfini(),
+              }),
+          );
           expect(autoriséeAprèsInvitation).to.be.true();
-        })
-      })
+        });
+      });
 
       describe("par invitation", function () {
         let idNuéeParent: string;
@@ -2670,50 +2792,76 @@ describe("Nuées", function () {
         let idBd: string;
 
         beforeEach(async () => {
-          idNuéeParent = await constl.nuées.créerNuée({ autorisation: "par invitation" });
+          idNuéeParent = await constl.nuées.créerNuée({
+            autorisation: "par invitation",
+          });
           idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
 
           idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
         });
 
         it("autorisation héritée", async () => {
-          await constl.nuées.inviterCompte({ idNuée: idNuéeParent, idCompte: idsComptes[1] })
-          const autorisation = await obtenir<AutorisationNuée>(({siDéfini}) => constl.nuées.suivreAutorisation({ idNuée, f: siDéfini() }))
+          await constl.nuées.inviterCompte({
+            idNuée: idNuéeParent,
+            idCompte: idsComptes[1],
+          });
+          const autorisation = await obtenir<AutorisationNuée>(({ siDéfini }) =>
+            constl.nuées.suivreAutorisation({ idNuée, f: siDéfini() }),
+          );
 
           const réf: AutorisationNuée = {
             type: "par invitation",
             invités: [idsComptes[1]],
-          }
+          };
           expect(autorisation).to.deep.equal(réf);
-        })
+        });
 
         it("inviter comptes ascendance immédiate", async () => {
-          await constl.nuées.inviterCompte({ idNuée: idNuéeParent, idCompte: idsComptes[1] })
-  
-          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          await constl.nuées.inviterCompte({
+            idNuée: idNuéeParent,
+            idCompte: idsComptes[1],
+          });
+
+          const autorisée = await obtenir<boolean>(({ siDéfini }) =>
+            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+          );
           expect(autorisée).to.be.true();
-        })
-  
+        });
+
         it("inviter comptes nuée", async () => {
-          await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] })
-  
-          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
+
+          const autorisée = await obtenir<boolean>(({ siDéfini }) =>
+            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+          );
           expect(autorisée).to.be.true();
-        })
+        });
 
         it("nuée enfant ouverte", async () => {
-          await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" })
+          await constl.nuées.modifierTypeAutorisation({
+            idNuée,
+            type: "ouverte",
+          });
 
-          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          const autorisée = await obtenir<boolean>(({ siDéfini }) =>
+            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+          );
           expect(autorisée).to.be.true();
 
           // On peut bloquer des comptes sur la nuée enfant
-          await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] })
+          await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
 
-          const autoriséeAprèsInvitation = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          const autoriséeAprèsInvitation = await obtenir<boolean>(
+            ({ siDéfini }) =>
+              constl.nuées.suivreAutorisationBd({
+                idNuée,
+                idBd,
+                f: siDéfini(),
+              }),
+          );
           expect(autoriséeAprèsInvitation).to.be.false();
-        })
-      })
+        });
+      });
     });
 
     describe("bds", function () {
@@ -2723,9 +2871,9 @@ describe("Nuées", function () {
     });
 
     describe("données", function () {
-      it("données ascendance")
-      it("données descendance")
-      it("données nuée")
+      it("données ascendance");
+      it("données descendance");
+      it("données nuée");
       it("données locales même si nuée parent non disponible");
       it("données locales même si nuée non disponible");
     });
