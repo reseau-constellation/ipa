@@ -1427,8 +1427,8 @@ describe("Nuées", function () {
 
     beforeEach(async () => {
       idNuée = await constl.nuées.créerNuée();
-      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" })
-    })
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+    });
 
     it("aucune bd pour commencer", async () => {
       const bds = await obtenir<string[]>(({ siDéfini }) =>
@@ -1444,53 +1444,77 @@ describe("Nuées", function () {
       const bds = await obtenir<string[]>(({ siDéfini }) =>
         constl.nuées.suivreBds({ idNuée, f: siDéfini() }),
       );
-      expect(bds).to.have.members([idBd])
+      expect(bds).to.have.members([idBd]);
     });
-    
+
     it("bd exclue si pas autorisée", async () => {
       await constl.bds.rejoindreNuée({ idBd, idNuée });
-      obtenir(({ siPasVide }) => constl.nuées.suivreBds({ idNuée, f: siPasVide() }));
+      obtenir(({ siPasVide }) =>
+        constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
+      );
 
-      await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] })
+      await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
 
       const bds = await obtenir<string[]>(({ siVide }) =>
         constl.nuées.suivreBds({ idNuée, f: siVide() }),
       );
-      expect(bds).to.be.empty()
+      expect(bds).to.be.empty();
     });
 
     it("filtres - par licence", async () => {
-      await constl.bds.changerLicence({ idBd, licence: "ODC-BY-1_0" })
+      await constl.bds.changerLicence({ idBd, licence: "ODC-BY-1_0" });
 
       // La bd est exclue même si enforcerAutorisation !== false et que nous sommes l'auteur
       const bds = await obtenir<string[]>(({ siVide }) =>
-        constl.nuées.suivreBds({ idNuée, f: siVide(), filtres: { licences: ["ODbl-1_0"] } }),
+        constl.nuées.suivreBds({
+          idNuée,
+          f: siVide(),
+          filtres: { licences: ["ODbl-1_0"] },
+        }),
       );
 
       expect(bds).to.be.empty();
     });
 
     it("filtres - ignorer autorisation", async () => {
-      await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" })
+      await constl.nuées.modifierTypeAutorisation({
+        idNuée,
+        type: "par invitation",
+      });
       const bds = await obtenir<string[]>(({ siPasVide }) =>
-        constl.nuées.suivreBds({ idNuée, f: siPasVide(), filtres: { ignorerAutorisation: true } }),
+        constl.nuées.suivreBds({
+          idNuée,
+          f: siPasVide(),
+          filtres: { ignorerAutorisation: true },
+        }),
       );
 
       expect(bds).to.have.members([idBd]);
     });
 
     it("filtres - ne pas ignorer l'autorisation même pour mes données", async () => {
-      await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" })
+      await constl.nuées.modifierTypeAutorisation({
+        idNuée,
+        type: "par invitation",
+      });
       const bds = await obtenir<string[]>(({ siDéfini }) =>
-        constl.nuées.suivreBds({ idNuée, f: siDéfini(), filtres: { ignorerAutorisation: false } }),
+        constl.nuées.suivreBds({
+          idNuée,
+          f: siDéfini(),
+          filtres: { ignorerAutorisation: false },
+        }),
       );
 
       expect(bds).to.be.empty();
     });
 
     it("filtres - toujours inclure mes données même avec nuée indisponible", async () => {
-      const idNuéeIndisponible = "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF"
-      await constl.nuées.modifierTypeAutorisation({ idNuée: idNuéeIndisponible, type: "par invitation" })
+      const idNuéeIndisponible =
+        "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      await constl.nuées.modifierTypeAutorisation({
+        idNuée: idNuéeIndisponible,
+        type: "par invitation",
+      });
 
       const bds = await obtenir<string[]>(({ siPasVide }) =>
         constl.nuées.suivreBds({ idNuée: idNuéeIndisponible, f: siPasVide() }),
@@ -2927,9 +2951,88 @@ describe("Nuées", function () {
     });
 
     describe("bds", function () {
-      it("ascendance");
-      it("descendance");
-      it("ascendance et descendance");
+      let idNuéeParent: string;
+      let idNuée: string;
+      let idNuéeEnfant: string;
+
+      let idBdNuéeParent: string;
+      let idBdNuée: string;
+      let idBdNuéeEnfant: string;
+
+      before(async () => {
+        idNuéeEnfant = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({ parent: idBdNuéeEnfant });
+        idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+
+        const schémaParent = await constl.nuées.créerSchémaDeNuée({
+          idNuée: idNuéeParent,
+          licence: "ODbl-1_0",
+        });
+        idBdNuéeParent = await constl.bds.créerBdDeSchéma({
+          schéma: schémaParent,
+        });
+
+        const schéma = await constl.nuées.créerSchémaDeNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+        idBdNuée = await constl.bds.créerBdDeSchéma({ schéma });
+
+        const schémaEnfant = await constl.nuées.créerSchémaDeNuée({
+          idNuée: idNuéeEnfant,
+          licence: "ODbl-1_0",
+        });
+        idBdNuéeEnfant = await constl.bds.créerBdDeSchéma({
+          schéma: schémaEnfant,
+        });
+      });
+
+      it("sans héritage", async () => {
+        const bds = obtenir<string[]>(({ siPasVide }) =>
+          constl.nuées.suivreBds({
+            idNuée,
+            f: siPasVide(),
+            héritage: { ascendance: false, descendance: false },
+          }),
+        );
+
+        expect(bds).to.have.members([idBdNuée]);
+      });
+
+      it("ascendance", async () => {
+        const bds = obtenir<string[]>(({ siPasVide }) =>
+          constl.nuées.suivreBds({
+            idNuée,
+            f: siPasVide(),
+            héritage: { ascendance: true },
+          }),
+        );
+
+        expect(bds).to.have.members([idBdNuée, idBdNuéeParent]);
+      });
+
+      it("descendance", async () => {
+        const bds = obtenir<string[]>(({ siPasVide }) =>
+          constl.nuées.suivreBds({
+            idNuée,
+            f: siPasVide(),
+            héritage: { descendance: true },
+          }),
+        );
+
+        expect(bds).to.have.members([idBdNuée, idBdNuéeEnfant]);
+      });
+      it("ascendance et descendance", async () => {
+        const bds = obtenir<string[]>(({ siPasVide }) =>
+          constl.nuées.suivreBds({
+            idNuée,
+            f: siPasVide(),
+            héritage: { ascendance: true, descendance: true },
+          }),
+        );
+
+        expect(bds).to.have.members([idBdNuée, idBdNuéeParent, idBdNuéeParent]);
+      });
     });
 
     describe("données", function () {

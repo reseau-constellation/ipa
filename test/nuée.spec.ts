@@ -566,44 +566,6 @@ describe("Nuées", function () {
     });
   }
 
-  describe("Traçabilité descendants", function () {
-    let idNuéeEnfant: string;
-    let idNuée: string;
-    let idNuéeParent: string;
-
-    const descendants = new utilsTestAttente.AttendreRésultat<string[]>();
-    const fsOublier: schémaFonctionOublier[] = [];
-
-    before(async () => {
-      idNuéeParent = await client.nuées.créerNuée();
-      idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
-
-      const { fOublier: fOublierDescendants } =
-        await client.nuées.rechercherNuéesDéscendantes({
-          idNuée: idNuéeParent,
-          f: (x) => descendants.mettreÀJour(x),
-        });
-
-      fsOublier.push(fOublierDescendants);
-      fsOublier.push(async () => descendants.toutAnnuler());
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-    });
-    it("Descendant détecté", async () => {
-      const val = await descendants.attendreQue((x) => x.length > 0);
-      expect(val).to.have.members([idNuée]);
-    });
-
-    it("Descendance transitive détectée", async () => {
-      idNuéeEnfant = await client.nuées.créerNuée({ nuéeParent: idNuée });
-
-      const val = await descendants.attendreQue((x) => x.length > 1);
-      expect(val).to.have.members([idNuée, idNuéeEnfant]);
-    });
-  });
-
   describe("Suivi données ascendants", function () {
     let idNuée: string;
     let idNuéeParent: string;
