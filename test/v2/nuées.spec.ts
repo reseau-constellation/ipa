@@ -36,7 +36,7 @@ describe("Nuées", function () {
 
   before(async () => {
     ({ fermer, constls } = await créerConstellationsTest({
-      n: 2,
+      n: 3,
     }));
     constl = constls[0];
     idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
@@ -552,6 +552,25 @@ describe("Nuées", function () {
         expect(autorisation).to.be.false();
       });
 
+      it("bd bloquée si un seul auteur bloqué", async () => {
+        await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[2] });
+
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+        await constls[1].bds.inviterAuteur({ idBd, idCompte: idsComptes[2], rôle: MEMBRE });
+
+        await obtenir(({siDéfini})=>constl.compte.suivrePermission({ idObjet: idBd, idCompte: idsComptes[2], f: siDéfini() }))
+
+        // Bloquée même si invitation non acceptée
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== false),
+          }),
+        );
+        expect(autorisation).to.be.true();
+      })
+
       it("erreur - bloquer compte membre nuée", async () => {
         await expect(
           constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[0] }),
@@ -694,6 +713,37 @@ describe("Nuées", function () {
         );
         expect(autorisation).to.be.true();
       });
+
+      it("bd incluse si un seul auteur invité", async () => {
+        await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[2] });
+
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+        await constls[1].bds.inviterAuteur({ idBd, idCompte: idsComptes[2], rôle: MEMBRE });
+
+        await obtenir(({siDéfini})=>constl.compte.suivrePermission({ idObjet: idBd, idCompte: idsComptes[2], f: siDéfini() }))
+
+        // Pas incluse si invitation pas encore acceptée
+        const autorisationAvant = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== true),
+          }),
+        );
+        expect(autorisationAvant).to.be.false();
+
+        // Incluse si invitation acceptée
+        await constls[2].bds.ajouterÀMesBds({ idBd })
+
+        const autorisationAprès = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== false),
+          }),
+        );
+        expect(autorisationAprès).to.be.true();
+      })
 
       it("erreur - désinviter compte membre nuée", async () => {
         await expect(
@@ -1865,16 +1915,87 @@ describe("Nuées", function () {
     });
 
     it("vide si aucun descendant", async () => {
-      const descendants = await obtenir<string[]>(({ siDéfini })=>constl.nuées.suivreDescendants({ idNuée, f: siDéfini() }));
-      expect (descendants).to.be.empty()
+      const descendants = await obtenir<string[]>(({ siDéfini }) =>
+        constl.nuées.suivreDescendants({ idNuée, f: siDéfini() }),
+      );
+      expect(descendants).to.be.empty();
     });
-    it("descendance transitive");
-    it("petit-enfant enlevé avec enfant");
-    it("pas d'erreur si récursif");
+
+    it("descendance immédiate", async () => {
+      const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
+
+      const descendants = await obtenir<string[]>(({ siPasVide }) =>
+        constl.nuées.suivreDescendants({ idNuée, f: siPasVide() }),
+      );
+      expect(descendants).to.have.members([idNuéeEnfant]);
+    });
+
+    it("descendance transitive", async () => {
+      const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
+      const idPetitEnfant = await constl.nuées.créerNuée({
+        parent: idNuéeEnfant,
+      });
+
+      const descendants = await obtenir<string[]>(({ si }) =>
+        constl.nuées.suivreDescendants({
+          idNuée,
+          f: si((x) => !!x && x.length >= 2),
+        }),
+      );
+      expect(descendants).to.have.members([idNuéeEnfant, idPetitEnfant]);
+    });
+
+    it("petit-enfant enlevé avec enfant", async () => {
+      const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
+      await constl.nuées.créerNuée({ parent: idNuéeEnfant });
+
+      await obtenir<string[]>(({ si }) =>
+        constl.nuées.suivreDescendants({
+          idNuée,
+          f: si((x) => !!x && x.length >= 2),
+        }),
+      );
+
+      await constl.nuées.enleverParent({ idNuée: idNuéeEnfant });
+
+      const descendants = await obtenir<string[]>(({ siVide }) =>
+        constl.nuées.suivreDescendants({ idNuée, f: siVide() }),
+      );
+      expect(descendants).to.be.empty();
+    });
+
+    it("pas d'erreur si récursif", async () => {
+      const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
+      const idPetitEnfant = await constl.nuées.créerNuée({
+        parent: idNuéeEnfant,
+      });
+
+      await constl.nuées.préciserParent({
+        idNuée,
+        idNuéeParent: idPetitEnfant,
+      });
+
+      const descendants = await obtenir<string[]>(({ si }) =>
+        constl.nuées.suivreDescendants({
+          idNuée,
+          f: si((x) => !!x && x.length >= 3),
+        }),
+      );
+      expect(descendants).to.have.members([
+        idNuéeEnfant,
+        idPetitEnfant,
+        idNuée,
+      ]);
+    });
   });
 
   describe("héritage", function () {
-    describe("noms");
+    describe("noms", function () {
+      it("noms ascendance")
+      it("priorité noms ascendance immédiate")
+      it("priorité noms nuée")
+    });
+
     describe("descriptions");
     describe("mots-clefs");
     describe("tableaux");
