@@ -442,11 +442,13 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idTableau,
     idVariable,
     idColonne,
+    index,
   }: {
     idStructure: string;
     idTableau: string;
     idVariable?: string;
     idColonne?: string;
+    index?: boolean;
   }): Promise<string> {
     await this.confirmerPermission({ idStructure });
 
@@ -458,6 +460,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idColonne = idColonne || uuidv4();
     const élément = {
       variable: idVariable,
+      index,
     };
     await tableau.put(`colonnes/${idColonne}`, élément);
 
