@@ -8,6 +8,7 @@ import type {
   OptionsNébuleuse,
   ServicesNébuleuse,
 } from "@/v2/nébuleuse/nébuleuse.js";
+import type Quibble from "quibble";
 
 describe.only("Nébuleuse", function () {
   describe("Démarrage", function () {
@@ -670,7 +671,7 @@ describe.only("Nébuleuse", function () {
   });
 
   describe("Dossier", function () {
-    let quibble: typeof import("quibble");
+    let quibble: typeof Quibble;
 
     let nébuleuse: Nébuleuse;
     let dossier: string;
