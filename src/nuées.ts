@@ -1,7 +1,5 @@
 import { ComposanteClientListe } from "./v2/nébuleuse/services.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
-import { cacheSuivi } from "@/décorateursCache.js";
-import { schémaBdTableauxDeBd } from "@/bds.js";
 
 export class Nuées extends ComposanteClientListe<string> {
   /*
@@ -36,38 +34,6 @@ export class Nuées extends ComposanteClientListe<string> {
 
   async suivreContenuBloqué() {}
 
-  async réordonnerTableauNuée({
-    idNuée,
-    idTableau,
-    position,
-  }: {
-    idNuée: string;
-    idTableau: string;
-    position: number;
-  }): Promise<void> {
-    await this._confirmerPermission({ idNuée });
-    const idBdTableaux = await this.client.obtIdBd({
-      nom: "tableaux",
-      racine: idNuée,
-      type: "ordered-keyvalue",
-    });
-
-    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdTableaux,
-      type: "ordered-keyvalue",
-      schéma: schémaBdTableauxDeBd,
-    });
-
-    const tableauxExistants = await bdTableaux.all();
-    const positionExistante = tableauxExistants.findIndex(
-      (t) => t.key === idTableau,
-    );
-    if (position !== positionExistante)
-      await bdTableaux.move(idTableau, position);
-    await fOublier();
-  }
-
-  @cacheSuivi
   async suivreNuéesParents({
     idNuée,
     f,

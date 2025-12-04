@@ -366,7 +366,7 @@ describe("Nuées", function () {
     });
 
     it("pas de mots-clefs pour commencer", async () => {
-      const motsClefs = await obtenir<string[]>(({ siDéfini }) =>
+      const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ siDéfini }) =>
         constl.nuées.suivreMotsClefs({
           idNuée,
           f: siDéfini(),
@@ -382,17 +382,21 @@ describe("Nuées", function () {
         idsMotsClefs: idMotClef,
       });
 
-      const motsClefs = await obtenir<string[]>(({ siPasVide }) =>
+      const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ siPasVide }) =>
         constl.nuées.suivreMotsClefs({ idNuée, f: siPasVide() }),
       );
-      expect(Array.isArray(motsClefs)).to.be.true();
-      expect(motsClefs.length).to.equal(1);
+
+      const réf: ValeurAscendance<string>[] = [{
+        val: idMotClef,
+        source: idNuée
+      }]
+      expect(motsClefs).to.have.deep.members(réf);
     });
 
     it("effacer un mot-clef", async () => {
       await constl.nuées.effacerMotClef({ idNuée, idMotClef });
 
-      const motsClefs = await obtenir<string[]>(({ siVide }) =>
+      const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ siVide }) =>
         constl.nuées.suivreMotsClefs({
           idNuée,
           f: siVide(),
@@ -1311,11 +1315,11 @@ describe("Nuées", function () {
       });
 
       it("mots-clefs", async () => {
-        const motsClefs = await obtenir<string[]>(({ siPasVide }) =>
+        const motsClefs = await obtenir<ValeurAscendance<string[]> | undefined>(({ siPasVide }) =>
           constl.nuées.suivreMotsClefs({ idNuée, f: siPasVide() }),
         );
 
-        expect(motsClefs).to.have.members([idMotClef]);
+        expect(motsClefs).to.have.deep.members([{ val: [idMotClef], source: idNuée }]);
       });
 
       it("statut", async () => {
