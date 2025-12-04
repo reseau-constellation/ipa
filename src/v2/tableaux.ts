@@ -575,7 +575,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   }): Promise<void> {
     await this.confirmerPermission({ idStructure });
     throw new Error(
-      `Impossible de réordonner colonne ${idColonne} de tableau ${idTableau} à position ${position} : pas encore implémenté.`,
+      `Impossible de réordonner colonne ${idColonne} de tableau ${idTableau} à position ${position} : fonctionnalité pas encore implémentée.`,
     );
 
     /*const { tableau, oublier } = await this.ouvrirTableau({
