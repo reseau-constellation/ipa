@@ -2611,7 +2611,109 @@ describe("Nuées", function () {
     });
 
     describe("autorisations", function () {
+      describe("nuée parent ouverte", function () {
+        let idNuéeParent: string;
+        let idNuée: string;
 
+        let idBd: string;
+
+        beforeEach(async () => {
+          idNuéeParent = await constl.nuées.créerNuée({ autorisation: "ouverte" });
+          idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+
+          idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+        });
+
+        it("autorisation héritée", async () => {
+          await constl.nuées.bloquerCompte({ idNuée: idNuéeParent, idCompte: idsComptes[1] })
+          const autorisation = await obtenir<AutorisationNuée>(({siDéfini}) => constl.nuées.suivreAutorisation({ idNuée, f: siDéfini() }))
+
+          const réf: AutorisationNuée = {
+            type: "ouverte",
+            bloqués: [idsComptes[1]],
+          }
+          expect(autorisation).to.deep.equal(réf);
+        })
+        
+        it("bloquer comptes ascendance immédiate", async () => {
+          await constl.nuées.bloquerCompte({ idNuée: idNuéeParent, idCompte: idsComptes[1] });
+          
+          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          expect(autorisée).to.be.false();
+        })
+  
+        it("bloquer comptes nuée", async () => {
+          await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
+  
+          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          expect(autorisée).to.be.false();
+        })
+
+        it("nuée enfant par invitation", async () => {
+          await constl.nuées.modifierTypeAutorisation({ idNuée, type: "par invitation" })
+
+          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          expect(autorisée).to.be.false();
+
+          // On peut inviter des comptes sur la nuée enfant
+          await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] })
+
+          const autoriséeAprèsInvitation = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          expect(autoriséeAprèsInvitation).to.be.true();
+        })
+      })
+
+      describe("par invitation", function () {
+        let idNuéeParent: string;
+        let idNuée: string;
+
+        let idBd: string;
+
+        beforeEach(async () => {
+          idNuéeParent = await constl.nuées.créerNuée({ autorisation: "par invitation" });
+          idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+
+          idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+        });
+
+        it("autorisation héritée", async () => {
+          await constl.nuées.inviterCompte({ idNuée: idNuéeParent, idCompte: idsComptes[1] })
+          const autorisation = await obtenir<AutorisationNuée>(({siDéfini}) => constl.nuées.suivreAutorisation({ idNuée, f: siDéfini() }))
+
+          const réf: AutorisationNuée = {
+            type: "par invitation",
+            invités: [idsComptes[1]],
+          }
+          expect(autorisation).to.deep.equal(réf);
+        })
+
+        it("inviter comptes ascendance immédiate", async () => {
+          await constl.nuées.inviterCompte({ idNuée: idNuéeParent, idCompte: idsComptes[1] })
+  
+          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          expect(autorisée).to.be.true();
+        })
+  
+        it("inviter comptes nuée", async () => {
+          await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] })
+  
+          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          expect(autorisée).to.be.true();
+        })
+
+        it("nuée enfant ouverte", async () => {
+          await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" })
+
+          const autorisée = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          expect(autorisée).to.be.true();
+
+          // On peut bloquer des comptes sur la nuée enfant
+          await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] })
+
+          const autoriséeAprèsInvitation = await obtenir<boolean>(({siDéfini}) => constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }))
+          expect(autoriséeAprèsInvitation).to.be.false();
+        })
+      })
     });
 
     describe("bds", function () {
