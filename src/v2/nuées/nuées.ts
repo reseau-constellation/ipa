@@ -2005,9 +2005,14 @@ export class Nuées<
     const orbite = this.service("orbite");
     const bds = this.service("bds");
 
-    const empreintes: { bds?: string[]; variables?: string[]; nuée?: string } = {};
+    const empreintes: { bds?: string[]; variables?: string[]; nuée?: string } =
+      {};
     const fFinale = async () => {
-      const texte = [empreintes.nuée, ...(empreintes.bds || []), ...(empreintes.variables || [])]
+      const texte = [
+        empreintes.nuée,
+        ...(empreintes.bds || []),
+        ...(empreintes.variables || []),
+      ]
         .toSorted()
         .join("/");
       await f(Base64.stringify(md5(texte)));
@@ -2038,13 +2043,18 @@ export class Nuées<
     });
 
     const oublierEmpreinteVariables = await suivreDeFonctionListe({
-      fListe: async ({fSuivreRacine})=> await this.suivreVariables({ idNuée, f: fSuivreRacine}),
-      fBranche: async ({ id: idVariable, fSuivreBranche}) => await orbite.suivreEmpreinteTêteBd({ idBd: idVariable, f: fSuivreBranche }),
+      fListe: async ({ fSuivreRacine }) =>
+        await this.suivreVariables({ idNuée, f: fSuivreRacine }),
+      fBranche: async ({ id: idVariable, fSuivreBranche }) =>
+        await orbite.suivreEmpreinteTêteBd({
+          idBd: idVariable,
+          f: fSuivreBranche,
+        }),
       f: async (x: string[]) => {
         empreintes.variables = x;
         await fFinale();
       },
-    })
+    });
 
     return async () => {
       await oublierEmpreintesBds();
