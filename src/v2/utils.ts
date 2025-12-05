@@ -25,6 +25,7 @@ export const sauvegarderDonnéesExportées = async ({
   obtItérableAsyncSFIP,
   dossier = "",
   inclureDocuments = true,
+  dossierMédias,
 }: {
   données: DonnéesFichierBdExportées;
   formatDocu: xlsx.BookType | "xls";
@@ -34,6 +35,7 @@ export const sauvegarderDonnéesExportées = async ({
   }) => Promise<AsyncIterable<Uint8Array>>;
   dossier?: string;
   inclureDocuments?: boolean;
+  dossierMédias?: string;
 }): Promise<string> => {
   const { docu: doc, fichiersSFIP, nomFichier } = données;
 
@@ -86,7 +88,12 @@ export const sauvegarderDonnéesExportées = async ({
         fs.rmSync(adresseFinale);
       }
     }
-    await zipper([fichierDoc], fichiersDeSFIP, path.join(dossier, nomFichier));
+    await zipper({
+      fichiersDocus: [fichierDoc],
+      fichiersMédias: fichiersDeSFIP,
+      nomFichier: path.join(dossier, nomFichier),
+      dossierMédias,
+    });
     return adresseFinale;
   } else {
     const adresseFinale = path.join(dossier, `${nomFichier}.${formatDocu}`);

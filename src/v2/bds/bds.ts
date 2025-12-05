@@ -1742,15 +1742,15 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     const fSuivreDonnéesDeTableau = async ({
       id: idBd,
-      fSuivreBd,
+      fSuivre,
     }: {
       id: string;
-      fSuivreBd: Suivi<DonnéesRangéeTableauAvecId[]>;
+      fSuivre: Suivi<DonnéesRangéeTableauAvecId[]>;
     }): Promise<Oublier> => {
       return await this.tableaux.suivreDonnées({
         idStructure: idBd,
         idTableau,
-        f: fSuivreBd,
+        f: fSuivre,
       });
     };
 
@@ -2319,6 +2319,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     formatDocu,
     dossier = "",
     inclureDocuments = true,
+    dossierMédias,
   }: {
     idBd: string;
     langues?: string[];
@@ -2327,6 +2328,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     formatDocu: xlsx.BookType | "xls";
     dossier?: string;
     inclureDocuments?: boolean;
+    dossierMédias?: string;
   }): Promise<string> {
     const donnéesExportées = await this.exporterDonnées({
       idBd,
@@ -2342,6 +2344,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       obtItérableAsyncSFIP: hélia.obtItérableAsyncSFIP.bind(hélia),
       dossier,
       inclureDocuments,
+      dossierMédias,
     });
   }
 }

@@ -1274,6 +1274,7 @@ export class Projets<
     formatDocu,
     dossier = "",
     inclureDocuments = true,
+    dossierMédias,
   }: {
     idProjet: string;
     langues?: string[];
@@ -1282,6 +1283,7 @@ export class Projets<
     formatDocu: BookType | "xls";
     dossier?: string;
     inclureDocuments?: boolean;
+    dossierMédias?: string;
   }): Promise<string> {
     const donnéesExportées = await this.exporterDonnées({
       idProjet,
@@ -1294,6 +1296,7 @@ export class Projets<
       formatDocu,
       dossier,
       inclureDocuments,
+      dossierMédias,
     });
   }
 
@@ -1302,11 +1305,13 @@ export class Projets<
     formatDocu,
     dossier = "",
     inclureDocuments = true,
+    dossierMédias,
   }: {
     données: DonnéesFichierProjetExportées;
     formatDocu: BookType | "xls";
     dossier?: string;
     inclureDocuments?: boolean;
+    dossierMédias?: string;
   }): Promise<string> {
     const hélia = this.service("hélia");
 
@@ -1314,7 +1319,7 @@ export class Projets<
 
     const bookType: BookType = conversionsTypes[formatDocu] || formatDocu;
 
-    const fichiersDocs = docus.map((d) => {
+    const fichiersDocus = docus.map((d) => {
       return {
         nom: `${d.nom}.${formatDocu}`,
         octets: xlsxWrite(d.docu, { bookType, type: "buffer" }),
@@ -1332,7 +1337,13 @@ export class Projets<
           }),
         )
       : [];
-    await zipper(fichiersDocs, fichiersDeSFIP, join(dossier, nomFichier));
+    await zipper({
+      fichiersDocus,
+      fichiersMédias: fichiersDeSFIP,
+      nomFichier: join(dossier, nomFichier),
+      dossierMédias,
+    });
+
     return join(dossier, nomFichier);
   }
 }

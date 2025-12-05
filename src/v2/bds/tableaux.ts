@@ -417,12 +417,12 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
           idTableau,
           f: async (tableau) => await fSuivreRacine(tableau.données),
         }),
-      fSuivre: async ({ id: idDonnées, fSuivreBd }) =>
+      fSuivre: async ({ id: idDonnées, fSuivre }) =>
         await this.service("orbite").suivreDonnéesBd({
           id: idDonnées,
           type: "nested",
           schéma: schémaDonnéesTableau,
-          f: fSuivreBd,
+          f: fSuivre,
         }),
       f: async (données?: NestedObjectToMap<StructureDonnéesTableau>) => {
         if (données)
@@ -583,8 +583,8 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
           idTableau,
           f: async (tableau) => await fSuivreRacine(tableau.données),
         }),
-      fSuivre: async ({ id: idDonnées, fSuivreBd }) =>
-        await orbite.suivreEmpreinteTêteBd({ idBd: idDonnées, f: fSuivreBd }),
+      fSuivre: async ({ id: idDonnées, fSuivre }) =>
+        await orbite.suivreEmpreinteTêteBd({ idBd: idDonnées, f: fSuivre }),
       f: ignorerNonDéfinis(f),
     });
   }
@@ -859,6 +859,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     formatDocu,
     dossier = "",
     inclureDocuments = true,
+    dossierMédias,
   }: {
     idStructure: string;
     idTableau: string;
@@ -868,6 +869,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     formatDocu: BookType | "xls";
     dossier?: string;
     inclureDocuments?: boolean;
+    dossierMédias?: string;
   }): Promise<string> {
     const hélia = this.service("hélia");
 
@@ -885,6 +887,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       dossier,
       inclureDocuments,
       obtItérableAsyncSFIP: hélia.obtItérableAsyncSFIP.bind(hélia),
+      dossierMédias,
     });
   }
 }

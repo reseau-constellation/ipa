@@ -1426,20 +1426,20 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
 
       const { catégorie } = colonne;
 
-      let val: string | number | undefined = undefined;
-      const élément = é[col];
+      let formattée: string | number | undefined = undefined;
+      const valeur = élément[col];
       if (catégorie?.type === "simple") {
-        val = await formaterValeur(élément, catégorie.catégorie);
+        formattée = await formaterValeur(valeur, catégorie.catégorie);
       } else if (catégorie?.type === "liste") {
-        if (Array.isArray(élément)) {
-          val = JSON.stringify(
+        if (Array.isArray(valeur)) {
+          formattée = JSON.stringify(
             await Promise.allSettled(
-              élément.map((x) => formaterValeur(x, catégorie.catégorie)),
+              valeur.map((x) => formaterValeur(x, catégorie.catégorie)),
             ),
           );
         }
       }
-      if (val !== undefined) élémentFinal[col] = val;
+      if (formattée !== undefined) élémentFinal[col] = formattée;
     }
 
     return élémentFinal;
