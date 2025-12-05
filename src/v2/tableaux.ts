@@ -10,8 +10,12 @@ import { asSplitKey, joinKey } from "@orbitdb/nested-db";
 import { cacheSuivi } from "./crabe/cache.js";
 import { brancheBd } from "./crabe/services/services.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import { générerFonctionValidation, schémaSpécificationRègleColonne } from "./règles.js";
+import {
+  générerFonctionValidation,
+  schémaSpécificationRègleColonne,
+} from "./règles.js";
 import { typer } from "./crabe/services/orbite/orbite.js";
+import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
@@ -51,7 +55,10 @@ export type DonnéesRangéeTableau = {
 
 // Types scores
 
-export type ScoreCouvertureTableau = { numérateur: number; dénominateur: number };
+export type ScoreCouvertureTableau = {
+  numérateur: number;
+  dénominateur: number;
+};
 
 // Types tableaux
 
@@ -919,38 +926,48 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idStructure,
     idTableau,
     f,
+    résolveurDonnéesCatégorie,
   }: {
     idStructure: string;
     idTableau: string;
     f: Suivi<FonctionValidation[]>;
+    résolveurDonnéesCatégorie: (args: {
+      idStructure: string;
+      idTableau: string;
+      f: Suivi<DonnéesRangéeTableauAvecId[]>;
+    }) => Promise<Oublier>;
   }): Promise<Oublier> {
+    type RègleAvecCatégories = {
+      règle: RègleColonne;
+      donnéesCatégorie?: DagCborEncodable[];
+    };
 
     const info: {
-      règles?: FonctionValidation[];
+      règles?: RègleAvecCatégories[];
       colonnes?: InfoColonne[];
-    } = {}
+    } = {};
 
-    const fFinaleRègles = async (
-      règles: { règle: RègleColonne; donnéesCatégorie?: DagCborEncodable[] }[],
-    ) => {
-      if (info.colonnes) {
+    const fFinale = async () => {
+      if (info.colonnes && info.règles) {
         const varsÀColonnes = info.colonnes.reduce(
           (o, c) => (c.variable ? { ...o, [c.variable]: c.id } : { ...o }),
           {},
         );
         const colsIndex = info.colonnes.filter((c) => c.index).map((c) => c.id);
-        info.règles = règles.map((r) =>
-          générerFonctionValidation({
-            règle: r.règle,
-            varsÀColonnes,
-            donnéesCatégorie: r.donnéesCatégorie,
-            colsIndex,
-          }),
+        await f(
+          info.règles.map((r) =>
+            générerFonctionValidation({
+              règle: r.règle,
+              varsÀColonnes,
+              donnéesCatégorie: r.donnéesCatégorie,
+              colsIndex,
+            }),
+          ),
         );
-        await fFinale();
       }
     };
-    const oublierVarsÀColonnes = await this.suivreColonnes({
+
+    const oublierColonnes = await this.suivreColonnes({
       idStructure,
       idTableau,
       f: async (cols) => {
@@ -958,7 +975,6 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         await fFinale();
       },
     });
-
 
     const fListeRègles = async ({
       fSuivreRacine,
@@ -987,7 +1003,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         règle.règle.règle.détails.type === "dynamique"
       ) {
         const { structure, tableau, colonne } = règle.règle.règle.détails;
-        return await this.suivreDonnées({
+        return await résolveurDonnéesCatégorie({
           idStructure: structure,
           idTableau: tableau,
           f: async (données) =>
@@ -1004,14 +1020,17 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
 
     const oublierRègles = await suivreDeFonctionListe({
       fListe: fListeRègles,
-      f: fFinaleRègles,
+      f: async (règles: RègleAvecCatégories[]) => {
+        info.règles = règles;
+        await fFinale();
+      },
       fBranche: fBrancheRègles,
       fIdDeBranche: (b: RègleColonne) => b.règle.id,
     });
 
     const oublier = async () => {
       await oublierRègles();
-      await oublierVarsÀColonnes();
+      await oublierColonnes();
     };
     return oublier;
   }
@@ -1392,13 +1411,12 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   async suivreScoreCouverture({
     idStructure,
     idTableau,
-    f
+    f,
   }: {
     idStructure: string;
     idTableau: string;
     f: Suivi<ScoreCouvertureTableau>;
   }): Promise<Oublier> {
-  
     const info: {
       cols?: InfoColonneAvecCatégorie[];
       règles?: RègleColonne[];
@@ -1445,5 +1463,4 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
       await oublierRègles();
     };
   }
-
 }
