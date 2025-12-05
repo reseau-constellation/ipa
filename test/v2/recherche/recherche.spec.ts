@@ -157,11 +157,13 @@ describe("Rechercher dans réseau", function () {
     });
 
     describe("selon courriel", function () {
-
       let recherche: ObtRecherche<InfoRésultatTexte>;
       before(async () => {
         recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
-          constls[1].profil.recherche.selonCourriel({ courriel: "தொடர்பு@லஸ்ஸி.இந்தியா", f }),
+          constls[1].profil.recherche.selonCourriel({
+            courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
+            f,
+          }),
         );
       });
 
@@ -172,7 +174,7 @@ describe("Rechercher dans réseau", function () {
 
       it("ajout détecté", async () => {
         const pRésultat = recherche.siPasVide();
-        
+
         await constls[0].profil.sauvegarderCourriel({
           courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
         });
@@ -1617,119 +1619,40 @@ describe("Rechercher dans réseau", function () {
   });
 });
 
-describe.skip("Test fonctionnalités recherche", function () {
-
-  let rechercheSurCompte1: ObtRecherche<InfoRésultatTexte>;
-  let rechercheSurCompte2: ObtRecherche<InfoRésultatTexte>;
-
-  before(async () => {
-    rechercheSurCompte1 = await rechercher<InfoRésultatTexte>(({ f }) =>
-      constls[0].profil.recherche.selonNom({ nom: "Julien", f }),
-    );
-    rechercheSurCompte2 = await rechercher<InfoRésultatTexte>(({ f }) =>
-      constls[1].profil.recherche.selonNom({ nom: "Julien", f }),
-    );
-
-    réfconstl2 = {
-      id: idsComptes[1],
-      résultatObjectif: {
-        score: 4 / 9,
-        type: "résultat",
-        de: "nom",
-        clef: "fr",
-        info: {
-          type: "texte",
-          texte: "Julien",
-          début: 0,
-          fin: 6,
-        },
-      },
-    };
-    réfconstl3 = {
-      id: idsComptes[2],
-      résultatObjectif: {
-        score: 4 / 9,
-        type: "résultat",
-        de: "nom",
-        clef: "cst",
-        info: {
-          type: "texte",
-          texte: "Julián",
-          début: 0,
-          fin: 6,
-        },
-      },
-    };
-  });
-
-  it("moins de résultats que demandé s'il n'y a vraiment rien", async () => {
-    const pRésultat = rechercheSurCompte1.siPasVide();
-    await constls[1].profil.sauvegarderNom({
-      langue: "fr",
-      nom: "Julien",
-    });
-
-    const résultat = await pRésultat;
-    vérifierRecherche(résultat, [réfconstl2]);
-  });
-
-  it("on suit les changements", async () => {
-    const pRésultat = rechercheSurCompte1.siAuMoins(2);
-    await constls[2].profil.sauvegarderNom({
-      langue: "cst",
-      nom: "Julián",
-    });
-
-    const résultat = await pRésultat;
-    vérifierRecherche(résultat, [réfconstl2, réfconstl3]);
-  });
-
-  it("diminuer N désiré", async () => {
-    const pRésultat = rechercheSurCompte1.siPasPlusQue(1);
-    await rechercheSurCompte1.n(1);
-
-    const résultat = await pRésultat;
-    vérifierRecherche(résultat, [réfconstl2]);
-  });
-
-  it("augmenter N désiré", async () => {
-    const pRésultat = rechercheSurCompte1.siAuMoins(2);
-    await rechercheSurCompte1.n(4);
-
-    const résultat = await pRésultat;
-    vérifierRecherche(résultat, [réfconstl2, réfconstl3]);
-  });
-
-  it("Augmenter N désiré d'abord", async () => {
-    await fChangerN2(2);
-
-    const val = await rés2.attendreQue((x) => !!x && x.length > 1);
-    vérifierRecherche(val, [réfconstl2, réfconstl3]);
-  });
-
-  it("Et ensuite diminuer N désiré", async () => {
-    await fChangerN2(1);
-
-    const val = await rés2.attendreQue((x) => !!x && x.length === 1);
-    vérifierRecherche(val, [réfconstl2]);
-  });
-
+describe("Recherche réseau complexe", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
-  const idsComptes: string[] = [];
+  let idsComptes: string[];
+
+  const idsMotsClefsOrdonnés: string[] = [];
+
+  let recherche: ObtRecherche<InfoRésultat>;
 
   before(async () => {
     ({ fermer, constls } = await créerConstellationsTest({
       n: 5,
-      créerConstellation,
     }));
     constl = constls[0];
+    idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
+
+    recherche = await rechercher(({ f }) =>
+      constl.motsClefs.recherche.selonNom({ nomMotClef: "ភ្លៀង", f }),
+    );
+
     for (const [i, c] of constls.entries()) {
-      idsComptes.push(await c.obtIdCompte());
+      const idMotClef = await c.motsClefs.créerMotClef();
+      await c.motsClefs.sauvegarderNoms({
+        idMotClef,
+        noms: {
+          ខ្មែរ: "ភ្លៀង",
+        },
+      });
+      idsMotsClefsOrdonnés.push(idMotClef);
+
       if (i < constls.length - 1) {
-        await c.réseau.faireConfianceAuMembre({
-          idCompte: await constls[i + 1].obtIdCompte(),
+        await c.réseau.faireConfianceAuCompte({
+          idCompte: idsComptes[i + 1],
         });
       }
     }
@@ -1739,214 +1662,81 @@ describe.skip("Test fonctionnalités recherche", function () {
     if (fermer) await fermer();
   });
 
-  describe("Rechercher de réseau", () => {
-    let fOublierRecherche: schémaFonctionOublier;
-    let fChangerN: (x: number) => Promise<void>;
+  it("tous les objets correspondants détectés", async () => {
+    const résultats = await recherche.siAuMoins(5);
 
-    const résMembresEnLigne = new utilsTestAttente.AttendreRésultat<
-      statutMembre[]
-    >();
-    const résMotsClefs = new utilsTestAttente.AttendreRésultat<
-      RésultatRecherche<InfoRésultatTexte>[]
-    >();
-
-    const fsOublier: schémaFonctionOublier[] = [];
-    const motsClefs: { [key: string]: string } = {};
-
-    before(async () => {
-      fsOublier.push(
-        await constl.réseau.suivreConnexionsMembres({
-          f: (m) => résMembresEnLigne.mettreÀJour(m),
-        }),
-      );
-      await résMembresEnLigne.attendreQue((x) => !!x && x.length === 5);
-
-      for (const c of constls) {
-        const idMotClef = await c.motsClefs.créerMotClef();
-        const idCompte = await c.obtIdCompte();
-        motsClefs[idCompte] = idMotClef;
-
-        c.réseau.recevoirSalut = async () => {
-          // Désactiver
-        };
-        c.réseau.dispositifsEnLigne = {};
-        c.réseau.événements.emit("membreVu");
-      }
-
-      await résMembresEnLigne.attendreQue((x) => !!x && !x.length);
-
-      ({ fOublier: fOublierRecherche, fChangerN } =
-        await constl.recherche.rechercherMotsClefsSelonNom({
-          nomMotClef: "ភ្លៀង",
-          f: (r) => résMotsClefs.mettreÀJour(r),
-          nRésultatsDésirés: 5,
-        }));
-      fsOublier.push(fOublierRecherche);
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-      résMembresEnLigne.toutAnnuler();
-      résMotsClefs.toutAnnuler();
-    });
-
-    it("Mes objets sont détectés", async () => {
-      const idMotClef = motsClefs[idsComptes[0]];
-      const réf: RésultatRecherche<InfoRésultatTexte>[] = [
-        {
-          id: idMotClef,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
+    const réf: RésultatRecherche<InfoRésultat>[] = idsMotsClefsOrdonnés.map(
+      (idMotClef) => ({
+        id: idMotClef,
+        résultatObjectif: {
+          score: 1,
+          type: "résultat",
+          de: "nom",
+          clef: "ខ្មែរ",
+          info: {
+            type: "texte",
+            texte: "ភ្លៀង",
+            début: 0,
+            fin: 5,
           },
         },
-      ];
+      }),
+    );
+    vérifierRecherche(résultats, réf);
+  });
 
-      await constl.motsClefs.sauvegarderNomsMotClef({
-        idMotClef,
-        noms: {
-          ខ្មែរ: "ភ្លៀង",
-        },
-      });
+  it("les scores des résultats suivent la chaîne de confiance", async () => {
+    const résultats = await recherche.siAuMoins(5);
 
-      const val = await résMotsClefs.attendreQue((x) => x.length > 0);
-      vérifierRecherche(val, réf);
-    });
+    // Ordonner avec le meilleur score en premier
+    const résultatsOrdonnés = résultats
+      .toSorted((a, b) => b.résultatObjectif.score - a.résultatObjectif.score)
+      .map((r) => r.id);
 
-    it("Objet devient intéressant", async () => {
-      const réf: RésultatRecherche<InfoRésultatTexte>[] = [];
+    expect(résultatsOrdonnés).to.have.ordered.members(idsMotsClefsOrdonnés);
+  });
 
-      for (const c of constls) {
-        const idCompte = await c.obtIdCompte();
-        const idMotClef = motsClefs[idCompte];
-        réf.push({
-          id: idMotClef,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
-          },
-        });
-        if (c === constl) continue;
+  it("diminuer et puis augmenter n", async () => {
+    const rechercheTest = await rechercher(({ f }) =>
+      constl.motsClefs.recherche.selonNom({ nomMotClef: "ភ្លៀង", f, n: 5 }),
+    );
 
-        await c.motsClefs.sauvegarderNomsMotClef({
-          idMotClef,
-          noms: {
-            ខ្មែរ: "ភ្លៀង",
-          },
-        });
-      }
+    let résultat = await rechercheTest.siAuMoins(5);
+    expect(résultat.map((r) => r.id)).to.have.members(idsMotsClefsOrdonnés);
 
-      const val = await résMotsClefs.attendreQue((x) => !!x && x.length >= 5);
-      vérifierRecherche(val, réf);
-    });
+    await rechercheTest.n(2);
 
-    it("Objet ne correspond plus", async () => {
-      const idMotClef = motsClefs[idsComptes[4]];
-      await constls[4].motsClefs.effacerNomMotClef({
-        idMotClef,
-        langue: "ខ្មែរ",
-      });
+    résultat = await rechercheTest.siPasPlusQue(2);
+    expect(résultat.map((r) => r.id)).to.have.members(
+      idsMotsClefsOrdonnés.slice(0, 2),
+    );
 
-      const réf: RésultatRecherche<InfoRésultatTexte>[] = [];
-      for (const c of constls) {
-        const idCompte = await c.obtIdCompte();
-        const idMC = motsClefs[idCompte];
-        if (idMC === idMotClef) continue;
-        réf.push({
-          id: idMC,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
-          },
-        });
-      }
+    await rechercheTest.n(10);
 
-      const val = await résMotsClefs.attendreQue(
-        (x) => x.length > 0 && x.length <= 4,
-      );
-      vérifierRecherche(val, réf);
-    });
+    résultat = await rechercheTest.siAuMoins(5);
+    expect(résultat.map((r) => r.id)).to.have.members(idsMotsClefsOrdonnés);
+  });
 
-    it("Diminuer N", async () => {
-      await fChangerN(3);
+  it("augmenter et puis diminuer n", async () => {
+    const rechercheTest = await rechercher(({ f }) =>
+      constl.motsClefs.recherche.selonNom({ nomMotClef: "ភ្លៀង", f, n: 2 }),
+    );
 
-      const réf: RésultatRecherche<InfoRésultatTexte>[] = [];
-      for (const c of constls.slice(0, 3)) {
-        const idCompte = await c.obtIdCompte();
-        const idMC = motsClefs[idCompte];
-        réf.push({
-          id: idMC,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
-          },
-        });
-      }
+    let résultat = await rechercheTest.siAuMoins(2);
+    expect(résultat.map((r) => r.id)).to.have.members(
+      idsMotsClefsOrdonnés.slice(0, 2),
+    );
 
-      const val = await résMotsClefs.attendreQue((x) => !!x && x.length <= 3);
-      vérifierRecherche(val, réf);
-    });
+    await rechercheTest.n(10);
 
-    it.skip("Objet correspond mieux");
+    résultat = await rechercheTest.siAuMoins(5);
+    expect(résultat.map((r) => r.id)).to.have.members(idsMotsClefsOrdonnés);
 
-    it("Augmenter N", async () => {
-      await fChangerN(10);
+    await rechercheTest.n(3);
 
-      const réf: RésultatRecherche<InfoRésultatTexte>[] = [];
-      for (const c of constls.slice(0, 4)) {
-        const idCompte = await c.obtIdCompte();
-        const idMC = motsClefs[idCompte];
-        réf.push({
-          id: idMC,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
-          },
-        });
-      }
-
-      const val = await résMotsClefs.attendreQue((x) => !!x && x.length >= 4);
-      vérifierRecherche(val, réf);
-    });
+    résultat = await rechercheTest.siPasPlusQue(3);
+    expect(résultat.map((r) => r.id)).to.have.members(
+      idsMotsClefsOrdonnés.slice(0, 3),
+    );
   });
 });
