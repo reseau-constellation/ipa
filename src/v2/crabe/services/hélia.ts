@@ -123,13 +123,15 @@ export class ServiceHélia<
 
   async obtItérableAsyncSFIP({
     id,
+    signal,
   }: {
     id: string;
+    signal?: AbortSignal;
   }): Promise<AsyncIterable<Uint8Array>> {
     const hélia = await this.hélia();
     const fs = unixfs(hélia);
     const [idc, nomFichier] = id.split("/");
-    return fs.cat(CID.parse(idc), { path: nomFichier });
+    return fs.cat(CID.parse(idc), { path: nomFichier, signal });
   }
 }
 

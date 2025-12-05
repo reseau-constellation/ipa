@@ -4,6 +4,7 @@ import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
 import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
 import { idcValide, zipper } from "@constl/utils-ipa";
+import { TimeoutController } from "timeout-abort-controller";
 import type xlsx from "xlsx";
 
 const { saveAs } = fileSaver;
@@ -29,6 +30,7 @@ export const sauvegarderDonnéesExportées = async ({
   formatDocu: xlsx.BookType | "xls";
   obtItérableAsyncSFIP: (args: {
     id: string;
+    signal?: AbortSignal;
   }) => Promise<AsyncIterable<Uint8Array>>;
   dossier?: string;
   inclureDocuments?: boolean;
@@ -54,15 +56,29 @@ export const sauvegarderDonnéesExportées = async ({
       nom: `${nomFichier}.${formatDocu}`,
     };
     const fichiersDeSFIP = (
-      await Promise.all(
+      await Promise.allSettled(
         [...fichiersSFIP].map(async (fichier) => {
+          const chrono = new TimeoutController(5000);
+          const itérable = await obtItérableAsyncSFIP({
+            id: fichier,
+            signal: chrono.signal,
+          });
+          chrono.clear();
+
           return {
             nom: fichier.replace("/", "-"),
-            octets: await toBuffer(await obtItérableAsyncSFIP({ id: fichier })),
+            octets: await toBuffer(itérable),
           };
         }),
       )
-    ).filter((x): x is { nom: string; octets: Uint8Array } => !!x.octets);
+    )
+      .filter(
+        // On ignore les fichiers qui n'ont pas pu être trouvés sur le réseau
+        (x): x is PromiseFulfilledResult<{ nom: string; octets: Uint8Array }> =>
+          x.status === "fulfilled" && !!x.value.octets,
+      )
+      .map((x) => x.value);
+
     // Effacer le fichier s'il existe déjà (uniquement nécessaire pour `zipper`)
     if (!(isBrowser || isWebWorker)) {
       const fs = await import("fs");
