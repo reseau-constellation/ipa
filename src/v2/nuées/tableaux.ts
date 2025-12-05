@@ -260,7 +260,9 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
               info.règles = règles;
               await fFinale();
             },
-            résolveurDonnéesCatégorie: bds.tableaux.suivreDonnées.bind(bds.tableaux)
+            résolveurDonnéesCatégorie: bds.tableaux.suivreDonnées.bind(
+              bds.tableaux,
+            ),
           });
         }
 
@@ -307,7 +309,7 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       nomsVariables?: { [idVar: string]: TraducsTexte };
       colonnes?: InfoColonneAvecCatégorie[];
       données?: DonnéesRangéeNuée[];
-      traducs?: TraducsTexte;
+      traducs?: { [clef: string]: TraducsTexte };
     } = {};
     const fsOublier: Oublier[] = [];
 
@@ -315,41 +317,40 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       const { colonnes, données, nomsTableau, nomsVariables, traducs } = info;
 
       if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
+        const nomsColonnes: { [idColonne: string]: string } =
+          Object.fromEntries(
+            colonnes?.map((c) => {
+              const nomVar =
+                langues && c.variable && nomsVariables?.[c.variable]
+                  ? traduire(nomsVariables[c.variable], langues) || c.id
+                  : c.id;
+              return [c, nomVar];
+            }),
+          );
         const fichiersSFIP: Set<string> = new Set();
 
-        let donnéesFormattées: DonnéesRangéeNuée[] = await Promise.all(
-          données.map(({ idBd, données }) =>
-            this.formaterÉlément({
-              é: données.données,
+        const donnéesFormattées: DonnéesRangéeNuée[] = await Promise.all(
+          données.map(async ({ idBd, données: { données, id } }) => {
+            const donnéesFormattées = await this.formaterÉlément({
+              élément: données,
               fichiersSFIP,
               colonnes,
               langues,
               traducs,
-            }),
-          ),
-        );
-
-        donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d.données.données).reduce(
-            (acc: DonnéesRangéeNuée, idColonne: string) => {
-              const idVar = colonnes.find((c) => c.id === idColonne)?.variable;
-              if (!idVar)
-                throw new Error(
-                  `Colonne avec id ${idColonne} non trouvée parmis les colonnes :\n${JSON.stringify(
-                    colonnes,
-                    undefined,
-                    2,
-                  )}.`,
-                );
-              const nomVar =
-                langues && nomsVariables?.[idVar]
-                  ? traduire(nomsVariables[idVar], langues) || idColonne
-                  : idColonne;
-              acc[nomVar] = d[idColonne];
-              return acc;
-            },
-            {},
-          ),
+            });
+            return {
+              idBd,
+              données: {
+                id,
+                données: Object.fromEntries(
+                  Object.entries(donnéesFormattées).map(([idCol, données]) => [
+                    nomsColonnes[idCol] || this.modifierIdColonne,
+                    données,
+                  ]),
+                ),
+              },
+            };
+          }),
         );
 
         const nomTableau =
@@ -365,7 +366,8 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       }
     };
 
-    const oublierTraducs = this.suivreTraducsValeurs({
+    const oublierTraducs = await this.suivreTraductionsValeurs({
+      idStructure,
       idTableau,
       f: async (traducs) => {
         info.traducs = traducs;

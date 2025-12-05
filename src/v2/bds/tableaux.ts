@@ -22,10 +22,7 @@ import type { JSONSchemaType } from "ajv";
 import type { NestedObjectToMap } from "@orbitdb/nested-db";
 import type { BookType, WorkBook } from "xlsx";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import type {
-  ErreurDonnée,
-  FonctionValidation,
-} from "../règles.js";
+import type { ErreurDonnée, FonctionValidation } from "../règles.js";
 import type {
   DonnéesRangéeTableau,
   InfoColonne,
@@ -671,7 +668,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       nomsVariables?: { [idVar: string]: TraducsTexte };
       colonnes?: InfoColonneAvecCatégorie[];
       données?: DonnéesRangéeTableauAvecId[];
-      traducs?: TraducsTexte;
+      traducs?: { [clef: string]: TraducsTexte };
     } = {};
     const fsOublier: Oublier[] = [];
 
@@ -684,7 +681,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         let donnéesFormattées = await Promise.all(
           données.map((d) =>
             this.formaterÉlément({
-              é: d.données,
+              élément: d.données,
               fichiersSFIP,
               colonnes,
               langues,
@@ -729,7 +726,8 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       }
     };
 
-    const oublierTraducs = this.suivreTraducsValeurs({
+    const oublierTraducs = await this.suivreTraductionsValeurs({
+      idStructure,
       idTableau,
       f: async (traducs) => {
         info.traducs = traducs;
