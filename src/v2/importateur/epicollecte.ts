@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { élémentDic } from "./json.js";
+import type { ÉlémentDicJSON } from "./json.js";
 
 export const importerDonnéesEpiCollecte = async ({
   idProjet,
@@ -7,11 +7,11 @@ export const importerDonnéesEpiCollecte = async ({
 }: {
   idProjet: string;
   instance: string;
-}): Promise<élémentDic[]> => {
+}): Promise<ÉlémentDicJSON[]> => {
   const urlBase = `${instance}/api/export/entries/${idProjet}`;
   const réponseBase = (await axios.get(urlBase)).data;
   const nPages = réponseBase["meta"]["last_page"];
-  let données: élémentDic[] = [];
+  let données: ÉlémentDicJSON[] = [];
   for (const i in Array(nPages).keys()) {
     const urlPage = `${instance}/api/export/entries/${idProjet}?page=${i + 1}`;
     données = [
