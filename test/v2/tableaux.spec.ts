@@ -16,6 +16,7 @@ import type {
   DifférenceIndexColonne,
   DifférenceTableaux,
   DifférenceVariableColonne,
+  DonnéesRangéeTableau,
   InfoColonne,
   InfoColonneAvecCatégorie,
 } from "@/v2/tableaux.js";
@@ -34,7 +35,6 @@ import type {
 } from "@/v2/règles.js";
 import type {
   DonnéesRangéeTableauAvecId,
-  DonnéesRangéeTableau,
   DonnéesTableauExportées,
 } from "@/v2/bds/tableaux.js";
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
