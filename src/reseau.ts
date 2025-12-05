@@ -1227,13 +1227,13 @@ export class Réseau {
 
     const fSuivre = async ({
       id,
-      fSuivreBd,
+      fSuivre,
     }: {
       id: string;
-      fSuivreBd: schémaFonctionSuivi<{ [key: string]: string[] } | undefined>;
+      fSuivre: schémaFonctionSuivi<{ [key: string]: string[] } | undefined>;
     }) => {
       return await this.suivreProtocolesMembre({
-        f: fSuivreBd,
+        f: fSuivre,
         idCompte: id,
       });
     };
