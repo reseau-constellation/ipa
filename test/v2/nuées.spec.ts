@@ -12,8 +12,7 @@ import {
 } from "@/v2/crabe/services/favoris.js";
 import { stabiliser } from "@/v2/crabe/utils.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
-import type {
-  ÉlémentDonnéesTableau} from "@/v2/bds/tableaux.js";
+import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
 import type { DonnéesRangéeNuée } from "@/v2/nuées/tableaux.js";
 import type { RègleBornes, RègleColonne } from "@/v2/règles.js";
 import type {
@@ -2730,7 +2729,7 @@ describe("Nuées", function () {
           constl.nuées.tableaux.suivreColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si(x=>!!x && x.length>=3),
+            f: si((x) => !!x && x.length >= 3),
           }),
         );
 
@@ -2765,7 +2764,7 @@ describe("Nuées", function () {
           idStructure: idNuéeParent,
           idTableau,
           idColonne: idColonne1,
-          index: true
+          index: true,
         });
 
         const colonnes = await obtenir<InfoColonne[]>(({ si }) =>
@@ -2777,7 +2776,7 @@ describe("Nuées", function () {
         );
 
         const réf: InfoColonne[] = [
-          { id: idColonne1, index: true  },
+          { id: idColonne1, index: true },
           { id: idColonne2, variable: idVariable, index: true },
           { id: idColonne3 },
         ];
@@ -2806,7 +2805,7 @@ describe("Nuées", function () {
         idColonne4 = await constl.nuées.tableaux.ajouterColonne({
           idStructure: idNuée,
           idTableau,
-          index: true
+          index: true,
         });
 
         const colonnes = await obtenir<InfoColonne[]>(({ si }) =>
@@ -2818,7 +2817,7 @@ describe("Nuées", function () {
         );
 
         const réf: InfoColonne[] = [
-          { id: idColonne1, index: true  },
+          { id: idColonne1, index: true },
           { id: idColonne2, variable: idVariable, index: true },
           { id: idColonne3 },
           { id: idColonne4 },
@@ -3765,7 +3764,7 @@ describe("Nuées", function () {
       let schéma: SchémaBd;
 
       const nomNuéeFr = "mon projet de science citoyenne";
-      const nomTableau1 = "Tableau 1"
+      const nomTableau1 = "Tableau 1";
 
       before(async () => {
         idNuée = await constl.nuées.créerNuée();
@@ -3789,7 +3788,7 @@ describe("Nuées", function () {
           constl.nuées.suivreDonnéesExportation({
             idNuée,
             langues: ["fr"],
-            f: si(x=> !!x && !idNuée.includes(x.nomBd)),
+            f: si((x) => !!x && !idNuée.includes(x.nomBd)),
           }),
         );
 
@@ -3798,7 +3797,7 @@ describe("Nuées", function () {
           langue: "fr",
           nom: nomNuéeFr,
         });
-        
+
         const données = await pDonnées;
         expect(données.nomBd).to.equal(nomNuéeFr);
       });
@@ -3808,7 +3807,7 @@ describe("Nuées", function () {
           constl.nuées.suivreDonnéesExportation({
             idNuée,
             langues: ["fr"],
-            f: si(x=>!!x && x.tableaux.length >= 2),
+            f: si((x) => !!x && x.tableaux.length >= 2),
           }),
         );
 
@@ -3822,7 +3821,10 @@ describe("Nuées", function () {
           constl.nuées.suivreDonnéesExportation({
             idNuée,
             langues: ["fr"],
-            f: si(x=>!!x?.tableaux.map(t=>t.nomTableau).includes(nomTableau1)),
+            f: si(
+              (x) =>
+                !!x?.tableaux.map((t) => t.nomTableau).includes(nomTableau1),
+            ),
           }),
         );
 
@@ -3838,14 +3840,17 @@ describe("Nuées", function () {
         expect(
           données.tableaux.map((t) => t.nomTableau),
         ).to.have.ordered.members([nomTableau1, idTableau2]);
-      })
+      });
 
       it("données", async () => {
         const pDonnées = obtenir<DonnéesBdExportées>(({ si }) =>
           constl.nuées.suivreDonnéesExportation({
             idNuée,
             langues: ["fr"],
-            f: si(x=>!!x?.tableaux.map(t=>t.nomTableau).includes(nomTableau1)),
+            f: si(
+              (x) =>
+                !!x?.tableaux.map((t) => t.nomTableau).includes(nomTableau1),
+            ),
           }),
         );
 
@@ -3858,14 +3863,16 @@ describe("Nuées", function () {
             },
           ],
         });
-        
+
         const données = await pDonnées;
         expect(
-          données.tableaux.find(t=>t.nomTableau === nomTableau1)?.données,
-        ).to.deep.equal([{
-          [idColFichier]: idc,
-        }]);
-      })
+          données.tableaux.find((t) => t.nomTableau === nomTableau1)?.données,
+        ).to.deep.equal([
+          {
+            [idColFichier]: idc,
+          },
+        ]);
+      });
 
       it("nuée non disponible", async () => {
         const idNuéeIndisponible =
@@ -3900,7 +3907,7 @@ describe("Nuées", function () {
         expect(
           donnéesDeNuéeIndisponible.tableaux.map((t) => t.nomTableau),
         ).to.have.ordered.members([idTableau1, idTableau2]);
-        
+
         expect(
           donnéesDeNuéeIndisponible.tableaux[1].données,
         ).to.have.deep.members([
@@ -3990,16 +3997,17 @@ describe("Nuées", function () {
         await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau: idTableau1,
-          éléments: [{
-            [idColonneFichier]: idcIndisponible,
-          }],
+          éléments: [
+            {
+              [idColonneFichier]: idcIndisponible,
+            },
+          ],
         });
 
-        const { fichiersSFIP } =
-          await constl.nuées.exporterDonnées({
-            idNuée,
-            langues: ["fr"],
-          });
+        const { fichiersSFIP } = await constl.nuées.exporterDonnées({
+          idNuée,
+          langues: ["fr"],
+        });
         expect(fichiersSFIP).to.have.members([idc, idcIndisponible]);
       });
 
@@ -4011,22 +4019,23 @@ describe("Nuées", function () {
         const idNuéeNExistePas =
           "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"; // N'existe pas
         schéma.nuées = [idNuéeNExistePas];
-        
+
         idBd = await constl.bds.créerBdDeSchéma({ schéma });
         await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau: idTableau2,
-          éléments: [{
-            [idColonneNumérique]: 123,
-          }],
+          éléments: [
+            {
+              [idColonneNumérique]: 123,
+            },
+          ],
         });
 
-        const { docu, nomFichier } =
-          await constl.nuées.exporterDonnées({
-            idNuée: idNuéeNExistePas,
-            langues: ["fr"],
-            idsTableaux: [idTableau2],
-          });
+        const { docu, nomFichier } = await constl.nuées.exporterDonnées({
+          idNuée: idNuéeNExistePas,
+          langues: ["fr"],
+          idsTableaux: [idTableau2],
+        });
         expect(docu.SheetNames).to.have.members([idTableau2]);
         expect(nomFichier).to.eq(idNuéeNExistePas.slice("/orbitdb/".length));
       });
@@ -4047,7 +4056,7 @@ describe("Nuées", function () {
       const nomFichier = "mes données";
 
       before(async () => {
-        ({dossier, effacer} = await dossierTempo());
+        ({ dossier, effacer } = await dossierTempo());
 
         idNuée = await constl.nuées.créerNuée();
         idTableau = await constl.nuées.ajouterTableau({ idNuée });
@@ -4130,9 +4139,10 @@ describe("Nuées", function () {
         const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
 
-        const contenuIndisponible = zip.files[["sfip", idcIndisponible.replace("/", "-")].join("/")];
+        const contenuIndisponible =
+          zip.files[["sfip", idcIndisponible.replace("/", "-")].join("/")];
         expect(contenuIndisponible).to.not.exist();
-      })
+      });
     });
   });
 });
