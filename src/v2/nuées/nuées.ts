@@ -8,7 +8,6 @@ import {
   traduire,
   uneFois,
 } from "@constl/utils-ipa";
-import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
@@ -384,7 +383,10 @@ export class Nuées<
     );
 
     const motsClefs = await uneFois<string[]>((f) =>
-      this.suivreMotsClefs({ idNuée, f: async x => await f(x.map(m=>m.val)) }),
+      this.suivreMotsClefs({
+        idNuée,
+        f: async (x) => await f(x.map((m) => m.val)),
+      }),
     );
 
     const statut = await uneFois<StatutDonnées | null>((f) =>
@@ -507,6 +509,23 @@ export class Nuées<
     };
   }
 
+  async suivreNuée({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<StructureNuée | undefined>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await orbite.suivreDonnéesBd({
+      id: idNuée,
+      type: "nested",
+      schéma: schémaNuée,
+      f: (nuée) => f(mapÀObjet(nuée)),
+    });
+  }
+
   async copierNuée({ idNuée }: { idNuée: string }): Promise<string> {
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
 
@@ -585,13 +604,9 @@ export class Nuées<
     idNuée: string;
     f: Suivi<{ id: string } | undefined>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
-    return await orbite.suivreDonnéesBd({
-      id: idNuée,
-      type: "nested",
-      schéma: schémaNuée,
-      f: (nuée) => f(mapÀObjet(nuée)?.copiéeDe),
+    return await this.suivreNuée({
+      idNuée,
+      f: (nuée) => f(nuée?.copiéeDe),
     });
   }
 
@@ -921,7 +936,6 @@ export class Nuées<
     idNuée: string;
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
     const fFinale = async (noms: ValeurAscendance<TraducsTexte>[]) => {
       await f(Object.assign({}, ...noms.map(({ val }) => val)));
     };
@@ -930,11 +944,9 @@ export class Nuées<
       idNuée,
       f: fFinale,
       fParents: async ({ idNuée: idParent, f: fParent }) =>
-        await orbite.suivreDonnéesBd({
-          id: idParent,
-          type: "nested",
-          schéma: schémaNuée,
-          f: (nuée) => fParent(toObject(nuée).noms || {}),
+        await this.suivreNuée({
+          idNuée: idParent,
+          f: (nuée) => fParent(nuée?.noms || {}),
         }),
     });
   }
@@ -998,7 +1010,6 @@ export class Nuées<
     idNuée: string;
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
     const fFinale = async (descriptions: ValeurAscendance<TraducsTexte>[]) => {
       await f(Object.assign({}, ...descriptions.map(({ val }) => val)));
     };
@@ -1007,11 +1018,9 @@ export class Nuées<
       idNuée,
       f: fFinale,
       fParents: async ({ idNuée: idParent, f: fParent }) =>
-        await orbite.suivreDonnéesBd({
-          id: idParent,
-          type: "nested",
-          schéma: schémaNuée,
-          f: (nuée) => fParent(toObject(nuée).descriptions || {}),
+        await this.suivreNuée({
+          idNuée: idParent,
+          f: (nuée) => fParent(nuée?.descriptions || {}),
         }),
     });
   }
@@ -1132,7 +1141,6 @@ export class Nuées<
     idNuée: string;
     f: Suivi<Métadonnées>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
     const fFinale = async (métadonnées: ValeurAscendance<Métadonnées>[]) => {
       await f(Object.assign({}, ...métadonnées.map(({ val }) => val)));
     };
@@ -1141,11 +1149,9 @@ export class Nuées<
       idNuée,
       f: fFinale,
       fParents: async ({ idNuée: idParent, f: fParent }) =>
-        await orbite.suivreDonnéesBd({
-          id: idParent,
-          type: "nested",
-          schéma: schémaNuée,
-          f: (nuée) => fParent(mapÀObjet(nuée.get("métadonnées")) || {}),
+        await this.suivreNuée({
+          idNuée: idParent,
+          f: (nuée) => fParent(nuée?.métadonnées || {}),
         }),
     });
   }
@@ -1195,8 +1201,6 @@ export class Nuées<
     idNuée: string;
     f: Suivi<ValeurAscendance<string>[]>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
     const fFinale = async (motsClefs: ValeurAscendance<string[]>[]) => {
       const liste = motsClefs
         .map(({ source, val }) => val.map((v) => ({ source, val: v })))
@@ -1216,12 +1220,9 @@ export class Nuées<
       idNuée,
       f: fFinale,
       fParents: async ({ idNuée: idParent, f: fParent }) =>
-        await orbite.suivreDonnéesBd({
-          id: idParent,
-          type: "nested",
-          schéma: schémaNuée,
-          f: (nuée) =>
-            fParent(Object.keys(mapÀObjet(nuée.get("motsClefs")) || {})),
+        await this.suivreNuée({
+          idNuée: idParent,
+          f: (nuée) => fParent(Object.keys(nuée?.motsClefs || {})),
         }),
     });
   }
@@ -1363,12 +1364,9 @@ export class Nuées<
     idNuée: string;
     f: Suivi<StatutDonnées | null>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-    return await orbite.suivreDonnéesBd({
-      id: idNuée,
-      type: "nested",
-      schéma: schémaNuée,
-      f: (nuée) => f(mapÀObjet(nuée)?.statut || null),
+    return await this.suivreNuée({
+      idNuée,
+      f: (nuée) => f(nuée?.statut || null),
     });
   }
 
@@ -1382,8 +1380,6 @@ export class Nuées<
     idNuée: string;
     f: Suivi<AutorisationNuée>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
     const résoudreAutorisation = (
       autorisation: PartielRécursif<StructureAutorisationNuée>,
       type: AutorisationNuée["type"],
@@ -1403,7 +1399,7 @@ export class Nuées<
       }
     };
 
-    const fFinale = async (autorisations: StructureAutorisationNuée[]) => {
+    const fFinale = async (autorisations: StructureAutorisationNuée[] = []) => {
       // On choisi le premier type d'autorisation déterminé en remontant l'ascendance ; ouverte par défaut
       const type =
         autorisations.find((a) => a.type !== undefined)?.type || "ouverte";
@@ -1441,15 +1437,24 @@ export class Nuées<
 
     return await this.suivreDeParents({
       idNuée,
-      f: fFinale,
-      fParents: async ({ idNuée: idParent, f: fParent }) =>
-        await orbite.suivreDonnéesBd({
-          id: idParent,
-          type: "nested",
-          schéma: schémaNuée,
-          f: async (nuée) => {
-            await fParent(toObject(nuée).autorisation);
-          },
+      f: async (autorisations) =>
+        await fFinale(
+          autorisations
+            .filter(
+              (a): a is ValeurAscendance<StructureAutorisationNuée> => !!a,
+            )
+            .map((a) => a.val),
+        ),
+      fParents: async ({
+        idNuée: idParent,
+        f: fParent,
+      }: {
+        idNuée: string;
+        f: Suivi<StructureAutorisationNuée | undefined>;
+      }) =>
+        await this.suivreNuée({
+          idNuée: idParent,
+          f: (nuée) => fParent(nuée?.autorisation),
         }),
     });
   }
@@ -1723,8 +1728,6 @@ export class Nuées<
     idNuée: string;
     f: Suivi<string[]>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
     const suivreParent = async ({
       idNuée,
       f,
@@ -1732,36 +1735,42 @@ export class Nuées<
       idNuée: string;
       f: Suivi<string | undefined>;
     }): Promise<Oublier> => {
-      return await orbite.suivreDonnéesBd({
-        id: idNuée,
-        type: "nested",
-        schéma: schémaNuée,
-        f: (nuée) => f(mapÀObjet(nuée)?.parent),
+      return await this.suivreNuée({
+        idNuée,
+        f: (nuée) => f(nuée?.parent),
       });
     };
 
     const suivreAscendants = async ({
       idNuée,
       f,
-      ascendance = []
+      ascendance = [],
     }: {
       idNuée: string;
       f: Suivi<string[]>;
-      ascendance?: string[]
+      ascendance?: string[];
     }): Promise<Oublier> => {
       return suivreFonctionImbriquée({
         fRacine: async ({ fSuivreRacine }) =>
-          await suivreParent({ idNuée, f: async parent => {
-            // Briser circulairités éventuelles
-            return parent && ascendance.includes(parent) ? await fSuivreRacine(undefined) : fSuivreRacine(parent);
-          }}),
+          await suivreParent({
+            idNuée,
+            f: async (parent) => {
+              // Briser circulairités éventuelles
+              return parent && ascendance.includes(parent)
+                ? await fSuivreRacine(undefined)
+                : fSuivreRacine(parent);
+            },
+          }),
         fSuivre: async ({ id: idParent, fSuivre }) => {
-          return await suivreAscendants({ idNuée: idParent, f: fSuivre, ascendance: [...ascendance, idParent] });
+          return await suivreAscendants({
+            idNuée: idParent,
+            f: fSuivre,
+            ascendance: [...ascendance, idParent],
+          });
         },
         f: async (parents?: string[]) => await f(parents || []),
-      })
-    }
-
+      });
+    };
 
     return await suivreAscendants({ idNuée, f });
   }
@@ -2298,8 +2307,8 @@ export class Nuées<
     });
 
     return async () => {
-      await oublierAccès(); 
-      await oublierCouverture(); 
+      await oublierAccès();
+      await oublierCouverture();
       await oublierInfos();
     };
   }
