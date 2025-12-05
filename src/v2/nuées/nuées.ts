@@ -384,7 +384,7 @@ export class Nuées<
     );
 
     const motsClefs = await uneFois<string[]>((f) =>
-      this.suivreMotsClefs({ idNuée, f }),
+      this.suivreMotsClefs({ idNuée, f: async x => await f(x.map(m=>m.val)) }),
     );
 
     const statut = await uneFois<StatutDonnées | null>((f) =>
@@ -1725,8 +1725,6 @@ export class Nuées<
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
-    const déjàVus = new Set<string>();
-
     const suivreParent = async ({
       idNuée,
       f,
@@ -1745,27 +1743,27 @@ export class Nuées<
     const suivreAscendants = async ({
       idNuée,
       f,
-      ascendants,
+      ascendance = []
     }: {
       idNuée: string;
       f: Suivi<string[]>;
-      ascendants?: string[];
+      ascendance?: string[]
     }): Promise<Oublier> => {
-      ascendants ??= [];
-      return await suivreParent({
-        idNuée,
-        f: async (parent) => await f({}),
-      });
-    };
+      return suivreFonctionImbriquée({
+        fRacine: async ({ fSuivreRacine }) =>
+          await suivreParent({ idNuée, f: async parent => {
+            // Briser circulairités éventuelles
+            return parent && ascendance.includes(parent) ? await fSuivreRacine(undefined) : fSuivreRacine(parent);
+          }}),
+        fSuivre: async ({ id: idParent, fSuivre }) => {
+          return await suivreAscendants({ idNuée: idParent, f: fSuivre, ascendance: [...ascendance, idParent] });
+        },
+        f: async (parents?: string[]) => await f(parents || []),
+      })
+    }
 
-    return await suivreFonctionImbriquée({
-      fRacine: async ({ fSuivreRacine }) =>
-        await suivreParent({ idNuée, f: fSuivreRacine }),
-      fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.suivreAscendants({ idNuée: id, f: fSuivreBd });
-      },
-      f: async (parents?: string[]) => await f([idNuée, ...(parents || [])]),
-    });
+
+    return await suivreAscendants({ idNuée, f });
   }
 
   async suivreDeParents<T>({
@@ -2223,7 +2221,7 @@ export class Nuées<
       fSuivreBranche,
     }: {
       id: string;
-      fSuivreBranche: Suivi<number>;
+      fSuivreBranche: Suivi<ScoreCouvertureTableau>;
     }) => {
       return await this.tableaux.suivreScoreCouverture({
         idStructure: idNuée,
@@ -2300,7 +2298,9 @@ export class Nuées<
     });
 
     return async () => {
-      await Promise.allSettled([oublierAccès, oublierCouverture, oublierInfos]);
+      await oublierAccès(); 
+      await oublierCouverture(); 
+      await oublierInfos();
     };
   }
 
@@ -2472,6 +2472,7 @@ export class Nuées<
     patience = 500,
     dossier = "",
     inclureDocuments = true,
+    dossierMédias,
   }: {
     idNuée: string;
     formatDocu: xlsx.BookType | "xls";
@@ -2483,6 +2484,7 @@ export class Nuées<
     patience?: number;
     dossier?: string;
     inclureDocuments?: boolean;
+    dossierMédias?: string;
   }): Promise<string> {
     const donnéesExportées = await this.exporterDonnées({
       idNuée,
@@ -2501,6 +2503,7 @@ export class Nuées<
       obtItérableAsyncSFIP: hélia.obtItérableAsyncSFIP.bind(hélia),
       dossier,
       inclureDocuments,
+      dossierMédias,
     });
   }
 }
