@@ -1,5 +1,8 @@
+import { join } from "path";
+import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
+import JSZip from "jszip";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import {
@@ -7,7 +10,12 @@ import {
   TOUS_DISPOSITIFS,
 } from "@/v2/crabe/services/favoris.js";
 import { stabiliser } from "@/v2/crabe/utils.js";
+import {
+  DonnéesRangéeTableauAvecId
+} from "@/v2/bds/tableaux.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
+import type {
+  ÉlémentDonnéesTableau} from "@/v2/bds/tableaux.js";
 import type { DonnéesRangéeNuée } from "@/v2/nuées/tableaux.js";
 import type { RègleBornes, RègleColonne } from "@/v2/règles.js";
 import type {
@@ -30,6 +38,7 @@ import type {
   ValeurAscendance,
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
+import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -1730,6 +1739,23 @@ describe("Nuées", function () {
       // Uniquement les données locales
       expect(données).to.have.deep.members(élémentsNuées);
     });
+
+    it("données réseau sans vérification autorisation même si nuée non disponible", async () => {
+      const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+        constl.nuées.tableaux.suivreDonnées({
+          idStructure: idNuéeIndisponible,
+          idTableau,
+          filtresBds: { ignorerAutorisation: true },
+          f: siPasVide(),
+        }),
+      );
+
+      // Données locales et réseau
+      expect(données).to.have.deep.members([
+        ...élémentsNuéesPDDL,
+        ...élémentsNuées,
+      ]);
+    });
   });
 
   describe("différences", function () {
@@ -3291,6 +3317,15 @@ describe("Nuées", function () {
       let idNuéeEnfant: string;
 
       let idTableau: string;
+      let idColonne: string;
+
+      let idBdNuéeParent: string;
+      let idBdNuée: string;
+      let idBdNuéeEnfant: string;
+
+      let élémentsPourNuéeParent: DonnéesRangéeNuée[];
+      let élémentsPourNuée: DonnéesRangéeNuée[];
+      let élémentsPourNuéeEnfant: DonnéesRangéeNuée[];
 
       before(async () => {
         idNuéeParent = await constl.nuées.créerNuée();
@@ -3299,9 +3334,106 @@ describe("Nuées", function () {
         });
         idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
 
-        const idTableau = await constl.nuées.ajouterTableau({
+        idTableau = await constl.nuées.ajouterTableau({
           idNuée: idNuéeParent,
         });
+
+        idColonne = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuéeParent,
+          idTableau,
+        });
+
+        const schémaParent = await constl.nuées.créerSchémaDeNuée({
+          idNuée: idNuéeParent,
+          licence: "ODbl-1_0",
+        });
+        idBdNuéeParent = await constl.bds.créerBdDeSchéma({
+          schéma: schémaParent,
+        });
+
+        const schéma = await constl.nuées.créerSchémaDeNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+        idBdNuée = await constl.bds.créerBdDeSchéma({ schéma });
+
+        const schémaEnfant = await constl.nuées.créerSchémaDeNuée({
+          idNuée: idNuéeEnfant,
+          licence: "ODbl-1_0",
+        });
+        idBdNuéeEnfant = await constl.bds.créerBdDeSchéma({
+          schéma: schémaEnfant,
+        });
+
+        const élémentsBdNuéeParent: ÉlémentDonnéesTableau[] = [
+          {
+            [idColonne]: 0,
+          },
+          {
+            [idColonne]: 3,
+          },
+        ];
+        const idsÉlémentsBdNuéeParent =
+          await constl.bds.tableaux.ajouterÉléments({
+            idStructure: idBdNuéeParent,
+            idTableau,
+            éléments: élémentsBdNuéeParent,
+          });
+        élémentsPourNuéeParent = élémentsBdNuéeParent.map((élément, i) => ({
+          idBd: idBdNuéeParent,
+          données: { id: idsÉlémentsBdNuéeParent[i], données: élément },
+        }));
+
+        const élémentsBdNuée: ÉlémentDonnéesTableau[] = [
+          {
+            [idColonne]: 0,
+          },
+          {
+            [idColonne]: 3,
+          },
+        ];
+        const idsÉlémentsBdNuée = await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBdNuée,
+          idTableau,
+          éléments: élémentsBdNuée,
+        });
+        élémentsPourNuée = élémentsBdNuée.map((élément, i) => ({
+          idBd: idBdNuée,
+          données: { id: idsÉlémentsBdNuée[i], données: élément },
+        }));
+
+        const élémentsBdNuéeEnfant: ÉlémentDonnéesTableau[] = [
+          {
+            [idColonne]: 0,
+          },
+          {
+            [idColonne]: 3,
+          },
+        ];
+        const idsÉlémentsBdNuéeEnfant =
+          await constl.bds.tableaux.ajouterÉléments({
+            idStructure: idBdNuéeEnfant,
+            idTableau,
+            éléments: élémentsBdNuéeEnfant,
+          });
+        élémentsPourNuéeEnfant = élémentsBdNuéeEnfant.map((élément, i) => ({
+          idBd: idBdNuéeEnfant,
+          données: { id: idsÉlémentsBdNuéeEnfant[i], données: élément },
+        }));
+      });
+
+      it("données nuée", async () => {
+        const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuée,
+            idTableau,
+            héritage: {},
+            f: siPasVide(),
+          }),
+        );
+
+        const réf: DonnéesRangéeNuée[] = élémentsPourNuée;
+        expect(données).to.have.deep.members(réf);
       });
 
       it("données ascendance", async () => {
@@ -3314,6 +3446,10 @@ describe("Nuées", function () {
           }),
         );
 
+        const réf: DonnéesRangéeNuée[] = [
+          ...élémentsPourNuée,
+          ...élémentsPourNuéeParent,
+        ];
         expect(données).to.have.deep.members(réf);
       });
 
@@ -3327,23 +3463,55 @@ describe("Nuées", function () {
           }),
         );
 
+        const réf: DonnéesRangéeNuée[] = [
+          ...élémentsPourNuée,
+          ...élémentsPourNuéeEnfant,
+        ];
         expect(données).to.have.deep.members(réf);
       });
 
-      it("données nuée", async () => {
+      it("données descendance et ascendance", async () => {
         const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
           constl.nuées.tableaux.suivreDonnées({
             idStructure: idNuée,
             idTableau,
-            héritage: {},
+            héritage: { descendance: true, ascendance: true },
             f: siPasVide(),
           }),
         );
 
+        const réf: DonnéesRangéeNuée[] = [
+          ...élémentsPourNuéeParent,
+          ...élémentsPourNuée,
+          ...élémentsPourNuéeEnfant,
+        ];
         expect(données).to.have.deep.members(réf);
       });
 
-      it("données locales même si nuée parent non disponible");
+      it("données locales même si nuée parent non disponible", async () => {
+        const idNuéeIndisponible =
+          "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+        await constl.nuées.préciserParent({
+          idNuée: idNuéeParent,
+          idNuéeParent: idNuéeIndisponible,
+        });
+
+        const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuéeParent,
+            idTableau,
+            héritage: { descendance: true, ascendance: true },
+            f: siPasVide(),
+          }),
+        );
+
+        const réf: DonnéesRangéeNuée[] = [
+          ...élémentsPourNuéeParent,
+          ...élémentsPourNuée,
+          ...élémentsPourNuéeEnfant,
+        ];
+        expect(données).to.have.deep.members(réf);
+      });
     });
   });
 
@@ -3652,7 +3820,7 @@ describe("Nuées", function () {
       });
 
       it("nom document - spécifié", async () => {
-        const docu = await constl.bds.exporterDonnées({
+        const docu = await constl.nuées.exporterDonnées({
           idBd,
           nomFichier: "mon fichier",
         });
@@ -3660,7 +3828,7 @@ describe("Nuées", function () {
       });
 
       it("nom document - non spécifié", async () => {
-        const docu = await constl.bds.exporterDonnées({ idBd });
+        const docu = await constl.nuées.exporterDonnées({ idBd });
         expect(docu.nomFichier).to.equal(idBd.replace("/orbitdb/", ""));
       });
 
@@ -3715,7 +3883,7 @@ describe("Nuées", function () {
       });
 
       it("le fichier zip existe", async () => {
-        await constl.bds.exporterÀFichier({
+        await constl.nuée.exporterÀFichier({
           idBd,
           nomFichier,
           dossier,
