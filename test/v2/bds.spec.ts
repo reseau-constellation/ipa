@@ -2009,19 +2009,21 @@ describe("BDs", function () {
           idTableau: idTableau1,
           éléments: [{ [idColonne]: idc }],
         });
+
+        données = await constl.bds.exporterDonnées({ idBd });
       });
 
       it("nom document - spécifié", async () => {
-        const docu = await constl.bds.exporterDonnées({
+        const donnéesAvecNom = await constl.bds.exporterDonnées({
           idBd,
           nomFichier: "mon fichier",
         });
-        expect(docu.nomFichier).to.equal("mon fichier");
+        expect(donnéesAvecNom.nomFichier).to.equal("mon fichier");
       });
 
       it("nom document - non spécifié", async () => {
-        const docu = await constl.bds.exporterDonnées({ idBd });
-        expect(docu.nomFichier).to.equal(idBd.replace("/orbitdb/", ""));
+        
+        expect(données.nomFichier).to.equal(idBd.replace("/orbitdb/", ""));
       });
 
       it("document données - tableaux créés", async () => {
