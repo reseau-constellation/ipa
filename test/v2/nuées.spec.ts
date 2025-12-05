@@ -2659,6 +2659,8 @@ describe("Nuées", function () {
 
       let idColonne1: string;
       let idColonne2: string;
+      let idColonne3: string;
+      let idColonne4: string;
 
       before(async () => {
         idNuéeGrandParent = await constl.nuées.créerNuée();
@@ -2721,10 +2723,51 @@ describe("Nuées", function () {
       });
 
       it("colonnes ascendance immédiate", async () => {
+        idColonne3 = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuéeGrandParent,
+          idTableau,
+        });
+
+        const colonnes = await obtenir<InfoColonne[]>(({ si }) =>
+          constl.nuées.tableaux.suivreColonnes({
+            idStructure: idNuée,
+            idTableau,
+            f: si(x=>!!x && x.length>=3),
+          }),
+        );
+
+        const réf: InfoColonne[] = [
+          { id: idColonne1 },
+          { id: idColonne2, variable: idVariable, index: true },
+          { id: idColonne3 },
+        ];
+        expect(colonnes).to.have.deep.members(réf);
+
+        const colonnesAvecSource = await obtenir(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreSourceColonnes({
+            idStructure: idNuée,
+            idTableau,
+            f: siPasVide(),
+          }),
+        );
+
+        const réfSource: ValeurAscendance<InfoColonne[]>[] = [
+          { source: idNuéeGrandParent, val: [{ id: idColonne1 }] },
+          {
+            source: idNuéeGrandParent,
+            val: [{ id: idColonne2, variable: idVariable, index: true }],
+          },
+          { source: idNuéeParent, val: [{ id: idColonne3 }] },
+        ];
+        expect(colonnesAvecSource).to.have.deep.members(réfSource);
+      });
+
+      it("duplication colonnes dans l'ascendance", async () => {
         await constl.nuées.tableaux.ajouterColonne({
           idStructure: idNuéeParent,
           idTableau,
-          idColonne: idColonne2,
+          idColonne: idColonne1,
+          index: true
         });
 
         const colonnes = await obtenir<InfoColonne[]>(({ si }) =>
@@ -2735,51 +2778,73 @@ describe("Nuées", function () {
           }),
         );
 
-        const réf: InfoTableauNuée[] = [
-          { id: idTableau1, source: idNuéeGrandParent },
-          { id: idTableau2, source: idNuéeParent },
+        const réf: InfoColonne[] = [
+          { id: idColonne1, index: true  },
+          { id: idColonne2, variable: idVariable, index: true },
+          { id: idColonne3 },
         ];
-        expect(tableaux).to.have.deep.members(réf);
-      });
+        expect(colonnes).to.have.deep.members(réf);
 
-      it("duplication colonnes dans l'ascendance", async () => {
-        await constl.nuées.ajouterTableau({
-          idNuée: idNuéeParent,
-          idTableau: idTableau1,
-        });
-
-        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
-          constl.nuées.suivreTableaux({
-            idNuée,
-            f: si((x) => !!x?.every((x) => x.source === idNuéeParent)),
+        const colonnesAvecSource = await obtenir(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreSourceColonnes({
+            idStructure: idNuée,
+            idTableau,
+            f: siPasVide(),
           }),
         );
 
-        const réf: InfoTableauNuée[] = [
-          { id: idTableau1, source: idNuéeParent },
-          { id: idTableau2, source: idNuéeParent },
+        const réfSource: ValeurAscendance<InfoColonne[]>[] = [
+          { source: idNuéeParent, val: [{ id: idColonne1, index: true }] },
+          {
+            source: idNuéeGrandParent,
+            val: [{ id: idColonne2, variable: idVariable, index: true }],
+          },
+          { source: idNuéeParent, val: [{ id: idColonne3 }] },
         ];
-        expect(tableaux).to.have.deep.members(réf);
+        expect(colonnesAvecSource).to.have.deep.members(réfSource);
       });
 
       it("colonnes nuée", async () => {
-        idTableau3 = await constl.nuées.ajouterTableau({
-          idNuée: idNuéeParent,
+        idColonne4 = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
+          idTableau,
+          index: true
         });
 
-        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
-          constl.nuées.suivreMotsClefs({
-            idNuée,
-            f: si((x) => !!x && x.length >= 3),
+        const colonnes = await obtenir<InfoColonne[]>(({ si }) =>
+          constl.nuées.tableaux.suivreColonnes({
+            idStructure: idNuée,
+            idTableau,
+            f: si((x) => !!x?.every((col) => col.index !== true)),
           }),
         );
 
-        const réf: ValeurAscendance<string>[] = [
-          { val: idTableau1, source: idNuéeParent },
-          { val: idTableau2, source: idNuéeParent },
-          { val: idTableau3, source: idNuée },
+        const réf: InfoColonne[] = [
+          { id: idColonne1, index: true  },
+          { id: idColonne2, variable: idVariable, index: true },
+          { id: idColonne3 },
+          { id: idColonne4 },
         ];
-        expect(tableaux).to.have.deep.members(réf);
+        expect(colonnes).to.have.deep.members(réf);
+
+        const colonnesAvecSource = await obtenir(({ siPasVide }) =>
+          constl.nuées.tableaux.suivreSourceColonnes({
+            idStructure: idNuée,
+            idTableau,
+            f: siPasVide(),
+          }),
+        );
+
+        const réfSource: ValeurAscendance<InfoColonne[]>[] = [
+          { source: idNuéeParent, val: [{ id: idColonne1, index: true }] },
+          {
+            source: idNuéeGrandParent,
+            val: [{ id: idColonne2, variable: idVariable, index: true }],
+          },
+          { source: idNuéeParent, val: [{ id: idColonne3 }] },
+          { source: idNuée, val: [{ id: idColonne4 }] },
+        ];
+        expect(colonnesAvecSource).to.have.deep.members(réfSource);
       });
     });
 
