@@ -52,6 +52,10 @@ import type {
 import type { Suivi, Oublier } from "./crabe/types.js";
 import type { DonnéesBdExportées, ÉpingleBd } from "./bds/bds.js";
 
+// Types mots-clefs
+
+export type MotClefProjet = { idMotClef: string; source: "projet" | "bds" };
+
 // Types épingles
 
 export type ÉpingleProjet = {
@@ -312,6 +316,24 @@ export class Projets<
 
     await Promise.allSettled([oublier(), oublierNouveau()]);
     return idNouveauProjet;
+  }
+
+  @cacheSuivi
+  async suivreSource({
+    idProjet,
+    f,
+  }: {
+    idProjet: string;
+    f: Suivi<{ id: string } | undefined>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await orbite.suivreDonnéesBd({
+      id: idProjet,
+      type: "nested",
+      schéma: schémaProjet,
+      f: (bd) => f(mapÀObjet(bd)?.copiéDe),
+    });
   }
 
   async ouvrirProjet({
@@ -883,7 +905,7 @@ export class Projets<
     f,
   }: {
     idProjet: string;
-    f: Suivi<{ idMotClef: string; source: "projet" | "bds" }[]>;
+    f: Suivi<MotClefProjet[]>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
     const bds = this.service("bds");
