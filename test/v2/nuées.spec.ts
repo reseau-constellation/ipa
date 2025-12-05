@@ -3984,7 +3984,7 @@ describe("Nuées", function () {
         expect(données.nomFichier).to.equal(idNuée.replace("/orbitdb/", ""));
       });
 
-      it("document données - tableaux créés", async () => {
+      it("données - tableaux créés", async () => {
         expect(Array.isArray(données.docu.SheetNames));
         expect(données.docu.SheetNames).to.have.members([
           nomTableau1,
@@ -3992,7 +3992,7 @@ describe("Nuées", function () {
         ]);
       });
 
-      it("document données - fichiers SFIP", async () => {
+      it("données - fichiers SFIP", async () => {
         expect([...données.fichiersSFIP]).to.have.members([idc]);
       });
 
@@ -4050,7 +4050,7 @@ describe("Nuées", function () {
       let idTableau: string;
       let idColonne: string;
 
-      let zip = JSZip;
+      let zip: JSZip;
 
       let dossier: string;
       let effacer: () => void;

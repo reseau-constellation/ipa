@@ -2,7 +2,7 @@ import deepEqual from "deep-equal";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
-import { ajouterProtocoleOrbite, extraireEmpreinte } from "../../utils.js";
+import { ajouterProtocoleOrbite, sansProtocoleOrbite } from "../../utils.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
@@ -312,14 +312,14 @@ export class ServiceFavoris<
   }): Promise<void> {
     const bd = await this.bd();
 
-    const existant = await bd.get(extraireEmpreinte(idObjet));
+    const existant = await bd.get(sansProtocoleOrbite(idObjet));
     if (!deepEqual(existant, épingle))
-      await bd.put(extraireEmpreinte(idObjet), épingle);
+      await bd.put(sansProtocoleOrbite(idObjet), épingle);
   }
 
   async désépinglerFavori({ idObjet }: { idObjet: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(extraireEmpreinte(idObjet));
+    await bd.del(sansProtocoleOrbite(idObjet));
   }
 
   @cacheSuivi

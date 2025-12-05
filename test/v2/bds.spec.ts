@@ -1928,7 +1928,7 @@ describe("BDs", function () {
   describe("exportation", function () {
     let idc: string;
 
-    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n"
+    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n";
 
     before(async () => {
       const octets = await obtRessourceTest({
@@ -2046,7 +2046,7 @@ describe("BDs", function () {
       let idTableau: string;
       let idColonne: string;
 
-      let zip = JSZip;
+      let zip: JSZip;
 
       let dossier: string;
       let effacer: () => void;

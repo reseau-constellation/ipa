@@ -3,11 +3,10 @@ import { isValidAddress } from "@orbitdb/core";
 
 import axios from "axios";
 import { isElectronMain, isNode } from "wherearewe";
-import { schémaStructureBdNoms, élémentsBd } from "@/types.js";
+import { schémaStructureBdNoms } from "@/types.js";
 
 import { cholqij } from "@/dates.js";
 import { ServiceConstellation } from "./v2/nébuleuse/services.js";
-import { DonnéesRangéeTableau } from "./v2/bds/tableaux.js";
 import { idcEtFichierValide } from "./v2/crabe/services/epingles.js";
 import type {
   ConversionDonnées,
@@ -16,8 +15,6 @@ import type {
 import type { CatégorieBaseVariables } from "./v2/variables.js";
 import type { schémaFonctionSuivi } from "@/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { catégorieBaseVariables } from "@/variables.js";
-import { cidEtFichierValide } from "@/epingles.js";
 
 // Fichier ODS / URL -> JSON -> résoudre sfip -> formats traducs chaîne/dates/chiffres -> conversions */+- -> importer
 

@@ -37,7 +37,9 @@ export type StructureProfil = {
   };
 };
 
-export const schémaProfil: JSONSchemaType<PartielRécursif<StructureProfil>> = {
+export const schémaProfil: JSONSchemaType<PartielRécursif<StructureProfil>> & {
+  nullable: true;
+} = {
   type: "object",
   properties: {
     initialisé: {
@@ -85,7 +87,7 @@ export const schémaProfil: JSONSchemaType<PartielRécursif<StructureProfil>> = 
       required: [],
     },
   },
-  required: [],
+  nullable: true,
 };
 
 export type ServicesNécessairesProfil<

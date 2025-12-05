@@ -16,7 +16,7 @@ export type StructureDispositifs = {
 };
 export const schémaDispositifs: JSONSchemaType<
   PartielRécursif<StructureDispositifs>
-> = {
+> & { nullable: true } = {
   type: "object",
   properties: {
     dispositifs: {
@@ -32,7 +32,7 @@ export const schémaDispositifs: JSONSchemaType<
       required: [],
     },
   },
-  required: [],
+  nullable: true,
 };
 
 export type ServicesNécessairesDispositifs<

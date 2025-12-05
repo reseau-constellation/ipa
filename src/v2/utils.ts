@@ -108,7 +108,7 @@ export const sauvegarderDonnéesExportées = async ({
   }
 };
 
-export const extraireEmpreinte = (adresseOrbite: string): string => {
+export const sansProtocoleOrbite = (adresseOrbite: string): string => {
   return adresseOrbite.replace("/orbitdb/", "");
 };
 

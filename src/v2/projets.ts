@@ -17,7 +17,7 @@ import { cacheSuivi } from "./crabe/cache.js";
 import {
   ajouterProtocoleOrbite,
   conversionsTypes,
-  extraireEmpreinte,
+  sansProtocoleOrbite,
 } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
@@ -75,7 +75,7 @@ export type DonnéesProjetExportées = {
 };
 
 export type DonnéesFichierProjetExportées = {
-  docs: { doc: WorkBook; nom: string }[];
+  docus: { docu: WorkBook; nom: string }[];
   fichiersSFIP: Set<string>;
   nomFichier: string;
 };
@@ -256,12 +256,12 @@ export class Projets<
 
   async ajouterÀMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.put(extraireEmpreinte(idProjet), null);
+    await bd.put(sansProtocoleOrbite(idProjet), null);
   }
 
   async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(extraireEmpreinte(idProjet));
+    await bd.del(sansProtocoleOrbite(idProjet));
   }
 
   async copierProjet({ idProjet }: { idProjet: string }): Promise<string> {
@@ -1246,27 +1246,27 @@ export class Projets<
     });
 
     return {
-      docs: données.bds.map((donnéesBd) => {
-        const doc = xlsxUtils.book_new();
+      docus: données.bds.map((donnéesBd) => {
+        const docu = xlsxUtils.book_new();
         for (const tableau of donnéesBd.tableaux) {
           /* Créer le tableau */
           const tableauXLSX = xlsxUtils.json_to_sheet(tableau.données);
 
           /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
           xlsxUtils.book_append_sheet(
-            doc,
+            docu,
             tableauXLSX,
             tableau.nomTableau.slice(0, 30),
           );
         }
-        return { doc, nom: donnéesBd.nomBd };
+        return { docu, nom: donnéesBd.nomBd };
       }),
       fichiersSFIP,
       nomFichier,
     };
   }
 
-  async exporterProjetÀFichier({
+  async exporterÀFichier({
     idProjet,
     langues,
     nomFichier,
@@ -1310,14 +1310,14 @@ export class Projets<
   }): Promise<string> {
     const hélia = this.service("hélia");
 
-    const { docs, fichiersSFIP, nomFichier } = données;
+    const { docus, fichiersSFIP, nomFichier } = données;
 
     const bookType: BookType = conversionsTypes[formatDocu] || formatDocu;
 
-    const fichiersDocs = docs.map((d) => {
+    const fichiersDocs = docus.map((d) => {
       return {
         nom: `${d.nom}.${formatDocu}`,
-        octets: xlsxWrite(d.doc, { bookType, type: "buffer" }),
+        octets: xlsxWrite(d.docu, { bookType, type: "buffer" }),
       };
     });
     const fichiersDeSFIP = inclureDocuments

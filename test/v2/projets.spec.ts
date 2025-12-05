@@ -1,12 +1,17 @@
+import { join } from "path";
+import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
+import { dossierTempo } from "@constl/utils-tests";
+import JSZip from "jszip";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import {
   TOUS_DISPOSITIFS,
   DISPOSITIFS_INSTALLÉS,
 } from "@/v2/crabe/services/favoris.js";
+import { sansProtocoleOrbite } from "@/v2/utils.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type {
   InfoAuteur,
@@ -16,7 +21,12 @@ import type {
 } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import type { MotClefProjet, ÉpingleProjet } from "@/v2/projets.js";
+import type {
+  DonnéesFichierProjetExportées,
+  DonnéesProjetExportées,
+  MotClefProjet,
+  ÉpingleProjet,
+} from "@/v2/projets.js";
 
 describe("Projets", function () {
   let fermer: Oublier;
@@ -1119,6 +1129,294 @@ describe("Projets", function () {
         },
       ];
       expect(auteurs).to.deep.equal(réf);
+    });
+  });
+
+  describe("exportation", function () {
+    let idc: string;
+
+    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n";
+    const idBdIndisponible =
+      "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+
+    before(async () => {
+      const octets = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+      idc = await constl.services["hélia"].ajouterFichierÀSFIP({
+        contenu: octets,
+        nomFichier: "logo.svg",
+      });
+    });
+
+    describe("suivi données exportation", function () {
+      let idProjet: string;
+      let idBd1: string;
+      let idBd2: string;
+
+      const nomProjetFr = "mon projet de science citoyenne";
+
+      before(async () => {
+        idProjet = await constl.projets.créerProjet();
+
+        idBd1 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idBd2 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      });
+
+      it("nom projet", async () => {
+        const pDonnées = obtenir<DonnéesProjetExportées>(({ si }) =>
+          constl.projets.suivreDonnéesExportation({
+            idProjet,
+            langues: ["fr"],
+            f: si((x) => !!x && !idProjet.includes(x.nomProjet)),
+          }),
+        );
+
+        await constl.projets.sauvegarderNom({
+          idProjet,
+          langue: "fr",
+          nom: nomProjetFr,
+        });
+
+        const données = await pDonnées;
+        expect(données.nomProjet).to.equal(nomProjetFr);
+      });
+
+      it("bds", async () => {
+        const pDonnées = obtenir<DonnéesProjetExportées>(({ si }) =>
+          constl.projets.suivreDonnéesExportation({
+            idProjet,
+            langues: ["fr"],
+            f: si((x) => !!x && x.bds.length >= 2),
+          }),
+        );
+
+        await constl.projets.ajouterBds({
+          idProjet,
+          idsBds: [idBd1, idBd2],
+        });
+
+        const données = await pDonnées;
+        expect(données.bds.map((bd) => bd.nomBd)).to.have.members(
+          [idBd1, idBd2].map((idBd) => idBd.split("/").pop()),
+        );
+      });
+
+      it("bd indisponible", async () => {
+        await constl.projets.ajouterBds({
+          idProjet,
+          idsBds: [idBdIndisponible],
+        });
+
+        const données = await obtenir<DonnéesProjetExportées>(({ si }) =>
+          constl.projets.suivreDonnéesExportation({
+            idProjet,
+            langues: ["fr"],
+            f: si((x) => !!x && x.bds.length >= 2),
+          }),
+        );
+
+        // Les bds indisponibles n'apparaissent pas dans les résultats
+        expect(données.bds.map((bd) => bd.nomBd)).to.have.members(
+          [idBd1, idBd2].map((idBd) => idBd.split("/").pop()),
+        );
+      });
+    });
+
+    describe("à document", function () {
+      let idProjet: string;
+      let idBd1: string;
+      let idBd2: string;
+
+      let idTableau: string;
+      let idColonneFichier: string;
+
+      let données: DonnéesFichierProjetExportées;
+
+      before(async () => {
+        idProjet = await constl.projets.créerProjet();
+
+        idBd1 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idBd2 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+
+        idTableau = await constl.bds.ajouterTableau({ idBd: idBd1 });
+        idColonneFichier = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd1,
+          idTableau,
+        });
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd1,
+          idTableau,
+          éléments: [{ [idColonneFichier]: idc }],
+        });
+
+        données = await constl.projets.exporterDonnées({
+          idProjet,
+          langues: ["fr"],
+        });
+      });
+
+      it("nom document - spécifié", async () => {
+        const donnéesAvecNom = await constl.projets.exporterDonnées({
+          idProjet,
+          nomFichier: "mon fichier",
+        });
+        expect(donnéesAvecNom.nomFichier).to.equal("mon fichier");
+      });
+
+      it("nom document - non spécifié", async () => {
+        expect(données.nomFichier).to.equal(sansProtocoleOrbite(idProjet));
+      });
+
+      it("bds", async () => {
+        expect(données.docus.map((d) => d.nom)).to.have.members(
+          [idBd1, idBd2].map(sansProtocoleOrbite),
+        );
+      });
+
+      it("fichiers sfip de toutes les bds", async () => {
+        expect(données.fichiersSFIP).to.include([idc]);
+      });
+
+      it("exportable même si bd indisponible", async () => {
+        const idProjetTest = await constl.projets.créerProjet();
+        await constl.projets.ajouterBds({
+          idProjet: idProjetTest,
+          idsBds: [idBd1, idBdIndisponible],
+        });
+        const { docus, fichiersSFIP } = await constl.projets.exporterDonnées({
+          idProjet: idProjetTest,
+          langues: ["fr"],
+        });
+
+        expect(docus.map((d) => d.nom)).to.have.members([idBd1]);
+        expect(fichiersSFIP).to.have.members([idc]);
+      });
+
+      it("exportable même si fichier sfip indisponible", async () => {
+        it("exportable même si fichier SFIP indisponible", async () => {
+          await constl.bds.tableaux.ajouterÉléments({
+            idStructure: idBd2,
+            idTableau,
+            éléments: [
+              {
+                [idColonneFichier]: idcIndisponible,
+              },
+            ],
+          });
+
+          const { fichiersSFIP } = await constl.projets.exporterDonnées({
+            idProjet,
+            langues: ["fr"],
+          });
+          expect(fichiersSFIP).to.have.members([idc, idcIndisponible]);
+        });
+      });
+    });
+
+    describe("à fichier", function () {
+      let idProjet: string;
+      let idBd1: string;
+      let idBd2: string;
+      let idTableau: string;
+      let idColonne: string;
+
+      let zip: JSZip;
+
+      const nomFichier = "mes données";
+      const nomBd1 = "Ma BD";
+
+      let dossier: string;
+      let effacer: () => void;
+
+      before(async () => {
+        ({ dossier, effacer } = await dossierTempo());
+
+        idProjet = await constl.projets.créerProjet();
+
+        idBd1 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idBd2 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+
+        idTableau = await constl.bds.ajouterTableau({ idBd: idBd1 });
+
+        idColonne = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd1,
+          idTableau,
+        });
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd1,
+          idTableau,
+          éléments: [{ [idColonne]: idc }],
+        });
+
+        await constl.bds.sauvegarderNoms({ idBd: idBd1, noms: { fr: nomBd1 } });
+
+        await constl.projets.ajouterBds({ idProjet, idsBds: [idBd1, idBd2] });
+      });
+
+      after(async () => {
+        if (effacer) effacer();
+      });
+
+      it("le fichier zip existe", async () => {
+        await constl.projets.exporterÀFichier({
+          idProjet,
+          nomFichier,
+          dossier,
+          formatDocu: "ods",
+        });
+
+        const nomZip = join(dossier, nomFichier + ".zip");
+        expect(existsSync(nomZip)).to.be.true();
+        zip = await JSZip.loadAsync(readFileSync(nomZip));
+      });
+
+      it("les bds sont exportées", async () => {
+        const contenuBd1 = zip.files[`${nomBd1}.ods`];
+        expect(contenuBd1).to.exist();
+
+        const contenuBd2 = zip.files[`${sansProtocoleOrbite(idBd2)}.ods`];
+        expect(contenuBd2).to.exist();
+      });
+
+      it("le dossier pour les données SFIP existe", async () => {
+        const contenu = zip.files["sfip/"];
+        expect(contenu?.dir).to.be.true();
+      });
+
+      it("les fichiers SFIP existent", async () => {
+        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        expect(contenu).to.exist();
+      });
+
+      it("fichier SFIP indisponible", async () => {
+        const nomFichierTest = "projet avec documents indisponibles";
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd1,
+          idTableau,
+          éléments: [{ [idColonne]: idcIndisponible }],
+        });
+
+        await constl.projets.exporterÀFichier({
+          idProjet,
+          nomFichier: nomFichierTest,
+          dossier,
+          formatDocu: "ods",
+        });
+
+        const nomZip = join(dossier, nomFichierTest + ".zip");
+        zip = await JSZip.loadAsync(readFileSync(nomZip));
+
+        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        expect(contenu).to.exist();
+
+        const contenuIndisponible =
+          zip.files[["sfip", idcIndisponible.replace("/", "-")].join("/")];
+        expect(contenuIndisponible).to.not.exist();
+      });
     });
   });
 });

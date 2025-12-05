@@ -28,7 +28,7 @@ import { schémaTableau } from "../tableaux.js";
 import { mapÀObjet, stabiliser } from "../crabe/utils.js";
 import {
   ajouterProtocoleOrbite,
-  extraireEmpreinte,
+  sansProtocoleOrbite,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { RechercheBds } from "../recherche/bds.js";
@@ -362,12 +362,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
   async ajouterÀMesBds({ idBd }: { idBd: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.put(extraireEmpreinte(idBd), null);
+    await bd.put(sansProtocoleOrbite(idBd), null);
   }
 
   async enleverDeMesBds({ idBd }: { idBd: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(extraireEmpreinte(idBd));
+    await bd.del(sansProtocoleOrbite(idBd));
   }
 
   async créerSchémaDeBd({ idBd }: { idBd: string }): Promise<SchémaBd> {

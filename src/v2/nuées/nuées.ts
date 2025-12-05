@@ -18,7 +18,7 @@ import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import { schémaTableau } from "../tableaux.js";
 import {
   ajouterProtocoleOrbite,
-  extraireEmpreinte as enleverProtocoleOrbite,
+  sansProtocoleOrbite,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
@@ -353,12 +353,12 @@ export class Nuées<
 
   async ajouterÀMesNuées({ idNuée }: { idNuée: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.put(enleverProtocoleOrbite(idNuée), null);
+    await bd.put(sansProtocoleOrbite(idNuée), null);
   }
 
   async enleverDeMesNuées({ idNuée }: { idNuée: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(enleverProtocoleOrbite(idNuée));
+    await bd.del(sansProtocoleOrbite(idNuée));
   }
 
   async créerSchémaDeNuée({
@@ -1484,7 +1484,7 @@ export class Nuées<
       );
 
     await nuée.put(
-      `autorisation/bloqués/${enleverProtocoleOrbite(idCompte)}`,
+      `autorisation/bloqués/${sansProtocoleOrbite(idCompte)}`,
       null,
     );
 
@@ -1505,7 +1505,7 @@ export class Nuées<
       );
 
     await nuée.put(
-      `autorisation/invités/${enleverProtocoleOrbite(idCompte)}`,
+      `autorisation/invités/${sansProtocoleOrbite(idCompte)}`,
       null,
     );
 
@@ -1538,7 +1538,7 @@ export class Nuées<
         `Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même (nuée ${idNuée}, compte ${idCompte}).`,
       );
 
-    await nuée.del(`autorisation/bloqués/${enleverProtocoleOrbite(idCompte)}`);
+    await nuée.del(`autorisation/bloqués/${sansProtocoleOrbite(idCompte)}`);
 
     await oublier();
   }
@@ -1569,7 +1569,7 @@ export class Nuées<
         `Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même (nuée ${idNuée}, compte ${idCompte}).`,
       );
 
-    await nuée.del(`autorisation/invités/${enleverProtocoleOrbite(idCompte)}`);
+    await nuée.del(`autorisation/invités/${sansProtocoleOrbite(idCompte)}`);
 
     await oublier();
   }

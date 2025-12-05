@@ -30,7 +30,6 @@ describe("Projets", function () {
     if (fOublierClients) await fOublierClients();
   });
 
-
   describe("Exporter données", function () {
     let idProjet: string;
     let docs: { doc: xlsx.WorkBook; nom: string }[];

@@ -2833,7 +2833,7 @@ describe("tableaux", function () {
 
         let idc: string;
 
-        let zip = JSZip;
+        let zip: JSZip;
 
         let dossier: string;
         let effacer: () => void;

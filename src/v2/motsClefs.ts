@@ -10,7 +10,7 @@ import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";
 import { schémaTraducsTexte } from "./schémas.js";
-import { ajouterProtocoleOrbite, extraireEmpreinte } from "./utils.js";
+import { ajouterProtocoleOrbite, sansProtocoleOrbite } from "./utils.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
 import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
 import type {
@@ -196,7 +196,7 @@ export class MotsClefs<
     idMotClef: string;
   }): Promise<void> {
     const bd = await this.bd();
-    await bd.put(extraireEmpreinte(idMotClef), null);
+    await bd.put(sansProtocoleOrbite(idMotClef), null);
   }
 
   async enleverDeMesMotsClefs({
@@ -205,7 +205,7 @@ export class MotsClefs<
     idMotClef: string;
   }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(extraireEmpreinte(idMotClef));
+    await bd.del(sansProtocoleOrbite(idMotClef));
   }
 
   async ouvrirMotClef({
