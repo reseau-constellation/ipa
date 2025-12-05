@@ -138,7 +138,7 @@ export type ScoreNuée = {
   infos?: number;
   couverture?: number;
   total: number;
-}
+};
 
 // Types structure
 

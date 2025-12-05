@@ -16,8 +16,10 @@ import {
 } from "@/v2/crabe/services/compte/accès/consts.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellation, type Constellation } from "@/v2/index.js";
+import { moyenne} from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
+import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import type {
   DifférenceBds,
   DonnéesBdExportées,
@@ -34,7 +36,6 @@ import type {
 import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
 import type { DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
-import { moyenne, type DonnéesFichierBdExportées } from "@/v2/utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
