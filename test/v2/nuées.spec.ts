@@ -1277,6 +1277,9 @@ describe("Nuées", function () {
       idVarLangue = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
+      idVarNomLangue = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
 
       idMotClef = await constl.motsClefs.créerMotClef();
       idNuée = await constl.nuées.créerNuée();
