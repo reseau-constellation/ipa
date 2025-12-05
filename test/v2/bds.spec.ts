@@ -5,6 +5,7 @@ import { expect } from "aegir/chai";
 import { isValidAddress } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
+import { dossierTempo } from "@constl/utils-tests";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
@@ -1927,6 +1928,8 @@ describe("BDs", function () {
   describe("exportation", function () {
     let idc: string;
 
+    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n"
+
     before(async () => {
       const octets = await obtRessourceTest({
         nomFichier: "logo.svg",
@@ -2022,7 +2025,6 @@ describe("BDs", function () {
       });
 
       it("nom document - non spécifié", async () => {
-        
         expect(données.nomFichier).to.equal(idBd.replace("/orbitdb/", ""));
       });
 
@@ -2042,6 +2044,7 @@ describe("BDs", function () {
     describe("à fichier", function () {
       let idBd: string;
       let idTableau: string;
+      let idColonne: string;
 
       let zip = JSZip;
 
@@ -2052,6 +2055,8 @@ describe("BDs", function () {
       const nomFichier = "mes données";
 
       before(async () => {
+        ({ dossier, effacer } = await dossierTempo());
+
         idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableau = await constl.bds.ajouterTableau({ idBd });
         await constl.bds.tableaux.sauvegarderNom({
@@ -2061,7 +2066,7 @@ describe("BDs", function () {
           nom: nomTableauFr,
         });
 
-        const idColonne = await constl.bds.tableaux.ajouterColonne({
+        idColonne = await constl.bds.tableaux.ajouterColonne({
           idStructure: idBd,
           idTableau,
         });
@@ -2102,6 +2107,33 @@ describe("BDs", function () {
       it("les fichiers SFIP existent", async () => {
         const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
+      });
+
+      it("exportable même si fichiers SFIP indisponibles", async () => {
+        const nomFichierTest = "avec fichiers indisponibles";
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments: [{ [idColonne]: idcIndisponible }],
+        });
+
+        await constl.bds.exporterÀFichier({
+          idBd,
+          nomFichier: nomFichierTest,
+          dossier,
+          formatDocu: "ods",
+        });
+
+        const nomZip = join(dossier, nomFichierTest + ".zip");
+        zip = await JSZip.loadAsync(readFileSync(nomZip));
+
+        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        expect(contenu).to.exist();
+
+        const contenuIndisponible =
+          zip.files[["sfip", idcIndisponible.replace("/", "-")].join("/")];
+        expect(contenuIndisponible).to.not.exist();
       });
     });
   });
