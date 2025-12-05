@@ -34,7 +34,7 @@ import type {
 import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
 import type { DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
-import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
+import { moyenne, type DonnéesFichierBdExportées } from "@/v2/utils.js";
 
 describe("BDs", function () {
   let fermer: () => Promise<void>;
@@ -1729,6 +1729,43 @@ describe("BDs", function () {
       });
     });
 
+    describe("score infos", function () {
+      it("0 pour commencer", async () => {
+        const score = await obtenir<ScoreBd>(({ siDéfini }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: siDéfini(),
+          }),
+        );
+        expect(score.infos).to.equal(0);
+      });
+
+      it("ajout noms", async () => {
+        await constl.bds.sauvegarderNoms({ idBd, noms: { fr: "Ma BD" } });
+        const score = await obtenir<ScoreBd>(({ si }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: si((s) => s?.infos !== undefined && s.infos > 0),
+          }),
+        );
+        expect(score.infos).to.equal(0.5);
+      });
+
+      it("ajout descriptions", async () => {
+        await constl.bds.sauvegarderDescriptions({
+          idBd,
+          descriptions: { fr: "Ma BD" },
+        });
+        const score = await obtenir<ScoreBd>(({ si }) =>
+          constl.bds.suivreScoreQualité({
+            idBd,
+            f: si((s) => s?.infos !== undefined && s.infos > 0.5),
+          }),
+        );
+        expect(score.infos).to.equal(1);
+      });
+    });
+
     describe("score total", function () {
       it("calcul du score total", async () => {
         const score = await obtenir<ScoreBd>(({ siDéfini }) =>
@@ -1737,9 +1774,12 @@ describe("BDs", function () {
             f: siDéfini(),
           }),
         );
-        const total =
-          ((score.accès || 0) + (score.couverture || 0) + (score.valide || 0)) /
-          3;
+        const total = moyenne([
+          score.accès,
+          score.couverture,
+          score.valide,
+          score.infos,
+        ]);
         expect(score.total).to.equal(total);
       });
     });

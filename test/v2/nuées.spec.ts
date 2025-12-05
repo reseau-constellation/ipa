@@ -11,6 +11,7 @@ import {
   TOUS_DISPOSITIFS,
 } from "@/v2/crabe/services/favoris.js";
 import { stabiliser } from "@/v2/crabe/utils.js";
+import { moyenne, type DonnéesFichierBdExportées } from "@/v2/utils.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
 import type { DonnéesRangéeNuée } from "@/v2/nuées/tableaux.js";
@@ -36,7 +37,6 @@ import type {
   ValeurAscendance,
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
-import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -3677,6 +3677,46 @@ describe("Nuées", function () {
       });
     });
 
+    describe("score infos", function () {
+      it("0 pour commencer", async () => {
+        const score = await obtenir<ScoreNuée>(({ siDéfini }) =>
+          constl.nuées.suivreScoreQualité({
+            idNuée,
+            f: siDéfini(),
+          }),
+        );
+        expect(score.infos).to.equal(0);
+      });
+
+      it("ajout noms", async () => {
+        await constl.nuées.sauvegarderNoms({
+          idNuée,
+          noms: { fr: "Science citoyenne" },
+        });
+        const score = await obtenir<ScoreNuée>(({ si }) =>
+          constl.nuées.suivreScoreQualité({
+            idNuée,
+            f: si((s) => s?.infos !== undefined && s.infos > 0),
+          }),
+        );
+        expect(score.infos).to.equal(0.5);
+      });
+
+      it("ajout descriptions", async () => {
+        await constl.nuées.sauvegarderDescriptions({
+          idNuée,
+          descriptions: { fr: "Science citoyenne" },
+        });
+        const score = await obtenir<ScoreNuée>(({ si }) =>
+          constl.nuées.suivreScoreQualité({
+            idNuée,
+            f: si((s) => s?.infos !== undefined && s.infos > 0.5),
+          }),
+        );
+        expect(score.infos).to.equal(1);
+      });
+    });
+
     describe("score total", function () {
       it("calcul du score total", async () => {
         const score = await obtenir<ScoreNuée>(({ siDéfini }) =>
@@ -3685,9 +3725,7 @@ describe("Nuées", function () {
             f: siDéfini(),
           }),
         );
-        const total =
-          ((score.accès || 0) + (score.couverture || 0) + (score.infos || 0)) /
-          3;
+        const total = moyenne([score.accès, score.couverture, score.infos]);
         expect(score.total).to.equal(total);
       });
     });

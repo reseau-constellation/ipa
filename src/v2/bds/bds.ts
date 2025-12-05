@@ -28,6 +28,7 @@ import { schémaTableau } from "../tableaux.js";
 import { mapÀObjet, stabiliser } from "../crabe/utils.js";
 import {
   ajouterProtocoleOrbite,
+  moyenne,
   sansProtocoleOrbite,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
@@ -149,6 +150,7 @@ export interface ScoreBd {
   accès?: number;
   couverture?: number;
   valide?: number;
+  infos?: number;
   licence?: number;
   total: number;
 }
@@ -959,7 +961,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     f,
   }: {
     idBd: string;
-    f: Suivi<TraducsTexte | undefined>;
+    f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
@@ -967,7 +969,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       id: idBd,
       type: "nested",
       schéma: schémaBd,
-      f: (bd) => f(mapÀObjet(bd)?.noms),
+      f: (bd) => f(mapÀObjet(bd)?.noms || {}),
     });
   }
 
@@ -1023,14 +1025,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     f,
   }: {
     idBd: string;
-    f: Suivi<TraducsTexte | undefined>;
+    f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     return await this.service("orbite").suivreDonnéesBd({
       id: idBd,
       type: "nested",
       schéma: schémaBd,
       f: async (bd) => {
-        await f(mapÀObjet(bd.get("descriptions")));
+        await f(mapÀObjet(bd)?.descriptions || {});
       },
     });
   }
@@ -1877,6 +1879,54 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }
 
   @cacheSuivi
+  async suivreScoreInfos({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: Suivi<number | undefined>;
+  }): Promise<Oublier> {
+    const rés: {
+      noms: { [key: string]: string };
+      descriptions: { [key: string]: string };
+    } = {
+      noms: {},
+      descriptions: {},
+    };
+    const fFinale = async () => {
+      const scores = [
+        Object.keys(rés.noms).length ? 1 : 0,
+        Object.keys(rés.descriptions).length ? 1 : 0,
+      ];
+
+      const qualité = moyenne(scores);
+      await f(qualité);
+    };
+    const oublierNoms = await this.suivreNoms({
+      idBd,
+      f: (noms) => {
+        rés.noms = noms;
+        fFinale();
+      },
+    });
+
+    const oublierDescr = await this.suivreDescriptions({
+      idBd,
+      f: (descriptions) => {
+        rés.descriptions = descriptions;
+        fFinale();
+      },
+    });
+
+    const oublier = async () => {
+      await oublierNoms();
+      await oublierDescr();
+    };
+
+    return oublier;
+  }
+
+  @cacheSuivi
   async suivreScoreCouverture({
     idBd,
     f,
@@ -1884,7 +1934,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<number | undefined>;
   }): Promise<Oublier> {
-
     const fFinale = async (branches: ScoreCouvertureTableau[]) => {
       const numérateur = branches.reduce(
         (a: number, b: ScoreCouvertureTableau) => a + b.numérateur,
@@ -1904,7 +1953,11 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       id: string;
       fSuivreBranche: Suivi<ScoreCouvertureTableau>;
     }): Promise<Oublier> => {
-      return await this.tableaux.suivreScoreCouverture({idStructure: idBd, idTableau, f: fSuivreBranche})
+      return await this.tableaux.suivreScoreCouverture({
+        idStructure: idBd,
+        idTableau,
+        f: fSuivreBranche,
+      });
     };
 
     const fListe = async ({
@@ -2065,11 +2118,12 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       accès?: number;
       couverture?: number;
       valide?: number;
+      infos?: number;
       licence?: number;
     } = {};
 
     const fFinale = async () => {
-      const { accès, couverture, valide, licence } = info;
+      const { accès, couverture, valide, infos, licence } = info;
       const score: ScoreBd = {
         // Score impitoyable de 0 pour les bds sans licence
         total: licence
@@ -2078,6 +2132,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         accès,
         couverture,
         valide,
+        infos,
         licence,
       };
       await f(score);
@@ -2107,6 +2162,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       },
     });
 
+    const oublierInfos = await this.suivreScoreInfos({
+      idBd,
+      f: async (infos) => {
+        info.infos = infos;
+        await fFinale();
+      },
+    });
+
     const oublierLicence = await this.suivreLicence({
       idBd,
       f: async (licence) => {
@@ -2116,12 +2179,11 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     });
 
     return async () => {
-      await Promise.allSettled([
-        oublierAccès,
-        oublierCouverture,
-        oublierValide,
-        oublierLicence,
-      ]);
+      await oublierAccès();
+      await oublierCouverture();
+      await oublierValide();
+      await oublierInfos();
+      await oublierLicence();
     };
   }
 

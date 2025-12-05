@@ -143,3 +143,8 @@ export const idcEtFichierValide = (val: string) => {
   if (!idcValide(idc)) return false;
   return { idc, fichier };
 };
+
+export const moyenne = (x: (number | undefined)[]): number => {
+  const définis = x.filter((y): y is number => y !== undefined);
+  return définis.reduce((a, b) => a + b, 0) / définis.length;
+};

@@ -133,7 +133,7 @@ export type AutorisationNuéeParInvitation = {
 
 // Types score
 
-export interface ScoreNuée {
+export type ScoreNuée = {
   accès?: number;
   infos?: number;
   couverture?: number;

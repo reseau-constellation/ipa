@@ -2,12 +2,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
 import { faisRien } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
-import {
-  importerFeuilleCalculDURL,
-  importerJSONdURL,
-} from "@/importateur/index.js";
-import { ImportateurDonnéesJSON } from "@/importateur/json.js";
-import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
+import { ImportateurFeuilleCalcul } from "@/v2/importateur/xlsx.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
 import type { Constellation } from "../constellation.js";
 import type { FSWatcherEventMap } from "chokidar";
@@ -26,6 +21,11 @@ import type {
   ÉtatProgrammée,
   ÉtatÉcoute,
 } from "./types.js";
+import { ImportateurDonnéesJSON } from "@/importateur/json.js";
+import {
+  importerFeuilleCalculDURL,
+  importerJSONdURL,
+} from "@/importateur/index.js";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
