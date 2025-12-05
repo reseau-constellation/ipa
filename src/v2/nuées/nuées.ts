@@ -131,6 +131,15 @@ export type AutorisationNuéeParInvitation = {
   invités: string[];
 };
 
+// Types score
+
+export interface ScoreNuée {
+  accès?: number;
+  infos?: number;
+  couverture?: number;
+  total: number;
+}
+
 // Types structure
 
 export type StructureAutorisationNuée = {
@@ -2127,12 +2136,25 @@ export class Nuées<
   // Qualité
 
   @cacheSuivi
-  async suivreScoreQualité({
+  async suivreScoreAccès({
     idNuée,
     f,
   }: {
     idNuée: string;
-    f: Suivi<number>;
+    f: Suivi<number | undefined>;
+  }): Promise<Oublier> {
+    // À faire
+    f(Number.parseInt(idNuée));
+    return faisRien;
+  }
+
+  @cacheSuivi
+  async suivreScoreInfos({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<number | undefined>;
   }): Promise<Oublier> {
     const rés: {
       noms: { [key: string]: string };
@@ -2172,6 +2194,114 @@ export class Nuées<
     };
 
     return oublier;
+  }
+
+  @cacheSuivi
+  async suivreScoreCouverture({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<number | undefined>;
+  }): Promise<Oublier> {
+    type ScoreCouvertureTableau = { numérateur: number; dénominateur: number };
+
+    const fFinale = async (branches: ScoreCouvertureTableau[]) => {
+      const numérateur = branches.reduce(
+        (a: number, b: ScoreCouvertureTableau) => a + b.numérateur,
+        0,
+      );
+      const dénominateur = branches.reduce(
+        (a: number, b: ScoreCouvertureTableau) => a + b.dénominateur,
+        0,
+      );
+      await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
+    };
+
+    const fBranche = async ({
+      id,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: Suivi<number>;
+    }) => {
+      return await this.tableaux.suivreScoreCouverture({
+        idStructure: idNuée,
+        idTableau: id,
+        f: fSuivreBranche,
+      });
+    };
+
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<Oublier> => {
+      return await this.suivreTableaux({
+        idNuée,
+        f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
+      });
+    };
+
+    return await suivreDeFonctionListe({
+      fListe,
+      f: fFinale,
+      fBranche,
+    });
+  }
+
+  @cacheSuivi
+  async suivreScoreQualité({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: Suivi<ScoreNuée>;
+  }): Promise<Oublier> {
+    const info: {
+      accès?: number;
+      couverture?: number;
+      infos?: number;
+    } = {};
+
+    const fFinale = async () => {
+      const { accès, couverture, infos } = info;
+      const score: ScoreNuée = {
+        total: ((accès || 0) + (couverture || 0) + (infos || 0)) / 3,
+        accès,
+        couverture,
+        infos,
+      };
+      await f(score);
+    };
+
+    const oublierAccès = await this.suivreScoreAccès({
+      idNuée,
+      f: async (accès) => {
+        info.accès = accès;
+        await fFinale();
+      },
+    });
+
+    const oublierCouverture = await this.suivreScoreCouverture({
+      idNuée,
+      f: async (couverture) => {
+        info.couverture = couverture;
+        await fFinale();
+      },
+    });
+
+    const oublierInfos = await this.suivreScoreInfos({
+      idNuée,
+      f: async (infos) => {
+        info.infos = infos;
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await Promise.allSettled([oublierAccès, oublierCouverture, oublierInfos]);
+    };
   }
 
   // Exportation
