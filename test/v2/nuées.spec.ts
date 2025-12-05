@@ -32,6 +32,7 @@ import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
 import type {
   AutorisationNuée,
   InfoTableauNuée,
+  ScoreNuée,
   ValeurAscendance,
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
@@ -3580,7 +3581,117 @@ describe("Nuées", function () {
     });
   });
 
-  describe("score");
+  describe("score", function () {
+    let idNuée: string;
+    let idTableau: string;
+    let idVarNumérique: string;
+    let idVarChaîne: string;
+    let idVarNumérique2: string;
+
+    let idColNumérique: string;
+    let idColNumérique2: string;
+
+    before(async () => {
+      idNuée = await constl.nuées.créerNuée();
+      idTableau = await constl.nuées.ajouterTableau({ idNuée });
+
+      idVarNumérique = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+      idVarNumérique2 = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+      idVarChaîne = await constl.variables.créerVariable({
+        catégorie: "chaîneNonTraductible",
+      });
+    });
+
+    describe("score couverture tests", function () {
+      it("`undefined` lorsque aucune colonne", async () => {
+        const score = await obtenir<ScoreNuée>(({ siDéfini }) =>
+          constl.nuées.suivreScoreQualité({
+            idNuée,
+            f: siDéfini(),
+          }),
+        );
+        expect(score.couverture).to.be.undefined();
+      });
+
+      it("ajout de colonnes", async () => {
+        idColNumérique = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
+          idTableau,
+          idVariable: idVarNumérique,
+        });
+        idColNumérique2 = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
+          idTableau,
+          idVariable: idVarNumérique2,
+        });
+        await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
+          idTableau,
+          idVariable: idVarChaîne,
+        });
+        const score = await obtenir<ScoreNuée>(({ si }) =>
+          constl.nuées.suivreScoreQualité({
+            idNuée,
+            f: si((s) => s?.couverture !== undefined),
+          }),
+        );
+        expect(score.couverture).to.equal(0);
+      });
+
+      it("ajout de règles", async () => {
+        const règleNumérique: RègleBornes = {
+          type: "bornes",
+          détails: { type: "fixe", val: 0, op: ">=" },
+        };
+        await constl.nuées.tableaux.ajouterRègle({
+          idStructure: idNuée,
+          idTableau,
+          idColonne: idColNumérique,
+          règle: règleNumérique,
+        });
+        let score = await obtenir<ScoreNuée>(({ si }) =>
+          constl.nuées.suivreScoreQualité({
+            idNuée,
+            f: si((s) => !!s && !!s.couverture && s.couverture > 0),
+          }),
+        );
+        expect(score.couverture).to.equal(0.5);
+
+        await constl.nuées.tableaux.ajouterRègle({
+          idStructure: idNuée,
+          idTableau,
+          idColonne: idColNumérique2,
+          règle: règleNumérique,
+        });
+        score = await obtenir<ScoreNuée>(({ si }) =>
+          constl.nuées.suivreScoreQualité({
+            idNuée,
+            f: si((s) => !!s && !!s.couverture && s.couverture > 0.5),
+          }),
+        );
+        expect(score.couverture).to.equal(1);
+      });
+    });
+
+    describe("score total", function () {
+      it("calcul du score total", async () => {
+        const score = await obtenir<ScoreNuée>(({ siDéfini }) =>
+          constl.nuées.suivreScoreQualité({
+            idNuée,
+            f: siDéfini(),
+          }),
+        );
+        const total =
+          ((score.accès || 0) + (score.couverture || 0) + (score.infos || 0)) /
+          3;
+        expect(score.total).to.equal(total);
+      });
+    });
+  });
 
   describe("auteurs", function () {
     let idNuée: string;

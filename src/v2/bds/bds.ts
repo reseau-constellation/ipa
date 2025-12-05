@@ -60,6 +60,7 @@ import type {
   DifférenceTableaux,
   InfoColonne,
   InfoColonneAvecCatégorie,
+  ScoreCouvertureTableau,
 } from "../tableaux.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 import type { ErreurDonnée, RègleColonne } from "../règles.js";
@@ -1883,15 +1884,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<number | undefined>;
   }): Promise<Oublier> {
-    type ScoreTableau = { numérateur: number; dénominateur: number };
 
-    const fFinale = async (branches: ScoreTableau[]) => {
+    const fFinale = async (branches: ScoreCouvertureTableau[]) => {
       const numérateur = branches.reduce(
-        (a: number, b: ScoreTableau) => a + b.numérateur,
+        (a: number, b: ScoreCouvertureTableau) => a + b.numérateur,
         0,
       );
       const dénominateur = branches.reduce(
-        (a: number, b: ScoreTableau) => a + b.dénominateur,
+        (a: number, b: ScoreCouvertureTableau) => a + b.dénominateur,
         0,
       );
       await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
@@ -1902,53 +1902,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       fSuivreBranche,
     }: {
       id: string;
-      fSuivreBranche: Suivi<ScoreTableau>;
+      fSuivreBranche: Suivi<ScoreCouvertureTableau>;
     }): Promise<Oublier> => {
-      const info: {
-        cols?: InfoColonneAvecCatégorie[];
-        règles?: RègleColonne[];
-      } = {};
-
-      const fFinaleBranche = async () => {
-        const { cols, règles } = info;
-
-        if (cols !== undefined && règles !== undefined) {
-          const colsÉligibles = cols.filter(
-            (c) => c.catégorie?.catégorie === "numérique",
-          );
-
-          const dénominateur = colsÉligibles.length;
-          const numérateur = colsÉligibles.filter((c) =>
-            règles.some(
-              (r) => r.règle.règle.type !== "catégorie" && r.colonne === c.id,
-            ),
-          ).length;
-          await fSuivreBranche({ numérateur, dénominateur });
-        }
-      };
-
-      const oublierColonnes = await this.tableaux.suivreCatégoriesColonnes({
-        idStructure: idBd,
-        idTableau,
-        f: async (cols) => {
-          info.cols = cols;
-          await fFinaleBranche();
-        },
-      });
-
-      const oublierRègles = await this.tableaux.suivreRègles({
-        idStructure: idBd,
-        idTableau,
-        f: async (règles) => {
-          info.règles = règles;
-          await fFinaleBranche();
-        },
-      });
-
-      return async () => {
-        await oublierColonnes();
-        await oublierRègles();
-      };
+      return await this.tableaux.suivreScoreCouverture({idStructure: idBd, idTableau, f: fSuivreBranche})
     };
 
     const fListe = async ({
@@ -1977,15 +1933,15 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<number | undefined>;
   }): Promise<Oublier> {
-    type ScoreTableau = { numérateur: number; dénominateur: number };
+    type ScoreCouvertureTableau = { numérateur: number; dénominateur: number };
 
-    const fFinale = async (branches: ScoreTableau[]) => {
+    const fFinale = async (branches: ScoreCouvertureTableau[]) => {
       const numérateur = branches.reduce(
-        (a: number, b: ScoreTableau) => a + b.numérateur,
+        (a: number, b: ScoreCouvertureTableau) => a + b.numérateur,
         0,
       );
       const dénominateur = branches.reduce(
-        (a: number, b: ScoreTableau) => a + b.dénominateur,
+        (a: number, b: ScoreCouvertureTableau) => a + b.dénominateur,
         0,
       );
       await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
@@ -1996,7 +1952,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       fSuivreBranche,
     }: {
       id: string;
-      fSuivreBranche: Suivi<ScoreTableau>;
+      fSuivreBranche: Suivi<ScoreCouvertureTableau>;
     }): Promise<Oublier> => {
       const info: {
         données?: DonnéesRangéeTableauAvecId[];
@@ -2115,7 +2071,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     const fFinale = async () => {
       const { accès, couverture, valide, licence } = info;
       const score: ScoreBd = {
-        // Score impitoyable de 0 pour BDs sans licence
+        // Score impitoyable de 0 pour les bds sans licence
         total: licence
           ? ((accès || 0) + (couverture || 0) + (valide || 0)) / 3
           : 0,
@@ -2134,6 +2090,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         await fFinale();
       },
     });
+
     const oublierCouverture = await this.suivreScoreCouverture({
       idBd,
       f: async (couverture) => {
@@ -2141,6 +2098,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         await fFinale();
       },
     });
+
     const oublierValide = await this.suivreScoreValide({
       idBd,
       f: async (valide) => {
@@ -2156,6 +2114,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         await fFinale();
       },
     });
+
     return async () => {
       await Promise.allSettled([
         oublierAccès,

@@ -12,12 +12,11 @@ import type { ServicesConstellation } from "../constellation.js";
 import type { FiltresBds, Héritage, Nuées, ValeurAscendance } from "./nuées.js";
 import type {
   DifférenceTableaux,
-  DonnéesRangéeTableau,
   InfoColonne,
   InfoColonneAvecCatégorie,
 } from "../tableaux.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import type { RègleColonne } from "../règles.js";
+import type { FonctionValidation, RègleColonne } from "../règles.js";
 
 // Types filtres
 
@@ -174,48 +173,54 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     filtresDonnées?: FiltresDonnées;
     clefsSelonVariables?: boolean;
   }): Promise<Oublier> {
-    const serviceBds = this.service("bds");
+    const bds = this.service("bds");
+
+    const suivreBds = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: Suivi<string[]>;
+    }) =>
+      await suivreDeFonctionListe({
+        fListe: async ({ fSuivreRacine }) =>
+          await this.nuées.suivreBds({
+            idNuée: idStructure,
+            f: fSuivreRacine,
+            héritage,
+            filtres: filtresBds,
+          }),
+        fBranche: async ({ id: idBd, fSuivreBranche }) => {
+          if (filtresDonnées?.exclureAvecDifférencesTableaux) {
+            return await this.suivreDifférencesAvecTableau({
+              tableau: {
+                idStructure: idBd,
+                idTableau,
+              },
+              tableauRéf: {
+                idStructure,
+                idTableau,
+              },
+              f: async (différences) => {
+                if (
+                  différences.some((d) =>
+                    filtresDonnées.exclureAvecDifférencesTableaux?.includes(
+                      d.type,
+                    ),
+                  )
+                )
+                  await fSuivreBranche(undefined);
+                else await fSuivreBranche(idBd);
+              },
+            });
+          } else {
+            await fSuivreBranche(idBd);
+            return faisRien;
+          }
+        },
+        f: fSuivreRacine,
+      });
 
     return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-        await suivreDeFonctionListe({
-          fListe: async ({ fSuivreRacine }) =>
-            await this.nuées.suivreBds({
-              idNuée: idStructure,
-              f: fSuivreRacine,
-              héritage,
-              filtres: filtresBds,
-            }),
-          fBranche: async ({ id: idBd, fSuivreBranche }) => {
-            if (filtresDonnées?.exclureAvecDifférencesTableaux) {
-              return await this.suivreDifférencesAvecTableau({
-                tableau: {
-                  idStructure: idBd,
-                  idTableau,
-                },
-                tableauRéf: {
-                  idStructure,
-                  idTableau,
-                },
-                f: async (différences) => {
-                  if (
-                    différences.some((d) =>
-                      filtresDonnées.exclureAvecDifférencesTableaux?.includes(
-                        d.type,
-                      ),
-                    )
-                  )
-                    await fSuivreBranche(undefined);
-                  else await fSuivreBranche(idBd);
-                },
-              });
-            } else {
-              await fSuivreBranche(idBd);
-              return faisRien;
-            }
-          },
-          f: fSuivreRacine,
-        }),
+      fListe: suivreBds,
       fBranche: async ({
         id: idBd,
         fSuivreBranche,
@@ -223,14 +228,49 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         id: string;
         fSuivreBranche: Suivi<DonnéesRangéeNuée[]>;
       }) => {
+        const info: {
+          données?: DonnéesRangéeNuée[];
+          règles?: FonctionValidation[];
+        } = {};
+
+        const fFinale = async () => {
+          const { données, règles } = info;
+          if (données) {
+            if (filtresDonnées.exclureAvecErreursDonnées && règles) {
+              const idsDonnéesErronnées = règles
+                .map((r) => r(données.map((d) => d.données)))
+                .flat()
+                .map((e) => e.id);
+              return await fSuivreBranche(
+                données.filter(
+                  (d) => !idsDonnéesErronnées.includes(d.données.id),
+                ),
+              );
+            } else {
+              return await fSuivreBranche(données);
+            }
+          }
+        };
+
         if (filtresDonnées?.exclureAvecErreursDonnées) {
-          await this.suivreRègles({ idStructure });
+          await this.suivreValidateursDonnées({
+            idStructure,
+            idTableau,
+            f: async (règles) => {
+              info.règles = règles;
+              await fFinale();
+            },
+            résolveurDonnéesCatégorie: bds.tableaux.suivreDonnées.bind(bds.tableaux)
+          });
         }
-        const oublierDonnées = await serviceBds.tableaux.suivreDonnées({
+
+        const oublierDonnées = await bds.tableaux.suivreDonnées({
           idStructure: idBd,
           idTableau,
-          f: async (données) =>
-            await fSuivreBranche(données.map((d) => ({ idBd, données: d }))),
+          f: async (données) => {
+            info.données = données.map((d) => ({ idBd, données: d }));
+            await fFinale();
+          },
           clefsSelonVariables,
         });
         return async () => {
@@ -277,10 +317,10 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
         const fichiersSFIP: Set<string> = new Set();
 
-        let donnéesFormattées = await Promise.all(
-          données.map((d) =>
+        let donnéesFormattées: DonnéesRangéeNuée[] = await Promise.all(
+          données.map(({ idBd, données }) =>
             this.formaterÉlément({
-              é: d.données,
+              é: données.données,
               fichiersSFIP,
               colonnes,
               langues,
@@ -290,8 +330,8 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         );
 
         donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d).reduce(
-            (acc: DonnéesRangéeTableau, idColonne: string) => {
+          Object.keys(d.données.données).reduce(
+            (acc: DonnéesRangéeNuée, idColonne: string) => {
               const idVar = colonnes.find((c) => c.id === idColonne)?.variable;
               if (!idVar)
                 throw new Error(

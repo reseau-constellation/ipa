@@ -1,6 +1,5 @@
 import {
   attendreStabilité,
-  faisRien,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   suivreFonctionImbriquée,
@@ -12,7 +11,6 @@ import md5 from "crypto-js/md5.js";
 import Base64 from "crypto-js/enc-base64.js";
 import { v4 as uuidv4 } from "uuid";
 import { utils } from "xlsx";
-import { générerFonctionValidation } from "../règles.js";
 import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../crabe/cache.js";
 import { mapÀObjet } from "../crabe/utils.js";
@@ -27,7 +25,6 @@ import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type {
   ErreurDonnée,
   FonctionValidation,
-  RègleColonne,
 } from "../règles.js";
 import type {
   DonnéesRangéeTableau,
@@ -532,7 +529,6 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     const info: {
       données?: DonnéesRangéeTableauAvecId[];
       règles?: FonctionValidation[];
-      colonnes?: InfoColonne[];
     } = {};
 
     const fFinale = async () => {
@@ -546,82 +542,13 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       await f(erreurs);
     };
 
-    const fFinaleRègles = async (
-      règles: { règle: RègleColonne; donnéesCatégorie?: DagCborEncodable[] }[],
-    ) => {
-      if (info.colonnes) {
-        const varsÀColonnes = info.colonnes.reduce(
-          (o, c) => (c.variable ? { ...o, [c.variable]: c.id } : { ...o }),
-          {},
-        );
-        const colsIndex = info.colonnes.filter((c) => c.index).map((c) => c.id);
-        info.règles = règles.map((r) =>
-          générerFonctionValidation({
-            règle: r.règle,
-            varsÀColonnes,
-            donnéesCatégorie: r.donnéesCatégorie,
-            colsIndex,
-          }),
-        );
-        await fFinale();
-      }
-    };
-    const oublierVarsÀColonnes = await this.suivreColonnes({
+    const oublierValidateursDonnées = await this.suivreValidateursDonnées({
       idStructure,
       idTableau,
-      f: async (cols) => {
-        info.colonnes = cols;
-        await fFinale();
+      f: (validateurs) => {
+        info.règles = validateurs;
       },
-    });
-
-    const fListeRègles = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (règles: RègleColonne[]) => Promise<void>;
-    }): Promise<Oublier> => {
-      return await this.suivreRègles({
-        idStructure,
-        idTableau,
-        f: fSuivreRacine,
-      });
-    };
-
-    const fBrancheRègles = async ({
-      fSuivreBranche,
-      branche: règle,
-    }: {
-      fSuivreBranche: Suivi<{
-        règle: RègleColonne;
-        donnéesCatégorie?: DagCborEncodable[];
-      }>;
-      branche: RègleColonne;
-    }): Promise<Oublier> => {
-      if (
-        règle.règle.règle.type === "valeurCatégorique" &&
-        règle.règle.règle.détails.type === "dynamique"
-      ) {
-        const { structure, tableau, colonne } = règle.règle.règle.détails;
-        return await this.suivreDonnées({
-          idStructure: structure,
-          idTableau: tableau,
-          f: async (données) =>
-            await fSuivreBranche({
-              règle,
-              donnéesCatégorie: données.map((d) => d.données[colonne]),
-            }),
-        });
-      } else {
-        await fSuivreBranche({ règle });
-        return faisRien;
-      }
-    };
-
-    const oublierRègles = await suivreDeFonctionListe({
-      fListe: fListeRègles,
-      f: fFinaleRègles,
-      fBranche: fBrancheRègles,
-      fIdDeBranche: (b: RègleColonne) => b.règle.id,
+      résolveurDonnéesCatégorie: this.suivreDonnées.bind(this),
     });
 
     const oublierDonnées = await this.suivreDonnées({
@@ -633,9 +560,8 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       },
     });
     const oublier = async () => {
-      await oublierRègles();
+      await oublierValidateursDonnées();
       await oublierDonnées();
-      await oublierVarsÀColonnes();
     };
     return oublier;
   }

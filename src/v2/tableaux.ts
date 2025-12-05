@@ -10,7 +10,7 @@ import { asSplitKey, joinKey } from "@orbitdb/nested-db";
 import { cacheSuivi } from "./crabe/cache.js";
 import { brancheBd } from "./crabe/services/services.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import { schémaSpécificationRègleColonne } from "./règles.js";
+import { générerFonctionValidation, schémaSpécificationRègleColonne } from "./règles.js";
 import { typer } from "./crabe/services/orbite/orbite.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { TypedNested } from "@constl/bohr-db";
@@ -36,6 +36,7 @@ import type {
   ErreurColonne,
   ErreurColonneVariableDédoublée,
   SpécificationRègleColonne,
+  FonctionValidation,
 } from "./règles.js";
 import type {
   CatégorieBaseVariables,
@@ -47,6 +48,10 @@ import type {
 export type DonnéesRangéeTableau = {
   [key: string]: DagCborEncodable;
 };
+
+// Types scores
+
+export type ScoreCouvertureTableau = { numérateur: number; dénominateur: number };
 
 // Types tableaux
 
@@ -909,6 +914,108 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     return oublier;
   }
 
+  @cacheSuivi
+  async suivreValidateursDonnées({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<FonctionValidation[]>;
+  }): Promise<Oublier> {
+
+    const info: {
+      règles?: FonctionValidation[];
+      colonnes?: InfoColonne[];
+    } = {}
+
+    const fFinaleRègles = async (
+      règles: { règle: RègleColonne; donnéesCatégorie?: DagCborEncodable[] }[],
+    ) => {
+      if (info.colonnes) {
+        const varsÀColonnes = info.colonnes.reduce(
+          (o, c) => (c.variable ? { ...o, [c.variable]: c.id } : { ...o }),
+          {},
+        );
+        const colsIndex = info.colonnes.filter((c) => c.index).map((c) => c.id);
+        info.règles = règles.map((r) =>
+          générerFonctionValidation({
+            règle: r.règle,
+            varsÀColonnes,
+            donnéesCatégorie: r.donnéesCatégorie,
+            colsIndex,
+          }),
+        );
+        await fFinale();
+      }
+    };
+    const oublierVarsÀColonnes = await this.suivreColonnes({
+      idStructure,
+      idTableau,
+      f: async (cols) => {
+        info.colonnes = cols;
+        await fFinale();
+      },
+    });
+
+
+    const fListeRègles = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (règles: RègleColonne[]) => Promise<void>;
+    }): Promise<Oublier> => {
+      return await this.suivreRègles({
+        idStructure,
+        idTableau,
+        f: fSuivreRacine,
+      });
+    };
+
+    const fBrancheRègles = async ({
+      fSuivreBranche,
+      branche: règle,
+    }: {
+      fSuivreBranche: Suivi<{
+        règle: RègleColonne;
+        donnéesCatégorie?: DagCborEncodable[];
+      }>;
+      branche: RègleColonne;
+    }): Promise<Oublier> => {
+      if (
+        règle.règle.règle.type === "valeurCatégorique" &&
+        règle.règle.règle.détails.type === "dynamique"
+      ) {
+        const { structure, tableau, colonne } = règle.règle.règle.détails;
+        return await this.suivreDonnées({
+          idStructure: structure,
+          idTableau: tableau,
+          f: async (données) =>
+            await fSuivreBranche({
+              règle,
+              donnéesCatégorie: données.map((d) => d.données[colonne]),
+            }),
+        });
+      } else {
+        await fSuivreBranche({ règle });
+        return faisRien;
+      }
+    };
+
+    const oublierRègles = await suivreDeFonctionListe({
+      fListe: fListeRègles,
+      f: fFinaleRègles,
+      fBranche: fBrancheRègles,
+      fIdDeBranche: (b: RègleColonne) => b.règle.id,
+    });
+
+    const oublier = async () => {
+      await oublierRègles();
+      await oublierVarsÀColonnes();
+    };
+    return oublier;
+  }
+
   // Validation
 
   @cacheSuivi
@@ -1278,4 +1385,65 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
 
     return élémentFinal;
   }
+
+  // Score
+
+  @cacheSuivi
+  async suivreScoreCouverture({
+    idStructure,
+    idTableau,
+    f
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<ScoreCouvertureTableau>;
+  }): Promise<Oublier> {
+  
+    const info: {
+      cols?: InfoColonneAvecCatégorie[];
+      règles?: RègleColonne[];
+    } = {};
+
+    const fFinale = async () => {
+      const { cols, règles } = info;
+
+      if (cols !== undefined && règles !== undefined) {
+        const colsÉligibles = cols.filter(
+          (c) => c.catégorie?.catégorie === "numérique",
+        );
+
+        const dénominateur = colsÉligibles.length;
+        const numérateur = colsÉligibles.filter((c) =>
+          règles.some(
+            (r) => r.règle.règle.type !== "catégorie" && r.colonne === c.id,
+          ),
+        ).length;
+        await f({ numérateur, dénominateur });
+      }
+    };
+
+    const oublierColonnes = await this.suivreCatégoriesColonnes({
+      idStructure,
+      idTableau,
+      f: async (cols) => {
+        info.cols = cols;
+        await fFinale();
+      },
+    });
+
+    const oublierRègles = await this.suivreRègles({
+      idStructure,
+      idTableau,
+      f: async (règles) => {
+        info.règles = règles;
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await oublierColonnes();
+      await oublierRègles();
+    };
+  }
+
 }
