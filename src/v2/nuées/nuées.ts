@@ -1836,10 +1836,12 @@ export class Nuées<
       await f(résultats.map((r) => r.id));
     };
 
-    return await this.recherche.selonObjectif({
+    const { oublier } = await this.recherche.selonObjectif({
       f: fFinale,
       fObjectif,
     });
+
+    return oublier
   }
 
   // Bds
@@ -1995,7 +1997,7 @@ export class Nuées<
       };
     };
 
-    const oublierRecherche = await bds.recherche.selonObjectif({
+    const { oublier: oublierRecherche } = await bds.recherche.selonObjectif({
       fObjectif,
       f: async (résultats) => await f(résultats.map((r) => r.id)),
     });
