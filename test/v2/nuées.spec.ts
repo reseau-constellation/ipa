@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import JSZip from "jszip";
+import { dossierTempo } from "@constl/utils-tests";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import {
@@ -10,9 +11,6 @@ import {
   TOUS_DISPOSITIFS,
 } from "@/v2/crabe/services/favoris.js";
 import { stabiliser } from "@/v2/crabe/utils.js";
-import {
-  DonnéesRangéeTableauAvecId
-} from "@/v2/bds/tableaux.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type {
   ÉlémentDonnéesTableau} from "@/v2/bds/tableaux.js";
@@ -3745,6 +3743,8 @@ describe("Nuées", function () {
   describe("exportation", function () {
     let idc: string;
 
+    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n";
+
     before(async () => {
       const octets = await obtRessourceTest({
         nomFichier: "logo.svg",
@@ -3764,9 +3764,8 @@ describe("Nuées", function () {
 
       let schéma: SchémaBd;
 
-      let données: DonnéesBdExportées;
-
       const nomNuéeFr = "mon projet de science citoyenne";
+      const nomTableau1 = "Tableau 1"
 
       before(async () => {
         idNuée = await constl.nuées.créerNuée();
@@ -3783,6 +3782,73 @@ describe("Nuées", function () {
           licence: "ODbl-1_0",
         });
         idBd = await constl.bds.créerBdDeSchéma({ schéma });
+      });
+
+      it("noms nuée", async () => {
+        const pDonnées = obtenir<DonnéesBdExportées>(({ si }) =>
+          constl.nuées.suivreDonnéesExportation({
+            idNuée,
+            langues: ["fr"],
+            f: si(x=> !!x && !idNuée.includes(x.nomBd)),
+          }),
+        );
+
+        await constl.nuées.sauvegarderNom({
+          idNuée,
+          langue: "fr",
+          nom: nomNuéeFr,
+        });
+        
+        const données = await pDonnées;
+        expect(données.nomBd).to.equal(nomNuéeFr);
+      });
+
+      it("tableaux", async () => {
+        const données = await obtenir<DonnéesBdExportées>(({ si }) =>
+          constl.nuées.suivreDonnéesExportation({
+            idNuée,
+            langues: ["fr"],
+            f: si(x=>!!x && x.tableaux.length >= 2),
+          }),
+        );
+
+        expect(
+          données.tableaux.map((t) => t.nomTableau),
+        ).to.have.ordered.members([idTableau1, idTableau2]);
+      });
+
+      it("noms tableaux", async () => {
+        const pDonnées = obtenir<DonnéesBdExportées>(({ si }) =>
+          constl.nuées.suivreDonnéesExportation({
+            idNuée,
+            langues: ["fr"],
+            f: si(x=>!!x?.tableaux.map(t=>t.nomTableau).includes(nomTableau1)),
+          }),
+        );
+
+        await constl.nuées.tableaux.sauvegarderNoms({
+          idStructure: idNuée,
+          idTableau: idTableau1,
+          noms: {
+            fr: nomTableau1,
+          },
+        });
+
+        const données = await pDonnées;
+        expect(
+          données.tableaux.map((t) => t.nomTableau),
+        ).to.have.ordered.members([nomTableau1, idTableau2]);
+      })
+
+      it("données", async () => {
+        const pDonnées = obtenir<DonnéesBdExportées>(({ si }) =>
+          constl.nuées.suivreDonnéesExportation({
+            idNuée,
+            langues: ["fr"],
+            f: si(x=>!!x?.tableaux.map(t=>t.nomTableau).includes(nomTableau1)),
+          }),
+        );
+
         await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau: idTableau1,
@@ -3792,31 +3858,14 @@ describe("Nuées", function () {
             },
           ],
         });
-
-        await constl.nuées.sauvegarderNom({
-          idNuée,
-          langue: "fr",
-          nom: nomNuéeFr,
-        });
-
-        données = await obtenir<DonnéesBdExportées>(({ siDéfini }) =>
-          constl.nuées.suivreDonnéesExportation({
-            idNuée,
-            langues: ["fr"],
-            f: siDéfini(),
-          }),
-        );
-      });
-
-      it("noms nuée", async () => {
-        expect(données.nomBd).to.equal(nomNuéeFr);
-      });
-
-      it("tableaux", async () => {
+        
+        const données = await pDonnées;
         expect(
-          données.tableaux.map((t) => t.nomTableau),
-        ).to.have.ordered.members([idTableau1, idTableau2]);
-      });
+          données.tableaux.find(t=>t.nomTableau === nomTableau1)?.données,
+        ).to.deep.equal([{
+          [idColFichier]: idc,
+        }]);
+      })
 
       it("nuée non disponible", async () => {
         const idNuéeIndisponible =
@@ -3851,6 +3900,7 @@ describe("Nuées", function () {
         expect(
           donnéesDeNuéeIndisponible.tableaux.map((t) => t.nomTableau),
         ).to.have.ordered.members([idTableau1, idTableau2]);
+        
         expect(
           donnéesDeNuéeIndisponible.tableaux[1].données,
         ).to.have.deep.members([
@@ -3862,45 +3912,72 @@ describe("Nuées", function () {
     });
 
     describe("à document", function () {
+      let idNuée: string;
       let idBd: string;
       let idTableau1: string;
       let idTableau2: string;
 
+      let idColonneFichier: string;
+      let idColonneNumérique: string;
+
       let données: DonnéesFichierBdExportées;
 
-      before(async () => {
-        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-        idTableau1 = await constl.bds.ajouterTableau({ idBd });
-        idTableau2 = await constl.bds.ajouterTableau({ idBd });
+      const nomTableau1 = "Tableau 1";
 
-        const idColonne = await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
+      before(async () => {
+        idNuée = await constl.nuées.créerNuée();
+        idTableau1 = await constl.nuées.ajouterTableau({ idNuée });
+        idTableau2 = await constl.nuées.ajouterTableau({ idNuée });
+
+        await constl.nuées.tableaux.sauvegarderNoms({
+          idStructure: idNuée,
+          idTableau: idTableau1,
+          noms: {
+            fr: nomTableau1,
+          },
+        });
+
+        idColonneFichier = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
           idTableau: idTableau1,
         });
+
+        idColonneNumérique = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
+          idTableau: idTableau2,
+        });
+
+        const schéma = await constl.nuées.créerSchémaDeNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+        idBd = await constl.bds.créerBdDeSchéma({ schéma });
+
         await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau: idTableau1,
-          éléments: [{ [idColonne]: idc }],
+          éléments: [{ [idColonneFichier]: idc, [idColonneNumérique]: 123 }],
         });
+
+        données = await constl.nuées.exporterDonnées({ idNuée });
       });
 
       it("nom document - spécifié", async () => {
-        const docu = await constl.nuées.exporterDonnées({
-          idBd,
+        const donnéesAvecNom = await constl.nuées.exporterDonnées({
+          idNuée,
           nomFichier: "mon fichier",
         });
-        expect(docu.nomFichier).to.equal("mon fichier");
+        expect(donnéesAvecNom.nomFichier).to.equal("mon fichier");
       });
 
       it("nom document - non spécifié", async () => {
-        const docu = await constl.nuées.exporterDonnées({ idBd });
-        expect(docu.nomFichier).to.equal(idBd.replace("/orbitdb/", ""));
+        expect(données.nomFichier).to.equal(idNuée.replace("/orbitdb/", ""));
       });
 
       it("document données - tableaux créés", async () => {
         expect(Array.isArray(données.docu.SheetNames));
         expect(données.docu.SheetNames).to.have.members([
-          idTableau1,
+          nomTableau1,
           idTableau2,
         ]);
       });
@@ -3908,11 +3985,58 @@ describe("Nuées", function () {
       it("document données - fichiers SFIP", async () => {
         expect([...données.fichiersSFIP]).to.have.members([idc]);
       });
+
+      it("exportable même si fichier SFIP indisponible", async () => {
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau: idTableau1,
+          éléments: [{
+            [idColonneFichier]: idcIndisponible,
+          }],
+        });
+
+        const { fichiersSFIP } =
+          await constl.nuées.exporterDonnées({
+            idNuée,
+            langues: ["fr"],
+          });
+        expect(fichiersSFIP).to.have.members([idc, idcIndisponible]);
+      });
+
+      it("exportable même si nuée indisponible", async () => {
+        const schéma = await constl.nuées.créerSchémaDeNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+        const idNuéeNExistePas =
+          "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"; // N'existe pas
+        schéma.nuées = [idNuéeNExistePas];
+        
+        idBd = await constl.bds.créerBdDeSchéma({ schéma });
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau: idTableau2,
+          éléments: [{
+            [idColonneNumérique]: 123,
+          }],
+        });
+
+        const { docu, nomFichier } =
+          await constl.nuées.exporterDonnées({
+            idNuée: idNuéeNExistePas,
+            langues: ["fr"],
+            idsTableaux: [idTableau2],
+          });
+        expect(docu.SheetNames).to.have.members([idTableau2]);
+        expect(nomFichier).to.eq(idNuéeNExistePas.slice("/orbitdb/".length));
+      });
     });
 
     describe("à fichier", function () {
+      let idNuée: string;
       let idBd: string;
       let idTableau: string;
+      let idColonne: string;
 
       let zip = JSZip;
 
@@ -3923,19 +4047,28 @@ describe("Nuées", function () {
       const nomFichier = "mes données";
 
       before(async () => {
-        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-        idTableau = await constl.bds.ajouterTableau({ idBd });
-        await constl.bds.tableaux.sauvegarderNom({
-          idStructure: idBd,
+        ({dossier, effacer} = await dossierTempo());
+
+        idNuée = await constl.nuées.créerNuée();
+        idTableau = await constl.nuées.ajouterTableau({ idNuée });
+
+        await constl.nuées.tableaux.sauvegarderNom({
+          idStructure: idNuée,
           idTableau,
           langue: "fr",
           nom: nomTableauFr,
         });
 
-        const idColonne = await constl.bds.tableaux.ajouterColonne({
-          idStructure: idBd,
+        idColonne = await constl.nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
           idTableau,
         });
+
+        const schéma = await constl.nuées.créerSchémaDeNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+        idBd = await constl.bds.créerBdDeSchéma({ schéma });
         await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
@@ -3948,8 +4081,8 @@ describe("Nuées", function () {
       });
 
       it("le fichier zip existe", async () => {
-        await constl.nuée.exporterÀFichier({
-          idBd,
+        await constl.nuées.exporterÀFichier({
+          idNuée,
           nomFichier,
           dossier,
           formatDocu: "ods",
@@ -3974,6 +4107,32 @@ describe("Nuées", function () {
         const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
       });
+
+      it("fichier SFIP non disponible", async () => {
+        const nomFichierTest = "nuée avec documents indisponibles";
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments: [{ [idColonne]: idcIndisponible }],
+        });
+
+        await constl.nuées.exporterÀFichier({
+          idNuée,
+          nomFichier: nomFichierTest,
+          dossier,
+          formatDocu: "ods",
+        });
+
+        const nomZip = join(dossier, nomFichierTest + ".zip");
+        zip = await JSZip.loadAsync(readFileSync(nomZip));
+
+        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        expect(contenu).to.exist();
+
+        const contenuIndisponible = zip.files[["sfip", idcIndisponible.replace("/", "-")].join("/")];
+        expect(contenuIndisponible).to.not.exist();
+      })
     });
   });
 });

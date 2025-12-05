@@ -2333,24 +2333,24 @@ export class Nuées<
 
   async exporterÀFichier({
     idNuée,
+    formatDocu,
     langues,
     nomFichier,
     héritage,
     filtresBds,
     filtresDonnées,
     patience = 500,
-    formatDocu,
     dossier = "",
     inclureDocuments = true,
   }: {
     idNuée: string;
+    formatDocu: xlsx.BookType | "xls";
     langues?: string[];
     nomFichier?: string;
     héritage?: Héritage;
-    filtresBds: FiltresBds;
-    filtresDonnées: FiltresDonnées;
+    filtresBds?: FiltresBds;
+    filtresDonnées?: FiltresDonnées;
     patience?: number;
-    formatDocu: xlsx.BookType | "xls";
     dossier?: string;
     inclureDocuments?: boolean;
   }): Promise<string> {
