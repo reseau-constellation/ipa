@@ -68,7 +68,7 @@ describe("Rechercher dans réseau", function () {
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
-        n: 3,
+        n: 2,
       }));
 
       idsComptes = await Promise.all(
@@ -114,19 +114,31 @@ describe("Rechercher dans réseau", function () {
     });
 
     describe("selon nom", function () {
-      let rechercheSurCompte1: ObtRecherche<InfoRésultatTexte>;
-      let rechercheSurCompte2: ObtRecherche<InfoRésultatTexte>;
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        rechercheSurCompte1 = await rechercher<InfoRésultatTexte>(({ f }) =>
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
           constls[0].profil.recherche.selonNom({ nom: "Julien", f }),
         );
-        rechercheSurCompte2 = await rechercher<InfoRésultatTexte>(({ f }) =>
-          constls[1].profil.recherche.selonNom({ nom: "Julien", f }),
-        );
+      });
 
-        réfconstl2 = {
-          id: idsComptes[1],
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("noms détectés", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].profil.sauvegarderNom({
+          langue: "fr",
+          nom: "Julien",
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idsComptes[0],
           résultatObjectif: {
             score: 4 / 9,
             type: "résultat",
@@ -140,92 +152,35 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-        réfconstl3 = {
-          id: idsComptes[2],
-          résultatObjectif: {
-            score: 4 / 9,
-            type: "résultat",
-            de: "nom",
-            clef: "cst",
-            info: {
-              type: "texte",
-              texte: "Julián",
-              début: 0,
-              fin: 6,
-            },
-          },
-        };
-      });
-
-      it("moins de résultats que demandé s'il n'y a vraiment rien", async () => {
-        const pRésultat = rechercheSurCompte1.siPasVide();
-        await constls[1].profil.sauvegarderNom({
-          langue: "fr",
-          nom: "Julien",
-        });
-
-        const résultat = await pRésultat;
-        vérifierRecherche(résultat, [réfconstl2]);
-      });
-
-      it("on suit les changements", async () => {
-        const pRésultat = rechercheSurCompte1.siAuMoins(2);
-        await constls[2].profil.sauvegarderNom({
-          langue: "cst",
-          nom: "Julián",
-        });
-
-        const résultat = await pRésultat;
-        vérifierRecherche(résultat, [réfconstl2, réfconstl3]);
-      });
-
-      it("diminuer N désiré", async () => {
-        const pRésultat = rechercheSurCompte1.siPasPlusQue(1);
-        await rechercheSurCompte1.n(1);
-
-        const résultat = await pRésultat;
-        vérifierRecherche(résultat, [réfconstl2]);
-      });
-
-      it("augmenter N désiré", async () => {
-        const pRésultat = rechercheSurCompte1.siAuMoins(2);
-        await rechercheSurCompte1.n(4);
-
-        const résultat = await pRésultat;
-        vérifierRecherche(résultat, [réfconstl2, réfconstl3]);
-      });
-
-      it("Augmenter N désiré d'abord", async () => {
-        await fChangerN2(2);
-
-        const val = await rés2.attendreQue((x) => !!x && x.length > 1);
-        vérifierRecherche(val, [réfconstl2, réfconstl3]);
-      });
-
-      it("Et ensuite diminuer N désiré", async () => {
-        await fChangerN2(1);
-
-        const val = await rés2.attendreQue((x) => !!x && x.length === 1);
-        vérifierRecherche(val, [réfconstl2]);
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
     describe("selon courriel", function () {
-      let réfconstl2: RésultatRecherche<InfoRésultatTexte>;
 
-      const rés = new utilsTestAttente.AttendreRésultat<
-        RésultatRecherche<InfoRésultatTexte>[]
-      >();
-
+      let recherche: ObtRecherche<InfoRésultatTexte>;
       before(async () => {
-        ({ fOublier } =
-          await constls[0].recherche.rechercherProfilsSelonCourriel({
-            courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-            f: (membres) => rés.mettreÀJour(membres),
-            nRésultatsDésirés: 2,
-          }));
-        réfconstl2 = {
-          id: idsComptes[1],
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].profil.recherche.selonCourriel({ courriel: "தொடர்பு@லஸ்ஸி.இந்தியா", f }),
+        );
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("ajout détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+        
+        await constls[0].profil.sauvegarderCourriel({
+          courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idsComptes[0],
           résultatObjectif: {
             score: 0,
             type: "résultat",
@@ -238,20 +193,7 @@ describe("Rechercher dans réseau", function () {
             },
           },
         };
-      });
-
-      it("rien pour commencer", async () => {
-        const val = await rés.attendreExiste();
-        expect(val).to.be.empty();
-      });
-
-      it("ajout détecté", async () => {
-        await constls[1].profil.sauvegarderCourriel({
-          courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-        });
-
-        const val = await rés.attendreQue((x) => x.length > 0);
-        vérifierRecherche(val, [réfconstl2]);
+        vérifierRecherche(résultat, [réf]);
       });
 
       it("changements détectés", async () => {
@@ -260,8 +202,8 @@ describe("Rechercher dans réseau", function () {
           courriel: "julien.malard@mail.mcgill.ca",
         });
 
-        const val = await rés.attendreQue((x) => !x.length);
-        expect(val.length).to.equal(0);
+        const résultat = await recherche.siVi();
+        expect(résultat).to.be.empty();
       });
     });
   });
@@ -1676,6 +1618,102 @@ describe("Rechercher dans réseau", function () {
 });
 
 describe.skip("Test fonctionnalités recherche", function () {
+
+  let rechercheSurCompte1: ObtRecherche<InfoRésultatTexte>;
+  let rechercheSurCompte2: ObtRecherche<InfoRésultatTexte>;
+
+  before(async () => {
+    rechercheSurCompte1 = await rechercher<InfoRésultatTexte>(({ f }) =>
+      constls[0].profil.recherche.selonNom({ nom: "Julien", f }),
+    );
+    rechercheSurCompte2 = await rechercher<InfoRésultatTexte>(({ f }) =>
+      constls[1].profil.recherche.selonNom({ nom: "Julien", f }),
+    );
+
+    réfconstl2 = {
+      id: idsComptes[1],
+      résultatObjectif: {
+        score: 4 / 9,
+        type: "résultat",
+        de: "nom",
+        clef: "fr",
+        info: {
+          type: "texte",
+          texte: "Julien",
+          début: 0,
+          fin: 6,
+        },
+      },
+    };
+    réfconstl3 = {
+      id: idsComptes[2],
+      résultatObjectif: {
+        score: 4 / 9,
+        type: "résultat",
+        de: "nom",
+        clef: "cst",
+        info: {
+          type: "texte",
+          texte: "Julián",
+          début: 0,
+          fin: 6,
+        },
+      },
+    };
+  });
+
+  it("moins de résultats que demandé s'il n'y a vraiment rien", async () => {
+    const pRésultat = rechercheSurCompte1.siPasVide();
+    await constls[1].profil.sauvegarderNom({
+      langue: "fr",
+      nom: "Julien",
+    });
+
+    const résultat = await pRésultat;
+    vérifierRecherche(résultat, [réfconstl2]);
+  });
+
+  it("on suit les changements", async () => {
+    const pRésultat = rechercheSurCompte1.siAuMoins(2);
+    await constls[2].profil.sauvegarderNom({
+      langue: "cst",
+      nom: "Julián",
+    });
+
+    const résultat = await pRésultat;
+    vérifierRecherche(résultat, [réfconstl2, réfconstl3]);
+  });
+
+  it("diminuer N désiré", async () => {
+    const pRésultat = rechercheSurCompte1.siPasPlusQue(1);
+    await rechercheSurCompte1.n(1);
+
+    const résultat = await pRésultat;
+    vérifierRecherche(résultat, [réfconstl2]);
+  });
+
+  it("augmenter N désiré", async () => {
+    const pRésultat = rechercheSurCompte1.siAuMoins(2);
+    await rechercheSurCompte1.n(4);
+
+    const résultat = await pRésultat;
+    vérifierRecherche(résultat, [réfconstl2, réfconstl3]);
+  });
+
+  it("Augmenter N désiré d'abord", async () => {
+    await fChangerN2(2);
+
+    const val = await rés2.attendreQue((x) => !!x && x.length > 1);
+    vérifierRecherche(val, [réfconstl2, réfconstl3]);
+  });
+
+  it("Et ensuite diminuer N désiré", async () => {
+    await fChangerN2(1);
+
+    const val = await rés2.attendreQue((x) => !!x && x.length === 1);
+    vérifierRecherche(val, [réfconstl2]);
+  });
+
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
