@@ -16,7 +16,7 @@ import {
 } from "@/v2/crabe/services/compte/accès/consts.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellation, type Constellation } from "@/v2/index.js";
-import { moyenne} from "@/v2/utils.js";
+import { moyenne } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";

@@ -183,10 +183,10 @@ export class ServiceRéseau<
 
     const fSuivi = async ({
       id,
-      fSuivreBd,
+      fSuivre,
     }: {
       id: string;
-      fSuivreBd: Suivi<string[] | undefined>;
+      fSuivre: Suivi<string[] | undefined>;
     }): Promise<Oublier> => {
       info.idCompte = id;
 
@@ -202,7 +202,7 @@ export class ServiceRéseau<
       }
       const oublierAutorisés = await accès.suivreDispositifsAutorisées(
         async (a) => {
-          await fSuivreBd(
+          await fSuivre(
             a.filter((u) => u.rôle === MODÉRATRICE).map((u) => u.idDispositif),
           );
         },
@@ -409,21 +409,21 @@ export class ServiceRéseau<
         await compte.suivreIdCompte({ f: fSuivreRacine }),
       fSuivre: async ({
         id,
-        fSuivreBd,
+        fSuivre,
       }: {
         id: string;
-        fSuivreBd: Suivi<Set<string> | undefined>;
+        fSuivre: Suivi<Set<string> | undefined>;
       }) => {
         if (!idCompte || idCompte === id) {
           return appelerLorsque({
             émetteur: this.événements,
             événement: ÉVÉNEMENT_BLOQUÉ_PRIVÉ,
-            f: fSuivreBd,
+            f: fSuivre,
           });
         } else {
           // Si le compte ne correspond pas à notre compte, on ne peut pas deviner
           // les comptes bloqués de manière privée
-          await fSuivreBd(undefined);
+          await fSuivre(undefined);
           return faisRien;
         }
       },
