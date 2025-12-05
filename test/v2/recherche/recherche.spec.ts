@@ -202,7 +202,7 @@ describe("Rechercher dans réseau", function () {
           courriel: "julien.malard@mail.mcgill.ca",
         });
 
-        const résultat = await recherche.siVi();
+        const résultat = await recherche.siVide();
         expect(résultat).to.be.empty();
       });
     });
