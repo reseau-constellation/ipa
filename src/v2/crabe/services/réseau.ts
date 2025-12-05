@@ -46,8 +46,11 @@ export type StructureRéseau = {
   [idCompte: string]: typeof FIABLE | typeof BLOQUÉ;
 };
 
-export const schémaRéseau: JSONSchemaType<PartielRécursif<StructureRéseau>> = {
+export const schémaRéseau: JSONSchemaType<PartielRécursif<StructureRéseau>> & {
+  nullable: true;
+} = {
   type: "object",
+  nullable: true,
 };
 
 export type ServicesNécessairesRéseau<
@@ -498,4 +501,10 @@ export class ServiceRéseau<
     idCompte: string;
     f: Suivi<number>;
   }): Promise<Oublier> {}
+
+  // Dispositifs
+
+  async demanderEtPuisRejoindreCompte({ idCompte }): Promise<void> {}
+
+  async inviterÀRejoidreCompte({});
 }
