@@ -148,7 +148,6 @@
     "events": "^3.3.0",
     "file-saver": "^2.0.5",
     "genversion": "^3.2.0",
-    "geojson-validation": "^1.0.2",
     "helia": "^5.5.1",
     "indexed-db-stream": "^1.0.0",
     "iso-constants": "github:inverted-capital/iso-constants#patch-1",
