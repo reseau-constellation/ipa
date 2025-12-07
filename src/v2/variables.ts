@@ -45,7 +45,7 @@ export type StructureVariable = {
   type: "variable";
   noms: TraducsTexte;
   descriptions: TraducsTexte;
-  catégorie: CatégorieVariables;
+  catégorie: CatégorieVariable;
   unités: string;
   règles: { [idRègle: string]: RègleVariable };
   statut: StatutDonnées;
@@ -105,7 +105,7 @@ export type CatégorieBaseVariables =
   | "image"
   | "fichier";
 
-export type CatégorieVariables =
+export type CatégorieVariable =
   | {
       type: "simple";
       catégorie: CatégorieBaseVariables;
@@ -142,8 +142,8 @@ export const schémaServiceVariables: JSONSchemaType<
 };
 
 const standardiserCatégorieVariable = (
-  catégorie: CatégorieBaseVariables | CatégorieVariables,
-): CatégorieVariables => {
+  catégorie: CatégorieBaseVariables | CatégorieVariable,
+): CatégorieVariable => {
   return typeof catégorie === "string"
     ? { type: "simple", catégorie }
     : catégorie;
@@ -225,7 +225,7 @@ export class Variables<
     catégorie,
     épingler = true,
   }: {
-    catégorie: CatégorieVariables | CatégorieBaseVariables;
+    catégorie: CatégorieVariable | CatégorieBaseVariables;
     épingler?: boolean;
   }): Promise<string> {
     const compte = this.service("compte");
@@ -675,7 +675,7 @@ export class Variables<
     catégorie,
   }: {
     idVariable: string;
-    catégorie: CatégorieVariables | CatégorieBaseVariables;
+    catégorie: CatégorieVariable | CatégorieBaseVariables;
   }): Promise<void> {
     const { variable, oublier } = await this.ouvrirVariable({ idVariable });
     await variable.put({
@@ -691,7 +691,7 @@ export class Variables<
     f,
   }: {
     idVariable: string;
-    f: Suivi<CatégorieVariables | undefined>;
+    f: Suivi<CatégorieVariable | undefined>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
@@ -901,7 +901,7 @@ export class Variables<
       descriptions?: { [key: string]: string };
       règles?: RègleVariableAvecId<RègleVariable>[];
       unités?: string | null;
-      catégorie?: CatégorieVariables;
+      catégorie?: CatégorieVariable;
     } = {};
 
     const fFinale = async () => {

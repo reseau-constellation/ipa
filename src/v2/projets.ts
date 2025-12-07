@@ -76,7 +76,7 @@ export type DonnéesProjetExportées = {
 
 export type DonnéesFichierProjetExportées = {
   docus: { docu: WorkBook; nom: string }[];
-  fichiersSFIP: Set<string>;
+  documentsMédias: Set<string>;
   nomFichier: string;
 };
 
@@ -1238,10 +1238,10 @@ export class Projets<
 
     nomFichier = nomFichier || données.nomProjet;
 
-    const fichiersSFIP = new Set<string>();
+    const documentsMédias = new Set<string>();
     données.bds.forEach((bd) => {
       bd.tableaux.forEach((t) =>
-        t.fichiersSFIP.forEach((x) => fichiersSFIP.add(x)),
+        t.documentsMédias.forEach((x) => documentsMédias.add(x)),
       );
     });
 
@@ -1261,7 +1261,7 @@ export class Projets<
         }
         return { docu, nom: donnéesBd.nomBd };
       }),
-      fichiersSFIP,
+      documentsMédias,
       nomFichier,
     };
   }
@@ -1315,7 +1315,7 @@ export class Projets<
   }): Promise<string> {
     const hélia = this.service("hélia");
 
-    const { docus, fichiersSFIP, nomFichier } = données;
+    const { docus, documentsMédias, nomFichier } = données;
 
     const bookType: BookType = conversionsTypes[formatDocu] || formatDocu;
 
@@ -1325,9 +1325,9 @@ export class Projets<
         octets: xlsxWrite(d.docu, { bookType, type: "buffer" }),
       };
     });
-    const fichiersDeSFIP = inclureDocuments
+    const fichiersMédias = inclureDocuments
       ? await Promise.all(
-          [...fichiersSFIP].map(async (fichier) => {
+          [...documentsMédias].map(async (fichier) => {
             return {
               nom: fichier.replace("/", "-"),
               octets: await toBuffer(
@@ -1339,7 +1339,7 @@ export class Projets<
       : [];
     await zipper({
       fichiersDocus,
-      fichiersMédias: fichiersDeSFIP,
+      fichiersMédias,
       nomFichier: join(dossier, nomFichier),
       dossierMédias,
     });

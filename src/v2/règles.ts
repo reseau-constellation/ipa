@@ -1,13 +1,11 @@
 import { validerCatégorieVal } from "@constl/utils-ipa";
 import { obtIdIndex } from "./bds/tableaux.js";
+import type { DonnéesRangéeTableau } from "./tableaux.js";
 import type { JSONSchemaType } from "ajv";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { PartielRécursif } from "./types.js";
-import type {
-  DonnéesRangéeTableau,
-  DonnéesRangéeTableauAvecId,
-} from "./bds/tableaux.js";
-import type { CatégorieVariables } from "./variables.js";
+import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
+import type { CatégorieVariable } from "./variables.js";
 
 export type SourceRègle =
   | { type: "variable"; id: string }
@@ -108,7 +106,7 @@ export type RègleCatégorie = {
 };
 
 export type DétailsRègleCatégorie = {
-  catégorie: CatégorieVariables;
+  catégorie: CatégorieVariable;
 };
 
 export const schémaSpécificationRègleColonne: JSONSchemaType<

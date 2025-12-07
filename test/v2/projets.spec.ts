@@ -1276,7 +1276,7 @@ describe("Projets", function () {
       });
 
       it("fichiers sfip de toutes les bds", async () => {
-        expect(données.fichiersSFIP).to.include([idc]);
+        expect(données.documentsMédias).to.include([idc]);
       });
 
       it("exportable même si bd indisponible", async () => {
@@ -1285,13 +1285,15 @@ describe("Projets", function () {
           idProjet: idProjetTest,
           idsBds: [idBd1, idBdIndisponible],
         });
-        const { docus, fichiersSFIP } = await constl.projets.exporterDonnées({
-          idProjet: idProjetTest,
-          langues: ["fr"],
-        });
+        const { docus, documentsMédias } = await constl.projets.exporterDonnées(
+          {
+            idProjet: idProjetTest,
+            langues: ["fr"],
+          },
+        );
 
         expect(docus.map((d) => d.nom)).to.have.members([idBd1]);
-        expect(fichiersSFIP).to.have.members([idc]);
+        expect(documentsMédias).to.have.members([idc]);
       });
 
       it("exportable même si fichier sfip indisponible", async () => {
@@ -1306,11 +1308,11 @@ describe("Projets", function () {
             ],
           });
 
-          const { fichiersSFIP } = await constl.projets.exporterDonnées({
+          const { documentsMédias } = await constl.projets.exporterDonnées({
             idProjet,
             langues: ["fr"],
           });
-          expect(fichiersSFIP).to.have.members([idc, idcIndisponible]);
+          expect(documentsMédias).to.have.members([idc, idcIndisponible]);
         });
       });
     });
@@ -1382,12 +1384,12 @@ describe("Projets", function () {
       });
 
       it("le dossier pour les données SFIP existe", async () => {
-        const contenu = zip.files["sfip/"];
+        const contenu = zip.files["médias/"];
         expect(contenu?.dir).to.be.true();
       });
 
       it("les fichiers SFIP existent", async () => {
-        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
       });
 
@@ -1410,11 +1412,11 @@ describe("Projets", function () {
         const nomZip = join(dossier, nomFichierTest + ".zip");
         zip = await JSZip.loadAsync(readFileSync(nomZip));
 
-        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
 
         const contenuIndisponible =
-          zip.files[["sfip", idcIndisponible.replace("/", "-")].join("/")];
+          zip.files[["médias", idcIndisponible.replace("/", "-")].join("/")];
         expect(contenuIndisponible).to.not.exist();
       });
     });

@@ -11,7 +11,7 @@ const { saveAs } = fileSaver;
 
 export type DonnéesFichierBdExportées = {
   docu: xlsx.WorkBook;
-  fichiersSFIP: Set<string>;
+  documentsMédias: Set<string>;
   nomFichier: string;
 };
 
@@ -37,7 +37,7 @@ export const sauvegarderDonnéesExportées = async ({
   inclureDocuments?: boolean;
   dossierMédias?: string;
 }): Promise<string> => {
-  const { docu: doc, fichiersSFIP, nomFichier } = données;
+  const { docu: doc, documentsMédias, nomFichier } = données;
 
   const bookType: xlsx.BookType = conversionsTypes[formatDocu] || formatDocu;
 
@@ -59,7 +59,7 @@ export const sauvegarderDonnéesExportées = async ({
     };
     const fichiersDeSFIP = (
       await Promise.allSettled(
-        [...fichiersSFIP].map(async (fichier) => {
+        [...documentsMédias].map(async (fichier) => {
           const chrono = new TimeoutController(5000);
           const itérable = await obtItérableAsyncSFIP({
             id: fichier,
@@ -155,3 +155,7 @@ export const moyenne = (x: (number | undefined)[]): number => {
   const définis = x.filter((y): y is number => y !== undefined);
   return définis.reduce((a, b) => a + b, 0) / définis.length;
 };
+
+export const justeDéfinis = <T>(x: (T | undefined)[]): T[] => {
+  return x.filter((y): y is T=>!!y)
+}

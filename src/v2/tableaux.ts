@@ -43,10 +43,7 @@ import type {
   SpécificationRègleColonne,
   FonctionValidation,
 } from "./règles.js";
-import type {
-  CatégorieBaseVariables,
-  CatégorieVariables,
-} from "./variables.js";
+import type { CatégorieBaseVariables, CatégorieVariable } from "./variables.js";
 
 // Types éléments
 
@@ -144,7 +141,7 @@ export type InfoColonne = {
 };
 
 export type InfoColonneAvecCatégorie = InfoColonne & {
-  catégorie?: CatégorieVariables;
+  catégorie?: CatégorieVariable;
 };
 
 // Types comparaisons tableaux
@@ -1382,13 +1379,13 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
   async formaterÉlément({
     élément,
     colonnes,
-    fichiersSFIP,
+    documentsMédias,
     langues,
     traducs,
   }: {
     élément: DonnéesRangéeTableau;
     colonnes: InfoColonneAvecCatégorie[];
-    fichiersSFIP: Set<string>;
+    documentsMédias: Set<string>;
     langues?: string[];
     traducs?: { [clef: string]: TraducsTexte };
   }): Promise<DonnéesRangéeTableau> {
@@ -1408,7 +1405,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
           return v;
         case "string":
           if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
-            if (idcValide(v)) fichiersSFIP.add(v);
+            if (idcValide(v)) documentsMédias.add(v);
 
             return v;
           } else if (catégorie === "chaîne") {

@@ -2078,7 +2078,7 @@ describe("BDs", function () {
       });
 
       it("document données - fichiers SFIP", async () => {
-        expect([...données.fichiersSFIP]).to.have.members([idc]);
+        expect([...données.documentsMédias]).to.have.members([idc]);
       });
     });
 
@@ -2141,12 +2141,12 @@ describe("BDs", function () {
       });
 
       it("le dossier pour les données SFIP existe", async () => {
-        const contenu = zip.files["sfip/"];
+        const contenu = zip.files["médias/"];
         expect(contenu?.dir).to.be.true();
       });
 
       it("les fichiers SFIP existent", async () => {
-        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
       });
 

@@ -4142,7 +4142,7 @@ describe("Nuées", function () {
       });
 
       it("données - fichiers SFIP", async () => {
-        expect([...données.fichiersSFIP]).to.have.members([idc]);
+        expect([...données.documentsMédias]).to.have.members([idc]);
       });
 
       it("exportable même si fichier SFIP indisponible", async () => {
@@ -4156,11 +4156,11 @@ describe("Nuées", function () {
           ],
         });
 
-        const { fichiersSFIP } = await constl.nuées.exporterDonnées({
+        const { documentsMédias } = await constl.nuées.exporterDonnées({
           idNuée,
           langues: ["fr"],
         });
-        expect(fichiersSFIP).to.have.members([idc, idcIndisponible]);
+        expect(documentsMédias).to.have.members([idc, idcIndisponible]);
       });
 
       it("exportable même si nuée indisponible", async () => {
@@ -4260,12 +4260,12 @@ describe("Nuées", function () {
       });
 
       it("le dossier pour les données SFIP existe", async () => {
-        const contenu = zip.files["sfip/"];
+        const contenu = zip.files["médias/"];
         expect(contenu?.dir).to.be.true();
       });
 
       it("les fichiers SFIP existent", async () => {
-        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
       });
 
@@ -4288,11 +4288,11 @@ describe("Nuées", function () {
         const nomZip = join(dossier, nomFichierTest + ".zip");
         zip = await JSZip.loadAsync(readFileSync(nomZip));
 
-        const contenu = zip.files[["sfip", idc.replace("/", "-")].join("/")];
+        const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
 
         const contenuIndisponible =
-          zip.files[["sfip", idcIndisponible.replace("/", "-")].join("/")];
+          zip.files[["médias", idcIndisponible.replace("/", "-")].join("/")];
         expect(contenuIndisponible).to.not.exist();
       });
     });

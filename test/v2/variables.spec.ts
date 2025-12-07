@@ -14,7 +14,7 @@ import type {
   TraducsTexte,
 } from "@/v2/types.js";
 import type {
-  CatégorieVariables as CatégorieVariable,
+  CatégorieVariable as CatégorieVariable,
   ÉpingleVariable,
 } from "@/v2/variables.js";
 import type {
