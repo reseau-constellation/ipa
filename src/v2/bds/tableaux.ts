@@ -1,5 +1,7 @@
+import { isUint8Array } from "util/types";
 import {
   attendreStabilité,
+  devinerCatégorie,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   suivreFonctionImbriquée,
@@ -11,11 +13,19 @@ import md5 from "crypto-js/md5.js";
 import Base64 from "crypto-js/enc-base64.js";
 import { v4 as uuidv4 } from "uuid";
 import { utils } from "xlsx";
+import { எண்ணிக்கை as எண்ணிக்கை_வகை } from "ennikkai";
+import { isElectronMain, isNode } from "wherearewe";
+import axios from "axios";
+import { cholqij } from "@/dates.js";
 import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../crabe/cache.js";
 import { mapÀObjet } from "../crabe/utils.js";
 import { typer } from "../crabe/services/orbite/orbite.js";
-import { sauvegarderDonnéesExportées } from "../utils.js";
+import { idcEtFichierValide, justeDéfinis, sauvegarderDonnéesExportées } from "../utils.js";
+import type {
+  CatégorieBaseVariables,
+  CatégorieVariable,
+} from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
@@ -32,6 +42,8 @@ import type { Oublier, Suivi } from "../crabe/types.js";
 import type { PartielRécursif, TraducsTexte } from "../types.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 
+const எண்ணிக்கை = new எண்ணிக்கை_வகை({});
+
 // Types données tableaux
 
 export interface DonnéesRangéeTableauAvecId<
@@ -44,8 +56,17 @@ export interface DonnéesRangéeTableauAvecId<
 export type DonnéesTableauExportées = {
   nomTableau: string;
   données: DonnéesRangéeTableau[];
-  fichiersSFIP: Set<string>;
+  documentsMédias: Set<string>;
 };
+
+// Types conversions
+
+export type ConversionColonne<T extends ConversionDonnées = ConversionDonnées> =
+  {
+    colonneCible: string;
+    colonneSource: string;
+    conversion?: T;
+  };
 
 export type ConversionDonnées =
   | ConversionDonnéesNumérique
@@ -69,6 +90,11 @@ export type ConversionDonnéesDate = {
 export type ConversionDonnéesChaîne = {
   type: "chaîne";
   langue: string;
+};
+
+export type ConversionDonnéesFichier = {
+  type: "fichier";
+  baseChemin?: string;
 };
 
 // Types structure
@@ -111,6 +137,8 @@ export function indexÉlémentsÉgaux(
 ): boolean {
   return index.every((x) => deepEqual(élément1[x], élément2[x]));
 }
+
+// Tableaux
 
 export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
   async créerTableau({
@@ -648,6 +676,327 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     await this.ajouterÉléments({ idStructure, idTableau, éléments: nouveaux });
   }
 
+  async convertirDonnées({
+    données,
+    conversions,
+    catégories = {},
+    traductions = {},
+  }: {
+    données: DonnéesRangéeTableauÀImporter[];
+    conversions?: ConversionColonne[];
+    catégories?: { [colonneSource: string]: CatégorieVariable };
+    traductions?: { [clef: string]: TraducsTexte };
+  }): Promise<DonnéesRangéeTableau[]> {
+    const hélia = this.service("hélia");
+
+    const colonnesSource = [
+      ...new Set(données.map((rangée) => Object.keys(rangée)).flat()),
+    ];
+    colonnesSource.forEach(
+      (colonne) => (catégories[colonne] ??= devinerCatégorieColonne(colonne)),
+    );
+
+    const convertirRangée = async (
+      rangée: DonnéesRangéeTableauÀImporter,
+    ): Promise<DonnéesRangéeTableau> => {
+      const convertie: DonnéesRangéeTableau = {};
+
+      for (const colonne of Object.keys(rangée)) {
+        const valeur = rangée[colonne];
+
+        const conversionColonne = conversions?.find(
+          (c) => c.colonneSource === colonne,
+        );
+        const idColonne = conversionColonne?.colonneCible || colonne;
+
+        const valeurColonne = await convertirValeur({
+          valeur,
+          conversion: conversionColonne?.conversion,
+          catégorie: catégories[colonne],
+        });
+        if (valeurColonne !== undefined) convertie[idColonne] = valeurColonne;
+      }
+
+      return convertie;
+    };
+
+    const appliquerOpérationsNumériques = ({
+      val,
+      ops,
+    }: {
+      val: number;
+      ops: OpérationConversionNumérique | OpérationConversionNumérique[];
+    }): number => {
+      ops = Array.isArray(ops) ? ops : [ops];
+
+      let valFinale = val;
+      for (const op of ops) {
+        switch (op.op) {
+          case "+":
+            valFinale = val + op.val;
+            break;
+          case "-":
+            valFinale = val - op.val;
+            break;
+          case "*":
+            valFinale = val * op.val;
+            break;
+          case "/":
+            valFinale = val / op.val;
+            break;
+          case "^":
+            valFinale = val ** op.val;
+            break;
+          default:
+            throw new Error(op.op);
+        }
+      }
+      return valFinale;
+    };
+
+    const cacheFichiers = new Map<string, string>();
+    const résoudreFichier = async ({
+      chemin,
+      conversion,
+    }: {
+      chemin: string;
+      conversion?: ConversionDonnéesFichier;
+    }): Promise<string | undefined> => {
+      try {
+        new URL(chemin);
+        if (cacheFichiers.has(chemin)) return cacheFichiers.get(chemin);
+
+        const contenuFichier = (await axios.get(chemin)).data;
+        const composantesUrl = chemin.split("/");
+        const nomFichier = composantesUrl.pop() || composantesUrl.pop();
+        if (!nomFichier) throw new Error("Nom de fichier manquant.");
+
+        const idc = await hélia.ajouterFichierÀSFIP({
+          contenu: contenuFichier,
+          nomFichier,
+        });
+
+        cacheFichiers.set(chemin, idc);
+        return idc;
+      } catch {
+        // Rien à faire;
+      }
+
+      if (isNode || isElectronMain) {
+        const fs = await import("fs");
+        const path = await import("path");
+
+        const cheminAbsolut = path.isAbsolute(chemin)
+          ? chemin
+          : conversion?.baseChemin
+            ? path.resolve(conversion.baseChemin, chemin)
+            : chemin;
+
+        if (cacheFichiers.has(cheminAbsolut))
+          return cacheFichiers.get(cheminAbsolut);
+
+        if (!fs.existsSync(cheminAbsolut)) return;
+
+        const contenuFichier = fs.readFileSync(cheminAbsolut);
+
+        const idc = await hélia.ajouterFichierÀSFIP({
+          contenu: contenuFichier,
+          nomFichier: path.basename(cheminAbsolut),
+        });
+
+        cacheFichiers.set(chemin, idc);
+
+        return idc;
+      }
+
+      return undefined;
+    };
+
+    const convertirValeur = async ({
+      valeur,
+      catégorie,
+      conversion,
+    }: {
+      valeur: DagCborEncodable;
+      catégorie: CatégorieVariable;
+      conversion?: ConversionDonnées;
+    }): Promise<DagCborEncodable | undefined> => {
+      if (catégorie.type === "simple") {
+        return await convertirValeurSimple({
+          valeur,
+          catégorie: catégorie.catégorie,
+          conversion,
+        });
+      } else {
+        if (!Array.isArray(valeur)) {
+          if (typeof valeur === "string") {
+            try {
+              valeur = JSON.parse(valeur);
+              valeur = Array.isArray(valeur) ? valeur : [valeur];
+            } catch {
+              valeur = [valeur];
+            }
+          } else {
+            valeur = [valeur];
+          }
+        }
+        return justeDéfinis(await Promise.all(
+          valeur.map(
+            async (v) =>
+              await convertirValeurSimple({
+                valeur: v,
+                catégorie: catégorie.catégorie,
+                conversion,
+              }),
+          ),
+        ));
+      }
+    };
+
+    const convertirValeurSimple = async ({
+      valeur,
+      catégorie,
+      conversion,
+    }: {
+      valeur: DagCborEncodable;
+      catégorie: CatégorieBaseVariables;
+      conversion?: ConversionDonnées;
+    }): Promise<DagCborEncodable | undefined> => {
+      switch (catégorie) {
+        case "audio":
+        case "image":
+        case "vidéo":
+        case "fichier": {
+          if (typeof valeur === "string") {
+            if (idcEtFichierValide(valeur)) return valeur;
+            return résoudreFichier({ chemin: valeur });
+          } else if (isUint8Array(valeur)) {
+            const idc = await hélia.ajouterFichierÀSFIP(valeur);
+            return idc;
+          }
+          return undefined;
+        }
+
+        case "booléen": {
+          if (typeof valeur === "boolean") return valeur;
+          else if (typeof valeur === "number") return valeur !== 0;
+          else if (typeof valeur === "string")
+            return valeur.toLowerCase() === "true";
+          return undefined;
+        }
+
+        case "chaîneNonTraductible":
+          return valeur === undefined ? undefined : String(valeur);
+
+        case "chaîne": {
+          const conversionChaîne =
+            conversion?.type === "chaîne" ? conversion : undefined;
+          valeur = String(valeur);
+          if (conversionChaîne) {
+            const clef = Object.entries(traductions).find(
+              ([_clef, traducs]) => traducs[conversionChaîne.langue],
+            )?.[0];
+            if (!clef) {
+              await this.ajouterTraductionsValeur({ idStructure, idTableau, clef: valeur, traducs: { [conversionChaîne.langue]: valeur }})
+            }
+            return valeur
+          } else if (Object.keys(traductions).includes(valeur)) return valeur;
+          else {
+            const clef = Object.entries(traductions).find(([_clef, traducs]) =>
+              Object.values(traducs).find((texte) => texte === valeur),
+            )?.[0];
+            return clef ? clef : valeur;
+          }
+        }
+
+        case "numérique": {
+          const conversionNumérique =
+            conversion?.type === "numérique" ? conversion : undefined;
+          let valNumérique: number | undefined = undefined;
+
+          const { opération, systèmeNumération } = conversionNumérique || {};
+
+          if (typeof valeur === "number") {
+            valNumérique = valeur;
+          } else if (typeof valeur === "string") {
+            try {
+              if (systèmeNumération) {
+                valNumérique = எண்ணிக்கை.எண்ணுக்கு({
+                  உரை: valeur,
+                  மொழி: systèmeNumération,
+                });
+              } else {
+                valNumérique = Number(valeur);
+                if (isNaN(valNumérique)) {
+                  valNumérique = எண்ணிக்கை.எண்ணுக்கு({
+                    உரை: valeur,
+                  });
+                }
+              }
+            } catch {
+              // Rien à faire...
+              valNumérique = undefined;
+            }
+          }
+
+          if (valNumérique !== undefined && opération) {
+            valNumérique = appliquerOpérationsNumériques({
+              val: valNumérique,
+              ops: opération,
+            });
+          }
+          return valNumérique;
+        }
+        
+        case "horoDatage": {
+          const conversionHoroDatage = conversion?.type === "horoDatage" ? conversion : undefined;
+          if (cholqij.estUneDate(valeur)) {
+            return valeur
+          } else if (conversionHoroDatage && typeof valeur === "string") {
+            const date = cholqij.lireDate({ val: valeur, ...conversionHoroDatage });
+            return {
+              système: "dateJS",
+              val: date.getTime(),
+            };
+          } else if (typeof valeur === "number" || typeof valeur === "string") {
+            const date = new Date(valeur);
+            return isNaN(date.getTime()) ? undefined : {
+              système: "dateJS",
+              val: date.getTime(),
+            };
+          }
+          return undefined
+        }
+
+        case "intervaleTemps": {
+          const valObjet =
+            typeof valeur === "string" ? JSON.parse(valeur) : valeur;
+          if (Array.isArray(valObjet)) {
+            return justeDéfinis(await Promise.all(
+              valObjet.map(
+                async (v) =>
+                  await convertirValeurSimple({
+                    valeur: v,
+                    catégorie: "horoDatage",
+                    conversion,
+                  }),
+              ),
+            ));
+          }
+          return undefined;
+        }
+
+        case "géojson":
+          return typeof valeur === "string" ? JSON.parse(valeur) : valeur;
+
+        default:
+          return undefined;
+      }
+    };
+
+    return Promise.all(données.map(convertirRangée));
+  }
+
   // Exportation
 
   async suivreDonnéesExportation({
@@ -676,13 +1025,13 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       const { colonnes, données, nomsTableau, nomsVariables, traducs } = info;
 
       if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
-        const fichiersSFIP: Set<string> = new Set();
+        const documentsMédias: Set<string> = new Set();
 
         let donnéesFormattées = await Promise.all(
           données.map((d) =>
             this.formaterÉlément({
               élément: d.données,
-              fichiersSFIP,
+              documentsMédias,
               colonnes,
               langues,
               traducs,
@@ -721,7 +1070,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         return await f({
           nomTableau,
           données: donnéesFormattées,
-          fichiersSFIP,
+          documentsMédias,
         });
       }
     };
@@ -827,7 +1176,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         fSuivi: Suivi<{
           nomTableau: string;
           données: DonnéesRangéeTableau[];
-          fichiersSFIP: Set<string>;
+          documentsMédias: Set<string>;
         }>,
       ): Promise<Oublier> => {
         return await this.suivreDonnéesExportation({
@@ -847,7 +1196,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     utils.book_append_sheet(docu, tableau, données.nomTableau.slice(0, 30));
 
     nomFichier = nomFichier || données.nomTableau;
-    return { docu, fichiersSFIP: données.fichiersSFIP, nomFichier };
+    return { docu, documentsMédias: données.documentsMédias, nomFichier };
   }
 
   async exporterDonnéesÀFichier({

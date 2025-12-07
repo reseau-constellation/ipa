@@ -35,7 +35,7 @@ export type DonnéesRangéeNuée = {
 export type DonnéesTableauNuéeExportées = {
   nomTableau: string;
   données: DonnéesRangéeNuée[];
-  fichiersSFIP: Set<string>;
+  documentsMédias: Set<string>;
 };
 
 export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
@@ -327,13 +327,13 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
               return [c, nomVar];
             }),
           );
-        const fichiersSFIP: Set<string> = new Set();
+        const documentsMédias: Set<string> = new Set();
 
         const donnéesFormattées: DonnéesRangéeNuée[] = await Promise.all(
           données.map(async ({ idBd, données: { données, id } }) => {
             const donnéesFormattées = await this.formaterÉlément({
               élément: données,
-              fichiersSFIP,
+              documentsMédias,
               colonnes,
               langues,
               traducs,
@@ -361,7 +361,7 @@ export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         return await f({
           nomTableau,
           données: donnéesFormattées,
-          fichiersSFIP,
+          documentsMédias,
         });
       }
     };
