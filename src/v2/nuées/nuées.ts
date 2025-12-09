@@ -1435,7 +1435,7 @@ export class Nuées<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
       );
 
     await nuée.put(
-      `autorisation/bloqués/${sansProtocoleOrbite(idCompte)}`,
+      `autorisation/bloqués/${enleverPréfixesEtOrbite(idCompte)}`,
       null,
     );
 
@@ -1489,7 +1489,7 @@ export class Nuées<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
         `Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même (nuée ${idNuée}, compte ${idCompte}).`,
       );
 
-    await nuée.del(`autorisation/bloqués/${sansProtocoleOrbite(idCompte)}`);
+    await nuée.del(`autorisation/bloqués/${enleverPréfixesEtOrbite(idCompte)}`);
 
     await oublier();
   }
@@ -1520,7 +1520,7 @@ export class Nuées<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
         `Impossible d'exclure un compte qui a des permissions d'édition de la nuée elle-même (nuée ${idNuée}, compte ${idCompte}).`,
       );
 
-    await nuée.del(`autorisation/invités/${sansProtocoleOrbite(idCompte)}`);
+    await nuée.del(`autorisation/invités/${enleverPréfixesEtOrbite(idCompte)}`);
 
     await oublier();
   }
