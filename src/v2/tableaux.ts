@@ -1402,7 +1402,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
           return JSON.stringify(v);
         }
         case "boolean":
-          return v.toString();
+          return v === true ? "vrai" : "faux";
         case "number":
           return v;
         case "string":

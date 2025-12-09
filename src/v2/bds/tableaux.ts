@@ -67,8 +67,8 @@ export type DonnéesTableauExportées = {
 
 export type ConversionColonne<T extends ConversionDonnées = ConversionDonnées> =
   {
-    colonneCible: string;
     colonneSource: string;
+    colonneCible?: string;
     conversion?: T;
   };
 
@@ -687,7 +687,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
     traductions = {},
   }: {
     données: DonnéesRangéeTableauÀImporter[];
-    conversions?: ConversionColonne[];
+    conversions: ConversionColonne[];
     catégories?: { [colonneSource: string]: CatégorieVariable };
     traductions?: { [clef: string]: TraducsTexte };
   }): Promise<DonnéesRangéeTableau[]> {
@@ -765,6 +765,11 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       return valFinale;
     };
 
+    const estContenuFichier = (x: unknown): x is { contenu: Uint8Array, nomFichier: string} => {
+      if (typeof x !== "object") return false;
+      const {contenu, nomFichier} = x as { contenu: Uint8Array, nomFichier: string} ;
+      return isUint8Array(contenu) && typeof nomFichier === "string"
+    }
     const cacheFichiers = new Map<string, string>();
     const résoudreFichier = async ({
       chemin,
@@ -883,7 +888,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
           if (typeof valeur === "string") {
             if (idcEtFichierValide(valeur)) return valeur;
             return résoudreFichier({ chemin: valeur });
-          } else if (isUint8Array(valeur)) {
+          } else if (estContenuFichier(valeur)) {
             const idc = await hélia.ajouterFichierÀSFIP(valeur);
             return idc;
           }
@@ -892,9 +897,9 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
 
         case "booléen": {
           if (typeof valeur === "boolean") return valeur;
-          else if (typeof valeur === "number") return valeur !== 0;
+          else if (typeof valeur === "number") return valeur === 1 ? true : valeur === 0 ? false : undefined;
           else if (typeof valeur === "string")
-            return valeur.toLowerCase() === "true";
+            return valeur.toLowerCase() === "vrai" ? true : valeur.toLowerCase() === "faux" ? false: undefined;
           return undefined;
         }
 
@@ -980,6 +985,11 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
               système: "dateJS",
               val: date.getTime(),
             };
+          } else if (valeur instanceof Date) {
+            return {
+              système: "dateJS",
+              val: valeur.getTime(),
+            }
           } else if (typeof valeur === "number" || typeof valeur === "string") {
             const date = new Date(valeur);
             return isNaN(date.getTime())
@@ -995,7 +1005,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         case "intervaleTemps": {
           const valObjet =
             typeof valeur === "string" ? JSON.parse(valeur) : valeur;
-          if (Array.isArray(valObjet)) {
+          if (Array.isArray(valObjet) && valObjet.length === 2) {
             return justeDéfinis(
               await Promise.all(
                 valObjet.map(
