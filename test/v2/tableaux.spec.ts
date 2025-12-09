@@ -2371,9 +2371,6 @@ describe.only("tableaux", function () {
     });
 
     describe("conversions", function () {
-      let idBd: string;
-      let idTableau: string;
-
       const géojson = {
         type: "FeatureCollection",
         features: [
@@ -2400,11 +2397,6 @@ describe.only("tableaux", function () {
           },
         ],
       };
-
-      before(async () => {
-        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-        idTableau = await constl.bds.ajouterTableau({ idBd });
-      });
 
       it("correspondances colonnes", async () => {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
@@ -2682,9 +2674,9 @@ describe.only("tableaux", function () {
         ];
         expect(converties).to.have.deep.members(réf);
 
-        // Vérifier traductions bien identifiées
+        // Vérifier nouvelles traductions bien identifiées
         expect(traductions).to.deep.equal({
-          [idTexte]: { fr: "riz", ctl: "arròs", த: "நெல்" },
+          [idTexte]: { த: "நெல்" },
         });
       });
 
