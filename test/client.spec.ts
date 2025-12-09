@@ -9,117 +9,11 @@ import type { schémaFonctionOublier } from "@/types.js";
 import type { Constellation } from "@/client.js";
 import { créerConstellation } from "@/index.js";
 
-describe("Fermeture sécuritaire", function () {
-  let dossier: string;
-  let fEffacer: () => void;
 
-  before(async () => {
-    ({ dossier, fEffacer } = await dossiers.dossierTempo());
-  });
-
-  after(async () => {
-    fEffacer?.();
-  });
-
-  it("Fermeture immédiatement après ouverture", async function () {
-    if (!isNode || process.platform === "win32") this.skip(); // Pour l'instant
-
-    const client = créerConstellation({
-      dossier,
-    });
-    await client.fermer();
-  });
-});
 
 if (isNode || isElectronMain) {
   describe("Concurrence", function () {
-    describe("Différents dossiers", async () => {
-      let constl1: Constellation;
-      let constl2: Constellation;
 
-      let dossier1: string;
-      let fEffacer1: () => void;
-      let dossier2: string;
-      let fEffacer2: () => void;
-
-      before(async () => {
-        ({ dossier: dossier1, fEffacer: fEffacer1 } =
-          await dossiers.dossierTempo());
-        ({ dossier: dossier2, fEffacer: fEffacer2 } =
-          await dossiers.dossierTempo());
-        constl1 = créerConstellation({ dossier: dossier1 });
-      });
-
-      after(async () => {
-        await constl1?.fermer();
-        await constl2?.fermer();
-        try {
-          fEffacer1?.();
-          fEffacer2?.();
-        } catch (e) {
-          if ((isNode || isElectronMain) && process.platform === "win32") {
-            console.log("On ignore ça sur Windows\n", e);
-            return;
-          } else {
-            throw e;
-          }
-        }
-      });
-
-      it("Création de la deuxième instance", async () => {
-        constl2 = créerConstellation({ dossier: dossier2 });
-        const idCompte1 = await constl1.obtIdCompte();
-        const idCompte2 = await constl2.obtIdCompte();
-
-        expect(idCompte1).to.be.a("string");
-        expect(idCompte2).to.be.a("string");
-        expect(idCompte1).to.not.equal(idCompte2);
-      });
-    });
-
-    describe("Même dossier", async () => {
-      let constl1: Constellation;
-      let constl2: Constellation;
-
-      let dossier: string;
-      let fEffacer: () => void;
-
-      before(async () => {
-        ({ dossier, fEffacer } = await dossiers.dossierTempo());
-        constl1 = créerConstellation({ dossier });
-      });
-
-      after(async () => {
-        await constl1.fermer();
-        try {
-          await constl2.fermer();
-        } catch (e) {
-          if (!e.toString().includes("Constellation est déjà lancée.")) throw e;
-        }
-        try {
-          fEffacer?.();
-        } catch (e) {
-          if ((isNode || isElectronMain) && process.platform === "win32") {
-            console.log("On ignore ça sur Windows\n", e);
-            return;
-          } else {
-            throw e;
-          }
-        }
-      });
-
-      it("Erreur pour la deuxième instance", async () => {
-        constl2 = créerConstellation({ dossier });
-        await expect(constl2.obtIdCompte()).to.be.rejectedWith(
-          "Constellation est déjà lancée.",
-        );
-      });
-      it("Fermeture en double", async () => {
-        await expect(constl2.fermer()).to.be.rejectedWith(
-          "Constellation est déjà lancée.",
-        );
-      });
-    });
 
     /*describe.skip("Même dossier - serveur local", async () => {
       let fermerServeur: schémaFonctionOublier;

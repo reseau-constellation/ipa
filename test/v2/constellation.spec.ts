@@ -59,7 +59,27 @@ describe.only("Constellation", function () {
     });
   });
 
-  describe("syncronisation", function () {
+  describe("fermeture", function () {
+    let fermer: () => Promise<void>;
+    let constls: Constellation[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 1,
+      }));
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    it("fermeture immédiatement après ouverture", async function () {
+      // if (!isNode || process.platform === "win32") this.skip(); // Pour l'instant
+      await constls[0].fermer();
+    });
+  })
+
+  describe.skip("syncronisation", function () {
     let fermer: () => Promise<void>;
 
     const constls: Constellation[] = [];

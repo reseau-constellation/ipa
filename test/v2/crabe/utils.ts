@@ -69,16 +69,20 @@ export const créerCrabesTest = async <
 >({
   n,
   services,
+  dossier,
 }: {
   n: number;
   services: ConstructeursServicesNébuleuse<
     ServicesDonnées<T, ServicesLibp2pTest> & S
   >;
+  dossier?: string;
 }): Promise<{
   crabes: CrabeTest<T, S>[];
   fermer: Oublier;
 }> => {
-  const { dossier, effacer } = await dossierTempoPropre();
+  let effacer: () => void;
+  if (!dossier) ({ dossier, effacer } = await dossierTempoPropre());
+  else effacer = () => {}
 
   const crabes: CrabeTest<T, S>[] = [];
 

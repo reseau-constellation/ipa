@@ -138,4 +138,71 @@ describe.only("Crabe", function () {
       ).to.eventually.be.rejectedWith("Unsupported key service/inexistant.");
     });
   });
+
+
+  describe("concurrence ouverture", function () {
+
+    describe("même dossier", async () => {
+      let crabes: CrabeTest[];
+      let fermer: Oublier;
+
+      let crabe2: CrabeTest;
+
+      let dossier: string;
+
+      before(async () => {
+        ({ crabes, fermer } = await créerCrabesTest({
+          n: 1,
+          services: {},
+        }));
+        dossier = await crabes[0].dossier()
+      });
+
+      after(async () => {
+        if (fermer) await fermer();
+      });
+
+      it("erreur pour la deuxième instance", async () => {
+        crabe2 = new CrabeTest({ services: {}, options: { dossier }, });
+        await expect(crabe2.démarrer()).to.be.rejectedWith(
+          `Déjà lancée sur le dossier ${dossier}`,
+        );
+      });
+
+      it("fermeture en double", async () => {
+        await expect(crabe2.fermer()).to.be.rejectedWith(
+          `Déjà lancée sur le dossier ${dossier}`,
+        );
+      });
+    });
+
+    describe("réouverture après fermeture")
+  })
+
+  describe("fermeture", function () {
+    let crabe: CrabeTest;
+    let dossier: string;
+    let effacer: () => void;
+
+    before(async () => {
+      ({ dossier, effacer } = await dossierTempoPropre());
+      crabe = new CrabeTest({
+        services: { },
+        options: {
+          dossier,
+        },
+      });
+    });
+
+    after(async () => {
+      await crabe.fermer();
+      effacer();
+    });
+
+    it("fermeture immédiatement après ouverture", async function () {
+      // if (!isNode || process.platform === "win32") this.skip(); // Pour l'instant
+      await crabe.démarrer();
+      await crabe.fermer();
+    });
+  })
 });
