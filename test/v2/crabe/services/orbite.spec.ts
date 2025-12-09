@@ -4,13 +4,16 @@ import {
   créerOrbitesTest,
   que,
 } from "@constl/utils-tests";
-import { IPFSAccessController, createOrbitDB } from "@orbitdb/core";
+import {
+  IPFSAccessController,
+  createOrbitDB,
+  isValidAddress,
+} from "@orbitdb/core";
 import { expect } from "aegir/chai";
 import { createHelia } from "helia";
 import { createLibp2p } from "libp2p";
 import { isBrowser } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { toObject } from "@orbitdb/nested-db";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import {
@@ -332,7 +335,7 @@ describe.only("Service Orbite", function () {
       const { bd, oublier } = await orbite.créerBd({ type: "keyvalue" });
       await oublier();
 
-      expect(adresseOrbiteValide(bd.address)).to.be.true();
+      expect(isValidAddress(bd.address)).to.be.true();
     });
 
     it("ouvrir bd", async () => {

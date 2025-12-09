@@ -4,10 +4,10 @@ import { isElectronMain, isNode } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
-import { créerConstellation } from "@/index.js";
 import { générerClientsInternes } from "./ressources/utils.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import type { Constellation } from "@/client.js";
+import { créerConstellation } from "@/index.js";
 
 describe("Fermeture sécuritaire", function () {
   let dossier: string;

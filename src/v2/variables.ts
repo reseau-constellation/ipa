@@ -1,24 +1,18 @@
-import { typedNested } from "@constl/bohr-db";
 import {
   faisRien,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
 } from "@constl/utils-ipa";
-import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { cacheSuivi } from "./crabe/cache.js";
-import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import { ajouterProtocoleOrbite } from "./utils.js";
 import { RechercheVariables } from "./recherche/variables.js";
 import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
-import type {
-  AccèsUtilisateur,
-  Rôle,
-} from "./crabe/services/compte/accès/index.js";
-import type { Constellation, ServicesConstellation } from "./constellation.js";
+import { ObjetConstellation } from "./objets.js";
+import type { Rôle } from "./crabe/services/compte/accès/index.js";
+import type { Constellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {
   InfoAuteur,
@@ -124,23 +118,6 @@ export type ÉpingleVariable = {
 
 export type ContenuÉpingleVariable = BaseÉpingleFavoris;
 
-// Types service
-
-export type StructureServiceVariables = {
-  [variable: string]: null;
-};
-
-export const schémaServiceVariables: JSONSchemaType<
-  PartielRécursif<StructureServiceVariables>
-> = {
-  type: "object",
-  additionalProperties: {
-    type: "null",
-    nullable: true,
-  },
-  required: [],
-};
-
 const standardiserCatégorieVariable = (
   catégorie: CatégorieBaseVariables | CatégorieVariable,
 ): CatégorieVariable => {
@@ -151,22 +128,15 @@ const standardiserCatégorieVariable = (
 
 export class Variables<
   L extends ServicesLibp2pCrabe,
-> extends ServiceDonnéesNébuleuse<
-  "variable",
-  StructureServiceVariables,
-  L,
-  ServicesConstellation
-> {
+> extends ObjetConstellation<"variables", StructureVariable, L> {
   recherche: RechercheVariables<L>;
+  schémaObjet = schémaVariable;
 
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
       clef: "variable",
       nébuleuse,
       dépendances: ["compte", "orbite"],
-      options: {
-        schéma: schémaServiceVariables,
-      },
     });
 
     this.recherche = new RechercheVariables<L>({
@@ -196,29 +166,7 @@ export class Variables<
     f: Suivi<string[] | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-        await this.suivreBd({
-          idCompte,
-          f: async (variables) =>
-            await fSuivreRacine(
-              variables
-                ? Object.keys(variables).map(ajouterProtocoleOrbite)
-                : [],
-            ),
-        }),
-      fBranche: async ({ id: idObjet, fSuivreBranche }) => {
-        return await compte.suivrePermission({
-          idObjet,
-          idCompte,
-          f: async (permission) =>
-            await fSuivreBranche(permission ? idObjet : undefined),
-        });
-      },
-      f,
-    });
+    return await this.suivreObjets({ f, idCompte });
   }
 
   async créerVariable({
@@ -244,7 +192,7 @@ export class Variables<
     await variable.set("catégorie", standardiserCatégorieVariable(catégorie));
 
     await oublier();
-    return idVariable;
+    return this.ajouterProtocole(idVariable);
   }
 
   async ajouterÀMesVariables({
@@ -252,8 +200,7 @@ export class Variables<
   }: {
     idVariable: string;
   }): Promise<void> {
-    const bd = await this.bd();
-    await bd.put(idVariable, null);
+    await this.ajouterÀMesObjets({ idObjet: idVariable });
   }
 
   async enleverDeMesVariables({
@@ -261,8 +208,7 @@ export class Variables<
   }: {
     idVariable: string;
   }): Promise<void> {
-    const bd = await this.bd();
-    await bd.del(idVariable);
+    await this.enleverDeMesObjets({ idObjet: idVariable });
   }
 
   async ouvrirVariable({
@@ -270,17 +216,10 @@ export class Variables<
   }: {
     idVariable: string;
   }): Promise<{ variable: TypedNested<StructureVariable>; oublier: Oublier }> {
-    const { bd, oublier } = await this.service("orbite").ouvrirBd({
-      id: idVariable,
-      type: "nested",
+    const { objet: variable, oublier } = await this.ouvrirObjet({
+      idObjet: idVariable,
     });
-    return {
-      variable: typedNested<StructureVariable>({
-        db: bd,
-        schema: schémaVariable,
-      }),
-      oublier,
-    };
+    return { variable, oublier };
   }
 
   async copierVariable({
@@ -346,10 +285,12 @@ export class Variables<
     // Effacer l'entrée dans notre liste de variables
     await this.enleverDeMesVariables({ idVariable });
 
-    await this.service("favoris").désépinglerFavori({ idObjet: idVariable });
+    await this.service("favoris").désépinglerFavori({
+      idObjet: this.àIdOrbite(idVariable),
+    });
 
     // Effacer la variable elle-même
-    await this.service("orbite").effacerBd({ id: idVariable });
+    await this.service("orbite").effacerBd({ id: this.àIdOrbite(idVariable) });
   }
 
   // Accèss
@@ -366,7 +307,7 @@ export class Variables<
     const compte = this.service("compte");
 
     return await compte.donnerAccèsObjet({
-      idObjet: idVariable,
+      idObjet: this.àIdOrbite(idVariable),
       identité: idCompte,
       rôle,
     });
@@ -379,47 +320,7 @@ export class Variables<
     idVariable: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
-      }) =>
-        await compte.suivreAutorisations({
-          idObjet: idVariable,
-          f: fSuivreRacine,
-        }),
-      fBranche: async ({
-        id: idCompte,
-        fSuivreBranche,
-        branche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<InfoAuteur>;
-        branche: AccèsUtilisateur;
-      }) => {
-        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
-        await fSuivreBranche({
-          idCompte,
-          accepté: false,
-          rôle: branche.rôle,
-        });
-        return await this.suivreVariables({
-          idCompte,
-          f: async (variablesCompte) => {
-            return await fSuivreBranche({
-              idCompte,
-              accepté: (variablesCompte || []).includes(idVariable),
-              rôle: branche.rôle,
-            });
-          },
-        });
-      },
-      fIdDeBranche: (x) => x.idCompte,
-      f,
-    });
+    return this.suivreAuteursObjet({ idObjet: idVariable, f });
   }
 
   async confirmerPermission({
@@ -429,7 +330,7 @@ export class Variables<
   }): Promise<void> {
     const compte = this.service("compte");
 
-    if (!(await compte.permission({ idObjet: idVariable })))
+    if (!(await compte.permission({ idObjet: this.àIdOrbite(idVariable) })))
       throw new Error(
         `Permission de modification refusée pour la variable ${idVariable}.`,
       );
@@ -501,7 +402,8 @@ export class Variables<
       idCompte,
       f: async (épingles) => {
         const épingleVariable = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idVariable && épingle.type === "variable"
+          return idObjet === this.àIdOrbite(idVariable) &&
+            épingle.type === "variable"
             ? épingle
             : undefined;
         }) as ÉpingleVariable | undefined;
@@ -513,7 +415,7 @@ export class Variables<
   async désépingler({ idVariable }: { idVariable: string }): Promise<void> {
     const favoris = this.service("favoris");
 
-    await favoris.désépinglerFavori({ idObjet: idVariable });
+    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idVariable) });
   }
 
   async suivreRésolutionÉpingle({
@@ -593,11 +495,9 @@ export class Variables<
     idVariable: string;
     f: Suivi<TraducsTexte | undefined>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idVariable,
-      type: "nested",
-      schéma: schémaVariable,
-      f: (variable) => f(toObject(variable).noms),
+    return await this.suivreObjet({
+      idObjet: idVariable,
+      f: (variable) => f(variable.noms || {}),
     });
   }
 
@@ -660,11 +560,9 @@ export class Variables<
     idVariable: string;
     f: Suivi<{ [key: string]: string }>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idVariable,
-      type: "nested",
-      schéma: schémaVariable,
-      f: (variable) => f(toObject(variable).noms),
+    return await this.suivreObjet({
+      idObjet: idVariable,
+      f: (variable) => f(variable.descriptions || {}),
     });
   }
 
@@ -693,14 +591,10 @@ export class Variables<
     idVariable: string;
     f: Suivi<CatégorieVariable | undefined>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
-    return await orbite.suivreDonnéesBd({
-      id: idVariable,
-      type: "nested",
-      schéma: schémaVariable,
+    return await this.suivreObjet({
+      idObjet: idVariable,
       f: async (variable) => {
-        const catégorie = mapÀObjet(variable.get("catégorie"));
+        const catégorie = variable["catégorie"];
         await f(
           catégorie ? standardiserCatégorieVariable(catégorie) : undefined,
         );
@@ -732,14 +626,9 @@ export class Variables<
     idVariable: string;
     f: Suivi<string | undefined>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idVariable,
-      type: "nested",
-      schéma: schémaVariable,
-      f: async (variable) => {
-        const unités = variable.get("unités");
-        await f(unités);
-      },
+    return this.suivreObjet({
+      idObjet: idVariable,
+      f: async (variable) => await f(variable["unités"]),
     });
   }
 
@@ -840,12 +729,10 @@ export class Variables<
       },
     });
 
-    const oublierRèglesPropres = await this.service("orbite").suivreDonnéesBd({
-      id: idVariable,
-      type: "nested",
-      schéma: schémaVariable,
+    const oublierRèglesPropres = await this.suivreObjet({
+      idObjet: idVariable,
       f: async (variable) => {
-        règles.propres = mapÀObjet(variable.get("règles")) || {};
+        règles.propres = variable.règles || {};
         await fFinale();
       },
     });
@@ -878,12 +765,9 @@ export class Variables<
     idVariable: string;
     f: Suivi<StatutDonnées | null>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-    return await orbite.suivreDonnéesBd({
-      id: idVariable,
-      type: "nested",
-      schéma: schémaVariable,
-      f: (bd) => f(toObject(bd).statut),
+    return await this.suivreObjet({
+      idObjet: idVariable,
+      f: async (variable) => await f(variable.statut),
     });
   }
 

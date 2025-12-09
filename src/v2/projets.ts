@@ -8,17 +8,10 @@ import {
   uneFois,
   zipper,
 } from "@constl/utils-ipa";
-import { toObject } from "@orbitdb/nested-db";
-import { typedNested } from "@constl/bohr-db";
 import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
 import toBuffer from "it-to-buffer";
-import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { cacheSuivi } from "./crabe/cache.js";
-import {
-  ajouterProtocoleOrbite,
-  conversionsTypes,
-  sansProtocoleOrbite,
-} from "./utils.js";
+import { conversionsTypes } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
 import {
@@ -28,6 +21,7 @@ import {
 } from "./crabe/services/favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
+import { ObjetConstellation } from "./objets.js";
 import type { BookType, WorkBook } from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
@@ -35,12 +29,9 @@ import type {
   ÉpingleFavorisBooléenniséeAvecId,
 } from "./crabe/services/favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
-import type {
-  Rôle,
-  AccèsUtilisateur,
-} from "./crabe/services/compte/accès/types.js";
+import type { Rôle } from "./crabe/services/compte/accès/types.js";
 import type { JSONSchemaType } from "ajv";
-import type { Constellation, ServicesConstellation } from "./constellation.js";
+import type { Constellation } from "./constellation.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {
   InfoAuteur,
@@ -135,35 +126,20 @@ export const schémaProjet: JSONSchemaType<PartielRécursif<StructureProjet>> = 
   },
 };
 
-export type StructureServiceProjets = {
-  [projet: string]: null;
-};
-
-export const SchémaServiceProjets: JSONSchemaType<
-  PartielRécursif<StructureServiceProjets>
-> = {
-  type: "object",
-  additionalProperties: true,
-  required: [],
-};
-export class Projets<
-  L extends ServicesLibp2pCrabe,
-> extends ServiceDonnéesNébuleuse<
+export class Projets<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
   "projets",
-  StructureServiceProjets,
-  L,
-  ServicesConstellation<L>
+  StructureProjet,
+  L
 > {
   recherche: RechercheProjets<L>;
+
+  schémaObjet = schémaProjet;
 
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
       clef: "projets",
       nébuleuse,
-      dépendances: ["bds", "compte", "orbite", "hélia"],
-      options: {
-        schéma: SchémaServiceProjets,
-      },
+      dépendances: ["motsClefs", "bds", "compte", "orbite", "hélia"],
     });
     this.recherche = new RechercheProjets({
       projets: this,
@@ -192,27 +168,7 @@ export class Projets<
     f: Suivi<string[] | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-        await this.suivreBd({
-          idCompte,
-          f: async (projets) =>
-            await fSuivreRacine(
-              projets ? Object.keys(projets).map(ajouterProtocoleOrbite) : [],
-            ),
-        }),
-      fBranche: async ({ id: idObjet, fSuivreBranche }) => {
-        return await compte.suivrePermission({
-          idObjet,
-          idCompte,
-          f: async (permission) =>
-            await fSuivreBranche(permission ? idObjet : undefined),
-        });
-      },
-      f,
-    });
+    return this.suivreObjets({ f, idCompte });
   }
 
   async créerProjet({
@@ -238,7 +194,7 @@ export class Projets<
 
     await oublier();
 
-    return idProjet;
+    return this.ajouterProtocole(idProjet);
   }
 
   async effacerProjet({ idProjet }: { idProjet: string }): Promise<void> {
@@ -248,20 +204,18 @@ export class Projets<
     await this.enleverDeMesProjets({ idProjet });
 
     const favoris = this.service("favoris");
-    await favoris.désépinglerFavori({ idObjet: idProjet });
+    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idProjet) });
 
     // enfin, effacer le Projet lui-même
-    await orbite.effacerBd({ id: idProjet });
+    await orbite.effacerBd({ id: this.àIdOrbite(idProjet) });
   }
 
   async ajouterÀMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
-    const bd = await this.bd();
-    await bd.put(sansProtocoleOrbite(idProjet), null);
+    await this.ajouterÀMesObjets({ idObjet: idProjet });
   }
 
   async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
-    const bd = await this.bd();
-    await bd.del(sansProtocoleOrbite(idProjet));
+    await this.enleverDeMesObjets({ idObjet: idProjet });
   }
 
   async copierProjet({ idProjet }: { idProjet: string }): Promise<string> {
@@ -326,13 +280,9 @@ export class Projets<
     idProjet: string;
     f: Suivi<{ id: string } | undefined>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
-    return await orbite.suivreDonnéesBd({
-      id: idProjet,
-      type: "nested",
-      schéma: schémaProjet,
-      f: (bd) => f(mapÀObjet(bd)?.copiéDe),
+    return await this.suivreObjet({
+      idObjet: idProjet,
+      f: async (projet) => await f(projet.copiéDe),
     });
   }
 
@@ -341,14 +291,8 @@ export class Projets<
   }: {
     idProjet: string;
   }): Promise<{ projet: TypedNested<StructureProjet>; oublier: Oublier }> {
-    const { bd, oublier } = await this.service("orbite").ouvrirBd({
-      id: idProjet,
-      type: "nested",
-    });
-    return {
-      projet: typedNested<StructureProjet>({ db: bd, schema: schémaProjet }),
-      oublier,
-    };
+    const { objet, oublier } = await this.ouvrirObjet({ idObjet: idProjet });
+    return { projet: objet, oublier };
   }
 
   // Accès
@@ -365,7 +309,7 @@ export class Projets<
     const compte = this.service("compte");
 
     return await compte.donnerAccèsObjet({
-      idObjet: idProjet,
+      idObjet: this.àIdOrbite(idProjet),
       identité: idCompte,
       rôle,
     });
@@ -378,53 +322,13 @@ export class Projets<
     idProjet: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
-      }) =>
-        await compte.suivreAutorisations({
-          idObjet: idProjet,
-          f: fSuivreRacine,
-        }),
-      fBranche: async ({
-        id: idCompte,
-        fSuivreBranche,
-        branche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<InfoAuteur>;
-        branche: AccèsUtilisateur;
-      }) => {
-        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
-        await fSuivreBranche({
-          idCompte,
-          accepté: false,
-          rôle: branche.rôle,
-        });
-        return await this.suivreProjets({
-          idCompte,
-          f: async (projetsCompte) => {
-            return await fSuivreBranche({
-              idCompte,
-              accepté: (projetsCompte || []).includes(idProjet),
-              rôle: branche.rôle,
-            });
-          },
-        });
-      },
-      fIdDeBranche: (x) => x.idCompte,
-      f,
-    });
+    return await this.suivreAuteursObjet({ idObjet: idProjet, f });
   }
 
   async confirmerPermission({ idProjet }: { idProjet: string }): Promise<void> {
     const compte = this.service("compte");
 
-    if (!(await compte.permission({ idObjet: idProjet })))
+    if (!(await compte.permission({ idObjet: this.àIdOrbite(idProjet) })))
       throw new Error(
         `Permission de modification refusée pour le projet ${idProjet}.`,
       );
@@ -495,7 +399,7 @@ export class Projets<
   async désépingler({ idProjet }: { idProjet: string }): Promise<void> {
     const favoris = this.service("favoris");
 
-    await favoris.désépinglerFavori({ idObjet: idProjet });
+    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idProjet) });
   }
 
   async suivreÉpingle({
@@ -513,7 +417,8 @@ export class Projets<
       idCompte,
       f: async (épingles) => {
         const épingleProjet = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idProjet && épingle.type === "projet"
+          return idObjet === this.àIdOrbite(idProjet) &&
+            épingle.type === "projet"
             ? épingle
             : undefined;
         }) as ÉpingleProjet | undefined;
@@ -545,19 +450,11 @@ export class Projets<
     };
 
     const fsOublier: Oublier[] = [];
-    const orbite = this.service("orbite");
     if (épingle.épingle.épingle.base) {
-      const oublierBase = await orbite.suivreBdTypée({
-        id: épingle.idObjet,
-        type: "nested",
-        schéma: schémaProjet,
-        f: async (bd) => {
-          try {
-            const image = await bd.get("image");
-            info.base = [épingle.idObjet, image];
-          } catch {
-            return; // Si la structure n'est pas valide.
-          }
+      const oublierBase = await this.suivreObjet({
+        idObjet: épingle.idObjet,
+        f: async (projet) => {
+          info.base = [épingle.idObjet, projet.image];
           await fFinale();
         },
       });
@@ -589,7 +486,7 @@ export class Projets<
           if (épingleBds.épingle)
             return await serviceBds.suivreRésolutionÉpingle({
               épingle: {
-                idObjet: idBd,
+                idObjet: serviceBds.àIdOrbite(idBd),
                 épingle: {
                   type: "bd",
                   épingle: épingleBds.épingle,
@@ -666,11 +563,9 @@ export class Projets<
     idProjet: string;
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idProjet,
-      type: "nested",
-      schéma: schémaProjet,
-      f: (projet) => f(toObject(projet).noms || {}),
+    return await this.suivreObjet({
+      idObjet: idProjet,
+      f: (projet) => f(projet.noms || {}),
     });
   }
 
@@ -720,6 +615,20 @@ export class Projets<
     await oublier();
   }
 
+  @cacheSuivi
+  async suivreDescriptions({
+    idProjet,
+    f,
+  }: {
+    idProjet: string;
+    f: Suivi<TraducsTexte>;
+  }): Promise<Oublier> {
+    return await this.suivreObjet({
+      idObjet: idProjet,
+      f: (projet) => f(projet.descriptions || {}),
+    });
+  }
+
   // Image
 
   async sauvegarderImage({
@@ -762,12 +671,10 @@ export class Projets<
     const maxTailleImage =
       this.service("compte").options.consts.maxTailleImageVisualiser;
 
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idProjet,
-      type: "nested",
-      schéma: schémaProjet,
+    return await this.suivreObjet({
+      idObjet: idProjet,
       f: async (projet) => {
-        const idImage = projet.get("image");
+        const idImage = projet.image;
         if (!idImage) {
           return await f(null);
         } else {
@@ -836,29 +743,11 @@ export class Projets<
     idProjet: string;
     f: Suivi<Métadonnées>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idProjet,
-      type: "nested",
-      schéma: schémaProjet,
+    return await this.suivreObjet({
+      idObjet: idProjet,
       f: async (projet) => {
-        await f(mapÀObjet(projet.get("métadonnées")) || {});
+        await f(projet.métadonnées || {});
       },
-    });
-  }
-
-  @cacheSuivi
-  async suivreDescriptions({
-    idProjet,
-    f,
-  }: {
-    idProjet: string;
-    f: Suivi<TraducsTexte>;
-  }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idProjet,
-      type: "nested",
-      schéma: schémaProjet,
-      f: (projet) => f(toObject(projet).descriptions || {}),
     });
   }
 
@@ -871,6 +760,8 @@ export class Projets<
     idProjet: string;
     idsMotsClefs: string | string[];
   }): Promise<void> {
+    const motsClefs = this.service("motsClefs");
+
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
 
     await this.confirmerPermission({ idProjet });
@@ -878,7 +769,7 @@ export class Projets<
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
 
     for (const id of idsMotsClefs) {
-      await projet.put(`motsClefs/${id}`, null);
+      await projet.put(`motsClefs/${motsClefs.enleverProtocole(id)}`, null);
     }
     await oublier();
   }
@@ -890,11 +781,13 @@ export class Projets<
     idProjet: string;
     idMotClef: string;
   }): Promise<void> {
+    const motsClefs = this.service("motsClefs");
+
     await this.confirmerPermission({ idProjet });
 
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
 
-    await projet.del(`motsClefs/${idMotClef}`);
+    await projet.del(`motsClefs/${motsClefs.enleverProtocole(idMotClef)}`);
 
     await oublier();
   }
@@ -907,8 +800,8 @@ export class Projets<
     idProjet: string;
     f: Suivi<MotClefProjet[]>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
     const bds = this.service("bds");
+    const serviceMotsClefs = this.service("motsClefs");
 
     const motsClefs: { propres?: string[]; bds?: string[] } = {};
 
@@ -925,12 +818,12 @@ export class Projets<
       }
     };
 
-    const oublierMotsClefsPropres = await orbite.suivreDonnéesBd({
-      id: idProjet,
-      type: "nested",
-      schéma: schémaProjet,
+    const oublierMotsClefsPropres = await this.suivreObjet({
+      idObjet: idProjet,
       f: async (projet) => {
-        motsClefs.propres = Object.keys(toObject(projet).motsClefs);
+        motsClefs.propres = Object.keys(projet.motsClefs).map((id) =>
+          serviceMotsClefs.ajouterProtocole(id),
+        );
         return await fFinale();
       },
     });
@@ -979,6 +872,8 @@ export class Projets<
     idProjet: string;
     idsBds: string | string[];
   }): Promise<void> {
+    const bds = this.service("bds");
+
     if (!Array.isArray(idsBds)) idsBds = [idsBds];
 
     await this.confirmerPermission({ idProjet });
@@ -986,7 +881,7 @@ export class Projets<
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
 
     for (const id of idsBds) {
-      await projet.put(`bds/${id}`, null);
+      await projet.put(`bds/${bds.enleverProtocole(id)}`, null);
     }
     await oublier();
   }
@@ -998,11 +893,13 @@ export class Projets<
     idProjet: string;
     idBd: string;
   }): Promise<void> {
+    const bds = this.service("bds");
+
     await this.confirmerPermission({ idProjet });
 
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
 
-    await projet.del(`bds/${idBd}`);
+    await projet.del(`bds/${bds.enleverProtocole(idBd)}`);
 
     await oublier();
   }
@@ -1015,13 +912,12 @@ export class Projets<
     idProjet: string;
     f: Suivi<string[]>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
+    const bds = this.service("bds");
 
-    return await orbite.suivreDonnéesBd({
-      id: idProjet,
-      type: "nested",
-      schéma: schémaProjet,
-      f: (bd) => f(Object.keys(toObject(bd).motsClefs)),
+    return await this.suivreObjet({
+      idObjet: idProjet,
+      f: (projet) =>
+        f(Object.keys(projet.motsClefs).map((id) => bds.ajouterProtocole(id))),
     });
   }
 
@@ -1078,12 +974,9 @@ export class Projets<
     idProjet: string;
     f: Suivi<StatutDonnées | null>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-    return await orbite.suivreDonnéesBd({
-      id: idProjet,
-      type: "nested",
-      schéma: schémaProjet,
-      f: (projet) => f(mapÀObjet(projet)?.statut || null),
+    return await this.suivreObjet({
+      idObjet: idProjet,
+      f: (projet) => f(projet.statut || null),
     });
   }
 
@@ -1159,7 +1052,7 @@ export class Projets<
       const { nomsProjet, données } = info;
       if (!données) return;
 
-      const idCourt = idProjet.split("/").pop()!;
+      const idCourt = this.enleverProtocole(idProjet);
       const nomProjet =
         nomsProjet && langues
           ? traduire(nomsProjet, langues) || idCourt

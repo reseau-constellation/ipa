@@ -7,7 +7,6 @@ import { pushable } from "it-pushable";
 import { pipe } from "it-pipe";
 import { TypedEmitter } from "tiny-typed-emitter";
 import pRetry from "p-retry";
-import { créerConstellation } from "@/index.js";
 import { initSFIP } from "../src/sfip/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
 import type { ServicesLibp2p } from "../src/sfip/index.js";
@@ -15,6 +14,7 @@ import type { Constellation } from "@/index.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
 import type { Connection, Libp2p, PeerId, Stream } from "@libp2p/interface";
 import type { Helia } from "helia";
+import { créerConstellation } from "@/index.js";
 
 const attendre = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));

@@ -8,6 +8,7 @@ import type { Oublier, Suivi } from "../crabe/types.js";
 import type {
   InfoRésultat,
   RetourFonctionRecherche,
+  RésultatObjectifRecherche,
   RésultatRecherche,
   SuivreConfianceRecherche,
   SuivreObjectifRecherche,
@@ -17,6 +18,8 @@ import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { Constellation } from "../index.js";
 import type { InfoAuteur } from "../types.js";
+import { schémaRetourFonctionRechercheParProfondeur } from "@/types.js";
+import { moyenne } from "../utils.js";
 
 export class Recherche<L extends ServicesLibp2pCrabe> {
   constl: Constellation;
@@ -60,11 +63,40 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
 
     const queue = new PQueue({ concurrency: 1 });
 
-    const fSuivreCompte = async () => {};
+    const résoudreScore = ( { résultat, confiance = 0, qualité = 0 }: { résultat: number, confiance?: number, qualité?: number }): number => {
+      return moyenne([résultat, confiance * 0.5, qualité * 0.5])
+    }
+
+    const fSuivreCompte = async ({idCompte, f }: {idCompte: string, f: Suivi<{ résultat: RésultatObjectifRecherche<T>, score: number }[]> }): Promise<Oublier> => {
+      return await suivreDeFonctionListe({
+        fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => await fRecherche({ idCompte, f: ignorerNonDéfinis(fSuivreRacine) }),
+        fBranche: async ({ id: idObjet, fSuivreBranche }: { id: string, fSuivreBranche: Suivi<{ résultat: RésultatObjectifRecherche<T>, score: number } > }) => {
+          const info: { résultat?: RésultatObjectifRecherche<T>, confiance?: number, qualité?: number } = {}
+          const fFinaleBranche = async () => {
+            if (info.résultat)
+              return await fSuivreBranche({ résultat: info.résultat, score: résoudreScore({ ...info, résultat: info.résultat.score })})
+          }
+          const oublierObjectif = await fObjectif({ constl: this.constl, idObjet, f: async résultat => {info.résultat = résultat; await fFinaleBranche()}});
+          const oublierConfiance = await fConfiance({ idObjet, f: async confiance => { info.confiance = confiance ; await fFinaleBranche()}});
+          const oublierQualité = await fQualité({ idObjet, f: async qualité => {info.qualité = qualité; await fFinaleBranche()}})
+          return async () => {
+            await oublierObjectif();
+            await oublierConfiance();
+            await oublierQualité();
+          }
+        },
+        f,
+      })
+    };
+
     const { changerProfondeur, oublier: oublierComptes } =
-      await réseau.suivreComptesRéseauEtEnLigne({
-        f: fSuivreCompte,
-        profondeur,
+      await suivreDeFonctionListe({
+        fListe: async ({fSuivreRacine}: {fSuivreRacine}): Promise<schémaRetourFonctionRechercheParProfondeur> => await réseau.suivreComptesRéseauEtEnLigne({
+          f: fSuivreRacine,
+          profondeur,
+        }),
+        fBranche: fSuivreCompte,
+        f: (résultats: { résultat: RésultatObjectifRecherche<T>, score: number }[]) => 1,
       });
     const changerN = async (nouveauN: number) => {};
 

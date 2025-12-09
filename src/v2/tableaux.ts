@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 import {
-  adresseOrbiteValide,
   faisRien,
   idcValide,
   suivreDeFonctionListe,
@@ -16,6 +15,7 @@ import {
 } from "./règles.js";
 import { typer } from "./crabe/services/orbite/orbite.js";
 import { schémaTraducsTexte } from "./schémas.js";
+import { enleverPréfixes } from "./utils.js";
 import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { TypedNested } from "@constl/bohr-db";
@@ -277,7 +277,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
 
     // Effacer la référence au tableau
     const { bd, oublier: oublierBd } = await orbite.ouvrirBd({
-      id: idStructure,
+      id: enleverPréfixes(idStructure),
       type: "nested",
     });
     const bdTypée = typer({
@@ -297,7 +297,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idTableau: string;
   }): Promise<{ tableau: TypedNested<StructureTableau>; oublier: Oublier }> {
     const { bd, oublier } = await this.service("orbite").ouvrirBd({
-      id: idStructure,
+      id: enleverPréfixes(idStructure),
       type: "nested",
     });
 
@@ -332,7 +332,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     const orbite = this.service("orbite");
 
     return await orbite.suivreDonnéesBd({
-      id: idStructure,
+      id: enleverPréfixes(idStructure),
       type: "nested",
       schéma: schémaStructureAvecTableau,
       f: async (tableau) => {
@@ -358,7 +358,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idStructure: string;
   }): Promise<void> {
     const compte = this.service("compte");
-    if (!compte.permission({ idObjet: idStructure }))
+    if (!compte.permission({ idObjet: enleverPréfixes(idStructure) }))
       throw new Error(
         `Permission de modification refusée pour un tableau au ${idStructure}.`,
       );
@@ -706,6 +706,8 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
     idTableau: string;
     f: Suivi<string[]>;
   }): Promise<Oublier> {
+    const variables = this.service("variables");
+
     return await this.suivreTableau({
       idStructure,
       idTableau,
@@ -713,7 +715,7 @@ export class Tableaux<L extends ServicesLibp2pCrabe> {
         await f(
           Object.values(tableau.colonnes || [])
             .map((c) => c.variable)
-            .filter((v): v is string => !!v && adresseOrbiteValide(v)),
+            .filter((v): v is string => !!v && variables.identifiantValide(v)),
         );
       },
     });

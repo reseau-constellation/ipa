@@ -1,5 +1,4 @@
 import { expect } from "aegir/chai";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { TOUS_DISPOSITIFS } from "@/v2/crabe/services/favoris.js";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
@@ -40,7 +39,7 @@ describe.only("Mots-clefs", function () {
 
     it("création", async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
-      expect(adresseOrbiteValide(idMotClef)).to.be.true();
+      expect(constl.motsClefs.identifiantValide(idMotClef)).to.be.true();
     });
 
     it("accès", async () => {

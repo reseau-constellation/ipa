@@ -15,9 +15,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Automatisations } from "@/automatisation.js";
 import { Licences } from "@/licences.js";
-import { Nuées } from "@/nuées.js";
 import { Réseau } from "@/reseau.js";
-import { Tableaux } from "@/tableaux.js";
 
 import { Protocoles } from "./protocoles.js";
 import type {
@@ -35,13 +33,14 @@ import type { Libp2p } from "@libp2p/interface";
 import type { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
-import type { objRôles } from "@/accès/types.js";
 import type { createOrbitDB, OrbitDB } from "@orbitdb/core";
 import type { structureBdProfil } from "@/profil.js";
 import type {
   type GestionnaireOrbite,
   gestionnaireOrbiteGénéral,
 } from "@/orbite.js";
+import { Tableaux } from "@/tableaux.js";
+import { Nuées } from "@/nuées.js";
 import { Recherche } from "@/recherche/index.js";
 import { Projets } from "@/projets.js";
 import { Favoris, TOUS } from "@/favoris.js";
@@ -146,35 +145,6 @@ export const schémaStructureNomsDispositifs: JSONSchemaType<structureNomsDispos
 
 const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 
-const obtDossierConstellation = async (
-  opts: optsConstellation,
-): Promise<string> => {
-  if (opts.dossier && opts.dossier !== "dév") {
-    if (isNode || isElectronMain) {
-      const fs = await import("fs");
-      if (!fs.existsSync(opts.dossier))
-        fs.mkdirSync(opts.dossier, { recursive: true });
-    }
-    return opts.dossier;
-  }
-
-  if (isNode || isElectronMain) {
-    const fs = await import("fs");
-    // Utiliser l'application native
-    const envPaths = (await import("env-paths")).default;
-    const chemins = envPaths("constl", { suffix: "" });
-    const dossier = await join(
-      chemins.data,
-      opts.dossier === "dév" ? "constl-dév" : "constl",
-    );
-    if (!fs.existsSync(dossier)) fs.mkdirSync(dossier, { recursive: true });
-    return dossier;
-  } else {
-    // Pour navigateur
-    return "./constl";
-  }
-};
-
 const join = async (...args: string[]) => {
   if (isNode || isElectronMain) {
     // Utiliser l'application native
@@ -192,10 +162,7 @@ export type ServicesDéfautConstellation = {
   profil: Profil;
 };
 
-export class Constellation<
-  S extends ServicesConstellation = ServicesDéfautConstellation,
-  T extends ServicesLibp2p = ServicesLibp2p,
-> {
+export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   _opts: optsConstellation<T>;
   événements: TypedEmitter<ÉvénementsClient<T>>;
 

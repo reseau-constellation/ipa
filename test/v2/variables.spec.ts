@@ -1,5 +1,4 @@
 import { expect } from "aegir/chai";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
 import {
   MEMBRE,
   MODÉRATRICE,
@@ -58,7 +57,7 @@ describe.only("Variables", function () {
       idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      expect(adresseOrbiteValide(idVariable)).to.be.true();
+      expect(constl.variables.identifiantValide(idVariable)).to.be.true();
     });
 
     it("accès", async () => {

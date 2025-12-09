@@ -1,8 +1,6 @@
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
-import { isValidAddress } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
 import { dossierTempo } from "@constl/utils-tests";
@@ -70,7 +68,7 @@ describe("BDs", function () {
 
     it("création", async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-      expect(adresseOrbiteValide(idBd)).to.be.true();
+      expect(constl.bds.identifiantValide(idBd)).to.be.true();
     });
 
     it("accès", async () => {
@@ -1825,7 +1823,7 @@ describe("BDs", function () {
     it("création bd unique", async () => {
       idBdUnique = await constl.bds.obtenirBdUnique({ schéma });
 
-      expect(isValidAddress(idBdUnique)).to.be.true();
+      expect(constl.bds.identifiantValide(idBdUnique)).to.be.true();
     });
 
     it("détection de la même bd unique", async () => {
@@ -1887,7 +1885,7 @@ describe("BDs", function () {
         schéma,
       });
 
-      expect(isValidAddress(nouvelIdBdUnique)).to.be.true();
+      expect(constl.bds.identifiantValide(nouvelIdBdUnique)).to.be.true();
       expect(nouvelIdBdUnique).to.not.equal(idBdUnique);
     });
 

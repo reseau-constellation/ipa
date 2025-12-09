@@ -1,11 +1,8 @@
 import { merge } from "lodash-es";
 import { typedNested } from "@constl/bohr-db";
 import { TypedEmitter } from "tiny-typed-emitter";
-import {
-  adresseOrbiteValide,
-  suivreFonctionImbriquée,
-  uneFois,
-} from "@constl/utils-ipa";
+import { suivreFonctionImbriquée, uneFois } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 import { ServiceNébuleuse } from "@/v2/nébuleuse/index.js";
 import {
   AUCUN_DISPOSITIF,
@@ -13,6 +10,7 @@ import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "@/v2/crabe/services/favoris.js";
+import { ajouterPréfixes, enleverPréfixes } from "@/v2/utils.js";
 import { cacheSuivi } from "../../cache.js";
 import { ServiceDonnéesNébuleuse } from "../services.js";
 import {
@@ -63,7 +61,7 @@ export type ÉpingleCompte = {
 
 export type ContenuÉpingleCompte = BaseÉpingleFavoris & {
   image: DispositifsÉpingle;
-  // favoris: DispositifsÉpingle;
+  favoris: DispositifsÉpingle;
 };
 
 export type ConstsCompte = {
@@ -170,7 +168,7 @@ export class ServiceCompte<
     const { idCompte } = await this.initialiserIdCompte();
 
     const { bd, oublier } = await this.service("orbite").ouvrirBd({
-      id: idCompte,
+      id: enleverPréfixes(idCompte),
       type: "nested",
     });
 
@@ -194,7 +192,7 @@ export class ServiceCompte<
     if (!idCompte) {
       const orbite = this.service("orbite");
       const { bd, oublier } = await orbite.créerBd({ type: "nested" });
-      idCompte = bd.address;
+      idCompte = ajouterPréfixes(bd.address, "/nébuleuse/compte");
       await oublier();
 
       await this.service("stockage").sauvegarderItem(CLEF_ID_COMPTE, idCompte);
@@ -216,6 +214,7 @@ export class ServiceCompte<
   }
 
   async obtIdDispositif(): Promise<string> {
+    // L'identifiant du dispositif est déterminé par l'instance d'OrbitDB
     const orbite = await this.service("orbite").orbite();
     return orbite.identity.id;
   }
@@ -230,6 +229,13 @@ export class ServiceCompte<
 
     await f(await this.obtIdCompte());
     return oublier;
+  }
+
+  idCompteValide(id: string): boolean {
+    return (
+      id.startsWith("/nébuleuse/compte") &&
+      isValidAddress(id.replace("/nébuleuse/compte", ""))
+    );
   }
 
   // Dispositifs
@@ -269,14 +275,14 @@ export class ServiceCompte<
     idCompte: string;
     signal?: AbortSignal;
   }): Promise<void> {
-    if (!adresseOrbiteValide(idCompte)) {
+    if (!this.idCompteValide(idCompte)) {
       throw new Error(`Adresse compte "${idCompte}" non valide`);
     }
 
     // Attendre de recevoir la permission d'écrire au nouveau compte
     const { bd: bdNouveauCompte, oublier } = await this.service(
       "orbite",
-    ).ouvrirBd({ id: idCompte, type: "nested", signal });
+    ).ouvrirBd({ id: enleverPréfixes(idCompte), type: "nested", signal });
 
     const accès = bdNouveauCompte.access;
     if (!estContrôleurNébuleuse(accès))
@@ -342,7 +348,7 @@ export class ServiceCompte<
     await favoris.désépinglerFavori({ idObjet: idCompte });
   }
 
-  async suivreÉpingleCompte({
+  async suivreÉpingle({
     idCompte,
     f,
     idCompteQuiÉpingle,
@@ -353,13 +359,16 @@ export class ServiceCompte<
   }): Promise<Oublier> {
     const favoris = this.service("favoris");
 
-    return await favoris.suivreFavorisObjet({
-      idObjet: idCompte,
-      f: async (épingle) => {
-        if (épingle?.type === "compte") await f(épingle);
-        else await f(undefined);
-      },
+    return await favoris.suivreFavoris({
       idCompte: idCompteQuiÉpingle,
+      f: async (épingles) => {
+        const épingleCompte = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === idCompte && épingle.type === "compte"
+            ? épingle
+            : undefined;
+        }) as ÉpingleCompte | undefined;
+        await f(épingleCompte);
+      },
     });
   }
 
@@ -375,8 +384,8 @@ export class ServiceCompte<
     const favoris = this.nébuleuse.services["favoris"];
 
     const épinglerProfil = épingle.épingle.profil;
-    const épinglerFavoris = await this.favoris.estÉpingléSurDispositif({
-      dispositifs: épingle.épingle.favoris || "AUCUN",
+    const épinglerFavoris = await favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.épingle.favoris || "AUCUN",
     });
 
     const info: {
@@ -472,7 +481,7 @@ export class ServiceCompte<
 
     if (idCompte) {
       return await orbite.suivreBdTypée({
-        id: idCompte,
+        id: enleverPréfixes(idCompte),
         type: "nested",
         schéma,
         f,
@@ -482,12 +491,12 @@ export class ServiceCompte<
         fRacine: async ({ fSuivreRacine }) =>
           await this.suivreIdCompte({ f: fSuivreRacine }),
         f,
-        fSuivre: async ({ id, fSuivreBd }) =>
+        fSuivre: async ({ id, fSuivre }) =>
           await orbite.suivreBdTypée({
-            id,
+            id: enleverPréfixes(id),
             type: "nested",
             schéma,
-            f: fSuivreBd,
+            f: fSuivre,
           }),
         journal: async (m) =>
           await this.service("journal").écrire(m.toString()),
@@ -586,7 +595,9 @@ export class ServiceCompte<
     nom?: string;
   }) {
     const serviceOrbite = this.service("orbite");
-    optionsAccès = optionsAccès || { écriture: await this.obtIdCompte() };
+    optionsAccès = optionsAccès || {
+      écriture: enleverPréfixes(await this.obtIdCompte()),
+    };
 
     return await serviceOrbite.créerBd({
       type,
@@ -606,7 +617,7 @@ export class ServiceCompte<
     identité: string;
     rôle: Rôle;
   }): Promise<void> {
-    if (!adresseOrbiteValide(identité)) {
+    if (!isValidAddress(identité)) {
       throw new Error(`Identité "${identité}" non valide.`);
     }
 

@@ -1,5 +1,5 @@
 import { expect } from "aegir/chai";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 import {
   ServiceCompte,
   ServiceHélia,
@@ -369,7 +369,7 @@ describe.only("Service Compte", function () {
       });
       idObjet = bd.address;
       await oublier();
-      expect(adresseOrbiteValide(idObjet)).to.be.true();
+      expect(isValidAddress(idObjet)).to.be.true();
     });
 
     it("permission initiale objet", async () => {

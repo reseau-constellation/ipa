@@ -1,8 +1,6 @@
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
-import { isValidAddress } from "@orbitdb/core";
 import { dossierTempo } from "@constl/utils-tests";
 import JSZip from "jszip";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
@@ -11,7 +9,7 @@ import {
   TOUS_DISPOSITIFS,
   DISPOSITIFS_INSTALLÉS,
 } from "@/v2/crabe/services/favoris.js";
-import { sansProtocoleOrbite } from "@/v2/utils.js";
+import { enleverPréfixeOrbite, enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type {
   InfoAuteur,
@@ -61,7 +59,7 @@ describe("Projets", function () {
 
     it("création", async () => {
       idProjet = await constl.projets.créerProjet();
-      expect(adresseOrbiteValide(idProjet)).to.be.true();
+      expect(constl.projets.identifiantValide(idProjet)).to.be.true();
     });
 
     it("accès", async () => {
@@ -897,7 +895,7 @@ describe("Projets", function () {
       idProjetCopie = await constl.projets.copierProjet({
         idProjet: idProjetOrig,
       });
-      expect(isValidAddress(idProjetCopie)).to.be.true();
+      expect(constl.projets.identifiantValide(idProjetCopie)).to.be.true();
     });
 
     it("les noms sont copiés", async () => {
@@ -1266,12 +1264,12 @@ describe("Projets", function () {
       });
 
       it("nom document - non spécifié", async () => {
-        expect(données.nomFichier).to.equal(sansProtocoleOrbite(idProjet));
+        expect(données.nomFichier).to.equal(enleverPréfixesEtOrbite(idProjet));
       });
 
       it("bds", async () => {
         expect(données.docus.map((d) => d.nom)).to.have.members(
-          [idBd1, idBd2].map(sansProtocoleOrbite),
+          [idBd1, idBd2].map(enleverPréfixeOrbite),
         );
       });
 

@@ -17,9 +17,8 @@ import {
 
 import { uneFois, obtenir } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
-import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
+import { ImportateurFeuilleCalcul } from "@/v2/importateur/xlsx.js";
 
-import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import type { WorkBook } from "xlsx";
@@ -35,6 +34,7 @@ import type {
   ÉtatErreur,
   ÉtatProgrammée,
 } from "@/automatisation.js";
+import { type Constellation, créerConstellation } from "@/index.js";
 const { créerConstellationsTest } = utilsTestConstellation;
 
 const vérifierDonnéesTableau = (

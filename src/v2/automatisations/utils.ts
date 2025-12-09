@@ -106,7 +106,7 @@ export const générerFImportation = (
     const path = await import("path");
 
     let cheminBaseFichiers: string | undefined = undefined;
-    if (spéc.source.typeSource === "fichier" && spéc.source.adresseFichier) {
+    if (spéc.source.type === "fichier" && spéc.source.adresseFichier) {
       const fichierRésolu = await résoudreAdresse(spéc.source.adresseFichier);
       if (fichierRésolu) cheminBaseFichiers = path.dirname(fichierRésolu);
     }
@@ -452,7 +452,7 @@ export const chronoDynamiqueImportation = async (
   };
   await suiviÉtat(nouvelÉtat);
 
-  switch (auto.source.typeSource) {
+  switch (auto.source.type) {
     case "fichier": {
       if (!isNode && !isElectronMain) {
         throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
@@ -570,10 +570,10 @@ export const obtDonnéesImportation = async <
   spéc: SpécificationImporter<T>,
   résoudreAdresse: (x?: string) => Promise<string | undefined> = async (x) => x,
 ) => {
-  const { typeSource } = spéc.source;
+  const { type } = spéc.source;
   const { formatDonnées } = spéc.source.info;
 
-  switch (typeSource) {
+  switch (type) {
     case "url": {
       const { url } = spéc.source;
       switch (formatDonnées) {
@@ -635,7 +635,7 @@ export const obtDonnéesImportation = async <
     }
 
     default:
-      throw new Error(typeSource);
+      throw new Error(type);
   }
 };
 

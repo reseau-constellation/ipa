@@ -1,7 +1,6 @@
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
 import JSZip from "jszip";
 import { dossierTempo } from "@constl/utils-tests";
 import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
@@ -71,7 +70,7 @@ describe("Nuées", function () {
 
     it("création", async () => {
       idNuée = await constl.nuées.créerNuée();
-      expect(adresseOrbiteValide(idNuée)).to.be.true();
+      expect(constl.nuées.identifiantValide(idNuée)).to.be.true();
     });
 
     it("accès", async () => {

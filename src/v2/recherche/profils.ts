@@ -1,5 +1,4 @@
 import { faisRien } from "@constl/utils-ipa";
-import { profil } from "@/index.js";
 import { cacheRechercheParN } from "../crabe/cache.js";
 import {
   rechercherProfilsSelonNom,
@@ -23,6 +22,7 @@ import type {
   SuivreObjectifRecherche,
   InfoRésultatTexte,
 } from "./types.js";
+import { profil } from "@/index.js";
 
 export class RechercheProfils<
   L extends ServicesLibp2pCrabe,

@@ -1,10 +1,10 @@
-import { adresseOrbiteValide, idcValide } from "@constl/utils-ipa";
+import { idcValide } from "@constl/utils-ipa";
 import { CID } from "multiformats";
 import drain from "it-drain";
 import PQueue from "p-queue";
+import { isValidAddress, type BaseDatabase } from "@orbitdb/core";
 import { ServiceNébuleuse } from "../../nébuleuse/nébuleuse.js";
 import { idcEtFichierValide } from "../../utils.js";
-import type { BaseDatabase } from "@orbitdb/core";
 import type { Nébuleuse } from "../../nébuleuse/nébuleuse.js";
 import type { Oublier } from "../types.js";
 import type { ServicesNécessairesOrbite } from "./orbite/orbite.js";
@@ -69,7 +69,7 @@ export class ServiceÉpingles<
       [...this.requêtes.values()].map((x) => [...x]).flat(),
     );
     const bdsOrbiteÀÉpingler = [...àÉpingler].filter(
-      (id) => id && adresseOrbiteValide(id),
+      (id) => id && isValidAddress(id),
     );
 
     const idcsÀÉpingler = [...àÉpingler]

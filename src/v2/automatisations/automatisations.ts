@@ -253,8 +253,7 @@ export class Automatisations<
 
     const bd = await this.bd();
 
-    // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
-    await bd.put(idAuto, effacerPropriétésNonDéfinies(élément));
+    await bd.put(idAuto, élément);
 
     return idAuto;
   }
@@ -272,7 +271,7 @@ export class Automatisations<
 
     const id = uuidv4();
 
-    if (args.source.typeSource === "fichier") {
+    if (args.source.type === "fichier") {
       args.source.adresseFichier = await this.sauvegarderAdressePrivéeFichier({
         fichier: args.source.adresseFichier,
       });
@@ -285,8 +284,7 @@ export class Automatisations<
       dispositif: args.dispositif || (await compte.obtIdDispositif()),
     };
 
-    // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
-    await bd.put(id, effacerPropriétésNonDéfinies(élément));
+    await bd.put(id, élément);
 
     return id;
   }
@@ -329,7 +327,7 @@ export class Automatisations<
           const autoFinale = structuredClone(a);
           if (
             autoFinale.type === "importation" &&
-            autoFinale.source?.typeSource === "fichier"
+            autoFinale.source?.type === "fichier"
           ) {
             const { adresseFichier } = autoFinale.source;
             if (adresseFichier) {

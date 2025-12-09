@@ -1,22 +1,16 @@
-import { typedNested } from "@constl/bohr-db";
-import { toObject } from "@orbitdb/nested-db";
 import {
   faisRien,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
 } from "@constl/utils-ipa";
 import { cacheSuivi } from "./crabe/cache.js";
-import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";
 import { schémaTraducsTexte } from "./schémas.js";
-import { ajouterProtocoleOrbite, sansProtocoleOrbite } from "./utils.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
 import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
-import type {
-  Rôle,
-  AccèsUtilisateur,
-} from "./crabe/services/compte/accès/types.js";
+import { ObjetConstellation } from "./objets.js";
+import type { Rôle } from "./crabe/services/compte/accès/types.js";
 import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
@@ -24,7 +18,7 @@ import type {
 } from "./crabe/services/favoris.js";
 import type { InfoAuteur, PartielRécursif, TraducsTexte } from "./types.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
-import type { Constellation, ServicesConstellation } from "./constellation.js";
+import type { Constellation } from "./constellation.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
 
@@ -34,18 +28,6 @@ export type StructureMotClef = {
   type: "mot-clef";
   noms: TraducsTexte;
   descriptions: TraducsTexte;
-};
-
-export type StructureServiceMotsClefs = {
-  [motClef: string]: null;
-};
-
-export const schémaServiceMotsClefs: JSONSchemaType<
-  PartielRécursif<StructureServiceMotsClefs>
-> = {
-  type: "object",
-  additionalProperties: true,
-  required: [],
 };
 
 export const schémaMotClef: JSONSchemaType<PartielRécursif<StructureMotClef>> =
@@ -70,22 +52,16 @@ export type ContenuÉpingleMotClef = BaseÉpingleFavoris;
 
 export class MotsClefs<
   L extends ServicesLibp2pCrabe,
-> extends ServiceDonnéesNébuleuse<
-  "motsClefs",
-  StructureServiceMotsClefs,
-  L,
-  ServicesConstellation
-> {
+> extends ObjetConstellation<"motsClefs", StructureMotClef, L> {
   recherche: RechercheMotsClefs<L>;
+
+  schémaObjet = schémaMotClef;
 
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
       clef: "motsClefs",
       nébuleuse,
       dépendances: ["favoris", "réseau", "compte", "orbite"],
-      options: {
-        schéma: schémaServiceMotsClefs,
-      },
     });
 
     this.recherche = new RechercheMotsClefs<L>({
@@ -115,29 +91,7 @@ export class MotsClefs<
     f: Suivi<string[] | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-        await this.suivreBd({
-          idCompte,
-          f: async (motsClefs) =>
-            await fSuivreRacine(
-              motsClefs
-                ? Object.keys(motsClefs).map(ajouterProtocoleOrbite)
-                : [],
-            ),
-        }),
-      fBranche: async ({ id: idObjet, fSuivreBranche }) => {
-        return await compte.suivrePermission({
-          idObjet,
-          idCompte,
-          f: async (permission) =>
-            await fSuivreBranche(permission ? idObjet : undefined),
-        });
-      },
-      f,
-    });
+    return await this.suivreObjets({ f, idCompte });
   }
 
   async créerMotClef({
@@ -158,7 +112,7 @@ export class MotsClefs<
     await motClef.put("type", "mot-clef");
 
     await oublier();
-    return idMotClef;
+    return this.ajouterProtocole(idMotClef);
   }
 
   async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
@@ -184,10 +138,10 @@ export class MotsClefs<
     await this.enleverDeMesMotsClefs({ idMotClef });
 
     const favoris = this.service("favoris");
-    await favoris.désépinglerFavori({ idObjet: idMotClef });
+    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idMotClef) });
 
     // Effacer le mot-clef lui-même
-    await this.service("orbite").effacerBd({ id: idMotClef });
+    await this.service("orbite").effacerBd({ id: this.àIdOrbite(idMotClef) });
   }
 
   async ajouterÀMesMotsClefs({
@@ -195,8 +149,7 @@ export class MotsClefs<
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const bd = await this.bd();
-    await bd.put(sansProtocoleOrbite(idMotClef), null);
+    return await this.ajouterÀMesObjets({ idObjet: idMotClef });
   }
 
   async enleverDeMesMotsClefs({
@@ -204,8 +157,7 @@ export class MotsClefs<
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const bd = await this.bd();
-    await bd.del(sansProtocoleOrbite(idMotClef));
+    return await this.enleverDeMesObjets({ idObjet: idMotClef });
   }
 
   async ouvrirMotClef({
@@ -213,14 +165,10 @@ export class MotsClefs<
   }: {
     idMotClef: string;
   }): Promise<{ motClef: TypedNested<StructureMotClef>; oublier: Oublier }> {
-    const { bd, oublier } = await this.service("orbite").ouvrirBd({
-      id: idMotClef,
-      type: "nested",
+    const { objet: motClef, oublier } = await this.ouvrirObjet({
+      idObjet: idMotClef,
     });
-    return {
-      motClef: typedNested<StructureMotClef>({ db: bd, schema: schémaMotClef }),
-      oublier,
-    };
+    return { motClef, oublier };
   }
 
   // Accèss
@@ -237,12 +185,13 @@ export class MotsClefs<
     const compte = this.service("compte");
 
     return await compte.donnerAccèsObjet({
-      idObjet: idMotClef,
+      idObjet: this.àIdOrbite(idMotClef),
       identité: idCompte,
       rôle,
     });
   }
 
+  @cacheSuivi
   async suivreAuteurs({
     idMotClef,
     f,
@@ -250,47 +199,7 @@ export class MotsClefs<
     idMotClef: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
-      }) =>
-        await compte.suivreAutorisations({
-          idObjet: idMotClef,
-          f: fSuivreRacine,
-        }),
-      fBranche: async ({
-        id: idCompte,
-        fSuivreBranche,
-        branche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<InfoAuteur>;
-        branche: AccèsUtilisateur;
-      }) => {
-        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
-        await fSuivreBranche({
-          idCompte,
-          accepté: false,
-          rôle: branche.rôle,
-        });
-        return await this.suivreMotsClefs({
-          idCompte,
-          f: async (motsClefsCompte) => {
-            return await fSuivreBranche({
-              idCompte,
-              accepté: (motsClefsCompte || []).includes(idMotClef),
-              rôle: branche.rôle,
-            });
-          },
-        });
-      },
-      fIdDeBranche: (x) => x.idCompte,
-      f,
-    });
+    return await this.suivreAuteursObjet({ idObjet: idMotClef, f });
   }
 
   async confirmerPermission({
@@ -300,7 +209,7 @@ export class MotsClefs<
   }): Promise<void> {
     const compte = this.service("compte");
 
-    if (!(await compte.permission({ idObjet: idMotClef })))
+    if (!(await compte.permission({ idObjet: this.àIdOrbite(idMotClef) })))
       throw new Error(
         `Permission de modification refusée pour le mot-clef ${idMotClef}.`,
       );
@@ -373,7 +282,8 @@ export class MotsClefs<
       idCompte,
       f: async (épingles) => {
         const épingleMotClef = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idMotClef && épingle.type === "mot-clef"
+          return idObjet === this.àIdOrbite(idMotClef) &&
+            épingle.type === "mot-clef"
             ? épingle
             : undefined;
         }) as ÉpingleMotClef | undefined;
@@ -385,7 +295,7 @@ export class MotsClefs<
   async désépingler({ idMotClef }: { idMotClef: string }): Promise<void> {
     const favoris = this.service("favoris");
 
-    await favoris.désépinglerFavori({ idObjet: idMotClef });
+    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idMotClef) });
   }
 
   async suivreRésolutionÉpingle({
@@ -465,11 +375,9 @@ export class MotsClefs<
     idMotClef: string;
     f: Suivi<TraducsTexte | undefined>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idMotClef,
-      type: "nested",
-      schéma: schémaMotClef,
-      f: (motClef) => f(toObject(motClef).noms || {}),
+    return await this.suivreObjet({
+      idObjet: idMotClef,
+      f: (motClef) => f(motClef.noms || {}),
     });
   }
 
@@ -532,11 +440,9 @@ export class MotsClefs<
     idMotClef: string;
     f: Suivi<{ [key: string]: string }>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idMotClef,
-      type: "nested",
-      schéma: schémaMotClef,
-      f: (motClef) => f(toObject(motClef).descriptions || {}),
+    return await this.suivreObjet({
+      idObjet: idMotClef,
+      f: (motClef) => f(motClef.descriptions || {}),
     });
   }
 

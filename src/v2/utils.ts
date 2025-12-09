@@ -115,14 +115,6 @@ export const sauvegarderDonnéesExportées = async ({
   }
 };
 
-export const sansProtocoleOrbite = (adresseOrbite: string): string => {
-  return adresseOrbite.replace("/orbitdb/", "");
-};
-
-export const ajouterProtocoleOrbite = (empreinte: string): string => {
-  return `/orbitdb/${empreinte}`;
-};
-
 export const diviserIdcEtFichier = (val: string) => {
   const premièreBarreOblique = val.indexOf("/");
 
@@ -157,5 +149,28 @@ export const moyenne = (x: (number | undefined)[]): number => {
 };
 
 export const justeDéfinis = <T>(x: (T | undefined)[]): T[] => {
-  return x.filter((y): y is T=>!!y)
-}
+  return x.filter((y): y is T => !!y);
+};
+
+export const PROTOCOLE_ORBITE = "/orbitdb/";
+
+export const ajouterPréfixeOrbite = (id: string) =>
+  id.startsWith(PROTOCOLE_ORBITE) ? id : `${PROTOCOLE_ORBITE}/${id}`;
+export const enleverPréfixeOrbite = (id: string) =>
+  id.startsWith(PROTOCOLE_ORBITE) ? id.replace(PROTOCOLE_ORBITE, "") : id;
+
+export const ajouterPréfixes = (id: string, préfix: string): string => {
+  if (!id.startsWith(PROTOCOLE_ORBITE)) id = `${PROTOCOLE_ORBITE}/${id}`;
+
+  if (!préfix.startsWith("/")) préfix = `/${préfix}`;
+  if (!id.startsWith(`${préfix}`)) id = `${préfix}/${id}`;
+  return id;
+};
+
+export const enleverPréfixes = (id: string): string => {
+  return id.replace(/\/constl\/[^/]+/, "");
+};
+
+export const enleverPréfixesEtOrbite = (id: string): string => {
+  return enleverPréfixeOrbite(enleverPréfixes(id));
+};

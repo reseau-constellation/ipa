@@ -9,7 +9,6 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
 
-import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import type {
   infoAuteur,
@@ -30,6 +29,7 @@ import type {
   élémentDeMembre,
 } from "@/reseau.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
+import { type Constellation, créerConstellation } from "@/index.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 

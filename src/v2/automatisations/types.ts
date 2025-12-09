@@ -228,7 +228,7 @@ export type SourceDonnéesImportationAdresseOptionel<T extends InfoImporter> =
   | SourceDonnéesImportationFichierAdresseOptionel<T>;
 
 export type SourceDonnéesImportationURL<T extends InfoImporter> = {
-  typeSource: "url";
+  type: "url";
   url: string;
   info: T;
 };
@@ -236,7 +236,7 @@ export type SourceDonnéesImportationURL<T extends InfoImporter> = {
 export type SourceDonnéesImportationFichierAdresseOptionel<
   T extends InfoImporter,
 > = {
-  typeSource: "fichier";
+  type: "fichier";
   adresseFichier?: string;
   info: T;
 };
@@ -393,7 +393,7 @@ export const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationA
           source: {
             type: "object",
             properties: {
-              typeSource: { type: "string" },
+              type: { type: "string" },
               adresseFichier: { type: "string", nullable: true },
               info: {
                 type: "object",
@@ -401,7 +401,7 @@ export const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationA
                 required: [],
               },
             },
-            required: ["info", "typeSource"],
+            required: ["info", "type"],
           },
           conversions: {
             type: "object",
@@ -490,7 +490,7 @@ export const schémaServiceAutomatisations: JSONSchemaType<
           source: {
             type: "object",
             properties: {
-              typeSource: { type: "string" },
+              type: { type: "string" },
               adresseFichier: { type: "string", nullable: true },
               info: {
                 type: "object",

@@ -1,4 +1,3 @@
-import { typedNested } from "@constl/bohr-db";
 import {
   attendreStabilité,
   faisRien,
@@ -9,7 +8,6 @@ import {
   traduire,
   uneFois,
 } from "@constl/utils-ipa";
-import { toObject } from "@orbitdb/nested-db";
 import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "xlsx";
 import { TimeoutController } from "timeout-abort-controller";
@@ -17,7 +15,6 @@ import PQueue from "p-queue";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { cacheSuivi } from "../crabe/cache.js";
-import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
@@ -27,18 +24,16 @@ import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import { schémaTableau } from "../tableaux.js";
 import { mapÀObjet, stabiliser } from "../crabe/utils.js";
 import {
-  ajouterProtocoleOrbite,
+  ajouterPréfixes,
+  enleverPréfixesEtOrbite,
   moyenne,
-  sansProtocoleOrbite,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { RechercheBds } from "../recherche/bds.js";
 import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
+import { ObjetConstellation } from "../objets.js";
 import { TableauxBds } from "./tableaux.js";
-import type {
-  Rôle,
-  AccèsUtilisateur,
-} from "../crabe/services/compte/accès/types.js";
+import type { Rôle } from "../crabe/services/compte/accès/types.js";
 import type xlsx from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
@@ -48,7 +43,7 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "../types.js";
-import type { Constellation, ServicesConstellation } from "../constellation.js";
+import type { Constellation } from "../constellation.js";
 import type { Oublier, Suivi } from "../crabe/types.js";
 import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type {
@@ -221,36 +216,23 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
   },
 };
 
-export type StructureServiceBds = {
-  [bd: string]: null;
-};
-
-export const SchémaServiceBds: JSONSchemaType<
-  PartielRécursif<StructureServiceBds>
-> = {
-  type: "object",
-  additionalProperties: true,
-  required: [],
-};
-
-export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleuse<
+export class Bds<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
   "bds",
-  StructureServiceBds,
-  L,
-  ServicesConstellation<L>
+  StructureBd,
+  L
 > {
   tableaux: TableauxBds<L>;
   recherche: RechercheBds<L>;
+
+  schémaObjet = schémaBd;
 
   constructor({ nébuleuse }: { nébuleuse: Constellation }) {
     super({
       clef: "bds",
       nébuleuse,
-      dépendances: ["compte", "orbite", "hélia"],
-      options: {
-        schéma: SchémaServiceBds,
-      },
+      dépendances: ["variables", "motsClefs", "compte", "orbite", "hélia"],
     });
+
     this.tableaux = new TableauxBds({
       service: (clef) => this.service(clef),
     });
@@ -283,27 +265,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     f: Suivi<string[] | undefined>;
     idCompte?: string;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
-        await this.suivreBd({
-          idCompte,
-          f: async (bds) =>
-            await fSuivreRacine(
-              bds ? Object.keys(bds).map(ajouterProtocoleOrbite) : [],
-            ),
-        }),
-      fBranche: async ({ id: idObjet, fSuivreBranche }) => {
-        return await compte.suivrePermission({
-          idObjet,
-          idCompte,
-          f: async (permission) =>
-            await fSuivreBranche(permission ? idObjet : undefined),
-        });
-      },
-      f,
-    });
+    return await this.suivreObjets({ f, idCompte });
   }
 
   async créerBd({
@@ -332,7 +294,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     if (licenceContenu) await bdBd.put({ licenceContenu });
 
     await oublier();
-    return idBd;
+    return this.ajouterProtocole(idBd);
   }
 
   async effacerBd({ idBd }: { idBd: string }): Promise<void> {
@@ -342,7 +304,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await this.enleverDeMesBds({ idBd });
 
     const favoris = this.service("favoris");
-    await favoris.désépinglerFavori({ idObjet: idBd });
+    await favoris.désépinglerFavori({ idObjet: this.enleverProtocole(idBd) });
 
     // aussi effacer les tableaux
     const tableaux = await uneFois<string[]>((f) =>
@@ -360,17 +322,15 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     );
 
     // enfin, effacer la BD elle-même
-    await orbite.effacerBd({ id: idBd });
+    await orbite.effacerBd({ id: this.enleverProtocole(idBd) });
   }
 
   async ajouterÀMesBds({ idBd }: { idBd: string }): Promise<void> {
-    const bd = await this.bd();
-    await bd.put(sansProtocoleOrbite(idBd), null);
+    return await this.ajouterÀMesObjets({ idObjet: idBd });
   }
 
   async enleverDeMesBds({ idBd }: { idBd: string }): Promise<void> {
-    const bd = await this.bd();
-    await bd.del(sansProtocoleOrbite(idBd));
+    return await this.enleverDeMesObjets({ idObjet: idBd });
   }
 
   async créerSchémaDeBd({ idBd }: { idBd: string }): Promise<SchémaBd> {
@@ -510,14 +470,8 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   }: {
     idBd: string;
   }): Promise<{ bd: TypedNested<StructureBd>; oublier: Oublier }> {
-    const { bd, oublier } = await this.service("orbite").ouvrirBd({
-      id: idBd,
-      type: "nested",
-    });
-    return {
-      bd: typedNested<StructureBd>({ db: bd, schema: schémaBd }),
-      oublier,
-    };
+    const { objet: bd, oublier } = await this.ouvrirObjet({ idObjet: idBd });
+    return { bd, oublier };
   }
 
   async copierBd({
@@ -611,13 +565,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<{ id: string } | undefined>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
-    return await orbite.suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: (bd) => f(mapÀObjet(bd)?.copiéeDe),
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: (bd) => f(bd.copiéeDe),
     });
   }
 
@@ -648,47 +598,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
-      }) =>
-        await compte.suivreAutorisations({
-          idObjet: idBd,
-          f: fSuivreRacine,
-        }),
-      fBranche: async ({
-        id: idCompte,
-        fSuivreBranche,
-        branche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<InfoAuteur>;
-        branche: AccèsUtilisateur;
-      }) => {
-        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
-        await fSuivreBranche({
-          idCompte,
-          accepté: false,
-          rôle: branche.rôle,
-        });
-        return await this.suivreBds({
-          idCompte,
-          f: async (bdsCompte) => {
-            return await fSuivreBranche({
-              idCompte,
-              accepté: (bdsCompte || []).includes(idBd),
-              rôle: branche.rôle,
-            });
-          },
-        });
-      },
-      fIdDeBranche: (x) => x.idCompte,
-      f,
-    });
+    return await this.suivreAuteursObjet({ idObjet: idBd, f });
   }
 
   async confirmerPermission({ idBd }: { idBd: string }): Promise<void> {
@@ -760,7 +670,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
   async désépingler({ idBd }: { idBd: string }): Promise<void> {
     const favoris = this.service("favoris");
 
-    await favoris.désépinglerFavori({ idObjet: idBd });
+    await favoris.désépinglerFavori({ idObjet: this.ajouterProtocole(idBd) });
   }
 
   async suivreÉpingle({
@@ -777,7 +687,8 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       idCompte,
       f: async (épingles) => {
         const épingleBd = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idBd && épingle.type === "bd"
+          return idObjet === this.enleverProtocole(idBd) &&
+            épingle.type === "bd"
             ? épingle
             : undefined;
         }) as ÉpingleBd | undefined;
@@ -963,13 +874,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
-    return await orbite.suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: (bd) => f(mapÀObjet(bd)?.noms || {}),
+    return this.suivreObjet({
+      idObjet: idBd,
+      f: async (bd) => await f(bd.noms || {}),
     });
   }
 
@@ -1027,13 +934,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: async (bd) => {
-        await f(mapÀObjet(bd)?.descriptions || {});
-      },
+    return this.suivreObjet({
+      idObjet: idBd,
+      f: async (bd) => await f(bd.descriptions || {}),
     });
   }
 
@@ -1046,14 +949,16 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     image: { contenu: Uint8Array; nomFichier: string };
   }): Promise<string> {
-    const maxTailleImage =
-      this.service("compte").options.consts.maxTailleImageSauvegarder;
+    const hélia = this.service("hélia");
+    const compte = this.service("compte");
+
+    const maxTailleImage = compte.options.consts.maxTailleImageSauvegarder;
 
     if (image.contenu.byteLength > maxTailleImage) {
       throw new Error("Taille maximale excédée");
     }
 
-    const idImage = await this.service("hélia").ajouterFichierÀSFIP(image);
+    const idImage = await hélia.ajouterFichierÀSFIP(image);
 
     const { bd, oublier } = await this.ouvrirBd({ idBd });
     await bd.set("image", idImage);
@@ -1076,19 +981,19 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<{ image: Uint8Array; idImage: string } | null>;
   }): Promise<Oublier> {
-    const maxTailleImage =
-      this.service("compte").options.consts.maxTailleImageVisualiser;
+    const hélia = this.service("hélia");
+    const compte = this.service("compte");
 
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
+    const maxTailleImage = compte.options.consts.maxTailleImageVisualiser;
+
+    return await this.suivreObjet({
+      idObjet: idBd,
       f: async (bd) => {
-        const idImage = bd.get("image");
+        const idImage = bd.image;
         if (!idImage) {
           return await f(null);
         } else {
-          const image = await this.service("hélia").obtFichierDeSFIP({
+          const image = await hélia.obtFichierDeSFIP({
             id: idImage,
             max: maxTailleImage,
           });
@@ -1153,13 +1058,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<Métadonnées>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: async (bd) => {
-        await f(mapÀObjet(bd.get("métadonnées")) || {});
-      },
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: async (bd) => await f(bd.métadonnées || {}),
     });
   }
 
@@ -1184,12 +1085,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<StatutDonnées | null>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-    return await orbite.suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: (bd) => f(mapÀObjet(bd)?.statut || null),
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: async (bd) => await f(bd.statut || null),
     });
   }
 
@@ -1232,14 +1130,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<string>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: async (bd) => {
-        const licence = await bd.get("licence");
-        if (licence) await f(licence);
-      },
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: async (bd) => await f(bd.licence),
     });
   }
 
@@ -1251,14 +1144,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<string | undefined>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: async (bd) => {
-        const licenceContenu = await bd.get("licenceContenu");
-        await f(licenceContenu);
-      },
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: async (bd) => await f(bd.licenceContenu),
     });
   }
 
@@ -1271,6 +1159,8 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     idsMotsClefs: string | string[];
   }): Promise<void> {
+    const motsClefs = this.service("motsClefs");
+
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
 
     await this.confirmerPermission({ idBd });
@@ -1278,7 +1168,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     const { bd, oublier } = await this.ouvrirBd({ idBd });
 
     for (const id of idsMotsClefs) {
-      await bd.put(`motsClefs/${id}`, null);
+      await bd.put(`motsClefs/${motsClefs.enleverProtocole(id)}`, null);
     }
     await oublier();
   }
@@ -1290,11 +1180,13 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     idMotClef: string;
   }): Promise<void> {
+    const motsClefs = this.service("motsClefs");
+
     await this.confirmerPermission({ idBd });
 
     const { bd, oublier } = await this.ouvrirBd({ idBd });
 
-    await bd.del(`motsClefs/${idMotClef}`);
+    await bd.del(`motsClefs/${motsClefs.enleverProtocole(idMotClef)}`);
 
     await oublier();
   }
@@ -1307,13 +1199,16 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<string[]>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
+    const motsClefs = this.service("motsClefs");
 
-    return await orbite.suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: (bd) => f(Object.keys(toObject(bd).motsClefs)),
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: (bd) =>
+        f(
+          Object.keys(bd.motsClefs || {}).map((id) =>
+            motsClefs.ajouterProtocole(id),
+          ),
+        ),
     });
   }
 
@@ -1351,11 +1246,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<string[]>;
   }): Promise<Oublier> {
-    return await this.service("orbite").suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: (bd) => f(Object.keys(mapÀObjet(bd)?.tableaux || {})),
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: (bd) => f(Object.keys(bd.tableaux || {})),
     });
   }
 
@@ -1369,6 +1262,17 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<string[]>;
   }): Promise<Oublier> {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<Oublier> => {
+      return await this.suivreTableaux({
+        idBd,
+        f: fSuivreRacine,
+      });
+    };
+
     const fBranche = async ({
       id: idTableau,
       fSuivreBranche,
@@ -1380,17 +1284,6 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         idStructure: idBd,
         idTableau,
         f: fSuivreBranche,
-      });
-    };
-
-    const fListe = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (éléments: string[]) => Promise<void>;
-    }): Promise<Oublier> => {
-      return await this.suivreTableaux({
-        idBd,
-        f: fSuivreRacine,
       });
     };
 
@@ -1413,7 +1306,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await this.confirmerPermission({ idBd });
 
     const { bd, oublier } = await this.ouvrirBd({ idBd });
-    await bd.put(`nuées/${idNuée}`, null);
+    await bd.put(`nuées/${enleverPréfixesEtOrbite(idNuée)}`, null);
 
     await oublier();
   }
@@ -1428,7 +1321,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     await this.confirmerPermission({ idBd });
 
     const { bd, oublier } = await this.ouvrirBd({ idBd });
-    await bd.del(`nuées/${idNuée}`);
+    await bd.del(`nuées/${enleverPréfixesEtOrbite(idNuée)}`);
 
     await oublier();
   }
@@ -1441,13 +1334,14 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<string[]>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
-    return await orbite.suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: (bd) => f(Object.keys(toObject(bd).nuées)),
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: (bd) =>
+        f(
+          Object.keys(bd.nuées || {}).map((id) =>
+            ajouterPréfixes(id, "/constl/nuées"),
+          ),
+        ),
     });
   }
 
@@ -1606,13 +1500,9 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
     idBd: string;
     f: Suivi<string | undefined>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
-    return await orbite.suivreDonnéesBd({
-      id: idBd,
-      type: "nested",
-      schéma: schémaBd,
-      f: async (bd) => await f(mapÀObjet(bd)?.clefUnique),
+    return await this.suivreObjet({
+      idObjet: idBd,
+      f: async (bd) => await f(bd.clefUnique),
     });
   }
 
@@ -1646,7 +1536,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         if (idBdLocale) {
           const crono = new TimeoutController(1000);
           try {
-            await orbite.ouvrirBd({ id: idBdLocale, signal: crono.signal });
+            await orbite.ouvrirBd({
+              id: this.enleverProtocole(idBdLocale),
+              signal: crono.signal,
+            });
           } catch (e) {
             if (e.toString().includes("AbortError")) {
               idBdLocale = null;
@@ -1697,12 +1590,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
       fListe: ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
         this.suivreBds({ f: ignorerNonDéfinis(fSuivreRacine) }),
       fBranche: async ({ id, fSuivreBranche }) => {
-        return await orbite.suivreDonnéesBd({
-          id,
-          type: "nested",
-          schéma: schémaBd,
+        return await this.suivreObjet({
+          idObjet: id,
           f: async (bd) =>
-            await fSuivreBranche({ id, clefUnique: mapÀObjet(bd)?.clefUnique }),
+            await fSuivreBranche({ id, clefUnique: bd.clefUnique }),
         });
       },
       f: stabilité(async (bds: { id: string; clefUnique?: string }[]) => {
@@ -2293,10 +2184,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
 
     nomFichier = nomFichier || données.nomBd;
 
-    const fichiersSFIP = new Set<string>();
+    const documentsMédias = new Set<string>();
 
     for (const tableau of données.tableaux) {
-      tableau.fichiersSFIP.forEach((x) => fichiersSFIP.add(x));
+      tableau.documentsMédias.forEach((x) => documentsMédias.add(x));
 
       /* Créer le tableau */
       const tableauXLSX = xlsxUtils.json_to_sheet(tableau.données);
@@ -2308,7 +2199,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ServiceDonnéesNébuleus
         tableau.nomTableau.slice(0, 30),
       );
     }
-    return { docu, fichiersSFIP, nomFichier };
+    return { docu, documentsMédias, nomFichier };
   }
 
   async exporterÀFichier({

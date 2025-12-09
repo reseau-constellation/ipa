@@ -21,7 +21,11 @@ import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../crabe/cache.js";
 import { mapÀObjet } from "../crabe/utils.js";
 import { typer } from "../crabe/services/orbite/orbite.js";
-import { idcEtFichierValide, justeDéfinis, sauvegarderDonnéesExportées } from "../utils.js";
+import {
+  idcEtFichierValide,
+  justeDéfinis,
+  sauvegarderDonnéesExportées,
+} from "../utils.js";
 import type {
   CatégorieBaseVariables,
   CatégorieVariable,
@@ -696,6 +700,13 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       (colonne) => (catégories[colonne] ??= devinerCatégorieColonne(colonne)),
     );
 
+    const devinerCatégorieColonne = (colonne: string): CatégorieVariable => {
+      const valeursColonne = justeDéfinis(données.map((d) => d[colonne]));
+      const catégoriesDevinées = valeursColonne
+        .slice(0, 10)
+        .map(devinerCatégorie);
+    };
+
     const convertirRangée = async (
       rangée: DonnéesRangéeTableauÀImporter,
     ): Promise<DonnéesRangéeTableau> => {
@@ -840,16 +851,18 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
             valeur = [valeur];
           }
         }
-        return justeDéfinis(await Promise.all(
-          valeur.map(
-            async (v) =>
-              await convertirValeurSimple({
-                valeur: v,
-                catégorie: catégorie.catégorie,
-                conversion,
-              }),
+        return justeDéfinis(
+          await Promise.all(
+            valeur.map(
+              async (v) =>
+                await convertirValeurSimple({
+                  valeur: v,
+                  catégorie: catégorie.catégorie,
+                  conversion,
+                }),
+            ),
           ),
-        ));
+        );
       }
     };
 
@@ -897,9 +910,14 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
               ([_clef, traducs]) => traducs[conversionChaîne.langue],
             )?.[0];
             if (!clef) {
-              await this.ajouterTraductionsValeur({ idStructure, idTableau, clef: valeur, traducs: { [conversionChaîne.langue]: valeur }})
+              await this.ajouterTraductionsValeur({
+                idStructure,
+                idTableau,
+                clef: valeur,
+                traducs: { [conversionChaîne.langue]: valeur },
+              });
             }
-            return valeur
+            return valeur;
           } else if (Object.keys(traductions).includes(valeur)) return valeur;
           else {
             const clef = Object.entries(traductions).find(([_clef, traducs]) =>
@@ -947,41 +965,49 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
           }
           return valNumérique;
         }
-        
+
         case "horoDatage": {
-          const conversionHoroDatage = conversion?.type === "horoDatage" ? conversion : undefined;
+          const conversionHoroDatage =
+            conversion?.type === "horoDatage" ? conversion : undefined;
           if (cholqij.estUneDate(valeur)) {
-            return valeur
+            return valeur;
           } else if (conversionHoroDatage && typeof valeur === "string") {
-            const date = cholqij.lireDate({ val: valeur, ...conversionHoroDatage });
+            const date = cholqij.lireDate({
+              val: valeur,
+              ...conversionHoroDatage,
+            });
             return {
               système: "dateJS",
               val: date.getTime(),
             };
           } else if (typeof valeur === "number" || typeof valeur === "string") {
             const date = new Date(valeur);
-            return isNaN(date.getTime()) ? undefined : {
-              système: "dateJS",
-              val: date.getTime(),
-            };
+            return isNaN(date.getTime())
+              ? undefined
+              : {
+                  système: "dateJS",
+                  val: date.getTime(),
+                };
           }
-          return undefined
+          return undefined;
         }
 
         case "intervaleTemps": {
           const valObjet =
             typeof valeur === "string" ? JSON.parse(valeur) : valeur;
           if (Array.isArray(valObjet)) {
-            return justeDéfinis(await Promise.all(
-              valObjet.map(
-                async (v) =>
-                  await convertirValeurSimple({
-                    valeur: v,
-                    catégorie: "horoDatage",
-                    conversion,
-                  }),
+            return justeDéfinis(
+              await Promise.all(
+                valObjet.map(
+                  async (v) =>
+                    await convertirValeurSimple({
+                      valeur: v,
+                      catégorie: "horoDatage",
+                      conversion,
+                    }),
+                ),
               ),
-            ));
+            );
           }
           return undefined;
         }

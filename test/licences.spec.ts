@@ -2,8 +2,8 @@ import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-ipa";
 import { type InfoLicence, infoLicences, licences } from "@/licences.js";
-import { créerConstellation } from "@/index.js";
 import type { Constellation } from "@/client.js";
+import { créerConstellation } from "@/index.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
