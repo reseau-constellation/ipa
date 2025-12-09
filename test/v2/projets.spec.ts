@@ -1377,7 +1377,7 @@ describe("Projets", function () {
         const contenuBd1 = zip.files[`${nomBd1}.ods`];
         expect(contenuBd1).to.exist();
 
-        const contenuBd2 = zip.files[`${sansProtocoleOrbite(idBd2)}.ods`];
+        const contenuBd2 = zip.files[`${enleverPréfixesEtOrbite(idBd2)}.ods`];
         expect(contenuBd2).to.exist();
       });
 

@@ -1,8 +1,12 @@
-import { copyFileSync, existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
 import JSZip from "jszip";
+import { isElectronMain, isNode } from "wherearewe";
+import { v4 as uuidv4 } from "uuid";
+import AxiosMockAdapter from "axios-mock-adapter";
+import axios from "axios";
 import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
@@ -40,10 +44,8 @@ import type {
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import type { CatégorieBaseVariables } from "@/v2/variables.js";
 import type { CellObject, WorkBook } from "xlsx";
-import { Oublier } from "@/v2/crabe/types.js";
-import { isElectronMain, isNode } from "wherearewe";
 
-describe("tableaux", function () {
+describe.only("tableaux", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
@@ -2369,530 +2371,975 @@ describe("tableaux", function () {
     });
 
     describe("conversions", function () {
+      let idBd: string;
+      let idTableau: string;
+
+      const géojson = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [102.0, 0.5] },
+            properties: { prop0: "value0" },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: [
+                [102.0, 0.0],
+                [103.0, 1.0],
+                [104.0, 0.0],
+                [105.0, 1.0],
+              ],
+            },
+            properties: {
+              prop0: "value0",
+              prop1: 0.0,
+            },
+          },
+        ],
+      };
+
+      before(async () => {
+        idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idTableau = await constl.bds.ajouterTableau({ idBd });
+      });
 
       it("correspondances colonnes", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: 123, chaîne: "নমস্কার" }],
-          conversions: [{colonneSource: "numérique", colonneCible: "colonne numérique"}, {colonneSource: "chaîne", colonneCible: "colonne chaîne"}]
+          conversions: [
+            {
+              colonneSource: "numérique",
+              colonneCible: "colonne numérique",
+              conversion: { type: "numérique" },
+            },
+            {
+              colonneSource: "chaîne",
+              colonneCible: "colonne chaîne",
+              conversion: { type: "chaîneNonTraductible" },
+            },
+          ],
         });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          "colonne numérique": 123,
-          "colonne chaîne": "নমস্কার"
-        }]
-        expect(converties).to.have.deep.members(réf)
-      })
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            "colonne numérique": 123,
+            "colonne chaîne": "নমস্কার",
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("colonnes non spécifiée est ignorée", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ numérique: 123, chaîne: "নমস্কার" }],
+          conversions: [
+            {
+              colonneSource: "numérique",
+              colonneCible: "colonne numérique",
+              conversion: { type: "numérique" },
+            },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            "colonne numérique": 123,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
+      });
 
       it("numérique - chiffre", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ numérique: 123 }]
-        })
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ numérique: 123 }],
+          conversions: [],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          numérique: 123
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            numérique: 123,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("numérique - chiffre format texte", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ numérique: "123" }]
-        })
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ numérique: "123" }],
+          conversions: [
+            { colonneSource: "numérique", conversion: { type: "numérique" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          numérique: 123
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            numérique: 123,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("numérique - système d'écriture", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: "১২৩" }],
-          conversions: [{ colonneSource: "numérique", conversion: { type: "numérique", systèmeNumération: "বাং" }}]
-        })
+          conversions: [
+            {
+              colonneSource: "numérique",
+              conversion: { type: "numérique", systèmeNumération: "বাং" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          numérique: 123
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            numérique: 123,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("numérique - système d'écriture non spécifié", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: "௱௨௰௩" }],
-          conversions: [{ colonneSource: "numérique", conversion: { type: "numérique" }}]
-        })
+          conversions: [
+            { colonneSource: "numérique", conversion: { type: "numérique" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          numérique: 123
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            numérique: 123,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("numérique - opérations", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: 101 }],
-          conversions: [{ colonneSource: "numérique", conversion: { type: "numérique", opération: [{ op: "-", val: 32}, { op: "*", val: 5/9}] }}]
-        })
+          conversions: [
+            {
+              colonneSource: "numérique",
+              conversion: {
+                type: "numérique",
+                opération: [
+                  { op: "-", val: 32 },
+                  { op: "*", val: 5 / 9 },
+                ],
+              },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          numérique: 38 + 1/3
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            numérique: 38 + 1 / 3,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("numérique - invalide", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: "abc", chaîne: "abc" }],
-          conversions: [{ colonneSource: "numérique" }, { colonneSource: "chaîne" }]
-        })
+          conversions: [
+            { colonneSource: "numérique", conversion: { type: "numérique" } },
+            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: "abc"
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: "abc",
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("numérique - non définie", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ chaîne: "abc" }],
-          conversions: [{ colonneSource: "numérique" }, { colonneSource: "chaîne" }]
-        })
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ chaîne: "abc", numérique: undefined }],
+          conversions: [
+            { colonneSource: "numérique", conversion: { type: "numérique" } },
+            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: "abc"
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: "abc",
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("chaîne - texte", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: "abc" }],
-          conversions: [{ colonneSource: "chaîne" }]
-        })
+          conversions: [
+            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: "abc"
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: "abc",
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
-
       it("chaîne - traduction existante", async () => {
-        const idTexte = uuidv4()
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const idTexte = uuidv4();
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: idTexte }],
-          conversions: [{ colonneSource: "chaîne" }],
-          traductions: { [idTexte]: { fr: "riz" }},
-        })
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: idTexte
-        }]
-        expect(converties).to.have.deep.members(réf)
-      })
+          conversions: [
+            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+          ],
+          traductions: { [idTexte]: { fr: "riz" } },
+        });
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: idTexte,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
+      });
 
       it("chaîne - traduction non existante", async () => {
-        const idTexte = uuidv4()
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const idTexte = uuidv4();
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: idTexte }],
-          conversions: [{ colonneSource: "chaîne" }],
-        })
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: idTexte
-        }]
-        expect(converties).to.have.deep.members(réf)
-      })
+          conversions: [
+            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+          ],
+        });
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: idTexte,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
+      });
 
       it("chaîne - retrouver traduction existante", async () => {
-        const idTexte = uuidv4()
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const idTexte = uuidv4();
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: "riz" }],
-          conversions: [{ colonneSource: "chaîne" }],
-          traductions: { [idTexte]: { fr: "riz" }},
-        })
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: idTexte
-        }]
-        expect(converties).to.have.deep.members(réf)
-      })
+          conversions: [
+            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+          ],
+          traductions: { [idTexte]: { fr: "riz" } },
+        });
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: idTexte,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
+      });
 
       it("chaîne - spécifier langue traduction existante", async () => {
-        const idTexte = uuidv4()
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const idTexte = uuidv4();
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: "arròs" }],
-          conversions: [{ colonneSource: "chaîne", conversion: { type: "chaîne", langue: "ctl"} }],
-          traductions: { [idTexte]: { fr: "riz", ctl: "arròs" }},
-        })
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: idTexte
-        }]
-        expect(converties).to.have.deep.members(réf)
-      })
+          conversions: [
+            {
+              colonneSource: "chaîne",
+              conversion: { type: "chaîne", langue: "ctl" },
+            },
+          ],
+          traductions: { [idTexte]: { fr: "riz", ctl: "arròs" } },
+        });
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: idTexte,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
+      });
 
       it("chaîne - spécifier langue traduction non existante", async () => {
-        const idTexte = uuidv4()
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ chaîne: "நெல்" }],
-          conversions: [{ colonneSource: "chaîne", conversion: { type: "chaîne", langue: "த"} }],
-          traductions: { [idTexte]: { fr: "riz", ctl: "arròs" }},
-        })
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: idTexte
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const idTexte = uuidv4();
+        const { converties, traductions } =
+          await constl.bds.tableaux.convertirDonnées({
+            données: [{ chaîne: "நெல்" }],
+            conversions: [
+              {
+                colonneSource: "chaîne",
+                conversion: { type: "chaîne", langue: "த" },
+              },
+            ],
+            traductions: { [idTexte]: { fr: "riz", ctl: "arròs" } },
+          });
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: idTexte,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
 
-        // Vérifier traduction bien sauvegardée
-        const traductions = await obtenir<{[clef: string]: TraducsTexte}>(({si})=>constl.bds.tableaux.suivreTraductionsValeurs({
-          idStructure: idBd,
-          idTableau,
-          f: si(x=> !!x?.[idTexte] && Object.keys(x[idTexte]).length >= 3)
-        }));
-        expect(traductions).to.deep.equal({ [idTexte]: { fr: "riz", ctl: "arròs", த: "நெல்" } })
-      })
+        // Vérifier traductions bien identifiées
+        expect(traductions).to.deep.equal({
+          [idTexte]: { fr: "riz", ctl: "arròs", த: "நெல்" },
+        });
+      });
 
       it("chaîne - non définie", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: undefined }],
-          conversions: [{ colonneSource: "chaîne" }]
-        })
+          conversions: [
+            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("booléenne - booléenne", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ booléenne: true}, { booléenne: false }],
-          conversions: [{ colonneSource: "booléenne" }]
-        })
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ booléenne: true }, { booléenne: false }],
+          conversions: [
+            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          booléenne: true
-        }, {
-          booléenne: false
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            booléenne: true,
+          },
+          {
+            booléenne: false,
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("booléenne - numérique", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ booléenne: 0}, { booléenne: 1 }, { booléenne: 2}],
-          conversions: [{ colonneSource: "booléenne" }]
-        })
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ booléenne: 0 }, { booléenne: 1 }, { booléenne: 2 }],
+          conversions: [
+            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          booléenne: false
-        }, {
-          booléenne: true
-        }, { }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            booléenne: false,
+          },
+          {
+            booléenne: true,
+          },
+          {},
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("booléenne - texte", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ booléenne: "faux" }, { booléenne: "vrai" }, { booléenne: "peut-être" }],
-          conversions: [{ colonneSource: "booléenne" }]
-        })
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [
+            { booléenne: "faux" },
+            { booléenne: "vrai" },
+            { booléenne: "peut-être" },
+          ],
+          conversions: [
+            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          booléenne: false
-        }, {
-          booléenne: true
-        }, { }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            booléenne: false,
+          },
+          {
+            booléenne: true,
+          },
+          {},
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("booléenne - non définie", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ booléenne: true }, { booléenne: undefined }],
-          conversions: [{ colonneSource: "booléenne" }]
-        })
+          conversions: [
+            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          booléenne: true
-        }, { }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            booléenne: true,
+          },
+          {},
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("booléenne - invalide", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ booléenne: { a: 1 } }],
-          conversions: [{ colonneSource: "booléenne" }]
-        })
+          conversions: [
+            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       describe("fichier", function () {
         let dossier: string;
-        let effacer: ()=>void;
+        let effacer: () => void;
+
+        let mock: AxiosMockAdapter;
+        let LOGO: Uint8Array;
+        let idc: string;
 
         before(async () => {
+          LOGO = await obtRessourceTest({
+            nomFichier: "logo.svg",
+          });
+          idc = await constl.services["hélia"].ajouterFichierÀSFIP({
+            contenu: LOGO,
+            nomFichier: "logo.svg",
+          });
+
+          mock = new AxiosMockAdapter(axios);
+          mock
+            .onGet("https://test.réseau-constellation.ca/logo.svg")
+            .reply(200, LOGO);
+          mock
+            .onGet("https://test.réseau-constellation.ca/inexistant.svg")
+            .reply(404);
+
           if (isElectronMain || isNode) {
-            ({dossier, effacer} = await dossierTempo());
-            copyFileSync(adresseLogo, join(dossier, "médias/logo.svg"))
+            ({ dossier, effacer } = await dossierTempo());
+            writeFileSync(join(dossier, "médias/logo.svg"), LOGO);
           }
-        })
+        });
 
         after(async () => {
+          if (mock) mock.restore();
           if (effacer) effacer();
-        })
+        });
 
         it("chaîne - fichier local", async () => {
-          const converties = await constl.bds.tableaux.convertirDonnées({
+          const { converties } = await constl.bds.tableaux.convertirDonnées({
             données: [{ fichier: "logo.svg" }],
-            conversions: [{ colonneSource: "fichier", conversion: { type: "fichier", dossierBase: "médias"} }]
-          })
-  
+            conversions: [
+              {
+                colonneSource: "fichier",
+                conversion: { type: "fichier", baseChemin: "médias" },
+              },
+            ],
+          });
+
           // Sera vide sur le navigateur
-          const réf: DonnéesRangéeTableau[] = isElectronMain || isNode ? [{ fichier: idc }] : [{ }]
-          expect(converties).to.have.deep.members(réf)
-        })
+          const réf: DonnéesRangéeTableau[] =
+            isElectronMain || isNode ? [{ fichier: idc }] : [{}];
+          expect(converties).to.have.deep.members(réf);
+        });
 
         it("chaîne - fichier non existant", async () => {
-          const converties = await constl.bds.tableaux.convertirDonnées({
+          const { converties } = await constl.bds.tableaux.convertirDonnées({
             données: [{ fichier: "n'existe pas.svg" }],
-            conversions: [{ colonneSource: "fichier" }]
-          })
-  
-          const réf: DonnéesRangéeTableau[] = [{ }]
-          expect(converties).to.have.deep.members(réf)
-        })
+            conversions: [
+              {
+                colonneSource: "fichier",
+                conversion: { type: "fichier", baseChemin: "médias" },
+              },
+            ],
+          });
+
+          const réf: DonnéesRangéeTableau[] = [{}];
+          expect(converties).to.have.deep.members(réf);
+        });
 
         it("chaîne - adresse url", async () => {
-          const converties = await constl.bds.tableaux.convertirDonnées({
-            données: [{ fichier: "https://réseau-constellation.ca/logo.svg" }],
-            conversions: [{ colonneSource: "fichier" }]
-          })
-  
-          const réf: DonnéesRangéeTableau[] = [{ fichier: idc }]
-          expect(converties).to.have.deep.members(réf)
-        })
+          const { converties } = await constl.bds.tableaux.convertirDonnées({
+            données: [
+              { fichier: "https://test.réseau-constellation.ca/logo.svg" },
+            ],
+            conversions: [
+              { colonneSource: "fichier", conversion: { type: "fichier" } },
+            ],
+          });
+
+          const réf: DonnéesRangéeTableau[] = [{ fichier: idc }];
+          expect(converties).to.have.deep.members(réf);
+        });
+
+        it("chaîne - adresse url indisponible", async () => {
+          const { converties } = await constl.bds.tableaux.convertirDonnées({
+            données: [
+              {
+                fichier: "https://test.réseau-constellation.ca/inexistant.svg",
+              },
+            ],
+            conversions: [
+              { colonneSource: "fichier", conversion: { type: "fichier" } },
+            ],
+          });
+
+          const réf: DonnéesRangéeTableau[] = [{}];
+          expect(converties).to.have.deep.members(réf);
+        });
 
         it("objet - contenu fichier", async () => {
-          const converties = await constl.bds.tableaux.convertirDonnées({
-            données: [{ fichier: { contenu, nomFichier: "mon logo.svg" } }],
-            conversions: [{ colonneSource: "fichier" }]
-          })
-  
-          const réf: DonnéesRangéeTableau[] = [{ fichier: idc }]
-          expect(converties).to.have.deep.members(réf)
+          const { converties } = await constl.bds.tableaux.convertirDonnées({
+            données: [
+              { fichier: { contenu: LOGO, nomFichier: "mon logo.svg" } },
+            ],
+            conversions: [
+              { colonneSource: "fichier", conversion: { type: "fichier" } },
+            ],
+          });
+
+          const réf: DonnéesRangéeTableau[] = [{ fichier: idc }];
+          expect(converties).to.have.deep.members(réf);
         });
 
         it("objet - invalide", async () => {
-          const converties = await constl.bds.tableaux.convertirDonnées({
-            données: [{ fichier: { contenu } }],
-            conversions: [{ colonneSource: "fichier" }]
-          })
-  
-          const réf: DonnéesRangéeTableau[] = [{ }]
-          expect(converties).to.have.deep.members(réf)
+          const { converties } = await constl.bds.tableaux.convertirDonnées({
+            données: [{ fichier: { contenu: LOGO } }],
+            conversions: [
+              { colonneSource: "fichier", conversion: { type: "fichier" } },
+            ],
+          });
+
+          const réf: DonnéesRangéeTableau[] = [{}];
+          expect(converties).to.have.deep.members(réf);
         });
 
         it("invalide", async () => {
-          const converties = await constl.bds.tableaux.convertirDonnées({
+          const { converties } = await constl.bds.tableaux.convertirDonnées({
             données: [{ fichier: 123 }],
-            conversions: [{ colonneSource: "fichier" }]
-          })
-  
-          const réf: DonnéesRangéeTableau[] = [{ }]
-          expect(converties).to.have.deep.members(réf)
-        })
-      })
+            conversions: [
+              { colonneSource: "fichier", conversion: { type: "fichier" } },
+            ],
+          });
+
+          const réf: DonnéesRangéeTableau[] = [{}];
+          expect(converties).to.have.deep.members(réf);
+        });
+      });
 
       it("chaîneNonTraductible - texte", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: "abc" }],
-          conversions: [{ colonneSource: "chaîne" }]
-        })
+          conversions: [
+            {
+              colonneSource: "chaîne",
+              conversion: { type: "chaîneNonTraductible" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: "abc"
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: "abc",
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("chaîneNonTraductible - objet", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ chaîne: { une: { valeur: "texte" }}}],
-          conversions: [{ colonneSource: "chaîne" }]
-        })
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ chaîne: { une: { valeur: "texte" } } }],
+          conversions: [
+            {
+              colonneSource: "chaîne",
+              conversion: { type: "chaîneNonTraductible" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: "{une:{valeur:\"texte\"}"
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: '{une:{valeur:"texte"}',
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("chaîneNonTraductible - numérique", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: 123 }],
-          conversions: [{ colonneSource: "chaîne" }]
-        })
+          conversions: [
+            {
+              colonneSource: "chaîne",
+              conversion: { type: "chaîneNonTraductible" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{
-          chaîne: "123"
-        }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          {
+            chaîne: "123",
+          },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("chaîneNonTraductible - non définie", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: undefined }],
-          conversions: [{ colonneSource: "chaîne" }]
-        })
+          conversions: [
+            {
+              colonneSource: "chaîne",
+              conversion: { type: "chaîneNonTraductible" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("horoDatage - chaîne", async () => {
         const maintenant = new Date();
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: maintenant.toDateString() }],
-          conversions: [{ colonneSource: "date" }]
-        })
+          conversions: [
+            { colonneSource: "date", conversion: { type: "horoDatage" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ date: { système: "dateJS", val: maintenant.getTime() } }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          { date: { système: "dateJS", val: maintenant.getTime() } },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("horoDatage - numéro", async () => {
         const maintenant = new Date().getTime();
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: maintenant }],
-          conversions: [{ colonneSource: "date" }]
-        })
+          conversions: [
+            { colonneSource: "date", conversion: { type: "horoDatage" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ date: { système: "dateJS", val: maintenant } }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          { date: { système: "dateJS", val: maintenant } },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("horoDatage - date", async () => {
         const maintenant = new Date();
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: maintenant }],
-          conversions: [{ colonneSource: "date" }]
-        })
+          conversions: [
+            { colonneSource: "date", conversion: { type: "horoDatage" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ date: { système: "dateJS", val: maintenant.getTime() } }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          { date: { système: "dateJS", val: maintenant.getTime() } },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("horoDatage - chaîne invalide", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: "ceci n'est pas une date" }],
-          conversions: [{ colonneSource: "date" }]
-        })
+          conversions: [
+            { colonneSource: "date", conversion: { type: "horoDatage" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("horoDatage - type invalide", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: true }],
-          conversions: [{ colonneSource: "date" }]
-        })
+          conversions: [
+            { colonneSource: "date", conversion: { type: "horoDatage" } },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("intervaleTemps - liste de dates", async () => {
         const maintenant = new Date();
-        const hier = new Date(maintenant.getTime() - (24*60*60*1000) * 5)
+        const hier = new Date(maintenant.getTime() - 24 * 60 * 60 * 1000 * 5);
         const intervale = [hier, maintenant];
 
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ intervale }],
-          conversions: [{ colonneSource: "intervale" }]
-        })
+          conversions: [
+            {
+              colonneSource: "intervale",
+              conversion: { type: "intervaleTemps" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ intervale: [hier.getTime(), maintenant.getTime()] }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [
+          { intervale: [hier.getTime(), maintenant.getTime()] },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("intervaleTemps - texte", async () => {
         const maintenant = new Date();
-        const hier = new Date(maintenant.getTime() - (24*60*60*1000))
+        const hier = new Date(maintenant.getTime() - 24 * 60 * 60 * 1000);
         const intervale = [hier, maintenant];
 
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ intervale: JSON.stringify(intervale) }],
-          conversions: [{ colonneSource: "intervale" }]
-        })
+          conversions: [
+            {
+              colonneSource: "intervale",
+              conversion: { type: "intervaleTemps" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ intervale: [hier.getTime(), maintenant.getTime()] }]
-        expect(converties).to.have.deep.members(réf)
-      })
+        const réf: DonnéesRangéeTableau[] = [
+          { intervale: [hier.getTime(), maintenant.getTime()] },
+        ];
+        expect(converties).to.have.deep.members(réf);
+      });
 
       it("intervaleTemps - json texte invalide", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ intervale: "Je ne suis pas du JSON" }],
-          conversions: [{ colonneSource: "intervale" }]
-        })
+          conversions: [
+            {
+              colonneSource: "intervale",
+              conversion: { type: "intervaleTemps" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("intervaleTemps - dates texte invalide", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
-          données: [{ intervale: [new Date().toString(), "Je ne suis pas une date" ] }],
-          conversions: [{ colonneSource: "intervale" }]
-        })
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [
+            { intervale: [new Date().toString(), "Je ne suis pas une date"] },
+          ],
+          conversions: [
+            {
+              colonneSource: "intervale",
+              conversion: { type: "intervaleTemps" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("intervaleTemps - trop court", async () => {
         const maintenant = new Date();
         const intervale = [maintenant];
 
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ intervale: JSON.stringify(intervale) }],
-          conversions: [{ colonneSource: "intervale" }]
-        })
+          conversions: [
+            {
+              colonneSource: "intervale",
+              conversion: { type: "intervaleTemps" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("intervaleTemps - trop long", async () => {
         const maintenant = new Date();
-        const hier = new Date(maintenant.getTime() - (24*60*60*1000))
-        const demain = new Date(maintenant.getTime() + (24*60*60*1000))
+        const hier = new Date(maintenant.getTime() - 24 * 60 * 60 * 1000);
+        const demain = new Date(maintenant.getTime() + 24 * 60 * 60 * 1000);
         const intervale = [hier, maintenant, demain];
 
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ intervale: JSON.stringify(intervale) }],
-          conversions: [{ colonneSource: "intervale" }]
-        })
+          conversions: [
+            {
+              colonneSource: "intervale",
+              conversion: { type: "intervaleTemps" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
       it("intervaleTemps - type invalide", async () => {
-        const converties = await constl.bds.tableaux.convertirDonnées({
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ intervale: { valeur: "invalide" } }],
-          conversions: [{ colonneSource: "intervale" }]
-        })
+          conversions: [
+            {
+              colonneSource: "intervale",
+              conversion: { type: "intervaleTemps" },
+            },
+          ],
+        });
 
-        const réf: DonnéesRangéeTableau[] = [{ }]
-        expect(converties).to.have.deep.members(réf)
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
       });
 
-      it("géojson", async () => {
-        it("valide")
-        it("non valide")
-        it("non définie")
+      it("géojson - valide", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ géojson }],
+          conversions: [
+            { colonneSource: "géojson", conversion: { type: "géojson" } },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [
+          { géojson: géojson as DonnéesRangéeTableau },
+        ];
+        expect(converties).to.have.deep.members(réf);
       });
 
-      it("liste");
+      it("géojson - texte", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ géojson: JSON.stringify(géojson) }],
+          conversions: [
+            { colonneSource: "géojson", conversion: { type: "géojson" } },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [
+          { géojson: géojson as DonnéesRangéeTableau },
+        ];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("géojson - texte - json invalide", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ géojson: "je ne suis pas du json" }],
+          conversions: [
+            { colonneSource: "géojson", conversion: { type: "géojson" } },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("géojson - type non valide", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ géojson: 123 }],
+          conversions: [
+            { colonneSource: "géojson", conversion: { type: "géojson" } },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("géojson - non définie", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ géojson: undefined }],
+          conversions: [
+            { colonneSource: "géojson", conversion: { type: "géojson" } },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("liste", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ listeNumérique: [1, 2, 3] }],
+          conversions: [
+            {
+              colonneSource: "listeNumérique",
+              typeCatégorie: "liste",
+              conversion: { type: "numérique" },
+            },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [{ listeNumérique: [1, 2, 3] }];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("liste - texte", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ listeNumérique: "[1, 2, 3]" }],
+          conversions: [
+            {
+              colonneSource: "listeNumérique",
+              typeCatégorie: "liste",
+              conversion: { type: "numérique" },
+            },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [{ listeNumérique: [1, 2, 3] }];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("liste - texte JSON invalide", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ listeNumérique: "Je ne suis pas du json." }],
+          conversions: [
+            {
+              colonneSource: "listeNumérique",
+              typeCatégorie: "liste",
+              conversion: { type: "numérique" },
+            },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("liste - valeur non liste", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ listeNumérique: 123 }],
+          conversions: [
+            {
+              colonneSource: "listeNumérique",
+              typeCatégorie: "liste",
+              conversion: { type: "numérique" },
+            },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
+      });
+
+      it("liste - une valeur invalide", async () => {
+        const { converties } = await constl.bds.tableaux.convertirDonnées({
+          données: [{ listeNumérique: [123, "abc"] }],
+          conversions: [
+            {
+              colonneSource: "listeNumérique",
+              typeCatégorie: "liste",
+              conversion: { type: "numérique" },
+            },
+          ],
+        });
+
+        const réf: DonnéesRangéeTableau[] = [{}];
+        expect(converties).to.have.deep.members(réf);
+      });
     });
 
     describe("exportation", function () {
@@ -3042,7 +3489,92 @@ describe("tableaux", function () {
           expect(données.données).to.have.deep.members(éléments);
         });
 
-        it("données - langues variable chaîne");
+        it("données - langues variable chaîne", async () => {
+          // Créer une bd uniquement pour ce test différent
+          const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+          const idTableau = await constl.bds.ajouterTableau({ idBd });
+
+          const idColonneChaîne = await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau,
+          });
+
+          const clefMante = uuidv4();
+          const clefCoccinelle = uuidv4();
+          const clefAraignée = uuidv4();
+
+          await constl.bds.tableaux.ajouterTraductionsValeur({
+            idStructure: idBd,
+            idTableau,
+            clef: clefMante,
+            traducs: {
+              fra: "Mante religieuse",
+              த: "தொழுவன் பூச்சி",
+              മ: "പച്ചത്തൊഴുംപ്രാണി",
+              漢: "薄翅螳",
+            },
+          });
+          await constl.bds.tableaux.ajouterTraductionsValeur({
+            idStructure: idBd,
+            idTableau,
+            clef: clefCoccinelle,
+            traducs: { fra: "Coccinelle", த: "பொறிவண்டு" },
+          });
+
+          await constl.bds.tableaux.ajouterÉléments({
+            idStructure: idBd,
+            idTableau,
+            éléments: [
+              { [idColonneChaîne]: clefMante },
+              { [idColonneChaîne]: clefCoccinelle },
+              { [idColonneChaîne]: clefAraignée },
+            ],
+          });
+
+          const donnéesFrançais = await obtenir<DonnéesTableauExportées>(
+            ({ si }) =>
+              constl.bds.tableaux.suivreDonnéesExportation({
+                idStructure: idBd,
+                idTableau,
+                langues: ["fr"],
+                f: si((x) => !!x && x?.données.length >= 3),
+              }),
+          );
+          const réfFrançais: DonnéesRangéeTableau[] = [
+            {
+              [idColonneChaîne]: "Mante religieuse",
+            },
+            {
+              [idColonneChaîne]: "Coccinelle",
+            },
+            {
+              [idColonneChaîne]: clefAraignée,
+            },
+          ];
+          expect(donnéesFrançais.données).to.have.deep.members(réfFrançais);
+
+          const donnéesമലയാളം = await obtenir<DonnéesTableauExportées>(
+            ({ si }) =>
+              constl.bds.tableaux.suivreDonnéesExportation({
+                idStructure: idBd,
+                idTableau,
+                langues: ["fr"],
+                f: si((x) => !!x && x?.données.length >= 3),
+              }),
+          );
+          const réfമലയാളം: DonnéesRangéeTableau[] = [
+            {
+              [idColonneChaîne]: "പച്ചത്തൊഴുംപ്രാണി",
+            },
+            {
+              [idColonneChaîne]: "Coccinelle",
+            },
+            {
+              [idColonneChaîne]: clefAraignée,
+            },
+          ];
+          expect(donnéesമലയാളം).to.have.deep.members(réfമലയാളം);
+        });
 
         it("fichier", async () => {
           const données = await obtenir<DonnéesTableauExportées>(
@@ -4068,7 +4600,7 @@ describe("tableaux", function () {
     });
   });
 
-  describe.only("accès", function () {
+  describe("accès", function () {
     let fermerAccès: () => Promise<void>;
     let constlsAccès: Constellation[];
 

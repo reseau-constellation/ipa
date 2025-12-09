@@ -1,7 +1,7 @@
 import { isUint8Array } from "util/types";
 import {
   attendreStabilité,
-  devinerCatégorie,
+  effacerPropriétésNonDéfinies,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   suivreFonctionImbriquée,
@@ -26,10 +26,7 @@ import {
   justeDéfinis,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
-import type {
-  CatégorieBaseVariables,
-  CatégorieVariable,
-} from "../variables.js";
+import type { CatégorieBaseVariables } from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
@@ -65,40 +62,100 @@ export type DonnéesTableauExportées = {
 
 // Types conversions
 
+export type DonnéeImportation =
+  | string
+  | number
+  | null
+  | boolean
+  | DonnéeImportation[]
+  | { [key: string]: DonnéeImportation }
+  | Date
+  | Uint8Array
+  | undefined;
+
+export type DonnéesRangéeTableauÀImporter = {
+  [clef: string]: DonnéeImportation;
+};
+
 export type ConversionColonne<T extends ConversionDonnées = ConversionDonnées> =
   {
     colonneSource: string;
     colonneCible?: string;
-    conversion?: T;
+    typeCatégorie?: "simple" | "liste";
+    conversion: T;
   };
 
 export type ConversionDonnées =
   | ConversionDonnéesNumérique
   | ConversionDonnéesDate
-  | ConversionDonnéesChaîne;
+  | ConversionDonnéesChaîne
+  | ConversionDonnéesFichier
+  | ConversionDonnéesAudio
+  | ConversionDonnéesVidéo
+  | ConversionDonnéesImage
+  | ConversionDonnéesBooléen
+  | ConversionDonnéesChaîneNonTraductible
+  | ConversionDonnéesHoroDatage
+  | ConversionDonnéesIntervaleTemps
+  | ConversionDonnéesGéojson;
 
 export type ConversionDonnéesNumérique = {
   type: "numérique";
   opération?: OpérationConversionNumérique | OpérationConversionNumérique[];
   systèmeNumération?: string;
 };
+
 export type OpérationConversionNumérique = {
   op: "+" | "-" | "/" | "*" | "^";
   val: number;
 };
+
 export type ConversionDonnéesDate = {
   type: "horoDatage";
   système: string;
   format: string;
 };
+
 export type ConversionDonnéesChaîne = {
   type: "chaîne";
-  langue: string;
+  langue?: string;
 };
 
 export type ConversionDonnéesFichier = {
   type: "fichier";
   baseChemin?: string;
+};
+
+export type ConversionDonnéesAudio = Omit<ConversionDonnéesFichier, "type"> & {
+  type: "audio";
+};
+
+export type ConversionDonnéesImage = Omit<ConversionDonnéesFichier, "type"> & {
+  type: "image";
+};
+
+export type ConversionDonnéesVidéo = Omit<ConversionDonnéesFichier, "type"> & {
+  type: "vidéo";
+};
+
+export type ConversionDonnéesBooléen = {
+  type: "booléen";
+};
+
+export type ConversionDonnéesChaîneNonTraductible = {
+  type: "chaîneNonTraductible";
+};
+
+export type ConversionDonnéesHoroDatage = {
+  type: "horoDatage";
+};
+
+export type ConversionDonnéesIntervaleTemps = {
+  type: "intervaleTemps";
+};
+
+export type ConversionDonnéesGéojson = {
+  type: "géojson";
 };
 
 // Types structure
@@ -683,29 +740,16 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
   async convertirDonnées({
     données,
     conversions,
-    catégories = {},
     traductions = {},
   }: {
     données: DonnéesRangéeTableauÀImporter[];
     conversions: ConversionColonne[];
-    catégories?: { [colonneSource: string]: CatégorieVariable };
     traductions?: { [clef: string]: TraducsTexte };
-  }): Promise<DonnéesRangéeTableau[]> {
+  }): Promise<{
+    converties: DonnéesRangéeTableau[];
+    traductions: { [clef: string]: TraducsTexte };
+  }> {
     const hélia = this.service("hélia");
-
-    const colonnesSource = [
-      ...new Set(données.map((rangée) => Object.keys(rangée)).flat()),
-    ];
-    colonnesSource.forEach(
-      (colonne) => (catégories[colonne] ??= devinerCatégorieColonne(colonne)),
-    );
-
-    const devinerCatégorieColonne = (colonne: string): CatégorieVariable => {
-      const valeursColonne = justeDéfinis(données.map((d) => d[colonne]));
-      const catégoriesDevinées = valeursColonne
-        .slice(0, 10)
-        .map(devinerCatégorie);
-    };
 
     const convertirRangée = async (
       rangée: DonnéesRangéeTableauÀImporter,
@@ -715,15 +759,16 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       for (const colonne of Object.keys(rangée)) {
         const valeur = rangée[colonne];
 
-        const conversionColonne = conversions?.find(
+        const conversionColonne = conversions.find(
           (c) => c.colonneSource === colonne,
         );
-        const idColonne = conversionColonne?.colonneCible || colonne;
+        if (!conversionColonne) continue;
+
+        const idColonne = conversionColonne.colonneCible || colonne;
 
         const valeurColonne = await convertirValeur({
           valeur,
-          conversion: conversionColonne?.conversion,
-          catégorie: catégories[colonne],
+          conversion: conversionColonne,
         });
         if (valeurColonne !== undefined) convertie[idColonne] = valeurColonne;
       }
@@ -765,11 +810,16 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       return valFinale;
     };
 
-    const estContenuFichier = (x: unknown): x is { contenu: Uint8Array, nomFichier: string} => {
+    const estContenuFichier = (
+      x: unknown,
+    ): x is { contenu: Uint8Array; nomFichier: string } => {
       if (typeof x !== "object") return false;
-      const {contenu, nomFichier} = x as { contenu: Uint8Array, nomFichier: string} ;
-      return isUint8Array(contenu) && typeof nomFichier === "string"
-    }
+      const { contenu, nomFichier } = x as {
+        contenu: Uint8Array;
+        nomFichier: string;
+      };
+      return isUint8Array(contenu) && typeof nomFichier === "string";
+    };
     const cacheFichiers = new Map<string, string>();
     const résoudreFichier = async ({
       chemin,
@@ -830,40 +880,43 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
 
     const convertirValeur = async ({
       valeur,
-      catégorie,
       conversion,
     }: {
-      valeur: DagCborEncodable;
-      catégorie: CatégorieVariable;
-      conversion?: ConversionDonnées;
+      valeur: DonnéeImportation;
+      conversion: ConversionColonne;
     }): Promise<DagCborEncodable | undefined> => {
-      if (catégorie.type === "simple") {
+      const typeCatégorie = conversion.typeCatégorie || "simple";
+      if (typeCatégorie === "simple") {
         return await convertirValeurSimple({
           valeur,
-          catégorie: catégorie.catégorie,
-          conversion,
+          conversion: conversion.conversion,
         });
       } else {
+        let valeurListe: DonnéeImportation[];
+
         if (!Array.isArray(valeur)) {
           if (typeof valeur === "string") {
             try {
-              valeur = JSON.parse(valeur);
-              valeur = Array.isArray(valeur) ? valeur : [valeur];
+              const valeurJSON = JSON.parse(valeur) as DagCborEncodable;
+              valeurListe = Array.isArray(valeurJSON)
+                ? valeurJSON
+                : [valeurJSON];
             } catch {
-              valeur = [valeur];
+              valeurListe = [valeur];
             }
           } else {
-            valeur = [valeur];
+            valeurListe = [valeur];
           }
+        } else {
+          valeurListe = valeur;
         }
         return justeDéfinis(
           await Promise.all(
-            valeur.map(
-              async (v) =>
+            valeurListe.map(
+              async (val) =>
                 await convertirValeurSimple({
-                  valeur: v,
-                  catégorie: catégorie.catégorie,
-                  conversion,
+                  valeur: val,
+                  conversion: conversion.conversion,
                 }),
             ),
           ),
@@ -871,15 +924,16 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
       }
     };
 
+    const nouvellesTraductions: { [clef: string]: TraducsTexte } = {};
     const convertirValeurSimple = async ({
       valeur,
-      catégorie,
       conversion,
     }: {
-      valeur: DagCborEncodable;
-      catégorie: CatégorieBaseVariables;
-      conversion?: ConversionDonnées;
+      valeur: DonnéeImportation;
+      conversion: ConversionDonnées;
     }): Promise<DagCborEncodable | undefined> => {
+      const catégorie: CatégorieBaseVariables = conversion.type;
+
       switch (catégorie) {
         case "audio":
         case "image":
@@ -897,9 +951,14 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
 
         case "booléen": {
           if (typeof valeur === "boolean") return valeur;
-          else if (typeof valeur === "number") return valeur === 1 ? true : valeur === 0 ? false : undefined;
+          else if (typeof valeur === "number")
+            return valeur === 1 ? true : valeur === 0 ? false : undefined;
           else if (typeof valeur === "string")
-            return valeur.toLowerCase() === "vrai" ? true : valeur.toLowerCase() === "faux" ? false: undefined;
+            return valeur.toLowerCase() === "vrai"
+              ? true
+              : valeur.toLowerCase() === "faux"
+                ? false
+                : undefined;
           return undefined;
         }
 
@@ -908,25 +967,31 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
 
         case "chaîne": {
           const conversionChaîne =
-            conversion?.type === "chaîne" ? conversion : undefined;
+            conversion.type === "chaîne" ? conversion : undefined;
           valeur = String(valeur);
-          if (conversionChaîne) {
-            const clef = Object.entries(traductions).find(
-              ([_clef, traducs]) => traducs[conversionChaîne.langue],
+          const traductionsÀJour = Object.assign(
+            {},
+            traductions,
+            nouvellesTraductions,
+          );
+          if (conversionChaîne?.langue) {
+            const { langue } = conversionChaîne;
+            let clef = Object.entries(traductionsÀJour).find(
+              ([_clef, traducs]) => traducs[langue] === valeur,
             )?.[0];
             if (!clef) {
-              await this.ajouterTraductionsValeur({
-                idStructure,
-                idTableau,
-                clef: valeur,
-                traducs: { [conversionChaîne.langue]: valeur },
-              });
+              // On utilise md5 au lieu de uuidv4 en raison de la concurrence avec des conversions parallèles de données
+              clef =
+                valeur.length <= 24 ? valeur : Base64.stringify(md5(valeur));
+              nouvellesTraductions[clef] = { [langue]: valeur };
             }
+            return clef;
+          } else if (Object.keys(traductionsÀJour).includes(valeur))
             return valeur;
-          } else if (Object.keys(traductions).includes(valeur)) return valeur;
           else {
-            const clef = Object.entries(traductions).find(([_clef, traducs]) =>
-              Object.values(traducs).find((texte) => texte === valeur),
+            const clef = Object.entries(traductionsÀJour).find(
+              ([_clef, traducs]) =>
+                Object.values(traducs).find((texte) => texte === valeur),
             )?.[0];
             return clef ? clef : valeur;
           }
@@ -974,7 +1039,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         case "horoDatage": {
           const conversionHoroDatage =
             conversion?.type === "horoDatage" ? conversion : undefined;
-          if (cholqij.estUneDate(valeur)) {
+          if (cholqij.dateValide(valeur)) {
             return valeur;
           } else if (conversionHoroDatage && typeof valeur === "string") {
             const date = cholqij.lireDate({
@@ -989,7 +1054,7 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
             return {
               système: "dateJS",
               val: valeur.getTime(),
-            }
+            };
           } else if (typeof valeur === "number" || typeof valeur === "string") {
             const date = new Date(valeur);
             return isNaN(date.getTime())
@@ -1012,7 +1077,6 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
                   async (v) =>
                     await convertirValeurSimple({
                       valeur: v,
-                      catégorie: "horoDatage",
                       conversion,
                     }),
                 ),
@@ -1022,15 +1086,27 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
           return undefined;
         }
 
-        case "géojson":
-          return typeof valeur === "string" ? JSON.parse(valeur) : valeur;
+        case "géojson": {
+          if (typeof valeur === "string") {
+            try {
+              valeur = JSON.parse(valeur);
+            } catch {
+              return undefined;
+            }
+          }
+          if (typeof valeur === "object") {
+            return effacerPropriétésNonDéfinies(valeur);
+          }
+          return undefined;
+        }
 
         default:
           return undefined;
       }
     };
 
-    return Promise.all(données.map(convertirRangée));
+    const converties = await Promise.all(données.map(convertirRangée));
+    return { converties, traductions: nouvellesTraductions };
   }
 
   // Exportation

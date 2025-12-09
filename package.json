@@ -50,6 +50,7 @@
     "@typescript-eslint/eslint-plugin": "^8.46.4",
     "@typescript-eslint/parser": "^8.46.4",
     "aegir": "^47.0.24",
+    "axios-mock-adapter": "^2.1.0",
     "bmp-js": "^0.1.0",
     "browserify-fs": "^1.0.0",
     "buffer": "^6.0.3",

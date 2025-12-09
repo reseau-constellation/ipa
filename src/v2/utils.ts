@@ -156,6 +156,7 @@ export const PROTOCOLE_ORBITE = "/orbitdb/";
 
 export const ajouterPréfixeOrbite = (id: string) =>
   id.startsWith(PROTOCOLE_ORBITE) ? id : `${PROTOCOLE_ORBITE}/${id}`;
+
 export const enleverPréfixeOrbite = (id: string) =>
   id.startsWith(PROTOCOLE_ORBITE) ? id.replace(PROTOCOLE_ORBITE, "") : id;
 

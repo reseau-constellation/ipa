@@ -28,7 +28,7 @@ export class Cholqij {
     }
   }
 
-  dateValide(val: unknown): boolean {
+  dateValide(val: unknown): val is spécificationHoroDatage {
     if (!estSpécificationHoroDatage(val)) return false;
     try {
       this.lireDate(val);
