@@ -1,7 +1,6 @@
 import { isUint8Array } from "util/types";
 import {
   attendreStabilité,
-  effacerPropriétésNonDéfinies,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   suivreFonctionImbriquée,
@@ -87,7 +86,6 @@ export type ConversionColonne<T extends ConversionDonnées = ConversionDonnées>
 
 export type ConversionDonnées =
   | ConversionDonnéesNumérique
-  | ConversionDonnéesDate
   | ConversionDonnéesChaîne
   | ConversionDonnéesFichier
   | ConversionDonnéesAudio
@@ -108,12 +106,6 @@ export type ConversionDonnéesNumérique = {
 export type OpérationConversionNumérique = {
   op: "+" | "-" | "/" | "*" | "^";
   val: number;
-};
-
-export type ConversionDonnéesDate = {
-  type: "horoDatage";
-  système: string;
-  format: string;
 };
 
 export type ConversionDonnéesChaîne = {
@@ -148,6 +140,10 @@ export type ConversionDonnéesChaîneNonTraductible = {
 
 export type ConversionDonnéesHoroDatage = {
   type: "horoDatage";
+  détails?: {
+    système: string;
+    format?: string;
+  };
 };
 
 export type ConversionDonnéesIntervaleTemps = {
@@ -1041,10 +1037,13 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
             conversion?.type === "horoDatage" ? conversion : undefined;
           if (cholqij.dateValide(valeur)) {
             return valeur;
-          } else if (conversionHoroDatage && typeof valeur === "string") {
+          } else if (
+            conversionHoroDatage?.détails &&
+            typeof valeur === "string"
+          ) {
             const date = cholqij.lireDate({
               val: valeur,
-              ...conversionHoroDatage,
+              ...conversionHoroDatage.détails,
             });
             return {
               système: "dateJS",
@@ -1089,13 +1088,10 @@ export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
         case "géojson": {
           if (typeof valeur === "string") {
             try {
-              valeur = JSON.parse(valeur);
+              return JSON.parse(valeur);
             } catch {
               return undefined;
             }
-          }
-          if (typeof valeur === "object") {
-            return effacerPropriétésNonDéfinies(valeur);
           }
           return undefined;
         }
