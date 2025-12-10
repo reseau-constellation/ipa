@@ -1,0 +1,1 @@
+export const PROFONDEUR_MINIMALE_RECHERCHE = 3;

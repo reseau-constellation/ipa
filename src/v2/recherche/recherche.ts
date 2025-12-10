@@ -20,6 +20,9 @@ import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { Constellation } from "../index.js";
 import type { InfoAuteur } from "../types.js";
+import { EstimateurAsymptoteTemps } from "./utils.js";
+import { stabiliser } from "../crabe/utils.js";
+import { PROFONDEUR_MINIMALE_RECHERCHE } from "./consts.js";
 
 export class Recherche<L extends ServicesLibp2pCrabe> {
   constl: Constellation;
@@ -63,6 +66,39 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
 
     const queue = new PQueue({ concurrency: 1 });
 
+    type RésultatAvecProfondeur = { résultat: RésultatRecherche<T>; score: number, profondeur: number }
+    let résultats: RésultatAvecProfondeur[] = []
+
+    const fFinale = async () => {
+      const résultatsOrdonnés  = résultats.toSorted((a, b) =>
+        b.score - a.score,  // Ordre décroissant
+      )
+      const résultatsTroncés = n === undefined ? résultatsOrdonnés : résultatsOrdonnés.slice(0, n);
+      const profondeurDésirée = actualiserEstimateurs(résultatsTroncés);
+      await ajusterProfondeurStable(profondeurDésirée)
+
+      await f(résultatsTroncés.map(r=>r.résultat));
+    }
+
+    // Estimateur sommes scores sur n éventuelles par profondeur
+    const estimateursSommesScores: { [profondeur: number]: EstimateurAsymptoteTemps } = {};
+
+    const actualiserEstimateurs = (troncés: RésultatAvecProfondeur[]): number => {
+      for (let p = 0; p++; p <= profondeur) {
+        if (!estimateursSommesScores[p]) estimateursSommesScores[p] = new EstimateurAsymptoteTemps()
+        const estimateur = estimateursSommesScores[p]
+        const sommeScoresP = troncés.filter(r=>r.profondeur <= p).map(r=>r.score).reduce((a, b)=>a+b, 0)
+        estimateur.ajouter(sommeScoresP)
+      }
+
+      // Profondeur nécessaire : p à 95% de l'asymptote profondeur - somme scores sur n
+      const points = Object.entries(estimateursSommesScores).map(([p, estim]) => [p, estim.asymptote()])
+      const estiméProfondeurNécessaire = calculerIntersection({ p: 0.95, points })
+      return Math.max(estiméProfondeurNécessaire, PROFONDEUR_MINIMALE_RECHERCHE);
+    }
+
+    const calculerIntersection = ({ p, points }): number => {}
+
     const résoudreScore = ({
       résultat,
       confiance = 0,
@@ -76,11 +112,16 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
     };
 
     const fSuivreCompte = async ({
-      idCompte,
-      f,
+      id: idCompte,
+      fSuivreBranche,
+      branche,
     }: {
-      idCompte: string;
-      f: Suivi<{ résultat: RésultatObjectifRecherche<T>; score: number }[]>;
+      id: string;
+      fSuivreBranche: Suivi<RésultatAvecProfondeur[]>;
+      branche: {
+        idCompte: string;
+        profondeur: number;
+    },
     }): Promise<Oublier> => {
       return await suivreDeFonctionListe({
         fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
@@ -90,10 +131,7 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
           fSuivreBranche,
         }: {
           id: string;
-          fSuivreBranche: Suivi<{
-            résultat: RésultatObjectifRecherche<T>;
-            score: number;
-          }>;
+          fSuivreBranche: Suivi<RésultatAvecProfondeur>;
         }) => {
           const info: {
             résultat?: RésultatObjectifRecherche<T>;
@@ -103,11 +141,12 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
           const fFinaleBranche = async () => {
             if (info.résultat)
               return await fSuivreBranche({
-                résultat: info.résultat,
+                résultat: { id: idObjet, résultatObjectif: info.résultat},
                 score: résoudreScore({
                   ...info,
                   résultat: info.résultat.score,
                 }),
+                profondeur: branche.profondeur,
               });
           };
           const oublierObjectif = await fObjectif({
@@ -138,7 +177,7 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
             await oublierQualité();
           };
         },
-        f,
+        f: fSuivreBranche,
       });
     };
 
@@ -147,21 +186,23 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
         fListe: async ({
           fSuivreRacine,
         }: {
-          fSuivreRacine;
+          fSuivreRacine: Suivi<{idCompte: string, profondeur: number}[]>;
         }): Promise<schémaRetourFonctionRechercheParProfondeur> =>
-          await réseau.suivreComptesRéseauEtEnLigne({
+          await réseau.suivreComptesParProfondeur({
             f: fSuivreRacine,
-            profondeur,
+            profondeur: PROFONDEUR_MINIMALE_RECHERCHE,
           }),
         fBranche: fSuivreCompte,
-        f: (
-          résultats: {
-            résultat: RésultatObjectifRecherche<T>;
-            score: number;
-          }[],
-        ) => 1,
+        fIdDeBranche: x => x.idCompte,
+        f: (x: RésultatAvecProfondeur[]) => {résultats = x},
       });
-    const changerN = async (nouveauN: number) => {};
+
+    const ajusterProfondeurStable = stabiliser(2000)(changerProfondeur)
+
+    const changerN = async (nouveauN: number) => {
+      n = nouveauN;
+      await fFinale();
+    };
 
     const oublier = async () => {
       oublierComptes();

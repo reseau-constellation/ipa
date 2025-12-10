@@ -23,7 +23,6 @@ import type { ÉpingleCompte } from "@/favoris.js";
 import type { Helia } from "helia";
 import type { JSONSchemaType } from "ajv";
 import type { Libp2p } from "@libp2p/interface";
-import type { ServiceConstellation } from "./v2/nébuleuse/services.js";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import type { createOrbitDB, OrbitDB } from "@orbitdb/core";
@@ -43,7 +42,6 @@ import { Profil, schémaStructureBdProfil } from "@/profil.js";
 import { BDs } from "@/bds.js";
 import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 
-type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
 type ÉvénementsClient<T extends ServicesLibp2p = ServicesLibp2p> = {
   comptePrêt: (args: { idCompte: string }) => void;
@@ -145,13 +143,6 @@ const join = async (...args: string[]) => {
   } else {
     return args.join("/");
   }
-};
-
-export type ServicesConstellation = {
-  [clef: string]: ServiceConstellation;
-};
-export type ServicesDéfautConstellation = {
-  profil: Profil;
 };
 
 export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
