@@ -1,3 +1,6 @@
+import { join } from "path";
+import { isElectronMain, isNode } from "wherearewe";
+import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import {
   ServiceCompte,
@@ -10,6 +13,7 @@ import { ServiceDispositifs } from "./services/dispositifs.js";
 import { Profil } from "./services/profil.js";
 import { ServiceRéseau } from "./services/réseau.js";
 import { ServiceJournal } from "./services/journal.js";
+import type { Jsonifiable } from "./types.js";
 import type { ServiceÉpingles } from "./services/epingles.js";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 import type {
@@ -67,6 +71,9 @@ export const validerOptionsServicesCrabe = <
   }
 };
 
+export const FICHIER_VERROU = "VERROU";
+export const INTERVALE_VERROU = 5000; // 5 millisecondes
+
 export class Crabe<
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,
   S extends ServicesNébuleuse = ServicesNébuleuse,
@@ -76,6 +83,8 @@ export class Crabe<
   profil: Profil<L>;
   compte: ServiceCompte<StructureCrabe & T, L>;
   réseau: ServiceRéseau<L>;
+
+  oublierVerrou?: () => void;
 
   constructor({
     services,
@@ -117,5 +126,80 @@ export class Crabe<
 
     this.réseau = this.services["réseau"];
     this.profil = this.services["profil"];
+  }
+
+  async démarrer(): Promise<void> {
+    this.oublierVerrou = await this.verrouillerDossier();
+    return await super.démarrer()
+  }
+
+  async fermer(): Promise<void> {
+    await super.fermer();
+    await this.déverrouillerDossier()
+  }
+
+  // Fichier verrou
+
+  async verrouillerDossier(): Promise<() => void> {
+    if (isElectronMain || isNode) {
+      const fs = await import("fs");
+      const dossier = await this.dossier();
+      const fichierVerrou = join(dossier, FICHIER_VERROU);
+      
+      if (!fs.existsSync(fichierVerrou)) {
+        fs.writeFileSync(fichierVerrou, "");
+      } else {
+        const infoFichier = fs.statSync(fichierVerrou);
+        const modifiéÀ = infoFichier.mtime;
+        const verifierSiVieux = () => {
+          const maintenant = new Date();
+
+          if (maintenant.getTime() - modifiéÀ.getTime() > INTERVALE_VERROU) {
+            fs.writeFileSync(fichierVerrou, "");
+          } else {
+            const contenuFichier = new TextDecoder().decode(
+              fs.readFileSync(fichierVerrou),
+            );
+            const erreur = new Error(
+              `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n${contenuFichier}`,
+            );
+            erreur.name = ERREUR_INIT_IPA_DÉJÀ_LANCÉ;
+            throw erreur;
+          }
+        };
+        try {
+          verifierSiVieux();
+        } catch {
+          await new Promise((résoudre) =>
+            setTimeout(résoudre, INTERVALE_VERROU),
+          );
+          verifierSiVieux();
+        }
+      }
+      const intervale = setInterval(() => {
+        const maintenant = new Date();
+        fs.utimesSync(fichierVerrou, maintenant, maintenant);
+      }, INTERVALE_VERROU);
+      return () => clearInterval(intervale)
+    } else {
+      return () => {}
+    }
+  }
+
+  async spécifierMessageVerrou({ message }: { message: Jsonifiable }): Promise<void> {
+    if (isElectronMain || isNode) {
+      const dossier = await this.dossier();
+      const fs = await import("fs");
+      const fichierVerrou = join(dossier, FICHIER_VERROU);
+      fs.writeFileSync(fichierVerrou, JSON.stringify(message));
+    }
+  }
+
+  async déverrouillerDossier(): Promise<void> {
+    if (isElectronMain || isNode) {
+      if (this.oublierVerrou) this.oublierVerrou();
+      const fs = await import("fs");
+      fs.rmSync(join(await this.dossier(), FICHIER_VERROU));
+    }
   }
 }

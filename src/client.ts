@@ -1,10 +1,8 @@
 import { எண்ணிக்கை } from "ennikkai";
 import indexedDbStream from "indexed-db-stream";
 import {
-  suivreDeFonctionListe,
   sauvegarderFichierZip,
 } from "@constl/utils-ipa";
-import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
 
 import sha256 from "crypto-js/sha256.js";
 import { randomBytes } from "@noble/hashes/utils";
@@ -19,12 +17,7 @@ import { Réseau } from "@/reseau.js";
 
 import { Protocoles } from "./protocoles.js";
 import type {
-  Jsonifiable,
   PartielRécursif,
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
-  schémaRetourFonctionRechercheParProfondeur,
-  élémentsBd,
 } from "@/types.js";
 import type { ÉpingleCompte } from "@/favoris.js";
 import type { Helia } from "helia";
@@ -37,7 +30,6 @@ import type { createOrbitDB, OrbitDB } from "@orbitdb/core";
 import type { structureBdProfil } from "@/profil.js";
 import type {
   type GestionnaireOrbite,
-  gestionnaireOrbiteGénéral,
 } from "@/orbite.js";
 import { Tableaux } from "@/tableaux.js";
 import { Nuées } from "@/nuées.js";
@@ -244,44 +236,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }
 
   async _initialiser(): Promise<void> {
-    try {
-      await this.verrouillerDossier({ message: this._opts.messageVerrou });
-    } catch (e) {
-      this.erreurInitialisation = e;
-      this.événements.emit("erreurInitialisation", e);
-      return;
-    }
-
-    const { sfip, orbite } = await this._générerSFIPetOrbite();
-    this.sfip = sfip;
-    this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({
-      orbite,
-      signaleurArrêt: this.signaleurArrêt,
-    });
-    this.événements.emit("sfipEtOrbitePrêts", { sfip, orbite: this.orbite });
-
-    this.idCompte =
-      (await this.obtDeStockageLocal({
-        clef: "idCompte",
-        parCompte: false,
-      })) || undefined;
-    if (!this.idCompte) {
-      this.idCompte = await this._créerBdCompte({ orbite });
-
-      await this.nommerDispositif({
-        type: this.détecterTypeDispositif(),
-      });
-
-      await this.sauvegarderAuStockageLocal({
-        clef: "idCompte",
-        val: this.idCompte,
-        parCompte: false,
-      });
-    }
-
-    await this._initialiserComposantes();
-    this.événements.emit("comptePrêt", { idCompte: this.idCompte });
-
     const épingle: ÉpingleCompte = {
       type: "compte",
       base: TOUS,
@@ -298,82 +252,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     });
   }
 
-  async verrouillerDossier({ message }: { message?: string }): Promise<void> {
-    const intervaleVerrou = 5000; // 5 millisecondes
-    if (isElectronMain || isNode) {
-      const fs = await import("fs");
-      const fichierVerrou = await join(await this.dossier(), "VERROU");
-      const maintenant = new Date();
-      if (!fs.existsSync(fichierVerrou)) {
-        fs.writeFileSync(fichierVerrou, message || "");
-      } else {
-        const infoFichier = fs.statSync(fichierVerrou);
-        const modifiéÀ = infoFichier.mtime;
-        const verifierSiVieux = () => {
-          if (maintenant.getTime() - modifiéÀ.getTime() > intervaleVerrou) {
-            fs.writeFileSync(fichierVerrou, message || "");
-          } else {
-            const contenuFichier = new TextDecoder().decode(
-              fs.readFileSync(fichierVerrou),
-            );
-            try {
-              const messageJSON = JSON.parse(contenuFichier);
-              if (messageJSON["port"]) {
-                const erreur = new Error(
-                  `Ce compte est déjà ouvert en Constellation, et le serveur local est disponible sur le port ${messageJSON["port"]}. Vous pouvez soit vous connecter sur ce port, soit fermer les instances de Constellation qui ouvertes et puis vous ressayer.`,
-                );
-                erreur.name = ERREUR_INIT_IPA_DÉJÀ_LANCÉ;
-                throw erreur;
-              }
-            } catch {
-              //
-            }
-            const erreur = new Error("Constellation est déjà lancée.");
-            erreur.name = ERREUR_INIT_IPA_DÉJÀ_LANCÉ;
-            throw erreur;
-          }
-        };
-        try {
-          verifierSiVieux();
-        } catch {
-          await new Promise((résoudre) =>
-            setTimeout(résoudre, intervaleVerrou),
-          );
-          verifierSiVieux();
-        }
-      }
-      this._intervaleVerrou = setInterval(() => {
-        try {
-          fs.utimesSync(fichierVerrou, maintenant, maintenant);
-        } catch {
-          // On s'inquiète pas trop
-        }
-      }, intervaleVerrou);
-    }
-  }
-
-  async spécifierMessageVerrou({
-    message,
-  }: {
-    message: Jsonifiable;
-  }): Promise<void> {
-    await this.attendreInitialisée();
-    if (isElectronMain || isNode) {
-      const fs = await import("fs");
-      const fichierVerrou = await join(await this.dossier(), "VERROU");
-      const contenu = JSON.parse(fs.readFileSync(fichierVerrou).toString());
-      const contenuFinal = Object.assign(contenu, message);
-      fs.writeFileSync(fichierVerrou, JSON.stringify(contenuFinal));
-    }
-  }
-
-  async effacerVerrou() {
-    if (isElectronMain || isNode) {
-      if (this._intervaleVerrou) clearInterval(this._intervaleVerrou);
-      const fs = await import("fs");
-      fs.rmSync(await join(await this.dossier(), "VERROU"));
-    }
-  }
 
   async signer({ message }: { message: string }): Promise<Signature> {
     const { orbite } = await this.attendreSfipEtOrbite();
@@ -479,62 +357,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   async obtIdentitéOrbite(): Promise<OrbitDB["identity"]> {
     const { orbite } = await this.attendreSfipEtOrbite();
     return orbite.identity;
-  }
-
-  async suivreBdsDeFonctionRecherche<T extends élémentsBd, U, V>({
-    fListe,
-    f,
-    fBranche,
-    fIdDeBranche = (b) => b as string,
-    fRéduction = (branches: U[]) =>
-      [...new Set(branches.flat())] as unknown as V[],
-  }: {
-    fListe: (
-      fSuivreRacine: (éléments: T[]) => Promise<void>,
-    ) => Promise<schémaRetourFonctionRechercheParProfondeur>;
-    f: schémaFonctionSuivi<V[]>;
-    fBranche: ({
-      id,
-      fSuivreBranche,
-      branche,
-    }: {
-      id: string;
-      fSuivreBranche: schémaFonctionSuivi<U>;
-      branche: T;
-    }) => Promise<schémaFonctionOublier | undefined>;
-    fIdDeBranche?: (b: T) => string;
-    fRéduction?: schémaFonctionRéduction<U[], V[]>;
-  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    let _fChangerProfondeur: ((p: number) => Promise<void>) | undefined =
-      undefined;
-    const fChangerProfondeur = async (p: number) => {
-      if (_fChangerProfondeur) await _fChangerProfondeur(p);
-    };
-
-    const fListeFinale = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (éléments: T[]) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      const { fOublier: fOublierL, fChangerProfondeur: fChangerL } =
-        await fListe(fSuivreRacine);
-      _fChangerProfondeur = fChangerL;
-      return fOublierL;
-    };
-
-    const fOublier = await suivreDeFonctionListe({
-      fListe: fListeFinale,
-      f,
-      fBranche,
-      fIdDeBranche,
-      fRéduction,
-    });
-    return { fOublier, fChangerProfondeur };
-  }
-
-  async fermer(): Promise<void> {
-    // Effacer fichier verrou
-    await this.effacerVerrou();
   }
 
   async effacerDispositif(): Promise<void> {

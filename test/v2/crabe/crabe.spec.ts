@@ -1,5 +1,8 @@
+import { writeFileSync } from "fs";
+import { join } from "path";
 import { expect } from "aegir/chai";
 import { ServiceDonnéesNébuleuse } from "@/v2/crabe/services/services.js";
+import { FICHIER_VERROU } from "@/v2/crabe/crabe.js";
 import { dossierTempoPropre } from "../utils.js";
 import { CrabeTest } from "./utils.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
@@ -141,42 +144,71 @@ describe.only("Crabe", function () {
 
 
   describe("concurrence ouverture", function () {
+    let crabe: CrabeTest;
+    let crabe2: CrabeTest | undefined;
+    
+    let dossier: string;
+    let effacer: () => void;
 
-    describe("même dossier", async () => {
-      let crabes: CrabeTest[];
-      let fermer: Oublier;
-
-      let crabe2: CrabeTest;
-
-      let dossier: string;
-
-      before(async () => {
-        ({ crabes, fermer } = await créerCrabesTest({
-          n: 1,
-          services: {},
-        }));
-        dossier = await crabes[0].dossier()
-      });
-
-      after(async () => {
-        if (fermer) await fermer();
-      });
-
-      it("erreur pour la deuxième instance", async () => {
-        crabe2 = new CrabeTest({ services: {}, options: { dossier }, });
-        await expect(crabe2.démarrer()).to.be.rejectedWith(
-          `Déjà lancée sur le dossier ${dossier}`,
-        );
-      });
-
-      it("fermeture en double", async () => {
-        await expect(crabe2.fermer()).to.be.rejectedWith(
-          `Déjà lancée sur le dossier ${dossier}`,
-        );
-      });
+    beforeEach(async () => {
+      ({dossier, effacer} = await dossierTempoPropre());
     });
 
-    describe("réouverture après fermeture")
+    afterEach(async () => {
+      if (crabe) await crabe.fermer();
+      if (crabe2) await crabe2.fermer();
+      crabe2 = undefined;
+
+      if (effacer) effacer();
+    });
+
+    it("erreur pour la deuxième instance", async () => {
+      crabe = new CrabeTest({ services: {}, options: { dossier }, });
+      await crabe.démarrer();
+      
+      crabe2 = new CrabeTest({ services: {}, options: { dossier }, });
+      await expect(crabe2.démarrer()).to.be.rejectedWith(
+        `Le compte sur ${dossier} est déjà ouvert`,
+      );
+    });
+
+    it("message verrou", async () => {{
+      crabe = new CrabeTest({ services: {}, options: { dossier }, });
+      await crabe.démarrer();
+
+      const message = "Un message du processus initial."
+      await crabe.spécifierMessageVerrou({ message });
+
+      crabe2 = new CrabeTest({ services: {}, options: { dossier }, });
+      await expect(crabe2.démarrer()).to.be.rejectedWith(
+        message,
+      );
+    }})
+
+    it("réouverture après fermeture", async () => {
+      crabe = new CrabeTest({ services: {}, options: { dossier }, });
+      await crabe.démarrer();
+
+      const idCompte = await crabe.compte.obtIdCompte();
+      await crabe.fermer();
+
+      crabe = new CrabeTest({ services: {}, options: { dossier }, });
+      await crabe.démarrer()
+      
+      expect(await crabe.compte.obtIdCompte()).to.equal(idCompte)
+    });
+
+    it("fichier verrou résiduel", async () => {
+      // On simule un fichier verrou qui n'aurait pas été bien effacé à la fermeture
+      writeFileSync(join(dossier, FICHIER_VERROU), "")
+
+      // On peut démarrer malgré tout
+      crabe = new CrabeTest({ services: {}, options: { dossier }, });
+      await crabe.démarrer();
+
+      const idCompte = await crabe.compte.obtIdCompte();
+      expect(crabe.compte.idCompteValide(idCompte)).to.be.true();
+    });
   })
 
   describe("fermeture", function () {
