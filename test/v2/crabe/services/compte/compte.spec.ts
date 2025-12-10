@@ -18,7 +18,7 @@ import { mapÀObjet } from "@/v2/crabe/utils.js";
 import { Constellation } from "@/v2/index.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
-import { créerCrabesTest  } from "../../utils.js";
+import { créerCrabesTest } from "../../utils.js";
 import type { CrabeTest } from "../../utils.js";
 import type { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
 import type { StructureRéseau } from "@/v2/crabe/services/réseau.js";

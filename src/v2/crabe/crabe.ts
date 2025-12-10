@@ -130,12 +130,12 @@ export class Crabe<
 
   async démarrer(): Promise<void> {
     this.oublierVerrou = await this.verrouillerDossier();
-    return await super.démarrer()
+    return await super.démarrer();
   }
 
   async fermer(): Promise<void> {
     await super.fermer();
-    await this.déverrouillerDossier()
+    await this.déverrouillerDossier();
   }
 
   // Fichier verrou
@@ -145,7 +145,7 @@ export class Crabe<
       const fs = await import("fs");
       const dossier = await this.dossier();
       const fichierVerrou = join(dossier, FICHIER_VERROU);
-      
+
       if (!fs.existsSync(fichierVerrou)) {
         fs.writeFileSync(fichierVerrou, "");
       } else {
@@ -180,13 +180,17 @@ export class Crabe<
         const maintenant = new Date();
         fs.utimesSync(fichierVerrou, maintenant, maintenant);
       }, INTERVALE_VERROU);
-      return () => clearInterval(intervale)
+      return () => clearInterval(intervale);
     } else {
-      return () => {}
+      return () => {};
     }
   }
 
-  async spécifierMessageVerrou({ message }: { message: Jsonifiable }): Promise<void> {
+  async spécifierMessageVerrou({
+    message,
+  }: {
+    message: Jsonifiable;
+  }): Promise<void> {
     if (isElectronMain || isNode) {
       const dossier = await this.dossier();
       const fs = await import("fs");

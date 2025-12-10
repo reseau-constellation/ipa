@@ -1,15 +1,20 @@
 import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
-import PQueue from "p-queue";
 import {
   cacheRechercheParN,
   cacheRechercheParProfondeur,
 } from "../crabe/cache.js";
 import { moyenne } from "../utils.js";
-import type { schémaRetourFonctionRechercheParProfondeur } from "@/types.js";
-import type { Oublier, Suivi } from "../crabe/types.js";
+import { stabiliser } from "../crabe/utils.js";
+import { EstimateurAsymptoteTemps, calculerIntersection } from "./utils.js";
+import {
+  COEFFICIENT_ASYMPTOTE_INTERSECTION_Y,
+  MÉMOIRE_ESTIMATEUR_ASYMPTOTE,
+  POIDS_SCORE_RÉSULTAT,
+  PROFONDEUR_MINIMALE_RECHERCHE,
+} from "./consts.js";
+import type { Oublier, RetourRecherche, Suivi } from "../crabe/types.js";
 import type {
   InfoRésultat,
-  RetourFonctionRecherche,
   RésultatObjectifRecherche,
   RésultatRecherche,
   SuivreConfianceRecherche,
@@ -20,9 +25,6 @@ import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { Constellation } from "../index.js";
 import type { InfoAuteur } from "../types.js";
-import { EstimateurAsymptoteTemps } from "./utils.js";
-import { stabiliser } from "../crabe/utils.js";
-import { PROFONDEUR_MINIMALE_RECHERCHE } from "./consts.js";
 
 export class Recherche<L extends ServicesLibp2pCrabe> {
   constl: Constellation;
@@ -61,43 +63,68 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
     fObjectif: SuivreObjectifRecherche<T>;
     fConfiance: SuivreConfianceRecherche;
     fQualité: SuivreQualitéRecherche;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     const réseau = this.service("réseau");
 
-    const queue = new PQueue({ concurrency: 1 });
-
-    type RésultatAvecProfondeur = { résultat: RésultatRecherche<T>; score: number, profondeur: number }
-    let résultats: RésultatAvecProfondeur[] = []
+    type RésultatAvecProfondeur = {
+      résultat: RésultatRecherche<T>;
+      score: number;
+      profondeur: number;
+    };
+    let résultats: RésultatAvecProfondeur[] = [];
 
     const fFinale = async () => {
-      const résultatsOrdonnés  = résultats.toSorted((a, b) =>
-        b.score - a.score,  // Ordre décroissant
-      )
-      const résultatsTroncés = n === undefined ? résultatsOrdonnés : résultatsOrdonnés.slice(0, n);
+      const résultatsOrdonnés = résultats.toSorted(
+        (a, b) => b.score - a.score, // Ordre décroissant
+      );
+      const résultatsTroncés =
+        n === undefined ? résultatsOrdonnés : résultatsOrdonnés.slice(0, n);
       const profondeurDésirée = actualiserEstimateurs(résultatsTroncés);
-      await ajusterProfondeurStable(profondeurDésirée)
+      await ajusterProfondeurStable(profondeurDésirée);
 
-      await f(résultatsTroncés.map(r=>r.résultat));
-    }
+      await f(résultatsTroncés.map((r) => r.résultat));
+    };
 
     // Estimateur sommes scores sur n éventuelles par profondeur
-    const estimateursSommesScores: { [profondeur: number]: EstimateurAsymptoteTemps } = {};
+    const estimateursSommesScores: Map<number, EstimateurAsymptoteTemps> =
+      new Map();
 
-    const actualiserEstimateurs = (troncés: RésultatAvecProfondeur[]): number => {
-      for (let p = 0; p++; p <= profondeur) {
-        if (!estimateursSommesScores[p]) estimateursSommesScores[p] = new EstimateurAsymptoteTemps()
-        const estimateur = estimateursSommesScores[p]
-        const sommeScoresP = troncés.filter(r=>r.profondeur <= p).map(r=>r.score).reduce((a, b)=>a+b, 0)
-        estimateur.ajouter(sommeScoresP)
+    const actualiserEstimateurs = (
+      troncés: RésultatAvecProfondeur[],
+    ): number => {
+      const profondeurActuelle = Math.max(
+        ...résultats.map((r) => r.profondeur),
+      );
+
+      for (let p = 0; p++; p <= profondeurActuelle) {
+        let estimateur = estimateursSommesScores.get(p);
+        if (!estimateur)
+          estimateur = new EstimateurAsymptoteTemps({
+            mémoire: MÉMOIRE_ESTIMATEUR_ASYMPTOTE,
+          });
+        estimateursSommesScores.set(p, estimateur);
+
+        const sommeScoresP = troncés
+          .filter((r) => r.profondeur <= p)
+          .map((r) => r.score)
+          .reduce((a, b) => a + b, 0);
+        estimateur.ajouter(sommeScoresP);
       }
 
       // Profondeur nécessaire : p à 95% de l'asymptote profondeur - somme scores sur n
-      const points = Object.entries(estimateursSommesScores).map(([p, estim]) => [p, estim.asymptote()])
-      const estiméProfondeurNécessaire = calculerIntersection({ p: 0.95, points })
-      return Math.max(estiméProfondeurNécessaire, PROFONDEUR_MINIMALE_RECHERCHE);
-    }
+      const points: [number, number][] = [...estimateursSommesScores.entries()]
+        .map(([p, estim]) => [p, estim.asymptote()])
+        .filter((x): x is [number, number] => x[1] !== undefined);
+      const estiméProfondeurNécessaire = calculerIntersection({
+        p: COEFFICIENT_ASYMPTOTE_INTERSECTION_Y,
+        points,
+      });
 
-    const calculerIntersection = ({ p, points }): number => {}
+      return Math.max(
+        estiméProfondeurNécessaire ?? 0,
+        PROFONDEUR_MINIMALE_RECHERCHE,
+      );
+    };
 
     const résoudreScore = ({
       résultat,
@@ -108,7 +135,12 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
       confiance?: number;
       qualité?: number;
     }): number => {
-      return moyenne([résultat * 2, confiance * 0.5, qualité * 0.5]);
+      const POIDS_RESTANT = (1 - POIDS_SCORE_RÉSULTAT) * 3;
+      return moyenne([
+        résultat * POIDS_SCORE_RÉSULTAT * 3,
+        (confiance * POIDS_RESTANT) / 2,
+        (qualité * POIDS_RESTANT) / 2,
+      ]);
     };
 
     const fSuivreCompte = async ({
@@ -121,7 +153,7 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
       branche: {
         idCompte: string;
         profondeur: number;
-    },
+      };
     }): Promise<Oublier> => {
       return await suivreDeFonctionListe({
         fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
@@ -141,7 +173,7 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
           const fFinaleBranche = async () => {
             if (info.résultat)
               return await fSuivreBranche({
-                résultat: { id: idObjet, résultatObjectif: info.résultat},
+                résultat: { id: idObjet, résultatObjectif: info.résultat },
                 score: résoudreScore({
                   ...info,
                   résultat: info.résultat.score,
@@ -181,34 +213,41 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
       });
     };
 
-    const { changerProfondeur, oublier: oublierComptes } =
+    const { profondeur, fOublier: oublierComptes } =
       await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
         }: {
-          fSuivreRacine: Suivi<{idCompte: string, profondeur: number}[]>;
-        }): Promise<schémaRetourFonctionRechercheParProfondeur> =>
-          await réseau.suivreComptesParProfondeur({
-            f: fSuivreRacine,
-            profondeur: PROFONDEUR_MINIMALE_RECHERCHE,
-          }),
+          fSuivreRacine: Suivi<{ idCompte: string; profondeur: number }[]>;
+        }): Promise<{ fOublier: Oublier; profondeur: (p: number) => void }> => {
+          const { oublier, profondeur: changerProfondeur } =
+            await réseau.suivreComptesParProfondeur({
+              f: (liste) =>
+                fSuivreRacine(
+                  liste.map(({ val, profondeur }) => ({
+                    idCompte: val,
+                    profondeur,
+                  })),
+                ),
+              profondeur: PROFONDEUR_MINIMALE_RECHERCHE,
+            });
+          return { profondeur: changerProfondeur, fOublier: oublier };
+        },
         fBranche: fSuivreCompte,
-        fIdDeBranche: x => x.idCompte,
-        f: (x: RésultatAvecProfondeur[]) => {résultats = x},
+        fIdDeBranche: (x) => x.idCompte,
+        f: (x: RésultatAvecProfondeur[]) => {
+          résultats = x;
+        },
       });
 
-    const ajusterProfondeurStable = stabiliser(2000)(changerProfondeur)
+    const ajusterProfondeurStable = stabiliser(2000)(profondeur);
 
     const changerN = async (nouveauN: number) => {
       n = nouveauN;
       await fFinale();
     };
 
-    const oublier = async () => {
-      oublierComptes();
-      await queue.onIdle();
-    };
-    return { oublier, n: changerN };
+    return { oublier: oublierComptes, n: changerN };
   }
 }
 
@@ -241,7 +280,7 @@ export abstract class RechercheObjets<
     fQualité: SuivreQualitéRecherche;
     fObjectif: SuivreObjectifRecherche<T>;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     if (idCompte) {
       const { fOublier, changerN } = await suivreDeFonctionListe({
         fListe: async ({

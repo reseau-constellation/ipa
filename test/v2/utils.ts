@@ -9,13 +9,9 @@ import { créerConstellation } from "@/v2/index.js";
 import { attendreQue } from "./nébuleuse/utils/fonctions.js";
 import { connecterCrabes } from "./crabe/utils.js";
 import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
-import type {
-  InfoRésultat,
-  RetourFonctionRecherche,
-  RésultatRecherche,
-} from "@/v2/recherche/types.js";
+import type { InfoRésultat, RésultatRecherche } from "@/v2/recherche/types.js";
 import type { Constellation } from "@/v2/index.js";
-import type { Oublier, Suivi } from "@/v2/crabe/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "@/v2/crabe/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
@@ -194,9 +190,7 @@ export type ObtRecherche<T extends InfoRésultat = InfoRésultat> = {
 };
 
 export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
-  f: (args: {
-    f: Suivi<RésultatRecherche<T>[]>;
-  }) => Promise<RetourFonctionRecherche>,
+  f: (args: { f: Suivi<RésultatRecherche<T>[]> }) => Promise<RetourRecherche>,
 ): Promise<ObtRecherche<T>> => {
   const événements = new TypedEmitter<{
     trouvé: (x: RésultatRecherche<T>[]) => void;

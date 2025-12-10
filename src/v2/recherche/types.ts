@@ -55,8 +55,3 @@ export type SuivreQualitéRecherche = (args: {
   idObjet: string;
   f: Suivi<number>;
 }) => Promise<Oublier>;
-
-export type RetourFonctionRecherche = {
-  oublier: Oublier;
-  n: (n: number) => Promise<void>;
-};

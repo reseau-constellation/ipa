@@ -1,8 +1,6 @@
 import { எண்ணிக்கை } from "ennikkai";
 import indexedDbStream from "indexed-db-stream";
-import {
-  sauvegarderFichierZip,
-} from "@constl/utils-ipa";
+import { sauvegarderFichierZip } from "@constl/utils-ipa";
 
 import sha256 from "crypto-js/sha256.js";
 import { randomBytes } from "@noble/hashes/utils";
@@ -16,9 +14,7 @@ import { Licences } from "@/licences.js";
 import { Réseau } from "@/reseau.js";
 
 import { Protocoles } from "./protocoles.js";
-import type {
-  PartielRécursif,
-} from "@/types.js";
+import type { PartielRécursif } from "@/types.js";
 import type { ÉpingleCompte } from "@/favoris.js";
 import type { Helia } from "helia";
 import type { JSONSchemaType } from "ajv";
@@ -27,9 +23,7 @@ import type { ServicesLibp2p } from "@/sfip/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import type { createOrbitDB, OrbitDB } from "@orbitdb/core";
 import type { structureBdProfil } from "@/profil.js";
-import type {
-  type GestionnaireOrbite,
-} from "@/orbite.js";
+import type { type GestionnaireOrbite } from "@/orbite.js";
 import { Tableaux } from "@/tableaux.js";
 import { Nuées } from "@/nuées.js";
 import { Recherche } from "@/recherche/index.js";
@@ -41,7 +35,6 @@ import { Variables } from "@/variables.js";
 import { Profil, schémaStructureBdProfil } from "@/profil.js";
 import { BDs } from "@/bds.js";
 import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
-
 
 type ÉvénementsClient<T extends ServicesLibp2p = ServicesLibp2p> = {
   comptePrêt: (args: { idCompte: string }) => void;
@@ -242,7 +235,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       options: épingle,
     });
   }
-
 
   async signer({ message }: { message: string }): Promise<Signature> {
     const { orbite } = await this.attendreSfipEtOrbite();

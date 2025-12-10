@@ -1,18 +1,20 @@
 import {
   faisRien,
   ignorerNonDéfinis,
+  suivreDeFonctionListe,
   suivreFonctionImbriquée,
 } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { cacheSuivi } from "../cache.js";
+import { cacheRechercheParProfondeur, cacheSuivi } from "../cache.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
 import { appelerLorsque } from "./utils.js";
+import type { RésultatProfondeur } from "../cache.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { PartielRécursif } from "@/v2/types.js";
-import type { Oublier, Suivi } from "../types.js";
+import type { Oublier, RetourRechercheProfondeur, Suivi } from "../types.js";
 import type { ServicesLibp2pCrabe } from "./libp2p/libp2p.js";
 import type { ServicesNécessairesCompte } from "./compte/compte.js";
 
@@ -269,7 +271,7 @@ export class ServiceRéseau<
   @cacheSuivi
   async suivreComptes({ f }: { f: Suivi<string[]> }): Promise<Oublier> {}
 
-  // Spécification explicite de confiance
+  // Gestion manuelle du réseau
 
   async faireConfianceAuCompte({
     idCompte,
@@ -439,7 +441,102 @@ export class ServiceRéseau<
     };
   }
 
-  // Confiance implicite réseau
+  // Méthodes réseau ambiant
+
+  @cacheSuivi
+  async suivreRéseauImmédiat({
+    f,
+    idCompte,
+  }: {
+    f: Suivi<string[]>;
+    idCompte?: string;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+
+    const suivreRéseauCompte = async ({
+      id,
+      fSuivre,
+    }: {
+      id: string;
+      fSuivre: Suivi<string[]>;
+    }): Promise<Oublier> => {};
+
+    return await suivreFonctionImbriquée({
+      fRacine: async ({ fSuivreRacine }) => {
+        if (idCompte) {
+          await fSuivreRacine(idCompte);
+          return faisRien;
+        } else {
+          return await compte.suivreIdCompte({ f: fSuivreRacine });
+        }
+      },
+      fSuivre: suivreRéseauCompte,
+      f: ignorerNonDéfinis(f),
+    });
+  }
+
+  @cacheRechercheParProfondeur
+  async suivreComptesParProfondeur({
+    f,
+    profondeur,
+    idCompte,
+  }: {
+    f: Suivi<RésultatProfondeur<string>[]>;
+    profondeur: number;
+    idCompte?: string;
+  }): Promise<RetourRechercheProfondeur> {
+    const résultatCompteDépart: RésultatProfondeur<string> = {
+      val: idCompteDépart,
+      profondeur: 0,
+    };
+
+    const enleverDoublons = (
+      comptes: RésultatProfondeur<string>[],
+    ): RésultatProfondeur<string>[] => {
+      const dédoublés: Map<string, RésultatProfondeur<string>> = new Map();
+      for (const compte of comptes) {
+        const existant = dédoublés.get(compte.val);
+        if (existant) {
+          dédoublés.set(compte.val, {
+            ...compte,
+            profondeur: Math.min(compte.profondeur, existant.profondeur),
+          });
+        } else {
+          dédoublés.set(compte.val, compte);
+        }
+      }
+      return [...dédoublés.values()];
+    };
+
+    const { fOublier: oublier, profondeur: changerProfondeur } =
+      await suivreDeFonctionListe({
+        fListe: async ({ fSuivreRacine }) =>
+          await this.suivreRéseauImmédiat({ idCompte, f: fSuivreRacine }),
+        fBranche: async ({
+          id: idCompteBranche,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: Suivi<RésultatProfondeur<string>[]>;
+        }) => {
+          const résultatBranche: RésultatProfondeur<string> = {
+            val: idCompteBranche,
+            profondeur,
+          };
+          if (profondeur === 0) {
+          } else {
+            return await this.suivreComptesParProfondeur({
+              idCompte: idCompteBranche,
+              f: fSuivreBranche,
+              profondeur: profondeur - 1,
+            });
+          }
+        },
+        f: async (comptes: RésultatProfondeur<string>[]) =>
+          await f(enleverDoublons([résultatCompteDépart, ...comptes])),
+      });
+    return { oublier, profondeur: changerProfondeur };
+  }
 
   @cacheSuivi
   async suivreConfianceDirecte({

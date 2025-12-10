@@ -9,12 +9,8 @@ import type { schémaFonctionOublier } from "@/types.js";
 import type { Constellation } from "@/client.js";
 import { créerConstellation } from "@/index.js";
 
-
-
 if (isNode || isElectronMain) {
   describe("Concurrence", function () {
-
-
     /*describe.skip("Même dossier - serveur local", async () => {
       let fermerServeur: schémaFonctionOublier;
       let port: number;

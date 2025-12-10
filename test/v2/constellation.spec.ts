@@ -77,7 +77,7 @@ describe.only("Constellation", function () {
       // if (!isNode || process.platform === "win32") this.skip(); // Pour l'instant
       await constls[0].fermer();
     });
-  })
+  });
 
   describe.skip("syncronisation", function () {
     let fermer: () => Promise<void>;

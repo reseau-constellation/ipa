@@ -1,7 +1,9 @@
 import { expect } from "aegir/chai";
 import { isNode, isElectronMain } from "wherearewe";
 import { créerConstellationsTest } from "./utils.js";
+import type { Résolveur } from "@/v2/crabe/services/favoris.js";
 import type { Constellation } from "@/v2/index.js";
+import type { Oublier } from "@/v2/crabe/types.js";
 
 describe("Favoris", function () {
   let fermer: () => Promise<void>;
@@ -66,14 +68,25 @@ describe("Favoris", function () {
 
   describe("résolution épingles", function () {
     it("inscrire résolution", async () => {
-      throw new Error("à faire");
+      const résolution: Résolveur = async ({
+        épingle,
+        f,
+      }): Promise<Oublier> => {};
+      await constl.favoris.inscrireRésolution({
+        clef: "ma résolution",
+        résolution,
+      });
+      await constl.favoris.épinglerFavori({});
     });
+
     it("erreur si résolution non inscrite", async () => {
       throw new Error("à faire");
     });
+
     it("résoudre sous-bds", async () => {
       throw new Error("à faire");
     });
+
     it("pas d'erreur même si référence circulaire", async () => {
       throw new Error("à faire");
     });
@@ -90,12 +103,6 @@ describe("Favoris", function () {
       throw new Error("à faire");
     });
     it("désépingler favoris", async () => {
-      throw new Error("à faire");
-    });
-  });
-
-  describe("désépingler", function () {
-    it("épingle retirée", async () => {
       throw new Error("à faire");
     });
   });

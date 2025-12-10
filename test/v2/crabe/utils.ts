@@ -82,7 +82,7 @@ export const créerCrabesTest = async <
 }> => {
   let effacer: () => void;
   if (!dossier) ({ dossier, effacer } = await dossierTempoPropre());
-  else effacer = () => {}
+  else effacer = () => {};
 
   const crabes: CrabeTest<T, S>[] = [];
 
