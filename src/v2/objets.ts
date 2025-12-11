@@ -1,10 +1,11 @@
-import { suivreDeFonctionListe } from "@constl/utils-ipa";
+import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { typedNested } from "@constl/bohr-db";
 import { toObject, type NestedValueObject } from "@orbitdb/nested-db";
 import { isValidAddress } from "@orbitdb/core";
 import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
+import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Constellation } from "./index.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
@@ -58,6 +59,12 @@ export abstract class ObjetConstellation<
       options: {
         schéma: schémaServiceObjet,
       },
+    });
+
+    const réseau = this.service("réseau");
+    réseau.inscrireRésolutionConfiance({
+      clef: this.clef,
+      résolution: this.résolutionConfiance.bind(this),
     });
   }
 
@@ -215,4 +222,47 @@ export abstract class ObjetConstellation<
       f,
     });
   }
+
+  // Confiance réseau
+
+  async résolutionConfiance({
+    de,
+    f,
+  }: {
+    de: string;
+    f: Suivi<{
+      idCompte: string;
+      confiance: number;
+    }[]>;
+  }): Promise<Oublier> {
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
+        return await this.suivreObjets({
+          idCompte: de,
+          f: ignorerNonDéfinis(fSuivreRacine),
+        });
+      },
+      fBranche: async ({
+        id: idObjet,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<InfoAuteur[]>;
+      }) => {
+        return await this.suivreAuteursObjet({ idObjet, f: fSuivreBranche });
+      },
+      f: async (auteurs: InfoAuteur[]) => {
+        // On a pas besoin de vérifier l'acceptation des invitations car ça n'affecte que les confiances 
+        // rapportées pour le compte de la personne qui a invité
+        const idsComptes = [...new Set(auteurs.map(a=>a.idCompte))];
+
+        return await f(idsComptes.map(idCompte => {
+          const n = auteurs.map(a=>a.idCompte === idCompte).length
+          const confiance = 1 - (1-CONFIANCE_DE_COAUTEUR)**n
+          return {idCompte, confiance}
+        }));
+      },
+    });
+  }
+
 }
