@@ -1,6 +1,4 @@
-import {
-  faisRien,
-} from "@constl/utils-ipa";
+import { faisRien } from "@constl/utils-ipa";
 import { cacheSuivi } from "./crabe/cache.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";

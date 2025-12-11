@@ -1,6 +1,4 @@
-import {
-  faisRien,
-} from "@constl/utils-ipa";
+import { faisRien } from "@constl/utils-ipa";
 import { v4 as uuidv4 } from "uuid";
 import { cacheSuivi } from "./crabe/cache.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
@@ -147,7 +145,6 @@ export class Variables<
       clef: "variable",
       résolution: this.suivreRésolutionÉpingle.bind(this),
     });
-
   }
 
   @cacheSuivi

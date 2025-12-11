@@ -230,10 +230,12 @@ export abstract class ObjetConstellation<
     f,
   }: {
     de: string;
-    f: Suivi<{
-      idCompte: string;
-      confiance: number;
-    }[]>;
+    f: Suivi<
+      {
+        idCompte: string;
+        confiance: number;
+      }[]
+    >;
   }): Promise<Oublier> {
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
@@ -252,17 +254,18 @@ export abstract class ObjetConstellation<
         return await this.suivreAuteursObjet({ idObjet, f: fSuivreBranche });
       },
       f: async (auteurs: InfoAuteur[]) => {
-        // On a pas besoin de vérifier l'acceptation des invitations car ça n'affecte que les confiances 
+        // On a pas besoin de vérifier l'acceptation des invitations car ça n'affecte que les confiances
         // rapportées pour le compte de la personne qui a invité
-        const idsComptes = [...new Set(auteurs.map(a=>a.idCompte))];
+        const idsComptes = [...new Set(auteurs.map((a) => a.idCompte))];
 
-        return await f(idsComptes.map(idCompte => {
-          const n = auteurs.map(a=>a.idCompte === idCompte).length
-          const confiance = 1 - (1-CONFIANCE_DE_COAUTEUR)**n
-          return {idCompte, confiance}
-        }));
+        return await f(
+          idsComptes.map((idCompte) => {
+            const n = auteurs.map((a) => a.idCompte === idCompte).length;
+            const confiance = 1 - (1 - CONFIANCE_DE_COAUTEUR) ** n;
+            return { idCompte, confiance };
+          }),
+        );
       },
     });
   }
-
 }

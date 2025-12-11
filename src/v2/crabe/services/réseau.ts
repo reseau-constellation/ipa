@@ -38,7 +38,7 @@ export type RelationRéseau = {
   de: string;
   pour: string;
   confiance: number;
-}
+};
 
 // Constantes
 
@@ -456,20 +456,18 @@ export class ServiceRéseau<
   @cacheRechercheParProfondeur
   async suivreRelationsRéseau({
     f,
-    idCompte
+    idCompte,
   }: {
-    f: Suivi<RelationRéseau[]>,
-    idCompte?: string
-  }): Promise<RetourRechercheProfondeur> {
-
-  }
+    f: Suivi<RelationRéseau[]>;
+    idCompte?: string;
+  }): Promise<RetourRechercheProfondeur> {}
 
   @cacheSuivi
   async suivreRelationsImmédiates({
     f,
     idCompte,
   }: {
-    f: Suivi<{idCompte: string, confiance: number}[]>;
+    f: Suivi<{ idCompte: string; confiance: number }[]>;
     idCompte?: string;
   }): Promise<Oublier> {
     const compte = this.service("compte");
@@ -479,7 +477,7 @@ export class ServiceRéseau<
       fSuivre,
     }: {
       id: string;
-      fSuivre: Suivi<{idCompte: string, confiance: number}[]>;
+      fSuivre: Suivi<{ idCompte: string; confiance: number }[]>;
     }): Promise<Oublier> => {
       const confiances: {
         bloqués?: string[];
@@ -493,18 +491,40 @@ export class ServiceRéseau<
       } = { inférés: {} };
 
       const fFinale = async () => {
-        const relationsFiables = (confiances.fiables ?? []).map(c=>({idCompte: c, confiance: 1}))
-        const relationsBloquées = (confiances.bloqués ?? []).map(c=>({idCompte: c, confiance: -1}))
-        
-        // On priorise les relations explicites
-        const inférés = Object.values(confiances.inférés).flat().filter(c=>!confiances.fiables?.includes(c.pour) && !confiances.bloqués?.includes(c.pour) );
-        const comptesInférés = [...new Set(inférés.map(x=>x.pour))];
-        const relationsInférées = comptesInférés.map(c=>{
-          const confiancesComptes = inférés.filter(i=>i.pour === c).map(i=>i.confiance);
-          return {idCompte: c, confiance: 1 - confiancesComptes.reduce((total, c) => (1-c) * total, 1)}
-        })
+        const relationsFiables = (confiances.fiables ?? []).map((c) => ({
+          idCompte: c,
+          confiance: 1,
+        }));
+        const relationsBloquées = (confiances.bloqués ?? []).map((c) => ({
+          idCompte: c,
+          confiance: -1,
+        }));
 
-        return await fSuivre([...relationsFiables, ...relationsInférées, ...relationsBloquées])
+        // On priorise les relations explicites
+        const inférés = Object.values(confiances.inférés)
+          .flat()
+          .filter(
+            (c) =>
+              !confiances.fiables?.includes(c.pour) &&
+              !confiances.bloqués?.includes(c.pour),
+          );
+        const comptesInférés = [...new Set(inférés.map((x) => x.pour))];
+        const relationsInférées = comptesInférés.map((c) => {
+          const confiancesComptes = inférés
+            .filter((i) => i.pour === c)
+            .map((i) => i.confiance);
+          return {
+            idCompte: c,
+            confiance:
+              1 - confiancesComptes.reduce((total, c) => (1 - c) * total, 1),
+          };
+        });
+
+        return await fSuivre([
+          ...relationsFiables,
+          ...relationsInférées,
+          ...relationsBloquées,
+        ]);
       };
 
       const oublierConfiances: Oublier[] = [];
@@ -556,7 +576,6 @@ export class ServiceRéseau<
   }
 
   // à vérifier
-
 
   @cacheRechercheParProfondeur
   async suivreComptesParProfondeur({
