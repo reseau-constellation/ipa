@@ -224,10 +224,13 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
             await réseau.suivreComptesParProfondeur({
               f: (liste) =>
                 fSuivreRacine(
-                  liste.map(({ val, profondeur }) => ({
-                    idCompte: val,
-                    profondeur,
-                  })),
+                  liste
+                    // On ignore les membres bloqués directement ou avec un score négatif
+                    .filter(({val: { confiance }}) => confiance >= 0)
+                    .map(({ val, profondeur }) => ({
+                      idCompte: val.idCompte,
+                      profondeur,
+                    })),
                 ),
               profondeur: PROFONDEUR_MINIMALE_RECHERCHE,
             });
@@ -400,10 +403,11 @@ export abstract class RechercheObjets<
       id: string;
       fSuivreBranche: Suivi<number>;
     }): Promise<Oublier> => {
-      return await réseau.suivreConfiance({
+      const { oublier } = await réseau.suivreConfianceCompte({
         idCompte: idAuteur,
-        f: fSuivreBranche,
+        f: ignorerNonDéfinis(fSuivreBranche),
       });
+      return oublier
     };
 
     const fFinale = async (confiances: number[]) => {
