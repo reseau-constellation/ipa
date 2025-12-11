@@ -1,7 +1,5 @@
 import {
   faisRien,
-  ignorerNonDéfinis,
-  suivreDeFonctionListe,
 } from "@constl/utils-ipa";
 import { v4 as uuidv4 } from "uuid";
 import { cacheSuivi } from "./crabe/cache.js";
@@ -9,7 +7,6 @@ import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
 import { RechercheVariables } from "./recherche/variables.js";
-import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
 import { ObjetConstellation } from "./objets.js";
 import type { Rôle } from "./crabe/services/compte/accès/index.js";
 import type { Constellation } from "./constellation.js";
@@ -151,11 +148,6 @@ export class Variables<
       résolution: this.suivreRésolutionÉpingle.bind(this),
     });
 
-    const réseau = this.service("réseau");
-    réseau.inscrireRésolutionConfiance({
-      clef: this.clef,
-      résolution: this.résolutionConfiance.bind(this),
-    });
   }
 
   @cacheSuivi
@@ -334,38 +326,6 @@ export class Variables<
       throw new Error(
         `Permission de modification refusée pour la variable ${idVariable}.`,
       );
-  }
-
-  async résolutionConfiance({
-    de,
-    pour,
-    f,
-  }: {
-    de: string;
-    pour: string;
-    f: Suivi<number[]>;
-  }): Promise<Oublier> {
-    return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
-        return await this.suivreVariables({
-          idCompte: de,
-          f: ignorerNonDéfinis(fSuivreRacine),
-        });
-      },
-      fBranche: async ({
-        id: idVariable,
-        fSuivreBranche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<InfoAuteur[]>;
-      }) => {
-        return await this.suivreAuteurs({ idVariable, f: fSuivreBranche });
-      },
-      f: async (auteurs: InfoAuteur[]) => {
-        const n = auteurs.map((a) => a.accepté && a.idCompte === pour).length;
-        return await f(Array(n).fill(CONFIANCE_DE_COAUTEUR));
-      },
-    });
   }
 
   // Épingler

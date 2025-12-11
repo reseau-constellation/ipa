@@ -26,7 +26,6 @@ import {
 import { cacheSuivi } from "../crabe/cache.js";
 import { RechercheNuées } from "../recherche/nuées.js";
 import { mapÀObjet } from "../crabe/utils.js";
-import { CONFIANCE_DE_COAUTEUR } from "../crabe/services/consts.js";
 import { appelerLorsque } from "../crabe/services/utils.js";
 import { ObjetConstellation } from "../objets.js";
 import { TableauxNuées } from "./tableaux.js";
@@ -251,12 +250,6 @@ export class Nuées<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
     favoris.inscrireRésolution({
       clef: "nuée",
       résolution: this.suivreRésolutionÉpingle.bind(this),
-    });
-
-    const réseau = this.service("réseau");
-    réseau.inscrireRésolutionConfiance({
-      clef: this.clef,
-      résolution: this.résolutionConfiance.bind(this),
     });
   }
 
@@ -626,38 +619,6 @@ export class Nuées<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
       throw new Error(
         `Permission de modification refusée pour la nuée ${idNuée}.`,
       );
-  }
-
-  async résolutionConfiance({
-    de,
-    pour,
-    f,
-  }: {
-    de: string;
-    pour: string;
-    f: Suivi<number[]>;
-  }): Promise<Oublier> {
-    return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
-        return await this.suivreNuées({
-          idCompte: de,
-          f: ignorerNonDéfinis(fSuivreRacine),
-        });
-      },
-      fBranche: async ({
-        id: idNuée,
-        fSuivreBranche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<InfoAuteur[]>;
-      }) => {
-        return await this.suivreAuteurs({ idNuée, f: fSuivreBranche });
-      },
-      f: async (auteurs: InfoAuteur[]) => {
-        const n = auteurs.map((a) => a.accepté && a.idCompte === pour).length;
-        return await f(Array(n).fill(CONFIANCE_DE_COAUTEUR));
-      },
-    });
   }
 
   // Épingles

@@ -2,7 +2,6 @@ import { join } from "path";
 import {
   attendreStabilité,
   faisRien,
-  ignorerNonDéfinis,
   suivreDeFonctionListe,
   traduire,
   uneFois,
@@ -20,7 +19,6 @@ import {
   résoudreDéfauts,
 } from "./crabe/services/favoris.js";
 import { mapÀObjet } from "./crabe/utils.js";
-import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
 import { ObjetConstellation } from "./objets.js";
 import type { BookType, WorkBook } from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
@@ -151,12 +149,6 @@ export class Projets<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
     favoris.inscrireRésolution({
       clef: "projet",
       résolution: this.suivreRésolutionÉpingle.bind(this),
-    });
-
-    const réseau = this.service("réseau");
-    réseau.inscrireRésolutionConfiance({
-      clef: this.clef,
-      résolution: this.résolutionConfiance.bind(this),
     });
   }
 
@@ -332,38 +324,6 @@ export class Projets<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
       throw new Error(
         `Permission de modification refusée pour le projet ${idProjet}.`,
       );
-  }
-
-  async résolutionConfiance({
-    de,
-    pour,
-    f,
-  }: {
-    de: string;
-    pour: string;
-    f: Suivi<number[]>;
-  }): Promise<Oublier> {
-    return await suivreDeFonctionListe({
-      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
-        return await this.suivreProjets({
-          idCompte: de,
-          f: ignorerNonDéfinis(fSuivreRacine),
-        });
-      },
-      fBranche: async ({
-        id: idProjet,
-        fSuivreBranche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<InfoAuteur[]>;
-      }) => {
-        return await this.suivreAuteurs({ idProjet, f: fSuivreBranche });
-      },
-      f: async (auteurs: InfoAuteur[]) => {
-        const n = auteurs.map((a) => a.accepté && a.idCompte === pour).length;
-        return await f(Array(n).fill(CONFIANCE_DE_COAUTEUR));
-      },
-    });
   }
 
   // Épingles
