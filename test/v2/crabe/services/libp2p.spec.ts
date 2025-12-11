@@ -22,7 +22,7 @@ import {
   extraireLibp2pDesOptions,
 } from "@/v2/crabe/services/libp2p/libp2p.js";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { dossierTempoPropre } from "../../utils.js";
+import { dossierTempoPropre, obtenir } from "../../utils.js";
 import {
   ServiceLibp2pTest,
   obtenirOptionsLibp2pLocal,
@@ -171,7 +171,7 @@ describe.only("Service Libp2p", function () {
       effacer();
     });
 
-    it("libp2p fermé si endogène", async () => {
+    it("libp2p fermée si endogène", async () => {
       nébuleuse = new Nébuleuse<ServicesNécessairesLibp2p>({
         services: {
           libp2p: ServiceLibp2pTest,
@@ -190,7 +190,7 @@ describe.only("Service Libp2p", function () {
       expect(libp2p.status).to.equal("stopped");
     });
 
-    it("libp2p non fermé si exogène", async () => {
+    it("libp2p non fermée si exogène", async () => {
       const libp2pOriginal = await createLibp2p(
         isBrowser ? OptionsDéfautLibp2pNavigateur() : OptionsDéfautLibp2pNode(),
       );
@@ -604,6 +604,41 @@ describe.only("Service Libp2p", function () {
           uint8ArrayToString(clefRéelle.raw),
         );
       });
+    });
+  });
+
+  describe("addresses", function () {
+    let nébuleuse: Nébuleuse<ServicesNécessairesLibp2p>;
+    let dossier: string;
+    let effacer: () => void;
+
+    beforeEach(async () => {
+      ({ dossier, effacer } = await dossierTempoPropre());
+      nébuleuse = new Nébuleuse<ServicesNécessairesLibp2p>({
+        services: {
+          libp2p: ServiceLibp2pTest,
+          stockage: ServiceStockage,
+        },
+        options: {
+          dossier,
+        },
+      });
+      await nébuleuse.démarrer();
+    });
+
+    afterEach(async () => {
+      if (nébuleuse.estDémarrée) await nébuleuse.fermer();
+      effacer();
+    });
+
+    it("suivi", async () => {
+      const libp2p = nébuleuse.services["libp2p"];
+      const idPair = (await libp2p.libp2p()).peerId.toString();
+      const adresses = await obtenir<string[]>(({ siPasVide }) =>
+        libp2p.suivreMesAdresses({ f: siPasVide() }),
+      );
+
+      expect(adresses.every((adresse) => adresse.includes(idPair)));
     });
   });
 });

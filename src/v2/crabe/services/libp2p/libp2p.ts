@@ -7,10 +7,11 @@ import {
 import { keys } from "@libp2p/crypto";
 import { ServiceNébuleuse } from "../../../nébuleuse/index.js";
 import { obtenirOptionsLibp2p } from "./config/index.js";
+import type { Oublier, Suivi } from "../../types.js";
 import type { Libp2p, Libp2pOptions } from "libp2p";
 import type { Identify } from "@libp2p/identify";
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
-import type { PrivateKey, ServiceMap } from "@libp2p/interface";
+import type { PeerUpdate, PrivateKey, ServiceMap } from "@libp2p/interface";
 import type { Nébuleuse, OptionsNébuleuse } from "../../../nébuleuse/index.js";
 import type { ServiceStockage } from "../stockage.js";
 
@@ -168,6 +169,22 @@ export class ServiceLibp2p<
       "idPairLibp2p",
       texteNouvelleClefPrivée,
     );
+  }
+
+  async suivreMesAdresses({ f }: { f: Suivi<string[]> }): Promise<Oublier> {
+    const libp2p = await this.libp2p();
+    const adressesActuelles = libp2p.getMultiaddrs().map((a) => a.toString());
+    await f(adressesActuelles);
+
+    const fSuivi = async (é: CustomEvent<PeerUpdate>) => {
+      const adresses = é.detail.peer.addresses.map((a) =>
+        a.multiaddr.toString(),
+      );
+      await f(adresses);
+    };
+
+    libp2p.addEventListener("self:peer:update", fSuivi);
+    return async () => libp2p.removeEventListener("self:peer:update", fSuivi);
   }
 
   async fermer(): Promise<void> {
