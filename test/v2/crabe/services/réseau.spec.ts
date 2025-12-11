@@ -167,11 +167,19 @@ describe("Réseau", function () {
     });
   });
 
-  describe("confiance", function () {
+  describe("confiance - manuelle", function () {
     describe("membres fiables");
     describe("membres bloqués", function () {
       it("persistance après redémarrage");
     });
+  });
+
+  describe("confiance - automatique", function () {
+    describe("spécifier résolution");
+    it("confiance transitive");
+    it("confiance fiable transitive");
+    it("confiance bloquée transitive");
+    it("priorité confiance manuelle personnelle");
   });
 
   describe("reconnexion après réouverture");
