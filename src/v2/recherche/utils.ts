@@ -100,6 +100,7 @@ const régressionNonLinéaire = ({
 
 const régressionAsymptotique = (x: number[], y: number[]) => {
   // y = a−(a-b) * e^(−c*x); a = asymptote ; b = intercepte y
+  // de https://www.statforbiology.com/nonlinearregression/usefulequations
   const σ_x = écartType(x);
   const σ_y = écartType(y);
 
