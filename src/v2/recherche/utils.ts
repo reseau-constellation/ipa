@@ -47,7 +47,7 @@ export const calculerIntersection = ({
 
   const { a, b, c } = régressionAsymptotique(x, y);
 
-  return Math.log(-a * (p-1)/ (a-b))/ (-c)
+  return Math.log((-a * (p - 1)) / (a - b)) / -c;
 };
 
 const écartType = (array: number[]): number => {
@@ -111,10 +111,14 @@ const régressionAsymptotique = (x: number[], y: number[]) => {
 
   const paramètres = régressionNonLinéaire({
     f,
-    x: x.map((z) => (z) / σ_x),
-    y: y.map((z) => (z) / σ_y),
+    x: x.map((z) => z / σ_x),
+    y: y.map((z) => z / σ_y),
     p0: [Math.max(...y), Math.max(...y) / 2, 0.1],
   });
 
-  return { a: paramètres[0] * σ_y, b: paramètres[1] * σ_y, c: paramètres[2]*σ_x };
+  return {
+    a: paramètres[0] * σ_y,
+    b: paramètres[1] * σ_y,
+    c: paramètres[2] * σ_x,
+  };
 };
