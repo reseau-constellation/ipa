@@ -7,3 +7,6 @@ export const CLEF_N_CHANGEMENT_COMPTES = "n changements compte";
 // Confiance réseau
 export const CONFIANCE_DE_COAUTEUR = 0.9;
 export const CONFIANCE_DE_FAVORIS = 0.7;
+
+export const FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE = 0.8;
+export const FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE = 0.9;

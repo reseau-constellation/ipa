@@ -1,7 +1,6 @@
 import {
   faisRien,
   ignorerNonDéfinis,
-  suivreDeFonctionListe,
   suivreFonctionImbriquée,
 } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
@@ -9,6 +8,7 @@ import { cacheRechercheParProfondeur, cacheSuivi } from "../cache.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
 import { appelerLorsque } from "./utils.js";
+import { FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE, FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE } from "./consts.js";
 import type { RésultatProfondeur } from "../cache.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
@@ -38,6 +38,7 @@ export type RelationRéseau = {
   de: string;
   pour: string;
   confiance: number;
+  profondeur: number;
 };
 
 // Constantes
@@ -454,139 +455,84 @@ export class ServiceRéseau<
   // Méthodes réseau ambiant
 
   @cacheRechercheParProfondeur
-  async suivreRelationsRéseau({
-    f,
-    idCompte,
-  }: {
-    f: Suivi<RelationRéseau[]>;
-    idCompte?: string;
-  }): Promise<RetourRechercheProfondeur> {}
-
-  @cacheSuivi
-  async suivreRelationsImmédiates({
-    f,
-    idCompte,
-  }: {
-    f: Suivi<{ idCompte: string; confiance: number }[]>;
-    idCompte?: string;
-  }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    const suivreRelationsCompte = async ({
-      id,
-      fSuivre,
-    }: {
-      id: string;
-      fSuivre: Suivi<{ idCompte: string; confiance: number }[]>;
-    }): Promise<Oublier> => {
-      const confiances: {
-        bloqués?: string[];
-        fiables?: string[];
-        inférés: {
-          [clef: string]: {
-            pour: string;
-            confiance: number;
-          }[];
-        };
-      } = { inférés: {} };
-
-      const fFinale = async () => {
-        const relationsFiables = (confiances.fiables ?? []).map((c) => ({
-          idCompte: c,
-          confiance: 1,
-        }));
-        const relationsBloquées = (confiances.bloqués ?? []).map((c) => ({
-          idCompte: c,
-          confiance: -1,
-        }));
-
-        // On priorise les relations explicites
-        const inférés = Object.values(confiances.inférés)
-          .flat()
-          .filter(
-            (c) =>
-              !confiances.fiables?.includes(c.pour) &&
-              !confiances.bloqués?.includes(c.pour),
-          );
-        const comptesInférés = [...new Set(inférés.map((x) => x.pour))];
-        const relationsInférées = comptesInférés.map((c) => {
-          const confiancesComptes = inférés
-            .filter((i) => i.pour === c)
-            .map((i) => i.confiance);
-          return {
-            idCompte: c,
-            confiance:
-              1 - confiancesComptes.reduce((total, c) => (1 - c) * total, 1),
-          };
-        });
-
-        return await fSuivre([
-          ...relationsFiables,
-          ...relationsInférées,
-          ...relationsBloquées,
-        ]);
-      };
-
-      const oublierConfiances: Oublier[] = [];
-      for (const [clef, résolution] of this.résolutionsConfiance.entries()) {
-        oublierConfiances.push(
-          await résolution({
-            de: id,
-            f: async (x) => {
-              confiances.inférés[clef] = x;
-              await fFinale();
-            },
-          }),
-        );
-      }
-      const oublierBloqués = await this.suivreComptesBloqués({
-        idCompte,
-        f: async (bloqués) => {
-          confiances.bloqués = bloqués.map((b) => b.idCompte);
-          await fFinale();
-        },
-      });
-      const oublierFiables = await this.suivreComptesFiables({
-        idCompte,
-        f: async (fiables) => {
-          confiances.fiables = fiables;
-          await fFinale();
-        },
-      });
-
-      return async () => {
-        await oublierBloqués();
-        await oublierFiables();
-        await Promise.all(oublierConfiances.map((f) => f()));
-      };
-    };
-
-    return await suivreFonctionImbriquée({
-      fRacine: async ({ fSuivreRacine }) => {
-        if (idCompte) {
-          await fSuivreRacine(idCompte);
-          return faisRien;
-        } else {
-          return await compte.suivreIdCompte({ f: fSuivreRacine });
-        }
-      },
-      fSuivre: suivreRelationsCompte,
-      f: ignorerNonDéfinis(f),
-    });
-  }
-
-  // à vérifier
-
-  @cacheRechercheParProfondeur
   async suivreComptesParProfondeur({
     f,
     profondeur,
     idCompte,
   }: {
-    f: Suivi<RésultatProfondeur<string>[]>;
+    f: Suivi<RésultatProfondeur<{ idCompte: string, confiance: number }>[]>;
     profondeur: number;
     idCompte?: string;
   }): Promise<RetourRechercheProfondeur> {
+    const compte = this.service("compte");
+
+    return await this.suivreRelationsRéseau({
+      f: async (relations) => {
+        const monIdCompte = await compte.obtIdCompte();
+        const comptes = [...new Set(...relations.map(r=>r.pour))]
+        const relationsFinales: RésultatProfondeur<{ idCompte: string, confiance: number }>[] = comptes.map(c => {
+          const relationsPourCompte = relations.filter(r=>r.pour === c);
+          const profondeurCompte = Math.min(...relationsPourCompte.map(r=>r.profondeur));
+
+          const maRelation = relations.find((r) => r.de === monIdCompte);
+          if (maRelation?.confiance === 1 || maRelation?.confiance === -1) {
+            return {
+              profondeur: 1,
+              val: {
+                idCompte: maRelation.pour,
+                confiance: maRelation.confiance,
+              }
+            };
+          }
+
+          const positives = relations.filter((r) => r.confiance >= 0);
+          const négatives = relations.filter((r) => r.confiance < 0);
+          const coûtNégatif =
+            1 -
+            négatives
+              .map(
+                (r) =>
+                  1 +
+                  r.confiance *
+                    Math.pow(FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE, r.profondeur - 1),
+              )
+              .reduce((total, c) => c * total, 1);
+
+          const confiance =
+            1 -
+            positives
+              .map(
+                (r) =>
+                  1 -
+                  r.confiance *
+                    Math.pow(FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE, r.profondeur - 1),
+              )
+              .reduce((total, c) => c * total, 1) -
+            coûtNégatif;
+
+          return { profondeur: profondeurCompte, val: { idCompte: c, confiance } }
+        
+        });
+        return await f(relationsFinales)
+      },
+      profondeur,
+      idCompte,
+    })
+  }
+
+  @cacheRechercheParProfondeur
+  async suivreRelationsRéseau({
+    f,
+    profondeur,
+    idCompte,
+  }: {
+    f: Suivi<RelationRéseau[]>;
+    profondeur: number;
+    idCompte?: string;
+  }): Promise<RetourRechercheProfondeur> {
+    this.suivreRelationsImmédiates
+
+    /**
     const serviceCompte = this.service("compte");
 
     const enleverDoublons = (
@@ -657,60 +603,123 @@ export class ServiceRéseau<
             ]),
           ),
       });
-    return { oublier, profondeur: changerProfondeur };
+    return { oublier, profondeur: changerProfondeur }; */
   }
 
   @cacheSuivi
-  async suivreConfianceDirecte({
-    de,
-    pour,
+  async suivreRelationsImmédiates({
     f,
+    idCompte,
   }: {
-    de: string;
-    pour: string;
-    f: Suivi<number>;
+    f: Suivi<{ idCompte: string; confiance: number }[]>;
+    idCompte?: string;
   }): Promise<Oublier> {
-    const àOublier: Oublier[] = [];
+    const compte = this.service("compte");
 
-    let statut: typeof FIABLE | typeof BLOQUÉ | undefined = undefined;
-    const confiances: { [clef: string]: number[] } = {};
+    const suivreRelationsCompte = async ({
+      id,
+      fSuivre,
+    }: {
+      id: string;
+      fSuivre: Suivi<{ idCompte: string; confiance: number }[]>;
+    }): Promise<Oublier> => {
+      const confiances: {
+        bloqués?: string[];
+        fiables?: string[];
+        inférés: {
+          [clef: string]: {
+            idCompte: string;
+            confiance: number;
+          }[];
+        };
+      } = { inférés: {} };
 
-    const fFinale = async () => {
-      if (statut === FIABLE) return await f(1);
-      else if (statut === BLOQUÉ) return await f(-1);
-      else {
-        const points = Object.values(confiances).flat();
-        const confiance =
-          1 - points.map((p) => 1 - p).reduce((total, c) => c * total, 1);
-        return await f(confiance);
+      const fFinale = async () => {
+        const relationsFiables = (confiances.fiables ?? []).map((c) => ({
+          idCompte: c,
+          confiance: 1,
+        }));
+        const relationsBloquées = (confiances.bloqués ?? []).map((c) => ({
+          idCompte: c,
+          confiance: -1,
+        }));
+
+        // On priorise les relations explicites
+        const inférés = Object.values(confiances.inférés)
+          .flat()
+          .filter(
+            (c) =>
+              !confiances.fiables?.includes(c.idCompte) &&
+              !confiances.bloqués?.includes(c.idCompte),
+          );
+        const comptesInférés = [...new Set(inférés.map((x) => x.idCompte))];
+        const relationsInférées = comptesInférés.map((c) => {
+          const confiancesComptes = inférés
+            .filter((i) => i.idCompte === c)
+            .map((i) => i.confiance);
+          return {
+            idCompte: c,
+            confiance:
+              1 - confiancesComptes.reduce((total, c) => (1 - c) * total, 1),
+          };
+        });
+
+        return await fSuivre([
+          ...relationsFiables,
+          ...relationsInférées,
+          ...relationsBloquées,
+        ]);
+      };
+
+      const oublierConfiances: Oublier[] = [];
+      for (const [clef, résolution] of this.résolutionsConfiance.entries()) {
+        oublierConfiances.push(
+          await résolution({
+            de: id,
+            f: async (x) => {
+              confiances.inférés[clef] = x;
+              await fFinale();
+            },
+          }),
+        );
       }
-    };
-
-    for (const [clef, résolution] of this.résolutionsConfiance.entries()) {
-      const oublier = await résolution({
-        de,
-        pour,
-        f: async (confiance) => {
-          confiances[clef] = confiance;
+      const oublierBloqués = await this.suivreComptesBloqués({
+        idCompte,
+        f: async (bloqués) => {
+          confiances.bloqués = bloqués.map((b) => b.idCompte);
           await fFinale();
         },
       });
-      àOublier.push(oublier);
-    }
+      const oublierFiables = await this.suivreComptesFiables({
+        idCompte,
+        f: async (fiables) => {
+          confiances.fiables = fiables;
+          await fFinale();
+        },
+      });
 
-    const oublierStatut = await this.suivreBd({
-      idCompte: de,
-      f: async (statuts) => {
-        statut = statuts?.[pour];
-        await fFinale();
-      },
-    });
-
-    return async () => {
-      await Promise.allSettled(àOublier.map((oublier) => oublier()));
-      await oublierStatut();
+      return async () => {
+        await oublierBloqués();
+        await oublierFiables();
+        await Promise.all(oublierConfiances.map((f) => f()));
+      };
     };
+
+    return await suivreFonctionImbriquée({
+      fRacine: async ({ fSuivreRacine }) => {
+        if (idCompte) {
+          await fSuivreRacine(idCompte);
+          return faisRien;
+        } else {
+          return await compte.suivreIdCompte({ f: fSuivreRacine });
+        }
+      },
+      fSuivre: suivreRelationsCompte,
+      f: ignorerNonDéfinis(f),
+    });
   }
+
+  // à vérifier
 
   @cacheSuivi
   async suivreConfiance({

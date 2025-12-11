@@ -127,8 +127,6 @@ export type MessageDirecteTexte = {
   contenu: { message: string };
 };
 
-const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
-const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
 
 const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30; // 1 mois
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
@@ -436,28 +434,6 @@ export class Réseau {
       // À faire : garder compte des requêtes pour `sujet` et appeler `unsubscribe` si nécessaire
       pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
     };
-  }
-
-  async suivreMesAdresses({
-    f,
-  }: {
-    f: schémaFonctionSuivi<string[]>;
-  }): Promise<schémaFonctionOublier> {
-    const { sfip } = await this.client.attendreSfipEtOrbite();
-    const adressesActuelles = sfip.libp2p
-      .getMultiaddrs()
-      .map((a) => a.toString());
-    await f(adressesActuelles);
-
-    const fSuivi = async (é: CustomEvent<PeerUpdate>) => {
-      const adresses = é.detail.peer.addresses.map((a) =>
-        a.multiaddr.toString(),
-      );
-      await f(adresses);
-    };
-    sfip.libp2p.addEventListener("self:peer:update", fSuivi);
-    return async () =>
-      sfip.libp2p.removeEventListener("self:peer:update", fSuivi);
   }
 
   async connecterÀAdresse({ adresse }: { adresse: string }) {
