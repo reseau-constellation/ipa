@@ -226,9 +226,9 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
                 fSuivreRacine(
                   liste
                     // On ignore les membres bloqués directement ou avec un score négatif
-                    .filter(({val: { confiance }}) => confiance >= 0)
-                    .map(({ val, profondeur }) => ({
-                      idCompte: val.idCompte,
+                    .filter(({ confiance }) => confiance >= 0)
+                    .map(({ idCompte, profondeur }) => ({
+                      idCompte: idCompte,
                       profondeur,
                     })),
                 ),
@@ -407,7 +407,7 @@ export abstract class RechercheObjets<
         idCompte: idAuteur,
         f: ignorerNonDéfinis(fSuivreBranche),
       });
-      return oublier
+      return oublier;
     };
 
     const fFinale = async (confiances: number[]) => {
