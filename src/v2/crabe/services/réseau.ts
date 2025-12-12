@@ -13,7 +13,6 @@ import {
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
   FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
 } from "./consts.js";
-import type { RésultatProfondeur } from "../cache.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
@@ -44,6 +43,8 @@ export type RelationRéseau = {
   confiance: number;
   profondeur: number;
 };
+
+export type RelationImmédiate = { idCompte: string; confiance: number }
 
 // Constantes
 
@@ -86,7 +87,7 @@ export class ServiceRéseau<
     string,
     (args: {
       de: string;
-      f: Suivi<{ idCompte: string; confiance: number }[]>;
+      f: Suivi<RelationImmédiate[]>;
     }) => Promise<Oublier>
   >;
 
@@ -127,7 +128,7 @@ export class ServiceRéseau<
     clef: string;
     résolution: (args: {
       de: string;
-      f: Suivi<{ idCompte: string; confiance: number }[]>;
+      f: Suivi<RelationImmédiate[]>;
     }) => Promise<Oublier>;
   }) {
     this.résolutionsConfiance.set(clef, résolution);
@@ -667,7 +668,7 @@ export class ServiceRéseau<
     f,
     idCompte,
   }: {
-    f: Suivi<{ idCompte: string; confiance: number }[]>;
+    f: Suivi<RelationImmédiate[]>;
     idCompte?: string;
   }): Promise<Oublier> {
     const compte = this.service("compte");
@@ -677,7 +678,7 @@ export class ServiceRéseau<
       fSuivre,
     }: {
       id: string;
-      fSuivre: Suivi<{ idCompte: string; confiance: number }[]>;
+      fSuivre: Suivi<RelationImmédiate[]>;
     }): Promise<Oublier> => {
       const confiances: {
         bloqués?: string[];

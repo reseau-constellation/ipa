@@ -6,6 +6,7 @@ import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
 import { cacheSuivi } from "./crabe/cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
+import type { RelationImmédiate } from "./crabe/services/réseau.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Constellation } from "./index.js";
 import type { Oublier, Suivi } from "./crabe/types.js";
@@ -230,12 +231,7 @@ export abstract class ObjetConstellation<
     f,
   }: {
     de: string;
-    f: Suivi<
-      {
-        idCompte: string;
-        confiance: number;
-      }[]
-    >;
+    f: Suivi<RelationImmédiate[]>;
   }): Promise<Oublier> {
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
