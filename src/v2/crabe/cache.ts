@@ -374,7 +374,7 @@ export const cacheRechercheParN = <T>(
   });
 };
 
-export type RésultatProfondeur<T> = { profondeur: number; val: T };
+export type RésultatProfondeur<T> = T & { profondeur: number };
 
 export const cacheRechercheParProfondeur = <T>(
   _cible: unknown,
@@ -386,6 +386,7 @@ export const cacheRechercheParProfondeur = <T>(
     descripteur,
     recherche: (n: number, résultats: RésultatProfondeur<T>[]) =>
       résultats.filter((r) => r.profondeur <= n),
+    nomArgTaille: 'profondeur',
   });
 };
 
