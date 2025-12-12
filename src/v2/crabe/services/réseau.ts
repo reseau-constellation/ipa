@@ -789,7 +789,7 @@ export class ServiceRéseau<
     return await this.suivreComptesParProfondeur({
       f: async (comptes) =>
         await f(
-          comptes.find((c) => c.val.idCompte === idCompte)?.val.confiance,
+          comptes.find((c) => c.idCompte === idCompte)?.confiance,
         ),
       idCompte: idCompteDépart,
     });
