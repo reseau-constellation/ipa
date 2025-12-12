@@ -181,7 +181,7 @@ export class ServiceRéseau<
   }): Promise<Oublier> {}
 
   @cacheSuivi
-  async suivreConnexionsComptes(): Promise<Oublier> {}
+  async suivreConnexionsComptes({ f }: { f: Suivi<ConnexionCompte[]> }): Promise<Oublier> {}
 
   @cacheSuivi
   async suivreDispositifsCompte({
@@ -541,125 +541,112 @@ export class ServiceRéseau<
     profondeur?: number;
     idCompte?: string;
   }): Promise<RetourRechercheProfondeur> {
-    const événements = new TypedEmitter<{ profondeur: (p: number) => void }>();
-
-    const { fOublier: oublier, profondeur: changerProfondeur } =
-      await suivreDeFonctionListe({
-        fListe: async ({
-          fSuivreRacine,
-        }: {
-          fSuivreRacine: Suivi<{ idCompte: string; confiance: number }[]>;
-        }) => {
-          const oublier = await this.suivreRelationsImmédiates({
-            idCompte,
-            f: fSuivreRacine,
-          });
-          return {
-            fOublier: oublier,
-            profondeur: (p: number) => {
-              profondeur = p;
-              événements.emit("profondeur", p);
-            },
-          };
-        },
-        fBranche: async ({
-          id: idCompteBranche,
-          fSuivreBranche,
-          branche,
-        }: {
-          id: string;
-          fSuivreBranche: Suivi<RelationRéseau[]>;
-          branche: {
-            idCompte: string;
-            confiance: number;
-          };
-        }) => {
-          const relation: RelationRéseau = {
-            de: idCompte,
-            pour: idCompteBranche,
-            confiance: branche.confiance,
-            profondeur: 0, // `f` ci-dessous ajoute `1` à chaque profondeur
-          };
-          const oublierBranche = faisRien;
-          if (branche.confiance < 0) return;
-          if (profondeur === 0) {
-            await fSuivreBranche([]);
-          } else {
-            const { oublier, profondeur: changerProfondeurBranche } =
-              await this.suivreRelationsRéseau({
-                idCompte: idCompteBranche,
-                f: async (relations) =>
-                  await fSuivreBranche([relation, ...relations]),
-                profondeur: profondeur - 1,
-              });
-          }
-          return oublierBranche;
-        },
-        fIdDeBranche: (x) => x.idCompte,
-        f: async (relations: RelationRéseau[]) => {
-          return await f(
-            relations.map((r) => ({ ...r, profondeur: r.profondeur + 1 })),
-          );
-        },
-      });
-
+    
     const serviceCompte = this.service("compte");
 
-    const enleverDoublons = (
-      comptes: RésultatProfondeur<string>[],
-    ): RésultatProfondeur<string>[] => {
-      const dédoublés: Map<string, RésultatProfondeur<string>> = new Map();
-      for (const compte of comptes) {
-        const existant = dédoublés.get(compte.val);
-        if (existant) {
-          dédoublés.set(compte.val, {
-            ...compte,
-            profondeur: Math.min(compte.profondeur, existant.profondeur),
-          });
-        } else {
-          dédoublés.set(compte.val, compte);
-        }
-      }
-      return [...dédoublés.values()];
-    };
+    const événements = new TypedEmitter<{ profondeur: (p: number) => void }>();
 
-    const { fOublier: oublier, profondeur: changerProfondeur } =
-      await suivreDeFonctionListe({
-        fListe: async ({ fSuivreRacine }) => {
-          const oublier = await this.suivreRéseauImmédiat({
-            idCompte,
-            f: fSuivreRacine,
-          });
-          return {
-            fOublier: oublier,
-            profondeur: (p: number) => {
-              // à faire
-              throw new Error();
-              profondeur = p;
-            },
-          };
-        },
-        fBranche: async ({
-          id: idCompteBranche,
-          fSuivreBranche,
-        }: {
-          id: string;
-          fSuivreBranche: Suivi<RésultatProfondeur<string>[]>;
-        }): Promise<Oublier> => {},
-        f: async (comptes: RésultatProfondeur<string>[]) =>
-          await f(
-            enleverDoublons([
-              {
-                val: await serviceCompte.obtIdCompte(),
-                profondeur: 0,
-              },
-              ...comptes.map((compte) => ({
-                ...compte,
-                profondeur: compte.profondeur + 1,
-              })),
-            ]),
-          ),
-      });
+    const déjàSuivis: {[idCompteSource: string]: string[] } = {}
+    const nonDupliquées = (idCompteSource: string, relations: RelationImmédiate[] ): RelationImmédiate[] => {
+      déjàSuivis[idCompteSource] = relations
+      
+      return existe
+    }
+
+    const oublier = await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: Suivi<RelationImmédiate[]>;
+      }) => {
+        return await this.suivreRelationsImmédiates({
+          idCompte,
+          f: async relations => await fSuivreRacine(relations.filter(nonDupliquée)),
+        })
+      },
+      fBranche: async ({
+        id: idCompteBranche,
+        fSuivreBranche,
+        branche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<RelationRéseau[]>;
+        branche: {
+          idCompte: string;
+          confiance: number;
+        };
+      }) => {
+        const relation: RelationRéseau = {
+          de: await serviceCompte.obtIdCompte(),
+          pour: idCompteBranche,
+          confiance: branche.confiance,
+          profondeur: 0, // `f` ci-dessous ajoute `1` à chaque profondeur
+        };
+
+        // Si le compte n'est pas de confiance, on arrête ici (on ne suit pas ses relations)
+        if (branche.confiance < 0) return faisRien;
+
+        let retourSuiviBranche: RetourRechercheProfondeur | undefined = undefined;
+
+        const lancerSuiviRelationsBranche = async (p: number) => {
+          if (!retourSuiviBranche) {
+            retourSuiviBranche = await this.suivreRelationsRéseau({
+              idCompte: idCompteBranche,
+              f: async (relations) =>
+                await fSuivreBranche([relation, ...relations]),
+              profondeur: p - 1,
+            });
+          } else {
+            retourSuiviBranche.profondeur(p)
+          }
+        }
+
+        const annulerSuiviRelationsBranche = async () => {
+          await retourSuiviBranche?.oublier();
+          retourSuiviBranche = undefined;
+        }
+
+        const changerProfondeurBranche = async (p: number) => {
+          if (p > 1) {
+            await lancerSuiviRelationsBranche(p)
+          } else {
+            await annulerSuiviRelationsBranche()
+            
+            // Si la profondeur est de 1, on va uniquement rendre la relation présente
+            await fSuivreBranche([relation]);
+          }
+        }
+
+          // `profondeur !== undefined` est éjà assuré par `cacheRechercheParProfondeur` mais on met ça ici pour les types TS
+        await changerProfondeurBranche(profondeur ?? Infinity)
+
+        const oublierÉcouterProfondeur = appelerLorsque({
+          émetteur: événements,
+          événement: "profondeur",
+          f: async p => await changerProfondeurBranche(p - 1)
+        });
+
+        const oublierBranche = async () => {
+          await oublierÉcouterProfondeur();
+          await retourSuiviBranche?.oublier();
+        }
+
+        return oublierBranche;
+      },
+      fIdDeBranche: (x) => x.idCompte,
+      f: async (relations: RelationRéseau[]) => {
+        return await f(
+          relations.map((r) => ({ ...r, profondeur: r.profondeur + 1 })),
+        );
+      },
+    });
+
+    const changerProfondeur = async (p: number) => {
+      if (p !== profondeur) {
+        profondeur = p;
+        événements.emit("profondeur", p);
+      }
+    };
     return { oublier, profondeur: changerProfondeur };
   }
 
@@ -776,7 +763,7 @@ export class ServiceRéseau<
     });
   }
 
-  @cacheRechercheParProfondeur
+  @cacheSuivi
   async suivreConfianceCompte({
     idCompte,
     f,
@@ -786,6 +773,11 @@ export class ServiceRéseau<
     f: Suivi<number | undefined>;
     idCompteDépart?: string;
   }): Promise<RetourRechercheProfondeur> {
+    /*
+    Note : Ne PAS envelopper cette fonction avec un `@cacheRechercheParProfondeur` !
+    Elle retourne un nombre, pas une liste de résultats, et ça va bien sûr planter
+    si on essaie de l'envelopper.
+    */
     return await this.suivreComptesParProfondeur({
       f: async (comptes) =>
         await f(
