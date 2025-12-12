@@ -462,60 +462,47 @@ export class ServiceRéseau<
     profondeur,
     idCompte,
   }: {
-    f: Suivi<RésultatProfondeur<{ idCompte: string, confiance: number }>[]>;
+    f: Suivi<{ idCompte: string, confiance: number, profondeur: number }[]>;
     profondeur?: number;
     idCompte?: string;
   }): Promise<RetourRechercheProfondeur> {
-    const compte = this.service("compte");
+    const résoudreConfiances = (confiances: number[]): number => {
+      // Priorité au niveau de confiance spécifié explicitement
+      if (confiances[0] === 1 || confiances[1] === -1) return confiances[0];
+
+      const positives = confiances.filter((c) => c >= 0);
+      const négatives = confiances.filter((c) => c < 0);
+      const négatif = 1 - négatives.map((x) => 1 + x).reduce((total, c) => c * total, 1);
+      const positif = 1 - positives.map((x) => 1 - x).reduce((total, c) => c * total, 1);
+
+      return positif - négatif
+    }
 
     return await this.suivreRelationsRéseau({
       f: async (relations) => {
-        const monIdCompte = await compte.obtIdCompte();
-        const comptes = [...new Set(...relations.map(r=>r.pour))]
-        const relationsFinales: RésultatProfondeur<{ idCompte: string, confiance: number }>[] = comptes.map(c => {
-          const relationsPourCompte = relations.filter(r=>r.pour === c);
-          const profondeurCompte = Math.min(...relationsPourCompte.map(r=>r.profondeur));
-
-          const maRelation = relations.find((r) => r.de === monIdCompte);
-          if (maRelation?.confiance === 1 || maRelation?.confiance === -1) {
-            return {
-              profondeur: 1,
-              val: {
-                idCompte: maRelation.pour,
-                confiance: maRelation.confiance,
+        const profondeurMax = Math.max(...relations.map(r=>r.profondeur));
+        const comptes: { [id: string]: {confiances: number[], profondeur: number} } = {};
+        for (let p = 1; p <= profondeurMax; p++) {
+          const relationsP = relations.filter(r=>r.profondeur === p);
+          for (const { pour, de, confiance, profondeur } of relationsP) {
+            const confianceCompteSource = résoudreConfiances(comptes[de].confiances);
+              // On ignore les relations des comptes auxquels nous ne faisons pas confiance
+              if (confianceCompteSource > 0) {
+                const confianceTransitive = confianceCompteSource * confiance * (confiance > 0 ? FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE : FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE)
+                if (comptes[pour]) {
+                  comptes[pour].confiances.push(confianceTransitive);
+                } else {
+                  comptes[pour] = { confiances: [confianceTransitive], profondeur }
+                };
               }
-            };
           }
-
-          const positives = relations.filter((r) => r.confiance >= 0);
-          const négatives = relations.filter((r) => r.confiance < 0);
-          const coûtNégatif =
-            1 -
-            négatives
-              .map(
-                (r) =>
-                  1 +
-                  r.confiance *
-                    Math.pow(FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE, r.profondeur - 1),
-              )
-              .reduce((total, c) => c * total, 1);
-
-          const confiance =
-            1 -
-            positives
-              .map(
-                (r) =>
-                  1 -
-                  r.confiance *
-                    Math.pow(FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE, r.profondeur - 1),
-              )
-              .reduce((total, c) => c * total, 1) -
-            coûtNégatif;
-
-          return { profondeur: profondeurCompte, val: { idCompte: c, confiance } }
-        
-        });
-        return await f(relationsFinales)
+        }
+        const finaux = Object.entries(comptes).map(([idCompte, info]) => ({
+          idCompte,
+          profondeur: info.profondeur,
+          confiance: résoudreConfiances(info.confiances)
+        }))
+        return await f(finaux)
       },
       profondeur,
       idCompte,
