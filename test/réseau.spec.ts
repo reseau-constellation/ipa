@@ -11,7 +11,6 @@ import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
 import type {
-  infoAuteur,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
@@ -148,80 +147,6 @@ if (isNode || isElectronMain) {
         }
         const val = await membresEnLigne.attendreQue((x) => x.length >= 3);
         expect(val.map((r) => r.infoMembre)).to.have.deep.members(réfRés);
-      });
-    });
-
-    describe("Membres fiables", function () {
-      const fiablesPropres = new utilsTestAttente.AttendreRésultat<string[]>();
-      const fiablesAutres = new utilsTestAttente.AttendreRésultat<string[]>();
-
-      let fOublierConstls: () => Promise<void>;
-      let idsComptes: string[];
-
-      let constls: Constellation[];
-
-      const fsOublier: schémaFonctionOublier[] = [];
-
-      before(async () => {
-        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
-        fsOublier.push(
-          await constls[0].réseau.suivreFiables({
-            f: (m) => fiablesPropres.mettreÀJour(m),
-          }),
-        );
-        fsOublier.push(
-          await constls[1].réseau.suivreFiables({
-            f: (m) => fiablesAutres.mettreÀJour(m),
-            idCompte: idsComptes[0],
-          }),
-        );
-      });
-
-      after(async () => {
-        await Promise.allSettled(fsOublier.map((f) => f()));
-        if (fOublierConstls) await fOublierConstls();
-        fiablesPropres.toutAnnuler();
-        fiablesAutres.toutAnnuler();
-      });
-
-      it("Personne pour commencer", async () => {
-        const val = await fiablesPropres.attendreExiste();
-        expect(val.length).to.equal(0);
-      });
-
-      it("Faire confiance", async () => {
-        await constls[0].réseau.faireConfianceAuMembre({
-          idCompte: idsComptes[1],
-        });
-        const val = await fiablesPropres.attendreQue(
-          (x) => !!x && x.length > 0,
-        );
-        expect(val.length).to.equal(1);
-        expect(val).to.have.members([idsComptes[1]]);
-      });
-
-      it("Détecter confiance d'autre membre", async () => {
-        const val = await fiablesAutres.attendreQue((x) => !!x && x.length > 0);
-        expect(val.length).to.equal(1);
-        expect(val).to.have.members([idsComptes[1]]);
-      });
-
-      it("Un débloquage accidental ne fait rien", async () => {
-        await constls[0].réseau.débloquerMembre({
-          idCompte: idsComptes[1],
-        });
-        const val = await fiablesPropres.attendreExiste();
-        expect(Array.isArray(val)).to.be.true();
-        expect(val.length).to.equal(1);
-        expect(val).to.have.members([idsComptes[1]]);
-      });
-
-      it("Il n'était pas si chouette que ça après tout", async () => {
-        await constls[0].réseau.nePlusFaireConfianceAuMembre({
-          idCompte: idsComptes[1],
-        });
-        const val = await fiablesPropres.attendreQue((x) => x.length === 0);
-        expect(val).to.be.an.empty("array");
       });
     });
 

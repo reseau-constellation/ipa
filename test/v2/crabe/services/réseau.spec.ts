@@ -88,13 +88,14 @@ describe("Réseau", function () {
           constl.réseau.suivreConnexionsComptes({
             f: si(
               (x) =>
-                !!x && autresIds.every((id) => x.find((c) => c.idCompte === id)),
+                !!x &&
+                autresIds.every((id) => x.find((c) => c.idCompte === id)),
             ),
           }),
         );
-        expect(connexionsComptes.map((c) => c.idCompte)).to.include.deep.members(
-          autresIds,
-        );
+        expect(
+          connexionsComptes.map((c) => c.idCompte),
+        ).to.include.deep.members(autresIds);
       }
     });
 
@@ -169,8 +170,93 @@ describe("Réseau", function () {
   });
 
   describe("confiance - manuelle", function () {
-    describe("membres fiables");
+    let constls: Constellation[];
+    let fermer: Oublier;
+
+    let idsLibp2p: string[];
+    let idsDispositifs: string[];
+    let idsComptes: string[];
+
+    before(async () => {
+      ({ constls, fermer } = await créerConstellationsTest({ n: 2 }));
+
+      idsLibp2p = await Promise.all(constls.map((c) => c.compte.obtIdLibp2p()));
+      idsDispositifs = await Promise.all(
+        constls.map((c) => c.compte.obtIdDispositif()),
+      );
+      idsComptes = await Promise.all(
+        constls.map((c) => c.compte.obtIdCompte()),
+      );
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+    describe("membres fiables", function () {
+      it("personne pour commencer", async () => {
+        const fiables = await obtenir<string[]>(({ siDéfini }) =>
+          constls[0].réseau.suivreComptesFiables({ f: siDéfini() }),
+        );
+        expect(fiables).to.be.empty();
+      });
+
+      it("faire confiance", async () => {
+        const pFiables = obtenir<string[]>(({ siPasVide }) =>
+          constls[0].réseau.suivreComptesFiables({ f: siPasVide() }),
+        );
+
+        await constls[0].réseau.faireConfianceAuCompte({
+          idCompte: idsComptes[1],
+        });
+        const fiables = await pFiables;
+
+        expect(fiables).have.members([idsComptes[1]]);
+      });
+
+      it("détecter confiance d'autre membre", async () => {
+        const fiables = await obtenir<string[]>(({ siPasVide }) =>
+          constls[1].réseau.suivreComptesFiables({
+            f: siPasVide(),
+            idCompte: idsComptes[0],
+          }),
+        );
+
+        expect(fiables).have.members([idsComptes[1]]);
+      });
+
+      it("un débloquage accidental ne fait rien", async () => {
+        await constls[0].réseau.débloquerCompte({ idCompte: idsComptes[1] });
+        const fiables = await obtenir<string[]>(({ siPasVide }) =>
+          constls[0].réseau.suivreComptesFiables({ f: siPasVide() }),
+        );
+
+        expect(fiables).have.members([idsComptes[1]]);
+      });
+
+      it("il n'était pas si chouette que ça après tout", async () => {
+        const pFiables = obtenir<string[]>(({ siVide }) =>
+          constls[0].réseau.suivreComptesFiables({ f: siVide() }),
+        );
+
+        await constls[0].réseau.nePlusFaireConfianceAuCompte({
+          idCompte: idsComptes[1],
+        });
+        const fiables = await pFiables;
+
+        expect(fiables).to.be.empty();
+      });
+    });
+
     describe("membres bloqués", function () {
+      it("Personne pour commencer");
+      it("Bloquer quelqu'un");
+      it("Un dé-confiance accidental ne fait rien");
+      it("Bloquer privé");
+      it("On détecte bloqué publique d'un autre membre");
+      it("On ne détecte pas le bloqué privé d'un autre membre");
+      it("Débloquer publique");
+      it("Débloquer privé");
+      it("Passer de bloqué privé à bloqué publique");
       it("persistance après redémarrage");
     });
   });
