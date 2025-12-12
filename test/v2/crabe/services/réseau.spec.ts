@@ -3,6 +3,7 @@ import { peerIdFromString } from "@libp2p/peer-id";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { créerConstellationsTest, obtenir } from "test/v2/utils.js";
 import type {
+  ConnexionCompte,
   ConnexionDispositif,
   ConnexionLibp2p,
 } from "@/v2/crabe/services/réseau.js";
@@ -35,8 +36,8 @@ describe("Réseau", function () {
     });
 
     it("suivre connexions libp2p", async () => {
-      for (const constl of constls) {
-        const autresIds = idsLibp2p.filter((id) => id !== idsComptes[0]);
+      for (const [i, constl] of constls.entries()) {
+        const autresIds = idsLibp2p.filter((id) => id !== idsLibp2p[i]);
 
         const connexionsLibp2p = await obtenir<ConnexionLibp2p[]>(({ si }) =>
           constl.réseau.suivreConnexionsLibp2p({
@@ -58,9 +59,9 @@ describe("Réseau", function () {
     });
 
     it("suivre connexions dispositifs", async () => {
-      for (const constl of constls) {
+      for (const [i, constl] of constls.entries()) {
         const autresIds = idsDispositifs.filter(
-          (id) => id !== idsDispositifs[0],
+          (id) => id !== idsDispositifs[i],
         );
 
         const connexionsDispositifs = await obtenir<ConnexionDispositif[]>(
@@ -80,18 +81,18 @@ describe("Réseau", function () {
     });
 
     it("suivre connexions compte", async () => {
-      for (const constl of constls) {
-        const autresIds = idsDispositifs.filter((id) => id !== idsComptes[0]);
+      for (const [i, constl] of constls.entries()) {
+        const autresIds = idsComptes.filter((id) => id !== idsComptes[i]);
 
         const connexionsComptes = await obtenir<ConnexionCompte[]>(({ si }) =>
           constl.réseau.suivreConnexionsComptes({
             f: si(
               (x) =>
-                !!x && autresIds.every((id) => x.find((c) => c.pair === id)),
+                !!x && autresIds.every((id) => x.find((c) => c.idCompte === id)),
             ),
           }),
         );
-        expect(connexionsComptes.map((c) => c.pair)).to.include.deep.members(
+        expect(connexionsComptes.map((c) => c.idCompte)).to.include.deep.members(
           autresIds,
         );
       }
@@ -157,11 +158,11 @@ describe("Réseau", function () {
         const connexionsCompteAutre = await obtenir<ConnexionCompte[]>(
           ({ si }) =>
             constl.réseau.suivreConnexionsComptes({
-              f: si((c) => !!c && !c.find((c) => c.pair === idsComptes[0])),
+              f: si((c) => !!c && !c.find((c) => c.idCompte === idsComptes[0])),
             }),
         );
         expect(
-          connexionsCompteAutre.find((c) => c.pair === idsComptes[0]),
+          connexionsCompteAutre.find((c) => c.idCompte === idsComptes[0]),
         ).to.be.undefined();
       }
     });
