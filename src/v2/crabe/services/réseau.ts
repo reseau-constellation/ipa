@@ -9,7 +9,10 @@ import { cacheRechercheParProfondeur, cacheSuivi } from "../cache.js";
 import { ServiceDonnéesNébuleuse } from "./services.js";
 import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
 import { appelerLorsque } from "./utils.js";
-import { FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE, FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE } from "./consts.js";
+import {
+  FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
+  FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
+} from "./consts.js";
 import type { RésultatProfondeur } from "../cache.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
@@ -397,7 +400,7 @@ export class ServiceRéseau<
     };
 
     const fFinale = async () => {
-      // Si un compte est par erreur bloqué de manière privée et publique en même temps, 
+      // Si un compte est par erreur bloqué de manière privée et publique en même temps,
       // on va le montrer en tant que publique
       const privés = bloqués.privés.filter(
         (c) => !bloqués.publiques.includes(c),
@@ -462,7 +465,7 @@ export class ServiceRéseau<
     profondeur,
     idCompte,
   }: {
-    f: Suivi<{ idCompte: string, confiance: number, profondeur: number }[]>;
+    f: Suivi<{ idCompte: string; confiance: number; profondeur: number }[]>;
     profondeur?: number;
     idCompte?: string;
   }): Promise<RetourRechercheProfondeur> {
@@ -472,41 +475,59 @@ export class ServiceRéseau<
 
       const positives = confiances.filter((c) => c >= 0);
       const négatives = confiances.filter((c) => c < 0);
-      const négatif = 1 - négatives.map((x) => 1 + x).reduce((total, c) => c * total, 1);
-      const positif = 1 - positives.map((x) => 1 - x).reduce((total, c) => c * total, 1);
+      const négatif =
+        1 - négatives.map((x) => 1 + x).reduce((total, c) => c * total, 1);
+      const positif =
+        1 - positives.map((x) => 1 - x).reduce((total, c) => c * total, 1);
 
-      return positif - négatif
-    }
+      return positif - négatif;
+    };
 
     return await this.suivreRelationsRéseau({
       f: async (relations) => {
-        const profondeurMax = Math.max(...relations.map(r=>r.profondeur));
-        const comptes: { [id: string]: {confiances: number[], profondeur: number} } = {};
+        const profondeurMax = Math.max(...relations.map((r) => r.profondeur));
+        const comptes: {
+          [id: string]: { confiances: number[]; profondeur: number };
+        } = {};
         for (let p = 1; p <= profondeurMax; p++) {
-          const relationsP = relations.filter(r=>r.profondeur === p);
+          const relationsP = relations.filter((r) => r.profondeur === p);
           for (const { pour, de, confiance, profondeur } of relationsP) {
-            const confianceCompteSource = résoudreConfiances(comptes[de].confiances);
-              // On ignore les relations des comptes auxquels nous ne faisons pas confiance
-              if (confianceCompteSource > 0) {
-                const confianceTransitive = confianceCompteSource * confiance * (confiance > 0 ? FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE : FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE)
-                if (comptes[pour]) {
-                  comptes[pour].confiances.push(confianceTransitive);
-                } else {
-                  comptes[pour] = { confiances: [confianceTransitive], profondeur }
+            const confianceCompteSource = résoudreConfiances(
+              comptes[de].confiances,
+            );
+            // On ignore les relations des comptes auxquels nous ne faisons pas confiance
+            if (confianceCompteSource > 0) {
+              const confianceTransitive =
+                confianceCompteSource *
+                confiance *
+                (confiance > 0
+                  ? FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE
+                  : FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE);
+              if (comptes[pour]) {
+                comptes[pour].confiances.push(confianceTransitive);
+              } else {
+                comptes[pour] = {
+                  confiances: [confianceTransitive],
+                  profondeur,
                 };
               }
+            }
           }
         }
-        const finaux = Object.entries(comptes).map(([idCompte, info]) => ({
-          idCompte,
-          profondeur: info.profondeur,
-          confiance: résoudreConfiances(info.confiances)
-        }))
-        return await f(finaux)
+
+        const finaux = Object.entries(comptes).map(
+          ([idCompte, { profondeur, confiances }]) => ({
+            idCompte,
+            profondeur: profondeur,
+            confiance: résoudreConfiances(confiances),
+          }),
+        );
+
+        return await f(finaux);
       },
       profondeur,
       idCompte,
-    })
+    });
   }
 
   @cacheRechercheParProfondeur
@@ -519,12 +540,15 @@ export class ServiceRéseau<
     profondeur?: number;
     idCompte?: string;
   }): Promise<RetourRechercheProfondeur> {
-
-    const événements = new TypedEmitter<{profondeur: (p: number)=> void}>();
+    const événements = new TypedEmitter<{ profondeur: (p: number) => void }>();
 
     const { fOublier: oublier, profondeur: changerProfondeur } =
       await suivreDeFonctionListe({
-        fListe: async ({ fSuivreRacine }: {fSuivreRacine: Suivi<{ idCompte: string; confiance: number; }[]>}) => {
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: Suivi<{ idCompte: string; confiance: number }[]>;
+        }) => {
           const oublier = await this.suivreRelationsImmédiates({
             idCompte,
             f: fSuivreRacine,
@@ -533,35 +557,50 @@ export class ServiceRéseau<
             fOublier: oublier,
             profondeur: (p: number) => {
               profondeur = p;
-              événements.emit("profondeur", p)
+              événements.emit("profondeur", p);
             },
           };
         },
-        fBranche: async ({ id: idCompteBranche, fSuivreBranche, branche }: {
+        fBranche: async ({
+          id: idCompteBranche,
+          fSuivreBranche,
+          branche,
+        }: {
           id: string;
           fSuivreBranche: Suivi<RelationRéseau[]>;
           branche: {
-              idCompte: string;
-              confiance: number;
+            idCompte: string;
+            confiance: number;
           };
         }) => {
-          let oublierBranche = faisRien;
-          if (branche.confiance < 0) return
+          const relation: RelationRéseau = {
+            de: idCompte,
+            pour: idCompteBranche,
+            confiance: branche.confiance,
+            profondeur: 0, // `f` ci-dessous ajoute `1` à chaque profondeur
+          };
+          const oublierBranche = faisRien;
+          if (branche.confiance < 0) return;
           if (profondeur === 0) {
             await fSuivreBranche([]);
           } else {
             const { oublier, profondeur: changerProfondeurBranche } =
               await this.suivreRelationsRéseau({
                 idCompte: idCompteBranche,
-                f: fSuivreBranche,
+                f: async (relations) =>
+                  await fSuivreBranche([relation, ...relations]),
                 profondeur: profondeur - 1,
               });
           }
           return oublierBranche;
         },
-        fIdDeBranche: x => x.idCompte,
-        f,
-      })
+        fIdDeBranche: (x) => x.idCompte,
+        f: async (relations: RelationRéseau[]) => {
+          return await f(
+            relations.map((r) => ({ ...r, profondeur: r.profondeur + 1 })),
+          );
+        },
+      });
 
     const serviceCompte = this.service("compte");
 
@@ -605,9 +644,7 @@ export class ServiceRéseau<
         }: {
           id: string;
           fSuivreBranche: Suivi<RésultatProfondeur<string>[]>;
-        }): Promise<Oublier> => {
-          
-        },
+        }): Promise<Oublier> => {},
         f: async (comptes: RésultatProfondeur<string>[]) =>
           await f(
             enleverDoublons([
@@ -745,13 +782,16 @@ export class ServiceRéseau<
     idCompteDépart,
   }: {
     idCompte: string;
-    f: Suivi<number|undefined>
+    f: Suivi<number | undefined>;
     idCompteDépart?: string;
   }): Promise<RetourRechercheProfondeur> {
     return await this.suivreComptesParProfondeur({
-      f: async comptes => await f(comptes.find(c=>c.val.idCompte === idCompte)?.val.confiance),
-      idCompte: idCompteDépart
-    })
+      f: async (comptes) =>
+        await f(
+          comptes.find((c) => c.val.idCompte === idCompte)?.val.confiance,
+        ),
+      idCompte: idCompteDépart,
+    });
   }
 
   // Dispositifs
