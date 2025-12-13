@@ -19,11 +19,7 @@ export class ServiceÉpingles<
   idcsÉpinglés: Set<string>;
   signaleurArrêt: AbortController;
 
-  constructor({
-    appli,
-  }: {
-    appli: Appli<ServicesNécessairesOrbite<L>>;
-  }) {
+  constructor({ appli }: { appli: Appli<ServicesNécessairesOrbite<L>> }) {
     super({
       clef: "épingles",
       appli,

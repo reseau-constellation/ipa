@@ -38,7 +38,9 @@ export type DonnéesTableauNuéeExportées = {
   documentsMédias: Set<string>;
 };
 
-export class TableauxNuées<L extends ServicesLibp2pNébuleuse> extends Tableaux<L> {
+export class TableauxNuées<
+  L extends ServicesLibp2pNébuleuse,
+> extends Tableaux<L> {
   nuées: Nuées<L>;
 
   constructor({

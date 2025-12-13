@@ -97,8 +97,7 @@ export class Nébuleuse<
     options?: OptionsAppli<S & ServicesNébuleuse<StructureNébuleuse & T, L>>;
   } = {}) {
     services =
-      services ??
-      ({} as ConstructeursServicesAppli<S & ServicesDonnées<T, L>>);
+      services ?? ({} as ConstructeursServicesAppli<S & ServicesDonnées<T, L>>);
     options = options ?? {};
     validerOptionsServicesNébuleuse(options);
 

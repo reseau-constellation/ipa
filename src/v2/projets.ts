@@ -124,11 +124,9 @@ export const schémaProjet: JSONSchemaType<PartielRécursif<StructureProjet>> = 
   },
 };
 
-export class Projets<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
-  "projets",
-  StructureProjet,
-  L
-> {
+export class Projets<
+  L extends ServicesLibp2pNébuleuse,
+> extends ObjetConstellation<"projets", StructureProjet, L> {
   recherche: RechercheProjets<L>;
 
   schémaObjet = schémaProjet;

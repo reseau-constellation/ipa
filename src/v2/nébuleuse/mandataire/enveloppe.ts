@@ -268,7 +268,8 @@ export class EnveloppeNébuleuse<T extends Nébuleuse> {
     let fonctionNébuleuse:
       | T
       | T[keyof T]
-      | ((args: { [key: string]: unknown }) => Promise<unknown>) = this.nébuleuse!;
+      | ((args: { [key: string]: unknown }) => Promise<unknown>) =
+      this.nébuleuse!;
 
     for (const [i, attr] of adresseFonction.entries()) {
       if (
@@ -281,7 +282,8 @@ export class EnveloppeNébuleuse<T extends Nébuleuse> {
           // @ts-expect-error Ça, ça me dépasse
           fonctionNébuleuse = fonctionNébuleuse[attr].bind(fonctionNébuleuse);
         } else {
-          fonctionNébuleuse = fonctionNébuleuse[attr as keyof typeof fonctionNébuleuse];
+          fonctionNébuleuse =
+            fonctionNébuleuse[attr as keyof typeof fonctionNébuleuse];
         }
       } else {
         this.fErreur({

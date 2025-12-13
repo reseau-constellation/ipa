@@ -70,9 +70,7 @@ describe.only("Service Hélia", function () {
   });
 
   describe("demarrage", function () {
-    let appli: Appli<
-      ServicesNécessairesHélia & { hélia: ServiceHélia }
-    >;
+    let appli: Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>;
     let dossier: string;
     let effacer: () => void;
 
@@ -86,9 +84,7 @@ describe.only("Service Hélia", function () {
     });
 
     it("hélia démarre", async () => {
-      appli = new Appli<
-        ServicesNécessairesHélia & { hélia: ServiceHélia }
-      >({
+      appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
         services: {
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
@@ -151,9 +147,7 @@ describe.only("Service Hélia", function () {
       );
       const héliaOriginal = await createHelia({ libp2p });
 
-      appli = new Appli<
-        ServicesNécessairesHélia & { hélia: ServiceHélia }
-      >({
+      appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
         services: {
           libp2p: ServiceLibp2p,
           hélia: ServiceHélia,
@@ -180,9 +174,7 @@ describe.only("Service Hélia", function () {
   });
 
   describe("fonctionnalités", function () {
-    let appli: Appli<
-      ServicesNécessairesHélia & { hélia: ServiceHélia }
-    >;
+    let appli: Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>;
     let serviceHélia: ServiceHélia;
 
     let idc: string;

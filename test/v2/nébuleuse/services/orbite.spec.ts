@@ -22,7 +22,10 @@ import {
   ServiceStockage,
   ServiceOrbite,
 } from "@/v2/nébuleuse/index.js";
-import { ORIGINALE, mandatOrbite } from "@/v2/nébuleuse/services/orbite/mandat.js";
+import {
+  ORIGINALE,
+  mandatOrbite,
+} from "@/v2/nébuleuse/services/orbite/mandat.js";
 import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { obtenir, dossierTempoPropre } from "../../utils.js";
 import { attendreQue } from "../../appli/utils/fonctions.js";

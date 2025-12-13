@@ -4,7 +4,6 @@ import { dossierTempo } from "@constl/utils-tests";
 
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
-import { estContrôleurAppli } from "@/v2/nébuleuse/services/compte/accès/contrôleurAppli.js";
 import { créerConstellation } from "@/v2/index.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
@@ -16,6 +15,7 @@ import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { BaseDatabase, KeyValueDatabase } from "@orbitdb/core";
+import { estContrôleurAppli } from "@/v2/nébuleuse/services/compte/accès/contrôleurAppli.js";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,

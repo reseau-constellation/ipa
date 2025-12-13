@@ -196,10 +196,7 @@ describe.only("Services Nébuleuse", function () {
       >;
       let oublier: Oublier;
 
-      class ServiceDonnéesTestA extends ServiceDonnéesAppli<
-        "A",
-        StructureA
-      > {
+      class ServiceDonnéesTestA extends ServiceDonnéesAppli<"A", StructureA> {
         constructor({
           appli,
         }: {
@@ -219,10 +216,7 @@ describe.only("Services Nébuleuse", function () {
           });
         }
       }
-      class ServiceDonnéesTestB extends ServiceDonnéesAppli<
-        "B",
-        StructureB
-      > {
+      class ServiceDonnéesTestB extends ServiceDonnéesAppli<"B", StructureB> {
         constructor({
           appli,
         }: {
@@ -280,7 +274,9 @@ describe.only("Services Nébuleuse", function () {
         await bdB.put("b/c", 1);
         const val = await obtenir<PartielRécursif<StructureB> | undefined>(
           ({ si }) =>
-            nébuleuse.services["B"].suivreBd({ f: si((x) => x?.b !== undefined) }),
+            nébuleuse.services["B"].suivreBd({
+              f: si((x) => x?.b !== undefined),
+            }),
         );
 
         expect(val).to.deep.equal({ b: { c: 1 } });
@@ -291,7 +287,10 @@ describe.only("Services Nébuleuse", function () {
 
         await bdB.put("b/c", 2);
         const val = await obtenir<number | undefined>(({ si }) =>
-          nébuleuse.services["B"].suivreBd({ clef: "b/c", f: si((x) => x !== 1) }),
+          nébuleuse.services["B"].suivreBd({
+            clef: "b/c",
+            f: si((x) => x !== 1),
+          }),
         );
 
         expect(val).to.deep.equal(2);

@@ -3,7 +3,7 @@ import { peerIdFromString } from "@libp2p/peer-id";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { obtenir } from "test/v2/utils.js";
 import { créerNébuleusesTest } from "../utils.js";
-import type { NébuleuseTest} from "../utils.js";
+import type { NébuleuseTest } from "../utils.js";
 import type {
   CompteBloqué,
   ConnexionCompte,
@@ -24,7 +24,9 @@ describe("Réseau", function () {
     before(async () => {
       ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
 
-      idsLibp2p = await Promise.all(nébuleuses.map((c) => c.compte.obtIdLibp2p()));
+      idsLibp2p = await Promise.all(
+        nébuleuses.map((c) => c.compte.obtIdLibp2p()),
+      );
       idsDispositifs = await Promise.all(
         nébuleuses.map((c) => c.compte.obtIdDispositif()),
       );

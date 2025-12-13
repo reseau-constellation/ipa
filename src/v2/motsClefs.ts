@@ -1,7 +1,10 @@
 import { faisRien } from "@constl/utils-ipa";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { mapÀObjet } from "./nébuleuse/utils.js";
-import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./nébuleuse/services/favoris.js";
+import {
+  TOUS_DISPOSITIFS,
+  résoudreDéfauts,
+} from "./nébuleuse/services/favoris.js";
 import { schémaTraducsTexte } from "./schémas.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
 import { ObjetConstellation } from "./objets.js";

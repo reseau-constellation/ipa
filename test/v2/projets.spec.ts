@@ -3,7 +3,10 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
 import JSZip from "jszip";
-import { MEMBRE, MODÉRATRICE } from "@/v2/nébuleuse/services/compte/accès/index.js";
+import {
+  MEMBRE,
+  MODÉRATRICE,
+} from "@/v2/nébuleuse/services/compte/accès/index.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import {
   TOUS_DISPOSITIFS,

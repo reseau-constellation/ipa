@@ -16,7 +16,10 @@ import type {
 } from "./nébuleuse/services/compte/compte.js";
 import type { Automatisations } from "./automatisations/automatisations.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
-import type { ServicesNébuleuse, StructureNébuleuse } from "./nébuleuse/nébuleuse.js";
+import type {
+  ServicesNébuleuse,
+  StructureNébuleuse,
+} from "./nébuleuse/nébuleuse.js";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 
 export type OptionsConstellation<
@@ -26,7 +29,9 @@ export type OptionsConstellation<
   protocoles?: string[];
 } & OptionsAppli<ServicesConstellation<L>>;
 
-export type ServicesSpécifiquesConstellation<L extends ServicesLibp2pNébuleuse> = {
+export type ServicesSpécifiquesConstellation<
+  L extends ServicesLibp2pNébuleuse,
+> = {
   motsClefs: MotsClefs<L>;
   bds: Bds<L>;
   favoris: ServiceFavoris;
@@ -74,9 +79,7 @@ export class Constellation<
         variables: Variables,
         nuées: Nuées,
         ...(services || {}),
-      } as ConstructeursServicesAppli<
-        S & ServicesSpécifiquesConstellation<L>
-      >,
+      } as ConstructeursServicesAppli<S & ServicesSpécifiquesConstellation<L>>,
       options: {
         dossier: options.dossier,
         services: options.services,

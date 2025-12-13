@@ -107,11 +107,7 @@ export class Profil<
 > {
   recherche: RechercheProfils<L>;
 
-  constructor({
-    appli,
-  }: {
-    appli: Appli<ServicesNécessairesProfil<L>>;
-  }) {
+  constructor({ appli }: { appli: Appli<ServicesNécessairesProfil<L>> }) {
     super({
       appli,
       clef: "profil",

@@ -575,9 +575,7 @@ describe.only("Service Libp2p", function () {
             ? OptionsDéfautLibp2pNavigateur()
             : OptionsDéfautLibp2pNode(),
         );
-        const appli = new Appli<
-          ServicesNécessairesLibp2p<ServicesLibp2pTest>
-        >({
+        const appli = new Appli<ServicesNécessairesLibp2p<ServicesLibp2pTest>>({
           services: {
             stockage: ServiceStockage,
             // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
@@ -595,9 +593,9 @@ describe.only("Service Libp2p", function () {
 
         const clefOriginale =
           libp2pOriginal.services["obtClefPrivée"].obtenirClef();
-        const clefRéelle = (
-          await appli.services["libp2p"].libp2p()
-        ).services["obtClefPrivée"].obtenirClef();
+        const clefRéelle = (await appli.services["libp2p"].libp2p()).services[
+          "obtClefPrivée"
+        ].obtenirClef();
 
         await appli.fermer();
         expect(uint8ArrayToString(clefOriginale.raw)).to.equal(

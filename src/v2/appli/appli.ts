@@ -7,10 +7,7 @@ type ÉvénementsAppli = {
   démarrée: () => void;
   fermée: () => void;
 };
-export type ConstructeurServiceAppli<
-  T,
-  S extends ServicesAppli,
-> = new (args: {
+export type ConstructeurServiceAppli<T, S extends ServicesAppli> = new (args: {
   appli: Appli<S>;
   options?: T extends ServiceAppli<
     infer _Types,
@@ -247,9 +244,7 @@ export class ServiceAppli<
     this.dépendances = dépendances;
     this.options = options || ({} as Options);
 
-    this.événements = new TypedEmitter<
-      ÉvénementsServiceAppli<RetourDémarré>
-    >();
+    this.événements = new TypedEmitter<ÉvénementsServiceAppli<RetourDémarré>>();
     this.statut = STATUTS.NON_INITIALISÉE;
     this.estDémarré = false;
   }

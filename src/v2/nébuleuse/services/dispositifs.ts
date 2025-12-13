@@ -44,11 +44,7 @@ export type ServicesNécessairesDispositifs<
 export class ServiceDispositifs<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceDonnéesAppli<"dispositifs", StructureDispositifs, L> {
-  constructor({
-    appli,
-  }: {
-    appli: Appli<ServicesNécessairesDispositifs<L>>;
-  }) {
+  constructor({ appli }: { appli: Appli<ServicesNécessairesDispositifs<L>> }) {
     super({
       clef: "dispositifs",
       appli,

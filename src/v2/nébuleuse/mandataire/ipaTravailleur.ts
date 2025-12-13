@@ -7,7 +7,9 @@ import type {
 import type { Constellation } from "@/client.js";
 import type { Nébuleuse, OptionsDeNébuleuse } from "../nébuleuse.js";
 
-export class MandataireTravailleur<T extends Nébuleuse> extends Mandatairifiable {
+export class MandataireTravailleur<
+  T extends Nébuleuse,
+> extends Mandatairifiable {
   travailleur: Worker;
 
   constructor(opts: OptionsDeNébuleuse<T>) {

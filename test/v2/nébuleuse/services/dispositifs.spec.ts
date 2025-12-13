@@ -19,17 +19,13 @@ import type { ServicesLibp2pTest } from "@constl/utils-tests";
 
 describe.only("Dispositifs", function () {
   describe("infos dispositifs", function () {
-    let appli: Appli<
-      ServicesNécessairesDispositifs<ServicesLibp2pTest>
-    >;
+    let appli: Appli<ServicesNécessairesDispositifs<ServicesLibp2pTest>>;
     let dossier: string;
     let effacer: () => void;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
-      appli = new Appli<
-        ServicesNécessairesDispositifs<ServicesLibp2pTest>
-      >({
+      appli = new Appli<ServicesNécessairesDispositifs<ServicesLibp2pTest>>({
         services: {
           journal: ServiceJournal,
           stockage: ServiceStockage,

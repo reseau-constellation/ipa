@@ -115,11 +115,7 @@ export type ServicesDonnées<
   T extends { [clef: string]: NestedValueObject },
   L extends ServicesLibp2pNébuleuse,
 > = {
-  [clef in Extract<keyof T, "string">]: ServiceDonnéesAppli<
-    clef,
-    T[clef],
-    L
-  >;
+  [clef in Extract<keyof T, "string">]: ServiceDonnéesAppli<clef, T[clef], L>;
 };
 
 export type ÉvénementsCompte = {

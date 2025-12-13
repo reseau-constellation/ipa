@@ -90,11 +90,7 @@ export class ServiceRéseau<
     (args: { de: string; f: Suivi<RelationImmédiate[]> }) => Promise<Oublier>
   >;
 
-  constructor({
-    appli,
-  }: {
-    appli: Appli<ServicesNécessairesRéseau<L>>;
-  }) {
+  constructor({ appli }: { appli: Appli<ServicesNécessairesRéseau<L>> }) {
     super({
       clef: "réseau",
       appli,
@@ -178,9 +174,11 @@ export class ServiceRéseau<
   }: {
     f: Suivi<ConnexionDispositif[]>;
   }): Promise<Oublier> {
-    return await this.suivreConnexionsLibp2p({ f: async connexions => {
-      await f(connexions.filter().map())
-    } })
+    return await this.suivreConnexionsLibp2p({
+      f: async (connexions) => {
+        await f(connexions.filter().map());
+      },
+    });
   }
 
   @cacheSuivi
@@ -189,9 +187,11 @@ export class ServiceRéseau<
   }: {
     f: Suivi<ConnexionCompte[]>;
   }): Promise<Oublier> {
-    return await this.suivreConnexionsDispositifs({ f: async connexions => {
-      await f(connexions.filter().map())
-    }})
+    return await this.suivreConnexionsDispositifs({
+      f: async (connexions) => {
+        await f(connexions.filter().map());
+      },
+    });
   }
 
   @cacheSuivi
@@ -498,7 +498,9 @@ export class ServiceRéseau<
 
     return await this.suivreRelationsRéseau({
       f: async (relations) => {
-        const profondeurMax = Math.max(...relations.map((r) => r.profondeur).filter(p=> p !== Infinity));
+        const profondeurMax = Math.max(
+          ...relations.map((r) => r.profondeur).filter((p) => p !== Infinity),
+        );
         const comptes: {
           [id: string]: { confiances: number[]; profondeur: number };
         } = {};
@@ -563,14 +565,14 @@ export class ServiceRéseau<
     const queue = new PQueue({ concurrency: 1 });
 
     const fFinale = async () => {
-      const profondeurs = résoudreProfondeurs()
+      const profondeurs = résoudreProfondeurs();
       const relations: RelationRéseau[] = Object.entries(relationsImmédiates)
         .map(([id, { relations }]) =>
           relations.map((r) => ({
             de: id,
             pour: r.idCompte,
             confiance: r.confiance,
-            profondeur: profondeurs[id]
+            profondeur: profondeurs[id],
           })),
         )
         .flat();
@@ -631,7 +633,7 @@ export class ServiceRéseau<
               )
               .flat(),
           ),
-        ].filter(id=>!relationsImmédiates[id]);
+        ].filter((id) => !relationsImmédiates[id]);
 
         await Promise.all(
           àSuivre.map(async (id) => {
@@ -655,8 +657,7 @@ export class ServiceRéseau<
         await fFinale();
       };
 
-      if (!annulé)
-        queue.add(tâche);
+      if (!annulé) queue.add(tâche);
     };
 
     mettreÀJour();

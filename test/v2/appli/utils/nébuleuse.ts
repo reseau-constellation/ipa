@@ -24,14 +24,10 @@ export const créerApplisTest = async <T extends ServicesAppli>({
 }> => {
   const { dossier, effacer } = await dossierTempoPropre();
 
-  const applis: Appli<
-    T & ServicesNécessairesLibp2p<ServicesLibp2pTest>
-  >[] = [];
+  const applis: Appli<T & ServicesNécessairesLibp2p<ServicesLibp2pTest>>[] = [];
 
   for (const i in [...Array(n).entries()]) {
-    const appli = new Appli<
-      T & ServicesNécessairesLibp2p<ServicesLibp2pTest>
-    >({
+    const appli = new Appli<T & ServicesNécessairesLibp2p<ServicesLibp2pTest>>({
       services: {
         ...services,
         libp2p: ServiceLibp2p<ServicesLibp2pTest>,

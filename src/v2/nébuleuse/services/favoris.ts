@@ -162,11 +162,7 @@ export class ServiceFavoris<
 > {
   résolveurs: Map<string, Résolveur>;
 
-  constructor({
-    appli,
-  }: {
-    appli: Appli<ServicesNécessairesOrbite<L>>;
-  }) {
+  constructor({ appli }: { appli: Appli<ServicesNécessairesOrbite<L>> }) {
     super({
       clef: "favoris",
       appli,

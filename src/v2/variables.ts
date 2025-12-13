@@ -2,7 +2,10 @@ import { faisRien } from "@constl/utils-ipa";
 import { v4 as uuidv4 } from "uuid";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
-import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./nébuleuse/services/favoris.js";
+import {
+  TOUS_DISPOSITIFS,
+  résoudreDéfauts,
+} from "./nébuleuse/services/favoris.js";
 import { mapÀObjet } from "./nébuleuse/utils.js";
 import { RechercheVariables } from "./recherche/variables.js";
 import { ObjetConstellation } from "./objets.js";

@@ -5,7 +5,10 @@ import { dossierTempoPropre } from "../utils.js";
 import { ServiceLibp2pTest } from "./services/utils.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { NestedValueObject } from "@orbitdb/nested-db";
-import type { ServicesNébuleuse, StructureNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type {
+  ServicesNébuleuse,
+  StructureNébuleuse,
+} from "@/v2/nébuleuse/nébuleuse.js";
 import type {
   ConstructeursServicesAppli,
   OptionsAppli,
