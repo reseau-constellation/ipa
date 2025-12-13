@@ -1,7 +1,9 @@
 import { expect } from "aegir/chai";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
-import { créerConstellationsTest, obtenir } from "test/v2/utils.js";
+import { obtenir } from "test/v2/utils.js";
+import { créerCrabesTest } from "../utils.js";
+import type { CrabeTest} from "../utils.js";
 import type {
   CompteBloqué,
   ConnexionCompte,
@@ -9,11 +11,10 @@ import type {
   ConnexionLibp2p,
 } from "@/v2/crabe/services/réseau.js";
 import type { Oublier } from "@/v2/crabe/types.js";
-import type { Constellation } from "@/v2/index.js";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {
-    let constls: Constellation[];
+    let crabes: CrabeTest[];
     let fermer: Oublier;
 
     let idsLibp2p: string[];
@@ -21,14 +22,14 @@ describe("Réseau", function () {
     let idsComptes: string[];
 
     before(async () => {
-      ({ constls, fermer } = await créerConstellationsTest({ n: 3 }));
+      ({ crabes, fermer } = await créerCrabesTest({ n: 3 }));
 
-      idsLibp2p = await Promise.all(constls.map((c) => c.compte.obtIdLibp2p()));
+      idsLibp2p = await Promise.all(crabes.map((c) => c.compte.obtIdLibp2p()));
       idsDispositifs = await Promise.all(
-        constls.map((c) => c.compte.obtIdDispositif()),
+        crabes.map((c) => c.compte.obtIdDispositif()),
       );
       idsComptes = await Promise.all(
-        constls.map((c) => c.compte.obtIdCompte()),
+        crabes.map((c) => c.compte.obtIdCompte()),
       );
     });
 
@@ -37,7 +38,7 @@ describe("Réseau", function () {
     });
 
     it("suivre connexions libp2p", async () => {
-      for (const [i, constl] of constls.entries()) {
+      for (const [i, constl] of crabes.entries()) {
         const autresIds = idsLibp2p.filter((id) => id !== idsLibp2p[i]);
 
         const connexionsLibp2p = await obtenir<ConnexionLibp2p[]>(({ si }) =>
@@ -60,7 +61,7 @@ describe("Réseau", function () {
     });
 
     it("suivre connexions dispositifs", async () => {
-      for (const [i, constl] of constls.entries()) {
+      for (const [i, constl] of crabes.entries()) {
         const autresIds = idsDispositifs.filter(
           (id) => id !== idsDispositifs[i],
         );
@@ -82,7 +83,7 @@ describe("Réseau", function () {
     });
 
     it("suivre connexions compte", async () => {
-      for (const [i, constl] of constls.entries()) {
+      for (const [i, constl] of crabes.entries()) {
         const autresIds = idsComptes.filter((id) => id !== idsComptes[i]);
 
         const connexionsComptes = await obtenir<ConnexionCompte[]>(({ si }) =>
@@ -102,17 +103,17 @@ describe("Réseau", function () {
 
     it("déconnexion - suivi connexions libp2p", async () => {
       for (const idLibp2p of idsLibp2p.slice(1)) {
-        (await constls[0].services.libp2p.libp2p()).hangUp(
+        (await crabes[0].services.libp2p.libp2p()).hangUp(
           peerIdFromString(idLibp2p),
         );
       }
 
       const connexionsLibp2p = await obtenir<ConnexionLibp2p[]>(({ siVide }) =>
-        constls[0].réseau.suivreConnexionsLibp2p({ f: siVide() }),
+        crabes[0].réseau.suivreConnexionsLibp2p({ f: siVide() }),
       );
       expect(connexionsLibp2p).to.be.empty();
 
-      for (const constl of constls.slice(1)) {
+      for (const constl of crabes.slice(1)) {
         const connexionsLibp2pAutre = await obtenir<ConnexionLibp2p[]>(
           ({ si }) =>
             constl.réseau.suivreConnexionsLibp2p({
@@ -128,11 +129,11 @@ describe("Réseau", function () {
     it("déconnexion - suivi connexions dispositifs", async () => {
       const connexionsDispositifs = await obtenir<ConnexionDispositif[]>(
         ({ siVide }) =>
-          constls[0].réseau.suivreConnexionsDispositifs({ f: siVide() }),
+          crabes[0].réseau.suivreConnexionsDispositifs({ f: siVide() }),
       );
       expect(connexionsDispositifs).to.be.empty();
 
-      for (const constl of constls.slice(1)) {
+      for (const constl of crabes.slice(1)) {
         const connexionsDispositifsAutre = await obtenir<ConnexionDispositif[]>(
           ({ si }) =>
             constl.réseau.suivreConnexionsDispositifs({
@@ -152,11 +153,11 @@ describe("Réseau", function () {
 
     it("déconnexion - suivi connexions comptes", async () => {
       const connexionsCompte = await obtenir<ConnexionCompte[]>(({ siVide }) =>
-        constls[0].réseau.suivreConnexionsComptes({ f: siVide() }),
+        crabes[0].réseau.suivreConnexionsComptes({ f: siVide() }),
       );
       expect(connexionsCompte).to.be.empty();
 
-      for (const constl of constls.slice(1)) {
+      for (const constl of crabes.slice(1)) {
         const connexionsCompteAutre = await obtenir<ConnexionCompte[]>(
           ({ si }) =>
             constl.réseau.suivreConnexionsComptes({
@@ -171,16 +172,16 @@ describe("Réseau", function () {
   });
 
   describe("confiance - manuelle", function () {
-    let constls: Constellation[];
+    let crabes: CrabeTest[];
     let fermer: Oublier;
 
     let idsComptes: string[];
 
     before(async () => {
-      ({ constls, fermer } = await créerConstellationsTest({ n: 2 }));
+      ({ crabes, fermer } = await créerCrabesTest({ n: 2 }));
 
       idsComptes = await Promise.all(
-        constls.map((c) => c.compte.obtIdCompte()),
+        crabes.map((c) => c.compte.obtIdCompte()),
       );
     });
 
@@ -191,17 +192,17 @@ describe("Réseau", function () {
     describe("membres fiables", function () {
       it("personne pour commencer", async () => {
         const fiables = await obtenir<string[]>(({ siDéfini }) =>
-          constls[0].réseau.suivreComptesFiables({ f: siDéfini() }),
+          crabes[0].réseau.suivreComptesFiables({ f: siDéfini() }),
         );
         expect(fiables).to.be.empty();
       });
 
       it("faire confiance", async () => {
         const pFiables = obtenir<string[]>(({ siPasVide }) =>
-          constls[0].réseau.suivreComptesFiables({ f: siPasVide() }),
+          crabes[0].réseau.suivreComptesFiables({ f: siPasVide() }),
         );
 
-        await constls[0].réseau.faireConfianceAuCompte({
+        await crabes[0].réseau.faireConfianceAuCompte({
           idCompte: idsComptes[1],
         });
         const fiables = await pFiables;
@@ -211,7 +212,7 @@ describe("Réseau", function () {
 
       it("détecter confiance d'autre membre", async () => {
         const fiables = await obtenir<string[]>(({ siPasVide }) =>
-          constls[1].réseau.suivreComptesFiables({
+          crabes[1].réseau.suivreComptesFiables({
             f: siPasVide(),
             idCompte: idsComptes[0],
           }),
@@ -221,9 +222,9 @@ describe("Réseau", function () {
       });
 
       it("un débloquage accidental ne fait rien", async () => {
-        await constls[0].réseau.débloquerCompte({ idCompte: idsComptes[1] });
+        await crabes[0].réseau.débloquerCompte({ idCompte: idsComptes[1] });
         const fiables = await obtenir<string[]>(({ siPasVide }) =>
-          constls[0].réseau.suivreComptesFiables({ f: siPasVide() }),
+          crabes[0].réseau.suivreComptesFiables({ f: siPasVide() }),
         );
 
         expect(fiables).have.members([idsComptes[1]]);
@@ -231,10 +232,10 @@ describe("Réseau", function () {
 
       it("il n'était pas si chouette que ça après tout", async () => {
         const pFiables = obtenir<string[]>(({ siVide }) =>
-          constls[0].réseau.suivreComptesFiables({ f: siVide() }),
+          crabes[0].réseau.suivreComptesFiables({ f: siVide() }),
         );
 
-        await constls[0].réseau.nePlusFaireConfianceAuCompte({
+        await crabes[0].réseau.nePlusFaireConfianceAuCompte({
           idCompte: idsComptes[1],
         });
         const fiables = await pFiables;
@@ -246,77 +247,87 @@ describe("Réseau", function () {
     describe("membres bloqués", function () {
       it("personne pour commencer", async () => {
         const bloqués = await obtenir<CompteBloqué[]>(({ siDéfini }) =>
-          constls[0].réseau.suivreComptesBloqués({ f: siDéfini() }),
+          crabes[0].réseau.suivreComptesBloqués({ f: siDéfini() }),
         );
         expect(bloqués).to.be.empty();
       });
 
       it("bloquer quelqu'un", async () => {
         const pBloqués = obtenir<CompteBloqué[]>(({ siPasVide }) =>
-          constls[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
+          crabes[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
         );
 
-        await constls[0].réseau.bloquerCompte({
+        await crabes[0].réseau.bloquerCompte({
           idCompte: idsComptes[1],
         });
         const bloqués = await pBloqués;
 
-        const réf: CompteBloqué[] = [{
-          idCompte: idsComptes[1],
-          privé: false,
-        }]
+        const réf: CompteBloqué[] = [
+          {
+            idCompte: idsComptes[1],
+            privé: false,
+          },
+        ];
         expect(bloqués).have.deep.members(réf);
       });
 
       it("une dé-confiance accidental ne fait rien", async () => {
-        await constls[0].réseau.nePlusFaireConfianceAuCompte({ idCompte: idsComptes[1] });
+        await crabes[0].réseau.nePlusFaireConfianceAuCompte({
+          idCompte: idsComptes[1],
+        });
         const bloqués = await obtenir<CompteBloqué[]>(({ siPasVide }) =>
-          constls[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
+          crabes[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
         );
 
-        const réf: CompteBloqué[] = [{
-          idCompte: idsComptes[1],
-          privé: false,
-        }]
+        const réf: CompteBloqué[] = [
+          {
+            idCompte: idsComptes[1],
+            privé: false,
+          },
+        ];
         expect(bloqués).have.deep.members(réf);
       });
 
       it("bloquer privé", async () => {
         const pBloqués = obtenir<CompteBloqué[]>(({ siPasVide }) =>
-          constls[1].réseau.suivreComptesBloqués({ f: siPasVide() }),
+          crabes[1].réseau.suivreComptesBloqués({ f: siPasVide() }),
         );
 
-        await constls[1].réseau.bloquerCompte({
+        await crabes[1].réseau.bloquerCompte({
           idCompte: idsComptes[0],
           privé: true,
         });
         const bloqués = await pBloqués;
 
-        const réf: CompteBloqué[] = [{
-          idCompte: idsComptes[0],
-          privé: true,
-        }]
+        const réf: CompteBloqué[] = [
+          {
+            idCompte: idsComptes[0],
+            privé: true,
+          },
+        ];
         expect(bloqués).have.deep.members(réf);
       });
-      
+
       it("on détecte bloqué publique d'un autre membre", async () => {
         const bloqués = await obtenir<CompteBloqué[]>(({ siPasVide }) =>
-          constls[1].réseau.suivreComptesBloqués({
+          crabes[1].réseau.suivreComptesBloqués({
             f: siPasVide(),
             idCompte: idsComptes[0],
           }),
         );
 
-        const réf: CompteBloqué[] = [{
-          idCompte: idsComptes[1],
-          privé: false,
-        }]
+        const réf: CompteBloqué[] = [
+          {
+            idCompte: idsComptes[1],
+            privé: false,
+          },
+        ];
         expect(bloqués).have.deep.members(réf);
       });
 
       it("on ne détecte pas le bloqué privé d'un autre membre", async () => {
         const bloqués = await obtenir<CompteBloqué[]>(({ siDéfini }) =>
-          constls[0].réseau.suivreComptesBloqués({
+          crabes[0].réseau.suivreComptesBloqués({
             f: siDéfini(),
             idCompte: idsComptes[1],
           }),
@@ -327,10 +338,10 @@ describe("Réseau", function () {
 
       it("débloquer publique", async () => {
         const pBloqués = obtenir<CompteBloqué[]>(({ siVide }) =>
-          constls[0].réseau.suivreComptesBloqués({ f: siVide() }),
+          crabes[0].réseau.suivreComptesBloqués({ f: siVide() }),
         );
 
-        await constls[0].réseau.débloquerCompte({
+        await crabes[0].réseau.débloquerCompte({
           idCompte: idsComptes[1],
         });
         const bloqués = await pBloqués;
@@ -340,10 +351,10 @@ describe("Réseau", function () {
 
       it("débloquer privé", async () => {
         const pBloqués = obtenir<CompteBloqué[]>(({ siVide }) =>
-          constls[1].réseau.suivreComptesBloqués({ f: siVide() }),
+          crabes[1].réseau.suivreComptesBloqués({ f: siVide() }),
         );
 
-        await constls[1].réseau.débloquerCompte({
+        await crabes[1].réseau.débloquerCompte({
           idCompte: idsComptes[0],
         });
         const bloqués = await pBloqués;
@@ -352,22 +363,37 @@ describe("Réseau", function () {
       });
 
       it("passer de bloqué privé à bloqué publique", async () => {
-        await constls[0].réseau.bloquerCompte({ idCompte: idsComptes[1], privé: true });
+        await crabes[0].réseau.bloquerCompte({
+          idCompte: idsComptes[1],
+          privé: true,
+        });
         await obtenir<CompteBloqué[]>(({ siPasVide }) =>
-          constls[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
+          crabes[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
         );
 
-        await constls[0].réseau.bloquerCompte({ idCompte: idsComptes[1], privé: false });
+        await crabes[0].réseau.bloquerCompte({
+          idCompte: idsComptes[1],
+          privé: false,
+        });
         const pBloqués = obtenir<CompteBloqué[]>(({ si }) =>
-          constls[0].réseau.suivreComptesBloqués({ f: si(x=>!!x?.find(({ idCompte, privé }) => idCompte === idsComptes[1] && !privé )) }),
+          crabes[0].réseau.suivreComptesBloqués({
+            f: si(
+              (x) =>
+                !!x?.find(
+                  ({ idCompte, privé }) => idCompte === idsComptes[1] && !privé,
+                ),
+            ),
+          }),
         );
 
         const bloqués = await pBloqués;
 
-        const réf: CompteBloqué[] = [{
-          idCompte: idsComptes[1],
-          privé: false,
-        }]
+        const réf: CompteBloqué[] = [
+          {
+            idCompte: idsComptes[1],
+            privé: false,
+          },
+        ];
         expect(bloqués).to.have.deep.members(réf);
       });
       it("persistance après redémarrage");
@@ -375,7 +401,23 @@ describe("Réseau", function () {
   });
 
   describe("confiance - automatique", function () {
-    describe("spécifier résolution");
+    let crabes: CrabeTest[];
+    let fermer: Oublier;
+
+    let idsComptes: string[];
+
+    before(async () => {
+      ({ crabes, fermer } = await créerCrabesTest({ n: 2 }));
+
+      idsComptes = await Promise.all(
+        crabes.map((c) => c.compte.obtIdCompte()),
+      );
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
     it("confiance transitive");
     it("confiance fiable transitive");
     it("confiance bloquée transitive");
