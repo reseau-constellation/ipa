@@ -68,11 +68,11 @@ export const créerCrabesTest = async <
   S extends ServicesNébuleuse = ServicesNébuleuse,
 >({
   n,
-  services,
+  services = {},
   dossier,
 }: {
   n: number;
-  services: ConstructeursServicesNébuleuse<
+  services?: ConstructeursServicesNébuleuse<
     ServicesDonnées<T, ServicesLibp2pTest> & S
   >;
   dossier?: string;
