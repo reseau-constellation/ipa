@@ -1,742 +1,239 @@
-import fs from "fs";
+import { writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
-import { isElectronMain, isNode } from "wherearewe";
-import { Nébuleuse, ServiceNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
+import { FICHIER_VERROU } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
-import type {
-  OptionsNébuleuse,
-  ServicesNébuleuse,
-} from "@/v2/nébuleuse/nébuleuse.js";
-import type Quibble from "quibble";
+import { NébuleuseTest } from "./utils.js";
+import type { ServicesLibp2pTest } from "@constl/utils-tests";
+import type { ServicesNécessairesCompte } from "@/v2/nébuleuse/services/compte/compte.js";
+import type { Appli } from "@/v2/appli/appli.js";
 
 describe.only("Nébuleuse", function () {
-  describe("Démarrage", function () {
-    it("Démarrer sans services", async () => {
-      const nébuleuse = new Nébuleuse();
+  describe("création", function () {
+    let nébuleuse: NébuleuseTest;
+    let dossier: string;
+    let effacer: () => void;
+
+    before(async () => {
+      ({ dossier, effacer } = await dossierTempoPropre());
+    });
+
+    after(async () => {
+      if (nébuleuse) await nébuleuse.fermer();
+      effacer?.();
+    });
+
+    it("démarrage", async () => {
+      nébuleuse = new NébuleuseTest({ options: { dossier }, services: {} });
+
       await nébuleuse.démarrer();
-      expect(nébuleuse.estDémarrée).to.be.true();
+      expect(Object.values(nébuleuse.services).every((s) => s.estDémarré));
     });
 
-    it("Services démarrés en ordre", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-        c: ServiceC;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-      }
-      class ServiceB extends ServiceNébuleuse<"b", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "b",
-            nébuleuse,
-            dépendances: ["a"],
-          });
-        }
-      }
-      class ServiceC extends ServiceNébuleuse<"c", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "c",
-            nébuleuse,
-            dépendances: ["a", "b"],
-          });
-        }
-      }
-      const nébuleuse = new Nébuleuse<ServicesTest>({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-          c: ServiceC,
-        },
-      });
-      await nébuleuse.démarrer();
-      expect(nébuleuse.estDémarrée).to.be.true();
-    });
-
-    it("Services bien démarrés lorsque Nébuleuse est démarrée", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-      }
-      const nébuleuse = new Nébuleuse<ServicesTest>({
-        services: {
-          a: ServiceA,
-        },
-      });
-      nébuleuse.démarrer();
-      await nébuleuse.démarrée();
-
-      expect(
-        Object.values(nébuleuse.services).every((s) => s.estDémarré),
-      ).to.be.true();
-    });
-
-    it("Erreur lorsque dépendances circulaires", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-            dépendances: ["b"],
-          });
-        }
-      }
-      class ServiceB extends ServiceNébuleuse<"b", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "b",
-            nébuleuse,
-            dépendances: ["a"],
-          });
-        }
-      }
-      const nébuleuse = new Nébuleuse({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-        },
-      });
-
-      await expect(nébuleuse.démarrer()).to.eventually.be.rejectedWith(
-        "circulaire",
-      );
+    it("fermeture", async () => {
+      await nébuleuse.fermer();
+      expect(Object.values(nébuleuse.services).every((s) => !s.estDémarré));
     });
   });
 
-  describe("Fermer", function () {
-    it("Fermer sans services", async () => {
-      const nébuleuse = new Nébuleuse();
-      await nébuleuse.démarrer();
-      await nébuleuse.fermer();
-      expect(nébuleuse.estDémarrée).to.be.false();
-    });
-
-    it("Services fermés en ordre", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-        c: ServiceC;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-        async fermer(): Promise<void> {
-          // Accéder services b et c qui ne sont pas dans les dépendances de a
-          expect(this.nébuleuse.services["b"].estDémarré).to.be.false();
-          expect(this.nébuleuse.services["c"].estDémarré).to.be.false();
-          return await super.fermer();
-        }
+  describe("services additionnels", function () {
+    class ServiceTest1 extends ServiceDonnéesAppli<
+      "test1",
+      { a: number },
+      ServicesLibp2pTest
+    > {
+      constructor({
+        appli,
+      }: {
+        appli: Appli<ServicesNécessairesCompte<ServicesLibp2pTest>>;
+      }) {
+        super({
+          clef: "test1",
+          appli,
+          options: {
+            schéma: {
+              type: "object",
+              properties: { a: { type: "number", nullable: true } },
+            },
+          },
+        });
       }
-      class ServiceB extends ServiceNébuleuse<"b", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "b",
-            nébuleuse,
-            dépendances: ["a"],
-          });
-        }
-        async fermer(): Promise<void> {
-          expect(this.service("a").estDémarré).to.be.true();
+    }
 
-          // Accéder services["c"] qui n'est pas dans les dépendances de b
-          expect(this.nébuleuse.services["c"].estDémarré).to.be.false();
-          return await super.fermer();
-        }
+    class ServiceTest2 extends ServiceDonnéesAppli<
+      "test2",
+      { b: number },
+      ServicesLibp2pTest
+    > {
+      constructor({
+        appli,
+      }: {
+        appli: Appli<ServicesNécessairesCompte<ServicesLibp2pTest>>;
+      }) {
+        super({
+          clef: "test2",
+          appli,
+          options: {
+            schéma: {
+              type: "object",
+              properties: { b: { type: "number", nullable: true } },
+            },
+          },
+        });
       }
-      class ServiceC extends ServiceNébuleuse<"c", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "c",
-            nébuleuse,
-            dépendances: ["a", "b"],
-          });
-        }
+    }
 
-        async fermer(): Promise<void> {
-          expect(this.service("a").estDémarré).to.be.true();
-          expect(this.service("b").estDémarré).to.be.true();
-          return await super.fermer();
-        }
-      }
-      const nébuleuse = new Nébuleuse({
+    type StructureDonnées = {
+      test1: { a: number };
+      test2: { b: number };
+    };
+
+    let nébuleuse: NébuleuseTest<StructureDonnées>;
+    let dossier: string;
+    let effacer: () => void;
+
+    before(async () => {
+      ({ dossier, effacer } = await dossierTempoPropre());
+
+      nébuleuse = new NébuleuseTest<StructureDonnées>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
-          c: ServiceC,
+          test1: ServiceTest1,
+          test2: ServiceTest2,
+        },
+        options: {
+          dossier,
+          services: {
+            test1: {
+              schéma: {
+                type: "object",
+                properties: { a: { type: "number", nullable: true } },
+              },
+            },
+          },
         },
       });
       await nébuleuse.démarrer();
-      await nébuleuse.fermer();
     });
 
-    it("Services bien fermés lorsque Nébuleuse est fermée", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-      }
-      const nébuleuse = new Nébuleuse<ServicesTest>({
-        services: {
-          a: ServiceA,
-        },
-      });
-      await nébuleuse.démarrer();
+    after(async () => {
       await nébuleuse.fermer();
-
-      expect(
-        Object.values(nébuleuse.services).every((s) => !s.estDémarré),
-      ).to.be.true();
+      effacer();
     });
 
-    it("Attendre démarré avant de fermer", async () => {
-      let nébuleuseFutDémareée = false;
+    it("accès aux services additionnels", async () => {
+      const serviceTest1 = nébuleuse.services.test1;
 
-      type ServicesTest = {
-        a: ServiceA;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-
-        async démarrer() {
-          // Un tout petit délai
-          await new Promise((résoudre) => setTimeout(résoudre, 25));
-          return await super.démarrer();
-        }
-
-        async fermer(): Promise<void> {
-          expect(this.estDémarré).to.be.true();
-          expect(nébuleuseFutDémareée).to.be.true();
-          return await super.fermer();
-        }
-      }
-
-      class NébuleuseTest extends Nébuleuse<ServicesTest> {
-        async démarrer(): Promise<void> {
-          const retour = await super.démarrer();
-          nébuleuseFutDémareée = true;
-          return retour;
-        }
-
-        async fermer(): Promise<void> {
-          return await super.fermer();
-        }
-      }
-      const nébuleuse = new NébuleuseTest({
-        services: {
-          a: ServiceA,
-        },
-      });
-      nébuleuse.démarrer(); // On n'attend pas avant de fermer
-      await nébuleuse.fermer();
+      expect(serviceTest1).to.exist();
     });
 
-    it("erreur lorsque dépendances circulaires", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-            dépendances: ["b"],
-          });
-        }
-      }
-      class ServiceB extends ServiceNébuleuse<"b", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "b",
-            nébuleuse,
-            dépendances: [],
-          });
-        }
-      }
-      const nébuleuse = new Nébuleuse({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-        },
-      });
-      await nébuleuse.démarrer();
+    it("erreur pour mauvaise clef", async () => {
+      const bd = await nébuleuse.services.compte.bd();
 
-      // Créer dépendance circulaire
-      nébuleuse.services["b"].dépendances = ["a"];
-
-      await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith(
-        "circulaire",
+      // @ts-expect-error  Clef inexistante dans la structure
+      await expect(bd.set("n/existe/pas", 1)).to.eventually.be.rejectedWith(
+        "Unsupported key n/existe/pas.",
       );
-    });
 
-    it("fermer lorsque déjà fermée", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-      }
-      const nébuleuse = new Nébuleuse<ServicesTest>({
-        services: {
-          a: ServiceA,
-        },
-      });
-      await nébuleuse.démarrer();
-      await nébuleuse.fermer();
-
-      // Fermer à nouveau
-      await nébuleuse.fermer();
-
-      expect(
-        Object.values(nébuleuse.services).every((s) => !s.estDémarré),
-      ).to.be.true();
-      expect(nébuleuse.estDémarrée).to.be.false();
-    });
-
-    it("erreur de fermeture service", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-        fermer(): Promise<void> {
-          throw new Error("erreur de fermeture");
-        }
-      }
-      const nébuleuse = new Nébuleuse<ServicesTest>({
-        services: {
-          a: ServiceA,
-        },
-      });
-      await nébuleuse.démarrer();
-
-      await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith(
-        "erreur de fermeture",
-      );
-    });
-
-    it("fermeture après erreur de démarrage service", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-        démarrer(): Promise<void> {
-          throw new Error("erreur de démarrage");
-        }
-      }
-      const nébuleuse = new Nébuleuse<ServicesTest>({
-        services: {
-          a: ServiceA,
-        },
-      });
-      try {
-        await nébuleuse.démarrer();
-      } catch {
-        await expect(nébuleuse.fermer()).to.eventually.be.rejectedWith(
-          "Erreur de démarrage",
-        );
-      }
+      await expect(
+        // @ts-expect-error Service inexistant
+        bd.set("service/inexistant", 1),
+      ).to.eventually.be.rejectedWith("Unsupported key service/inexistant.");
     });
   });
 
-  describe("Communication entre services", function () {
-    it("Accès dépendance", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-        fonction() {
-          return 3;
-        }
-      }
-      class ServiceB extends ServiceNébuleuse<"b", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "b",
-            nébuleuse,
-            dépendances: ["a"],
-          });
-        }
-        async démarrer() {
-          expect(this.service("a").fonction()).to.equal(3);
-          return super.démarrer();
-        }
-      }
-      const nébuleuse = new Nébuleuse({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-        },
-      });
-      await nébuleuse.démarrer();
-    });
+  describe("concurrence ouverture", function () {
+    let nébuleuse: NébuleuseTest;
+    let nébuleuse2: NébuleuseTest | undefined;
 
-    it("Accès retour initialisation", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest, string> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-        async démarrer() {
-          this.estDémarré = "une valeur spéciale";
-          return await super.démarrer();
-        }
-      }
-      class ServiceB extends ServiceNébuleuse<"b", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "b",
-            nébuleuse,
-            dépendances: ["a"],
-          });
-        }
-        async démarrer() {
-          expect(await this.service("a").démarré()).to.equal(
-            "une valeur spéciale",
-          );
-          return super.démarrer();
-        }
-      }
-
-      const nébuleuse = new Nébuleuse({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-        },
-      });
-      await nébuleuse.démarrer();
-    });
-
-    it("erreur si dépendance non spécifiée", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-      };
-      class ServiceA extends ServiceNébuleuse<"a", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "a",
-            nébuleuse,
-          });
-        }
-        fonction() {
-          return 3;
-        }
-      }
-      class ServiceB extends ServiceNébuleuse<"b", ServicesTest> {
-        constructor({ nébuleuse }: { nébuleuse: Nébuleuse<ServicesTest> }) {
-          super({
-            clef: "b",
-            nébuleuse,
-          });
-        }
-
-        async démarrer() {
-          return super.démarrer();
-        }
-
-        async accéderA() {
-          return this.service("a").fonction();
-        }
-      }
-      const nébuleuse = new Nébuleuse({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-        },
-      });
-      await nébuleuse.démarrer();
-
-      expect(nébuleuse.services["b"].accéderA()).to.be.rejectedWith(
-        "n'est pas spécifié parmi les dépendences",
-      );
-    });
-  });
-
-  describe("Options d'initialisation", function () {
-    it("Accès aux options d'initialisation", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-      };
-      type OptionsServiceA = { a?: number };
-      type OptionsServiceB = { b?: number };
-
-      class ServiceA extends ServiceNébuleuse<
-        "a",
-        ServicesNébuleuse,
-        unknown,
-        OptionsServiceA
-      > {
-        constructor({
-          nébuleuse,
-          options,
-        }: {
-          nébuleuse: Nébuleuse<{ a: ServiceA }>;
-          options?: OptionsServiceA;
-        }) {
-          super({
-            clef: "a",
-            nébuleuse,
-            options,
-          });
-        }
-
-        async démarrer() {
-          expect(this.options.a).to.equal(8);
-          return super.démarrer();
-        }
-      }
-
-      class ServiceB extends ServiceNébuleuse<
-        "b",
-        ServicesTest,
-        unknown,
-        OptionsServiceB
-      > {
-        constructor({
-          nébuleuse,
-          options,
-        }: {
-          nébuleuse: Nébuleuse<ServicesTest>;
-          options?: OptionsServiceB;
-        }) {
-          super({
-            clef: "b",
-            nébuleuse,
-            dépendances: ["a"],
-            options,
-          });
-        }
-        async démarrer() {
-          expect(this.options.b).to.equal(7);
-          return super.démarrer();
-        }
-      }
-      const options = {
-        services: {
-          a: { a: 8 },
-          b: { b: 7 },
-        },
-      };
-      const nébuleuse = new Nébuleuse<ServicesTest>({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-        },
-        options,
-      });
-
-      await nébuleuse.démarrer();
-    });
-
-    it("Service A dépendant de service B", async () => {
-      type ServicesTest = {
-        a: ServiceA;
-        b: ServiceB;
-      };
-      type OptionsServiceA = { a?: number };
-      type OptionsServiceB = { b?: number };
-
-      class ServiceA extends ServiceNébuleuse<
-        "a",
-        { a: ServiceA },
-        unknown,
-        OptionsServiceA
-      > {
-        constructor({
-          nébuleuse,
-          options,
-        }: {
-          nébuleuse: Nébuleuse<{ a: ServiceA }>;
-          options?: OptionsServiceA;
-        }) {
-          super({
-            clef: "a",
-            nébuleuse,
-            options,
-          });
-        }
-
-        async démarrer() {
-          expect(this.options.a).to.equal(8);
-          return super.démarrer();
-        }
-      }
-
-      class ServiceB extends ServiceNébuleuse<
-        "b",
-        ServicesTest,
-        unknown,
-        OptionsServiceB
-      > {
-        constructor({
-          nébuleuse,
-          options,
-        }: {
-          nébuleuse: Nébuleuse<ServicesTest>;
-          options?: OptionsServiceB;
-        }) {
-          super({
-            clef: "b",
-            nébuleuse,
-            dépendances: ["a"],
-            options,
-          });
-        }
-        async démarrer() {
-          expect(this.options.b).to.equal(7);
-          return super.démarrer();
-        }
-      }
-      const options: OptionsNébuleuse<ServicesTest> = {
-        services: {
-          a: { a: 8 },
-          b: { b: 7 },
-        },
-      };
-      const nébuleuse = new Nébuleuse({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-        },
-        options,
-      });
-
-      await nébuleuse.démarrer();
-    });
-  });
-
-  describe("Dossier", function () {
-    let quibble: typeof Quibble;
-
-    let nébuleuse: Nébuleuse;
     let dossier: string;
     let effacer: () => void;
 
     beforeEach(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
-
-      if (isNode || isElectronMain) {
-        quibble = await import("quibble");
-
-        const envPathsTest = (name: string) => ({ data: join(dossier, name) });
-        await quibble.default.esm("env-paths", {}, envPathsTest);
-      }
     });
 
     afterEach(async () => {
       if (nébuleuse) await nébuleuse.fermer();
+      if (nébuleuse2) await nébuleuse2.fermer();
+      nébuleuse2 = undefined;
+
       if (effacer) effacer();
-      quibble?.default.reset();
     });
 
-    it("valeur par défaut", async () => {
-      nébuleuse = new Nébuleuse({ options: { dossier } });
+    it("erreur pour la deuxième instance", async () => {
+      nébuleuse = new NébuleuseTest({ services: {}, options: { dossier } });
       await nébuleuse.démarrer();
 
-      const val = await nébuleuse.dossier();
-      expect(val).to.be.a("string");
-
-      if (isElectronMain || isNode) expect(fs.existsSync(val));
+      nébuleuse2 = new NébuleuseTest({ services: {}, options: { dossier } });
+      await expect(nébuleuse2.démarrer()).to.be.rejectedWith(
+        `Le compte sur ${dossier} est déjà ouvert`,
+      );
     });
 
-    it("création dossier si non existant", async () => {
-      const dossierNébuleuse = join(dossier, "sous", "dossier");
-      nébuleuse = new Nébuleuse({ options: { dossier: dossierNébuleuse } });
+    it("message verrou", async () => {
+      {
+        nébuleuse = new NébuleuseTest({ services: {}, options: { dossier } });
+        await nébuleuse.démarrer();
+
+        const message = "Un message du processus initial.";
+        await nébuleuse.spécifierMessageVerrou({ message });
+
+        nébuleuse2 = new NébuleuseTest({ services: {}, options: { dossier } });
+        await expect(nébuleuse2.démarrer()).to.be.rejectedWith(message);
+      }
+    });
+
+    it("réouverture après fermeture", async () => {
+      nébuleuse = new NébuleuseTest({ services: {}, options: { dossier } });
       await nébuleuse.démarrer();
 
-      const val = await nébuleuse.dossier();
-      expect(val).to.equal(dossierNébuleuse);
+      const idCompte = await nébuleuse.compte.obtIdCompte();
+      await nébuleuse.fermer();
 
-      if (isElectronMain || isNode) expect(fs.existsSync(val));
-    });
-
-    it("utilisation nom appli", async () => {
-      nébuleuse = new Nébuleuse({ options: { nomAppli: "Mon appli" } });
+      nébuleuse = new NébuleuseTest({ services: {}, options: { dossier } });
       await nébuleuse.démarrer();
 
-      const val = await nébuleuse.dossier();
-      expect(val).to.be.a("string");
-      if (isElectronMain || isNode)
-        expect(val).to.equal(join(dossier, "Mon appli", "Mon appli"));
-      else expect(val).to.equal(`./Mon appli`);
+      expect(await nébuleuse.compte.obtIdCompte()).to.equal(idCompte);
     });
 
-    it("mode développement", async () => {
-      nébuleuse = new Nébuleuse({
-        options: { nomAppli: "Mon appli", mode: "dév" },
+    it("fichier verrou résiduel", async () => {
+      // On simule un fichier verrou qui n'aurait pas été bien effacé à la fermeture
+      writeFileSync(join(dossier, FICHIER_VERROU), "");
+
+      // On peut démarrer malgré tout
+      nébuleuse = new NébuleuseTest({ services: {}, options: { dossier } });
+      await nébuleuse.démarrer();
+
+      const idCompte = await nébuleuse.compte.obtIdCompte();
+      expect(nébuleuse.compte.idCompteValide(idCompte)).to.be.true();
+    });
+  });
+
+  describe("fermeture", function () {
+    let nébuleuse: NébuleuseTest;
+    let dossier: string;
+    let effacer: () => void;
+
+    before(async () => {
+      ({ dossier, effacer } = await dossierTempoPropre());
+      nébuleuse = new NébuleuseTest({
+        services: {},
+        options: {
+          dossier,
+        },
       });
-      await nébuleuse.démarrer();
+    });
 
-      const val = await nébuleuse.dossier();
-      expect(val).to.be.a("string");
-      if (isElectronMain || isNode)
-        expect(val).to.equal(join(dossier, "Mon appli", "Mon appli-dév"));
-      else expect(val).to.equal(`./Mon appli`);
+    after(async () => {
+      await nébuleuse.fermer();
+      effacer();
+    });
+
+    it("fermeture immédiatement après ouverture", async function () {
+      // if (!isNode || process.platform === "win32") this.skip(); // Pour l'instant
+      await nébuleuse.démarrer();
+      await nébuleuse.fermer();
     });
   });
 });

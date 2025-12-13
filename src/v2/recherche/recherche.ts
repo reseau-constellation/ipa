@@ -2,9 +2,9 @@ import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import {
   cacheRechercheParN,
   cacheRechercheParProfondeur,
-} from "../crabe/cache.js";
+} from "../nébuleuse/cache.js";
 import { moyenne } from "../utils.js";
-import { stabiliser } from "../crabe/utils.js";
+import { stabiliser } from "../nébuleuse/utils.js";
 import { EstimateurAsymptoteTemps, calculerIntersection } from "./utils.js";
 import {
   COEFFICIENT_ASYMPTOTE_INTERSECTION_Y,
@@ -12,7 +12,7 @@ import {
   POIDS_SCORE_RÉSULTAT,
   PROFONDEUR_MINIMALE_RECHERCHE,
 } from "./consts.js";
-import type { Oublier, RetourRecherche, Suivi } from "../crabe/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type {
   InfoRésultat,
   RésultatObjectifRecherche,
@@ -21,12 +21,12 @@ import type {
   SuivreObjectifRecherche,
   SuivreQualitéRecherche,
 } from "./types.js";
-import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { Constellation } from "../index.js";
 import type { InfoAuteur } from "../types.js";
 
-export class Recherche<L extends ServicesLibp2pCrabe> {
+export class Recherche<L extends ServicesLibp2pNébuleuse> {
   constl: Constellation;
   service: <T extends keyof ServicesConstellation<L>>(
     service: T,
@@ -255,7 +255,7 @@ export class Recherche<L extends ServicesLibp2pCrabe> {
 }
 
 export abstract class RechercheObjets<
-  L extends ServicesLibp2pCrabe,
+  L extends ServicesLibp2pNébuleuse,
 > extends Recherche<L> {
   abstract suivreAuteursObjet({
     idObjet,

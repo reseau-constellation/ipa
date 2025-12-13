@@ -7,11 +7,11 @@ import { isElectronMain, isNode } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
-import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
+import { MEMBRE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { Rôle } from "@/v2/crabe/services/compte/accès/types.js";
+import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { TraducsTexte } from "@/v2/types.js";
 import type {

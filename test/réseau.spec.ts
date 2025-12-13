@@ -7,7 +7,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { expect } from "aegir/chai";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { peerIdFromString } from "@libp2p/peer-id";
-import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
+import { MEMBRE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
 import type {

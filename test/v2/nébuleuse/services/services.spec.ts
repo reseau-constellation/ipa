@@ -1,0 +1,301 @@
+import { expect } from "aegir/chai";
+import { créerOrbitesTest } from "@constl/utils-tests";
+import { typedNested } from "@constl/bohr-db";
+import { v4 as uuidv4 } from "uuid";
+import { validerOptionsServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import {
+  ServiceDonnéesAppli,
+  brancheBd,
+} from "@/v2/nébuleuse/services/services.js";
+import { mapÀObjet } from "@/v2/nébuleuse/utils.js";
+import { créerNébuleusesTest } from "../utils.js";
+import { obtenir } from "../../utils.js";
+import type { OrbitDB } from "@orbitdb/core";
+import type { Helia } from "helia";
+import type { Libp2p } from "libp2p";
+import type { ServicesLibp2pTest } from "@constl/utils-tests";
+import type { TypedNested } from "@constl/bohr-db";
+import type { JSONSchemaType } from "ajv";
+import type { NestedDatabaseType } from "@orbitdb/nested-db";
+import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
+import type { PartielRécursif } from "@/v2/types.js";
+import type { Appli } from "@/v2/appli/index.js";
+import type { ServicesNécessairesCompte } from "@/v2/nébuleuse/services/compte/index.js";
+
+const ERREUR_DUPLIQUÉS =
+  "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
+
+describe.only("Services Nébuleuse", function () {
+  describe("valider options", function () {
+    let orbite: OrbitDB<ServicesLibp2pNébuleuse>;
+    let hélia: Helia<Libp2p<ServicesLibp2pNébuleuse>>;
+    let libp2p: Libp2p<ServicesLibp2pNébuleuse>;
+    let fermer: () => Promise<void>;
+
+    before(async () => {
+      const test = await créerOrbitesTest({ n: 1 });
+      ({ fermer } = test);
+
+      orbite = test.orbites[0];
+      hélia = orbite.ipfs;
+      libp2p = hélia.libp2p;
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    it("orbite", () => {
+      validerOptionsServicesNébuleuse({
+        services: {
+          orbite: { orbite },
+        },
+      });
+    });
+
+    it("hélia", () => {
+      validerOptionsServicesNébuleuse({
+        services: {
+          hélia: { hélia },
+        },
+      });
+    });
+
+    it("libp2p", () => {
+      validerOptionsServicesNébuleuse({
+        services: {
+          libp2p: { libp2p },
+        },
+      });
+    });
+
+    it("erreur si dédoublement hélia + libp2p", () => {
+      expect(() =>
+        validerOptionsServicesNébuleuse({
+          services: {
+            libp2p: { libp2p },
+            hélia: { hélia },
+          },
+        }),
+      ).to.throw(ERREUR_DUPLIQUÉS);
+    });
+
+    it("erreur si dédoublement orbite + libp2p", () => {
+      expect(() =>
+        validerOptionsServicesNébuleuse({
+          services: {
+            libp2p: { libp2p },
+            orbite: { orbite },
+          },
+        }),
+      ).to.throw(ERREUR_DUPLIQUÉS);
+    });
+
+    it("erreur si dédoublement hélia + orbite", () => {
+      expect(() =>
+        validerOptionsServicesNébuleuse({
+          services: {
+            orbite: { orbite },
+            hélia: { hélia },
+          },
+        }),
+      ).to.throw(ERREUR_DUPLIQUÉS);
+    });
+  });
+
+  describe("services données", function () {
+    describe("branche bd", function () {
+      let orbite: OrbitDB;
+      let orbites: OrbitDB[];
+      let fermer: Oublier;
+
+      type Structure = { a: string; b: { c: number; d: number } };
+      let bd: TypedNested<Structure>;
+
+      const schéma: JSONSchemaType<PartielRécursif<Structure>> = {
+        type: "object",
+        properties: {
+          a: { type: "string", nullable: true },
+          b: {
+            type: "object",
+            properties: {
+              c: { type: "number", nullable: true },
+              d: { type: "number", nullable: true },
+            },
+            nullable: true,
+            required: [],
+          },
+        },
+        required: [],
+      };
+
+      before(async () => {
+        ({ orbites, fermer } = await créerOrbitesTest({ n: 1 }));
+        orbite = orbites[0];
+      });
+      after(async () => {
+        if (fermer) await fermer();
+      });
+
+      beforeEach(async () => {
+        const bdImbriquée = (await orbite.open(uuidv4(), {
+          type: "nested",
+        })) as NestedDatabaseType;
+        bd = typedNested<Structure>({ db: bdImbriquée, schema: schéma });
+      });
+
+      it("`set` et `get`", async () => {
+        const branche = brancheBd({ bd, clef: "b" });
+
+        await branche.set("c", 3);
+
+        const valRacine = await bd.get("b");
+        expect(mapÀObjet(valRacine)).to.deep.equal({ c: 3 });
+
+        const valBranche = await branche.get("c");
+        expect(valBranche).to.equal(3);
+
+        await branche.put("d", 5);
+        expect(await branche.get("d")).to.equal(5);
+      });
+
+      it(`all`, async () => {
+        const branche = brancheBd({ bd, clef: "b" });
+
+        await branche.set("c", 1);
+        await branche.set("d", 2);
+        const val = await branche.all();
+        expect(mapÀObjet(val)).to.deep.equal({ c: 1, d: 2 });
+      });
+
+      it(`move`, async () => {
+        const branche = brancheBd({ bd, clef: "b" });
+
+        await branche.set("c", 1);
+        await branche.set("d", 2);
+        await branche.move("c", 1);
+
+        const val = await branche.all();
+        expect([...val.keys()]).to.deep.equal(["d", "c"]);
+      });
+    });
+
+    describe("accès données service", function () {
+      type StructureA = { a: number };
+      type StructureB = { b: { c: number; d: number } };
+      type Structure = {
+        A: StructureA;
+        B: StructureB;
+      };
+
+      let nébuleuse: Nébuleuse<
+        Structure,
+        { A: ServiceDonnéesTestA; B: ServiceDonnéesTestB }
+      >;
+      let oublier: Oublier;
+
+      class ServiceDonnéesTestA extends ServiceDonnéesAppli<
+        "A",
+        StructureA
+      > {
+        constructor({
+          appli,
+        }: {
+          appli: Appli<ServicesNécessairesCompte<ServicesLibp2pTest>>;
+        }) {
+          super({
+            clef: "A",
+            appli,
+            options: {
+              schéma: {
+                type: "object",
+                properties: {
+                  a: { type: "number", nullable: true },
+                },
+              },
+            },
+          });
+        }
+      }
+      class ServiceDonnéesTestB extends ServiceDonnéesAppli<
+        "B",
+        StructureB
+      > {
+        constructor({
+          appli,
+        }: {
+          appli: Appli<ServicesNécessairesCompte<ServicesLibp2pTest>>;
+        }) {
+          super({
+            clef: "B",
+            appli,
+            options: {
+              schéma: {
+                type: "object",
+                properties: {
+                  b: {
+                    type: "object",
+                    nullable: true,
+                    properties: {
+                      c: { type: "number", nullable: true },
+                      d: { type: "number", nullable: true },
+                    },
+                  },
+                },
+              },
+            },
+          });
+        }
+      }
+
+      before(async () => {
+        const { nébuleuses, fermer } = await créerNébuleusesTest<Structure>({
+          n: 1,
+          services: {
+            A: ServiceDonnéesTestA,
+            B: ServiceDonnéesTestB,
+          },
+        });
+        nébuleuse = nébuleuses[0];
+        oublier = fermer;
+      });
+
+      after(async () => {
+        if (oublier) await oublier();
+      });
+
+      it("accès bd branche", async () => {
+        const bdA = await nébuleuse.services["A"].bd();
+        await bdA.put("a", 3);
+
+        const val = await bdA.get("a");
+        expect(val).to.equal(3);
+      });
+
+      it("suivi bd branche", async () => {
+        const bdB = await nébuleuse.services["B"].bd();
+
+        await bdB.put("b/c", 1);
+        const val = await obtenir<PartielRécursif<StructureB> | undefined>(
+          ({ si }) =>
+            nébuleuse.services["B"].suivreBd({ f: si((x) => x?.b !== undefined) }),
+        );
+
+        expect(val).to.deep.equal({ b: { c: 1 } });
+      });
+
+      it("suivi bd branche avec clef", async () => {
+        const bdB = await nébuleuse.services["B"].bd();
+
+        await bdB.put("b/c", 2);
+        const val = await obtenir<number | undefined>(({ si }) =>
+          nébuleuse.services["B"].suivreBd({ clef: "b/c", f: si((x) => x !== 1) }),
+        );
+
+        expect(val).to.deep.equal(2);
+      });
+    });
+  });
+});

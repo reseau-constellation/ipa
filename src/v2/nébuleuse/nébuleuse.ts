@@ -1,293 +1,209 @@
 import { join } from "path";
-import { TypedEmitter } from "tiny-typed-emitter";
 import { isElectronMain, isNode } from "wherearewe";
-import { STATUTS } from "./consts.js";
+import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
+import { Appli } from "@/v2/appli/appli.js";
+import {
+  ServiceCompte,
+  ServiceHélia,
+  ServiceLibp2p,
+  ServiceOrbite,
+  ServiceStockage,
+} from "./services/index.js";
+import { ServiceDispositifs } from "./services/dispositifs.js";
+import { Profil } from "./services/profil.js";
+import { ServiceRéseau } from "./services/réseau.js";
+import { ServiceJournal } from "./services/journal.js";
+import type { Jsonifiable } from "./types.js";
+import type { ServiceÉpingles } from "./services/epingles.js";
+import type { NestedValueObject } from "@orbitdb/nested-db";
+import type {
+  ConstructeursServicesAppli,
+  OptionsAppli,
+  ServicesAppli,
+} from "@/v2/appli/appli.js";
+import type { StructureDispositifs } from "./services/dispositifs.js";
+import type { ServicesLibp2pNébuleuse } from "./services/libp2p/libp2p.js";
+import type { StructureProfil } from "./services/profil.js";
+import type { StructureRéseau } from "./services/réseau.js";
+import type {
+  ServicesDonnées,
+  ServicesNécessairesCompte,
+} from "./services/compte/compte.js";
+import type { ServiceFavoris } from "./services/favoris.js";
 
-type ÉvénementsNébuleuse = {
-  démarrée: () => void;
-  fermée: () => void;
+export type StructureNébuleuse = {
+  dispositifs: StructureDispositifs;
+  profil: StructureProfil;
+  réseau: StructureRéseau;
 };
-export type ConstructeurServiceNébuleuse<
-  T,
-  S extends ServicesNébuleuse,
-> = new (args: {
-  nébuleuse: Nébuleuse<S>;
-  options?: T extends ServiceNébuleuse<
-    infer _Types,
-    infer _Services,
-    infer _R,
-    infer Opts
-  >
-    ? Opts
-    : never;
-}) => T;
 
 export type ServicesNébuleuse<
-  A extends ServicesNébuleuse = {
-    [clef: string]: ServiceNébuleuse<typeof clef>;
-  },
-> = {
-  [clef: string]: ServiceNébuleuse<typeof clef, A>;
+  T extends StructureNébuleuse = StructureNébuleuse,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> = Omit<ServicesNécessairesCompte<L>, "compte"> & {
+  compte: ServiceCompte<T, L>;
+  dispositifs: ServiceDispositifs<L>;
+  profil: Profil<L>;
+  réseau: ServiceRéseau<L>;
+  épingles: ServiceÉpingles<L>;
+  favoris: ServiceFavoris<L>;
 };
 
-export type ConstructeursServicesNébuleuse<
-  T extends ServicesNébuleuse,
-  A extends ServicesNébuleuse = {
-    [clef: string]: ServiceNébuleuse<typeof clef>;
-  },
-> = {
-  [clef in keyof T]: ConstructeurServiceNébuleuse<T[clef], T & A>;
+export const validerOptionsServicesNébuleuse = <
+  T extends StructureNébuleuse,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+>(
+  options: OptionsAppli<ServicesNébuleuse<T, L>>,
+) => {
+  const { orbite } = options.services?.orbite || {};
+  let { hélia } = options.services?.hélia || {};
+  let { libp2p } = options.services?.libp2p || {};
+
+  const ERREUR_DUPLIQUÉS =
+    "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
+  if (orbite) {
+    if (hélia) throw new Error(ERREUR_DUPLIQUÉS);
+    hélia = orbite.ipfs;
+  }
+  if (hélia) {
+    if (libp2p) throw new Error(ERREUR_DUPLIQUÉS);
+    libp2p = hélia.libp2p;
+  }
 };
 
-export type OptionsNébuleuse<T extends ServicesNébuleuse> = {
-  dossier?: string;
-  nomAppli?: string;
-  mode?: "dév" | "prod";
-  services?: {
-    [clef in keyof T]?: T[clef] extends ServiceNébuleuse<
-      infer _Type,
-      infer _Services,
-      infer _R,
-      infer Opts
-    >
-      ? Opts | undefined
-      : never;
-  };
-};
+export const FICHIER_VERROU = "VERROU";
+export const INTERVALE_VERROU = 5000; // 5 millisecondes
 
-export class Nébuleuse<S extends ServicesNébuleuse = ServicesNébuleuse> {
-  statut: (typeof STATUTS)[keyof typeof STATUTS];
-  options: OptionsNébuleuse<S>;
-  services: S;
-  événements: TypedEmitter<ÉvénementsNébuleuse>;
-  nomAppli: string;
+export class Nébuleuse<
+  T extends { [clef: string]: NestedValueObject } = Record<string, never>,
+  S extends ServicesAppli = ServicesAppli,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> extends Appli<ServicesNébuleuse<StructureNébuleuse & T, L> & S> {
+  orbite: ServiceOrbite<L>;
+  profil: Profil<L>;
+  compte: ServiceCompte<StructureNébuleuse & T, L>;
+  réseau: ServiceRéseau<L>;
+
+  oublierVerrou?: () => void;
 
   constructor({
     services,
     options,
   }: {
-    nomAppli?: string;
-    services?: ConstructeursServicesNébuleuse<S>;
-    options?: OptionsNébuleuse<S>;
+    services?: ConstructeursServicesAppli<
+      S & ServicesDonnées<T, L>,
+      ServicesNébuleuse<StructureNébuleuse & T, L>
+    >;
+    options?: OptionsAppli<S & ServicesNébuleuse<StructureNébuleuse & T, L>>;
   } = {}) {
-    this.nomAppli = options?.nomAppli ?? "nébuleuse";
-    services = services ?? ({} as ConstructeursServicesNébuleuse<S>);
+    services =
+      services ??
+      ({} as ConstructeursServicesAppli<S & ServicesDonnées<T, L>>);
+    options = options ?? {};
+    validerOptionsServicesNébuleuse(options);
 
-    this.options = options || {};
-    this.services = Object.fromEntries(
-      Object.entries(services).map(([clef, service]) => [
-        clef,
-        new service({ nébuleuse: this, options: options?.services?.[clef] }),
-      ]),
-    ) as S;
+    super({
+      services: {
+        journal: ServiceJournal,
+        stockage: ServiceStockage,
+        libp2p: ServiceLibp2p,
+        hélia: ServiceHélia,
+        orbite: ServiceOrbite,
+        compte: ServiceCompte<T, L>,
+        dispositifs: ServiceDispositifs,
+        profil: Profil,
+        réseau: ServiceRéseau,
+        ...services,
+      } as ConstructeursServicesAppli<
+        S & ServicesNébuleuse<StructureNébuleuse & T, L>
+      >,
+      options,
+    });
 
-    this.événements = new TypedEmitter<ÉvénementsNébuleuse>();
-    this.statut = STATUTS.NON_INITIALISÉE;
+    this.orbite = this.services["orbite"];
+
+    this.compte = this.services["compte"];
+
+    this.réseau = this.services["réseau"];
+    this.profil = this.services["profil"];
   }
 
-  // Cycle de vie
-
-  get estDémarrée(): boolean {
-    return this.statut === STATUTS.DÉMARRÉE;
-  }
-
-  async démarrée(): Promise<void> {
-    if (this.estDémarrée) return;
-    return new Promise((résoudre) =>
-      this.événements.once("démarrée", résoudre),
-    );
-  }
-
-  async démarrer() {
-    if (this.estDémarrée) return;
-    if (this.statut === STATUTS.DÉMARRAGE_EN_COURS) {
-      return new Promise<void>((résoudre) =>
-        this.événements.once("démarrée", résoudre),
-      );
-    }
-    this.statut = STATUTS.DÉMARRAGE_EN_COURS;
-
-    try {
-      await this.démarrerServices();
-    } catch (e) {
-      this.statut = STATUTS.ERREUR_DÉMARRAGE;
-      throw e;
-    }
-
-    this.statut = STATUTS.DÉMARRÉE;
-    this.événements.emit("démarrée");
-  }
-
-  async démarrerServices() {
-    const servicesÀDémarrer = Object.values(this.services).filter(
-      (s) => !s.estDémarré,
-    );
-    if (!servicesÀDémarrer.length) return;
-
-    const prêtsÀDémarrer = servicesÀDémarrer.filter((s) =>
-      s.dépendances.every((d) => this.services[d].estDémarré),
-    );
-
-    if (!prêtsÀDémarrer.length)
-      throw new Error(
-        `Dépendances circulaires ou non-existantes parmi ${servicesÀDémarrer.map((s) => s.clef).join(", ")}.`,
-      );
-
-    await Promise.all(prêtsÀDémarrer.map((s) => s.démarrer()));
-
-    await this.démarrerServices();
-  }
-
-  async fermer() {
-    if (this.statut === STATUTS.FERMÉE) return;
-    if (this.statut === STATUTS.ERREUR_DÉMARRAGE)
-      throw new Error("Erreur de démarrage");
-    if (this.statut === STATUTS.FERMETURE_EN_COURS) {
-      return new Promise<void>((résoudre) =>
-        this.événements.once("fermée", résoudre),
-      );
-    }
-
-    await this.démarrée(); // S'assure que tout (y compris les services) sont bien initialisés
-
-    this.statut = STATUTS.FERMETURE_EN_COURS;
-    await this.fermerServices();
-
-    this.statut = STATUTS.FERMÉE;
-  }
-
-  async fermerServices() {
-    // Cette fonction suppose que nous sommes sûrs qu'aucun service est en cours de démarrage
-    // À faire : gérer condition si service est en cours de démarrage
-    const servicesÀFermer = Object.values(this.services).filter(
-      (s) => s.estDémarré,
-    );
-
-    if (!servicesÀFermer.length) return;
-
-    const prêtsÀFermer = servicesÀFermer.filter(
-      (s) => !servicesÀFermer.some((d) => d.dépendances.includes(s.clef)),
-    );
-
-    if (!prêtsÀFermer.length)
-      throw new Error(
-        `Dépendances circulaires parmi ${servicesÀFermer.map((s) => s.clef).join(", ")}.`,
-      );
-
-    await Promise.all(prêtsÀFermer.map((s) => s.fermer()));
-
-    const malFermé = prêtsÀFermer.find((s) => s.estDémarré);
-    if (malFermé)
-      throw new Error(`Service ${malFermé.clef} n'a pas été bien fermé.`);
-
-    await this.fermerServices();
-  }
-
-  // Fonctions utilitaires
-  async dossier(): Promise<string> {
-    if (this.options.dossier) {
-      if (isNode || isElectronMain) {
-        const fs = await import("fs");
-        if (!fs.existsSync(this.options.dossier))
-          fs.mkdirSync(this.options.dossier, { recursive: true });
-      }
-      return this.options.dossier;
-    }
-
-    if (isNode || isElectronMain) {
-      const fs = await import("fs");
-      // Utiliser l'application native
-      const envPaths = (await import("env-paths")).default;
-      const chemins = envPaths(this.nomAppli, { suffix: "" });
-      const dossier = join(
-        chemins.data,
-        this.options.mode === "dév" ? `${this.nomAppli}-dév` : this.nomAppli,
-      );
-      if (!fs.existsSync(dossier)) fs.mkdirSync(dossier, { recursive: true });
-      return dossier;
-    } else {
-      // Pour navigateur
-      return `./${this.nomAppli}`;
-    }
-  }
-}
-
-type ÉvénementsServiceNébuleuse<Démarré = true> = {
-  démarré: (args: Démarré) => void;
-};
-
-export class ServiceNébuleuse<
-  T extends string,
-  S extends ServicesNébuleuse = ServicesNébuleuse,
-  RetourDémarré = unknown,
-  Options = unknown,
-> {
-  clef: T;
-  nébuleuse: Nébuleuse<S>;
-  dépendances: Extract<keyof S, string>[];
-  options: Options;
-
-  événements: TypedEmitter<ÉvénementsServiceNébuleuse<RetourDémarré>>;
-  statut: (typeof STATUTS)[keyof typeof STATUTS];
-  estDémarré: RetourDémarré | false;
-
-  constructor({
-    clef,
-    nébuleuse,
-    dépendances = [],
-    options,
-  }: {
-    clef: T;
-    nébuleuse: Nébuleuse<S>;
-    dépendances?: Extract<keyof S, string>[];
-    options?: Options;
-  }) {
-    this.clef = clef;
-    this.nébuleuse = nébuleuse;
-    this.dépendances = dépendances;
-    this.options = options || ({} as Options);
-
-    this.événements = new TypedEmitter<
-      ÉvénementsServiceNébuleuse<RetourDémarré>
-    >();
-    this.statut = STATUTS.NON_INITIALISÉE;
-    this.estDémarré = false;
-  }
-
-  // Cycle de vie
-  async démarrer(): Promise<RetourDémarré> {
-    const dépendancesNonDémarrées = this.dépendances
-      .map((d) => this.service(d))
-      .filter((d) => !d.estDémarré)
-      .map((d) => d.clef);
-    if (dépendancesNonDémarrées.length)
-      throw new Error(
-        `Dépendances de ${this.clef} non démarrées: ${dépendancesNonDémarrées.join(", ")}`,
-      );
-    if (this.estDémarré === false) this.estDémarré = true as RetourDémarré;
-
-    this.événements.emit("démarré", this.estDémarré);
-    this.statut = STATUTS.DÉMARRÉE;
-    return this.estDémarré;
-  }
-
-  async démarré(): Promise<RetourDémarré> {
-    if (this.estDémarré) return this.estDémarré;
-    return new Promise((résoudre) => this.événements.once("démarré", résoudre));
+  async démarrer(): Promise<void> {
+    this.oublierVerrou = await this.verrouillerDossier();
+    return await super.démarrer();
   }
 
   async fermer(): Promise<void> {
-    await this.démarré();
-    this.statut = STATUTS.FERMÉE;
-    this.estDémarré = false;
+    await super.fermer();
+    await this.déverrouillerDossier();
   }
 
-  // Méthodes générales
-  service<C extends Extract<keyof S, string>>(clef: C): S[C] {
-    if (!this.dépendances.includes(clef))
-      throw new Error(
-        `${String(clef)} n'est pas spécifié parmi les dépendences de ${this.clef}.`,
-      );
-    return this.nébuleuse.services[clef];
+  // Fichier verrou
+
+  async verrouillerDossier(): Promise<() => void> {
+    if (isElectronMain || isNode) {
+      const fs = await import("fs");
+      const dossier = await this.dossier();
+      const fichierVerrou = join(dossier, FICHIER_VERROU);
+
+      if (!fs.existsSync(fichierVerrou)) {
+        fs.writeFileSync(fichierVerrou, "");
+      } else {
+        const infoFichier = fs.statSync(fichierVerrou);
+        const modifiéÀ = infoFichier.mtime;
+        const verifierSiVieux = () => {
+          const maintenant = new Date();
+
+          if (maintenant.getTime() - modifiéÀ.getTime() > INTERVALE_VERROU) {
+            fs.writeFileSync(fichierVerrou, "");
+          } else {
+            const contenuFichier = new TextDecoder().decode(
+              fs.readFileSync(fichierVerrou),
+            );
+            const erreur = new Error(
+              `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n${contenuFichier}`,
+            );
+            erreur.name = ERREUR_INIT_IPA_DÉJÀ_LANCÉ;
+            throw erreur;
+          }
+        };
+        try {
+          verifierSiVieux();
+        } catch {
+          await new Promise((résoudre) =>
+            setTimeout(résoudre, INTERVALE_VERROU),
+          );
+          verifierSiVieux();
+        }
+      }
+      const intervale = setInterval(() => {
+        const maintenant = new Date();
+        fs.utimesSync(fichierVerrou, maintenant, maintenant);
+      }, INTERVALE_VERROU);
+      return () => clearInterval(intervale);
+    } else {
+      return () => {};
+    }
+  }
+
+  async spécifierMessageVerrou({
+    message,
+  }: {
+    message: Jsonifiable;
+  }): Promise<void> {
+    if (isElectronMain || isNode) {
+      const dossier = await this.dossier();
+      const fs = await import("fs");
+      const fichierVerrou = join(dossier, FICHIER_VERROU);
+      fs.writeFileSync(fichierVerrou, JSON.stringify(message));
+    }
+  }
+
+  async déverrouillerDossier(): Promise<void> {
+    if (isElectronMain || isNode) {
+      if (this.oublierVerrou) this.oublierVerrou();
+      const fs = await import("fs");
+      fs.rmSync(join(await this.dossier(), FICHIER_VERROU));
+    }
   }
 }

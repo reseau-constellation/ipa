@@ -1,25 +1,25 @@
 import { faisRien } from "@constl/utils-ipa";
 import { v4 as uuidv4 } from "uuid";
-import { cacheSuivi } from "./crabe/cache.js";
+import { cacheSuivi } from "./nébuleuse/cache.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
-import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";
-import { mapÀObjet } from "./crabe/utils.js";
+import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./nébuleuse/services/favoris.js";
+import { mapÀObjet } from "./nébuleuse/utils.js";
 import { RechercheVariables } from "./recherche/variables.js";
 import { ObjetConstellation } from "./objets.js";
-import type { Rôle } from "./crabe/services/compte/accès/index.js";
+import type { Rôle } from "./nébuleuse/services/compte/accès/index.js";
 import type { Constellation } from "./constellation.js";
-import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   InfoAuteur,
   PartielRécursif,
   StatutDonnées,
   TraducsTexte,
 } from "./types.js";
-import type { Oublier, Suivi } from "./crabe/types.js";
+import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
-} from "./crabe/services/favoris.js";
+} from "./nébuleuse/services/favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type {
@@ -122,21 +122,21 @@ const standardiserCatégorieVariable = (
 };
 
 export class Variables<
-  L extends ServicesLibp2pCrabe,
+  L extends ServicesLibp2pNébuleuse,
 > extends ObjetConstellation<"variables", StructureVariable, L> {
   recherche: RechercheVariables<L>;
   schémaObjet = schémaVariable;
 
-  constructor({ nébuleuse }: { nébuleuse: Constellation }) {
+  constructor({ appli }: { appli: Constellation }) {
     super({
       clef: "variable",
-      nébuleuse,
+      appli,
       dépendances: ["compte", "orbite"],
     });
 
     this.recherche = new RechercheVariables<L>({
       variables: this,
-      constl: this.nébuleuse,
+      constl: this.appli,
       service: (clef) => this.service(clef),
     });
 

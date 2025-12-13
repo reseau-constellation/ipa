@@ -11,7 +11,7 @@ import {
 } from "@/v2/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
   InfoRésultatRecherche,

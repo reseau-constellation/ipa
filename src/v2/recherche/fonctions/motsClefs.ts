@@ -6,7 +6,7 @@ import {
   similTexte,
 } from "./utils.js";
 import type { TraducsTexte } from "@/v2/types.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
   InfoRésultatTexte,

@@ -3,13 +3,13 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
 import { dossierTempo } from "@constl/utils-tests";
-import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
+import { MEMBRE, MODÉRATRICE } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
-} from "@/v2/crabe/services/favoris.js";
-import { stabiliser } from "@/v2/crabe/utils.js";
+} from "@/v2/nébuleuse/services/favoris.js";
+import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import { moyenne, type DonnéesFichierBdExportées } from "@/v2/utils.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
@@ -22,7 +22,7 @@ import type {
   TraducsTexte,
 } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   DifférenceBds,
   DonnéesBdExportées,

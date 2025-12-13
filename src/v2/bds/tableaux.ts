@@ -17,9 +17,9 @@ import { isElectronMain, isNode } from "wherearewe";
 import axios from "axios";
 import { cholqij } from "@/dates.js";
 import { Tableaux } from "../tableaux.js";
-import { cacheSuivi } from "../crabe/cache.js";
-import { mapÀObjet } from "../crabe/utils.js";
-import { typer } from "../crabe/services/orbite/orbite.js";
+import { cacheSuivi } from "../nébuleuse/cache.js";
+import { mapÀObjet } from "../nébuleuse/utils.js";
+import { typer } from "../nébuleuse/services/orbite/orbite.js";
 import {
   idcEtFichierValide,
   justeDéfinis,
@@ -31,14 +31,14 @@ import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { NestedObjectToMap } from "@orbitdb/nested-db";
 import type { BookType, WorkBook } from "xlsx";
-import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { ErreurDonnée, FonctionValidation } from "../règles.js";
 import type {
   DonnéesRangéeTableau,
   InfoColonne,
   InfoColonneAvecCatégorie,
 } from "../tableaux.js";
-import type { Oublier, Suivi } from "../crabe/types.js";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { PartielRécursif, TraducsTexte } from "../types.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 
@@ -197,7 +197,7 @@ export function indexÉlémentsÉgaux(
 
 // Tableaux
 
-export class TableauxBds<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
+export class TableauxBds<L extends ServicesLibp2pNébuleuse> extends Tableaux<L> {
   async créerTableau({
     idStructure,
     idTableau,

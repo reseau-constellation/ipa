@@ -4,8 +4,8 @@ import { Ajv } from "ajv";
 import deepEqual from "deep-equal";
 import { v4 as uuidv4 } from "uuid";
 import { effacerPropriétésNonDéfinies } from "@constl/utils-ipa";
-import { ServiceDonnéesNébuleuse } from "../crabe/services/services.js";
-import { appelerLorsque } from "../crabe/services/utils.js";
+import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
+import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import {
   schémaServiceAutomatisations,
   schémaSpécificationAutomatisation,
@@ -17,8 +17,8 @@ import {
   obtTempsInterval,
 } from "./utils.js";
 import type { Constellation, ServicesConstellation } from "../constellation.js";
-import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import type { Oublier, Suivi } from "../crabe/types.js";
+import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { PartielRécursif } from "../types.js";
 import type {
   InfoImporterFeuilleCalcul,
@@ -110,8 +110,8 @@ const lancerAutomatisation = async ({
 };
 
 export class Automatisations<
-  L extends ServicesLibp2pCrabe,
-> extends ServiceDonnéesNébuleuse<
+  L extends ServicesLibp2pNébuleuse,
+> extends ServiceDonnéesAppli<
   "automatisations",
   StructureServiceAutomatisations,
   L,
@@ -126,10 +126,10 @@ export class Automatisations<
     autos: () => void;
   }>;
 
-  constructor({ nébuleuse }: { nébuleuse: Constellation }) {
+  constructor({ appli }: { appli: Constellation }) {
     super({
       clef: "automatisations",
-      nébuleuse,
+      appli,
       dépendances: ["compte", "stockage"],
       options: {
         schéma: schémaServiceAutomatisations,

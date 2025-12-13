@@ -14,15 +14,15 @@ import { TimeoutController } from "timeout-abort-controller";
 import PQueue from "p-queue";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
-import { cacheSuivi } from "../crabe/cache.js";
+import { cacheSuivi } from "../nébuleuse/cache.js";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
-} from "../crabe/services/favoris.js";
+} from "../nébuleuse/services/favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import { schémaTableau } from "../tableaux.js";
-import { mapÀObjet, stabiliser } from "../crabe/utils.js";
+import { mapÀObjet, stabiliser } from "../nébuleuse/utils.js";
 import {
   ajouterPréfixes,
   enleverPréfixesEtOrbite,
@@ -32,7 +32,7 @@ import {
 import { RechercheBds } from "../recherche/bds.js";
 import { ObjetConstellation } from "../objets.js";
 import { TableauxBds } from "./tableaux.js";
-import type { Rôle } from "../crabe/services/compte/accès/types.js";
+import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
 import type xlsx from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
@@ -43,13 +43,13 @@ import type {
   TraducsTexte,
 } from "../types.js";
 import type { Constellation } from "../constellation.js";
-import type { Oublier, Suivi } from "../crabe/types.js";
-import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
+import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
   ÉpingleFavorisBooléenniséeAvecId,
-} from "../crabe/services/favoris.js";
+} from "../nébuleuse/services/favoris.js";
 import type {
   StructureTableau,
   DifférenceTableaux,
@@ -215,7 +215,7 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
   },
 };
 
-export class Bds<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
+export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
   "bds",
   StructureBd,
   L
@@ -225,10 +225,10 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
 
   schémaObjet = schémaBd;
 
-  constructor({ nébuleuse }: { nébuleuse: Constellation }) {
+  constructor({ appli }: { appli: Constellation }) {
     super({
       clef: "bds",
-      nébuleuse,
+      appli,
       dépendances: ["variables", "motsClefs", "compte", "orbite", "hélia"],
     });
 
@@ -237,7 +237,7 @@ export class Bds<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
     });
     this.recherche = new RechercheBds({
       bds: this,
-      constl: nébuleuse,
+      constl: appli,
       service: (clef) => this.service(clef),
     });
 

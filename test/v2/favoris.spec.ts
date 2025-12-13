@@ -1,9 +1,9 @@
 import { expect } from "aegir/chai";
 import { isNode, isElectronMain } from "wherearewe";
 import { créerConstellationsTest } from "./utils.js";
-import type { Résolveur } from "@/v2/crabe/services/favoris.js";
+import type { Résolveur } from "@/v2/nébuleuse/services/favoris.js";
 import type { Constellation } from "@/v2/index.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 
 describe("Favoris", function () {
   let fermer: () => Promise<void>;

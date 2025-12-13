@@ -1,7 +1,7 @@
 import { expect } from "aegir/chai";
 import { créerConstellationsTest, rechercher } from "../utils.js";
 import type { ObtRecherche } from "../utils.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
   InfoRésultat,

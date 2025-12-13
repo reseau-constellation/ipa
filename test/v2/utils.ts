@@ -4,14 +4,14 @@ import { dossierTempo } from "@constl/utils-tests";
 
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
-import { estContrôleurNébuleuse } from "@/v2/crabe/services/compte/accès/contrôleurNébuleuse.js";
+import { estContrôleurAppli } from "@/v2/nébuleuse/services/compte/accès/contrôleurAppli.js";
 import { créerConstellation } from "@/v2/index.js";
-import { attendreQue } from "./nébuleuse/utils/fonctions.js";
-import { connecterCrabes } from "./crabe/utils.js";
-import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
+import { attendreQue } from "./appli/utils/fonctions.js";
+import { connecterNébuleuses } from "./nébuleuse/utils.js";
+import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import type { InfoRésultat, RésultatRecherche } from "@/v2/recherche/types.js";
 import type { Constellation } from "@/v2/index.js";
-import type { Oublier, RetourRecherche, Suivi } from "@/v2/crabe/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "@/v2/nébuleuse/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
@@ -32,7 +32,7 @@ export const attendreInvité = async (
   idInvité: string,
 ): Promise<void> => {
   const accès = bd.access;
-  if (!estContrôleurNébuleuse(accès))
+  if (!estContrôleurAppli(accès))
     throw new Error(`Contrôleur d'accès non supporté : ${accès.type}`);
 
   return await attendreQue(() => accès.estAutorisé(idInvité));
@@ -309,7 +309,7 @@ export const créerConstellationsTest = async ({
     constls.push(constl);
   }
 
-  await connecterCrabes(constls);
+  await connecterNébuleuses(constls);
 
   const fermer = async () => {
     await Promise.allSettled(constls.map((c) => c.fermer()));

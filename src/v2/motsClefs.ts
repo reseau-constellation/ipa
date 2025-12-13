@@ -1,18 +1,18 @@
 import { faisRien } from "@constl/utils-ipa";
-import { cacheSuivi } from "./crabe/cache.js";
-import { mapÀObjet } from "./crabe/utils.js";
-import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./crabe/services/favoris.js";
+import { cacheSuivi } from "./nébuleuse/cache.js";
+import { mapÀObjet } from "./nébuleuse/utils.js";
+import { TOUS_DISPOSITIFS, résoudreDéfauts } from "./nébuleuse/services/favoris.js";
 import { schémaTraducsTexte } from "./schémas.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
 import { ObjetConstellation } from "./objets.js";
-import type { Rôle } from "./crabe/services/compte/accès/types.js";
-import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
+import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
-} from "./crabe/services/favoris.js";
+} from "./nébuleuse/services/favoris.js";
 import type { InfoAuteur, PartielRécursif, TraducsTexte } from "./types.js";
-import type { Oublier, Suivi } from "./crabe/types.js";
+import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { Constellation } from "./constellation.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
@@ -46,22 +46,22 @@ export type ÉpingleMotClef = {
 export type ContenuÉpingleMotClef = BaseÉpingleFavoris;
 
 export class MotsClefs<
-  L extends ServicesLibp2pCrabe,
+  L extends ServicesLibp2pNébuleuse,
 > extends ObjetConstellation<"motsClefs", StructureMotClef, L> {
   recherche: RechercheMotsClefs<L>;
 
   schémaObjet = schémaMotClef;
 
-  constructor({ nébuleuse }: { nébuleuse: Constellation }) {
+  constructor({ appli }: { appli: Constellation }) {
     super({
       clef: "motsClefs",
-      nébuleuse,
+      appli,
       dépendances: ["favoris", "réseau", "compte", "orbite"],
     });
 
     this.recherche = new RechercheMotsClefs<L>({
       motsClefs: this,
-      constl: this.nébuleuse,
+      constl: this.appli,
       service: (clef) => this.service(clef),
     });
 

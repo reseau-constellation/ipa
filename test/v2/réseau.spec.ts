@@ -1,8 +1,8 @@
 import { expect } from "aegir/chai";
-import { MEMBRE } from "@/v2/crabe/services/compte/accès/consts.js";
+import { MEMBRE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 
 describe("Réseau Constellation", async () => {
   let constls: Constellation[];

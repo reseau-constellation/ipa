@@ -1,6 +1,8 @@
+export { Nébuleuse } from "./nébuleuse.js";
 export {
-  Nébuleuse,
-  OptionsNébuleuse,
-  ServiceNébuleuse,
-  ServicesNébuleuse,
-} from "./nébuleuse.js";
+  ServiceHélia,
+  ServiceLibp2p,
+  ServiceOrbite,
+  ServiceCompte,
+  ServiceStockage,
+} from "./services/index.js";

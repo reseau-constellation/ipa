@@ -7,7 +7,7 @@ import {
   sousRecherche,
 } from "@/v2/recherche/fonctions/utils.js";
 import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
   SuivreObjectifRecherche,

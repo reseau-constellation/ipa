@@ -1,4 +1,4 @@
-import type { Oublier, Suivi } from "../crabe/types.js";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { Constellation } from "../index.js";
 
 export interface InfoRésultatTexte {

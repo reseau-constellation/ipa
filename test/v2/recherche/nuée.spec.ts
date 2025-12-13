@@ -11,7 +11,7 @@ import {
   rechercherNuéesSelonDescription,
 } from "@/v2/recherche/fonctions/nuées.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   RésultatObjectifRecherche,
   InfoRésultatTexte,

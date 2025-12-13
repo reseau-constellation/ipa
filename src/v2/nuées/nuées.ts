@@ -22,11 +22,11 @@ import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
-} from "../crabe/services/favoris.js";
-import { cacheSuivi } from "../crabe/cache.js";
+} from "../nébuleuse/services/favoris.js";
+import { cacheSuivi } from "../nébuleuse/cache.js";
 import { RechercheNuées } from "../recherche/nuées.js";
-import { mapÀObjet } from "../crabe/utils.js";
-import { appelerLorsque } from "../crabe/services/utils.js";
+import { mapÀObjet } from "../nébuleuse/utils.js";
+import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import { ObjetConstellation } from "../objets.js";
 import { TableauxNuées } from "./tableaux.js";
 import type {
@@ -45,11 +45,11 @@ import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   Rôle,
   AccèsUtilisateur,
-} from "../crabe/services/compte/accès/types.js";
+} from "../nébuleuse/services/compte/accès/types.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Constellation } from "../constellation.js";
-import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import type { Oublier, Suivi } from "../crabe/types.js";
+import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
   DifférenceTableaux,
   InfoColonne,
@@ -65,7 +65,7 @@ import type {
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
-} from "../crabe/services/favoris.js";
+} from "../nébuleuse/services/favoris.js";
 import type {
   DifférenceBDTableauManquant,
   DifférenceBDTableauSupplémentaire,
@@ -219,7 +219,7 @@ export const schémaNuée: JSONSchemaType<PartielRécursif<StructureNuée>> = {
   },
 };
 
-export class Nuées<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
+export class Nuées<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
   "nuées",
   StructureNuée,
   L
@@ -229,10 +229,10 @@ export class Nuées<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
 
   schémaObjet = schémaNuée;
 
-  constructor({ nébuleuse }: { nébuleuse: Constellation }) {
+  constructor({ appli }: { appli: Constellation }) {
     super({
       clef: "nuées",
-      nébuleuse,
+      appli,
       dépendances: ["variables", "bds", "compte", "orbite", "hélia"],
     });
 
@@ -242,7 +242,7 @@ export class Nuées<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
     });
     this.recherche = new RechercheNuées({
       nuées: this,
-      constl: this.nébuleuse,
+      constl: this.appli,
       service: (clef) => this.service(clef),
     });
 

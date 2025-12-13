@@ -7,7 +7,7 @@ import {
 import { Tableaux } from "../tableaux.js";
 import type { DonnéesRangéeTableauAvecId } from "../bds/tableaux.js";
 import type { TraducsTexte } from "../types.js";
-import type { Suivi, Oublier } from "../crabe/types.js";
+import type { Suivi, Oublier } from "../nébuleuse/types.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { FiltresBds, Héritage, Nuées, ValeurAscendance } from "./nuées.js";
 import type {
@@ -15,7 +15,7 @@ import type {
   InfoColonne,
   InfoColonneAvecCatégorie,
 } from "../tableaux.js";
-import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { FonctionValidation, RègleColonne } from "../règles.js";
 
 // Types filtres
@@ -38,7 +38,7 @@ export type DonnéesTableauNuéeExportées = {
   documentsMédias: Set<string>;
 };
 
-export class TableauxNuées<L extends ServicesLibp2pCrabe> extends Tableaux<L> {
+export class TableauxNuées<L extends ServicesLibp2pNébuleuse> extends Tableaux<L> {
   nuées: Nuées<L>;
 
   constructor({

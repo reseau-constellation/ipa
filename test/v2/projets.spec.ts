@@ -3,12 +3,12 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
 import JSZip from "jszip";
-import { MEMBRE, MODÉRATRICE } from "@/v2/crabe/services/compte/accès/index.js";
+import { MEMBRE, MODÉRATRICE } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import {
   TOUS_DISPOSITIFS,
   DISPOSITIFS_INSTALLÉS,
-} from "@/v2/crabe/services/favoris.js";
+} from "@/v2/nébuleuse/services/favoris.js";
 import { enleverPréfixeOrbite, enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type {
@@ -18,7 +18,7 @@ import type {
   TraducsTexte,
 } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   DonnéesFichierProjetExportées,
   DonnéesProjetExportées,

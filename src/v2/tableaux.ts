@@ -6,14 +6,14 @@ import {
   traduire,
 } from "@constl/utils-ipa";
 import { asSplitKey, joinKey } from "@orbitdb/nested-db";
-import { cacheSuivi } from "./crabe/cache.js";
-import { brancheBd } from "./crabe/services/services.js";
-import { mapÀObjet } from "./crabe/utils.js";
+import { cacheSuivi } from "./nébuleuse/cache.js";
+import { brancheBd } from "./nébuleuse/services/services.js";
+import { mapÀObjet } from "./nébuleuse/utils.js";
 import {
   générerFonctionValidation,
   schémaSpécificationRègleColonne,
 } from "./règles.js";
-import { typer } from "./crabe/services/orbite/orbite.js";
+import { typer } from "./nébuleuse/services/orbite/orbite.js";
 import { schémaTraducsTexte } from "./schémas.js";
 import { enleverPréfixes } from "./utils.js";
 import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
@@ -22,9 +22,9 @@ import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { NestedValueObject } from "node_modules/@orbitdb/nested-db/dist/types.js";
 import type { ServicesConstellation } from "./constellation.js";
-import type { Oublier, Suivi } from "./crabe/types.js";
+import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { PartielRécursif, TraducsTexte } from "./types.js";
-import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   DétailsRègleBornesDynamiqueColonne,
   DétailsRègleBornesDynamiqueVariable,
@@ -178,7 +178,7 @@ export type DifférenceColonneSupplémentaire = {
 
 // Tableaux
 
-export class Tableaux<L extends ServicesLibp2pCrabe> {
+export class Tableaux<L extends ServicesLibp2pNébuleuse> {
   service: <T extends keyof ServicesConstellation<L>>(
     service: T,
   ) => ServicesConstellation<L>[T];

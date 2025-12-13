@@ -7,16 +7,16 @@ import { dossierTempo } from "@constl/utils-tests";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
-} from "@/v2/crabe/services/favoris.js";
+} from "@/v2/nébuleuse/services/favoris.js";
 import {
   MEMBRE,
   MODÉRATRICE,
-} from "@/v2/crabe/services/compte/accès/consts.js";
+} from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellation, type Constellation } from "@/v2/index.js";
 import { moyenne } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
-import { obtenirOptionsLibp2pTest } from "./crabe/services/utils.js";
+import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import type {
   DifférenceBds,

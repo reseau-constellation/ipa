@@ -12,7 +12,7 @@ import type {
   SuivreObjectifRecherche,
   SuiviRecherche,
 } from "../types.js";
-import type { Oublier } from "../../crabe/types.js";
+import type { Oublier } from "../../nébuleuse/types.js";
 
 export const rechercherDansTexte = ({
   schéma,

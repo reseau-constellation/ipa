@@ -1,32 +1,32 @@
 import { Variables } from "./variables.js";
 import { MotsClefs } from "./motsClefs.js";
-import { Crabe } from "./crabe/crabe.js";
+import { Nébuleuse } from "./nébuleuse/nébuleuse.js";
 import { Bds } from "./bds/bds.js";
-import { ServiceFavoris } from "./crabe/services/favoris.js";
-import { ServiceÉpingles } from "./crabe/services/epingles.js";
+import { ServiceFavoris } from "./nébuleuse/services/favoris.js";
+import { ServiceÉpingles } from "./nébuleuse/services/epingles.js";
 import { Nuées } from "./nuées/nuées.js";
 import type { Projets } from "./projets.js";
 import type {
-  ConstructeursServicesNébuleuse,
-  OptionsNébuleuse,
-} from "./nébuleuse/nébuleuse.js";
+  ConstructeursServicesAppli,
+  OptionsAppli,
+} from "./appli/appli.js";
 import type {
   SchémaCompte,
   ServicesDonnées,
-} from "./crabe/services/compte/compte.js";
+} from "./nébuleuse/services/compte/compte.js";
 import type { Automatisations } from "./automatisations/automatisations.js";
-import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
-import type { ServicesCrabe, StructureCrabe } from "./crabe/crabe.js";
+import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesNébuleuse, StructureNébuleuse } from "./nébuleuse/nébuleuse.js";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 
 export type OptionsConstellation<
-  L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
   sujetRéseau?: string;
   protocoles?: string[];
-} & OptionsNébuleuse<ServicesConstellation<L>>;
+} & OptionsAppli<ServicesConstellation<L>>;
 
-export type ServicesSpécifiquesConstellation<L extends ServicesLibp2pCrabe> = {
+export type ServicesSpécifiquesConstellation<L extends ServicesLibp2pNébuleuse> = {
   motsClefs: MotsClefs<L>;
   bds: Bds<L>;
   favoris: ServiceFavoris;
@@ -37,19 +37,19 @@ export type ServicesSpécifiquesConstellation<L extends ServicesLibp2pCrabe> = {
   projets: Projets<L>;
 };
 
-export type StructureConstellation<L extends ServicesLibp2pCrabe> =
-  StructureCrabe & SchémaCompte<ServicesSpécifiquesConstellation<L>>;
+export type StructureConstellation<L extends ServicesLibp2pNébuleuse> =
+  StructureNébuleuse & SchémaCompte<ServicesSpécifiquesConstellation<L>>;
 
 export type ServicesConstellation<
-  L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = ServicesSpécifiquesConstellation<L> &
-  ServicesCrabe<StructureConstellation<L>, L>;
+  ServicesNébuleuse<StructureConstellation<L>, L>;
 
 export class Constellation<
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,
-  L extends ServicesLibp2pCrabe = ServicesLibp2pCrabe,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
   S extends ServicesDonnées<T, L> = ServicesDonnées<T, L>,
-> extends Crabe<T, S & ServicesSpécifiquesConstellation<L>, L> {
+> extends Nébuleuse<T, S & ServicesSpécifiquesConstellation<L>, L> {
   bds: Bds<L>;
   motsClefs: MotsClefs<L>;
   nuées: Nuées<L>;
@@ -61,10 +61,10 @@ export class Constellation<
 
   constructor(
     options: OptionsConstellation,
-    services?: ConstructeursServicesNébuleuse<ServicesDonnées<T, L>>,
+    services?: ConstructeursServicesAppli<ServicesDonnées<T, L>>,
   ) {
     services =
-      services ?? ({} as ConstructeursServicesNébuleuse<ServicesDonnées<T, L>>);
+      services ?? ({} as ConstructeursServicesAppli<ServicesDonnées<T, L>>);
     super({
       services: {
         bds: Bds,
@@ -74,7 +74,7 @@ export class Constellation<
         variables: Variables,
         nuées: Nuées,
         ...(services || {}),
-      } as ConstructeursServicesNébuleuse<
+      } as ConstructeursServicesAppli<
         S & ServicesSpécifiquesConstellation<L>
       >,
       options: {

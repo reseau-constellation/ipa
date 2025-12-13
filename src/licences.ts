@@ -12,7 +12,7 @@ import {
   SCHÉMA_BD_LICENCES,
 } from "@/const.js";
 import { mandatairifier } from "./mandataire/index.js";
-import { ServiceConstellation } from "./v2/nébuleuse/services.js";
+import { ServiceConstellation } from "./v2/appli/services.js";
 import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,

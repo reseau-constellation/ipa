@@ -9,7 +9,7 @@ import {
 } from "@constl/utils-ipa";
 import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
 import toBuffer from "it-to-buffer";
-import { cacheSuivi } from "./crabe/cache.js";
+import { cacheSuivi } from "./nébuleuse/cache.js";
 import { conversionsTypes } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
@@ -17,20 +17,20 @@ import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
-} from "./crabe/services/favoris.js";
-import { mapÀObjet } from "./crabe/utils.js";
+} from "./nébuleuse/services/favoris.js";
+import { mapÀObjet } from "./nébuleuse/utils.js";
 import { ObjetConstellation } from "./objets.js";
 import type { BookType, WorkBook } from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
-} from "./crabe/services/favoris.js";
+} from "./nébuleuse/services/favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
-import type { Rôle } from "./crabe/services/compte/accès/types.js";
+import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { Constellation } from "./constellation.js";
-import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   InfoAuteur,
   Métadonnées,
@@ -38,7 +38,7 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "./types.js";
-import type { Suivi, Oublier } from "./crabe/types.js";
+import type { Suivi, Oublier } from "./nébuleuse/types.js";
 import type { DonnéesBdExportées, ÉpingleBd } from "./bds/bds.js";
 
 // Types mots-clefs
@@ -124,7 +124,7 @@ export const schémaProjet: JSONSchemaType<PartielRécursif<StructureProjet>> = 
   },
 };
 
-export class Projets<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
+export class Projets<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
   "projets",
   StructureProjet,
   L
@@ -133,15 +133,15 @@ export class Projets<L extends ServicesLibp2pCrabe> extends ObjetConstellation<
 
   schémaObjet = schémaProjet;
 
-  constructor({ nébuleuse }: { nébuleuse: Constellation }) {
+  constructor({ appli }: { appli: Constellation }) {
     super({
       clef: "projets",
-      nébuleuse,
+      appli,
       dépendances: ["motsClefs", "bds", "compte", "orbite", "hélia"],
     });
     this.recherche = new RechercheProjets({
       projets: this,
-      constl: this.nébuleuse,
+      constl: this.appli,
       service: (clef) => this.service(clef),
     });
 

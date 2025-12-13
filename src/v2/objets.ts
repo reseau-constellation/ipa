@@ -2,20 +2,20 @@ import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { typedNested } from "@constl/bohr-db";
 import { toObject, type NestedValueObject } from "@orbitdb/nested-db";
 import { isValidAddress } from "@orbitdb/core";
-import { ServiceDonnéesNébuleuse } from "./crabe/services/services.js";
-import { cacheSuivi } from "./crabe/cache.js";
+import { ServiceDonnéesAppli } from "./nébuleuse/services/services.js";
+import { cacheSuivi } from "./nébuleuse/cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
-import { CONFIANCE_DE_COAUTEUR } from "./crabe/services/consts.js";
-import type { RelationImmédiate } from "./crabe/services/réseau.js";
+import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
+import type { RelationImmédiate } from "./nébuleuse/services/réseau.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Constellation } from "./index.js";
-import type { Oublier, Suivi } from "./crabe/types.js";
-import type { ServicesLibp2pCrabe } from "./crabe/services/libp2p/libp2p.js";
+import type { Oublier, Suivi } from "./nébuleuse/types.js";
+import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type { ServicesConstellation } from "./constellation.js";
 import type { InfoAuteur, PartielRécursif } from "./types.js";
 import type { JSONSchemaType } from "ajv";
-import type { ServicesNécessairesCompte } from "./crabe/services/compte/index.js";
-import type { AccèsUtilisateur } from "./crabe/services/compte/accès/types.js";
+import type { ServicesNécessairesCompte } from "./nébuleuse/services/compte/index.js";
+import type { AccèsUtilisateur } from "./nébuleuse/services/compte/accès/types.js";
 
 export type StructureServiceObjet = {
   [idObjet: string]: null;
@@ -32,8 +32,8 @@ export const schémaServiceObjet: JSONSchemaType<
 export abstract class ObjetConstellation<
   C extends string,
   S extends NestedValueObject,
-  L extends ServicesLibp2pCrabe,
-> extends ServiceDonnéesNébuleuse<
+  L extends ServicesLibp2pNébuleuse,
+> extends ServiceDonnéesAppli<
   C,
   StructureServiceObjet,
   L,
@@ -44,18 +44,18 @@ export abstract class ObjetConstellation<
   constructor({
     clef,
     dépendances,
-    nébuleuse,
+    appli,
   }: {
     clef: C;
     dépendances: Extract<
       keyof (ServicesConstellation & ServicesNécessairesCompte<L>),
       string
     >[];
-    nébuleuse: Constellation;
+    appli: Constellation;
   }) {
     super({
       clef,
-      nébuleuse,
+      appli,
       dépendances,
       options: {
         schéma: schémaServiceObjet,

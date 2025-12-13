@@ -3,10 +3,10 @@ import * as XLSX from "xlsx";
 import { faisRien } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/xlsx.js";
-import { appelerLorsque } from "../crabe/services/utils.js";
+import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import type { Constellation } from "../constellation.js";
 import type { FSWatcherEventMap } from "chokidar";
-import type { Suivi } from "../crabe/types.js";
+import type { Suivi } from "../nébuleuse/types.js";
 import type {
   FréquenceFixe,
   InfoImporterFeuilleCalcul,

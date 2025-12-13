@@ -1,5 +1,5 @@
 import { faisRien } from "@constl/utils-ipa";
-import { cacheRechercheParN } from "../crabe/cache.js";
+import { cacheRechercheParN } from "../nébuleuse/cache.js";
 import {
   rechercherProfilsSelonNom,
   rechercherProfilsSelonImage,
@@ -10,9 +10,9 @@ import {
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
 import type { ServicesConstellation } from "../constellation.js";
-import type { ServicesLibp2pCrabe } from "../crabe/services/libp2p/libp2p.js";
-import type { Profil } from "../crabe/services/profil.js";
-import type { Oublier, Suivi } from "../crabe/types.js";
+import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
+import type { Profil } from "../nébuleuse/services/profil.js";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { Constellation } from "../index.js";
 import type {
   RésultatRecherche,
@@ -25,7 +25,7 @@ import type {
 import { profil } from "@/index.js";
 
 export class RechercheProfils<
-  L extends ServicesLibp2pCrabe,
+  L extends ServicesLibp2pNébuleuse,
 > extends Recherche<L> {
   profils: Profil<L>;
 

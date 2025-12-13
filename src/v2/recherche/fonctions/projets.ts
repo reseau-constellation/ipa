@@ -22,7 +22,7 @@ import type {
   InfoRésultatVide,
 } from "../types.js";
 import type { Constellation } from "@/v2/index.js";
-import type { Oublier } from "@/v2/crabe/types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
 
 export const rechercherProjetsSelonNom = (
   nomProjet: string,

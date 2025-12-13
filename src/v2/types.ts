@@ -1,4 +1,4 @@
-import type { Rôle } from "./crabe/services/compte/accès/types.js";
+import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 
 export type TraducsTexte = { [langue: string]: string };
