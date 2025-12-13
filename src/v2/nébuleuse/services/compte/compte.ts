@@ -22,10 +22,10 @@ import {
 import { appelerLorsque } from "../utils.js";
 import { mapÀObjet } from "../../utils.js";
 import {
-  ContrôleurAppli,
+  ContrôleurNébuleuse,
   MEMBRE,
   MODÉRATRICE,
-  estContrôleurAppli,
+  estContrôleurNébuleuse,
 } from "./accès/index.js";
 import type {
   BaseÉpingleFavoris,
@@ -41,7 +41,7 @@ import type { ServicesLibp2pNébuleuse } from "../libp2p/libp2p.js";
 import type {
   AccèsDispositif,
   AccèsUtilisateur,
-  OptionsContrôleurAppli,
+  OptionsContrôleurNébuleuse,
   Rôle,
 } from "./accès/index.js";
 import type { NestedValueObject } from "@orbitdb/nested-db";
@@ -239,7 +239,7 @@ export class ServiceCompte<
   @cacheSuivi
   async suivreMesDispositifs({ f }: { f: Suivi<string[]> }): Promise<Oublier> {
     const bd = await this.bd();
-    if (estContrôleurAppli(bd.access))
+    if (estContrôleurNébuleuse(bd.access))
       return await bd.access.suivreDispositifsAutorisées((x) =>
         f(x.map((d) => d.idDispositif)),
       );
@@ -256,7 +256,7 @@ export class ServiceCompte<
   }): Promise<void> {
     const bd = await this.bd();
 
-    if (estContrôleurAppli(bd.access))
+    if (estContrôleurNébuleuse(bd.access))
       await bd.access.autoriser(MODÉRATRICE, idDispositif);
     else
       throw new Error(
@@ -281,7 +281,7 @@ export class ServiceCompte<
     ).ouvrirBd({ id: enleverPréfixes(idCompte), type: "nested", signal });
 
     const accès = bdNouveauCompte.access;
-    if (!estContrôleurAppli(accès))
+    if (!estContrôleurNébuleuse(accès))
       throw new Error(
         `Gestionnaire d'accès OrbitDB ${bdNouveauCompte.access.type} non reconnu.`,
       );
@@ -509,7 +509,7 @@ export class ServiceCompte<
       id: idObjet,
     });
 
-    if (estContrôleurAppli(bd.access)) {
+    if (estContrôleurNébuleuse(bd.access)) {
       const monCompte = await this.obtIdCompte();
       const accès = bd.access;
       const rôle = (await accès.utilisateursAutorisés()).find(
@@ -571,7 +571,7 @@ export class ServiceCompte<
       id: idObjet,
     });
     const accès = bd.access;
-    if (!estContrôleurAppli(accès))
+    if (!estContrôleurNébuleuse(accès))
       throw new Error(`Type d'accès ${bd.access} non reconnu.`);
 
     const oublierAccès = await accès.suivreUtilisateursAutorisés(f);
@@ -587,7 +587,7 @@ export class ServiceCompte<
     nom,
   }: {
     type: T;
-    optionsAccès?: OptionsContrôleurAppli;
+    optionsAccès?: OptionsContrôleurNébuleuse;
     nom?: string;
   }) {
     const serviceOrbite = this.service("orbite");
@@ -599,7 +599,7 @@ export class ServiceCompte<
       type,
       nom,
       options: {
-        AccessController: ContrôleurAppli(optionsAccès),
+        AccessController: ContrôleurNébuleuse(optionsAccès),
       },
     });
   }
@@ -621,7 +621,7 @@ export class ServiceCompte<
     const { bd, oublier } = await orbite.ouvrirBd({ id: idObjet });
     const accès = bd.access;
 
-    if (!estContrôleurAppli(accès))
+    if (!estContrôleurNébuleuse(accès))
       throw new Error(`Contrôleur d'accès non reconnu : ${accès.type}`);
     await accès.autoriser(rôle, identité);
 

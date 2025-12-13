@@ -7,7 +7,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import PQueue from "p-queue";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
-import { MODÉRATRICE, estContrôleurAppli } from "./compte/accès/index.js";
+import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
 import { appelerLorsque } from "./utils.js";
 import {
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
@@ -225,7 +225,7 @@ export class ServiceRéseau<
         type: "keyvalue",
       });
       const accès = bd.access;
-      if (!estContrôleurAppli(accès)) {
+      if (!estContrôleurNébuleuse(accès)) {
         await oublier();
         return faisRien;
       }

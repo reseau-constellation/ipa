@@ -47,9 +47,9 @@ import type {
 import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 
-export const nomType = "contrôleur-appli";
+export const nomType = "contrôleur-nébuleuse";
 
-export interface OptionsContrôleurAppli {
+export interface OptionsContrôleurNébuleuse {
   écriture?: string;
   adresse?: string;
   nom?: string;
@@ -59,7 +59,7 @@ const codec = dagCbor;
 const hasher = sha256;
 const hashStringEncoding = base58btc;
 
-const ManifestContrôleurAppli = async ({
+const ManifestContrôleurNébuleuse = async ({
   stockage,
   type,
   params,
@@ -80,7 +80,7 @@ const ManifestContrôleurAppli = async ({
   return hash;
 };
 
-const ContrôleurAppli =
+const ContrôleurNébuleuse =
   ({
     écriture,
     nom,
@@ -151,7 +151,7 @@ const ContrôleurAppli =
         },
       )) as KeyValueDatabase;
       adresseBdAccès = bdAccès.address;
-      address = await ManifestContrôleurAppli({
+      address = await ManifestContrôleurNébuleuse({
         stockage,
         type: nomType,
         params: { écriture, nom, adresseBdAccès },
@@ -338,15 +338,15 @@ const ContrôleurAppli =
     };
   };
 
-ContrôleurAppli.type = nomType;
-export { ContrôleurAppli };
+ContrôleurNébuleuse.type = nomType;
+export { ContrôleurNébuleuse };
 
-export const estContrôleurAppli = (
+export const estContrôleurNébuleuse = (
   x: unknown,
-): x is InstanceContrôleurAppli => {
-  return (x as InstanceContrôleurAppli).type === nomType;
+): x is InstanceContrôleurNébuleuse => {
+  return (x as InstanceContrôleurNébuleuse).type === nomType;
 };
 
-export type InstanceContrôleurAppli = Awaited<
-  ReturnType<ReturnType<typeof ContrôleurAppli>>
+export type InstanceContrôleurNébuleuse = Awaited<
+  ReturnType<ReturnType<typeof ContrôleurNébuleuse>>
 >;

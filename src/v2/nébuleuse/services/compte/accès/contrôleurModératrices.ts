@@ -17,7 +17,7 @@ import { MODÉRATRICE, rôles } from "./consts.js";
 import { AccèsParComptes } from "./compte.js";
 import type { Rôle } from "./types.js";
 
-const nomType = "contrôleur-accès-appli";
+const nomType = "contrôleur-accès-nébuleuse";
 
 const codec = dagCbor;
 const hasher = sha256;

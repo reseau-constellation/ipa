@@ -27,7 +27,7 @@ import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../../appli/index.js";
 import { réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
-import { ContrôleurAppli } from "../compte/accès/contrôleurAppli.js";
+import { ContrôleurNébuleuse } from "../compte/accès/ContrôleurNébuleuse.js";
 import { mandatOrbite } from "./mandat.js";
 import type {
   OrbitDB,
@@ -63,7 +63,7 @@ export const préparerOrbite = () => {
   useDatabaseType(OrderedKeyValue);
   useDatabaseType(Nested);
   useAccessController(ContrôleurAccès);
-  useAccessController(ContrôleurAppli);
+  useAccessController(ContrôleurNébuleuse);
 };
 
 export type BdsOrbite = {
@@ -274,7 +274,7 @@ export class ServiceOrbite<
     const orbite = await this.orbite();
 
     options = {
-      AccessController: ContrôleurAppli(),
+      AccessController: ContrôleurNébuleuse(),
       ...options,
     };
     const bd = (await orbite.open(nom || uuidv4(), {

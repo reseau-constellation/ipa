@@ -15,7 +15,7 @@ import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { BaseDatabase, KeyValueDatabase } from "@orbitdb/core";
-import { estContrôleurAppli } from "@/v2/nébuleuse/services/compte/accès/contrôleurAppli.js";
+import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/ContrôleurNébuleuse.js";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,
@@ -32,7 +32,7 @@ export const attendreInvité = async (
   idInvité: string,
 ): Promise<void> => {
   const accès = bd.access;
-  if (!estContrôleurAppli(accès))
+  if (!estContrôleurNébuleuse(accès))
     throw new Error(`Contrôleur d'accès non supporté : ${accès.type}`);
 
   return await attendreQue(() => accès.estAutorisé(idInvité));
