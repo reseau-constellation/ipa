@@ -3,6 +3,7 @@ import { peerIdFromString } from "@libp2p/peer-id";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { créerConstellationsTest, obtenir } from "test/v2/utils.js";
 import type {
+  CompteBloqué,
   ConnexionCompte,
   ConnexionDispositif,
   ConnexionLibp2p,
@@ -173,17 +174,11 @@ describe("Réseau", function () {
     let constls: Constellation[];
     let fermer: Oublier;
 
-    let idsLibp2p: string[];
-    let idsDispositifs: string[];
     let idsComptes: string[];
 
     before(async () => {
       ({ constls, fermer } = await créerConstellationsTest({ n: 2 }));
 
-      idsLibp2p = await Promise.all(constls.map((c) => c.compte.obtIdLibp2p()));
-      idsDispositifs = await Promise.all(
-        constls.map((c) => c.compte.obtIdDispositif()),
-      );
       idsComptes = await Promise.all(
         constls.map((c) => c.compte.obtIdCompte()),
       );
@@ -192,6 +187,7 @@ describe("Réseau", function () {
     after(async () => {
       if (fermer) await fermer();
     });
+
     describe("membres fiables", function () {
       it("personne pour commencer", async () => {
         const fiables = await obtenir<string[]>(({ siDéfini }) =>
@@ -248,15 +244,132 @@ describe("Réseau", function () {
     });
 
     describe("membres bloqués", function () {
-      it("Personne pour commencer");
-      it("Bloquer quelqu'un");
-      it("Un dé-confiance accidental ne fait rien");
-      it("Bloquer privé");
-      it("On détecte bloqué publique d'un autre membre");
-      it("On ne détecte pas le bloqué privé d'un autre membre");
-      it("Débloquer publique");
-      it("Débloquer privé");
-      it("Passer de bloqué privé à bloqué publique");
+      it("personne pour commencer", async () => {
+        const bloqués = await obtenir<CompteBloqué[]>(({ siDéfini }) =>
+          constls[0].réseau.suivreComptesBloqués({ f: siDéfini() }),
+        );
+        expect(bloqués).to.be.empty();
+      });
+
+      it("bloquer quelqu'un", async () => {
+        const pBloqués = obtenir<CompteBloqué[]>(({ siPasVide }) =>
+          constls[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
+        );
+
+        await constls[0].réseau.bloquerCompte({
+          idCompte: idsComptes[1],
+        });
+        const bloqués = await pBloqués;
+
+        const réf: CompteBloqué[] = [{
+          idCompte: idsComptes[1],
+          privé: false,
+        }]
+        expect(bloqués).have.deep.members(réf);
+      });
+
+      it("une dé-confiance accidental ne fait rien", async () => {
+        await constls[0].réseau.nePlusFaireConfianceAuCompte({ idCompte: idsComptes[1] });
+        const bloqués = await obtenir<CompteBloqué[]>(({ siPasVide }) =>
+          constls[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
+        );
+
+        const réf: CompteBloqué[] = [{
+          idCompte: idsComptes[1],
+          privé: false,
+        }]
+        expect(bloqués).have.deep.members(réf);
+      });
+
+      it("bloquer privé", async () => {
+        const pBloqués = obtenir<CompteBloqué[]>(({ siPasVide }) =>
+          constls[1].réseau.suivreComptesBloqués({ f: siPasVide() }),
+        );
+
+        await constls[1].réseau.bloquerCompte({
+          idCompte: idsComptes[0],
+          privé: true,
+        });
+        const bloqués = await pBloqués;
+
+        const réf: CompteBloqué[] = [{
+          idCompte: idsComptes[0],
+          privé: true,
+        }]
+        expect(bloqués).have.deep.members(réf);
+      });
+      
+      it("on détecte bloqué publique d'un autre membre", async () => {
+        const bloqués = await obtenir<CompteBloqué[]>(({ siPasVide }) =>
+          constls[1].réseau.suivreComptesBloqués({
+            f: siPasVide(),
+            idCompte: idsComptes[0],
+          }),
+        );
+
+        const réf: CompteBloqué[] = [{
+          idCompte: idsComptes[1],
+          privé: false,
+        }]
+        expect(bloqués).have.deep.members(réf);
+      });
+
+      it("on ne détecte pas le bloqué privé d'un autre membre", async () => {
+        const bloqués = await obtenir<CompteBloqué[]>(({ siDéfini }) =>
+          constls[0].réseau.suivreComptesBloqués({
+            f: siDéfini(),
+            idCompte: idsComptes[1],
+          }),
+        );
+
+        expect(bloqués).to.be.empty();
+      });
+
+      it("débloquer publique", async () => {
+        const pBloqués = obtenir<CompteBloqué[]>(({ siVide }) =>
+          constls[0].réseau.suivreComptesBloqués({ f: siVide() }),
+        );
+
+        await constls[0].réseau.débloquerCompte({
+          idCompte: idsComptes[1],
+        });
+        const bloqués = await pBloqués;
+
+        expect(bloqués).to.be.empty();
+      });
+
+      it("débloquer privé", async () => {
+        const pBloqués = obtenir<CompteBloqué[]>(({ siVide }) =>
+          constls[1].réseau.suivreComptesBloqués({ f: siVide() }),
+        );
+
+        await constls[1].réseau.débloquerCompte({
+          idCompte: idsComptes[0],
+        });
+        const bloqués = await pBloqués;
+
+        expect(bloqués).to.be.empty();
+      });
+
+      it("passer de bloqué privé à bloqué publique", async () => {
+        await constls[0].réseau.bloquerCompte({ idCompte: idsComptes[1], privé: true });
+        await obtenir<CompteBloqué[]>(({ siPasVide }) =>
+          constls[0].réseau.suivreComptesBloqués({ f: siPasVide() }),
+        );
+
+        await constls[0].réseau.bloquerCompte({ idCompte: idsComptes[1], privé: false });
+        const pBloqués = obtenir<CompteBloqué[]>(({ si }) =>
+          constls[0].réseau.suivreComptesBloqués({ f: si(x=>!!x?.find(({ idCompte, privé }) => idCompte === idsComptes[1] && !privé )) }),
+        );
+
+        const bloqués = await pBloqués;
+
+        const réf: CompteBloqué[] = [{
+          idCompte: idsComptes[1],
+          privé: false,
+        }]
+        expect(bloqués).to.have.deep.members(réf);
+      });
       it("persistance après redémarrage");
     });
   });
