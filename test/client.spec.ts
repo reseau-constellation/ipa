@@ -69,25 +69,6 @@ if (isNode || isElectronMain) {
       if (fOublierClients) await fOublierClients();
     });
 
-    describe("Signer", function () {
-      it("La signature devrait être valide", async () => {
-        const message = "Je suis un message";
-        const signature = await client.signer({ message });
-        const valide = await client.vérifierSignature({ signature, message });
-        expect(valide).to.be.true();
-      });
-      it("La signature ne devrait pas être valide pour un autre message", async () => {
-        const message = "Je suis un message";
-        const autreMessage = "Je suis un message!";
-        const signature = await client.signer({ message });
-        const valide = await client.vérifierSignature({
-          signature,
-          message: autreMessage,
-        });
-        expect(valide).to.be.false();
-      });
-    });
-
     describe("Suivre protocoles", function () {
       it.skip("Suivre protocoles compte");
     });

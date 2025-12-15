@@ -499,6 +499,91 @@ describe.only("Service Orbite", function () {
 
       expect(têteMaintenant.length).to.be.greaterThan(0);
     });
+
+    it("appliquer fonction orbite", async () => {
+      const orbite = appli.services["orbite"];
+
+      const { bd, oublier } = await orbite.créerBd({ type: "keyvalue" });
+      const résultat = await orbite.appliquerFonctionBdOrbite<
+        KeyValueDatabase,
+        "put"
+      >({
+        idBd: bd.address,
+        fonction: "put",
+        args: ["a", 2],
+      });
+      const données = await bd.all();
+
+      await oublier();
+
+      expect(données).to.deep.equal({ a: 2 });
+      expect(typeof résultat).to.equal("string");
+    });
+  });
+
+  describe("signatures", function () {
+    let dossier: string;
+    let effacer: () => void;
+
+    let appli: Appli<ServicesNécessairesOrbite>;
+
+    before(async () => {
+      ({ dossier, effacer } = await dossierTempoPropre());
+      appli = new Appli<ServicesNécessairesOrbite>({
+        services: {
+          journal: ServiceJournal,
+          libp2p: ServiceLibp2pTest,
+          hélia: ServiceHélia,
+          stockage: ServiceStockage,
+          orbite: ServiceOrbite,
+        },
+        options: {
+          dossier,
+        },
+      });
+      await appli.démarrer();
+    });
+
+    after(async () => {
+      await appli.fermer();
+      effacer();
+    });
+
+    it("signature valide", async () => {
+      const orbite = appli.services["orbite"];
+
+      const message = "Je suis un message";
+      const signature = await orbite.signer({ message });
+      const valide = await orbite.vérifierSignature({ signature, message });
+      expect(valide).to.be.true();
+    });
+
+    it("signature invalide pour un autre message", async () => {
+      const orbite = appli.services["orbite"];
+
+      const message = "Je suis un message";
+      const autreMessage = "Je suis un message!";
+      const signature = await orbite.signer({ message });
+      const valide = await orbite.vérifierSignature({
+        signature,
+        message: autreMessage,
+      });
+      expect(valide).to.be.false();
+    });
+
+    it("signature invalide si clef publique absente", async () => {
+      const orbite = appli.services["orbite"];
+
+      const message = "Je suis un message";
+      const signature = await orbite.signer({ message });
+
+      // @ts-expect-error On fait exprès d'exclure la clef publique
+      const valide = await orbite.vérifierSignature({
+        signature: { signature: signature.signature },
+        message,
+      });
+      expect(valide).to.be.false();
+    });
   });
 
   describe("fermeture", function () {

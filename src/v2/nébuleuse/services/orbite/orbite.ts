@@ -27,7 +27,7 @@ import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../../appli/index.js";
 import { réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
-import { ContrôleurNébuleuse } from "../compte/accès/ContrôleurNébuleuse.js";
+import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
 import { mandatOrbite } from "./mandat.js";
 import type {
   OrbitDB,
@@ -167,6 +167,13 @@ export const typer = <T extends keyof BdsOrbite, S extends ContenuBdTypée<T>>({
   return bdTypée;
 };
 
+export type Signature = {
+  signature: string;
+  clefPublique: string;
+};
+
+// Types service
+
 export type OptionsServiceOrbite<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
@@ -252,7 +259,7 @@ export class ServiceOrbite<
     const orbite = mandatOrbite(
       await createOrbitDB({
         ipfs: hélia,
-        id: "constellation",
+        id: "nébuleuse",
         directory: dossierOrbite,
       }),
     );
@@ -463,10 +470,15 @@ export class ServiceOrbite<
   }
 
   async appliquerFonctionBdOrbite<
-    // À faire : tester
-    T extends KeysMatching<
-      BdsOrbite[keyof BdsOrbite],
-      (...args: unknown[]) => unknown
+    T extends BaseDatabase,
+    F extends KeysMatching<
+      T,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (...args: any[]) => any
+    > = KeysMatching<
+      T,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (...args: any[]) => any
     >,
   >({
     idBd,
@@ -474,13 +486,11 @@ export class ServiceOrbite<
     args,
   }: {
     idBd: string;
-    fonction: T;
-    args: Parameters<BdsOrbite[keyof BdsOrbite][T]>;
-  }): Promise<ReturnType<BdsOrbite[keyof BdsOrbite][T]>> {
+    fonction: F;
+    args: Parameters<T[F]>;
+  }): Promise<Awaited<ReturnType<T[F]>>> {
     const { bd, oublier } = await this.ouvrirBd({ id: idBd });
-    const résultat = await (bd as BdsOrbite[keyof BdsOrbite])[fonction](
-      ...(args as unknown[]),
-    );
+    const résultat = await (bd as T)[fonction](...(args as unknown[]));
 
     await oublier();
     return résultat;
@@ -508,5 +518,34 @@ export class ServiceOrbite<
         await f(calculerEmpreinte(tête));
       },
     });
+  }
+
+  // Signatures
+
+  async signer({ message }: { message: string }): Promise<Signature> {
+    const orbite = await this.orbite();
+
+    const id = orbite.identity;
+    const signature = await orbite.identity.sign(id, message);
+    const clefPublique = orbite.identity.publicKey;
+    return { signature, clefPublique };
+  }
+
+  async vérifierSignature({
+    signature,
+    message,
+  }: {
+    signature: Signature;
+    message: string;
+  }): Promise<boolean> {
+    if (!signature || !signature.clefPublique || !signature.signature) {
+      return false;
+    }
+    const orbite = await this.orbite();
+    return await orbite.identity.verify(
+      signature.signature,
+      signature.clefPublique,
+      message,
+    );
   }
 }

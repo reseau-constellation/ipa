@@ -236,32 +236,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     });
   }
 
-  async signer({ message }: { message: string }): Promise<Signature> {
-    const { orbite } = await this.attendreSfipEtOrbite();
-    const id = orbite.identity;
-    const signature = await orbite.identity.sign(id, message);
-    const clefPublique = orbite.identity.publicKey;
-    return { signature, clefPublique };
-  }
-
-  async vérifierSignature({
-    signature,
-    message,
-  }: {
-    signature: Signature;
-    message: string;
-  }): Promise<boolean> {
-    if (!signature || !signature.clefPublique || !signature.signature) {
-      return false;
-    }
-    const { orbite } = await this.attendreSfipEtOrbite();
-    return await orbite.identity.verify(
-      signature.signature,
-      signature.clefPublique,
-      message,
-    );
-  }
-
   async générerInvitationRejoindreCompte(): Promise<{
     idCompte: string;
     codeSecret: string;
