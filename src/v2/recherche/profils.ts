@@ -1,4 +1,4 @@
-import { faisRien } from "@constl/utils-ipa";
+import { faisRien, ignorerNonDéfinis } from "@constl/utils-ipa";
 import { cacheRechercheParN } from "../nébuleuse/cache.js";
 import {
   rechercherProfilsSelonNom,
@@ -12,17 +12,15 @@ import { Recherche } from "./recherche.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Profil } from "../nébuleuse/services/profil.js";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type { Constellation } from "../index.js";
 import type {
   RésultatRecherche,
   InfoRésultatVide,
-  RetourFonctionRecherche,
   InfoRésultat,
   SuivreObjectifRecherche,
   InfoRésultatTexte,
 } from "./types.js";
-import { profil } from "@/index.js";
 
 export class RechercheProfils<
   L extends ServicesLibp2pNébuleuse,
@@ -51,7 +49,7 @@ export class RechercheProfils<
   }: {
     f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
     n?: number;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -68,7 +66,7 @@ export class RechercheProfils<
     idCompte: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -85,7 +83,7 @@ export class RechercheProfils<
     nom: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -102,7 +100,7 @@ export class RechercheProfils<
     image: Uint8Array;
     f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
     n?: number;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -117,11 +115,11 @@ export class RechercheProfils<
   }: {
     f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
     n?: number;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
-      fObjectif: profil.rechercherProfilsSelonActivité(),
+      fObjectif: rechercherProfilsSelonActivité(),
     });
   }
 
@@ -134,7 +132,7 @@ export class RechercheProfils<
     courriel: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -151,7 +149,7 @@ export class RechercheProfils<
     texte: string;
     f: Suivi<RésultatRecherche<InfoRésultatTexte | InfoRésultatVide>[]>;
     n?: number;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -170,7 +168,7 @@ export class RechercheProfils<
     f: Suivi<RésultatRecherche<T>[]>;
     fObjectif: SuivreObjectifRecherche<T>;
     n?: number;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     const réseau = this.service("réseau");
 
     const fConfiance = async ({
@@ -180,9 +178,9 @@ export class RechercheProfils<
       idObjet: string;
       f: Suivi<number>;
     }) => {
-      const oublier = await réseau.suivreConfiance({
+      const { oublier } = await réseau.suivreConfianceCompte({
         idCompte: idObjet,
-        f: fSuivi,
+        f: ignorerNonDéfinis(fSuivi),
       });
       return oublier;
     };

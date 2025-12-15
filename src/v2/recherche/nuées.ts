@@ -17,14 +17,13 @@ import type { InfoAuteur } from "../types.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type { Nuées } from "../nuées/nuées.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,
   InfoRésultatVide,
   SuivreObjectifRecherche,
-  RetourFonctionRecherche,
   RésultatRecherche,
   InfoRésultatRecherche,
 } from "./types.js";
@@ -58,7 +57,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -78,7 +77,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -98,7 +97,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -118,7 +117,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -138,7 +137,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -158,7 +157,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -178,7 +177,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -198,7 +197,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -218,7 +217,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -238,7 +237,7 @@ export class RechercheNuées<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -264,7 +263,7 @@ export class RechercheNuées<
     >;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -297,7 +296,7 @@ export class RechercheNuées<
     fObjectif: SuivreObjectifRecherche<T>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.rechercherObjets<T>({
       f,
       n,
@@ -306,7 +305,7 @@ export class RechercheNuées<
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
         await this.nuées.suivreScoreQualité({
           idNuée: idObjet,
-          f: fSuiviQualité,
+          f: async score => await fSuiviQualité(score.total),
         }),
       fObjectif,
       idCompte,

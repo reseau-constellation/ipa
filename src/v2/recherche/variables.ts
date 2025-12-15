@@ -11,14 +11,13 @@ import type { InfoAuteur } from "../types.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type { Variables } from "../variables.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,
   InfoRésultatVide,
   SuivreObjectifRecherche,
-  RetourFonctionRecherche,
   RésultatRecherche,
 } from "./types.js";
 
@@ -51,7 +50,7 @@ export class RechercheVariables<
     f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -71,7 +70,7 @@ export class RechercheVariables<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -91,7 +90,7 @@ export class RechercheVariables<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -111,7 +110,7 @@ export class RechercheVariables<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -131,7 +130,7 @@ export class RechercheVariables<
     f: Suivi<RésultatRecherche<InfoRésultatTexte | InfoRésultatVide>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -164,7 +163,7 @@ export class RechercheVariables<
     fObjectif: SuivreObjectifRecherche<T>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.rechercherObjets<T>({
       f,
       n,

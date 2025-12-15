@@ -19,14 +19,13 @@ import type { InfoAuteur } from "../types.js";
 import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type { Projets } from "../projets.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,
   InfoRésultatVide,
   SuivreObjectifRecherche,
-  RetourFonctionRecherche,
   RésultatRecherche,
   InfoRésultatRecherche,
 } from "./types.js";
@@ -60,7 +59,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -80,7 +79,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -100,7 +99,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -120,7 +119,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -140,7 +139,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -160,7 +159,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -184,7 +183,7 @@ export class RechercheProjets<
     >;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -204,7 +203,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -224,7 +223,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -248,7 +247,7 @@ export class RechercheProjets<
     >;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -268,7 +267,7 @@ export class RechercheProjets<
     f: Suivi<RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>>[]>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -296,7 +295,7 @@ export class RechercheProjets<
     >;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -326,7 +325,7 @@ export class RechercheProjets<
     >;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.selonObjectif({
       f,
       n,
@@ -359,7 +358,7 @@ export class RechercheProjets<
     fObjectif: SuivreObjectifRecherche<T>;
     n?: number;
     idCompte?: string;
-  }): Promise<RetourFonctionRecherche> {
+  }): Promise<RetourRecherche> {
     return await this.rechercherObjets<T>({
       f,
       n,
