@@ -27,12 +27,12 @@ describe("Réseau Constellation", async () => {
       idMotClef = await constls[0].motsClefs.créerMotClef();
     });
 
-    it("co-autorat objet - détecté sur le propriétaire de l'objet", async () => {
+    it("co-autorat objet", async () => {
       const pConfiance = obtenir<number>(({ si }) =>
         constls[0].réseau.suivreConfianceCompte({
           idCompte: idsComptes[1],
           f: si((x) => !!x && x !== 0),
-        }),
+        }).then(({oublier})=>oublier),
       );
       await constls[0].motsClefs.inviterAuteur({
         idMotClef,
@@ -44,8 +44,16 @@ describe("Réseau Constellation", async () => {
       expect(confiance).to.be.greaterThan(0);
     });
 
-    it("co-autorat objet - non détecté sur un autre compte", async () => {});
+    it("co-autorat objet - détection sur un autre compte", async () => {
+      const confiance = await obtenir<number>(({ si }) =>
+        constls[2].réseau.suivreConfianceCompte({
+          idCompte: idsComptes[1],
+          idCompteDépart: idsComptes[0],
+          f: si((x) => !!x && x !== 0),
+        }).then(({oublier})=>oublier),
+      );
 
-    it("co-autorat objet - acceptation invitation", async () => {});
+      expect(confiance).to.be.greaterThan(0);
+    });
   });
 });
