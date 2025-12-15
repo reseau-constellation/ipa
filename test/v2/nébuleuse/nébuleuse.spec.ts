@@ -236,4 +236,46 @@ describe.only("Nébuleuse", function () {
       await nébuleuse.fermer();
     });
   });
+
+  describe("effacer", function () {
+    let idCompte: string;
+
+    let nébuleuse: NébuleuseTest;
+    let dossier: string;
+    let effacer: () => void;
+    
+    before(async () => {
+      ({ dossier, effacer } = await dossierTempoPropre());
+      nébuleuse = new NébuleuseTest({
+        services: {},
+        options: {
+          dossier,
+        },
+      });
+      await nébuleuse.démarrer();
+      idCompte = await nébuleuse.services["compte"].obtIdCompte();
+    });
+
+    after(async () => {
+      await nébuleuse.fermer();
+      effacer();
+    });
+
+    it("données compte bien effacées", async function () {
+      await nébuleuse.effacer();
+
+      // On rouvre une nouvelle nébuleuse avec le même dossier
+      nébuleuse = new NébuleuseTest({
+        services: {},
+        options: {
+          dossier,
+        },
+      });
+      await nébuleuse.démarrer();
+      const nouvelIdCompte = await nébuleuse.services["compte"].obtIdCompte();
+      
+      // Rien de l'ancien compte ne devrait rester
+      expect(nouvelIdCompte).to.not.equal(idCompte)
+    });
+  });
 });

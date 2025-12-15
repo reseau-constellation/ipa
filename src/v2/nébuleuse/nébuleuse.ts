@@ -205,4 +205,28 @@ export class Nébuleuse<
       fs.rmSync(join(await this.dossier(), FICHIER_VERROU));
     }
   }
+
+  // Effacer compte local
+
+  async effacer(): Promise<void> {
+    const dossier = await this.dossier()
+
+    await this.fermer();
+
+    if (indexedDB) {
+      if (indexedDB.databases) {
+        const indexedDbDatabases = await indexedDB.databases();
+        await Promise.allSettled(
+          indexedDbDatabases.map((bd) => {
+            if (bd.name) indexedDB.deleteDatabase(bd.name);
+          }),
+        );
+      } else {
+        console.warn("On a pas pu tout effacer.");
+      }
+    } else {
+      const fs = await import("fs");
+      fs.rmdirSync(dossier);
+    }
+  }
 }

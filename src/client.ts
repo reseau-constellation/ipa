@@ -316,27 +316,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     return orbite.identity;
   }
 
-  async effacerDispositif(): Promise<void> {
-    await this.fermer();
-    if (indexedDB) {
-      if (indexedDB.databases) {
-        const indexedDbDatabases = await indexedDB.databases();
-        await Promise.allSettled(
-          indexedDbDatabases.map((bd) => {
-            if (bd.name) indexedDB.deleteDatabase(bd.name);
-          }),
-        );
-      } else {
-        console.warn("On a pas pu tout effacer.");
-      }
-    } else {
-      const fs = await import("fs");
-      const stockageLocal_ = await stockageLocal(await this.dossier());
-      stockageLocal_.clear();
-      fs.rmdirSync(await this.dossier());
-    }
-  }
-
+  
   async exporterDispositif({
     nomFichier,
   }: {
