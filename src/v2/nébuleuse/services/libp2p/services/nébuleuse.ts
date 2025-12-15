@@ -5,20 +5,20 @@ import type { Registrar } from "@libp2p/interface-internal";
 
 // https://github.com/libp2p/js-libp2p/blob/main/doc/SERVICES.md
 
-interface ComposantesAppli {
+interface ComposantesConnecteurNébuleuse {
   registrar: Registrar;
 }
 
-class Appli implements Startable {
-  private readonly components: ComposantesAppli;
+class ConnecteurNébuleuse implements Startable {
+  private readonly components: ComposantesConnecteurNébuleuse;
   private topologyId?: string;
 
-  constructor(components: ComposantesAppli) {
+  constructor(components: ComposantesConnecteurNébuleuse) {
     this.components = components;
   }
 
   // this property is used as a human-friendly name for the service
-  readonly [Symbol.toStringTag] = "Réseautage Appli";
+  readonly [Symbol.toStringTag] = "Réseautage Nébuleuse";
 
   // this service provides these capabilities to the node
   readonly [serviceCapabilities]: string[] = ["@constl/réseautage"];
@@ -40,7 +40,7 @@ class Appli implements Startable {
   }
 
   gérerConnexion({ pair, connexion }: { pair: PeerId; connexion: Connection }) {
-    connexion;
+    connexion
   }
 
   stop(): void {
@@ -50,8 +50,8 @@ class Appli implements Startable {
   }
 }
 
-export default function appli() {
-  return (composantes: ComposantesAppli) => {
-    return new Appli(composantes);
+export default function connecteurNébuleuse() {
+  return (composantes: ComposantesConnecteurNébuleuse) => {
+    return new ConnecteurNébuleuse(composantes);
   };
 }
