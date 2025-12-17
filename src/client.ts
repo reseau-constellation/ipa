@@ -1,5 +1,4 @@
 import { எண்ணிக்கை } from "ennikkai";
-import indexedDbStream from "indexed-db-stream";
 import { sauvegarderFichierZip } from "@constl/utils-ipa";
 
 import sha256 from "crypto-js/sha256.js";
@@ -317,6 +316,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }
 
   
+  // Exportation compte
+
   async exporterDispositif({
     nomFichier,
   }: {
@@ -352,7 +353,9 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         dossier: await this.dossier(),
         zip,
       });
+
       await sauvegarderFichierZip({ fichierZip: zip, nomFichier });
+
     } else if (indexedDB?.databases) {
       const sauvegarderBdIndexeÀZip = ({
         bd,
@@ -400,13 +403,15 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     }
   }
 
-  async rétablirDispositif(): Promise<void> {
-    await this.effacerDispositif();
-
+  async rétablirDispositif({données}: {données: Parameters<JSZip["loadAsync"]>[0]}): Promise<void> {
+    const dossier = await this.dossier();
+    await this.effacer();
+    const zip = JSZip.loadAsync(données)
     if (isNode || isElectronMain) {
       throw new Error("Non implémenté");
     } else {
       throw new Error("Non implémenté");
     }
   }
+
 }
