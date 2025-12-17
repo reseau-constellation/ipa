@@ -665,6 +665,8 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleBd>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
     const info: {
       base?: (string | undefined)[];
       données?: (string | undefined)[];
@@ -676,13 +678,12 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
         new Set(
           Object.values(info)
             .flat()
-            .filter((x) => !!x) as string[],
+            .filter((x): x is string => !!x),
         ),
       );
     };
 
     const fsOublier: Oublier[] = [];
-    const orbite = this.service("orbite");
 
     if (épingle.épingle.épingle.base) {
       const oublierBase = await orbite.suivreBdTypée({

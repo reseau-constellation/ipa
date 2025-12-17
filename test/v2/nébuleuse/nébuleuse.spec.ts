@@ -243,7 +243,7 @@ describe.only("Nébuleuse", function () {
     let nébuleuse: NébuleuseTest;
     let dossier: string;
     let effacer: () => void;
-    
+
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
       nébuleuse = new NébuleuseTest({
@@ -273,9 +273,9 @@ describe.only("Nébuleuse", function () {
       });
       await nébuleuse.démarrer();
       const nouvelIdCompte = await nébuleuse.services["compte"].obtIdCompte();
-      
+
       // Rien de l'ancien compte ne devrait rester
-      expect(nouvelIdCompte).to.not.equal(idCompte)
+      expect(nouvelIdCompte).to.not.equal(idCompte);
     });
   });
 });

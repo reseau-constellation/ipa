@@ -6,7 +6,10 @@ import {
 import { TypedEmitter } from "tiny-typed-emitter";
 import PQueue from "p-queue";
 import { pipe } from "it-pipe";
-import { fromString as uint8ArrayFromString, toString as uint8ArrayToString } from 'uint8arrays'
+import {
+  fromString as uint8ArrayFromString,
+  toString as uint8ArrayToString,
+} from "uint8arrays";
 import { PROTOCOLE_CONSTELLATION } from "@/v2/recherche/consts.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
@@ -112,63 +115,79 @@ export class ServiceRéseau<
 
   async démarrer(): Promise<{ idTopologie: string }> {
     await this.restaurerBloquésPrivé();
-    const libp2p = await this.service("libp2p").libp2p()
+    const libp2p = await this.service("libp2p").libp2p();
     const compte = this.service("compte");
     const orbite = this.service("orbite");
 
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
 
-    await libp2p.handle(PROTOCOLE_CONSTELLATION, async ({ stream, connection }) => {
-      const idPair = connection.remotePeer.toCID().toString()
-      pipe(
-        stream,
-        source => (async function () {
-          for await (const msg of source) {
-            const { message, signature } = JSON.parse(uint8ArrayToString(msg.subarray()));
-            
-            // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
-            const signatureValide = await orbite.vérifierSignature({
-              signature,
-              message: JSON.stringify(message),
-            });
-            if (!signatureValide) return;
+    await libp2p.handle(
+      PROTOCOLE_CONSTELLATION,
+      async ({ stream, connection }) => {
+        const idPair = connection.remotePeer.toCID().toString();
+        pipe(stream, (source) =>
+          (async function () {
+            for await (const msg of source) {
+              const { message, signature } = JSON.parse(
+                uint8ArrayToString(msg.subarray()),
+              );
 
-            const { idCompte, idDispositif } = message
-            this.lorsqueDispositifConnecté({ idCompte, idDispositif, idPair })
-          }
-        })()
-      )
-    }, {
-      runOnLimitedConnection: true,
-    });
+              // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
+              const signatureValide = await orbite.vérifierSignature({
+                signature,
+                message: JSON.stringify(message),
+              });
+              if (!signatureValide) return;
 
-    const idTopologie = await libp2p.register(PROTOCOLE_CONSTELLATION, { 
-      async onConnect(peerId, conn) {
-        const identifiantsCompte = {
-          idCompte: await compte.obtIdCompte(),
-          idDispositif: await compte.obtIdDispositif(), 
-        }
-
-        const flux = await conn.newStream(PROTOCOLE_CONSTELLATION, )
-        await pipe([uint8ArrayFromString(JSON.stringify(identifiantsCompte))], flux)
-        flux.close().catch(erreur => flux.abort(erreur));
+              const { idCompte, idDispositif } = message;
+              this.lorsqueDispositifConnecté({
+                idCompte,
+                idDispositif,
+                idPair,
+              });
+            }
+          })(),
+        );
       },
-      onDisconnect(peerId) {
-        this.lorsqueDispositifDéconnecté(peerId)
+      {
+        runOnLimitedConnection: true,
       },
-      notifyOnLimitedConnection: true 
-    }, { signal })
+    );
+
+    const idTopologie = await libp2p.register(
+      PROTOCOLE_CONSTELLATION,
+      {
+        async onConnect(peerId, conn) {
+          const identifiantsCompte = {
+            idCompte: await compte.obtIdCompte(),
+            idDispositif: await compte.obtIdDispositif(),
+          };
+
+          const flux = await conn.newStream(PROTOCOLE_CONSTELLATION);
+          await pipe(
+            [uint8ArrayFromString(JSON.stringify(identifiantsCompte))],
+            flux,
+          );
+          flux.close().catch((erreur) => flux.abort(erreur));
+        },
+        onDisconnect(peerId) {
+          this.lorsqueDispositifDéconnecté(peerId);
+        },
+        notifyOnLimitedConnection: true,
+      },
+      { signal },
+    );
 
     this.estDémarré = { idTopologie };
     return await super.démarrer();
   }
 
   async fermer(): Promise<void> {
-    const libp2p = await this.service("libp2p").libp2p()
-    const { idTopologie } = this.estDémarré
+    const libp2p = await this.service("libp2p").libp2p();
+    const { idTopologie } = this.estDémarré;
     libp2p.unregister(idTopologie);
-    await libp2p.unhandle([PROTOCOLE_CONSTELLATION])
-    
+    await libp2p.unhandle([PROTOCOLE_CONSTELLATION]);
+
     return await super.fermer();
   }
 
@@ -881,6 +900,4 @@ export class ServiceRéseau<
   async inviterÀRejoidreCompte({});
 
   // Réseautage
-
-
 }

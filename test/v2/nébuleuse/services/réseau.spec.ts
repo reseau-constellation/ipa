@@ -494,7 +494,7 @@ describe("Réseau", function () {
       expect(confianceCompte2).to.be.lessThan(0);
     });
 
-    it("changer profondeur")
+    it("changer profondeur");
 
     it("priorité confiance manuelle personnelle", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
