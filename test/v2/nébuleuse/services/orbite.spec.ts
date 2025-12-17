@@ -577,8 +577,8 @@ describe.only("Service Orbite", function () {
       const message = "Je suis un message";
       const signature = await orbite.signer({ message });
 
-      // @ts-expect-error On fait exprès d'exclure la clef publique
       const valide = await orbite.vérifierSignature({
+        // @ts-expect-error On fait exprès d'exclure la clef publique
         signature: { signature: signature.signature },
         message,
       });

@@ -80,6 +80,8 @@ export class Reconnecteur implements Startable {
     }
     this.intervale = undefined;
   }
+
+  // Méthodes propres
 }
 
 export function reconnecteur(

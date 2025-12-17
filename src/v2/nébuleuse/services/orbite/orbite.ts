@@ -542,6 +542,18 @@ export class ServiceOrbite<
       return false;
     }
     const orbite = await this.orbite();
+
+    const identitéSignataire = await orbite.identities.getIdentity(
+      entry.identity,
+      signal,
+    );
+    if (!identitéSignataire) {
+      return false;
+    }
+    const { id } = identitéSignataire;
+
+    // Vérifier l'identité
+    await orbite.identities.verifyIdentity(identitéSignataire)
     return await orbite.identity.verify(
       signature.signature,
       signature.clefPublique,

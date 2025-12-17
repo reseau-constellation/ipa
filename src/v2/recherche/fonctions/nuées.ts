@@ -203,7 +203,7 @@ export const rechercherNuéesSelonIdMotClef = (
     }): Promise<Oublier> => {
       return await constl.nuées.suivreMotsClefs({
         idNuée: idObjet,
-        f: motsClefs => fSuivreRacine(motsClefs.map(m=>m.val)),
+        f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.val)),
       });
     };
 
@@ -238,7 +238,7 @@ export const rechercherNuéesSelonNomMotClef = (
     }): Promise<Oublier> => {
       return await constl.nuées.suivreMotsClefs({
         idNuée: idObjet,
-        f: motsClefs => fSuivreRacine(motsClefs.map(m=>m.val)),
+        f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.val)),
       });
     };
 

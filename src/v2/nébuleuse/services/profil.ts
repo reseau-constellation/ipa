@@ -10,7 +10,6 @@ import type { Appli } from "@/v2/appli/appli.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
-  ÉpingleFavorisBooléenniséeAvecId,
 } from "@/v2/nébuleuse/services/favoris.js";
 import type { Suivi, Oublier } from "../types.js";
 import type { PartielRécursif, TraducsTexte } from "../../types.js";

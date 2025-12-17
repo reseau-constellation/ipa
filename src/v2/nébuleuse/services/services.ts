@@ -152,7 +152,7 @@ export class ServiceDonnéesAppli<
   async bd(): Promise<TypedNested<Structure>> {
     const bdCompte = await this.service("compte").bd();
 
-    return brancheBd<Structure, T>({
+    return brancheBd<Record<T, Structure>, T>({
       bd: bdCompte,
       clef: this.clef,
     });

@@ -29,10 +29,12 @@ describe("Réseau Constellation", async () => {
 
     it("co-autorat objet", async () => {
       const pConfiance = obtenir<number>(({ si }) =>
-        constls[0].réseau.suivreConfianceCompte({
-          idCompte: idsComptes[1],
-          f: si((x) => !!x && x !== 0),
-        }).then(({oublier})=>oublier),
+        constls[0].réseau
+          .suivreConfianceCompte({
+            idCompte: idsComptes[1],
+            f: si((x) => !!x && x !== 0),
+          })
+          .then(({ oublier }) => oublier),
       );
       await constls[0].motsClefs.inviterAuteur({
         idMotClef,
@@ -46,11 +48,13 @@ describe("Réseau Constellation", async () => {
 
     it("co-autorat objet - détection sur un autre compte", async () => {
       const confiance = await obtenir<number>(({ si }) =>
-        constls[2].réseau.suivreConfianceCompte({
-          idCompte: idsComptes[1],
-          idCompteDépart: idsComptes[0],
-          f: si((x) => !!x && x !== 0),
-        }).then(({oublier})=>oublier),
+        constls[2].réseau
+          .suivreConfianceCompte({
+            idCompte: idsComptes[1],
+            idCompteDépart: idsComptes[0],
+            f: si((x) => !!x && x !== 0),
+          })
+          .then(({ oublier }) => oublier),
       );
 
       expect(confiance).to.be.greaterThan(0);

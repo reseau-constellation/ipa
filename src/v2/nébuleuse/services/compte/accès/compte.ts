@@ -2,7 +2,7 @@ import { isValidAddress } from "@orbitdb/core";
 import PQueue from "p-queue";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { appelerLorsque } from "../../utils.js";
-import { estContrôleurNébuleuse } from "./ContrôleurNébuleuse.js";
+import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
 import { MEMBRE, MODÉRATRICE } from "./consts.js";
 import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";

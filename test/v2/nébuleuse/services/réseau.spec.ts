@@ -1,7 +1,9 @@
 import { expect } from "aegir/chai";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
+import { faisRien } from "@constl/utils-ipa";
 import { obtenir } from "test/v2/utils.js";
+import { ServiceAppli } from "@/v2/appli/appli.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type {
@@ -9,8 +11,10 @@ import type {
   ConnexionCompte,
   ConnexionDispositif,
   ConnexionLibp2p,
+  RelationImmédiate,
 } from "@/v2/nébuleuse/services/réseau.js";
-import type { Oublier } from "@/v2/nébuleuse/types.js";
+import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
+import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {
@@ -408,8 +412,43 @@ describe("Réseau", function () {
 
     let idsComptes: string[];
 
+    class ServiceConfianceTest extends ServiceAppli<
+      "confianceTest",
+      ServicesNébuleuse
+    > {
+      constructor({ appli }: { appli: Nébuleuse }) {
+        super({
+          clef: "confianceTest",
+          appli,
+          dépendances: ["réseau"],
+        });
+        this.service("réseau").inscrireRésolutionConfiance({
+          clef: this.clef,
+          résolution: this.résolutionConfiance.bind(this),
+        });
+      }
+
+      async résolutionConfiance({
+        de,
+        f,
+      }: {
+        de: string;
+        f: Suivi<RelationImmédiate[]>;
+      }): Promise<Oublier> {
+        if (de === idsComptes[0])
+          await f([{ idCompte: idsComptes[1], confiance: 0.5 }]);
+        else if (de === idsComptes[1])
+          await f([{ idCompte: idsComptes[2], confiance: 0.5 }]);
+        else await f([]);
+        return faisRien;
+      }
+    }
+
     before(async () => {
-      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2 }));
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({
+        n: 3,
+        services: { confianceTest: ServiceConfianceTest },
+      }));
 
       idsComptes = await Promise.all(
         nébuleuses.map((c) => c.compte.obtIdCompte()),
@@ -420,10 +459,58 @@ describe("Réseau", function () {
       if (fermer) await fermer();
     });
 
-    it("confiance transitive");
-    it("confiance fiable transitive");
-    it("confiance bloquée transitive");
-    it("priorité confiance manuelle personnelle");
+    it("confiance transitive", async () => {
+      const comptes = await obtenir<Compte>(({ si }) =>
+        nébuleuses[0].réseau.suivreComptes({
+          f: si((x) => !!x && x.length >= 3),
+        }),
+      );
+
+      expect(comptes.map((c) => c.idCompte)).to.have.members([
+        idsComptes[1],
+        idsComptes[2],
+      ]);
+
+      const confianceCompte1 = comptes.find(
+        (c) => c.idCompte === idsComptes[1],
+      ).confiance;
+      expect(confianceCompte1).to.be.greaterThan(0);
+
+      const confianceCompte2 = comptes.find(
+        (c) => c.idCompte === idsComptes[2],
+      ).confiance;
+      expect(confianceCompte2)
+        .to.be.greaterThan(0)
+        .and.lessThan(confianceCompte1);
+    });
+
+    it("confiance bloquée transitive", async () => {
+      await nébuleuses[1].réseau.bloquerCompte({ idCompte: idsComptes[2] });
+      const comptes = await nébuleuses[0].réseau.suivreComptes();
+
+      const confianceCompte2 = comptes.find(
+        (c) => c.idCompte === idsComptes[2],
+      ).confiance;
+      expect(confianceCompte2).to.be.lessThan(0);
+    });
+
+    it("changer profondeur")
+
+    it("priorité confiance manuelle personnelle", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+      const comptes = await nébuleuses[0].réseau.suivreComptes();
+
+      const confianceCompte2 = comptes.find(
+        (c) => c.idCompte === idsComptes[2],
+      ).confiance;
+      expect(confianceCompte2).to.equal(1);
+    });
+
+    it("relations immédiates");
+    it("relations réseau");
+    it("comptes par profondeur");
   });
 
   describe("reconnexion après réouverture");

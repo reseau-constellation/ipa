@@ -305,7 +305,7 @@ export class RechercheNuées<
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
         await this.nuées.suivreScoreQualité({
           idNuée: idObjet,
-          f: async score => await fSuiviQualité(score.total),
+          f: async (score) => await fSuiviQualité(score.total),
         }),
       fObjectif,
       idCompte,

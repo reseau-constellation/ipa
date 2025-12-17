@@ -40,7 +40,7 @@ class ConnecteurNébuleuse implements Startable {
   }
 
   gérerConnexion({ pair, connexion }: { pair: PeerId; connexion: Connection }) {
-    connexion
+    connexion;
   }
 
   stop(): void {
