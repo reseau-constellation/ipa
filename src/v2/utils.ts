@@ -161,7 +161,8 @@ export const enleverPréfixeOrbite = (id: string) =>
   id.startsWith(PROTOCOLE_ORBITE) ? id.replace(PROTOCOLE_ORBITE, "") : id;
 
 export const ajouterPréfixes = (id: string, préfix: string): string => {
-  if (!id.startsWith(PROTOCOLE_ORBITE)) id = `${PROTOCOLE_ORBITE}/${id}`;
+  if (!id.startsWith(préfix) && !id.startsWith(PROTOCOLE_ORBITE))
+    id = `${PROTOCOLE_ORBITE}/${id}`;
 
   if (!préfix.startsWith("/")) préfix = `/${préfix}`;
   if (!id.startsWith(`${préfix}`)) id = `${préfix}/${id}`;
