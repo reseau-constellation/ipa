@@ -1,8 +1,14 @@
 import { expect } from "aegir/chai";
 import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "@/v2/nébuleuse/services/consts.js";
+import {
+  AUCUN_DISPOSITIF,
+  TOUS_DISPOSITIFS,
+} from "@/v2/nébuleuse/services/favoris.js";
+import { idcEtFichierValide } from "@/v2/utils.js";
 import { obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
+import type { ÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { TraducsTexte } from "@/v2/types.js";
 
@@ -11,22 +17,34 @@ describe.only("Profil", function () {
   let nébuleuses: NébuleuseTest[];
   let nébuleuse: NébuleuseTest;
 
+  let idsComptes: string[];
+
+  let IMAGE: Uint8Array;
+
   before(async () => {
     ({ fermer, nébuleuses } = await créerNébuleusesTest({
-      n: 1,
+      n: 2,
       services: {},
     }));
 
     [nébuleuse] = nébuleuses;
     await nébuleuse.démarrer();
+
+    idsComptes = await Promise.all(
+      nébuleuses.map((n) => n.compte.obtIdCompte()),
+    );
+
+    IMAGE = await obtRessourceTest({
+      nomFichier: "logo.svg",
+    });
   });
 
   after(async () => {
     if (fermer) await fermer();
   });
 
-  describe("Initialiser profil", function () {
-    it("Pas initialisé pour commencer", async () => {
+  describe("initialiser profil", function () {
+    it("pas initialisé pour commencer", async () => {
       const initialisé = await obtenir(({ siDéfini }) =>
         nébuleuse.profil.suivreInitialisé({
           f: siDéfini(),
@@ -35,7 +53,7 @@ describe.only("Profil", function () {
       expect(initialisé).to.be.false();
     });
 
-    it("Initialiser", async () => {
+    it("initialiser", async () => {
       await nébuleuse.profil.initialiser();
       const initialisé = await obtenir(({ si }) =>
         nébuleuse.profil.suivreInitialisé({
@@ -198,14 +216,6 @@ describe.only("Profil", function () {
   });
 
   describe("Images", function () {
-    let IMAGE: Uint8Array;
-
-    before(async () => {
-      IMAGE = await obtRessourceTest({
-        nomFichier: "logo.svg",
-      });
-    });
-
     it("Pas d'image pour commencer", async () => {
       const val = await obtenir(({ siDéfini }) =>
         nébuleuse.profil.suivreImage({
@@ -217,9 +227,11 @@ describe.only("Profil", function () {
     });
 
     it("Ajouter une image", async () => {
-      await nébuleuse.profil.sauvegarderImage({
+      const idImage = await nébuleuse.profil.sauvegarderImage({
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
+
+      expect(idcEtFichierValide(idImage)).to.be.true();
 
       const image = await obtenir<{
         image: Uint8Array;
@@ -254,6 +266,129 @@ describe.only("Profil", function () {
           },
         }),
       ).to.be.rejected();
+    });
+  });
+
+  describe("épingles", function () {
+    let idImage: string;
+
+    const idCompteInexistant =
+      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+
+    it("épingler profil", async () => {
+      await nébuleuse.profil.épingler({
+        idCompte: idsComptes[1],
+      });
+
+      const épingle = await obtenir(({ siDéfini }) =>
+        nébuleuse.profil.suivreÉpingle({
+          idCompte: idsComptes[1],
+          f: siDéfini(),
+        }),
+      );
+
+      const réf: ÉpingleProfil = {
+        type: "profil",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          favoris: AUCUN_DISPOSITIF,
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
+    it("résoudre épingle - base", async () => {
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        nébuleuse.profil.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idsComptes[1],
+            épingle: {
+              type: "profil",
+              épingle: { base: true },
+            },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolution]).to.have.members([idsComptes[1]]);
+
+      idImage = await nébuleuses[1].profil.sauvegarderImage({
+        image: { contenu: IMAGE, nomFichier: "logo.svg" },
+      });
+      const résolutionAvecImage = await obtenir<Set<string>>(({ si }) =>
+        nébuleuse.profil.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idsComptes[1],
+            épingle: {
+              type: "profil",
+              épingle: {
+                base: true,
+              },
+            },
+          },
+          f: si((x) => !!x && x.size > 1),
+        }),
+      );
+      expect([...résolutionAvecImage]).to.have.members([
+        idsComptes[1],
+        idImage,
+      ]);
+    });
+
+    it("résoudre épingle - favoris", async () => {
+      await nébuleuses[1].profil.épingler({ idCompte: idCompteInexistant });
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        nébuleuse.profil.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idsComptes[1],
+            épingle: {
+              type: "profil",
+              épingle: { base: true, favoris: true },
+            },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolution]).to.have.members([
+        idsComptes[1],
+        idImage,
+        idCompteInexistant,
+      ]);
+    });
+
+    it("résoudre épingle - favoris circulaires", async () => {
+      await nébuleuses[1].profil.épingler({ idCompte: idsComptes[0] });
+
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        nébuleuse.profil.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idsComptes[1],
+            épingle: {
+              type: "profil",
+              épingle: { base: true, favoris: true },
+            },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolution]).to.have.members([
+        idsComptes[1],
+        idImage,
+        idCompteInexistant,
+        idsComptes[0],
+      ]);
+    });
+
+    it("désépingler profil", async () => {
+      await nébuleuse.profil.désépingler({ idCompte: idsComptes[1] });
+
+      const épingle = await obtenir(({ siNonDéfini }) =>
+        nébuleuse.profil.suivreÉpingle({
+          idCompte: idsComptes[1],
+          f: siNonDéfini(),
+        }),
+      );
+      expect(épingle).to.be.undefined();
     });
   });
 });

@@ -2,20 +2,16 @@ import deepEqual from "deep-equal";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
-import {
-  ajouterPréfixeOrbite,
-  enleverPréfixeOrbite,
-  enleverPréfixes,
-} from "../../utils.js";
+import { ajouterPréfixeOrbite, enleverPréfixes } from "../../utils.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
+import type { RelationImmédiate } from "./réseau.js";
 import type { Appli } from "@/v2/appli/appli.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
-import type { ServicesNébuleuse } from "../nébuleuse.js";
-import type { ServicesNécessairesOrbite } from "./orbite/orbite.js";
+import type { ServicesNébuleuse, StructureNébuleuse } from "../nébuleuse.js";
 import type { AccèsUtilisateur } from "./compte/accès/types.js";
 
 // Types réplications
@@ -157,12 +153,16 @@ export class ServiceFavoris<
   "favoris",
   StructureServiceFavoris,
   ServicesLibp2pNébuleuse,
-  ServicesNébuleuse,
+  ServicesNébuleuse<StructureNébuleuse, L>,
   { oublier: Oublier }
 > {
   résolveurs: Map<string, Résolveur>;
 
-  constructor({ appli }: { appli: Appli<ServicesNécessairesOrbite<L>> }) {
+  constructor({
+    appli,
+  }: {
+    appli: Appli<ServicesNébuleuse<StructureNébuleuse, L>>;
+  }) {
     super({
       clef: "favoris",
       appli,
@@ -272,7 +272,7 @@ export class ServiceFavoris<
     f: Suivi<Set<string>>;
     ignorer?: Set<string>;
   }): Promise<Oublier> {
-    // Éviter boucles infinies entre compte et favoris
+    // Éviter boucles infinies entre comptes et favoris
     ignorer = ignorer || new Set<string>();
     if (ignorer.has(épingle.idObjet)) return faisRien;
     ignorer.add(épingle.idObjet);
@@ -556,12 +556,10 @@ export class ServiceFavoris<
 
   async résolutionConfiance({
     de,
-    pour,
     f,
   }: {
     de: string;
-    pour: string;
-    f: Suivi<number[]>;
+    f: Suivi<RelationImmédiate[]>;
   }): Promise<Oublier> {
     const compte = this.service("compte");
 
@@ -574,20 +572,27 @@ export class ServiceFavoris<
         });
       },
       fBranche: async ({
-        id: idVariable,
+        id: idObjet,
         fSuivreBranche,
       }: {
         id: string;
         fSuivreBranche: Suivi<AccèsUtilisateur[]>;
       }) => {
         return await compte.suivreAutorisations({
-          idObjet: idVariable,
+          idObjet: idObjet,
           f: fSuivreBranche,
         });
       },
       f: async (auteurs: AccèsUtilisateur[]) => {
-        const n = auteurs.map((a) => a.idCompte === pour).length;
-        return await f(Array(n).fill(CONFIANCE_DE_FAVORIS));
+        const idsComptes = [...new Set(auteurs.map((a) => a.idCompte))];
+
+        return await f(
+          idsComptes.map((idCompte) => {
+            const n = auteurs.map((a) => a.idCompte === idCompte).length;
+            const confiance = 1 - (1 - CONFIANCE_DE_FAVORIS) ** n;
+            return { idCompte, confiance };
+          }),
+        );
       },
     });
   }

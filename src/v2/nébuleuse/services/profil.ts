@@ -1,16 +1,27 @@
 import { v4 as uuidv4 } from "uuid";
-import { idcValide } from "@constl/utils-ipa";
+import {
+  idcValide,
+  ignorerNonDéfinis,
+  suivreDeFonctionListe,
+} from "@constl/utils-ipa";
 import { RechercheProfils } from "@/v2/recherche/profils.js";
+import {
+  AUCUN_DISPOSITIF,
+  TOUS_DISPOSITIFS,
+  résoudreDéfauts
+} from "@/v2/nébuleuse/services/favoris.js";
+import { ajouterPréfixes, enleverPréfixes } from "@/v2/utils.js";
 import { cacheSuivi } from "../cache.js";
 import { mapÀObjet } from "../utils.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { nulÀObjetVide } from "./utils.js";
-import type { JSONSchemaType } from "ajv";
-import type { Appli } from "@/v2/appli/appli.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
-} from "@/v2/nébuleuse/services/favoris.js";
+  ÉpingleFavorisBooléenniséeAvecId,
+ ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
+import type { JSONSchemaType } from "ajv";
+import type { Appli } from "@/v2/appli/appli.js";
 import type { Suivi, Oublier } from "../types.js";
 import type { PartielRécursif, TraducsTexte } from "../../types.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
@@ -19,9 +30,13 @@ import type { ServiceDispositifs } from "./dispositifs.js";
 
 // Types épingle
 
-export type ÉpingleProfil = BaseÉpingleFavoris & {
+export type ÉpingleProfil = {
   type: "profil";
-  fichiers: DispositifsÉpingle;
+  épingle: ContenuÉpingleProfil;
+};
+
+export type ContenuÉpingleProfil = BaseÉpingleFavoris & {
+  favoris: DispositifsÉpingle;
 };
 
 // Types structure
@@ -224,9 +239,10 @@ export class Profil<
     image,
   }: {
     image: { contenu: Uint8Array; nomFichier: string };
-  }): Promise<void> {
-    const maxTailleImage =
-      this.service("compte").options.consts.maxTailleImageSauvegarder;
+  }): Promise<string> {
+    const compte = this.service("compte");
+
+    const maxTailleImage = compte.options.consts.maxTailleImageSauvegarder;
 
     if (image.contenu.byteLength > maxTailleImage) {
       throw new Error("Taille maximale excédée");
@@ -236,6 +252,8 @@ export class Profil<
 
     const bd = await this.bd();
     await bd.set("image", idImage);
+
+    return idImage;
   }
 
   async effacerImage(): Promise<void> {
@@ -355,47 +373,133 @@ export class Profil<
 
   // Épingle
 
+  async épingler({
+    idCompte,
+    options = {},
+  }: {
+    idCompte: string;
+    options?: PartielRécursif<ContenuÉpingleProfil>;
+  }) {
+    const favoris = this.service("favoris");
+
+    const épingle: ContenuÉpingleProfil = résoudreDéfauts(options, {
+      base: TOUS_DISPOSITIFS,
+      favoris: AUCUN_DISPOSITIF,
+    });
+
+    await favoris.épinglerFavori({
+      idObjet: idCompte,
+      épingle: { type: "profil", épingle },
+    });
+  }
+
+  async désépingler({ idCompte }: { idCompte: string }): Promise<void> {
+    const favoris = this.service("favoris");
+
+    await favoris.désépinglerFavori({
+      idObjet: ajouterPréfixes(idCompte, "/appli/compte"),
+    });
+  }
+
+  async suivreÉpingle({
+    idCompte,
+    f,
+    idCompteQuiÉpingle,
+  }: {
+    idCompte: string;
+    f: Suivi<ÉpingleProfil | undefined>;
+    idCompteQuiÉpingle?: string;
+  }): Promise<Oublier> {
+    const favoris = this.service("favoris");
+    return await favoris.suivreFavoris({
+      idCompte: idCompteQuiÉpingle,
+      f: async (épingles) => {
+        const épingleBd = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === enleverPréfixes(idCompte) &&
+            épingle.type === "profil"
+            ? épingle
+            : undefined;
+        }) as ÉpingleProfil | undefined;
+        await f(épingleBd);
+      },
+    });
+  }
+
   async suivreRésolutionÉpingle({
     épingle,
     f,
   }: {
-    épingle: ÉpingleFavorisAvecIdBooléennisée<ÉpingleProfil>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleProfil>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
     const info: {
-      base?: string;
-      image?: string;
+      base?: (string | undefined)[];
+      favoris?: (string | undefined)[];
     } = {};
 
     const fFinale = async () => {
       return await f(
-        new Set([info.base, info.image].filter((x): x is string => !!x)),
+        new Set(
+          Object.values(info)
+            .flat()
+            .filter((x): x is string => !!x),
+        ),
       );
     };
 
-    let oublier: Oublier | undefined = undefined;
+    const fsOublier: Oublier[] = [];
 
-    if (épingle.épingle.base) info.base = épingle.idObjet;
-    if (épingle.épingle.fichiers) {
-      oublier = await orbite.suivreDonnéesBd({
-        id: épingle.idObjet,
-        type: "nested",
-        schéma: schémaProfil,
+    if (épingle.épingle.épingle.base) {
+      const oublierBase = await this.suivreBd({
+        idCompte: épingle.idObjet,
         f: async (profil) => {
-          const idImage = profil.get("image");
-          if (idcValide(idImage)) {
-            info.image = idImage;
-          }
+          const idImage = profil?.image;
+          info.base = idcValide(idImage)
+            ? [épingle.idObjet, idImage]
+            : [épingle.idObjet];
+          await fFinale();
         },
       });
+      fsOublier.push(oublierBase);
+    }
+
+    if (épingle.épingle.épingle.favoris) {
+      const serviceFavoris = this.service("favoris");
+      const oublierFavoris = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: Suivi<ÉpingleFavorisAvecId[]>;
+        }) =>
+          await serviceFavoris.suivreFavoris({
+            idCompte: épingle.idObjet,
+            f: ignorerNonDéfinis(fSuivreRacine),
+          }),
+        fBranche: async ({
+          fSuivreBranche,
+          branche: épingle,
+        }: {
+          fSuivreBranche: Suivi<Set<string>>;
+          branche: ÉpingleFavorisAvecId;
+        }) => {
+          return await serviceFavoris.suivreRésolutionÉpingle({
+            épingle,
+            f: fSuivreBranche,
+          });
+        },
+        fIdDeBranche: (épingle) => épingle.idObjet,
+        f: async (épinglées: Set<string>[]) => {
+          info.favoris = épinglées.map((ensemble) => [...ensemble]).flat();
+          await fFinale();
+        },
+      });
+      fsOublier.push(oublierFavoris);
     }
 
     await fFinale();
 
     return async () => {
-      await oublier?.();
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 }
