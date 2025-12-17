@@ -284,6 +284,8 @@ export abstract class RechercheObjets<
     fObjectif: SuivreObjectifRecherche<T>;
     idCompte?: string;
   }): Promise<RetourRecherche> {
+    const serviceFavoris = this.service("favoris");
+
     if (idCompte) {
       const { fOublier, changerN } = await suivreDeFonctionListe({
         fListe: async ({
@@ -345,7 +347,7 @@ export abstract class RechercheObjets<
             await fFinale();
           },
         });
-        const oublierFavoris = await this.constl.favoris.suivreFavoris({
+        const oublierFavoris = await serviceFavoris.suivreFavoris({
           idCompte,
           f: async (favoris) => {
             résultats.favoris = favoris?.map((fav) => fav.idObjet);
