@@ -3,7 +3,7 @@ import path from "path";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceStockage } from "@/v2/nébuleuse/index.js";
-import { Appli } from "@/v2/appli/appli.js";
+import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { StockageLocal } from "@/v2/nébuleuse/services/stockage.js";
 import { dossierTempoPropre } from "../../utils.js";
 

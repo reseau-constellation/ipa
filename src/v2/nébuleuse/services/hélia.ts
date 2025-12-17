@@ -6,9 +6,9 @@ import { IDBBlockstore } from "blockstore-idb";
 import { unixfs } from "@helia/unixfs";
 import { toBuffer } from "@constl/utils-ipa";
 import { CID } from "multiformats";
-import { ServiceAppli } from "../../appli/index.js";
+import { ServiceAppli } from "../appli/index.js";
 import { obtStockageDonnées } from "./utils.js";
-import type { Appli, OptionsAppli } from "../../appli/index.js";
+import type { Appli, OptionsAppli } from "../appli/index.js";
 import type {
   ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,

@@ -15,7 +15,7 @@ import {
   ServiceHélia,
   extraireHéliaDesOptions,
 } from "@/v2/nébuleuse/services/hélia.js";
-import { Appli } from "@/v2/appli/appli.js";
+import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { ServiceStockage } from "@/v2/nébuleuse/index.js";
 import { dossierTempoPropre } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";

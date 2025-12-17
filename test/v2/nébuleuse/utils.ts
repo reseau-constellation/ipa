@@ -14,7 +14,7 @@ import type {
   OptionsAppli,
   ServiceAppli,
   ServicesAppli,
-} from "@/v2/appli/appli.js";
+} from "@/v2/nébuleuse/appli/appli.js";
 import type { ServicesDonnées } from "@/v2/nébuleuse/services/compte/compte.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";

@@ -5,14 +5,14 @@ import {
   toString as uint8ArrayToString,
 } from "uint8arrays";
 import { keys } from "@libp2p/crypto";
-import { ServiceAppli } from "../../../appli/index.js";
+import { ServiceAppli } from "../../appli/index.js";
 import { obtenirOptionsLibp2p } from "./config/index.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type { Libp2p, Libp2pOptions } from "libp2p";
 import type { Identify } from "@libp2p/identify";
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
 import type { PeerUpdate, PrivateKey, ServiceMap } from "@libp2p/interface";
-import type { Appli, OptionsAppli } from "../../../appli/index.js";
+import type { Appli, OptionsAppli } from "../../appli/index.js";
 import type { ServiceStockage } from "../stockage.js";
 
 import type { ServiceOrbite } from "../orbite/index.js";

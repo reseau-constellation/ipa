@@ -9,7 +9,7 @@ import type { Projets } from "./projets.js";
 import type {
   ConstructeursServicesAppli,
   OptionsAppli,
-} from "./appli/appli.js";
+} from "./nébuleuse/appli/appli.js";
 import type {
   SchémaCompte,
   ServicesDonnées,

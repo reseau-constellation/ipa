@@ -1,6 +1,6 @@
 import path from "path";
 import { ServiceLibp2p, ServiceStockage } from "@/v2/nébuleuse/index.js";
-import { Appli } from "@/v2/appli/appli.js";
+import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { dossierTempoPropre } from "../../utils.js";
 import { obtenirOptionsLibp2pTest } from "../../nébuleuse/services/utils.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
@@ -8,7 +8,7 @@ import type {
   ConstructeursServicesAppli,
   OptionsAppli,
   ServicesAppli,
-} from "@/v2/appli/appli.js";
+} from "@/v2/nébuleuse/appli/appli.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { ServicesNécessairesLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 

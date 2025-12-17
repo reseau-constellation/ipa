@@ -22,9 +22,9 @@ import { anySignal } from "any-signal";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { CID } from "multiformats";
-import { STATUTS } from "@/v2/appli/consts.js";
+import { STATUTS } from "@/v2/nébuleuse/appli/consts.js";
 import { cacheSuivi } from "../../cache.js";
-import { ServiceAppli } from "../../../appli/index.js";
+import { ServiceAppli } from "../../appli/index.js";
 import { réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
 import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
@@ -38,7 +38,7 @@ import type {
 import type { ServiceJournal } from "../journal.js";
 import type { ServicesNécessairesHélia } from "../hélia.js";
 import type { Oublier, Suivi } from "../../types.js";
-import type { Appli } from "../../../appli/index.js";
+import type { Appli } from "../../appli/index.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type {
   DBElements,
@@ -545,7 +545,7 @@ export class ServiceOrbite<
 
     const identitéSignataire = await orbite.identities.getIdentity(
       entry.identity,
-      signal,
+      this.signaleurArrêt.signal,
     );
     if (!identitéSignataire) {
       return false;
@@ -553,7 +553,7 @@ export class ServiceOrbite<
     const { id } = identitéSignataire;
 
     // Vérifier l'identité
-    await orbite.identities.verifyIdentity(identitéSignataire)
+    const identitéVérifiée = await orbite.identities.verifyIdentity(identitéSignataire);
     return await orbite.identity.verify(
       signature.signature,
       signature.clefPublique,

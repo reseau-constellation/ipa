@@ -7,7 +7,7 @@ import {
   ServiceStockage,
 } from "@/v2/nébuleuse/index.js";
 import { compilerSchémaCompte } from "@/v2/nébuleuse/services/compte/compte.js";
-import { Appli } from "@/v2/appli/appli.js";
+import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
 import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { MODÉRATRICE } from "@/v2/nébuleuse/services/compte/accès/consts.js";

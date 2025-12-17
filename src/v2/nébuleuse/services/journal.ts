@@ -1,7 +1,7 @@
 import { isElectronMain, isNode } from "wherearewe";
 import PQueue from "p-queue";
-import { ServiceAppli } from "@/v2/appli/appli.js";
-import type { Appli } from "@/v2/appli/appli.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
 
 export type OptionsServiceJournal = {
   f: string | ((m: string) => void | Promise<void>);

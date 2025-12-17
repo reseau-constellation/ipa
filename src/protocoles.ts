@@ -1,4 +1,4 @@
-import { ComposanteClientDic } from "./v2/appli/services.js";
+import { ComposanteClientDic } from "./v2/nébuleuse/appli/services.js";
 import { cacheSuivi } from "./décorateursCache.js";
 import type { JSONSchemaType } from "ajv";
 import type { Constellation } from "./client.js";

@@ -3,7 +3,7 @@ import { peerIdFromString } from "@libp2p/peer-id";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { faisRien } from "@constl/utils-ipa";
 import { obtenir } from "test/v2/utils.js";
-import { ServiceAppli } from "@/v2/appli/appli.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/appli.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type {

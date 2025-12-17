@@ -21,7 +21,7 @@ import {
   ServiceLibp2p,
   extraireLibp2pDesOptions,
 } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import { Appli } from "@/v2/appli/appli.js";
+import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
 import {
   ServiceLibp2pTest,

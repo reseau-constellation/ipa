@@ -13,7 +13,7 @@ import type {
   ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,
 } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import type { Appli } from "@/v2/appli/appli.js";
+import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import type { ConfigLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
 
 export const obtenirOptionsLibp2pLocal = (config: ConfigLibp2p = {}) => {

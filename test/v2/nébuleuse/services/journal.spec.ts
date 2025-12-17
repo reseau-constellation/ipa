@@ -1,7 +1,7 @@
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
-import { Appli } from "@/v2/appli/appli.js";
+import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { dossierTempoPropre } from "../../utils.js";
 

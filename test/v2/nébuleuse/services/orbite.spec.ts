@@ -15,7 +15,7 @@ import { createLibp2p } from "libp2p";
 import { isBrowser } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import { toObject } from "@orbitdb/nested-db";
-import { Appli } from "@/v2/appli/appli.js";
+import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import {
   ServiceLibp2p,
   ServiceHélia,

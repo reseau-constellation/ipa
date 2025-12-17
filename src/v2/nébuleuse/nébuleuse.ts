@@ -1,7 +1,7 @@
 import { join } from "path";
 import { isElectronMain, isNode } from "wherearewe";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
-import { Appli } from "@/v2/appli/appli.js";
+import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import {
   ServiceCompte,
   ServiceHélia,
@@ -20,7 +20,7 @@ import type {
   ConstructeursServicesAppli,
   OptionsAppli,
   ServicesAppli,
-} from "@/v2/appli/appli.js";
+} from "@/v2/nébuleuse/appli/appli.js";
 import type { StructureDispositifs } from "./services/dispositifs.js";
 import type { ServicesLibp2pNébuleuse } from "./services/libp2p/libp2p.js";
 import type { StructureProfil } from "./services/profil.js";
@@ -83,6 +83,7 @@ export class Nébuleuse<
   profil: Profil<L>;
   compte: ServiceCompte<StructureNébuleuse & T, L>;
   réseau: ServiceRéseau<L>;
+  favoris: ServiceFavoris<L>;
 
   oublierVerrou?: () => void;
 
@@ -125,6 +126,7 @@ export class Nébuleuse<
 
     this.réseau = this.services["réseau"];
     this.profil = this.services["profil"];
+    this.favoris = this.services["favoris"];
   }
 
   async démarrer(): Promise<void> {
@@ -209,7 +211,7 @@ export class Nébuleuse<
   // Effacer compte local
 
   async effacer(): Promise<void> {
-    const dossier = await this.dossier()
+    const dossier = await this.dossier();
 
     await this.fermer();
 

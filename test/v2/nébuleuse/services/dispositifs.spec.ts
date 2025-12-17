@@ -10,7 +10,7 @@ import {
   ServiceDispositifs,
   détecterTypeDispositif,
 } from "@/v2/nébuleuse/services/dispositifs.js";
-import { Appli } from "@/v2/appli/index.js";
+import { Appli } from "@/v2/nébuleuse/appli/index.js";
 import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";

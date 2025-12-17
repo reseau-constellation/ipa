@@ -1,5 +1,5 @@
 import { asSplitKey, joinKey, splitKey } from "@orbitdb/nested-db";
-import { ServiceAppli } from "@/v2/appli/appli.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/appli.js";
 import { mapÀObjet } from "../utils.js";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
@@ -11,7 +11,7 @@ import type {
   GetValueFromKeyList,
 } from "node_modules/@constl/bohr-db/dist/types.js";
 import type { RecursivePartial } from "node_modules/@orbitdb/nested-db/dist/types.js";
-import type { Appli, ServicesAppli } from "@/v2/appli/appli.js";
+import type { Appli, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
 
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../types.js";

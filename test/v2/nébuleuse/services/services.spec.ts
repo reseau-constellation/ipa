@@ -21,7 +21,7 @@ import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/l
 import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { PartielRécursif } from "@/v2/types.js";
-import type { Appli } from "@/v2/appli/index.js";
+import type { Appli } from "@/v2/nébuleuse/appli/index.js";
 import type { ServicesNécessairesCompte } from "@/v2/nébuleuse/services/compte/index.js";
 
 const ERREUR_DUPLIQUÉS =

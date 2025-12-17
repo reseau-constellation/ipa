@@ -3,7 +3,7 @@ import { typedNested } from "@constl/bohr-db";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { suivreFonctionImbriquée, uneFois } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
-import { ServiceAppli } from "@/v2/appli/index.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import {
   AUCUN_DISPOSITIF,
   DISPOSITIFS_INSTALLÉS,
@@ -33,7 +33,7 @@ import type {
   ServiceFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "@/v2/nébuleuse/services/favoris.js";
-import type { Appli } from "@/v2/appli/index.js";
+import type { Appli } from "@/v2/nébuleuse/appli/index.js";
 import type { PartielRécursif, RequisRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type { BdsOrbite, ServicesNécessairesOrbite } from "../orbite/orbite.js";
@@ -325,7 +325,7 @@ export class ServiceCompte<
     const schéma = compilerSchémaCompte(this);
 
     if (idCompte) {
-      return await orbite.suivreBdTypée({
+      return await orbite.suivreBdTypée<"nested", T>({
         id: enleverPréfixes(idCompte),
         type: "nested",
         schéma,

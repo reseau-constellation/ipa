@@ -3,7 +3,7 @@ import plateforme from "platform";
 import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import type { JSONSchemaType } from "ajv";
-import type { Appli } from "@/v2/appli/appli.js";
+import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Suivi } from "../types.js";
 import type { ServicesNécessairesCompte } from "./compte/compte.js";

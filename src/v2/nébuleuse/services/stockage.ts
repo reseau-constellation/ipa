@@ -1,7 +1,7 @@
 import { join } from "path";
 import fs from "fs";
-import { ServiceAppli } from "@/v2/appli/appli.js";
-import type { Appli, ServicesAppli } from "@/v2/appli/appli.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { Appli, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
 
 export class StockageLocal implements Storage {
   fichier: string;

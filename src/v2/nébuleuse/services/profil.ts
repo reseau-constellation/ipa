@@ -21,7 +21,7 @@ import type {
   ÉpingleFavorisBooléenniséeAvecId,
  ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type { JSONSchemaType } from "ajv";
-import type { Appli } from "@/v2/appli/appli.js";
+import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import type { Suivi, Oublier } from "../types.js";
 import type { PartielRécursif, TraducsTexte } from "../../types.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";

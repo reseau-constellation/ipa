@@ -7,7 +7,7 @@ import { dossierTempoPropre } from "../utils.js";
 import { NébuleuseTest } from "./utils.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { ServicesNécessairesCompte } from "@/v2/nébuleuse/services/compte/compte.js";
-import type { Appli } from "@/v2/appli/appli.js";
+import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
 
 describe.only("Nébuleuse", function () {
   describe("création", function () {
