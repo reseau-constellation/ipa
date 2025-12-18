@@ -1,7 +1,8 @@
 import { join } from "path";
 import fs from "fs";
-import { ServiceAppli } from "@/v2/nébuleuse/appli/appli.js";
-import type { Appli, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
+import type { ServiceDossier } from "./dossier.js";
+import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 
 export class StockageLocal implements Storage {
   fichier: string;
@@ -96,22 +97,35 @@ const localStorageDossier = ({ dossier }: { dossier: string }) => {
   });
 };
 
+export type ServicesNécessairesStockage = {
+  dossier: ServiceDossier;
+};
+
+type RetourDémarrageStockage = { stockageLocal: Storage };
+
 export class ServiceStockage extends ServiceAppli<
-  "stockage",
-  ServicesAppli,
-  { stockageLocal: Storage }
+  ServicesNécessairesStockage,
+  RetourDémarrageStockage
 > {
-  constructor({ appli }: { appli: Appli<ServicesAppli> }) {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesStockage;
+    options: OptionsCommunes;
+  }) {
     super({
       clef: "stockage",
-      appli,
+      dépendances: ["dossier"],
+      services,
+      options,
     });
   }
 
-  async démarrer(): Promise<{ stockageLocal: Storage }> {
+  async démarrer() {
     let stockageLocal: Storage;
 
-    const dossier = await this.appli.dossier();
+    const dossier = await this.service("dossier").dossier();
     if (typeof localStorage === "undefined" || localStorage === null) {
       const fichier = join(dossier, "stockage.json");
       stockageLocal = new StockageLocal({ fichier });

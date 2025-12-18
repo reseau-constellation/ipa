@@ -27,6 +27,7 @@ import {
   mandatOrbite,
 } from "@/v2/nébuleuse/services/orbite/mandat.js";
 import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
+import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { obtenir, dossierTempoPropre } from "../../utils.js";
 import { attendreQue } from "../../appli/utils/fonctions.js";
 import { ServiceLibp2pTest } from "./utils.js";
@@ -195,7 +196,9 @@ describe.only("Service Orbite", function () {
   describe("démarrer", function () {
     let dossier: string;
     let effacer: () => void;
-    let appli: Appli<ServicesNécessairesOrbite>;
+    let appli: Appli<
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+    >;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
@@ -207,8 +210,13 @@ describe.only("Service Orbite", function () {
     });
 
     it("orbite démarre", async () => {
-      appli = new Appli<ServicesNécessairesOrbite>({
+      appli = new Appli<
+        ServicesNécessairesOrbite & {
+          orbite: ServiceOrbite<ServicesLibp2pTest>;
+        }
+      >({
         services: {
+          dossier: ServiceDossier,
           journal: ServiceJournal,
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
@@ -216,7 +224,7 @@ describe.only("Service Orbite", function () {
           orbite: ServiceOrbite,
         },
         options: {
-          dossier,
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();
@@ -229,7 +237,9 @@ describe.only("Service Orbite", function () {
   });
 
   describe("fermer", function () {
-    let appli: Appli<ServicesNécessairesOrbite>;
+    let appli: Appli<
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+    >;
 
     let dossier: string;
     let effacer: () => void;
@@ -244,8 +254,13 @@ describe.only("Service Orbite", function () {
     });
 
     it("orbite fermé si endogène", async () => {
-      appli = new Appli<ServicesNécessairesOrbite>({
+      appli = new Appli<
+        ServicesNécessairesOrbite & {
+          orbite: ServiceOrbite<ServicesLibp2pTest>;
+        }
+      >({
         services: {
+          dossier: ServiceDossier,
           journal: ServiceJournal,
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
@@ -253,7 +268,7 @@ describe.only("Service Orbite", function () {
           orbite: ServiceOrbite,
         },
         options: {
-          dossier,
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();
@@ -275,8 +290,13 @@ describe.only("Service Orbite", function () {
         directory: dossier,
       });
 
-      appli = new Appli<ServicesNécessairesOrbite>({
+      appli = new Appli<
+        ServicesNécessairesOrbite & {
+          orbite: ServiceOrbite<ServicesLibp2pTest>;
+        }
+      >({
         services: {
+          dossier: ServiceDossier,
           journal: ServiceJournal,
           // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
           libp2p: ServiceLibp2p,
@@ -285,8 +305,8 @@ describe.only("Service Orbite", function () {
           orbite: ServiceOrbite,
         },
         options: {
-          dossier,
           services: {
+            dossier: { dossier },
             orbite: {
               orbite: orbiteOriginale,
             },
@@ -309,12 +329,19 @@ describe.only("Service Orbite", function () {
     let dossier: string;
     let effacer: () => void;
 
-    let appli: Appli<ServicesNécessairesOrbite>;
+    let appli: Appli<
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+    >;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
-      appli = new Appli<ServicesNécessairesOrbite>({
+      appli = new Appli<
+        ServicesNécessairesOrbite & {
+          orbite: ServiceOrbite<ServicesLibp2pTest>;
+        }
+      >({
         services: {
+          dossier: ServiceDossier,
           journal: ServiceJournal,
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
@@ -322,7 +349,7 @@ describe.only("Service Orbite", function () {
           orbite: ServiceOrbite,
         },
         options: {
-          dossier,
+          services: {dossier: { dossier },},
         },
       });
       await appli.démarrer();
@@ -401,7 +428,7 @@ describe.only("Service Orbite", function () {
     it("suivre bd typée", async () => {
       const orbite = appli.services["orbite"];
 
-      const { bd, oublier } = await orbite.créerBd({ type: "keyvalue" });
+      const { bd, oublier } = await orbite.créerBd({ type: "nested" });
       const idBd = bd.address;
 
       const schéma: JSONSchemaType<{ a?: number }> = {
@@ -409,10 +436,9 @@ describe.only("Service Orbite", function () {
         properties: { a: { type: "number", nullable: true } },
       };
 
-      let a: number | undefined = undefined;
-      const oublierTypée = await orbite.suivreBdTypée({
+      let a: number | null | undefined = undefined;
+      const oublierTypée = await orbite.suivreBdEmboîtéeTypée({
         id: idBd,
-        type: "keyvalue",
         schéma,
         f: async (bd) => {
           a = await bd.get("a");
@@ -444,9 +470,8 @@ describe.only("Service Orbite", function () {
 
       const val = await obtenir<NestedObjectToMap<{ a?: number }>>(
         ({ siDéfini }) =>
-          orbite.suivreDonnéesBd({
+          orbite.suivreDonnéesBdEmboîtée({
             id: idBd,
-            type: "nested",
             schéma,
             f: siDéfini(),
           }),
@@ -525,12 +550,19 @@ describe.only("Service Orbite", function () {
     let dossier: string;
     let effacer: () => void;
 
-    let appli: Appli<ServicesNécessairesOrbite>;
+    let appli: Appli<
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+    >;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
-      appli = new Appli<ServicesNécessairesOrbite>({
+      appli = new Appli<
+        ServicesNécessairesOrbite & {
+          orbite: ServiceOrbite<ServicesLibp2pTest>;
+        }
+      >({
         services: {
+          dossier: ServiceDossier,
           journal: ServiceJournal,
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
@@ -538,7 +570,7 @@ describe.only("Service Orbite", function () {
           orbite: ServiceOrbite,
         },
         options: {
-          dossier,
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();
@@ -590,12 +622,19 @@ describe.only("Service Orbite", function () {
     let dossier: string;
     let effacer: () => void;
 
-    let appli: Appli<ServicesNécessairesOrbite>;
+    let appli: Appli<
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+    >;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
-      appli = new Appli<ServicesNécessairesOrbite>({
+      appli = new Appli<
+        ServicesNécessairesOrbite & {
+          orbite: ServiceOrbite<ServicesLibp2pTest>;
+        }
+      >({
         services: {
+          dossier: ServiceDossier,
           journal: ServiceJournal,
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
@@ -603,7 +642,7 @@ describe.only("Service Orbite", function () {
           orbite: ServiceOrbite,
         },
         options: {
-          dossier,
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();

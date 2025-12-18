@@ -12,19 +12,13 @@ import type {
 import type {
   ConstructeursServicesAppli,
   OptionsAppli,
-  ServiceAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
-import type { ServicesDonnées } from "@/v2/nébuleuse/services/compte/compte.js";
+import type {
+  ServicesDonnées,
+} from "@/v2/nébuleuse/services/compte/compte.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-
-export type ConstructeurServicesNébuleuse<
-  T extends ServicesAppli,
-  A extends ServicesAppli = {
-    [clef: string]: ServiceAppli<typeof clef>;
-  },
-> = ConstructeursServicesAppli<T, A & ServicesNébuleuse>;
 
 export class NébuleuseTest<
   T extends { [clef: string]: NestedValueObject } = Record<string, never>,
@@ -34,20 +28,14 @@ export class NébuleuseTest<
     services,
     options,
   }: {
-    services: ConstructeursServicesAppli<
-      ServicesDonnées<T, ServicesLibp2pTest> & S
-    >;
-    options: { dossier: string } & OptionsAppli<
-      ServicesDonnées<T, ServicesLibp2pTest> &
-        S &
-        ServicesNébuleuse<T & StructureNébuleuse, ServicesLibp2pTest>
-    >;
+    services?: ConstructeursServicesAppli<S & ServicesDonnées<T, ServicesLibp2pTest>, ServicesNébuleuse<T & StructureNébuleuse, ServicesLibp2pTest>>;
+    options?: Partial<OptionsAppli<S & ServicesNébuleuse<StructureNébuleuse & T, ServicesLibp2pTest>>>;
   }) {
     super({
       services: {
         ...services,
         libp2p: ServiceLibp2pTest,
-      },
+      } as ConstructeursServicesAppli<S & ServicesDonnées<T, ServicesLibp2pTest> & {libp2p?: ServiceLibp2pTest}>,
       options,
     });
   }
@@ -71,7 +59,7 @@ export const créerNébuleusesTest = async <
   S extends ServicesAppli = ServicesAppli,
 >({
   n,
-  services = {},
+  services = {} as ConstructeursServicesAppli<S & ServicesDonnées<T, ServicesLibp2pTest>>,
   dossier,
 }: {
   n: number;
@@ -92,7 +80,7 @@ export const créerNébuleusesTest = async <
   for (const i in [...Array(n).entries()]) {
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
-      options: { dossier: path.join(dossier, i) },
+      options: { services: { dossier: { dossier: path.join(dossier, i) }} },
     });
     nébuleuses.push(nébuleuse);
   }

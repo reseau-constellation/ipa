@@ -5,10 +5,12 @@ import { v4 as uuidv4 } from "uuid";
 import { ServiceStockage } from "@/v2/nébuleuse/index.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { StockageLocal } from "@/v2/nébuleuse/services/stockage.js";
+import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { dossierTempoPropre } from "../../utils.js";
+import type { ServicesNécessairesStockage } from "@/v2/nébuleuse/services/stockage.js";
 
 describe.only("Stockage", function () {
-  let appli: Appli<{ stockage: ServiceStockage }>;
+  let appli: Appli<ServicesNécessairesStockage & { stockage: ServiceStockage }>;
   let stockage: ServiceStockage;
   let dossier: string;
   let effacer: () => void;
@@ -16,12 +18,15 @@ describe.only("Stockage", function () {
   beforeEach(async () => {
     ({ dossier, effacer } = await dossierTempoPropre());
 
-    appli = new Appli({
+    appli = new Appli<
+      ServicesNécessairesStockage & { stockage: ServiceStockage }
+    >({
       services: {
+        dossier: ServiceDossier,
         stockage: ServiceStockage,
       },
       options: {
-        dossier,
+        services: { dossier: { dossier } },
       },
     });
     await appli.démarrer();
@@ -51,12 +56,15 @@ describe.only("Stockage", function () {
     await appli.fermer();
 
     // Ouvrir la appli à nouveau
-    appli = new Appli({
+    appli = new Appli<
+      ServicesNécessairesStockage & { stockage: ServiceStockage }
+    >({
       services: {
+        dossier: ServiceDossier,
         stockage: ServiceStockage,
       },
       options: {
-        dossier,
+        services: { dossier: { dossier } },
       },
     });
     await appli.démarrer();
@@ -74,12 +82,15 @@ describe.only("Stockage", function () {
     }
 
     // Ouvrir la appli à nouveau
-    appli = new Appli({
+    appli = new Appli<
+      ServicesNécessairesStockage & { stockage: ServiceStockage }
+    >({
       services: {
+        dossier: ServiceDossier,
         stockage: ServiceStockage,
       },
       options: {
-        dossier,
+        services: { dossier: { dossier } },
       },
     });
     await appli.démarrer();
@@ -99,12 +110,15 @@ describe.only("Stockage", function () {
   it("non interférence entre instances", async () => {
     const clef = uuidv4();
 
-    const appli2 = new Appli({
+    const appli2 = new Appli<
+      ServicesNécessairesStockage & { stockage: ServiceStockage }
+    >({
       services: {
+        dossier: ServiceDossier,
         stockage: ServiceStockage,
       },
       options: {
-        dossier: path.join(dossier, "sous-dossier"),
+        services: { dossier: { dossier: path.join(dossier, "sous-dossier") } },
       },
     });
     await appli2.démarrer();

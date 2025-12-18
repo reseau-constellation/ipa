@@ -1,1 +1,2 @@
-export { Appli, OptionsAppli, ServiceAppli, ServicesAppli } from "./appli.js";
+export { Appli, OptionsAppli, ServicesAppli } from "./appli.js";
+export { ServiceAppli } from "./services.js";

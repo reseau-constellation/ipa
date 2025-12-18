@@ -686,9 +686,8 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     const fsOublier: Oublier[] = [];
 
     if (épingle.épingle.épingle.base) {
-      const oublierBase = await orbite.suivreBdTypée({
+      const oublierBase = await orbite.suivreBdEmboîtéeTypée({
         id: épingle.idObjet,
-        type: "nested",
         schéma: schémaBd,
         f: async (bd) => {
           try {

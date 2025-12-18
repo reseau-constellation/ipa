@@ -23,7 +23,6 @@ describe.only("Journal", function () {
             journal: ServiceJournal,
           },
           options: {
-            dossier,
             services: {
               journal: { f: fichier },
             },
@@ -53,19 +52,16 @@ describe.only("Journal", function () {
   describe("fonction personnalisée", function () {
     let appli: Appli<{ journal: ServiceJournal }>;
     let journal: ServiceJournal;
-    let dossier: string;
     let effacer: () => void;
 
     let val = "";
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempoPropre());
       appli = new Appli<{ journal: ServiceJournal }>({
         services: {
           journal: ServiceJournal,
         },
         options: {
-          dossier,
           services: {
             journal: {
               f: (m) => {

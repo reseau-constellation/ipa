@@ -4,7 +4,10 @@ import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import { Appli, ServiceAppli } from "@/v2/nébuleuse/appli/appli.js";
 import { dossierTempoPropre } from "../utils.js";
-import type { OptionsAppli, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type {
+  OptionsAppli,
+  ServicesAppli,
+} from "@/v2/nébuleuse/appli/appli.js";
 import type Quibble from "quibble";
 
 describe.only("Appli", function () {

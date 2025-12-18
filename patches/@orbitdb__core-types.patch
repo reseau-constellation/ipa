@@ -1,5 +1,5 @@
 diff --git a/src/index.d.ts b/src/index.d.ts
-index 10ed1d3fb214b30abf121353fcb55c73be47c192..a4f19066c3aac65e7aa87bc6baa53e8bade3d1ed 100644
+index 10ed1d3fb214b30abf121353fcb55c73be47c192..bd2931d7c40b108e1021abc887cb2df001d9818d 100644
 --- a/src/index.d.ts
 +++ b/src/index.d.ts
 @@ -37,6 +37,7 @@ declare module "@orbitdb/core" {
@@ -10,7 +10,16 @@ index 10ed1d3fb214b30abf121353fcb55c73be47c192..a4f19066c3aac65e7aa87bc6baa53e8b
    }>;
  
    type CreateDatabaseOptions<T extends ServiceMap = ServiceMap> = {
-@@ -256,6 +257,7 @@ declare module "@orbitdb/core" {
+@@ -162,6 +163,8 @@ declare module "@orbitdb/core" {
+       publicKey: string,
+       data: string,
+     ) => Promise<boolean>;
++    hash: string;
++    bytes: Uint8Array;
+   };
+ 
+   export type OrbitDB<T extends ServiceMap = ServiceMap> = {
+@@ -256,6 +259,7 @@ declare module "@orbitdb/core" {
      orbitdb: OrbitDB;
      identities: IdentitiesType;
      address?: string;
@@ -18,7 +27,7 @@ index 10ed1d3fb214b30abf121353fcb55c73be47c192..a4f19066c3aac65e7aa87bc6baa53e8b
    }): Promise<AccessController>;
  
    export type AccessController = {
-@@ -306,7 +308,7 @@ declare module "@orbitdb/core" {
+@@ -306,14 +310,14 @@ declare module "@orbitdb/core" {
      ipfs?: Helia<Libp2p<T>>;
    }): Promise<{
      createIdentity: (options: object) => Promise<Identity>;
@@ -27,7 +36,15 @@ index 10ed1d3fb214b30abf121353fcb55c73be47c192..a4f19066c3aac65e7aa87bc6baa53e8b
      verifyIdentity: (identity: Identity) => Promise<boolean>;
      sign: (identity: Identity, data: string) => Promise<string>;
      verify: (
-@@ -338,8 +340,8 @@ declare module "@orbitdb/core" {
+       signature: string,
+       publicKey: string,
+       data: string,
+-    ) => Promise<string>;
++    ) => Promise<boolean>;
+     keystore: KeyStoreType;
+   }>;
+ 
+@@ -338,8 +342,8 @@ declare module "@orbitdb/core" {
    }
  
    export type Storage = {

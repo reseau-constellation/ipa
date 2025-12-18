@@ -505,9 +505,8 @@ export class TableauxBds<
           f: async (tableau) => await fSuivreRacine(tableau.données),
         }),
       fSuivre: async ({ id: idDonnées, fSuivre }) =>
-        await this.service("orbite").suivreDonnéesBd({
+        await this.service("orbite").suivreDonnéesBdEmboîtée({
           id: idDonnées,
-          type: "nested",
           schéma: schémaDonnéesTableau,
           f: fSuivre,
         }),

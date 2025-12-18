@@ -10,10 +10,11 @@ import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { PrivateKey } from "@libp2p/interface";
 import type { Libp2pOptions } from "libp2p";
 import type {
+  OptionsServiceLibp2p,
   ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,
 } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 import type { ConfigLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
 
 export const obtenirOptionsLibp2pLocal = (config: ConfigLibp2p = {}) => {
@@ -47,12 +48,15 @@ export const obtenirOptionsLibp2pTest = (
 
 export class ServiceLibp2pTest extends ServiceLibp2p<ServicesLibp2pTest> {
   constructor({
-    appli,
+    services,
+    options,
   }: {
-    appli: Appli<ServicesNécessairesLibp2p<ServicesLibp2pTest>>;
+    services: ServicesNécessairesLibp2p;
+    options: OptionsServiceLibp2p<ServicesLibp2pTest> & OptionsCommunes;
   }) {
     super({
-      appli,
+      services,
+      options,
     });
     this.options.libp2p = obtenirOptionsLibp2pTest();
   }

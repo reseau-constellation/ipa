@@ -1,48 +1,39 @@
-import { join } from "path";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { isElectronMain, isNode } from "wherearewe";
 import { STATUTS } from "./consts.js";
+import type { ServiceAppli } from "./services.js";
 
 type ÉvénementsAppli = {
   démarrée: () => void;
   fermée: () => void;
 };
 export type ConstructeurServiceAppli<T, S extends ServicesAppli> = new (args: {
-  appli: Appli<S>;
-  options?: T extends ServiceAppli<
-    infer _Types,
-    infer _Services,
-    infer _R,
-    infer Opts
-  >
-    ? Opts
+  services: S;
+  options: T extends ServiceAppli<infer _Services, infer _R, infer Opts>
+    ? Opts & OptionsCommunes
     : never;
 }) => T;
 
-export type ServicesAppli<
-  A extends ServicesAppli = {
-    [clef: string]: ServiceAppli<typeof clef>;
-  },
-> = {
-  [clef: string]: ServiceAppli<typeof clef, A>;
+export type ServicesAppli = {
+  [clef: string]: ServiceAppli;
 };
 
 export type ConstructeursServicesAppli<
   T extends ServicesAppli,
   A extends ServicesAppli = {
-    [clef: string]: ServiceAppli<typeof clef>;
+    [clef: string]: ServiceAppli;
   },
 > = {
   [clef in keyof T]: ConstructeurServiceAppli<T[clef], T & A>;
 };
 
-export type OptionsAppli<T extends ServicesAppli> = {
-  dossier?: string;
-  nomAppli?: string;
-  mode?: "dév" | "prod";
+export type OptionsCommunes = {
+  nomAppli: string;
+  mode: "dév" | "prod";
+};
+
+export type OptionsAppli<T extends ServicesAppli> = OptionsCommunes & {
   services?: {
     [clef in keyof T]?: T[clef] extends ServiceAppli<
-      infer _Type,
       infer _Services,
       infer _R,
       infer Opts
@@ -57,7 +48,6 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
   options: OptionsAppli<S>;
   services: S;
   événements: TypedEmitter<ÉvénementsAppli>;
-  nomAppli: string;
 
   constructor({
     services,
@@ -65,18 +55,20 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
   }: {
     nomAppli?: string;
     services?: ConstructeursServicesAppli<S>;
-    options?: OptionsAppli<S>;
+    options?: Partial<OptionsAppli<S>>;
   } = {}) {
-    this.nomAppli = options?.nomAppli ?? "appli";
     services = services ?? ({} as ConstructeursServicesAppli<S>);
 
-    this.options = options || {};
-    this.services = Object.fromEntries(
-      Object.entries(services).map(([clef, service]) => [
-        clef,
-        new service({ appli: this, options: options?.services?.[clef] }),
-      ]),
-    ) as S;
+    this.options = { ...{ nomAppli: "appli", mode: "prod" }, ...options };
+
+    const instancesServices: Partial<S> = {};
+    for (const clef of Object.keys(services)) {
+      instancesServices[clef] = new services[clef]({
+        services: instancesServices as S,
+        options: { ...(options?.services?.[clef] || {}), ...{nomAppli: this.options.nomAppli, mode: this.options.mode } },
+      });
+    }
+    this.services = instancesServices as S;
 
     this.événements = new TypedEmitter<ÉvénementsAppli>();
     this.statut = STATUTS.NON_INITIALISÉE;
@@ -178,111 +170,5 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
       throw new Error(`Service ${malFermé.clef} n'a pas été bien fermé.`);
 
     await this.fermerServices();
-  }
-
-  // Fonctions utilitaires
-  async dossier(): Promise<string> {
-    if (this.options.dossier) {
-      if (isNode || isElectronMain) {
-        const fs = await import("fs");
-        if (!fs.existsSync(this.options.dossier))
-          fs.mkdirSync(this.options.dossier, { recursive: true });
-      }
-      return this.options.dossier;
-    }
-
-    if (isNode || isElectronMain) {
-      const fs = await import("fs");
-      // Utiliser l'application native
-      const envPaths = (await import("env-paths")).default;
-      const chemins = envPaths(this.nomAppli, { suffix: "" });
-      const dossier = join(
-        chemins.data,
-        this.options.mode === "dév" ? `${this.nomAppli}-dév` : this.nomAppli,
-      );
-      if (!fs.existsSync(dossier)) fs.mkdirSync(dossier, { recursive: true });
-      return dossier;
-    } else {
-      // Pour navigateur
-      return `./${this.nomAppli}`;
-    }
-  }
-}
-
-type ÉvénementsServiceAppli<Démarré = true> = {
-  démarré: (args: Démarré) => void;
-};
-
-export class ServiceAppli<
-  T extends string,
-  S extends ServicesAppli = ServicesAppli,
-  RetourDémarré = unknown,
-  Options = unknown,
-> {
-  clef: T;
-  appli: Appli<S>;
-  dépendances: Extract<keyof S, string>[];
-  options: Options;
-
-  événements: TypedEmitter<ÉvénementsServiceAppli<RetourDémarré>>;
-  statut: (typeof STATUTS)[keyof typeof STATUTS];
-  estDémarré: RetourDémarré | false;
-
-  constructor({
-    clef,
-    appli,
-    dépendances = [],
-    options,
-  }: {
-    clef: T;
-    appli: Appli<S>;
-    dépendances?: Extract<keyof S, string>[];
-    options?: Options;
-  }) {
-    this.clef = clef;
-    this.appli = appli;
-    this.dépendances = dépendances;
-    this.options = options || ({} as Options);
-
-    this.événements = new TypedEmitter<ÉvénementsServiceAppli<RetourDémarré>>();
-    this.statut = STATUTS.NON_INITIALISÉE;
-    this.estDémarré = false;
-  }
-
-  // Cycle de vie
-  async démarrer(): Promise<RetourDémarré> {
-    const dépendancesNonDémarrées = this.dépendances
-      .map((d) => this.service(d))
-      .filter((d) => !d.estDémarré)
-      .map((d) => d.clef);
-    if (dépendancesNonDémarrées.length)
-      throw new Error(
-        `Dépendances de ${this.clef} non démarrées: ${dépendancesNonDémarrées.join(", ")}`,
-      );
-    if (this.estDémarré === false) this.estDémarré = true as RetourDémarré;
-
-    this.événements.emit("démarré", this.estDémarré);
-    this.statut = STATUTS.DÉMARRÉE;
-    return this.estDémarré;
-  }
-
-  async démarré(): Promise<RetourDémarré> {
-    if (this.estDémarré) return this.estDémarré;
-    return new Promise((résoudre) => this.événements.once("démarré", résoudre));
-  }
-
-  async fermer(): Promise<void> {
-    await this.démarré();
-    this.statut = STATUTS.FERMÉE;
-    this.estDémarré = false;
-  }
-
-  // Méthodes générales
-  service<C extends Extract<keyof S, string>>(clef: C): S[C] {
-    if (!this.dépendances.includes(clef))
-      throw new Error(
-        `${String(clef)} n'est pas spécifié parmi les dépendences de ${this.clef}.`,
-      );
-    return this.appli.services[clef];
   }
 }

@@ -704,9 +704,8 @@ export class Nuées<
     const fsOublier: Oublier[] = [];
     const orbite = this.service("orbite");
     if (épingle.épingle.épingle.base) {
-      const oublierBase = await orbite.suivreBdTypée({
+      const oublierBase = await orbite.suivreBdEmboîtéeTypée({
         id: épingle.idObjet,
-        type: "nested",
         schéma: schémaNuée,
         f: async (bd) => {
           try {

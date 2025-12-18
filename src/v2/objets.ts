@@ -164,9 +164,8 @@ export abstract class ObjetConstellation<
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
-    return await orbite.suivreDonnéesBd({
+    return await orbite.suivreDonnéesBdEmboîtée({
       id: this.àIdOrbite(idObjet),
-      type: "nested",
       schéma: this.schémaObjet,
       f: (objet) => f(toObject(objet) as S),
     });

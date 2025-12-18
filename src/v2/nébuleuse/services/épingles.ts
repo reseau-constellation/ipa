@@ -3,27 +3,34 @@ import { CID } from "multiformats";
 import drain from "it-drain";
 import PQueue from "p-queue";
 import { isValidAddress, type BaseDatabase } from "@orbitdb/core";
-import { ServiceAppli } from "../appli/appli.js";
+import { ServiceAppli } from "../appli/services.js";
 import { idcEtFichierValide } from "../../utils.js";
-import type { Appli } from "../appli/appli.js";
+import type { Appli, OptionsCommunes } from "../appli/appli.js";
 import type { Oublier } from "../types.js";
-import type { ServicesNécessairesOrbite } from "./orbite/orbite.js";
+import type {
+  ServiceOrbite,
+  ServicesNécessairesOrbite,
+} from "./orbite/orbite.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
+
+export type ServicesNécessairesÉpingles<L extends ServicesLibp2pNébuleuse> =
+  ServicesNécessairesOrbite<L> & { orbite: ServiceOrbite<L> };
 
 export class ServiceÉpingles<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> extends ServiceAppli<"épingles", ServicesNécessairesOrbite<L>> {
+> extends ServiceAppli<ServicesNécessairesÉpingles<L>> {
   queue: PQueue;
   requêtes: Map<string, Set<string>>;
   bdsOuvertes: Map<string, { bd: BaseDatabase; oublier: Oublier }>;
   idcsÉpinglés: Set<string>;
   signaleurArrêt: AbortController;
 
-  constructor({ appli }: { appli: Appli<ServicesNécessairesOrbite<L>> }) {
+  constructor({ services, options }: { services: ServicesNécessairesÉpingles<L>; options: OptionsCommunes }) {
     super({
       clef: "épingles",
-      appli,
+      services,
       dépendances: ["orbite", "hélia"],
+      options,
     });
 
     this.queue = new PQueue({ concurrency: 1 });

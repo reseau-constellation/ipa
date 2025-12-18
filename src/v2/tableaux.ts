@@ -331,9 +331,8 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
-    return await orbite.suivreDonnéesBd({
+    return await orbite.suivreDonnéesBdEmboîtée({
       id: enleverPréfixes(idStructure),
-      type: "nested",
       schéma: schémaStructureAvecTableau,
       f: async (tableau) => {
         let données: NestedValueObject | null | undefined = mapÀObjet(tableau);

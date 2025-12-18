@@ -1,5 +1,5 @@
 import { asSplitKey, joinKey, splitKey } from "@orbitdb/nested-db";
-import { ServiceAppli } from "@/v2/nébuleuse/appli/appli.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import { mapÀObjet } from "../utils.js";
 import type { NestedValueObject } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
@@ -11,12 +11,12 @@ import type {
   GetValueFromKeyList,
 } from "node_modules/@constl/bohr-db/dist/types.js";
 import type { RecursivePartial } from "node_modules/@orbitdb/nested-db/dist/types.js";
-import type { Appli, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsCommunes, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
 
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
-import type { ServicesNécessairesCompte } from "./compte/compte.js";
+import type { ServiceCompte, ServicesNécessairesCompte } from "./compte/compte.js";
 
 export type ClefDeBranche<T extends NestedValueObject> = keyof {
   [C in ExtractKeys<T> as GetValueFromKey<T, C> extends NestedValueObject
@@ -49,13 +49,10 @@ export const brancheBd = <
             : K extends ExtractKeysAsList<T>
               ? GetValueFromKeyList<T, K>
               : undefined,
-          position?: K extends ExtractKeys<T> | ExtractKeysAsList<T>
-            ? number | undefined
-            : undefined,
         ): Promise<string[]> => {
           if (typeof clefOuValeur === "string" || Array.isArray(clefOuValeur)) {
             const clefFinale = joinKey([
-              clef,
+              clef as string,
               ...asSplitKey(clefOuValeur),
             ]) as ExtractKeys<T>;
             return await target.put(clefFinale, valeur, position);
@@ -85,18 +82,6 @@ export const brancheBd = <
           return await target.get(clefFinale);
         };
         return getBranche;
-      } else if (prop === "move") {
-        const moveBranche = async (
-          sousClef: ExtractKeys<T[C]> | ExtractKeysAsList<T[C]>,
-          position: number,
-        ) => {
-          const clefFinale = joinKey([
-            clef,
-            ...asSplitKey(sousClef),
-          ]) as ExtractKeys<T>;
-          return await target.move(clefFinale, position);
-        };
-        return moveBranche;
       } else if (prop === "all") {
         const allBranche = async () => {
           return (await target.all()).get(clef);
@@ -109,6 +94,12 @@ export const brancheBd = <
   }) as unknown as T[C] extends NestedValueObject ? TypedNested<T[C]> : never;
 };
 
+export type ServicesNécessairesDonnées<S extends NestedValueObject, L extends ServicesLibp2pNébuleuse> = ServicesNécessairesCompte<L> & { compte: ServiceCompte<S, L> }
+
+export type OptionsServiceDonnées<Structure extends NestedValueObject> = {
+  schéma: JSONSchemaType<PartielRécursif<Structure>>;
+}
+
 export class ServiceDonnéesAppli<
   T extends string,
   Structure extends NestedValueObject,
@@ -119,8 +110,7 @@ export class ServiceDonnéesAppli<
     schéma: JSONSchemaType<PartielRécursif<Structure>>;
   },
 > extends ServiceAppli<
-  T,
-  Services & ServicesNécessairesCompte<L>,
+  Services & ServicesNécessairesDonnées<Structure, L>,
   RetourDémarré,
   Options
 > {
@@ -128,21 +118,21 @@ export class ServiceDonnéesAppli<
 
   constructor({
     clef,
-    appli,
+    services,
     dépendances = [],
     options,
   }: {
     clef: T;
-    appli: Appli<Services & ServicesNécessairesCompte<L>>;
+    services: Services & ServicesNécessairesDonnées<Structure, L>,
     dépendances?: Extract<
-      keyof (Services & ServicesNécessairesCompte<L>),
+      keyof Services & ServicesNécessairesDonnées<Structure, L>,
       string
     >[];
-    options: Options;
+    options: Options & OptionsCommunes;
   }) {
     super({
       clef,
-      appli,
+      services,
       dépendances: [...dépendances, "compte"],
       options,
     });

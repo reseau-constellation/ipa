@@ -1,37 +1,41 @@
 import { isElectronMain, isNode } from "wherearewe";
 import PQueue from "p-queue";
-import { ServiceAppli } from "@/v2/nébuleuse/appli/appli.js";
-import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
+import type {
+  OptionsCommunes,
+  ServicesAppli,
+} from "@/v2/nébuleuse/appli/appli.js";
 
 export type OptionsServiceJournal = {
   f: string | ((m: string) => void | Promise<void>);
 };
 
+type RetourDémarrageJournal = { f: (m: string) => Promise<void> | void };
+
 export class ServiceJournal extends ServiceAppli<
-  "journal",
-  { journal: ServiceJournal },
-  { f: (m: string) => Promise<void> | void },
+  ServicesAppli,
+  RetourDémarrageJournal,
   OptionsServiceJournal
 > {
   queue: PQueue;
 
   constructor({
-    appli,
+    services,
     options,
   }: {
-    appli: Appli<{ journal: ServiceJournal }>;
-    options?: OptionsServiceJournal;
+    services: ServicesAppli;
+    options: OptionsServiceJournal & OptionsCommunes;
   }) {
     super({
       clef: "journal",
-      appli,
-      options: options || { f: console.log },
+      services,
+      options: Object.assign({ f: console.log }, options),
     });
 
     this.queue = new PQueue({ concurrency: 1 });
   }
 
-  async démarrer(): Promise<{ f: (m: string) => Promise<void> | void }> {
+  async démarrer() {
     const { f } = this.options;
 
     if (typeof f === "string") {

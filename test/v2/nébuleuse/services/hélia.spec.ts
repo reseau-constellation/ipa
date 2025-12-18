@@ -1,7 +1,6 @@
 import {
   OptionsDéfautLibp2pNavigateur,
   OptionsDéfautLibp2pNode,
-  créerOrbitesTest,
 } from "@constl/utils-tests";
 
 import { expect } from "aegir/chai";
@@ -13,62 +12,19 @@ import toBuffer from "it-to-buffer";
 import { ServiceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import {
   ServiceHélia,
-  extraireHéliaDesOptions,
 } from "@/v2/nébuleuse/services/hélia.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { ServiceStockage } from "@/v2/nébuleuse/index.js";
+import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { dossierTempoPropre } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";
 import type { ServicesNécessairesHélia } from "@/v2/nébuleuse/services/hélia.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Libp2p } from "libp2p";
 import type { Helia } from "helia";
-import type { OrbitDB } from "@orbitdb/core";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 
 describe.only("Service Hélia", function () {
-  describe("options", function () {
-    let orbite: OrbitDB<ServicesLibp2pTest>;
-    let hélia: Helia<Libp2p<ServicesLibp2pTest>>;
-
-    let fermer: () => Promise<void>;
-
-    before(async () => {
-      const test = await créerOrbitesTest({ n: 1 });
-      ({ fermer } = test);
-
-      orbite = test.orbites[0];
-      hélia = orbite.ipfs;
-    });
-
-    after(async () => {
-      if (fermer) await fermer();
-    });
-
-    it("extraire Hélia - Orbite", () => {
-      const val = extraireHéliaDesOptions({
-        services: {
-          orbite: { orbite },
-        },
-      });
-      expect(val).to.equal(hélia);
-    });
-
-    it("extraire Hélia - Hélia", () => {
-      const val = extraireHéliaDesOptions({
-        services: {
-          hélia: { hélia },
-        },
-      });
-      expect(val).to.equal(hélia);
-    });
-
-    it("extraire Hélia - absente", () => {
-      const val = extraireHéliaDesOptions({});
-      expect(val).to.be.undefined();
-    });
-  });
-
   describe("demarrage", function () {
     let appli: Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>;
     let dossier: string;
@@ -86,12 +42,13 @@ describe.only("Service Hélia", function () {
     it("hélia démarre", async () => {
       appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
         services: {
+          dossier: ServiceDossier,
+          stockage: ServiceStockage,
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
-          stockage: ServiceStockage,
         },
         options: {
-          dossier,
+          services: {dossier: {dossier}},
         },
       });
       await appli.démarrer();
@@ -122,14 +79,19 @@ describe.only("Service Hélia", function () {
     });
 
     it("hélia fermé si endogène", async () => {
-      appli = new Appli<ServicesNécessairesHélia<ServicesLibp2pTest>>({
+      appli = new Appli<
+        ServicesNécessairesHélia<ServicesLibp2pTest> & {
+          hélia: ServiceHélia<ServicesLibp2pTest>;
+        }
+      >({
         services: {
+          dossier: ServiceDossier,
+          stockage: ServiceStockage,
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
-          stockage: ServiceStockage,
         },
         options: {
-          dossier,
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();
@@ -149,13 +111,14 @@ describe.only("Service Hélia", function () {
 
       appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
         services: {
+          dossier: ServiceDossier,
+          stockage: ServiceStockage,
           libp2p: ServiceLibp2p,
           hélia: ServiceHélia,
-          stockage: ServiceStockage,
         },
         options: {
-          dossier,
           services: {
+            dossier: { dossier },
             hélia: {
               hélia: héliaOriginal as Helia<Libp2p<ServicesLibp2pNébuleuse>>,
             },
@@ -187,14 +150,19 @@ describe.only("Service Hélia", function () {
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
-      appli = new Appli<ServicesNécessairesHélia<ServicesLibp2pTest>>({
+      appli = new Appli<
+        ServicesNécessairesHélia<ServicesLibp2pTest> & {
+          hélia: ServiceHélia<ServicesLibp2pTest>;
+        }
+      >({
         services: {
+          dossier: ServiceDossier,
+          stockage: ServiceStockage,
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia,
-          stockage: ServiceStockage,
         },
         options: {
-          dossier,
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();

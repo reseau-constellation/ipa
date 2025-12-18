@@ -7,17 +7,16 @@ import {
 import { keys } from "@libp2p/crypto";
 import { ServiceAppli } from "../../appli/index.js";
 import { obtenirOptionsLibp2p } from "./config/index.js";
+import type { ServiceDossier } from "../dossier.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type { Libp2p, Libp2pOptions } from "libp2p";
 import type { Identify } from "@libp2p/identify";
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
 import type { PeerUpdate, PrivateKey, ServiceMap } from "@libp2p/interface";
-import type { Appli, OptionsAppli } from "../../appli/index.js";
 import type { ServiceStockage } from "../stockage.js";
 
-import type { ServiceOrbite } from "../orbite/index.js";
-import type { ServiceHélia } from "../hélia.js";
 import type { ServiceClefPrivée } from "./config/utils.js";
+import type { OptionsCommunes } from "../../appli/appli.js";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;
@@ -36,56 +35,39 @@ export interface OptionsServiceLibp2p<
       }) => Promise<Libp2pOptions<L>>);
 }
 
-export type ServicesNécessairesLibp2p<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = {
+export type ServicesNécessairesLibp2p = {
+  dossier: ServiceDossier;
   stockage: ServiceStockage;
-  libp2p: ServiceLibp2p<L>;
 };
 
-export const extraireLibp2pDesOptions = <L extends ServicesLibp2pNébuleuse>(
-  options: OptionsAppli<{
-    orbite: ServiceOrbite<L>;
-    hélia: ServiceHélia<L>;
-    libp2p: ServiceLibp2p<L>;
-  }>,
-): Libp2p<L> | undefined => {
-  const optsServices = options.services;
-  const hélia =
-    optsServices?.orbite?.orbite?.ipfs || optsServices?.hélia?.hélia;
-
-  if (hélia) return hélia.libp2p;
-
-  return isLibp2p(optsServices?.libp2p?.libp2p)
-    ? optsServices?.libp2p?.libp2p
-    : undefined;
+type RetourDémarrageLibp2p<L extends ServicesLibp2pNébuleuse> = {
+  libp2p?: Libp2p<L>;
 };
 
 export class ServiceLibp2p<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<
-  "libp2p",
-  ServicesNécessairesLibp2p<L>,
-  { libp2p?: Libp2p<L> },
+  ServicesNécessairesLibp2p,
+  RetourDémarrageLibp2p<L>,
   OptionsServiceLibp2p<L>
 > {
   constructor({
-    appli,
+    services,
     options,
   }: {
-    appli: Appli<ServicesNécessairesLibp2p<L>>;
-    options?: OptionsServiceLibp2p<L>;
+    services: ServicesNécessairesLibp2p;
+    options: OptionsServiceLibp2p<L> & OptionsCommunes;
   }) {
     super({
       clef: "libp2p",
-      appli,
+      services,
       dépendances: ["stockage"],
       options,
     });
   }
 
-  async démarrer(): Promise<{ libp2p?: Libp2p<L> }> {
-    let libp2p = extraireLibp2pDesOptions<L>(this.appli.options);
+  async démarrer() {
+    let libp2p = this.options.libp2p;
 
     if (!isLibp2p(libp2p)) {
       if (
@@ -98,8 +80,8 @@ export class ServiceLibp2p<
 
       const générateurOptions = this.options.libp2p || obtenirOptionsLibp2p();
 
-      const dossierRacine = await this.appli.dossier();
-      const dossierLibp2p = join(dossierRacine, "libp2p");
+      const dossier = await this.service("dossier").dossier();
+      const dossierLibp2p = join(dossier, "libp2p");
 
       const clefPrivée = await this.obtenirClefPrivée();
 
@@ -141,10 +123,9 @@ export class ServiceLibp2p<
   }
 
   async libp2p(): Promise<Libp2p<L>> {
-    // Si `libp2p` n'est pas défini dans les options, il sera rendu par `this.démarré`
+    // Si `libp2p` n'est pas définie et de type `Libp2p` dans les options, elle sera rendu par `this.démarré`
     return (
-      extraireLibp2pDesOptions(this.appli.options) ||
-      (await this.démarré()).libp2p!
+      isLibp2p(this.options.libp2p) ? this.options.libp2p : (await this.démarré()).libp2p!
     );
   }
 

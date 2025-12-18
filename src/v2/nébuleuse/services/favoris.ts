@@ -152,7 +152,7 @@ export class ServiceFavoris<
 > extends ServiceDonnéesAppli<
   "favoris",
   StructureServiceFavoris,
-  ServicesLibp2pNébuleuse,
+  L,
   ServicesNébuleuse<StructureNébuleuse, L>,
   { oublier: Oublier }
 > {

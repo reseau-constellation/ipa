@@ -3,7 +3,7 @@ import { MotsClefs } from "./motsClefs.js";
 import { Nébuleuse } from "./nébuleuse/nébuleuse.js";
 import { Bds } from "./bds/bds.js";
 import { ServiceFavoris } from "./nébuleuse/services/favoris.js";
-import { ServiceÉpingles } from "./nébuleuse/services/epingles.js";
+import { ServiceÉpingles } from "./nébuleuse/services/épingles.js";
 import { Nuées } from "./nuées/nuées.js";
 import type { Projets } from "./projets.js";
 import type {

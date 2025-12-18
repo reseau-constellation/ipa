@@ -8,14 +8,14 @@ import { toBuffer } from "@constl/utils-ipa";
 import { CID } from "multiformats";
 import { ServiceAppli } from "../appli/index.js";
 import { obtStockageDonnées } from "./utils.js";
-import type { Appli, OptionsAppli } from "../appli/index.js";
+import type { OptionsCommunes } from "../appli/appli.js";
 import type {
+  ServiceLibp2p,
   ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,
 } from "./libp2p/libp2p.js";
 import type { Helia, HeliaInit } from "helia";
 import type { Libp2p } from "libp2p";
-import type { ServiceOrbite } from "./orbite/orbite.js";
 
 export type OptionsServiceHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
@@ -25,54 +25,44 @@ export type OptionsServiceHélia<
 
 export type ServicesNécessairesHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesLibp2p<L> & {
-  hélia: ServiceHélia<L>;
+> = ServicesNécessairesLibp2p & {
+  libp2p: ServiceLibp2p<L>;
 };
 
-export const extraireHéliaDesOptions = <L extends ServicesLibp2pNébuleuse>(
-  options: OptionsAppli<{
-    orbite: ServiceOrbite<L>;
-    hélia: ServiceHélia<L>;
-  }>,
-): Helia<Libp2p<L>> | undefined => {
-  const optionsServices = options.services;
-  if (optionsServices?.orbite?.orbite) {
-    return optionsServices.orbite.orbite.ipfs;
-  } else return optionsServices?.hélia?.hélia;
+type RetourDémarrageHélia<L extends ServicesLibp2pNébuleuse> = {
+  hélia?: Helia<Libp2p<L>>;
 };
 
 export class ServiceHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<
-  "hélia",
   ServicesNécessairesHélia<L>,
-  { hélia?: Helia<Libp2p<L>> },
+  RetourDémarrageHélia<L>,
   OptionsServiceHélia<L>
 > {
   constructor({
-    appli,
+    services,
     options,
   }: {
-    appli: Appli<ServicesNécessairesHélia<L>>;
-    options?: OptionsServiceHélia<L>;
+    services: ServicesNécessairesHélia<L>;
+    options: OptionsServiceHélia<L> & OptionsCommunes;
   }) {
     super({
       clef: "hélia",
-      appli,
-      dépendances: ["libp2p"],
+      services,
+      dépendances: ["libp2p", "dossier"],
       options,
     });
   }
 
-  async démarrer(): Promise<{ hélia?: Helia<Libp2p<L>> }> {
-    let hélia = extraireHéliaDesOptions<L>(this.appli.options);
-    if (!hélia) {
+  async démarrer() {
+    if (!this.options.hélia) {
       const libp2p = await this.service("libp2p").libp2p();
+      const dossier = await this.service("dossier").dossier();
 
-      const dossierRacine = await this.appli.dossier();
-      const dossierHélia = join(dossierRacine, "hélia");
+      const dossierHélia = join(dossier, "hélia");
 
-      hélia = await createHelia(
+      const hélia = await createHelia(
         await obtenirOptionsHélia({ libp2p, dossierHélia }),
       );
       this.estDémarré = { hélia };
@@ -82,10 +72,7 @@ export class ServiceHélia<
 
   async hélia(): Promise<Helia<Libp2p<L>>> {
     // Si `hélia` n'est pas défini dans les options, il sera rendu par `this.démarré`
-    return (
-      extraireHéliaDesOptions(this.appli.options) ||
-      (await this.démarré()).hélia!
-    );
+    return this.options.hélia || (await this.démarré()).hélia!;
   }
 
   async fermer(): Promise<void> {

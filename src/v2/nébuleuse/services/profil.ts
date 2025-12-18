@@ -8,7 +8,7 @@ import { RechercheProfils } from "@/v2/recherche/profils.js";
 import {
   AUCUN_DISPOSITIF,
   TOUS_DISPOSITIFS,
-  résoudreDéfauts
+  résoudreDéfauts,
 } from "@/v2/nébuleuse/services/favoris.js";
 import { ajouterPréfixes, enleverPréfixes } from "@/v2/utils.js";
 import { cacheSuivi } from "../cache.js";
@@ -19,7 +19,8 @@ import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
   ÉpingleFavorisBooléenniséeAvecId,
- ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
+  ÉpingleFavorisAvecId,
+} from "@/v2/nébuleuse/services/favoris.js";
 import type { JSONSchemaType } from "ajv";
 import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import type { Suivi, Oublier } from "../types.js";
