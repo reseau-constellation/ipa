@@ -5,7 +5,7 @@ import { dossierTempo } from "@constl/utils-tests";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
 import { créerConstellation } from "@/v2/index.js";
-import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
+import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/ContrôleurNébuleuse.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
@@ -297,8 +297,8 @@ export const créerConstellationsTest = async ({
   for (const i in [...Array(n).entries()]) {
     const constl = créerConstellation(
       {
-        dossier: path.join(dossier, i),
         services: {
+          dossier: { dossier: path.join(dossier, i) },
           libp2p: {
             libp2p: obtenirOptionsLibp2pTest(),
           },

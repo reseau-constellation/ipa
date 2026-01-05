@@ -4,7 +4,7 @@ import type { DagCborEncodable } from "@orbitdb/core";
 export type TraducsTexte = { [langue: string]: string };
 
 export type PartielRécursif<T> = {
-  [P in keyof T]?: T[P] extends object ? PartielRécursif<T[P]> : T[P];
+  [P in keyof T]-?: T[P] extends object ? PartielRécursif<T[P]> : T[P];
 };
 
 export type RequisRécursif<T> = {

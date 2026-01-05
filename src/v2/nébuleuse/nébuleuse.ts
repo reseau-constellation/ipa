@@ -11,7 +11,7 @@ import { Profil } from "./services/profil.js";
 import { ServiceRéseau } from "./services/réseau.js";
 import { ServiceJournal } from "./services/journal.js";
 import type { ServiceÉpingles } from "./services/épingles.js";
-import type { NestedValueObject } from "@orbitdb/nested-db";
+import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   ConstructeursServicesAppli,
   OptionsAppli,
@@ -70,11 +70,10 @@ export const extraireHéliaEtLibp2p = <
 };
 
 export class Nébuleuse<
-  T extends { [clef: string]: NestedValueObject } = Record<string, never>,
+  T extends { [clef: string]: NestedValue } = Record<string, never>,
   S extends ServicesAppli = Record<string, never>,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends Appli<ServicesNébuleuse<StructureNébuleuse & T, L> & S> {
-
   orbite: ServiceOrbite<L>;
   profil: Profil<L>;
   compte: ServiceCompte<StructureNébuleuse & T, L>;
@@ -85,14 +84,22 @@ export class Nébuleuse<
     services,
     options,
   }: {
-    services?: ConstructeursServicesAppli<S & ServicesDonnées<T, L> & Partial<ServicesNébuleuse<StructureNébuleuse & T, L>>>;
-    options?: Partial<OptionsAppli<S & ServicesNébuleuse<StructureNébuleuse & T, L>>>;
+    services?: ConstructeursServicesAppli<
+      S &
+        ServicesDonnées<T, L> &
+        Partial<ServicesNébuleuse<StructureNébuleuse & T, L>>
+    >;
+    options?: Partial<
+      OptionsAppli<S & ServicesNébuleuse<StructureNébuleuse & T, L>>
+    >;
   } = {}) {
     services =
       services ?? ({} as ConstructeursServicesAppli<S & ServicesDonnées<T, L>>);
     options = options ?? {};
-    const optionsNébuleuse = options as OptionsAppli<ServicesNébuleuse<StructureNébuleuse & T, L>>
-    
+    const optionsNébuleuse = options as OptionsAppli<
+      ServicesNébuleuse<StructureNébuleuse & T, L>
+    >;
+
     const { hélia, libp2p } = extraireHéliaEtLibp2p(optionsNébuleuse.services);
     if (!optionsNébuleuse.services) optionsNébuleuse.services = {};
 

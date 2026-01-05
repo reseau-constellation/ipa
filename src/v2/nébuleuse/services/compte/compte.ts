@@ -35,7 +35,7 @@ import type {
   OptionsContrôleurNébuleuse,
   Rôle,
 } from "./accès/index.js";
-import type { NestedValueObject } from "@orbitdb/nested-db";
+import type { NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 
@@ -58,9 +58,8 @@ const défautsConstsCompte: RequisRécursif<ConstsCompte> = {
   maxTailleImageVisualiser: MAX_TAILLE_IMAGE_VISUALISER,
 };
 
-export type SchémaDeStructureCompte<
-  T extends { [clef: string]: NestedValueObject },
-> = JSONSchemaType<PartielRécursif<T>>;
+export type SchémaDeStructureCompte<T extends { [clef: string]: NestedValue }> =
+  JSONSchemaType<PartielRécursif<T>>;
 export type SchémaCompte<T> =
   T extends ServicesDonnées<infer S, infer _L> ? S : never;
 
@@ -71,7 +70,7 @@ export type ServicesNécessairesCompte<
 };
 
 export const compilerSchémaCompte = <
-  T extends { [clef: string]: NestedValueObject },
+  T extends { [clef: string]: NestedValue },
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 >(
   compte: ServiceCompte<T, L>,
@@ -90,7 +89,7 @@ export const compilerSchémaCompte = <
 };
 
 export type ServicesDonnées<
-  T extends { [clef: string]: NestedValueObject },
+  T extends { [clef: string]: NestedValue },
   L extends ServicesLibp2pNébuleuse,
 > = {
   [clef in Extract<keyof T, "string">]: ServiceDonnéesAppli<clef, T[clef], L>;
@@ -100,15 +99,15 @@ export type ÉvénementsCompte = {
   changementCompte: (args: { idCompte: string }) => void;
 };
 
-type RetourDémarrageCompte<T extends { [clef: string]: NestedValueObject }> = {
+type RetourDémarrageCompte<T extends { [clef: string]: NestedValue }> = {
   idCompte: string;
   bd: TypedNested<T>;
   oublier: Oublier;
 };
 
 export class ServiceCompte<
-  T extends { [clef: string]: NestedValueObject } = {
-    [clef: string]: NestedValueObject;
+  T extends { [clef: string]: NestedValue } = {
+    [clef: string]: NestedValue;
   },
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<
@@ -116,6 +115,8 @@ export class ServiceCompte<
   RetourDémarrageCompte<T>,
   OptionsCompte
 > {
+  clef = "compte";
+
   événements: TypedEmitter<
     {
       démarré: (args: RetourDémarrageCompte<T>) => void;
@@ -130,7 +131,6 @@ export class ServiceCompte<
     options: PartielRécursif<OptionsCompte> & OptionsCommunes;
   }) {
     super({
-      clef: "compte",
       services,
       dépendances: ["orbite", "libp2p", "stockage"],
       options: merge(options, { consts: défautsConstsCompte }),
@@ -149,7 +149,7 @@ export class ServiceCompte<
 
     const bdTypée = typedNested({
       db: bd,
-      schema: compilerSchémaCompte(this),
+      schema: compilerSchémaCompte<T, L>(this),
     });
     this.estDémarré = { idCompte, bd: bdTypée, oublier };
     return await super.démarrer();

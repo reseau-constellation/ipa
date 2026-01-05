@@ -6,7 +6,6 @@ import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "./nébuleuse/services/favoris.js";
-import { mapÀObjet } from "./nébuleuse/utils.js";
 import { RechercheVariables } from "./recherche/variables.js";
 import { ObjetConstellation } from "./objets.js";
 import type { Rôle } from "./nébuleuse/services/compte/accès/index.js";
@@ -181,7 +180,7 @@ export class Variables<
     if (épingler) await this.épingler({ idVariable });
 
     await variable.put("type", "variable");
-    await variable.set("catégorie", standardiserCatégorieVariable(catégorie));
+    await variable.put("catégorie", standardiserCatégorieVariable(catégorie));
 
     await oublier();
     return this.ajouterProtocole(idVariable);
@@ -221,7 +220,7 @@ export class Variables<
   }): Promise<string> {
     const { variable, oublier } = await this.ouvrirVariable({ idVariable });
 
-    const catégorie = mapÀObjet(await variable.get("catégorie"));
+    const catégorie = await variable.get("catégorie");
     if (!catégorie)
       throw new Error("Catégorie manquante pour la variable originale.");
 
@@ -229,14 +228,14 @@ export class Variables<
     const { variable: nouvelleVariable, oublier: oublierNouvelleVariable } =
       await this.ouvrirVariable({ idVariable: idNouvelleVariable });
 
-    const noms = mapÀObjet(await variable.get("noms"));
+    const noms = await variable.get("noms");
     if (noms)
       await this.sauvegarderNoms({
         idVariable: idNouvelleVariable,
         noms,
       });
 
-    const descriptions = mapÀObjet(await variable.get("descriptions"));
+    const descriptions = await variable.get("descriptions");
     if (descriptions)
       await this.sauvegarderDescriptions({
         idVariable: idNouvelleVariable,
@@ -246,7 +245,7 @@ export class Variables<
     const unités = await variable.get("unités");
     if (unités) await nouvelleVariable.put("unités", unités);
 
-    const règles = mapÀObjet(await variable.get("règles"));
+    const règles = await variable.get("règles");
     if (règles) {
       await Promise.allSettled(
         Object.entries(règles).map(async ([id, r]) => {
@@ -259,7 +258,7 @@ export class Variables<
       );
     }
 
-    const statut = mapÀObjet(await variable.get("statut")) || {
+    const statut = (await variable.get("statut")) || {
       statut: "active",
     };
     await this.sauvegarderStatut({
@@ -397,7 +396,7 @@ export class Variables<
     noms,
   }: {
     idVariable: string;
-    noms: { [key: string]: string };
+    noms: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idVariable });
 
@@ -405,9 +404,7 @@ export class Variables<
       idVariable,
     });
 
-    for (const lng in noms) {
-      await variable.set(`noms/${lng}`, noms[lng]);
-    }
+    await variable.insert(`noms`, noms);
 
     await oublier();
   }
@@ -474,9 +471,8 @@ export class Variables<
     const { variable, oublier } = await this.ouvrirVariable({
       idVariable,
     });
-    for (const lng in descriptions) {
-      await variable.set(`descriptions/${lng}`, descriptions[lng]);
-    }
+
+    await variable.insert(`descriptions`, descriptions);
     await oublier();
   }
 
@@ -536,7 +532,7 @@ export class Variables<
     catégorie: CatégorieVariable | CatégorieBaseVariables;
   }): Promise<void> {
     const { variable, oublier } = await this.ouvrirVariable({ idVariable });
-    await variable.put({
+    await variable.insert({
       catégorie: standardiserCatégorieVariable(catégorie),
     });
 
@@ -608,7 +604,7 @@ export class Variables<
     idRègle = idRègle || uuidv4();
 
     const { variable, oublier } = await this.ouvrirVariable({ idVariable });
-    await variable.put({ règles: { idRègle: règle } });
+    await variable.insert({ règles: { idRègle: règle } });
 
     await oublier();
 

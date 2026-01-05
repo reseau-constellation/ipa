@@ -12,11 +12,7 @@ import { SetDb } from "@orbitdb/set-db";
 import { v4 as uuidv4 } from "uuid";
 import { OrderedKeyValue } from "@orbitdb/ordered-keyvalue-db";
 import {
-  typedFeed,
-  typedKeyValue,
   typedNested,
-  typedOrderedKeyValue,
-  typedSet,
 } from "@constl/bohr-db";
 import { anySignal } from "any-signal";
 import Base64 from "crypto-js/enc-base64.js";
@@ -27,7 +23,7 @@ import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../appli/index.js";
 import { réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
-import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
+import { ContrôleurNébuleuse } from "../compte/accès/ContrôleurNébuleuse.js";
 import { mandatOrbite } from "./mandat.js";
 import type { OptionsCommunes } from "../../appli/appli.js";
 import type {
@@ -41,18 +37,13 @@ import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type {
-  DBElements,
-  TypedFeed,
-  TypedKeyValue,
   TypedNested,
-  TypedOrderedKeyValue,
-  TypedSet,
 } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
-import type { NestedDatabaseType, NestedValueObject } from "@orbitdb/nested-db";
+import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { Helia } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2pNébuleuse } from "../libp2p/libp2p.js";
@@ -74,98 +65,10 @@ export type BdsOrbite = {
   set: SetDatabaseType;
 };
 
-export type ContenuBdTypée<T extends keyof BdsOrbite> = T extends
-  | "keyvalue"
-  | "ordered-keyvalue"
-  ? { [clef: string]: DBElements }
-  : T extends "nested"
-    ? NestedValueObject
-    : DBElements;
-
-export type BdTypée<
-  T extends keyof BdsOrbite,
-  S extends ContenuBdTypée<T>,
-> = T extends "feed"
-  ? TypedFeed<S>
-  : T extends "set"
-    ? TypedSet<S>
-    : T extends "keyvalue"
-      ? TypedKeyValue<Extract<S, ContenuBdTypée<T>>>
-      : T extends "ordered-keyvalue"
-        ? TypedOrderedKeyValue<Extract<S, ContenuBdTypée<T>>>
-        : T extends "nested"
-          ? TypedNested<Extract<S, ContenuBdTypée<T>>>
-          : never;
-
-export type SchémaJSON<
-  T extends keyof BdsOrbite,
-  S extends ContenuBdTypée<T>,
-> = JSONSchemaType<
-  T extends "nested"
-    ? PartielRécursif<S>
-    : T extends "keyvalue" | "ordered-keyvalue"
-      ? Partial<S>
-      : S
->;
-
 // https://stackoverflow.com/questions/56863875/typescript-how-do-you-filter-a-types-properties-to-those-of-a-certain-type
 type KeysMatching<T extends object, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
-
-export const typer = <T extends keyof BdsOrbite, S extends ContenuBdTypée<T>>({
-  bd,
-  schéma,
-}: {
-  bd: BdsOrbite[T];
-  schéma: SchémaJSON<T, S>;
-}): BdTypée<T, S> => {
-  let bdTypée: BdTypée<T, S>;
-  switch (bd.type) {
-    case "feed": {
-      bdTypée = typedFeed({
-        db: bd,
-        schema: schéma as JSONSchemaType<S>,
-      }) as BdTypée<T, S>;
-      break;
-    }
-    case "set": {
-      bdTypée = typedSet({
-        db: bd,
-        schema: schéma as JSONSchemaType<S>,
-      }) as BdTypée<T, S>;
-      break;
-    }
-    case "keyvalue": {
-      bdTypée = typedKeyValue({
-        db: bd,
-        schema: schéma as JSONSchemaType<
-          Partial<Extract<S, ContenuBdTypée<"keyvalue">>>
-        >,
-      }) as BdTypée<T, S>;
-      break;
-    }
-    case "ordered-keyvalue": {
-      bdTypée = typedOrderedKeyValue({
-        db: bd,
-        schema: schéma as JSONSchemaType<
-          Partial<Extract<S, ContenuBdTypée<"ordered-keyvalue">>>
-        >,
-      }) as BdTypée<T, S>;
-      break;
-    }
-    case "nested": {
-      bdTypée = typedNested({
-        db: bd,
-        schema: schéma as JSONSchemaType<
-          PartielRécursif<Extract<S, ContenuBdTypée<"nested">>>
-        >,
-      }) as BdTypée<T, S>;
-      break;
-    }
-  }
-  return bdTypée;
-};
 
 export type Signature = {
   signature: string;
@@ -199,6 +102,8 @@ export class ServiceOrbite<
   RetourDémarrageOrbite<L>,
   OptionsServiceOrbite<L>
 > {
+  clef = "orbite";
+
   signaleurArrêt: AbortController;
 
   constructor({
@@ -209,7 +114,6 @@ export class ServiceOrbite<
     options: OptionsServiceOrbite<L> & OptionsCommunes;
   }) {
     super({
-      clef: "orbite",
       services,
       dépendances: ["hélia", "journal"],
       options,
@@ -416,7 +320,7 @@ export class ServiceOrbite<
     };
   }
 
-  async suivreBdEmboîtéeTypée<T extends NestedValueObject>({
+  async suivreBdEmboîtéeTypée<T extends NestedValue>({
     id,
     schéma,
     f,
@@ -442,16 +346,16 @@ export class ServiceOrbite<
     };
   }
 
-  async suivreDonnéesBdEmboîtée<T extends NestedValueObject>({
+  async suivreDonnéesBdEmboîtée<T extends NestedValue>({
     id,
     schéma,
     f,
   }: {
     id: string;
     schéma: JSONSchemaType<PartielRécursif<T>>;
-    f: Suivi<Awaited<ReturnType<TypedNested<T>["all"]>>>;
+    f: Suivi<PartielRécursif<T>>;
   }): Promise<Oublier> {
-    return await this.suivreBdEmboîtéeTypée({
+    return await this.suivreBdEmboîtéeTypée<T>({
       id,
       schéma,
       f: async (bd) => {

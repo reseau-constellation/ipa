@@ -36,7 +36,7 @@ describe.only("Dispositifs", function () {
           dispositifs: ServiceDispositifs,
         },
         options: {
-          dossier,
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();

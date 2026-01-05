@@ -23,25 +23,20 @@ import type {
 } from "./types.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { ServicesConstellation } from "../constellation.js";
-import type { Constellation } from "../index.js";
 import type { InfoAuteur } from "../types.js";
 
 export class Recherche<L extends ServicesLibp2pNébuleuse> {
-  constl: Constellation;
   service: <T extends keyof ServicesConstellation<L>>(
     service: T,
   ) => ServicesConstellation<L>[T];
 
   constructor({
-    constl,
     service,
   }: {
-    constl: Constellation;
     service: <T extends keyof ServicesConstellation<L>>(
       service: T,
     ) => ServicesConstellation<L>[T];
   }) {
-    this.constl = constl;
     this.service = service;
   }
 

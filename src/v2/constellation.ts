@@ -20,22 +20,22 @@ import type {
   ServicesNébuleuse,
   StructureNébuleuse,
 } from "./nébuleuse/nébuleuse.js";
-import type { NestedValueObject } from "@orbitdb/nested-db";
+import type { NestedValue } from "@orbitdb/nested-db";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
   sujetRéseau?: string;
   protocoles?: string[];
-} & OptionsAppli<ServicesConstellation<L>>;
+} & Partial<OptionsAppli<ServicesConstellation<L>>>;
 
 export type ServicesSpécifiquesConstellation<
   L extends ServicesLibp2pNébuleuse,
 > = {
   motsClefs: MotsClefs<L>;
   bds: Bds<L>;
-  favoris: ServiceFavoris;
-  épingles: ServiceÉpingles;
+  favoris: ServiceFavoris<L>;
+  épingles: ServiceÉpingles<L>;
   variables: Variables<L>;
   nuées: Nuées<L>;
   automatisations: Automatisations<L>;
@@ -51,15 +51,15 @@ export type ServicesConstellation<
   ServicesNébuleuse<StructureConstellation<L>, L>;
 
 export class Constellation<
-  T extends { [clef: string]: NestedValueObject } = Record<string, never>,
+  T extends { [clef: string]: NestedValue } = Record<string, never>,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
   S extends ServicesDonnées<T, L> = ServicesDonnées<T, L>,
 > extends Nébuleuse<T, S & ServicesSpécifiquesConstellation<L>, L> {
   bds: Bds<L>;
   motsClefs: MotsClefs<L>;
   nuées: Nuées<L>;
-  favoris: ServiceFavoris;
-  épingles: ServiceÉpingles;
+  favoris: ServiceFavoris<L>;
+  épingles: ServiceÉpingles<L>;
   variables: Variables<L>;
   automatisations: Automatisations<L>;
   projets: Projets<L>;
@@ -72,12 +72,12 @@ export class Constellation<
       services ?? ({} as ConstructeursServicesAppli<ServicesDonnées<T, L>>);
     super({
       services: {
-        bds: Bds,
-        motsClefs: MotsClefs,
-        favoris: ServiceFavoris,
-        épingles: ServiceÉpingles,
-        variables: Variables,
-        nuées: Nuées,
+        bds: Bds<L>,
+        motsClefs: MotsClefs<L>,
+        favoris: ServiceFavoris<L>,
+        épingles: ServiceÉpingles<L>,
+        variables: Variables<L>,
+        nuées: Nuées<L>,
         ...(services || {}),
       } as ConstructeursServicesAppli<S & ServicesSpécifiquesConstellation<L>>,
       options: {

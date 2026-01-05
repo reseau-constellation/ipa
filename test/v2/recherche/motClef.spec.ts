@@ -46,7 +46,7 @@ describe("Rechercher mots-clefs", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idMotClef,
           f: siNonDéfini(),
         }),
@@ -66,7 +66,7 @@ describe("Rechercher mots-clefs", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idMotClef,
           f: siNonDéfini(),
         }),
@@ -77,7 +77,7 @@ describe("Rechercher mots-clefs", function () {
     it("résultat si le mot-clef est presque exacte", async () => {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
-          recherche({ constl, idObjet: idMotClef, f: siDéfini() }),
+          recherche({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
       );
 
       await constl.motsClefs.sauvegarderNoms({
@@ -108,7 +108,7 @@ describe("Rechercher mots-clefs", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idMotClef,
           f: si((x) => x !== undefined && x.score > 0.5),
         }),
@@ -159,7 +159,7 @@ describe("Rechercher mots-clefs", function () {
     it("résultat id détecté", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheId({ constl, idObjet: idMotClef, f: siDéfini() }),
+          rechercheId({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
       );
 
       expect(résultatId).to.deep.equal({
@@ -178,7 +178,7 @@ describe("Rechercher mots-clefs", function () {
     it("résultat nom détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheNom({ constl, idObjet: idMotClef, f: siDéfini() }),
+          rechercheNom({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
       );
 
       await constl.motsClefs.sauvegarderNoms({
@@ -207,7 +207,7 @@ describe("Rechercher mots-clefs", function () {
       const pRésultatDescription = obtenir<
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
-        rechercheDescription({ constl, idObjet: idMotClef, f: siDéfini() }),
+        rechercheDescription({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
       );
 
       await constl.motsClefs.sauvegarderDescriptions({
@@ -236,7 +236,7 @@ describe("Rechercher mots-clefs", function () {
     it("résultat recherche vide", async () => {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheVide({ constl, idObjet: idMotClef, f: siDéfini() }),
+          rechercheVide({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {

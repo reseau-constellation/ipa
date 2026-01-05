@@ -5,7 +5,7 @@ import PQueue from "p-queue";
 import { isValidAddress, type BaseDatabase } from "@orbitdb/core";
 import { ServiceAppli } from "../appli/services.js";
 import { idcEtFichierValide } from "../../utils.js";
-import type { Appli, OptionsCommunes } from "../appli/appli.js";
+import type { OptionsCommunes } from "../appli/appli.js";
 import type { Oublier } from "../types.js";
 import type {
   ServiceOrbite,
@@ -19,15 +19,22 @@ export type ServicesNécessairesÉpingles<L extends ServicesLibp2pNébuleuse> =
 export class ServiceÉpingles<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<ServicesNécessairesÉpingles<L>> {
+  clef = "épingles";
+
   queue: PQueue;
   requêtes: Map<string, Set<string>>;
   bdsOuvertes: Map<string, { bd: BaseDatabase; oublier: Oublier }>;
   idcsÉpinglés: Set<string>;
   signaleurArrêt: AbortController;
 
-  constructor({ services, options }: { services: ServicesNécessairesÉpingles<L>; options: OptionsCommunes }) {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesÉpingles<L>;
+    options: OptionsCommunes;
+  }) {
     super({
-      clef: "épingles",
       services,
       dépendances: ["orbite", "hélia"],
       options,

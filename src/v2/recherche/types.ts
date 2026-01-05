@@ -1,5 +1,5 @@
+import type { ServicesConstellation } from "../constellation.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
-import type { Constellation } from "../index.js";
 
 export interface InfoRésultatTexte {
   type: "texte";
@@ -37,7 +37,7 @@ export interface RésultatRecherche<T extends InfoRésultat = InfoRésultat> {
 
 export type SuivreObjectifRecherche<T extends InfoRésultat = InfoRésultat> =
   (args: {
-    constl: Constellation;
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<T>;
   }) => Promise<Oublier>;

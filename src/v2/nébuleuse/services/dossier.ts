@@ -23,6 +23,8 @@ export class ServiceDossier extends ServiceAppli<
   RetourDémarrageDossier,
   OptionsServiceDossier
 > {
+  clef = "stockage";
+
   constructor({
     services,
     options,
@@ -31,7 +33,6 @@ export class ServiceDossier extends ServiceAppli<
     options: OptionsCommunes;
   }) {
     super({
-      clef: "stockage",
       services,
       options,
     });

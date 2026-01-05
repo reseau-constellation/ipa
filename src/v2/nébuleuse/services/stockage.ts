@@ -107,6 +107,8 @@ export class ServiceStockage extends ServiceAppli<
   ServicesNécessairesStockage,
   RetourDémarrageStockage
 > {
+  clef = "stockage";
+  
   constructor({
     services,
     options,
@@ -115,7 +117,6 @@ export class ServiceStockage extends ServiceAppli<
     options: OptionsCommunes;
   }) {
     super({
-      clef: "stockage",
       dépendances: ["dossier"],
       services,
       options,

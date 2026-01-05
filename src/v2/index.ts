@@ -11,9 +11,10 @@ import type { MandataireConstellation } from "@constl/mandataire";
 export type Constellation = MandataireConstellation<ConstructeurConstellation>;
 
 export const créerConstellation = (
-  opts: OptionsConstellation = {},
+  opts: OptionsConstellation,
   avecMandataire = true,
 ): Constellation => {
+  opts = Object.assign({}, { nomAppli: "constellation", mode: "prod" }, opts)
   if (!avecMandataire) return new ConstructeurConstellation(opts);
   if (isWebWorker) {
     console.warn(

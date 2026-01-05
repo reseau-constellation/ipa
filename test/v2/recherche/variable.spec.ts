@@ -48,7 +48,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idVariable,
           f: siNonDéfini(),
         }),
@@ -68,7 +68,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idVariable,
           f: siNonDéfini(),
         }),
@@ -79,7 +79,7 @@ describe("Rechercher variables", function () {
     it("résultat si la variable est presque exacte", async () => {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
-          recherche({ constl, idObjet: idVariable, f: siDéfini() }),
+          recherche({ services: constl.services, idObjet: idVariable, f: siDéfini() }),
       );
 
       await constl.variables.sauvegarderNoms({
@@ -110,7 +110,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idVariable,
           f: si((x) => x !== undefined && x.score > 0.5),
         }),
@@ -157,7 +157,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idVariable,
           f: siNonDéfini(),
         }),
@@ -178,7 +178,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idVariable,
           f: siNonDéfini(),
         }),
@@ -197,7 +197,7 @@ describe("Rechercher variables", function () {
       const résultat = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siDéfini }) =>
-        recherche({ constl, idObjet: idVariable, f: siDéfini() }),
+        recherche({ services: constl.services, idObjet: idVariable, f: siDéfini() }),
       );
 
       expect(résultat).to.deep.equal({
@@ -226,7 +226,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idVariable,
           f: si((x) => x !== undefined && x.score > 0.5),
         }),
@@ -279,7 +279,7 @@ describe("Rechercher variables", function () {
       const résultatId = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
       >(({ siDéfini }) =>
-        rechercheId({ constl, idObjet: idVariable, f: siDéfini() }),
+        rechercheId({ services: constl.services, idObjet: idVariable, f: siDéfini() }),
       );
       expect(résultatId).to.deep.equal({
         type: "résultat",
@@ -298,7 +298,7 @@ describe("Rechercher variables", function () {
       const résultatNom = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
       >(({ siDéfini }) =>
-        rechercheNom({ constl, idObjet: idVariable, f: siDéfini() }),
+        rechercheNom({ services: constl.services, idObjet: idVariable, f: siDéfini() }),
       );
       expect(résultatNom).to.deep.equal({
         type: "résultat",
@@ -318,7 +318,7 @@ describe("Rechercher variables", function () {
       const pRésultatDescription = obtenir<
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
-        rechercheDescription({ constl, idObjet: idVariable, f: siDéfini() }),
+        rechercheDescription({ services: constl.services, idObjet: idVariable, f: siDéfini() }),
       );
 
       await constl.variables.sauvegarderDescriptions({
@@ -347,7 +347,7 @@ describe("Rechercher variables", function () {
     it("résultat recherche vide", async () => {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheVide({ constl, idObjet: idVariable, f: siDéfini() }),
+          rechercheVide({ services: constl.services, idObjet: idVariable, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {

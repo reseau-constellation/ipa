@@ -12,7 +12,6 @@ import {
 } from "@/v2/nébuleuse/services/favoris.js";
 import { ajouterPréfixes, enleverPréfixes } from "@/v2/utils.js";
 import { cacheSuivi } from "../cache.js";
-import { mapÀObjet } from "../utils.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { nulÀObjetVide } from "./utils.js";
 import type {
@@ -22,7 +21,7 @@ import type {
   ÉpingleFavorisAvecId,
 } from "@/v2/nébuleuse/services/favoris.js";
 import type { JSONSchemaType } from "ajv";
-import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
+import type { Appli, OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 import type { Suivi, Oublier } from "../types.js";
 import type { PartielRécursif, TraducsTexte } from "../../types.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
@@ -122,14 +121,14 @@ export class Profil<
 > {
   recherche: RechercheProfils<L>;
 
-  constructor({ appli }: { appli: Appli<ServicesNécessairesProfil<L>> }) {
+  constructor({ services, options }: { services: ServicesNécessairesProfil<L>; options: OptionsCommunes }) {
     super({
-      appli,
+      services,
       clef: "profil",
       dépendances: ["dispositifs", "orbite", "hélia"],
-      options: {
+      options: Object.assign({}, options, {
         schéma: schémaProfil,
-      },
+      }),
     });
     this.recherche = new RechercheProfils<L>({
       profils: this,
@@ -187,9 +186,7 @@ export class Profil<
 
   async sauvegarderNoms({ noms }: { noms: TraducsTexte }): Promise<void> {
     const bd = await this.bd();
-    for (const [langue, nom] of Object.entries(noms)) {
-      await bd.set(`noms/${langue}`, nom);
-    }
+    await bd.insert(`noms`, noms);
   }
 
   async effacerNom({ langue }: { langue: string }): Promise<void> {
@@ -311,7 +308,7 @@ export class Profil<
     contact?: string;
   }): Promise<void> {
     const bd = await this.bd();
-    const tous = mapÀObjet(await bd.get("contacts"));
+    const tous = await bd.get("contacts");
 
     const àEffacer = Object.entries(tous || {}).filter(
       ([_id, { contact: c, type: t }]) =>

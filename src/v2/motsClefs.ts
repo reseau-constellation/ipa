@@ -1,6 +1,5 @@
 import { faisRien } from "@constl/utils-ipa";
 import { cacheSuivi } from "./nébuleuse/cache.js";
-import { mapÀObjet } from "./nébuleuse/utils.js";
 import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
@@ -8,6 +7,7 @@ import {
 import { schémaTraducsTexte } from "./schémas.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
 import { ObjetConstellation } from "./objets.js";
+import type { OptionsCommunes } from "./nébuleuse/appli/appli.js";
 import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
@@ -16,7 +16,7 @@ import type {
 } from "./nébuleuse/services/favoris.js";
 import type { InfoAuteur, PartielRécursif, TraducsTexte } from "./types.js";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
-import type { Constellation } from "./constellation.js";
+import type { ServicesConstellation } from "./constellation.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
 
@@ -55,16 +55,16 @@ export class MotsClefs<
 
   schémaObjet = schémaMotClef;
 
-  constructor({ appli }: { appli: Constellation }) {
+  constructor({ services, options, }: { services: ServicesConstellation<L>; options: OptionsCommunes; }) {
     super({
       clef: "motsClefs",
-      appli,
+      services,
       dépendances: ["favoris", "réseau", "compte", "orbite"],
+      options,
     });
 
     this.recherche = new RechercheMotsClefs<L>({
       motsClefs: this,
-      constl: this.appli,
       service: (clef) => this.service(clef),
     });
 
@@ -111,10 +111,10 @@ export class MotsClefs<
     const { motClef, oublier } = await this.ouvrirMotClef({ idMotClef });
     const idNouveauMotClef = await this.créerMotClef();
 
-    const noms = mapÀObjet(await motClef.get("noms"));
+    const noms = await motClef.get("noms");
     if (noms) await this.sauvegarderNoms({ idMotClef: idNouveauMotClef, noms });
 
-    const descriptions = mapÀObjet(await motClef.get("descriptions"));
+    const descriptions = await motClef.get("descriptions");
     if (descriptions)
       await this.sauvegarderDescriptions({
         idMotClef: idNouveauMotClef,
@@ -286,7 +286,7 @@ export class MotsClefs<
     });
 
     for (const lng in noms) {
-      await motClef.set(`noms/${lng}`, noms[lng]);
+      await motClef.insert(`noms/${lng}`, noms[lng]);
     }
 
     await oublier();
@@ -307,7 +307,7 @@ export class MotsClefs<
       idMotClef,
     });
 
-    await motClef.set(`noms/${langue}`, nom);
+    await motClef.insert(`noms/${langue}`, nom);
     await oublier();
   }
 
@@ -333,7 +333,7 @@ export class MotsClefs<
     f,
   }: {
     idMotClef: string;
-    f: Suivi<TraducsTexte | undefined>;
+    f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idMotClef,
@@ -354,9 +354,7 @@ export class MotsClefs<
     const { motClef, oublier } = await this.ouvrirMotClef({
       idMotClef,
     });
-    for (const lng in descriptions) {
-      await motClef.set(`descriptions/${lng}`, descriptions[lng]);
-    }
+    await motClef.insert(`descriptions`, descriptions);
     await oublier();
   }
 
@@ -373,7 +371,7 @@ export class MotsClefs<
     const { motClef, oublier } = await this.ouvrirMotClef({
       idMotClef,
     });
-    await motClef.set(`descriptions/${langue}`, description);
+    await motClef.insert(`descriptions/${langue}`, description);
     await oublier();
   }
 
@@ -398,7 +396,7 @@ export class MotsClefs<
     f,
   }: {
     idMotClef: string;
-    f: Suivi<{ [key: string]: string }>;
+    f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idMotClef,

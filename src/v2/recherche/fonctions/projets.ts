@@ -14,6 +14,7 @@ import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "./variables.js";
+import type { ServicesConstellation } from "@/v2/constellation.js";
 import type {
   SuivreObjectifRecherche,
   InfoRésultatTexte,
@@ -21,18 +22,17 @@ import type {
   InfoRésultatRecherche,
   InfoRésultatVide,
 } from "../types.js";
-import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 
 export const rechercherProjetsSelonNom = (
   nomProjet: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -51,7 +51,7 @@ export const rechercherProjetsSelonNom = (
         f();
       }
     };
-    const oublier = await constl.projets.suivreNoms({
+    const oublier = await services.projets.suivreNoms({
       idProjet: idObjet,
       f: fSuivre,
     });
@@ -63,11 +63,11 @@ export const rechercherProjetsSelonDescription = (
   descProjet: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -86,7 +86,7 @@ export const rechercherProjetsSelonDescription = (
         f();
       }
     };
-    const oublier = await constl.projets.suivreDescriptions({
+    const oublier = await services.projets.suivreDescriptions({
       idProjet: idObjet,
       f: fSuivre,
     });
@@ -98,11 +98,11 @@ export const rechercherProjetsSelonIdBd = (
   idBd: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -111,7 +111,7 @@ export const rechercherProjetsSelonIdBd = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.projets.suivreBds({
+      return await services.projets.suivreBds({
         idProjet: idObjet,
         f: fSuivreRacine,
       });
@@ -123,7 +123,7 @@ export const rechercherProjetsSelonIdBd = (
       de: "bd",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -139,11 +139,11 @@ export const rechercherProjetsSelonBd = (
   >
 > => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<
@@ -158,7 +158,7 @@ export const rechercherProjetsSelonBd = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.projets.suivreBds({
+      return await services.projets.suivreBds({
         idProjet: idObjet,
         f: fSuivreRacine,
       });
@@ -170,7 +170,7 @@ export const rechercherProjetsSelonBd = (
       de: "bd",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -180,11 +180,11 @@ export const rechercherProjetsSelonIdVariable = (
   idVariable: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -193,7 +193,7 @@ export const rechercherProjetsSelonIdVariable = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.projets.suivreVariables({
+      return await services.projets.suivreVariables({
         idProjet: idObjet,
         f: fSuivreRacine,
       });
@@ -205,7 +205,7 @@ export const rechercherProjetsSelonIdVariable = (
       de: "variable",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -215,11 +215,11 @@ export const rechercherProjetsSelonNomVariable = (
   nomVariable: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -228,7 +228,7 @@ export const rechercherProjetsSelonNomVariable = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.projets.suivreVariables({
+      return await services.projets.suivreVariables({
         idProjet: idObjet,
         f: fSuivreRacine,
       });
@@ -240,7 +240,7 @@ export const rechercherProjetsSelonNomVariable = (
       de: "variable",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -252,11 +252,11 @@ export const rechercherProjetsSelonVariable = (
   InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
 > => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
@@ -267,7 +267,7 @@ export const rechercherProjetsSelonVariable = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.projets.suivreVariables({
+      return await services.projets.suivreVariables({
         idProjet: idObjet,
         f: fSuivreRacine,
       });
@@ -279,7 +279,7 @@ export const rechercherProjetsSelonVariable = (
       de: "variable",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -289,11 +289,11 @@ export const rechercherProjetsSelonIdMotClef = (
   idMotClef: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -302,7 +302,7 @@ export const rechercherProjetsSelonIdMotClef = (
     }: {
       fSuivreRacine: (motsClefs: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.projets.suivreMotsClefs({
+      return await services.projets.suivreMotsClefs({
         idProjet: idObjet,
         f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.idMotClef)),
       });
@@ -314,7 +314,7 @@ export const rechercherProjetsSelonIdMotClef = (
       de: "motClef",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -324,11 +324,11 @@ export const rechercherProjetsSelonNomMotClef = (
   nomMotClef: string,
 ): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -337,7 +337,7 @@ export const rechercherProjetsSelonNomMotClef = (
     }: {
       fSuivreRacine: (motsClefs: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.projets.suivreMotsClefs({
+      return await services.projets.suivreMotsClefs({
         idProjet: idObjet,
         f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.idMotClef)),
       });
@@ -349,7 +349,7 @@ export const rechercherProjetsSelonNomMotClef = (
       de: "motClef",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -361,11 +361,11 @@ export const rechercherProjetsSelonMotClef = (
   InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
 > => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
@@ -376,7 +376,7 @@ export const rechercherProjetsSelonMotClef = (
     }: {
       fSuivreRacine: (motsClefs: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.projets.suivreMotsClefs({
+      return await services.projets.suivreMotsClefs({
         idProjet: idObjet,
         f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.idMotClef)),
       });
@@ -388,7 +388,7 @@ export const rechercherProjetsSelonMotClef = (
       de: "motClef",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -406,11 +406,11 @@ export const rechercherProjetsSelonTexte = (
   | InfoRésultatVide
 > => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation,
     idObjet: string;
     f: SuiviRecherche<
       | InfoRésultatTexte
@@ -448,7 +448,7 @@ export const rechercherProjetsSelonTexte = (
         id: fRechercherId,
         tous: fRechercherTous,
       },
-      constl,
+      services,
       idObjet,
       fSuivreRecherche: f,
     });

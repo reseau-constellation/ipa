@@ -229,7 +229,7 @@ describe("Utils recherche", function () {
 
     it("résultat détecté", async () => {
       const résultat = await obtenir(({ siDéfini }) =>
-        recherche({ constl, idObjet: "voici mon id", f: siDéfini() }),
+        recherche({ services: constl.services, idObjet: "voici mon id", f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
@@ -263,7 +263,7 @@ describe("Utils recherche", function () {
             abc: rechercheAbc,
             abcdef: rechercheAbcdef,
           },
-          constl,
+          services: constl.services,
           idObjet: "abcdefghij",
           fSuivreRecherche: siDéfini(),
         }),
@@ -304,7 +304,7 @@ describe("Utils recherche", function () {
               return faisRien;
             },
             fRechercher: rechercheId,
-            constl,
+            services: constl.services,
             fSuivreRecherche: siNonDéfini(),
           }),
       );
@@ -321,7 +321,7 @@ describe("Utils recherche", function () {
               return faisRien;
             },
             fRechercher: rechercheId,
-            constl,
+            services: constl.services,
             fSuivreRecherche: siNonDéfini(),
           }),
       );
@@ -356,7 +356,7 @@ describe("Utils recherche", function () {
             return faisRien;
           },
           fRechercher: rechercheId,
-          constl,
+          services: constl.services,
           fSuivreRecherche: si((x) => !!x && x.score > 0.5),
         }),
       );
@@ -389,7 +389,7 @@ describe("Utils recherche", function () {
 
     it("tous ont le même score", async () => {
       const résultat = await obtenir(({ siDéfini }) =>
-        recherche({ constl, idObjet: "abc", f: siDéfini() }),
+        recherche({ services: constl.services, idObjet: "abc", f: siDéfini() }),
       );
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
         type: "résultat",

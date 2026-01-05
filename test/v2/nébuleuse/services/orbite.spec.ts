@@ -14,7 +14,6 @@ import { createHelia } from "helia";
 import { createLibp2p } from "libp2p";
 import { isBrowser } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
-import { toObject } from "@orbitdb/nested-db";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import {
   ServiceLibp2p,
@@ -33,10 +32,10 @@ import { attendreQue } from "../../appli/utils/fonctions.js";
 import { ServiceLibp2pTest } from "./utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { ServicesNécessairesOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
-import type { NestedObjectToMap } from "@orbitdb/nested-db";
 import type { JSONSchemaType } from "ajv";
 import type { BaseDatabase, KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
+import { PartielRécursif } from "@/v2/types.js";
 
 describe.only("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pTest>[];
@@ -349,7 +348,7 @@ describe.only("Service Orbite", function () {
           orbite: ServiceOrbite,
         },
         options: {
-          services: {dossier: { dossier },},
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();
@@ -437,7 +436,7 @@ describe.only("Service Orbite", function () {
       };
 
       let a: number | null | undefined = undefined;
-      const oublierTypée = await orbite.suivreBdEmboîtéeTypée({
+      const oublierTypée = await orbite.suivreBdEmboîtéeTypée<{ a?: number }>({
         id: idBd,
         schéma,
         f: async (bd) => {
@@ -463,21 +462,20 @@ describe.only("Service Orbite", function () {
       await bd.put("a", 2);
       await oublier();
 
-      const schéma: JSONSchemaType<{ a?: number }> = {
+      const schéma: JSONSchemaType<PartielRécursif<{ a: number }>> = {
         type: "object",
-        properties: { a: { type: "number", nullable: true } },
+        properties: { a: { type: "number" } },
       };
 
-      const val = await obtenir<NestedObjectToMap<{ a?: number }>>(
-        ({ siDéfini }) =>
-          orbite.suivreDonnéesBdEmboîtée({
-            id: idBd,
-            schéma,
-            f: siDéfini(),
-          }),
+      const val = await obtenir<{ a?: number | null }>(({ siDéfini }) =>
+        orbite.suivreDonnéesBdEmboîtée({
+          id: idBd,
+          schéma,
+          f: siDéfini(),
+        }),
       );
 
-      expect(toObject(val)).to.deep.equal({ a: 2 });
+      expect(val).to.deep.equal({ a: 2 });
     });
 
     it("effacer bd", async () => {

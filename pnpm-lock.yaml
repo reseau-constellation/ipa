@@ -9,7 +9,7 @@ patchedDependencies:
     hash: a6858f69ff944c62a19bb092a5a212cc6ed808c08acf1934430d6af84472e662
     path: patches/@chainsafe__libp2p-gossipsub@14.1.2.patch
   '@orbitdb/core-types':
-    hash: 6be8b955da474d00f20367e0e07dabb535bc24b093d6f4755b9ccc6730ca9a3c
+    hash: 3ee0c93666d6beca12538cd8544368bd9b55f6606812915851f642e8dd3d31d9
     path: patches/@orbitdb__core-types.patch
   '@orbitdb/core@3.0.2':
     hash: 8ca46dccd32ac285376dfc11f7c75f88cc79d4b06ed86ce8a3af5b8765ef1acd
@@ -41,8 +41,8 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2
       '@constl/bohr-db':
-        specifier: ^1.3.2
-        version: 1.3.2(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+        specifier: ^2.0.0
+        version: 2.0.0(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@constl/mandataire':
         specifier: ^3.1.2
         version: 3.1.2
@@ -125,8 +125,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/nested-db':
-        specifier: ^1.3.6
-        version: 1.3.6(patch_hash=d812526227d5d5168652f178fe974f8674bc78c8d232062744bf2ba4aaf78a51)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+        specifier: ^2.0.4
+        version: 2.0.4(patch_hash=d812526227d5d5168652f178fe974f8674bc78c8d232062744bf2ba4aaf78a51)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/ordered-keyvalue-db':
         specifier: ^1.3.5
         version: 1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
@@ -151,6 +151,9 @@ importers:
       blockstore-idb:
         specifier: ^2.0.4
         version: 2.0.4
+      blurhash:
+        specifier: ^2.0.5
+        version: 2.0.5
       browser-fs-access:
         specifier: ^0.38.0
         version: 0.38.0
@@ -280,7 +283,7 @@ importers:
         version: 2.3.19
       '@orbitdb/core-types':
         specifier: ^1.2.1
-        version: 1.2.1(patch_hash=6be8b955da474d00f20367e0e07dabb535bc24b093d6f4755b9ccc6730ca9a3c)
+        version: 1.2.1(patch_hash=3ee0c93666d6beca12538cd8544368bd9b55f6606812915851f642e8dd3d31d9)
       '@types/crypto-js':
         specifier: ^4.2.2
         version: 4.2.2
@@ -932,8 +935,8 @@ packages:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
 
-  '@constl/bohr-db@1.3.2':
-    resolution: {integrity: sha512-eFK8k91DWCb2NzmK49X2bULrpLbnidzqXQhvEwYSp+bTnjQ/9WTEk0uMskBaHg+uap/Ijv8aYuvNzR83hTRFSQ==}
+  '@constl/bohr-db@2.0.0':
+    resolution: {integrity: sha512-YICUf/CBvxLFLXnImnO6tqV7jv4r9o+Fiuc2/s9wTJOV771mk4rfMcN+wKxnJ5i20ij1XxrZCgix3sNIeOxMHw==}
 
   '@constl/mandataire@3.1.2':
     resolution: {integrity: sha512-L4N87H3ZQy8jYcZ2xxToER/VV2TPNVsbBfCFYtQvTKFHaFh/XGXXJrc0tW0Mr9CLHadaQdqQZvEfKughZmXK+Q==}
@@ -1963,6 +1966,9 @@ packages:
   '@orbitdb/nested-db@1.3.6':
     resolution: {integrity: sha512-bgCtGXNTuioKy7reJ1+CoBoFzmBqBygKiSu8l5uMVBn/CV3UPUPIRyr7i66iTfkTnzlkenQdXfHjys6St7rU2A==}
 
+  '@orbitdb/nested-db@2.0.4':
+    resolution: {integrity: sha512-czP2DPh/AFcodCOKHhqH7yvQ1iFfd0Pbl4h84UYjB4WKTAPWaTODo3LrBg7TDDptu9ALZcjSVye6QU3zqeDPhQ==}
+
   '@orbitdb/ordered-keyvalue-db@1.3.5':
     resolution: {integrity: sha512-Sq2V6BVwcaK0AUACQaeP4o6y/tjGPieT+k3oto8wMvPi1EkSxWvEe2CjIlCmwb9WYIDlfa00N7PEtW8DXtm7cQ==}
 
@@ -2323,6 +2329,9 @@ packages:
 
   '@types/node@24.10.1':
     resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
+
+  '@types/node@24.10.4':
+    resolution: {integrity: sha512-vnDVpYPMzs4wunl27jHrfmwojOGKya0xyM3sH+UE5iv5uPS6vX7UIoh6m+vQc5LGBq52HBKPIn/zcSZVzeDEZg==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -2936,6 +2945,9 @@ packages:
 
   blockstore-idb@2.0.4:
     resolution: {integrity: sha512-UZLuUa4tIrzlLEk6f7Nb1pOFzrpzqG8X7spP9sgQFLOL53KzQSS7+Ro0Trc965Vv00X0Ck5nUjyngbMFu3ElRg==}
+
+  blurhash@2.0.5:
+    resolution: {integrity: sha512-cRygWd7kGBQO3VEhPiTgq4Wc43ctsM+o46urrmPOiuAe+07fzlSB9OJVdpgDL0jPqXUVQ9ht7aq7kxOeJHRK+w==}
 
   bmp-js@0.1.0:
     resolution: {integrity: sha512-vHdS19CnY3hwiNdkaqk93DvjVLfbEcI8mys4UjuWrlX1haDmroo8o4xCzh4wD6DGV6HxRCyauwhHRqMTfERtjw==}
@@ -4851,6 +4863,10 @@ packages:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
     engines: {node: '>= 0.8'}
 
+  http-errors@2.0.1:
+    resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
+    engines: {node: '>= 0.8'}
+
   http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
     engines: {node: '>= 14'}
@@ -6314,6 +6330,9 @@ packages:
   multiformats@13.4.1:
     resolution: {integrity: sha512-VqO6OSvLrFVAYYjgsr8tyv62/rCQhPgsZUXLTqoFLSgdkgiUYKYeArbt1uWLlEpkjxQe+P0+sHlbPEte1Bi06Q==}
 
+  multiformats@13.4.2:
+    resolution: {integrity: sha512-eh6eHCrRi1+POZ3dA+Dq1C6jhP1GNtr9CRINMb67OKzqW9I5DUuZM/3jLPlzhgpGeiNUlEGEbkCYChXMCc/8DQ==}
+
   multimatch@5.0.0:
     resolution: {integrity: sha512-ypMKuglUrZUD99Tk2bUQ+xNQj43lPEfAeX2o9cTteAmShXy2VHDJpuwu1o0xqoKCt9jLVAvwyFKdLTPXKAfJyA==}
     engines: {node: '>=10'}
@@ -7547,8 +7566,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  send@0.19.0:
-    resolution: {integrity: sha512-dW41u5VfLXu8SJh5bwRmyYUbAoSB3c9uQh6L8h/KtsFREPWpbX1lrljJo186Jc4nmci/sGUZ9a0a0J2zgfq2hw==}
+  send@0.19.2:
+    resolution: {integrity: sha512-VMbMxbDeehAxpOtWJXlcUS5E8iXh6QmN+BkRX1GARS3wRaXEEgzCcB10gTQazO42tpNIya8xIyNx8fll1OFPrg==}
     engines: {node: '>= 0.8.0'}
 
   send@1.2.0:
@@ -7566,8 +7585,8 @@ packages:
   serialize-javascript@6.0.2:
     resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
 
-  serve-static@1.16.2:
-    resolution: {integrity: sha512-VqpjJZKadQB/PEbEwvFdO43Ax5dFBZ2UECszz8bQ7pi7wt//PWe1P6MN7eCnjsatYtBT6EuiClbjSWP2WrIoTw==}
+  serve-static@1.16.3:
+    resolution: {integrity: sha512-x0RTqQel6g5SY7Lg6ZreMmsOzncHFU7nhnRWkKgWuMTu5NN0DR5oruckMqRvacAN9d5w6ARnRBXl9xhDCgfMeA==}
     engines: {node: '>= 0.8.0'}
 
   serve-static@2.2.0:
@@ -9356,19 +9375,19 @@ snapshots:
 
   '@colors/colors@1.5.0': {}
 
-  '@constl/bohr-db@1.3.2(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
+  '@constl/bohr-db@2.0.0(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
       '@constl/multi-db': 0.1.0(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/core': 3.0.2(patch_hash=8ca46dccd32ac285376dfc11f7c75f88cc79d4b06ed86ce8a3af5b8765ef1acd)
-      '@orbitdb/core-types': 1.2.1(patch_hash=6be8b955da474d00f20367e0e07dabb535bc24b093d6f4755b9ccc6730ca9a3c)
+      '@orbitdb/core-types': 1.2.1(patch_hash=3ee0c93666d6beca12538cd8544368bd9b55f6606812915851f642e8dd3d31d9)
       '@orbitdb/feed-db': 1.3.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
-      '@orbitdb/nested-db': 1.3.6(patch_hash=d812526227d5d5168652f178fe974f8674bc78c8d232062744bf2ba4aaf78a51)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+      '@orbitdb/nested-db': 2.0.4(patch_hash=d812526227d5d5168652f178fe974f8674bc78c8d232062744bf2ba4aaf78a51)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/ordered-keyvalue-db': 1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/set-db': 2.0.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       ajv: 8.17.1
       events: 3.3.0
       helia: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
-      multiformats: 13.4.1
+      multiformats: 13.4.2
       ts-deepmerge: 7.0.3
       uuid: 11.1.0
     transitivePeerDependencies:
@@ -10164,14 +10183,14 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       jest-mock: 29.7.0
 
   '@jest/fake-timers@29.7.0':
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -10205,7 +10224,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -10942,7 +10961,7 @@ snapshots:
 
   '@opentelemetry/api@1.9.0': {}
 
-  '@orbitdb/core-types@1.2.1(patch_hash=6be8b955da474d00f20367e0e07dabb535bc24b093d6f4755b9ccc6730ca9a3c)': {}
+  '@orbitdb/core-types@1.2.1(patch_hash=3ee0c93666d6beca12538cd8544368bd9b55f6606812915851f642e8dd3d31d9)': {}
 
   '@orbitdb/core@2.5.0':
     dependencies:
@@ -10984,6 +11003,19 @@ snapshots:
       '@orbitdb/ordered-keyvalue-db': 1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       helia: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       it-all: 3.0.9
+    transitivePeerDependencies:
+      - bufferutil
+      - react-native
+      - supports-color
+      - utf-8-validate
+
+  '@orbitdb/nested-db@2.0.4(patch_hash=d812526227d5d5168652f178fe974f8674bc78c8d232062744bf2ba4aaf78a51)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
+    dependencies:
+      '@orbitdb/core': 3.0.2(patch_hash=8ca46dccd32ac285376dfc11f7c75f88cc79d4b06ed86ce8a3af5b8765ef1acd)
+      '@orbitdb/ordered-keyvalue-db': 1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+      helia: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+      it-all: 3.0.9
+      ts-deepmerge: 7.0.3
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -11179,7 +11211,7 @@ snapshots:
       invariant: 2.2.4
       nullthrows: 1.1.1
       open: 7.4.2
-      serve-static: 1.16.2
+      serve-static: 1.16.3
       ws: 6.2.3
     transitivePeerDependencies:
       - bufferutil
@@ -11440,7 +11472,7 @@ snapshots:
 
   '@types/graceful-fs@4.1.9':
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
 
   '@types/hast@3.0.4':
     dependencies:
@@ -11498,6 +11530,10 @@ snapshots:
       undici-types: 6.21.0
 
   '@types/node@24.10.1':
+    dependencies:
+      undici-types: 7.16.0
+
+  '@types/node@24.10.4':
     dependencies:
       undici-types: 7.16.0
 
@@ -11951,9 +11987,9 @@ snapshots:
       strong-log-transformer: 2.1.0
       tempy: 3.1.0
       typedoc: 0.28.14(typescript@5.8.3)
-      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.9.3))
-      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.9.3))
-      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.9.3))
+      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.8.3))
+      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.8.3))
+      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.8.3))
       typescript: 5.8.3
       typescript-docs-verifier: 3.0.1(typescript@5.8.3)
       wherearewe: 2.0.1
@@ -12373,6 +12409,8 @@ snapshots:
       multiformats: 13.4.1
       race-signal: 2.0.0
 
+  blurhash@2.0.5: {}
+
   bmp-js@0.1.0: {}
 
   bn.js@4.12.2: {}
@@ -12693,7 +12731,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -12702,7 +12740,7 @@ snapshots:
 
   chromium-edge-launcher@0.2.0:
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -14856,6 +14894,14 @@ snapshots:
       statuses: 2.0.1
       toidentifier: 1.0.1
 
+  http-errors@2.0.1:
+    dependencies:
+      depd: 2.0.0
+      inherits: 2.0.4
+      setprototypeof: 1.2.0
+      statuses: 2.0.2
+      toidentifier: 1.0.1
+
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.4
@@ -15566,7 +15612,7 @@ snapshots:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
@@ -15576,7 +15622,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@types/graceful-fs': 4.1.9
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -15603,7 +15649,7 @@ snapshots:
   jest-mock@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       jest-util: 29.7.0
 
   jest-regex-util@29.6.3: {}
@@ -15611,7 +15657,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -15628,7 +15674,7 @@ snapshots:
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 24.10.1
+      '@types/node': 24.10.4
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -16789,6 +16835,8 @@ snapshots:
   multiformats@13.3.6: {}
 
   multiformats@13.4.1: {}
+
+  multiformats@13.4.2: {}
 
   multimatch@5.0.0:
     dependencies:
@@ -18176,21 +18224,21 @@ snapshots:
 
   semver@7.7.3: {}
 
-  send@0.19.0:
+  send@0.19.2:
     dependencies:
       debug: 2.6.9
       depd: 2.0.0
       destroy: 1.2.0
-      encodeurl: 1.0.2
+      encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
       fresh: 0.5.2
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       mime: 1.6.0
       ms: 2.1.3
       on-finished: 2.4.1
       range-parser: 1.2.1
-      statuses: 2.0.1
+      statuses: 2.0.2
     transitivePeerDependencies:
       - supports-color
 
@@ -18221,12 +18269,12 @@ snapshots:
     dependencies:
       randombytes: 2.1.0
 
-  serve-static@1.16.2:
+  serve-static@1.16.3:
     dependencies:
       encodeurl: 2.0.0
       escape-html: 1.0.3
       parseurl: 1.3.3
-      send: 0.19.0
+      send: 0.19.2
     transitivePeerDependencies:
       - supports-color
 
@@ -18987,16 +19035,16 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.9.3)):
+  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.8.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.9.3)):
+  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.8.3)):
     dependencies:
       html-escaper: 3.0.3
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.9.3)):
+  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.8.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 

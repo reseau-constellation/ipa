@@ -216,7 +216,7 @@ describe.only("Cache", function () {
           oublier: async () => {
             appelOublié.add(a);
           },
-          n: (n: number) => f(this.fibonnaci(n)),
+          n: async (n: number) => await f(this.fibonnaci(n)),
         };
       }
 
@@ -278,7 +278,7 @@ describe.only("Cache", function () {
           oublier: async () => {
             appelOublié.add(a);
           },
-          n: (n: number) => f(générerDonnées(n)),
+          n: async (n: number) => await f(générerDonnées(n)),
         };
       }
     }

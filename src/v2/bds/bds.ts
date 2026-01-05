@@ -22,7 +22,7 @@ import {
 } from "../nébuleuse/services/favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import { schémaTableau } from "../tableaux.js";
-import { mapÀObjet, stabiliser } from "../nébuleuse/utils.js";
+import { stabiliser } from "../nébuleuse/utils.js";
 import {
   ajouterPréfixes,
   enleverPréfixesEtOrbite,
@@ -32,6 +32,7 @@ import {
 import { RechercheBds } from "../recherche/bds.js";
 import { ObjetConstellation } from "../objets.js";
 import { TableauxBds } from "./tableaux.js";
+import type { OptionsCommunes } from "../nébuleuse/appli/appli.js";
 import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
 import type xlsx from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
@@ -42,7 +43,7 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "../types.js";
-import type { Constellation } from "../constellation.js";
+import type { ServicesConstellation } from "../constellation.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type {
@@ -225,11 +226,12 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
 
   schémaObjet = schémaBd;
 
-  constructor({ appli }: { appli: Constellation }) {
+  constructor({ services, options }: { services: ServicesConstellation<L>; options: OptionsCommunes }) {
     super({
       clef: "bds",
-      appli,
+      services,
       dépendances: ["variables", "motsClefs", "compte", "orbite", "hélia"],
+      options,
     });
 
     this.tableaux = new TableauxBds({
@@ -237,7 +239,6 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     });
     this.recherche = new RechercheBds({
       bds: this,
-      constl: appli,
       service: (clef) => this.service(clef),
     });
 
@@ -283,8 +284,12 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
 
     if (épingler) await this.épingler({ idBd });
 
-    await bdBd.put({ type: "bd", licence, statut: { statut: "active" } });
-    if (licenceContenu) await bdBd.put({ licenceContenu });
+    await bdBd.insert({
+      type: "bd",
+      licence,
+      licenceContenu,
+      statut: { statut: "active" },
+    });
 
     await oublier();
     return this.ajouterProtocole(idBd);
@@ -485,17 +490,17 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
       licenceContenu,
     });
 
-    const métadonnées = mapÀObjet(await bd.get("métadonnées"));
+    const métadonnées = await bd.get("métadonnées");
     if (métadonnées) {
       await this.sauvegarderMétadonnées({ idBd: idNouvelleBd, métadonnées });
     }
 
-    const noms = mapÀObjet(await bd.get("noms"));
+    const noms = await bd.get("noms");
     if (noms) {
       await this.sauvegarderNoms({ idBd: idNouvelleBd, noms });
     }
 
-    const descriptions = mapÀObjet(await bd.get("descriptions"));
+    const descriptions = await bd.get("descriptions");
     if (descriptions) {
       await this.sauvegarderDescriptions({
         idBd: idNouvelleBd,
@@ -507,15 +512,17 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     if (motsClefs)
       await this.ajouterMotsClefs({
         idBd: idNouvelleBd,
-        idsMotsClefs: Object.keys(mapÀObjet(motsClefs)!),
+        idsMotsClefs: Object.keys(motsClefs),
       });
 
-    const nuées = Object.keys(mapÀObjet(await bd.get("nuées")) || {}) || [];
-    for (const idNuée of nuées) {
-      await this.rejoindreNuée({
-        idBd: idNouvelleBd,
-        idNuée,
-      });
+    const nuées = await bd.get("nuées");
+    if (nuées) {
+      for (const idNuée of Object.keys(nuées)) {
+        await this.rejoindreNuée({
+          idBd: idNouvelleBd,
+          idNuée,
+        });
+      }
     }
 
     const tableaux = await uneFois<string[]>((f) =>
@@ -534,7 +541,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     if (statut)
       await this.sauvegarderStatut({
         idBd: idNouvelleBd,
-        statut: mapÀObjet(statut)!,
+        statut,
       });
 
     const { bd: nouvelleBd, oublier: oublierNouvelle } = await this.ouvrirBd({
@@ -556,7 +563,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     f,
   }: {
     idBd: string;
-    f: Suivi<{ id: string } | undefined>;
+    f: Suivi<{ id?: string } | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idBd,
@@ -793,7 +800,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
 
     const { bd, oublier } = await this.ouvrirBd({ idBd });
 
-    await bd.put("noms", noms);
+    await bd.insert("noms", noms);
     await oublier();
   }
 
@@ -853,7 +860,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     await this.confirmerPermission({ idBd });
 
     const { bd, oublier } = await this.ouvrirBd({ idBd });
-    await bd.put("descriptions", descriptions);
+    await bd.insert("descriptions", descriptions);
     await oublier();
   }
 
@@ -977,7 +984,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
 
     const { bd, oublier } = await this.ouvrirBd({ idBd });
 
-    await bd.put("métadonnées", métadonnées);
+    await bd.insert("métadonnées", métadonnées);
     await oublier();
   }
 

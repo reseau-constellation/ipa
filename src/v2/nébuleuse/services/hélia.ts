@@ -20,7 +20,7 @@ import type { Libp2p } from "libp2p";
 export type OptionsServiceHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
-  hélia: Helia<Libp2p<L>>;
+  hélia?: Helia<Libp2p<L>>;
 };
 
 export type ServicesNécessairesHélia<
@@ -40,6 +40,8 @@ export class ServiceHélia<
   RetourDémarrageHélia<L>,
   OptionsServiceHélia<L>
 > {
+  clef = "hélia";
+
   constructor({
     services,
     options,
@@ -48,7 +50,6 @@ export class ServiceHélia<
     options: OptionsServiceHélia<L> & OptionsCommunes;
   }) {
     super({
-      clef: "hélia",
       services,
       dépendances: ["libp2p", "dossier"],
       options,

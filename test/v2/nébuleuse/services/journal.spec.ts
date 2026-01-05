@@ -52,7 +52,6 @@ describe.only("Journal", function () {
   describe("fonction personnalisée", function () {
     let appli: Appli<{ journal: ServiceJournal }>;
     let journal: ServiceJournal;
-    let effacer: () => void;
 
     let val = "";
 
@@ -77,7 +76,6 @@ describe.only("Journal", function () {
 
     after(async () => {
       await appli.fermer();
-      effacer();
     });
 
     it("écrire valeur", async () => {

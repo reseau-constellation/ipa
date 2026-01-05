@@ -17,6 +17,8 @@ export class ServiceJournal extends ServiceAppli<
   RetourDémarrageJournal,
   OptionsServiceJournal
 > {
+  clef = "journal";
+  
   queue: PQueue;
 
   constructor({
@@ -24,10 +26,9 @@ export class ServiceJournal extends ServiceAppli<
     options,
   }: {
     services: ServicesAppli;
-    options: OptionsServiceJournal & OptionsCommunes;
+    options: Partial<OptionsServiceJournal> & OptionsCommunes;
   }) {
     super({
-      clef: "journal",
       services,
       options: Object.assign({ f: console.log }, options),
     });

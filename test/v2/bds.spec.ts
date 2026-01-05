@@ -1909,13 +1909,13 @@ describe("BDs", function () {
         éléments,
       });
 
-      const dossierOriginal = await constlTestRéouverture.dossier();
+      const dossierOriginal = await constlTestRéouverture.services["dossier"].dossier();
 
       await constlTestRéouverture.fermer();
 
       const constlRéouverte = créerConstellation({
-        dossier: dossierOriginal,
         services: {
+          dossier: { dossier: dossierOriginal },
           libp2p: {
             libp2p: obtenirOptionsLibp2pTest(),
           },

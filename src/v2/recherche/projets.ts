@@ -16,7 +16,6 @@ import {
   rechercherProjetsSelonVariable,
 } from "./fonctions/projets.js";
 import type { InfoAuteur } from "../types.js";
-import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
@@ -37,16 +36,14 @@ export class RechercheProjets<
 
   constructor({
     projets,
-    constl,
     service,
   }: {
     projets: Projets<L>;
-    constl: Constellation;
     service: <T extends keyof ServicesConstellation<L>>(
       service: T,
     ) => ServicesConstellation<L>[T];
   }) {
-    super({ constl, service });
+    super({ service });
     this.projets = projets;
   }
 

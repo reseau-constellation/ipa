@@ -6,12 +6,12 @@ type ÉvénementsServiceAppli<Démarré = true> = {
   démarré: (args: Démarré) => void;
 };
 
-export class ServiceAppli<
+export abstract class ServiceAppli<
   S extends ServicesAppli = ServicesAppli,
   RetourDémarré = unknown,
   Options = unknown,
 > {
-  clef: string;
+  abstract clef: string;
   services: S;
   dépendances: Extract<keyof S, string>[];
   options: Options & OptionsCommunes;
@@ -21,17 +21,14 @@ export class ServiceAppli<
   estDémarré: RetourDémarré | false;
 
   constructor({
-    clef,
     services,
     dépendances = [],
     options,
   }: {
-    clef: string;
     services: S;
     dépendances?: Extract<keyof S, string>[];
     options: Options & OptionsCommunes;
   }) {
-    this.clef = clef;
     this.dépendances = dépendances;
     this.services = services;
     this.options = options;

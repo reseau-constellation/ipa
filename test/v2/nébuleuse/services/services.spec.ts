@@ -2,14 +2,17 @@ import { expect } from "aegir/chai";
 import { créerOrbitesTest } from "@constl/utils-tests";
 import { typedNested } from "@constl/bohr-db";
 import { v4 as uuidv4 } from "uuid";
-import { validerOptionsServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import { extraireHéliaEtLibp2p } from "@/v2/nébuleuse/nébuleuse.js";
 import {
   ServiceDonnéesAppli,
   brancheBd,
 } from "@/v2/nébuleuse/services/services.js";
-import { mapÀObjet } from "@/v2/nébuleuse/utils.js";
 import { créerNébuleusesTest } from "../utils.js";
 import { obtenir } from "../../utils.js";
+import type { NébuleuseTest} from "../utils.js";
+import type {
+  ServicesNécessairesDonnées} from "@/v2/nébuleuse/services/services.js";
+import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { Helia } from "helia";
 import type { Libp2p } from "libp2p";
@@ -18,11 +21,8 @@ import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { NestedDatabaseType } from "@orbitdb/nested-db";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import type { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { PartielRécursif } from "@/v2/types.js";
-import type { Appli } from "@/v2/nébuleuse/appli/index.js";
-import type { ServicesNécessairesCompte } from "@/v2/nébuleuse/services/compte/index.js";
 
 const ERREUR_DUPLIQUÉS =
   "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
@@ -48,58 +48,55 @@ describe.only("Services Nébuleuse", function () {
     });
 
     it("orbite", () => {
-      validerOptionsServicesNébuleuse({
-        services: {
+      const { libp2p: libp2pRésolue, hélia: héliaRésolue } =
+        extraireHéliaEtLibp2p({
           orbite: { orbite },
-        },
-      });
+        });
+      expect(libp2pRésolue).to.equal(libp2p);
+      expect(héliaRésolue).to.equal(hélia);
     });
 
     it("hélia", () => {
-      validerOptionsServicesNébuleuse({
-        services: {
+      const { libp2p: libp2pRésolue, hélia: héliaRésolue } =
+        extraireHéliaEtLibp2p({
           hélia: { hélia },
-        },
-      });
+        });
+      expect(libp2pRésolue).to.equal(libp2p);
+      expect(héliaRésolue).to.equal(hélia);
     });
 
     it("libp2p", () => {
-      validerOptionsServicesNébuleuse({
-        services: {
+      const { libp2p: libp2pRésolue, hélia: héliaRésolue } =
+        extraireHéliaEtLibp2p({
           libp2p: { libp2p },
-        },
-      });
+        });
+      expect(libp2pRésolue).to.equal(libp2p);
+      expect(héliaRésolue).to.be.undefined();
     });
 
     it("erreur si dédoublement hélia + libp2p", () => {
       expect(() =>
-        validerOptionsServicesNébuleuse({
-          services: {
-            libp2p: { libp2p },
-            hélia: { hélia },
-          },
+        extraireHéliaEtLibp2p({
+          libp2p: { libp2p },
+          hélia: { hélia },
         }),
       ).to.throw(ERREUR_DUPLIQUÉS);
     });
 
     it("erreur si dédoublement orbite + libp2p", () => {
       expect(() =>
-        validerOptionsServicesNébuleuse({
-          services: {
-            libp2p: { libp2p },
-            orbite: { orbite },
-          },
+        extraireHéliaEtLibp2p({
+          libp2p: { libp2p },
+          orbite: { orbite },
         }),
       ).to.throw(ERREUR_DUPLIQUÉS);
     });
 
     it("erreur si dédoublement hélia + orbite", () => {
       expect(() =>
-        validerOptionsServicesNébuleuse({
-          services: {
-            orbite: { orbite },
-            hélia: { hélia },
-          },
+        extraireHéliaEtLibp2p({
+          orbite: { orbite },
+          hélia: { hélia },
         }),
       ).to.throw(ERREUR_DUPLIQUÉS);
     });
@@ -111,7 +108,8 @@ describe.only("Services Nébuleuse", function () {
       let orbites: OrbitDB[];
       let fermer: Oublier;
 
-      type Structure = { a: string; b: { c: number; d: number } };
+      type StructureB = { c: number; d: number; e: { f: number; g: number } };
+      type Structure = { a: string; b: StructureB };
       let bd: TypedNested<Structure>;
 
       const schéma: JSONSchemaType<PartielRécursif<Structure>> = {
@@ -123,6 +121,15 @@ describe.only("Services Nébuleuse", function () {
             properties: {
               c: { type: "number", nullable: true },
               d: { type: "number", nullable: true },
+              e: {
+                type: "object",
+                properties: {
+                  f: { type: "number", nullable: true },
+                  g: { type: "number", nullable: true },
+                },
+                nullable: true,
+                required: [],
+              },
             },
             nullable: true,
             required: [],
@@ -147,12 +154,12 @@ describe.only("Services Nébuleuse", function () {
       });
 
       it("`set` et `get`", async () => {
-        const branche = brancheBd({ bd, clef: "b" });
+        const branche = brancheBd<StructureB, "b">({ bd, clef: "b" });
 
         await branche.set("c", 3);
 
         const valRacine = await bd.get("b");
-        expect(mapÀObjet(valRacine)).to.deep.equal({ c: 3 });
+        expect(valRacine).to.deep.equal({ c: 3 });
 
         const valBranche = await branche.get("c");
         expect(valBranche).to.equal(3);
@@ -162,23 +169,22 @@ describe.only("Services Nébuleuse", function () {
       });
 
       it(`all`, async () => {
-        const branche = brancheBd({ bd, clef: "b" });
+        const branche = brancheBd<StructureB, "b">({ bd, clef: "b" });
 
         await branche.set("c", 1);
         await branche.set("d", 2);
         const val = await branche.all();
-        expect(mapÀObjet(val)).to.deep.equal({ c: 1, d: 2 });
+        expect(val).to.deep.equal({ c: 1, d: 2 });
       });
 
-      it(`move`, async () => {
-        const branche = brancheBd({ bd, clef: "b" });
+      it(`insert`, async () => {
+        const branche = brancheBd<StructureB, "b">({ bd, clef: "b" });
 
-        await branche.set("c", 1);
-        await branche.set("d", 2);
-        await branche.move("c", 1);
+        await branche.insert("e", { f: 1 });
+        await branche.insert("e", { g: 2 });
 
         const val = await branche.all();
-        expect([...val.keys()]).to.deep.equal(["d", "c"]);
+        expect(val).to.deep.equal({ e: { f: 1, g: 2 } });
       });
     });
 
@@ -190,7 +196,28 @@ describe.only("Services Nébuleuse", function () {
         B: StructureB;
       };
 
-      let nébuleuse: Nébuleuse<
+      const schémaStructureA: JSONSchemaType<PartielRécursif<StructureA>> = {
+        type: "object",
+        properties: {
+          a: { type: "number", nullable: true },
+        },
+      };
+
+      const schémaStructureB: JSONSchemaType<PartielRécursif<StructureB>> = {
+        type: "object",
+        properties: {
+          b: {
+            type: "object",
+            nullable: true,
+            properties: {
+              c: { type: "number", nullable: true },
+              d: { type: "number", nullable: true },
+            },
+          },
+        },
+      };
+
+      let nébuleuse: NébuleuseTest<
         Structure,
         { A: ServiceDonnéesTestA; B: ServiceDonnéesTestB }
       >;
@@ -198,47 +225,43 @@ describe.only("Services Nébuleuse", function () {
 
       class ServiceDonnéesTestA extends ServiceDonnéesAppli<"A", StructureA> {
         constructor({
-          appli,
+          services,
+          options,
         }: {
-          appli: Appli<ServicesNécessairesCompte<ServicesLibp2pTest>>;
+          services: ServicesNécessairesDonnées<
+            { A: StructureA },
+            ServicesLibp2pTest
+          >;
+          options: OptionsCommunes;
         }) {
+          const optionsService = {
+            ...options,
+            schéma: schémaStructureA,
+          };
           super({
             clef: "A",
-            appli,
-            options: {
-              schéma: {
-                type: "object",
-                properties: {
-                  a: { type: "number", nullable: true },
-                },
-              },
-            },
+            services,
+            options: optionsService,
           });
         }
       }
       class ServiceDonnéesTestB extends ServiceDonnéesAppli<"B", StructureB> {
         constructor({
-          appli,
+          services,
+          options,
         }: {
-          appli: Appli<ServicesNécessairesCompte<ServicesLibp2pTest>>;
+          services: ServicesNécessairesDonnées<
+            { B: StructureB },
+            ServicesLibp2pTest
+          >;
+          options: OptionsCommunes;
         }) {
           super({
             clef: "B",
-            appli,
+            services,
             options: {
-              schéma: {
-                type: "object",
-                properties: {
-                  b: {
-                    type: "object",
-                    nullable: true,
-                    properties: {
-                      c: { type: "number", nullable: true },
-                      d: { type: "number", nullable: true },
-                    },
-                  },
-                },
-              },
+              ...options,
+              schéma: schémaStructureB,
             },
           });
         }

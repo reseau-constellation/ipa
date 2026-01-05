@@ -2,11 +2,11 @@ import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import plateforme from "platform";
 import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
+import type { ServicesNécessairesDonnées } from "./services.js";
 import type { JSONSchemaType } from "ajv";
-import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Suivi } from "../types.js";
-import type { ServicesNécessairesCompte } from "./compte/compte.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 
 export type StructureDispositifs = {
@@ -37,21 +37,22 @@ export const schémaDispositifs: JSONSchemaType<
 
 export type ServicesNécessairesDispositifs<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesCompte<L> & {
+> = ServicesNécessairesDonnées<L> & {
   dispositifs: ServiceDispositifs<L>;
 };
 
 export class ServiceDispositifs<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceDonnéesAppli<"dispositifs", StructureDispositifs, L> {
-  constructor({ appli }: { appli: Appli<ServicesNécessairesDispositifs<L>> }) {
+  clef = "dispositifs";
+  
+  constructor({ services, options }: { services: ServicesNécessairesDispositifs<L>; options: OptionsCommunes }) {
     super({
-      clef: "dispositifs",
-      appli,
+      services,
       dépendances: ["compte"],
-      options: {
+      options: Object.assign({}, {
         schéma: schémaDispositifs,
-      },
+      }, options),
     });
   }
 

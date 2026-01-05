@@ -27,7 +27,7 @@ export type ServicesLibp2pNébuleuse = {
 export interface OptionsServiceLibp2p<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > {
-  libp2p:
+  libp2p?:
     | Libp2p<L>
     | ((args: {
         dossier: string;
@@ -51,6 +51,8 @@ export class ServiceLibp2p<
   RetourDémarrageLibp2p<L>,
   OptionsServiceLibp2p<L>
 > {
+  clef = "libp2p";
+
   constructor({
     services,
     options,
@@ -59,7 +61,6 @@ export class ServiceLibp2p<
     options: OptionsServiceLibp2p<L> & OptionsCommunes;
   }) {
     super({
-      clef: "libp2p",
       services,
       dépendances: ["stockage"],
       options,
@@ -124,9 +125,9 @@ export class ServiceLibp2p<
 
   async libp2p(): Promise<Libp2p<L>> {
     // Si `libp2p` n'est pas définie et de type `Libp2p` dans les options, elle sera rendu par `this.démarré`
-    return (
-      isLibp2p(this.options.libp2p) ? this.options.libp2p : (await this.démarré()).libp2p!
-    );
+    return isLibp2p(this.options.libp2p)
+      ? this.options.libp2p
+      : (await this.démarré()).libp2p!;
   }
 
   async obtenirClefPrivée(): Promise<PrivateKey | undefined> {

@@ -17,7 +17,6 @@ import type { Bds } from "../bds/bds.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
-import type { Constellation } from "../index.js";
 import type {
   RésultatRecherche,
   InfoRésultatTexte,
@@ -35,16 +34,14 @@ export class RechercheBds<
 
   constructor({
     bds,
-    constl,
     service,
   }: {
     bds: Bds<L>;
-    constl: Constellation;
     service: <T extends keyof ServicesConstellation<L>>(
       service: T,
     ) => ServicesConstellation<L>[T];
   }) {
-    super({ constl, service });
+    super({ service });
     this.bds = bds;
   }
 

@@ -10,16 +10,18 @@ import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import { dossierTempoPropre } from "../utils.js";
 import { NébuleuseTest } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
-import type { OptionsCommunes, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type {
+  OptionsCommunes,
+  ServicesAppli,
+} from "@/v2/nébuleuse/appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { Helia } from "helia";
-import type { Libp2p} from "libp2p";
+import type { Libp2p } from "libp2p";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "@/v2/types.js";
 
 describe.only("Nébuleuse", function () {
-
   describe("options - extraire libp2p et Hélia", function () {
     let orbite: OrbitDB<ServicesLibp2pNébuleuse>;
     let hélia: Helia<Libp2p<ServicesLibp2pNébuleuse>>;
@@ -39,14 +41,14 @@ describe.only("Nébuleuse", function () {
 
     it("extraire Hélia - Orbite", () => {
       const { hélia: héliaExtraite } = extraireHéliaEtLibp2p({
-          orbite: { orbite },
+        orbite: { orbite },
       });
       expect(héliaExtraite).to.equal(hélia);
     });
 
     it("extraire Hélia - Hélia", () => {
       const { hélia: héliaExtraite } = extraireHéliaEtLibp2p({
-          hélia: { hélia },
+        hélia: { hélia },
       });
       expect(héliaExtraite).to.equal(hélia);
     });
@@ -58,21 +60,21 @@ describe.only("Nébuleuse", function () {
 
     it("extraire Libp2p - Orbite", () => {
       const { libp2p: libp2pExtrait } = extraireHéliaEtLibp2p({
-          orbite: { orbite },
+        orbite: { orbite },
       });
       expect(isLibp2p(libp2pExtrait)).to.be.true();
     });
 
     it("extraire Libp2p - Hélia", () => {
       const { libp2p: libp2pExtrait } = extraireHéliaEtLibp2p({
-          hélia: { hélia },
+        hélia: { hélia },
       });
       expect(isLibp2p(libp2pExtrait)).to.be.true();
     });
 
     it("extraire Libp2p - Libp2p", () => {
       const { libp2p: libp2pExtrait } = extraireHéliaEtLibp2p({
-          libp2p: { libp2p },
+        libp2p: { libp2p },
       });
       expect(isLibp2p(libp2pExtrait)).to.be.true();
     });
@@ -81,7 +83,6 @@ describe.only("Nébuleuse", function () {
       const { libp2p: libp2pExtrait } = extraireHéliaEtLibp2p({});
       expect(libp2pExtrait).to.be.undefined();
     });
-
   });
 
   describe("création", function () {
@@ -99,7 +100,10 @@ describe.only("Nébuleuse", function () {
     });
 
     it("démarrage", async () => {
-      nébuleuse = new NébuleuseTest({ options: { services: {dossier: {dossier}} }, services: {} });
+      nébuleuse = new NébuleuseTest({
+        options: { services: { dossier: { dossier } } },
+        services: {},
+      });
 
       await nébuleuse.démarrer();
       expect(Object.values(nébuleuse.services).every((s) => s.estDémarré));
@@ -128,7 +132,7 @@ describe.only("Nébuleuse", function () {
       }
     }
 
-    const schémaTest1: JSONSchemaType<PartielRécursif<{a: number}>> = {
+    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> = {
       type: "object",
       properties: { a: { type: "number", nullable: true } },
       nullable: true,
@@ -139,20 +143,24 @@ describe.only("Nébuleuse", function () {
         services,
         options,
       }: {
-        services: ServicesNécessairesDonnées<{ a: number }, ServicesLibp2pTest>;
-        options: OptionsCommunes,
+        services: ServicesNécessairesDonnées<
+          { test1: { a: number } },
+          ServicesLibp2pTest
+        >;
+        options: OptionsCommunes;
       }) {
+        const optionsService = Object.assign({}, options, {
+          schéma: schémaTest1,
+        });
         super({
           clef: "test1",
           services,
-          options: Object.assign({}, options, {
-            schéma: schémaTest1,
-          }),
+          options: optionsService,
         });
       }
     }
 
-    const schémaTest2: JSONSchemaType<PartielRécursif<{b: number}>> = {
+    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> = {
       type: "object",
       properties: { b: { type: "number", nullable: true } },
       nullable: true,
@@ -163,15 +171,19 @@ describe.only("Nébuleuse", function () {
         services,
         options,
       }: {
-        services: ServicesNécessairesDonnées<{ b: number }, ServicesLibp2pTest>;
-        options: OptionsCommunes,
+        services: ServicesNécessairesDonnées<
+          { test2: { b: number } },
+          ServicesLibp2pTest
+        >;
+        options: OptionsCommunes;
       }) {
+        const optionsService = Object.assign({}, options, {
+          schéma: schémaTest2,
+        });
         super({
           clef: "test2",
           services,
-          options: Object.assign({}, options, {
-            schéma: schémaTest2,
-          }),
+          options: optionsService,
         });
       }
     }
@@ -219,7 +231,6 @@ describe.only("Nébuleuse", function () {
 
       expect(serviceTest1).to.exist();
     });
-
   });
 
   describe("concurrence ouverture", function () {
@@ -242,10 +253,16 @@ describe.only("Nébuleuse", function () {
     });
 
     it("erreur pour la deuxième instance", async () => {
-      nébuleuse = new NébuleuseTest({ services: {}, options: { services: { dossier: { dossier }} } });
+      nébuleuse = new NébuleuseTest({
+        services: {},
+        options: { services: { dossier: { dossier } } },
+      });
       await nébuleuse.démarrer();
 
-      nébuleuse2 = new NébuleuseTest({ services: {}, options: { services: { dossier: { dossier }} } });
+      nébuleuse2 = new NébuleuseTest({
+        services: {},
+        options: { services: { dossier: { dossier } } },
+      });
       await expect(nébuleuse2.démarrer()).to.be.rejectedWith(
         `Le compte sur ${dossier} est déjà ouvert`,
       );
@@ -253,25 +270,37 @@ describe.only("Nébuleuse", function () {
 
     it("message verrou", async () => {
       {
-        nébuleuse = new NébuleuseTest({ services: {}, options: { services: { dossier: { dossier } } } });
+        nébuleuse = new NébuleuseTest({
+          services: {},
+          options: { services: { dossier: { dossier } } },
+        });
         await nébuleuse.démarrer();
 
         const message = "Un message du processus initial.";
         await nébuleuse.services["dossier"].spécifierMessageVerrou({ message });
 
-        nébuleuse2 = new NébuleuseTest({ services: {}, options: { services: { dossier: { dossier }} } });
+        nébuleuse2 = new NébuleuseTest({
+          services: {},
+          options: { services: { dossier: { dossier } } },
+        });
         await expect(nébuleuse2.démarrer()).to.be.rejectedWith(message);
       }
     });
 
     it("réouverture après fermeture", async () => {
-      nébuleuse = new NébuleuseTest({ services: {}, options: { services: { dossier: { dossier } } } });
+      nébuleuse = new NébuleuseTest({
+        services: {},
+        options: { services: { dossier: { dossier } } },
+      });
       await nébuleuse.démarrer();
 
       const idCompte = await nébuleuse.compte.obtIdCompte();
       await nébuleuse.fermer();
 
-      nébuleuse = new NébuleuseTest({ services: {}, options: { services: { dossier: { dossier } } } });
+      nébuleuse = new NébuleuseTest({
+        services: {},
+        options: { services: { dossier: { dossier } } },
+      });
       await nébuleuse.démarrer();
 
       expect(await nébuleuse.compte.obtIdCompte()).to.equal(idCompte);
@@ -282,7 +311,10 @@ describe.only("Nébuleuse", function () {
       writeFileSync(join(dossier, FICHIER_VERROU), "");
 
       // On peut démarrer malgré tout
-      nébuleuse = new NébuleuseTest({ services: {}, options: { services: { dossier: { dossier } } } });
+      nébuleuse = new NébuleuseTest({
+        services: {},
+        options: { services: { dossier: { dossier } } },
+      });
       await nébuleuse.démarrer();
 
       const idCompte = await nébuleuse.compte.obtIdCompte();
@@ -326,7 +358,7 @@ describe.only("Nébuleuse", function () {
       ({ dossier, effacer } = await dossierTempoPropre());
       nébuleuse = new NébuleuseTest({
         services: {},
-        options: { services: { dossier: { dossier }} },
+        options: { services: { dossier: { dossier } } },
       });
       await nébuleuse.démarrer();
       idCompte = await nébuleuse.services["compte"].obtIdCompte();

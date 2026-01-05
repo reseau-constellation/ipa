@@ -10,9 +10,7 @@ import { isBrowser } from "wherearewe";
 import { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
 import { ServiceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import {
-  ServiceHélia,
-} from "@/v2/nébuleuse/services/hélia.js";
+import { ServiceHélia } from "@/v2/nébuleuse/services/hélia.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { ServiceStockage } from "@/v2/nébuleuse/index.js";
 import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
@@ -48,7 +46,7 @@ describe.only("Service Hélia", function () {
           hélia: ServiceHélia,
         },
         options: {
-          services: {dossier: {dossier}},
+          services: { dossier: { dossier } },
         },
       });
       await appli.démarrer();

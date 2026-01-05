@@ -15,11 +15,10 @@ import { utils } from "xlsx";
 import { எண்ணிக்கை as எண்ணிக்கை_வகை } from "ennikkai";
 import { isElectronMain, isNode } from "wherearewe";
 import axios from "axios";
+import { typedNested, type TypedNested } from "@constl/bohr-db";
 import { cholqij } from "@/dates.js";
 import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
-import { mapÀObjet } from "../nébuleuse/utils.js";
-import { typer } from "../nébuleuse/services/orbite/orbite.js";
 import {
   idcEtFichierValide,
   justeDéfinis,
@@ -27,9 +26,7 @@ import {
 } from "../utils.js";
 import type { CatégorieBaseVariables } from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
-import type { NestedObjectToMap } from "@orbitdb/nested-db";
 import type { BookType, WorkBook } from "xlsx";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { ErreurDonnée, FonctionValidation } from "../règles.js";
@@ -260,7 +257,7 @@ export class TableauxBds<
     if (copierDonnées) {
       const { données: bdDonnées, oublier: oublierDonnées } =
         await this.ouvrirDonnéesTableau({ idStructure, idTableau });
-      const données = mapÀObjet(await bdDonnées.all());
+      const données = await bdDonnées.all();
       await oublierDonnées();
 
       if (données) {
@@ -269,7 +266,7 @@ export class TableauxBds<
             idStructure: idStructureDestinataire,
             idTableau: idNouveauTableau,
           });
-        await nouvelleBdDonnées.put(données);
+        await nouvelleBdDonnées.insert(données);
         await oublierNouvellesDonnées();
       }
     }
@@ -311,10 +308,10 @@ export class TableauxBds<
       type: "nested",
     });
     return {
-      données: typer({
-        bd,
-        schéma: schémaDonnéesTableau,
-      }) as TypedNested<StructureDonnéesTableau>,
+      données: typedNested<StructureDonnéesTableau>({
+        db: bd,
+        schema: schémaDonnéesTableau,
+      }),
       oublier,
     };
   }
@@ -417,7 +414,7 @@ export class TableauxBds<
     const précédent = await données.get(idÉlément);
     if (!précédent) throw new Error(`Id élément ${idÉlément} n'existe pas.`);
 
-    const élément = Object.assign({}, mapÀObjet(précédent), vals);
+    const élément = Object.assign({}, précédent, vals);
 
     Object.keys(vals).map((c: string) => {
       if (vals[c] === undefined) delete élément[c];
@@ -510,9 +507,8 @@ export class TableauxBds<
           schéma: schémaDonnéesTableau,
           f: fSuivre,
         }),
-      f: async (données?: NestedObjectToMap<StructureDonnéesTableau>) => {
-        if (données)
-          info.données = mapÀObjet(données) as { [id: string]: T } | undefined; // Il faudrait implémenter un schéma dynamique selon T
+      f: async (données?: PartielRécursif<StructureDonnéesTableau>) => {
+        if (données) info.données = données as { [id: string]: T } | undefined; // Il faudrait implémenter un schéma dynamique selon T
         await fFinale();
       },
     });

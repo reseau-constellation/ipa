@@ -61,11 +61,14 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
 
     this.options = { ...{ nomAppli: "appli", mode: "prod" }, ...options };
 
-    const instancesServices: Partial<S> = {};
+    const instancesServices: ServicesAppli = {};
     for (const clef of Object.keys(services)) {
       instancesServices[clef] = new services[clef]({
         services: instancesServices as S,
-        options: { ...(options?.services?.[clef] || {}), ...{nomAppli: this.options.nomAppli, mode: this.options.mode } },
+        options: {
+          ...(options?.services?.[clef] || {}),
+          ...{ nomAppli: this.options.nomAppli, mode: this.options.mode },
+        } as S[typeof clef] extends ServiceAppli<infer _Services, infer _R, infer Opts> ? Opts & OptionsCommunes : never,
       });
     }
     this.services = instancesServices as S;

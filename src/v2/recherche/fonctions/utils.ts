@@ -13,6 +13,7 @@ import type {
   SuiviRecherche,
 } from "../types.js";
 import type { Oublier } from "../../nébuleuse/types.js";
+import { ServicesConstellation } from "@/v2/constellation.js";
 
 export const rechercherDansTexte = ({
   schéma,
@@ -85,12 +86,12 @@ export const similImages = ({
 
 export const combinerRecherches = async <T extends InfoRésultat>({
   fsRecherche,
-  constl,
-  idObjet,
+    services,
+      idObjet,
   fSuivreRecherche,
 }: {
   fsRecherche: { [key: string]: SuivreObjectifRecherche<T> };
-  constl: Constellation;
+services: ServicesConstellation;
   idObjet: string;
   fSuivreRecherche: SuiviRecherche<T>;
 }): Promise<Oublier> => {
@@ -112,7 +113,7 @@ export const combinerRecherches = async <T extends InfoRésultat>({
         résultats[clef] = résultat;
         fSuivreFinale();
       };
-      fsOublier.push(await fRecherche({ constl, idObjet, f: fSuivre }));
+      fsOublier.push(await fRecherche({ services, idObjet, f: fSuivre }));
     }),
   );
 
@@ -125,7 +126,7 @@ export const sousRecherche = async <T extends InfoRésultat>({
   de,
   fListe,
   fRechercher,
-  constl,
+  services,
   fSuivreRecherche,
 }: {
   de: string;
@@ -135,7 +136,7 @@ export const sousRecherche = async <T extends InfoRésultat>({
     fSuivreRacine: (ids: string[]) => void;
   }) => Promise<Oublier>;
   fRechercher: SuivreObjectifRecherche<T>;
-  constl: Constellation;
+  services: ServicesConstellation;
   fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<T>>;
 }): Promise<Oublier> => {
   const fBranche = async ({
@@ -149,7 +150,7 @@ export const sousRecherche = async <T extends InfoRésultat>({
     }) => void;
   }): Promise<Oublier> => {
     return await fRechercher({
-      constl,
+      services,
       idObjet,
       f: async (résultat?: RésultatObjectifRecherche<T>) => {
         if (résultat) fSuivreBranche({ idObjet, résultat });

@@ -25,7 +25,6 @@ import {
 } from "../nébuleuse/services/favoris.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import { RechercheNuées } from "../recherche/nuées.js";
-import { mapÀObjet } from "../nébuleuse/utils.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import { ObjetConstellation } from "../objets.js";
 import { TableauxNuées } from "./tableaux.js";
@@ -47,7 +46,7 @@ import type {
   AccèsUtilisateur,
 } from "../nébuleuse/services/compte/accès/types.js";
 import type { TypedNested } from "@constl/bohr-db";
-import type { Constellation } from "../constellation.js";
+import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
@@ -227,10 +226,10 @@ export class Nuées<
 
   schémaObjet = schémaNuée;
 
-  constructor({ appli }: { appli: Constellation }) {
+  constructor({ services }: { services: ServicesConstellations }) {
     super({
       clef: "nuées",
-      appli,
+      services,
       dépendances: ["variables", "bds", "compte", "orbite", "hélia"],
     });
 
@@ -280,7 +279,7 @@ export class Nuées<
     await oublierBd();
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
 
-    await nuée.put({
+    await nuée.insert({
       type: "nuée",
       autorisation: {
         type: autorisation,
@@ -463,7 +462,7 @@ export class Nuées<
 
     const idNouvelleNuée = await this.créerNuée({ parent });
 
-    const métadonnées = mapÀObjet(await nuée.get("métadonnées"));
+    const métadonnées = await nuée.get("métadonnées");
     if (métadonnées) {
       await this.sauvegarderMétadonnées({
         idNuée: idNouvelleNuée,
@@ -471,12 +470,12 @@ export class Nuées<
       });
     }
 
-    const noms = mapÀObjet(await nuée.get("noms"));
+    const noms = await nuée.get("noms");
     if (noms) {
       await this.sauvegarderNoms({ idNuée: idNouvelleNuée, noms });
     }
 
-    const descriptions = mapÀObjet(await nuée.get("descriptions"));
+    const descriptions = await nuée.get("descriptions");
     if (descriptions) {
       await this.sauvegarderDescriptions({
         idNuée: idNouvelleNuée,
@@ -488,7 +487,7 @@ export class Nuées<
     if (motsClefs)
       await this.ajouterMotsClefs({
         idNuée: idNouvelleNuée,
-        idsMotsClefs: Object.keys(mapÀObjet(motsClefs)!),
+        idsMotsClefs: Object.keys(motsClefs),
       });
 
     const tableaux = await uneFois<InfoTableauNuée[]>((f) =>
@@ -506,7 +505,7 @@ export class Nuées<
     if (statut)
       await this.sauvegarderStatut({
         idNuée: idNouvelleNuée,
-        statut: mapÀObjet(statut)!,
+        statut,
       });
 
     const { nuée: nouvelleNuée, oublier: oublierNouvelle } =
@@ -517,7 +516,7 @@ export class Nuées<
     const image = await nuée.get("image");
     if (image) await nouvelleNuée.set(`image`, image);
 
-    const autorisations = mapÀObjet(await nuée.get("autorisation"));
+    const autorisations = await nuée.get("autorisation");
     if (autorisations) await nouvelleNuée.put("autorisation", autorisations);
 
     await nouvelleNuée.set("copiéeDe", { id: idNuée });
@@ -783,9 +782,7 @@ export class Nuées<
       idNuée,
     });
 
-    for (const lng in noms) {
-      await nuée.set(`noms/${lng}`, noms[lng]);
-    }
+    await nuée.insert(`noms`, noms);
 
     await oublier();
   }
@@ -861,9 +858,9 @@ export class Nuées<
     const { nuée, oublier } = await this.ouvrirNuée({
       idNuée,
     });
-    for (const lng in descriptions) {
-      await nuée.set(`descriptions/${lng}`, descriptions[lng]);
-    }
+
+    await nuée.insert(`descriptions`, descriptions);
+
     await oublier();
   }
 
@@ -996,7 +993,7 @@ export class Nuées<
 
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
 
-    await nuée.put("métadonnées", métadonnées);
+    await nuée.insert("métadonnées", métadonnées);
     await oublier();
   }
 
@@ -1069,7 +1066,7 @@ export class Nuées<
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
 
     for (const id of idsMotsClefs) {
-      await nuée.put(`motsClefs/${id}`, null);
+      await nuée.insert(`motsClefs/${id}`, null);
     }
     await oublier();
   }

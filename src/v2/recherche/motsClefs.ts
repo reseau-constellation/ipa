@@ -8,7 +8,6 @@ import {
   rechercherMotsClefsSelonTexte,
 } from "./fonctions/motsClefs.js";
 import type { InfoAuteur } from "../types.js";
-import type { Constellation } from "../index.js";
 import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
@@ -28,16 +27,14 @@ export class RechercheMotsClefs<
 
   constructor({
     motsClefs,
-    constl,
     service,
   }: {
     motsClefs: MotsClefs<L>;
-    constl: Constellation;
     service: <T extends keyof ServicesConstellation<L>>(
       service: T,
     ) => ServicesConstellation<L>[T];
   }) {
-    super({ constl, service });
+    super({ service });
     this.motsClefs = motsClefs;
   }
 

@@ -8,19 +8,17 @@ import {
 import { asSplitKey, joinKey } from "@orbitdb/nested-db";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { brancheBd } from "./nébuleuse/services/services.js";
-import { mapÀObjet } from "./nébuleuse/utils.js";
 import {
   générerFonctionValidation,
   schémaSpécificationRègleColonne,
 } from "./règles.js";
-import { typer } from "./nébuleuse/services/orbite/orbite.js";
 import { schémaTraducsTexte } from "./schémas.js";
 import { enleverPréfixes } from "./utils.js";
 import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { TypedNested } from "@constl/bohr-db";
+import { typedNested, type TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
-import type { NestedValueObject } from "node_modules/@orbitdb/nested-db/dist/types.js";
+import type { NestedValue } from "@orbitdb/nested-db";
 import type { ServicesConstellation } from "./constellation.js";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { PartielRécursif, TraducsTexte } from "./types.js";
@@ -206,7 +204,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
     });
 
     // On ajoute un élément vide pour ajouter la clef du tableau à la liste de tableaux
-    await tableau.set({});
+    await tableau.insert({});
 
     await oublier();
     return idTableau;
@@ -240,7 +238,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       });
 
     // Copier les noms
-    const noms = mapÀObjet(await tableau.get("noms"));
+    const noms = await tableau.get("noms");
     if (noms)
       await this.sauvegarderNoms({
         idStructure: idStructureDestinataire,
@@ -249,13 +247,13 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       });
 
     // Copier les colonnes
-    const colonnes = mapÀObjet(await tableau.get("colonnes"));
+    const colonnes = await tableau.get("colonnes");
     if (colonnes) {
       await nouveauTableau.set("colonnes", colonnes);
     }
 
     // Copier les règles
-    const règles = mapÀObjet(await tableau.get("règles"));
+    const règles = await tableau.get("règles");
     if (règles) {
       await nouveauTableau.set("règles", règles);
     }
@@ -280,10 +278,11 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       id: enleverPréfixes(idStructure),
       type: "nested",
     });
-    const bdTypée = typer({
-      bd,
-      schéma: schémaStructureAvecTableau,
-    }) as TypedNested<StructureAvecTableau>;
+    const bdTypée = typedNested({
+      db: bd,
+      schema: schémaStructureAvecTableau,
+    });
+
     await bdTypée.del(`tableaux/${idTableau}`);
 
     await oublierBd();
@@ -301,13 +300,13 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       type: "nested",
     });
 
-    const bdTypée = typer({
-      bd,
-      schéma: schémaStructureAvecTableau,
-    }) as TypedNested<StructureAvecTableau>;
+    const bdTypée = typedNested({
+      db: bd,
+      schema: schémaStructureAvecTableau,
+    });
 
     const tableau = brancheBd<
-      StructureAvecTableau,
+      StructureTableau,
       `tableaux/${typeof idTableau}`
     >({
       bd: bdTypée,
@@ -335,10 +334,10 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       id: enleverPréfixes(idStructure),
       schéma: schémaStructureAvecTableau,
       f: async (tableau) => {
-        let données: NestedValueObject | null | undefined = mapÀObjet(tableau);
+        let données: NestedValue | null | undefined = tableau;
 
         for (const k of asSplitKey(joinKey(["tableaux", idTableau]))) {
-          données = données?.[k] as NestedValueObject | undefined;
+          données = données?.[k] as NestedValue | undefined;
           if (données === undefined) {
             données = null;
             break;
@@ -379,9 +378,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       idTableau,
     });
 
-    for (const lng in noms) {
-      await tableau.set(`noms/${lng}`, noms[lng]);
-    }
+    await tableau.insert(`noms`, noms);
 
     await oublier();
   }
@@ -515,7 +512,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       idTableau,
     });
 
-    await tableau.put(`colonnes/${idColonne}`, { variable: idVariable });
+    await tableau.insert(`colonnes/${idColonne}`, { variable: idVariable });
 
     await oublier();
   }
@@ -538,7 +535,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       idTableau,
     });
 
-    await tableau.put(`colonnes/${idColonne}`, { index });
+    await tableau.insert(`colonnes/${idColonne}`, { index });
 
     await oublier();
   }
@@ -561,7 +558,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       idTableau,
     });
 
-    const infoColonne = mapÀObjet(await tableau.get(`colonnes/${idColonne}`));
+    const infoColonne = await tableau.get(`colonnes/${idColonne}`);
     if (infoColonne) {
       await tableau.put(`colonnes/${nouvelId}`, infoColonne);
       await tableau.del(`colonnes/${idColonne}`);
@@ -1257,7 +1254,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       idTableau,
     });
 
-    await tableau.put(`traducs/${clef}`, traducs);
+    await tableau.insert(`traducs/${clef}`, traducs);
 
     await oublier();
   }

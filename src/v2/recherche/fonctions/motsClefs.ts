@@ -5,9 +5,9 @@ import {
   rechercherTousSiVide,
   similTexte,
 } from "./utils.js";
+import type { ServicesConstellation } from "@/v2/constellation.js";
 import type { TraducsTexte } from "@/v2/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { Constellation } from "@/v2/index.js";
 import type {
   InfoRésultatTexte,
   InfoRésultatVide,
@@ -19,11 +19,11 @@ export const rechercherMotsClefsSelonNom = (
   nomMotClef: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -42,7 +42,7 @@ export const rechercherMotsClefsSelonNom = (
         return await f();
       }
     };
-    const oublier = await constl.motsClefs.suivreNoms({
+    const oublier = await services.motsClefs.suivreNoms({
       idMotClef: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
@@ -54,11 +54,11 @@ export const rechercherMotsClefsSelonDescription = (
   descriptionMotClef: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -80,7 +80,7 @@ export const rechercherMotsClefsSelonDescription = (
         return await f();
       }
     };
-    const oublier = await constl.motsClefs.suivreDescriptions({
+    const oublier = await services.motsClefs.suivreDescriptions({
       idMotClef: idObjet,
       f: fSuivre,
     });
@@ -92,11 +92,11 @@ export const rechercherMotsClefsSelonTexte = (
   texte: string,
 ): SuivreObjectifRecherche<InfoRésultatTexte | InfoRésultatVide> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte | InfoRésultatVide>;
   }): Promise<Oublier> => {
@@ -112,7 +112,7 @@ export const rechercherMotsClefsSelonTexte = (
         descriptions: fRechercherDescriptions,
         vide: fRechercherTous,
       },
-      constl,
+      services,
       idObjet,
       fSuivreRecherche: f,
     });

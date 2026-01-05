@@ -6,7 +6,7 @@ import { ajouterPréfixeOrbite, enleverPréfixes } from "../../utils.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
 import type { RelationImmédiate } from "./réseau.js";
-import type { Appli } from "@/v2/nébuleuse/appli/appli.js";
+import type { Appli, OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
@@ -159,17 +159,19 @@ export class ServiceFavoris<
   résolveurs: Map<string, Résolveur>;
 
   constructor({
-    appli,
+    services,
+    options,
   }: {
-    appli: Appli<ServicesNébuleuse<StructureNébuleuse, L>>;
+    services: ServicesNébuleuse<StructureNébuleuse, L>;
+    options: OptionsCommunes;
   }) {
     super({
       clef: "favoris",
-      appli,
+      services,
       dépendances: ["compte", "réseau", "épingles"],
-      options: {
+      options: Object.assign({}, options, {
         schéma: SchémaServiceFavoris,
-      },
+      }),
     });
     this.résolveurs = new Map();
 

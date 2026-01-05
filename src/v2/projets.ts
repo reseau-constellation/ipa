@@ -18,7 +18,6 @@ import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "./nébuleuse/services/favoris.js";
-import { mapÀObjet } from "./nébuleuse/utils.js";
 import { ObjetConstellation } from "./objets.js";
 import type { BookType, WorkBook } from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
@@ -177,7 +176,7 @@ export class Projets<
 
     if (épingler) await this.épingler({ idProjet });
 
-    await projet.put({
+    await projet.insert({
       type: "projet",
       statut: { statut: "active" },
     });
@@ -213,7 +212,7 @@ export class Projets<
 
     const idNouveauProjet = await this.créerProjet();
 
-    const métadonnées = mapÀObjet(await projet.get("métadonnées"));
+    const métadonnées = await projet.get("métadonnées");
     if (métadonnées) {
       await this.sauvegarderMétadonnées({
         idProjet: idNouveauProjet,
@@ -221,12 +220,12 @@ export class Projets<
       });
     }
 
-    const noms = mapÀObjet(await projet.get("noms"));
+    const noms = await projet.get("noms");
     if (noms) {
       await this.sauvegarderNoms({ idProjet: idNouveauProjet, noms });
     }
 
-    const descriptions = mapÀObjet(await projet.get("descriptions"));
+    const descriptions = await projet.get("descriptions");
     if (descriptions) {
       await this.sauvegarderDescriptions({
         idProjet: idNouveauProjet,
@@ -238,14 +237,14 @@ export class Projets<
     if (motsClefs)
       await this.ajouterMotsClefs({
         idProjet: idNouveauProjet,
-        idsMotsClefs: Object.keys(mapÀObjet(motsClefs)!),
+        idsMotsClefs: Object.keys(motsClefs),
       });
 
     const statut = await projet.get("statut");
     if (statut)
       await this.sauvegarderStatut({
         idProjet: idNouveauProjet,
-        statut: mapÀObjet(statut)!,
+        statut,
       });
 
     const { projet: nouveauProjet, oublier: oublierNouveau } =
@@ -479,7 +478,7 @@ export class Projets<
     await this.confirmerPermission({ idProjet });
 
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
-    await projet.put("noms", noms);
+    await projet.insert("noms", noms);
     await oublier();
   }
 
@@ -495,7 +494,7 @@ export class Projets<
     await this.confirmerPermission({ idProjet });
 
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
-    await projet.set(`noms/${langue}`, nom);
+    await projet.insert(`noms/${langue}`, nom);
     await oublier();
   }
 
@@ -539,7 +538,7 @@ export class Projets<
     await this.confirmerPermission({ idProjet });
 
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
-    await projet.put("descriptions", descriptions);
+    await projet.insert("descriptions", descriptions);
     await oublier();
   }
 
@@ -659,7 +658,7 @@ export class Projets<
 
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
 
-    await projet.put("métadonnées", métadonnées);
+    await projet.insert("métadonnées", métadonnées);
     await oublier();
   }
 

@@ -46,7 +46,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatVide>
       >(({ siDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idCompte,
           f: siDéfini(),
         }),
@@ -65,7 +65,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            constl,
+            services: constl.services,
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0),
           }),
@@ -88,7 +88,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            constl,
+            services: constl.services,
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 1 / 3),
           }),
@@ -113,7 +113,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            constl,
+            services: constl.services,
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 2 / 3),
           }),
@@ -166,7 +166,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatTexte>
       >(({ siNonDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -177,7 +177,7 @@ describe("Rechercher profil", function () {
     it("ajout nom détecté", async () => {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
-          recherche({ constl, idObjet: idCompte, f: siDéfini() }),
+          recherche({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
       );
 
       await constl.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
@@ -198,7 +198,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ si }) =>
           recherche({
-            constl,
+            services: constl.services,
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0.5),
           }),
@@ -246,7 +246,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatTexte>
       >(({ siNonDéfini }) =>
         recherche({
-          constl,
+          services: constl.services,
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -258,7 +258,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ si }) =>
           recherche({
-            constl,
+            services: constl.services,
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0),
           }),
@@ -321,7 +321,7 @@ describe("Rechercher profil", function () {
     it("résultat id détecté", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheId({ constl, idObjet: idCompte, f: siDéfini() }),
+          rechercheId({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<TypeRésultat> = {
@@ -342,7 +342,7 @@ describe("Rechercher profil", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
           rechercheId({
-            constl,
+            services: constl.services,
             idObjet: idCompte,
             f: siNonDéfini(),
           }),
@@ -351,7 +351,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheNom({
-          constl,
+          services: constl.services,
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -360,7 +360,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheCourriel({
-          constl,
+          services: constl.services,
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -374,12 +374,12 @@ describe("Rechercher profil", function () {
     it("ajout nom détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheNom({ constl, idObjet: idCompte, f: siDéfini() }),
+          rechercheNom({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
       );
       const pRésultatCourriel = obtenir<
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
-        rechercheCourriel({ constl, idObjet: idCompte, f: siDéfini() }),
+        rechercheCourriel({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
       );
 
       await constl.profil.sauvegarderNom({
@@ -424,7 +424,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ si }) =>
         rechercheCourriel({
-          constl,
+          services: constl.services,
           idObjet: idCompte,
           f: si((r) => !!r && r.score > 1 / 3),
         }),
@@ -453,7 +453,7 @@ describe("Rechercher profil", function () {
     it("résultat recherche vide", async () => {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheVide({ constl, idObjet: idCompte, f: siDéfini() }),
+          rechercheVide({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {

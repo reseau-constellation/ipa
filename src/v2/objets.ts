@@ -1,20 +1,19 @@
 import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { typedNested } from "@constl/bohr-db";
-import { toObject, type NestedValueObject } from "@orbitdb/nested-db";
 import { isValidAddress } from "@orbitdb/core";
 import { ServiceDonnéesAppli } from "./nébuleuse/services/services.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
+import type { OptionsCommunes } from "./nébuleuse/appli/appli.js";
+import type { NestedValue } from "@orbitdb/nested-db";
 import type { RelationImmédiate } from "./nébuleuse/services/réseau.js";
 import type { TypedNested } from "@constl/bohr-db";
-import type { Constellation } from "./index.js";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type { ServicesConstellation } from "./constellation.js";
 import type { InfoAuteur, PartielRécursif } from "./types.js";
 import type { JSONSchemaType } from "ajv";
-import type { ServicesNécessairesCompte } from "./nébuleuse/services/compte/index.js";
 import type { AccèsUtilisateur } from "./nébuleuse/services/compte/accès/types.js";
 
 export type StructureServiceObjet = {
@@ -31,35 +30,37 @@ export const schémaServiceObjet: JSONSchemaType<
 
 export abstract class ObjetConstellation<
   C extends string,
-  S extends NestedValueObject,
+  S extends NestedValue,
   L extends ServicesLibp2pNébuleuse,
 > extends ServiceDonnéesAppli<
   C,
   StructureServiceObjet,
   L,
-  ServicesConstellation
+  ServicesConstellation<L>
 > {
   abstract schémaObjet: JSONSchemaType<PartielRécursif<S>>;
 
   constructor({
     clef,
     dépendances,
-    appli,
+    services,
+    options,
   }: {
     clef: C;
     dépendances: Extract<
-      keyof (ServicesConstellation & ServicesNécessairesCompte<L>),
+      keyof (ServicesConstellation<L> & ServicesNécessairesDonnées<L>),
       string
     >[];
-    appli: Constellation;
+    services: ServicesConstellation<L>;
+    options: OptionsCommunes;
   }) {
     super({
       clef,
-      appli,
+      services,
       dépendances,
-      options: {
+      options: Object.assign({}, options, {
         schéma: schémaServiceObjet,
-      },
+      }),
     });
 
     const réseau = this.service("réseau");
@@ -160,14 +161,14 @@ export abstract class ObjetConstellation<
     f,
   }: {
     idObjet: string;
-    f: Suivi<S>;
+    f: Suivi<PartielRécursif<S>>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
     return await orbite.suivreDonnéesBdEmboîtée({
       id: this.àIdOrbite(idObjet),
       schéma: this.schémaObjet,
-      f: (objet) => f(toObject(objet) as S),
+      f,
     });
   }
 
