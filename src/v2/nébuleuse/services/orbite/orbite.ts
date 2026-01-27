@@ -139,6 +139,11 @@ export class ServiceOrbite<
     return (await this.démarré()).orbite || this.options.orbite!;
   }
 
+  async obtIdDispositif(): Promise<string> {
+    const orbite = await this.orbite();
+    return orbite.identity.id;
+  }
+
   async fermer(): Promise<void> {
     // Uniquement fermer orbite s'il n'a pas été fourni manuellement dans les options
     const { orbite } = await this.démarré();

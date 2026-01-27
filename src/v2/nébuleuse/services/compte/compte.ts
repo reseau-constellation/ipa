@@ -92,7 +92,7 @@ export type ServicesDonnées<
   T extends { [clef: string]: NestedValue },
   L extends ServicesLibp2pNébuleuse,
 > = {
-  [clef in Extract<keyof T, "string">]: ServiceDonnéesAppli<clef, T[clef], L>;
+  [C in Extract<keyof T, "string">]: ServiceDonnéesAppli<C, T[C], L>;
 };
 
 export type ÉvénementsCompte = {
@@ -190,8 +190,7 @@ export class ServiceCompte<
 
   async obtIdDispositif(): Promise<string> {
     // L'identifiant du dispositif est déterminé par l'instance d'OrbitDB
-    const orbite = await this.service("orbite").orbite();
-    return orbite.identity.id;
+    return await this.service("orbite").obtIdDispositif();
   }
 
   @cacheSuivi
