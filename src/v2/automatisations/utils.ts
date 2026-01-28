@@ -14,12 +14,12 @@ import type {
   SpécificationAutomatisation,
   SpécificationExporter,
   SpécificationImporter,
-  ÉtatAttente,
+  ÉtatAutomatisationAttente,
   ÉtatAutomatisation,
-  ÉtatEnSync,
-  ÉtatErreur,
-  ÉtatProgrammée,
-  ÉtatÉcoute,
+  ÉtatAutomatisationEnSync,
+  ÉtatAutomatisationErreur,
+  ÉtatAutomatisationProgrammée,
+  ÉtatAutomatisationÉcoute,
 } from "./types.js";
 import { ImportateurDonnéesJSON } from "@/importateur/json.js";
 import {
@@ -41,7 +41,7 @@ export const fAutoAvecÉtats = (
   tempsInterval?: number,
 ): (() => Promise<void>) => {
   return async () => {
-    const nouvelÉtat: ÉtatEnSync = {
+    const nouvelÉtat: ÉtatAutomatisationEnSync = {
       type: "sync",
       depuis: new Date().getTime(),
     };
@@ -50,13 +50,13 @@ export const fAutoAvecÉtats = (
     try {
       await fAuto();
       if (tempsInterval) {
-        const nouvelÉtat: ÉtatProgrammée = {
+        const nouvelÉtat: ÉtatAutomatisationProgrammée = {
           type: "programmée",
           à: Date.now() + tempsInterval,
         };
         état(nouvelÉtat);
       } else {
-        const nouvelÉtat: ÉtatÉcoute = {
+        const nouvelÉtat: ÉtatAutomatisationÉcoute = {
           type: "écoute",
         };
         état(nouvelÉtat);
@@ -323,7 +323,7 @@ export const chronomètre = async ({
   const clefStockageDernièreFois = `auto: ${id}`;
 };
 
-const étatErreur = (e: Error, prochain?: number): ÉtatErreur => {
+const étatErreur = (e: Error, prochain?: number): ÉtatAutomatisationErreur => {
   return {
     type: "erreur",
     erreur: JSON.stringify(
@@ -346,13 +346,13 @@ export const chronoManuel = async (
 ): Chronomètre => {
   const queue = schéduler();
 
-  const nouvelÉtat: ÉtatAttente = {
+  const nouvelÉtat: ÉtatAutomatisationAttente = {
     type: "attente",
   };
   await suiviÉtat(nouvelÉtat);
 
   const fAvecÉtats = async () => {
-    const nouvelÉtat: ÉtatEnSync = {
+    const nouvelÉtat: ÉtatAutomatisationEnSync = {
       type: "sync",
       depuis: new Date().getTime(),
     };
@@ -396,7 +396,7 @@ export const chronoFixe = async (
     dernièreFois === undefined ? Math.max(fréquenceEnMS - dernièreFois, 0) : 0;
 
   const maintenant = Date.now();
-  const nouvelÉtat: ÉtatProgrammée = {
+  const nouvelÉtat: ÉtatAutomatisationProgrammée = {
     type: "programmée",
     à: maintenant + tempsAvantPremière,
   };
@@ -447,7 +447,7 @@ export const chronoDynamiqueImportation = async (
   auto: SpécificationImporter,
   suiviÉtat: Suivi<ÉtatAutomatisation>,
 ): Chronomètre => {
-  const nouvelÉtat: ÉtatÉcoute = {
+  const nouvelÉtat: ÉtatAutomatisationÉcoute = {
     type: "écoute",
   };
   await suiviÉtat(nouvelÉtat);
@@ -506,7 +506,7 @@ export const chronoDynamiqueImportation = async (
     }
 
     case "url": {
-      const étatErreur: ÉtatErreur = {
+      const étatErreur: ÉtatAutomatisationErreur = {
         type: "erreur",
         erreur:
           "La fréquence d'une automatisation d'importation d'URL doit être spécifiée.",
@@ -530,7 +530,7 @@ export const chronoDynamiqueExportation = async (
   suiviÉtat: Suivi<ÉtatAutomatisation>,
 ): Chronomètre => {
   const queue = schéduler();
-  const nouvelÉtat: ÉtatÉcoute = {
+  const nouvelÉtat: ÉtatAutomatisationÉcoute = {
     type: "écoute",
   };
   await suiviÉtat(nouvelÉtat);

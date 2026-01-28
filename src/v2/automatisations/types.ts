@@ -194,12 +194,13 @@ export type SpécificationExporter =
   | SpécificationExporterObjet
   | SpécificationExporterNuée;
 
-export type SpécificationImporter<T extends InfoImporter = InfoImporter> =
+export type SpécificationImporter<T extends SourceDonnéesImportationAdresseOptionel = SourceDonnéesImportationAdresseOptionel> =
   BaseSpécificationAutomatisation & {
     type: "importation";
+    idBd: string;
     idTableau: string;
     dispositif: string;
-    source: SourceDonnéesImportationAdresseOptionel<T>;
+    source: T;
     conversions?: { [idCol: string]: ConversionDonnées };
   };
 
@@ -223,7 +224,7 @@ export type SourceDonnéesImportation<T extends InfoImporter> =
   | SourceDonnéesImportationURL<T>
   | SourceDonnéesImportationFichier<T>;
 
-export type SourceDonnéesImportationAdresseOptionel<T extends InfoImporter> =
+export type SourceDonnéesImportationAdresseOptionel<T extends InfoImporter = InfoImporter> =
   | SourceDonnéesImportationURL<T>
   | SourceDonnéesImportationFichierAdresseOptionel<T>;
 
@@ -241,14 +242,19 @@ export type SourceDonnéesImportationFichierAdresseOptionel<
   info: T;
 };
 
-export type SourceDonnéesImportationFichier<T extends InfoImporter> =
+export type SourceDonnéesImportationFichier<T extends InfoImporter = InfoImporter> =
   SourceDonnéesImportationFichierAdresseOptionel<T> & {
     adresseFichier: string;
   };
 
-export type SpécificationImporterAvecFichier<
+export type SpécificationAjoutImportation<
   T extends InfoImporter = InfoImporter,
-> = SpécificationImporter<T> & { source: SourceDonnéesImportation<T> };
+> = { 
+  idBd: string;
+  idTableau: string;
+  conversions?: { [idCol: string]: ConversionDonnées };
+  source: SourceDonnéesImportation<T>; dispositif?: string; fréquence?: Fréquence 
+};
 
 // Types fréquence
 
@@ -278,32 +284,32 @@ export type FréquenceManuelle = {
 // Types état
 
 export type ÉtatAutomatisation =
-  | ÉtatErreur
-  | ÉtatÉcoute
-  | ÉtatAttente
-  | ÉtatEnSync
-  | ÉtatProgrammée;
+  | ÉtatAutomatisationErreur
+  | ÉtatAutomatisationÉcoute
+  | ÉtatAutomatisationAttente
+  | ÉtatAutomatisationEnSync
+  | ÉtatAutomatisationProgrammée;
 
-export interface ÉtatErreur {
+export interface ÉtatAutomatisationErreur {
   type: "erreur";
   erreur: string;
   prochaineProgramméeÀ?: number;
 }
 
-export interface ÉtatÉcoute {
+export interface ÉtatAutomatisationÉcoute {
   type: "écoute";
 }
 
-export interface ÉtatAttente {
+export interface ÉtatAutomatisationAttente {
   type: "attente";
 }
 
-export interface ÉtatEnSync {
+export interface ÉtatAutomatisationEnSync {
   type: "sync";
   depuis: number;
 }
 
-export interface ÉtatProgrammée {
+export interface ÉtatAutomatisationProgrammée {
   type: "programmée";
   à: number;
 }

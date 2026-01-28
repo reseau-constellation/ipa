@@ -21,14 +21,16 @@ import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/lib
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { PartielRécursif } from "../types.js";
 import type {
+  Fréquence,
   InfoImporterFeuilleCalcul,
   InfoImporterJSON,
   SpécificationAutomatisation,
   SpécificationExporter,
   SpécificationImporter,
-  SpécificationImporterAvecFichier,
+  SpécificationAjoutImportation,
   StructureServiceAutomatisations,
   ÉtatAutomatisation,
+  SourceDonnéesImportationAdresseOptionel,
 } from "./types.js";
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
@@ -261,10 +263,7 @@ export class Automatisations<
   async ajouterAutomatisationImporter<
     T extends InfoImporterJSON | InfoImporterFeuilleCalcul,
   >(
-    args: Omit<
-      SpécificationImporterAvecFichier<T>,
-      "id" | "type" | "dispositif"
-    > & { dispositif?: string },
+    args: SpécificationAjoutImportation<T>
   ): Promise<string> {
     const compte = this.service("compte");
     const bd = await this.bd();
@@ -277,11 +276,12 @@ export class Automatisations<
       });
     }
 
-    const élément: SpécificationImporter<T> = {
+    const élément: SpécificationImporter<SourceDonnéesImportationAdresseOptionel<T>> = {
       type: "importation",
       id,
       ...args,
       dispositif: args.dispositif || (await compte.obtIdDispositif()),
+      fréquence: args.fréquence || { type: "dynamique" }
     };
 
     await bd.put(id, élément);
