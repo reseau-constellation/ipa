@@ -262,9 +262,7 @@ export class Automatisations<
 
   async ajouterAutomatisationImporter<
     T extends InfoImporterJSON | InfoImporterFeuilleCalcul,
-  >(
-    args: SpécificationAjoutImportation<T>
-  ): Promise<string> {
+  >(args: SpécificationAjoutImportation<T>): Promise<string> {
     const compte = this.service("compte");
     const bd = await this.bd();
 
@@ -276,12 +274,14 @@ export class Automatisations<
       });
     }
 
-    const élément: SpécificationImporter<SourceDonnéesImportationAdresseOptionel<T>> = {
+    const élément: SpécificationImporter<
+      SourceDonnéesImportationAdresseOptionel<T>
+    > = {
       type: "importation",
       id,
       ...args,
       dispositif: args.dispositif || (await compte.obtIdDispositif()),
-      fréquence: args.fréquence || { type: "dynamique" }
+      fréquence: args.fréquence || { type: "dynamique" },
     };
 
     await bd.put(id, élément);
@@ -299,10 +299,10 @@ export class Automatisations<
     automatisation,
   }: {
     id: string;
-    automatisation: SpécificationAutomatisation;
+    automatisation: Partial<SpécificationAutomatisation>;
   }): Promise<void> {
     const bd = await this.bd();
-    bd.put(id, automatisation);
+    bd.insert(id, automatisation);
   }
 
   async lancerManuellement({ id }: { id: string }) {
