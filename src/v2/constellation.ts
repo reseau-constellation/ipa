@@ -21,6 +21,7 @@ import type {
   StructureNébuleuse,
 } from "./nébuleuse/nébuleuse.js";
 import type { NestedValue } from "@orbitdb/nested-db";
+import { Licences } from "./licences.js";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
@@ -40,6 +41,7 @@ export type ServicesSpécifiquesConstellation<
   nuées: Nuées<L>;
   automatisations: Automatisations<L>;
   projets: Projets<L>;
+  licences: Licences;
 };
 
 export type StructureConstellation<L extends ServicesLibp2pNébuleuse> =
@@ -63,6 +65,7 @@ export class Constellation<
   variables: Variables<L>;
   automatisations: Automatisations<L>;
   projets: Projets<L>;
+  licences: Licences;
 
   constructor(
     options: OptionsConstellation,
@@ -78,6 +81,7 @@ export class Constellation<
         épingles: ServiceÉpingles<L>,
         variables: Variables<L>,
         nuées: Nuées<L>,
+        licences: Licences,
         ...(services || {}),
       } as ConstructeursServicesAppli<S & ServicesSpécifiquesConstellation<L>>,
       options: {
@@ -94,6 +98,7 @@ export class Constellation<
     this.épingles = this.services["épingles"];
     this.variables = this.services["variables"];
     this.projets = this.services["projets"];
+    this.licences = this.services["licences"];
 
     this.automatisations = this.services["automatisations"];
   }
