@@ -10,6 +10,7 @@ import {
   schémaSpécificationAutomatisation,
 } from "./types.js";
 import { chronomètre, générerFAuto } from "./utils.js";
+import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
 import type { OptionsCommunes } from "../nébuleuse/appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
@@ -98,7 +99,14 @@ export class Automatisations<
     services,
     options,
   }: {
-    services: ServicesNécessairesAutomatisations<L>;
+    services: ServicesNécessairesDonnées<
+      { automatisations: StructureServiceAutomatisations },
+      L
+    > & {
+      bds: Bds<L>;
+      projets: Projets<L>;
+      nuées: Nuées<L>;
+    };
     options: OptionsCommunes;
   }) {
     super({
