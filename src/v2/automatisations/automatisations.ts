@@ -10,6 +10,7 @@ import {
   schémaSpécificationAutomatisation,
 } from "./types.js";
 import { chronomètre, générerFAuto } from "./utils.js";
+import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
 import type { OptionsCommunes } from "../nébuleuse/appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
@@ -68,7 +69,7 @@ const différente = (
 
 export type ServicesNécessairesAutomatisations<
   L extends ServicesLibp2pNébuleuse,
-> = {
+> = ServicesNécessairesCompte<L> & {
   bds: Bds<L>;
   projets: Projets<L>;
   nuées: Nuées<L>;
