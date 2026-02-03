@@ -1,16 +1,20 @@
 import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
-import { faisRien } from "@constl/utils-ipa";
+import { faisRien, uneFois } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/xlsx.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
-import type { Constellation } from "../constellation.js";
+import { sauvegarderDonnéesExportées } from "../utils.js";
+import { ImportateurDonnéesJSON } from "../importateur/json.js";
+import {
+  importerFeuilleCalculDURL,
+  importerJSONdURL,
+} from "../importateur/urls.js";
+import type { ServicesNécessairesAutomatisations } from "./automatisations.js";
 import type { FSWatcherEventMap } from "chokidar";
-import type { Suivi } from "../nébuleuse/types.js";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
   FréquenceFixe,
-  InfoImporterFeuilleCalcul,
-  InfoImporterJSON,
   SpécificationAutomatisation,
   SpécificationExporter,
   SpécificationImporter,
@@ -20,12 +24,11 @@ import type {
   ÉtatAutomatisationErreur,
   ÉtatAutomatisationProgrammée,
   ÉtatAutomatisationÉcoute,
+  SourceDonnéesImportationAdresseOptionel,
+  Fréquence,
 } from "./types.js";
-import { ImportateurDonnéesJSON } from "@/importateur/json.js";
-import {
-  importerFeuilleCalculDURL,
-  importerJSONdURL,
-} from "@/importateur/index.js";
+import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
+import type { AccesseurService } from "../recherche/types.js";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
@@ -41,11 +44,11 @@ export const fAutoAvecÉtats = (
   tempsInterval?: number,
 ): (() => Promise<void>) => {
   return async () => {
-    const nouvelÉtat: ÉtatAutomatisationEnSync = {
+    const étatSync: ÉtatAutomatisationEnSync = {
       type: "sync",
       depuis: new Date().getTime(),
     };
-    état(nouvelÉtat);
+    état(étatSync);
 
     try {
       await fAuto();
@@ -62,22 +65,25 @@ export const fAutoAvecÉtats = (
         état(nouvelÉtat);
       }
     } catch (e) {
-      état(nouvelÉtat);
+      état(étatErreur(e));
     }
   };
 };
 
-export const générerFAuto = <T extends SpécificationAutomatisation>(
-  spéc: T,
-  constl: Constellation,
-): (() => Promise<void>) => {
+export const générerFAuto = <L extends ServicesLibp2pNébuleuse>({
+  spéc,
+  service,
+}: {
+  spéc: SpécificationAutomatisation;
+  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+}): (() => Promise<void>) => {
   switch (spéc.type) {
     case "importation": {
-      return générerFImportation(spéc, constl);
+      return générerFImportation({ spéc, service });
     }
 
     case "exportation": {
-      return générerFExportation(spéc, constl);
+      return générerFExportation({ spéc, service });
     }
 
     default:
@@ -85,54 +91,61 @@ export const générerFAuto = <T extends SpécificationAutomatisation>(
   }
 };
 
-export const générerFImportation = (
-  spéc: SpécificationImporter,
-  constl: Constellation,
-): (() => Promise<void>) => {
+export const générerFImportation = <L extends ServicesLibp2pNébuleuse>({
+  spéc,
+  service,
+}: {
+  spéc: SpécificationImporter;
+  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+}): (() => Promise<void>) => {
   return async () => {
-    const résoudreAdresse = async (
-      adresse?: string,
-    ): Promise<string | undefined> => {
-      return (
-        (await constl.automatisations.résoudreAdressePrivéeFichier({
-          clef: adresse,
-        })) || undefined
-      );
-    };
-    const données = await obtDonnéesImportation(spéc, résoudreAdresse);
+    const données = await obtDonnéesImportation(spéc);
+
+    const tableaux = service("bds").tableaux;
+    const conversions = spéc.conversions || [];
 
     // Adresse base des fichiers pour résoudre les entrées fichiers, si applicable. Fonctionne uniquement
     // sur Node et le processus principal d'Électron.
     const path = await import("path");
-
-    let cheminBaseFichiers: string | undefined = undefined;
     if (spéc.source.type === "fichier" && spéc.source.adresseFichier) {
-      const fichierRésolu = await résoudreAdresse(spéc.source.adresseFichier);
-      if (fichierRésolu) cheminBaseFichiers = path.dirname(fichierRésolu);
+      const cheminBaseFichiers = path.dirname(spéc.source.adresseFichier);
+      conversions.forEach((c) => {
+        if (
+          c.conversion.type === "fichier" ||
+          c.conversion.type === "audio" ||
+          c.conversion.type === "image" ||
+          c.conversion.type === "vidéo"
+        ) {
+          c.conversion.baseChemin ??= cheminBaseFichiers;
+        }
+      });
     }
 
-    await constl.tableaux.importerDonnées({
-      idTableau: spéc.idTableau,
+    const donnéesConverties = await tableaux.convertirDonnées({
       données,
-      conversions: spéc.conversions,
-      cheminBaseFichiers,
+      conversions,
+    });
+
+    await tableaux.importerDonnées({
+      idStructure: spéc.idBd,
+      idTableau: spéc.idTableau,
+      données: donnéesConverties.converties,
     });
   };
 };
 
-export const générerFExportation = (
-  spéc: SpécificationExporter,
-  constl: Constellation,
-): (() => Promise<void>) => {
+export const générerFExportation = <L extends ServicesLibp2pNébuleuse>({
+  spéc,
+  service,
+}: {
+  spéc: SpécificationExporter;
+  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+}): (() => Promise<void>) => {
   return async () => {
     const os = await import("os");
     const path = await import("path");
     const fs = await import("fs");
-    const dossier = spéc.dossier
-      ? await constl.automatisations.résoudreAdressePrivéeFichier({
-          clef: spéc.dossier,
-        })
-      : path.join(os.homedir(), "constellation");
+    const dossier = spéc.dossier ?? path.join(os.homedir(), "constellation");
     if (!dossier) throw new Error("Dossier introuvable");
 
     let nomFichier: string;
@@ -140,52 +153,58 @@ export const générerFExportation = (
       const composantes = nom.split(".");
       return `${composantes[0]}-${Date.now()}.${composantes[1]}`;
     };
+    const hélia = service("hélia");
+    const obtItérableAsyncSFIP = hélia.obtItérableAsyncSFIP.bind("hélia");
+
     switch (spéc.typeObjet) {
       case "tableau": {
-        const donnéesExp = await constl.tableaux.exporterDonnées({
-          idTableau: spéc.idObjet,
+        const donnéesExp = await service("bds").tableaux.exporterDonnées({
+          idStructure: spéc.idObjet,
+          idTableau: spéc.idTableau,
           langues: spéc.langues,
         });
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await constl.bds.documentDonnéesÀFichier({
+        await sauvegarderDonnéesExportées({
           données: donnéesExp,
-          formatDoc: spéc.formatDoc,
+          formatDocu: spéc.formatDoc,
           dossier,
+          obtItérableAsyncSFIP,
           inclureDocuments: spéc.inclureDocuments,
         });
         break;
       }
 
       case "bd": {
-        const donnéesExp = await constl.bds.exporterDonnées({
+        const donnéesExp = await service("bds").exporterDonnées({
           idBd: spéc.idObjet,
           langues: spéc.langues,
         });
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await constl.bds.documentDonnéesÀFichier({
+        await sauvegarderDonnéesExportées({
           données: donnéesExp,
-          formatDoc: spéc.formatDoc,
+          formatDocu: spéc.formatDoc,
           dossier,
+          obtItérableAsyncSFIP,
           inclureDocuments: spéc.inclureDocuments,
         });
         break;
       }
 
       case "projet": {
-        const donnéesProjet = await constl.projets.exporterDonnées({
+        const donnéesProjet = await service("projets").exporterDonnées({
           idProjet: spéc.idObjet,
           langues: spéc.langues,
         });
         nomFichier = donnéesProjet.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await constl.projets.documentDonnéesÀFichier({
+        await service("projets").documentDonnéesÀFichier({
           données: donnéesProjet,
-          formatDoc: spéc.formatDoc,
+          formatDocu: spéc.formatDoc,
           dossier,
           inclureDocuments: spéc.inclureDocuments,
         });
@@ -193,19 +212,19 @@ export const générerFExportation = (
       }
 
       case "nuée": {
-        const donnéesNuée = await constl.nuées.exporterDonnéesNuée({
+        const donnéesNuée = await service("nuées").exporterDonnées({
           idNuée: spéc.idObjet,
           langues: spéc.langues,
-          nRésultatsDésirés: spéc.nRésultatsDésirés,
           héritage: spéc.héritage,
         });
         nomFichier = donnéesNuée.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await constl.bds.documentDonnéesÀFichier({
+        await sauvegarderDonnéesExportées({
           données: donnéesNuée,
-          formatDoc: spéc.formatDoc,
+          formatDocu: spéc.formatDoc,
           dossier,
+          obtItérableAsyncSFIP,
           inclureDocuments: spéc.inclureDocuments,
         });
         break;
@@ -299,28 +318,38 @@ export const obtTempsInterval = (fréq: FréquenceFixe): number => {
   }
 };
 
-export const chronomètre = async ({
-  id,
+export type Chronomètre = {
+  relancer: () => void;
+  fermer: () => Promise<void>;
+};
+
+export const chronomètre = async <L extends ServicesLibp2pNébuleuse>({
   auto,
-  constl,
+  suiviÉtat,
   f,
+  service,
 }: {
-  id: string;
   auto: SpécificationAutomatisation;
-  constl: Constellation;
+  suiviÉtat: Suivi<ÉtatAutomatisation>;
   f: () => Promise<void>;
-}): Chronomètre => {
+  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+}): Promise<Chronomètre> => {
   if (auto.fréquence.type === "manuelle") {
-    return await chronoManuel(f);
+    return await chronoManuel({ f, suiviÉtat });
   } else if (auto.fréquence.type === "fixe") {
-    return await chronoFixe(f, auto.fréquence);
+    return await chronoFixe({
+      f,
+      fréquence: auto.fréquence,
+      id: auto.id,
+      suiviÉtat,
+      service,
+    });
   } else if (auto.fréquence.type === "dynamique") {
-    return await chronoDynamique(f, auto);
-  }
-
-  return;
-
-  const clefStockageDernièreFois = `auto: ${id}`;
+    return await chronoDynamique({ f, auto, suiviÉtat, service });
+  } else
+    throw new Error(
+      `Type de chronomètre inconnu : "${(auto.fréquence as Fréquence).type}"`,
+    );
 };
 
 const étatErreur = (e: Error, prochain?: number): ÉtatAutomatisationErreur => {
@@ -340,10 +369,13 @@ const étatErreur = (e: Error, prochain?: number): ÉtatAutomatisationErreur => 
   };
 };
 
-export const chronoManuel = async (
-  f: () => Promise<void>,
-  suiviÉtat: Suivi<ÉtatAutomatisation>,
-): Chronomètre => {
+export const chronoManuel = async ({
+  f,
+  suiviÉtat,
+}: {
+  f: () => Promise<void>;
+  suiviÉtat: Suivi<ÉtatAutomatisation>;
+}): Promise<Chronomètre> => {
   const queue = schéduler();
 
   const nouvelÉtat: ÉtatAutomatisationAttente = {
@@ -370,28 +402,36 @@ export const chronoManuel = async (
   };
 };
 
-export const obtTempsDernièreFois = async (clef: string): Promise<number> => {
-  // À faire : Accéder stockage à travers `automatisations.service("stockage")`
-  const dernièreFoisChaîne =
-    await constl.services["stockage"].obtenirItem(clef);
-  const dernièreFois = dernièreFoisChaîne
-    ? parseInt(dernièreFoisChaîne)
-    : -Infinity;
+const obtClefStockage = (idAuto: string) => `auto: ${idAuto}`;
+
+export const obtTempsDernièreFois = async (
+  idDernièreFois?: string,
+): Promise<number> => {
+  const dernièreFois = idDernièreFois ? parseInt(idDernièreFois) : -Infinity;
 
   return isNaN(dernièreFois) ? -Infinity : dernièreFois;
 };
 
-export const chronoFixe = async (
-  f: () => Promise<void>,
-  fréquence: FréquenceFixe,
-  suiviÉtat: Suivi<ÉtatAutomatisation>,
-): Chronomètre => {
+export const chronoFixe = async <L extends ServicesLibp2pNébuleuse>({
+  f,
+  fréquence,
+  suiviÉtat,
+  id,
+  service,
+}: {
+  f: () => Promise<void>;
+  fréquence: FréquenceFixe;
+  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  id: string;
+  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+}): Promise<Chronomètre> => {
   const queue = schéduler();
   const annuler = new AbortController();
 
   const fréquenceEnMS = obtTempsInterval(fréquence);
-
-  const dernièreFois = obtTempsDernièreFois(clef);
+  const dernièreFois = obtTempsDernièreFois(
+    (await service("stockage").obtenirItem(obtClefStockage(id))) || undefined,
+  );
   const tempsAvantPremière =
     dernièreFois === undefined ? Math.max(fréquenceEnMS - dernièreFois, 0) : 0;
 
@@ -433,24 +473,54 @@ export const chronoFixe = async (
   };
 };
 
-export const chronoDynamique = async (
-  f: () => Promise<void>,
-  auto: SpécificationAutomatisation,
-): Chronomètre => {
+export const chronoDynamique = async <L extends ServicesLibp2pNébuleuse>({
+  f,
+  suiviÉtat,
+  auto,
+  service,
+}: {
+  f: () => Promise<void>;
+  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  auto: SpécificationAutomatisation;
+  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+}): Promise<Chronomètre> => {
   if (auto.type === "importation")
-    return await chronoDynamiqueImportation(f, auto);
-  else return await chronoDynamiqueExportation(f, auto);
+    return await chronoDynamiqueImportation({
+      f,
+      auto,
+      suiviÉtat,
+      service,
+    });
+  else return await chronoDynamiqueExportation({ f, auto, suiviÉtat, service });
 };
 
-export const chronoDynamiqueImportation = async (
-  f: () => Promise<void>,
-  auto: SpécificationImporter,
-  suiviÉtat: Suivi<ÉtatAutomatisation>,
-): Chronomètre => {
+export const chronoDynamiqueImportation = async <
+  L extends ServicesLibp2pNébuleuse,
+>({
+  f,
+  auto,
+  suiviÉtat,
+  service,
+}: {
+  f: () => Promise<void>;
+  auto: SpécificationImporter;
+  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+}): Promise<Chronomètre> => {
+  const queue = schéduler();
+
+  const clefDernièreFois = obtClefStockage(auto.id);
+
   const nouvelÉtat: ÉtatAutomatisationÉcoute = {
     type: "écoute",
   };
   await suiviÉtat(nouvelÉtat);
+
+  const fAvecStockage = async () => {
+    const maintenant = new Date().getTime().toString();
+    await service("stockage").sauvegarderItem(clefDernièreFois, maintenant);
+    await f();
+  };
 
   switch (auto.source.type) {
     case "fichier": {
@@ -461,18 +531,10 @@ export const chronoDynamiqueImportation = async (
       const fs = await import("fs");
       const { adresseFichier } = auto.source;
 
-      const adresseFichierRésolue =
-        await constl.automatisations.résoudreAdressePrivéeFichier({
-          clef: adresseFichier,
-        });
-      if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue))
+      if (!adresseFichier || !fs.existsSync(adresseFichier))
         throw new Error(`Fichier ${adresseFichier} introuvable.`);
 
-      const écouteur = chokidar.watch(adresseFichierRésolue);
-      const lorsqueFichierModifié = () => {
-        const maintenant = new Date().getTime().toString();
-        f(maintenant);
-      };
+      const écouteur = chokidar.watch(adresseFichier);
 
       const oublierChangements = appelerLorsque({
         émetteur: écouteur as TypedEmitter<{
@@ -481,28 +543,26 @@ export const chronoDynamiqueImportation = async (
           ) => void;
         }>,
         événement: "change",
-        f: lorsqueFichierModifié,
+        f: () => queue.ajouter(fAvecStockage),
       });
 
-      const dernièreModif = fs.statSync(adresseFichierRésolue).mtime.getTime();
+      const dernièreModif = fs.statSync(adresseFichier).mtime.getTime();
 
-      // À faire : Accéder stockage à travers `automatisations.service("stockage")`
-      const dernièreImportation = await constl.services["stockage"].obtenirItem(
-        clefStockageDernièreFois,
-      );
+      const dernièreImportation =
+        await service("stockage").obtenirItem(clefDernièreFois);
       const fichierModifié = dernièreImportation
         ? dernièreModif > parseInt(dernièreImportation)
         : true;
       if (fichierModifié) {
-        const maintenant = new Date().getTime().toString();
-        f(maintenant);
+        queue.ajouter(fAvecStockage);
       }
 
       const fermer = async () => {
         await oublierChangements();
         await écouteur.close();
+        await queue.vide();
       };
-      return { fermer, relancer: f };
+      return { fermer, relancer: () => queue.ajouter(fAvecStockage) };
     }
 
     case "url": {
@@ -512,10 +572,10 @@ export const chronoDynamiqueImportation = async (
           "La fréquence d'une automatisation d'importation d'URL doit être spécifiée.",
         prochaineProgramméeÀ: undefined,
       };
-      fÉtat(étatErreur);
+      suiviÉtat(étatErreur);
       return {
         fermer: faisRien,
-        relancer: f,
+        relancer: faisRien,
       };
     }
 
@@ -524,38 +584,91 @@ export const chronoDynamiqueImportation = async (
   }
 };
 
-export const chronoDynamiqueExportation = async (
-  f: () => Promise<void>,
-  auto: SpécificationExporter,
-  suiviÉtat: Suivi<ÉtatAutomatisation>,
-): Chronomètre => {
+export const chronoDynamiqueExportation = async <
+  L extends ServicesLibp2pNébuleuse,
+>({
+  f,
+  auto,
+  suiviÉtat,
+  service,
+}: {
+  f: () => Promise<void>;
+  auto: SpécificationExporter;
+  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+}): Promise<Chronomètre> => {
+  const stockage = service("stockage");
+  const bds = service("bds");
+  const nuées = service("nuées");
+  const projets = service("projets");
+
   const queue = schéduler();
+
+  const clefDernièreFois = obtClefStockage(auto.id);
+
+  const génFAvecStockage = (empreinte: string) => async () => {
+    await stockage.sauvegarderItem(clefDernièreFois, empreinte);
+    await f();
+  };
+
   const nouvelÉtat: ÉtatAutomatisationÉcoute = {
     type: "écoute",
   };
   await suiviÉtat(nouvelÉtat);
 
-  const oublierChangements = suivreEmpreinteTêtesObjet({
-    idObjet: auto.idObjet,
-    typeObjet: auto.typeObjet,
-  });
-  auto.typeObjet === "nuée"
-    ? await constl.nuées.suivreEmpreinteTêtesBdsNuée({
-        idNuée: auto.idObjet,
-        f: () => queue.ajouter(f),
-      })
-    : await constl.orbite.suivreEmpreinteTêtesBdRécursive({
-        idBd: auto.idObjet,
-        f: () => queue.ajouter(f),
-      });
+  const suivreEmpreinteTête = async (f: Suivi<string>): Promise<Oublier> => {
+    switch (auto.typeObjet) {
+      case "tableau": {
+        return await bds.tableaux.suivreEmpreinteTête({
+          idStructure: auto.idObjet,
+          idTableau: auto.idTableau,
+          f,
+        });
+      }
+      case "bd": {
+        return await bds.suivreEmpreinteTête({
+          idBd: auto.idObjet,
+          f,
+        });
+      }
+      case "nuée": {
+        return await nuées.suivreEmpreinteTête({
+          idNuée: auto.idObjet,
+          f,
+        });
+      }
+      case "projet": {
+        return await projets.suivreEmpreinteTête({
+          idProjet: auto.idObjet,
+          f,
+        });
+      }
+      default: {
+        const état: ÉtatAutomatisationErreur = {
+          type: "erreur",
+          erreur: `Type d'objet non reconnu : ${(auto as SpécificationExporter).typeObjet}.`,
+        };
+        suiviÉtat(état);
+        return faisRien;
+      }
+    }
+  };
+  const oublierChangements = await suivreEmpreinteTête((empreinte) =>
+    queue.ajouter(génFAvecStockage(empreinte)),
+  );
 
   const fermer = async () => {
     await oublierChangements();
     await queue.vide();
   };
 
-  const relancer = () => {
-    queue.ajouter(f);
+  const relancer = async () => {
+    queue.ajouter(async () => {
+      const empreinteTête = await uneFois<string>((fEmpreinte) =>
+        suivreEmpreinteTête(fEmpreinte),
+      );
+      await génFAvecStockage(empreinteTête)();
+    });
   };
 
   return {
@@ -565,7 +678,7 @@ export const chronoDynamiqueExportation = async (
 };
 
 export const obtDonnéesImportation = async <
-  T extends InfoImporterJSON | InfoImporterFeuilleCalcul,
+  T extends SourceDonnéesImportationAdresseOptionel,
 >(
   spéc: SpécificationImporter<T>,
   résoudreAdresse: (x?: string) => Promise<string | undefined> = async (x) => x,

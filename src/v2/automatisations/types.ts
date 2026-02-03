@@ -1,8 +1,9 @@
+import type { Héritage } from "../nuées/nuées.js";
 import type { JSONSchemaType } from "ajv";
 import type * as XLSX from "xlsx";
 import type { PartielRécursif } from "../types.js";
 import type { ClefsExtraction } from "../importateur/json.js";
-import type { ConversionDonnées } from "../bds/tableaux.js";
+import type { ConversionColonne } from "../bds/tableaux.js";
 
 // Types XLSX
 
@@ -177,32 +178,67 @@ export type BaseSpécificationExporter = BaseSpécificationAutomatisation & {
   langues?: string[];
   dispositifs: string[];
   inclureDocuments: boolean;
-
   copies?: CopiesExportation;
 };
 
 export type SpécificationExporterNuée = BaseSpécificationExporter & {
   typeObjet: "nuée";
-  nRésultatsDésirés?: number;
-  héritage?: ("descendance" | "ascendance")[];
+  héritage?: Héritage;
+};
+export type SpécificationExporterTableau = BaseSpécificationExporter & {
+  typeObjet: "tableau";
+  idTableau: string;
 };
 export type SpécificationExporterObjet = BaseSpécificationExporter & {
-  typeObjet: Exclude<TypeObjetExportation, "nuée">;
+  typeObjet: Exclude<TypeObjetExportation, "nuée" | "tableau">;
 };
 
 export type SpécificationExporter =
   | SpécificationExporterObjet
-  | SpécificationExporterNuée;
+  | SpécificationExporterNuée
+  | SpécificationExporterTableau;
 
-export type SpécificationImporter<T extends SourceDonnéesImportationAdresseOptionel = SourceDonnéesImportationAdresseOptionel> =
-  BaseSpécificationAutomatisation & {
-    type: "importation";
-    idBd: string;
-    idTableau: string;
-    dispositif: string;
-    source: T;
-    conversions?: { [idCol: string]: ConversionDonnées };
-  };
+export type SpécificationAjoutExportation = BaseSpécificationAjoutExportation &
+  (
+    | SpécificationAjoutExportationObjet
+    | SpécificationAjoutExportationNuée
+    | SpécificationAjoutExportationTableau
+  );
+
+type BaseSpécificationAjoutExportation = {
+  idObjet: string;
+  formatDoc: FormatTélécharger;
+  inclureDocuments: boolean;
+  dossier?: string;
+  langues?: string[];
+  dispositifs?: string[];
+  copies?: CopiesExportation;
+  fréquence?: Fréquence;
+};
+
+type SpécificationAjoutExportationObjet = {
+  typeObjet: Exclude<TypeObjetExportation, "nuée" | "tableau">;
+};
+type SpécificationAjoutExportationNuée = {
+  typeObjet: "nuée";
+  héritage?: Héritage;
+};
+type SpécificationAjoutExportationTableau = {
+  typeObjet: "tableau";
+  idTableau: string;
+};
+
+export type SpécificationImporter<
+  T extends
+    SourceDonnéesImportationAdresseOptionel = SourceDonnéesImportationAdresseOptionel,
+> = BaseSpécificationAutomatisation & {
+  type: "importation";
+  idBd: string;
+  idTableau: string;
+  dispositif: string;
+  source: T;
+  conversions?: ConversionColonne[];
+};
 
 export type InfoImporter = InfoImporterJSON | InfoImporterFeuilleCalcul;
 
@@ -224,7 +260,9 @@ export type SourceDonnéesImportation<T extends InfoImporter> =
   | SourceDonnéesImportationURL<T>
   | SourceDonnéesImportationFichier<T>;
 
-export type SourceDonnéesImportationAdresseOptionel<T extends InfoImporter = InfoImporter> =
+export type SourceDonnéesImportationAdresseOptionel<
+  T extends InfoImporter = InfoImporter,
+> =
   | SourceDonnéesImportationURL<T>
   | SourceDonnéesImportationFichierAdresseOptionel<T>;
 
@@ -242,18 +280,21 @@ export type SourceDonnéesImportationFichierAdresseOptionel<
   info: T;
 };
 
-export type SourceDonnéesImportationFichier<T extends InfoImporter = InfoImporter> =
-  SourceDonnéesImportationFichierAdresseOptionel<T> & {
-    adresseFichier: string;
-  };
+export type SourceDonnéesImportationFichier<
+  T extends InfoImporter = InfoImporter,
+> = SourceDonnéesImportationFichierAdresseOptionel<T> & {
+  adresseFichier: string;
+};
 
 export type SpécificationAjoutImportation<
   T extends InfoImporter = InfoImporter,
-> = { 
+> = {
   idBd: string;
   idTableau: string;
-  conversions?: { [idCol: string]: ConversionDonnées };
-  source: SourceDonnéesImportation<T>; dispositif?: string; fréquence?: Fréquence 
+  conversions?: ConversionColonne[];
+  source: SourceDonnéesImportation<T>;
+  dispositif?: string;
+  fréquence?: Fréquence;
 };
 
 // Types fréquence

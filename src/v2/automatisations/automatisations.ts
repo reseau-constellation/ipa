@@ -3,25 +3,18 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { Ajv } from "ajv";
 import deepEqual from "deep-equal";
 import { v4 as uuidv4 } from "uuid";
-import { effacerPropriétésNonDéfinies } from "@constl/utils-ipa";
 import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import {
   schémaServiceAutomatisations,
   schémaSpécificationAutomatisation,
 } from "./types.js";
-import {
-  chronomètre,
-  fAutoAvecÉtats,
-  générerFAuto,
-  obtTempsInterval,
-} from "./utils.js";
-import type { Constellation, ServicesConstellation } from "../constellation.js";
+import { chronomètre, générerFAuto } from "./utils.js";
+import type { OptionsCommunes } from "../nébuleuse/appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { PartielRécursif } from "../types.js";
 import type {
-  Fréquence,
   InfoImporterFeuilleCalcul,
   InfoImporterJSON,
   SpécificationAutomatisation,
@@ -31,7 +24,11 @@ import type {
   StructureServiceAutomatisations,
   ÉtatAutomatisation,
   SourceDonnéesImportationAdresseOptionel,
+  SpécificationAjoutExportation,
 } from "./types.js";
+import type { Bds } from "../bds/bds.js";
+import type { Projets } from "../projets.js";
+import type { Nuées } from "../nuées/nuées.js";
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   spéc: T,
@@ -54,7 +51,7 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
 export interface AutomatisationActive {
   spécification: SpécificationAutomatisation;
   état: () => ÉtatAutomatisation;
-  relancer: () => Promise<void>;
+  relancer: () => void;
   fermer: () => Promise<void>;
 }
 
@@ -69,46 +66,12 @@ const différente = (
   return deepEqual(spéc1, spéc2);
 };
 
-const générerChronomètre = async () => {
-  return {
-    fermer: async () => {
-      signal.abort();
-      await queue.onIdle();
-    },
-    relancer: async () => {
-      if (!signal.aborted) queue.add(fAuto);
-    },
-  };
-};
-
-const lancerAutomatisation = async ({
-  id,
-  auto,
-  suiviÉtat,
-}: {
-  id: string;
-  auto: SpécificationAutomatisation;
-  suiviÉtat: Suivi<ÉtatAutomatisation>;
-}): Promise<AutomatisationActive> => {
-  const fAuto = générerFAuto(auto, constl);
-
-  const chrono = await chronomètre({
-    id,
-    auto,
-    suiviÉtat,
-    f: fAuto,
-  });
-
-  const fermer = async () => {
-    await chrono.fermer();
-  };
-
-  return {
-    spécification: auto,
-    état,
-    relancer: async () => await chrono.relancer(),
-    fermer,
-  };
+export type ServicesNécessairesAutomatisations<
+  L extends ServicesLibp2pNébuleuse,
+> = {
+  bds: Bds<L>;
+  projets: Projets<L>;
+  nuées: Nuées<L>;
 };
 
 export class Automatisations<
@@ -117,7 +80,7 @@ export class Automatisations<
   "automatisations",
   StructureServiceAutomatisations,
   L,
-  ServicesConstellation<L>,
+  ServicesNécessairesAutomatisations<L>,
   { oublier: Oublier }
 > {
   queue: PQueue;
@@ -128,12 +91,20 @@ export class Automatisations<
     autos: () => void;
   }>;
 
-  constructor({ appli }: { appli: Constellation }) {
+  clef = "automatisations";
+
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesAutomatisations<L>;
+    options: OptionsCommunes;
+  }) {
     super({
-      clef: "automatisations",
-      appli,
+      services,
       dépendances: ["compte", "stockage"],
       options: {
+        ...options,
         schéma: schémaServiceAutomatisations,
       },
     });
@@ -203,10 +174,9 @@ export class Automatisations<
       if (activePourCeDispositif(auto, ceDispositif)) {
         this.automatisations.set(
           id,
-          await lancerAutomatisation({
-            id,
+          await this.lancerAutomatisation({
             auto,
-            état: () => {
+            suiviÉtat: () => {
               this.événements.emit("autos");
             },
           }),
@@ -230,9 +200,7 @@ export class Automatisations<
   // Actions automatisations
 
   async ajouterAutomatisationExporter(
-    args: Omit<SpécificationExporter, "type" | "id" | "dispositifs"> & {
-      dispositifs?: string[];
-    },
+    args: SpécificationAjoutExportation,
   ): Promise<string> {
     const compte = this.service("compte");
 
@@ -250,6 +218,7 @@ export class Automatisations<
       id: idAuto,
       ...args,
       dispositifs: args.dispositifs ?? [await compte.obtIdDispositif()],
+      fréquence: args.fréquence ?? { type: "dynamique" },
       dossier: idDossier,
     };
 
@@ -398,9 +367,9 @@ export class Automatisations<
     clef,
   }: {
     clef?: string;
-  }): Promise<string | null> {
+  }): Promise<string | undefined> {
     const stockage = this.service("stockage");
-    return clef ? await stockage.obtenirItem(clef) : null;
+    return clef ? (await stockage.obtenirItem(clef)) || undefined : undefined;
   }
 
   async sauvegarderAdressePrivéeFichier({
@@ -413,5 +382,56 @@ export class Automatisations<
     const clef = "dossier." + uuidv4();
     await stockage.sauvegarderItem(clef, fichier);
     return clef;
+  }
+
+  async lancerAutomatisation({
+    auto,
+    suiviÉtat,
+  }: {
+    auto: SpécificationAutomatisation;
+    suiviÉtat: Suivi<ÉtatAutomatisation>;
+  }): Promise<AutomatisationActive> {
+    let étatAuto: ÉtatAutomatisation;
+
+    const spéc = await this.résoudreFichierAuto(auto);
+    const fAuto = générerFAuto<L>({
+      spéc,
+      service: (clef) => this.service(clef),
+    });
+
+    const chrono = await chronomètre<L>({
+      auto,
+      suiviÉtat: async (état) => {
+        étatAuto = état;
+        suiviÉtat(état);
+      },
+      f: fAuto,
+      service: (clef) => this.service(clef),
+    });
+
+    return {
+      spécification: auto,
+      état: () => étatAuto,
+      ...chrono,
+    };
+  }
+
+  async résoudreFichierAuto<T extends SpécificationAutomatisation>(
+    auto: T,
+  ): Promise<T> {
+    auto = structuredClone(auto);
+    if (auto.type === "importation") {
+      if (auto.source.type === "fichier") {
+        auto.source.adresseFichier = await this.résoudreAdressePrivéeFichier({
+          clef: auto.source.adresseFichier,
+        });
+      }
+    } else {
+      auto.dossier = await this.résoudreAdressePrivéeFichier({
+        clef: auto.dossier,
+      });
+    }
+
+    return auto;
   }
 }

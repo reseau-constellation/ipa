@@ -1,4 +1,4 @@
-import { writeFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
@@ -8,12 +8,28 @@ import type { PartielRécursif } from "@/v2/types.js";
 import type {
   SourceDonnéesImportationFichier,
   SpécificationAutomatisation,
+  SpécificationExporter,
   SpécificationImporter,
   ÉtatAutomatisation,
+  ÉtatAutomatisationAttente,
   ÉtatAutomatisationErreur,
 } from "@/v2/automatisations/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
+
+const écrireDonnées = (données: DonnéesRangéeTableau[], fichier: string) => {
+  const colonnes = [...new Set(données.map((d) => Object.keys(d)).flat())];
+  const texte =
+    colonnes.join(",") +
+    "\n" +
+    données.map(
+      (d) =>
+        colonnes.map((c) =>
+          d[c] === undefined || d[c] === null ? "" : d[c]?.toString(),
+        ) + "\n",
+    );
+  writeFileSync(fichier, texte);
+};
 
 describe("Automatisations", function () {
   describe("gestion automatisations", function () {
@@ -38,9 +54,10 @@ describe("Automatisations", function () {
     });
 
     let id: string;
+    let idBd: string;
 
     it("ajout automatisation", async () => {
-      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       id = await constl.automatisations.ajouterAutomatisationExporter({
         fréquence: { type: "manuelle" },
         idObjet: idBd,
@@ -82,7 +99,13 @@ describe("Automatisations", function () {
       const automatisations = await obtenir<
         PartielRécursif<SpécificationAutomatisation>[]
       >(({ si }) =>
-        constl.automatisations.suivreAutomatisations({ f: si(autos=>(autos?.find(auto=>auto.id === id) as SpécificationImporter).formatDoc !== "xlsx") }),
+        constl.automatisations.suivreAutomatisations({
+          f: si(
+            (autos) =>
+              (autos?.find((auto) => auto.id === id) as SpécificationExporter)
+                .formatDoc !== "xlsx",
+          ),
+        }),
       );
 
       const monDispositif = await constl.compte.obtIdDispositif();
@@ -100,7 +123,6 @@ describe("Automatisations", function () {
       ];
 
       expect(automatisations).to.have.deep.members(réf);
-
     });
 
     it("annulation automatisation", async () => {
@@ -212,8 +234,21 @@ describe("Automatisations", function () {
       });
 
       it("importation données", async () => {
-        const colDate = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau })
-        const colPrécip = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau })
+        const adresseFichier = join(dossier, "données.csv");
+        const colDate = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+        });
+        const colPrécip = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+        });
+
+        const réfDonnées: DonnéesRangéeTableau[] = [
+          { [colDate]: new Date(1, 1, 2026).getTime(), [colPrécip]: 10 },
+          { [colDate]: new Date(1, 2, 2026).getTime(), [colPrécip]: 5 },
+        ];
+        écrireDonnées(réfDonnées, adresseFichier);
 
         await constl.automatisations.ajouterAutomatisationImporter({
           idBd,
@@ -221,11 +256,11 @@ describe("Automatisations", function () {
           fréquence: { type: "dynamique" },
           source: {
             type: "fichier",
-            adresseFichier: join(dossier, "données.csv"),
+            adresseFichier,
             info: {
               formatDonnées: "feuilleCalcul",
               nomTableau: "",
-              cols: { [colDate]: "Date", [colPrécip]: "Précipitation" }
+              cols: { [colDate]: "Date", [colPrécip]: "Précipitation" },
             },
           },
         });
@@ -237,56 +272,105 @@ describe("Automatisations", function () {
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
             idTableau,
-            f: si(),
+            f: si((x) => !!x && x?.length >= 2),
           }),
         );
-        const réfDonnées: DonnéesRangéeTableau[] = [];
+
         expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
       });
 
       it("importation fichiers", async () => {
-        const colDate = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau })
-        const colImage = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau })
-        
+        const adresseFichier = join(dossier, "données.csv");
+
+        const colNom = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+        });
+        const colFichier = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+        });
+
+        // Créer fichiers
+        const fichiers = [
+          {
+            nom: "mon fichier1",
+            chemin: "fichier1.png",
+            données: new TextEncoder().encode("abcd"),
+          },
+          {
+            nom: "mon fichier2",
+            chemin: "./fichier2.png",
+            données: new TextEncoder().encode("efgh"),
+          },
+          {
+            nom: "mon fichier3",
+            chemin: join("sousdossier", "fichier3.png"),
+            données: new TextEncoder().encode("ijkl"),
+          },
+        ];
+        mkdirSync(join(dossier, "sousdossier"));
+        for (const { chemin, données } of fichiers) {
+          writeFileSync(join(dossier, chemin), données);
+        }
+        écrireDonnées(
+          fichiers.map(({ nom, chemin }) => ({
+            "Nom document": nom,
+            Fichier: chemin,
+          })),
+          adresseFichier,
+        );
+
+        // Tester l'automatisation
         await constl.automatisations.ajouterAutomatisationImporter({
           idBd,
           idTableau,
           fréquence: { type: "dynamique" },
           source: {
             type: "fichier",
-            adresseFichier: join(dossier, "données.csv"),
+            adresseFichier,
             info: {
               formatDonnées: "feuilleCalcul",
               nomTableau: "",
-              cols: { [colDate]: "Date", [colImage]: "Image" }
+              cols: { "Nom document": colNom, Fichier: colFichier },
             },
           },
         });
-        expect(état).to.deep.equal(réfÉtat);
 
-        const données = await obtenir<
+        const donnéesTableau = await obtenir<
           DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
         >(({ si }) =>
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
             idTableau,
-            f: si(),
+            f: si((x) => !!x && x.length >= 3),
           }),
         );
+
         const réfDonnées: DonnéesRangéeTableau[] = [];
-        expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
+        expect(donnéesTableau.map((d) => d.données)).to.deep.equal(réfDonnées);
 
         // Vérifier fichiers importés dans SFIP
-        expect()
+        const hélia = constl.services["hélia"];
+        for (const { nom, données } of fichiers) {
+          const idSfip = donnéesTableau.find((d) => d.données[colNom] === nom)!
+            .données[colFichier] as string;
+          expect(
+            await hélia.obtFichierDeSFIP({
+              id: idSfip,
+            }),
+          ).to.deep.equal(données);
+        }
       });
 
       it("erreur si fichier non disponible", async () => {
+        const adresseFichier = join(dossier, "je n'existe pas encore.csv");
         idAuto = await constl.automatisations.ajouterAutomatisationImporter({
           idBd,
           idTableau,
           source: {
             type: "fichier",
-            adresseFichier: join(dossier, "je n'existe pas.csv"),
+            adresseFichier,
             info: { formatDonnées: "feuilleCalcul", nomTableau: "", cols: {} },
           },
         });
@@ -303,6 +387,21 @@ describe("Automatisations", function () {
           erreur: "Fichier non existant",
         };
         expect(états[idAuto]).to.deep.equal(réf);
+
+        écrireDonnées([{ col1: 1, col2: 2 }], adresseFichier);
+
+        const étatsAprèsÉcriture = await obtenir<{
+          [key: string]: ÉtatAutomatisation;
+        }>(({ si }) =>
+          constl.automatisations.suivreÉtatAutomatisations({
+            f: si((x) => !!x && !!idAuto && Object.keys(x).includes(idAuto)),
+          }),
+        );
+
+        const réfAprèsÉcriture: ÉtatAutomatisationAttente = {
+          type: "attente",
+        };
+        expect(étatsAprèsÉcriture[idAuto]).to.deep.equal(réfAprèsÉcriture);
       });
 
       it("erreur si fichier corrompu", async () => {
@@ -336,17 +435,19 @@ describe("Automatisations", function () {
         expect(états[idAuto]).to.deep.equal(réf);
       });
 
+      it("conversions");
+
       // Importer de fichier local - fréquence fixe
       /** Importation selon fréquence; état */
       /** Pas réimporté si aucun changement */
       /** Relancer manuellement */
-      
+
       // Importer de fichier local - manuellement
       /** Déclencher manuellement; état */
       /** Relancer manuellement */
-      
+
       // Importer de fichier local - lors de changements
-      
+
       it("importation initiale", async () => {
         await constl.automatisations.ajouterAutomatisationImporter({
           idBd,
@@ -391,7 +492,7 @@ describe("Automatisations", function () {
       });
       /** Relancer manuellement */
     });
-    
+
     describe("importer d'URL", function () {
       // Importer d'URL - fréquence fixe
       // Importer d'URL - manuellement
@@ -399,7 +500,6 @@ describe("Automatisations", function () {
       /** Importation fichiers SFIP */
       /** Erreur si fichier non disponible; état */
       /** Erreur si fichier corrompu; état */
-
       // Importer d'URL - fréquence fixe
       // Importer d'URL - manuellement
     });
@@ -417,32 +517,36 @@ describe("Automatisations", function () {
   describe("exportations", function () {
     // Exportations
     it("fichier masqué sur autre dispositif");
-    
+
     // Exportation - fréquence fixe
     /** Pas réexporté si aucun changement */
     /** Réexporté si fichier disparu */
     /** Réexporté lorsque déclanché */
-    
+
     // Exportation - dynamique
     /** Réexporté lors de changements */
     /** Réexporté si fichier disparu */
     /** Réexporté lorsque déclanché */
-    
+
     // Exportation - manuelle
     /** Réexporté lorsque déclanché */
-    
+
+    // Exportation - copies
+    /** Copies selon nombre */
+    /** Copies selon temps */
+
     // Exportation - tableaux
     /** Exporter données */
     /** Exporter fichiers */
-    
+
     // Exportation - bds
     /** Exporter données */
     /** Exporter fichiers */
-    
+
     // Exportation - nuées
     /** Exporter données */
     /** Exporter fichiers */
-    
+
     // Exportation - projets
     /** Exporter données */
     /** Exporter fichiers */
