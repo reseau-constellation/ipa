@@ -7,35 +7,29 @@ import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
 } from "./fonctions/motsClefs.js";
-import type { InfoAuteur } from "../types.js";
-import type { ServicesConstellation } from "../constellation.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
+import type {
+  ServicesNécessairesRechercheMotsClefs
+} from "./fonctions/motsClefs.js";
+import type { InfoAuteur } from "../types.js";import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
-import type { MotsClefs } from "../motsClefs.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,
   InfoRésultatVide,
   SuivreObjectifRecherche,
   RésultatRecherche,
+  AccesseurService,
 } from "./types.js";
 
 export class RechercheMotsClefs<
   L extends ServicesLibp2pNébuleuse,
-> extends RechercheObjets<L> {
-  motsClefs: MotsClefs<L>;
-
+> extends RechercheObjets<ServicesNécessairesRechercheMotsClefs, L> {
   constructor({
-    motsClefs,
     service,
   }: {
-    motsClefs: MotsClefs<L>;
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    service: AccesseurService<ServicesNécessairesRechercheMotsClefs>;
   }) {
     super({ service });
-    this.motsClefs = motsClefs;
   }
 
   @cacheRechercheParN
@@ -146,7 +140,7 @@ export class RechercheMotsClefs<
     idObjet: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    return await this.motsClefs.suivreAuteurs({ idMotClef: idObjet, f });
+    return await this.service("motsClefs").suivreAuteurs({ idMotClef: idObjet, f });
   }
 
   @cacheRechercheParN
@@ -157,7 +151,7 @@ export class RechercheMotsClefs<
     idCompte,
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
-    fObjectif: SuivreObjectifRecherche<T>;
+    fObjectif: SuivreObjectifRecherche<T, ServicesNécessairesRechercheMotsClefs>;
     n?: number;
     idCompte?: string;
   }): Promise<RetourRecherche> {
@@ -165,12 +159,12 @@ export class RechercheMotsClefs<
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.motsClefs.suivreMotsClefs({
+        await this.service("motsClefs").suivreMotsClefs({
           f: ignorerNonDéfinis(f),
           idCompte,
         }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
-        await this.motsClefs.suivreScoreQualité({
+        await this.service("motsClefs").suivreScoreQualité({
           idMotClef: idObjet,
           f: fSuiviQualité,
         }),

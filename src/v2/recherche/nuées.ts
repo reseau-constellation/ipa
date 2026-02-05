@@ -35,16 +35,14 @@ export class RechercheNuées<
 
   constructor({
     nuées: nuées,
-    constl,
     service,
   }: {
     nuées: Nuées<L>;
-    constl: Constellation;
     service: <T extends keyof ServicesConstellation<L>>(
       service: T,
     ) => ServicesConstellation<L>[T];
   }) {
-    super({ constl, service });
+    super({ service });
     this.nuées = nuées;
   }
 

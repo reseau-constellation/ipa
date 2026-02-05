@@ -32,11 +32,11 @@ export const rechercherProjetsSelonNom = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = (noms: { [key: string]: string }) => {
+    const fSuivre = (noms: TraducsTexte) => {
       const corresp = similTexte({ texte: nomProjet, possibilités: noms });
       if (corresp) {
         const { score, clef, info } = corresp;
@@ -67,11 +67,11 @@ export const rechercherProjetsSelonDescription = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = (descrs: { [key: string]: string }) => {
+    const fSuivre = (descrs: TraducsTexte) => {
       const corresp = similTexte({ texte: descProjet, possibilités: descrs });
       if (corresp) {
         const { score, clef, info } = corresp;
@@ -102,7 +102,7 @@ export const rechercherProjetsSelonIdBd = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -143,7 +143,7 @@ export const rechercherProjetsSelonBd = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<
@@ -184,7 +184,7 @@ export const rechercherProjetsSelonIdVariable = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -219,7 +219,7 @@ export const rechercherProjetsSelonNomVariable = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -256,7 +256,7 @@ export const rechercherProjetsSelonVariable = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
@@ -293,7 +293,7 @@ export const rechercherProjetsSelonIdMotClef = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -328,7 +328,7 @@ export const rechercherProjetsSelonNomMotClef = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -365,7 +365,7 @@ export const rechercherProjetsSelonMotClef = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<
       InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
@@ -410,7 +410,7 @@ export const rechercherProjetsSelonTexte = (
     idObjet,
     f,
   }: {
-    services: ServicesConstellation,
+    services: ServicesConstellation;
     idObjet: string;
     f: SuiviRecherche<
       | InfoRésultatTexte

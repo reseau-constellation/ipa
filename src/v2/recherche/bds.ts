@@ -13,8 +13,10 @@ import {
 } from "./fonctions/bds.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { RechercheObjets } from "./recherche.js";
+import type {
+  ServicesNécessairesRechercheBds
+} from "./fonctions/bds.js";
 import type { Bds } from "../bds/bds.js";
-import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type {
@@ -24,12 +26,13 @@ import type {
   InfoRésultatVide,
   InfoRésultat,
   SuivreObjectifRecherche,
+  AccesseurService,
 } from "./types.js";
 import type { InfoAuteur } from "../types.js";
 
 export class RechercheBds<
   L extends ServicesLibp2pNébuleuse,
-> extends RechercheObjets<L> {
+> extends RechercheObjets<ServicesNécessairesRechercheBds, L> {
   bds: Bds<L>;
 
   constructor({
@@ -37,9 +40,7 @@ export class RechercheBds<
     service,
   }: {
     bds: Bds<L>;
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    service: AccesseurService<ServicesNécessairesRechercheBds>;
   }) {
     super({ service });
     this.bds = bds;
@@ -290,7 +291,7 @@ export class RechercheBds<
     idCompte,
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
-    fObjectif: SuivreObjectifRecherche<T>;
+    fObjectif: SuivreObjectifRecherche<T, ServicesNécessairesRechercheBds>;
     n?: number;
     idCompte?: string;
   }): Promise<RetourRecherche> {

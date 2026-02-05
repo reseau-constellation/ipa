@@ -1,4 +1,5 @@
-import type { ServicesConstellation } from "../constellation.js";
+import type { ServicesNécessairesRecherche } from "./recherche.js";
+import type { ServicesAppli } from "../nébuleuse/appli/appli.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 
 export interface InfoRésultatTexte {
@@ -35,9 +36,9 @@ export interface RésultatRecherche<T extends InfoRésultat = InfoRésultat> {
   id: string;
 }
 
-export type SuivreObjectifRecherche<T extends InfoRésultat = InfoRésultat> =
+export type SuivreObjectifRecherche<T extends InfoRésultat = InfoRésultat, S extends ServicesNécessairesRecherche = ServicesNécessairesRecherche> =
   (args: {
-    services: ServicesConstellation;
+    services: AccesseurService<S>;
     idObjet: string;
     f: SuiviRecherche<T>;
   }) => Promise<Oublier>;
@@ -55,3 +56,7 @@ export type SuivreQualitéRecherche = (args: {
   idObjet: string;
   f: Suivi<number>;
 }) => Promise<Oublier>;
+
+export type AccesseurService<T extends ServicesAppli> = <S extends keyof T>(
+  service: S,
+) => T[S];

@@ -5,25 +5,30 @@ import {
   rechercherTousSiVide,
   similTexte,
 } from "./utils.js";
-import type { ServicesConstellation } from "@/v2/constellation.js";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 import type { TraducsTexte } from "@/v2/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
+  AccesseurService,
   InfoRésultatTexte,
   InfoRésultatVide,
   SuiviRecherche,
   SuivreObjectifRecherche,
 } from "../types.js";
+import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import type { MotsClefs } from "@/v2/motsClefs.js";
+
+export type ServicesNécessairesRechercheMotsClefs = ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & { motsClefs: MotsClefs<ServicesLibp2pNébuleuse> };
 
 export const rechercherMotsClefsSelonNom = (
   nomMotClef: string,
-): SuivreObjectifRecherche<InfoRésultatTexte> => {
+): SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheMotsClefs> => {
   return async ({
     services,
     idObjet,
     f,
   }: {
-    services: ServicesConstellation;
+    services: AccesseurService<ServicesNécessairesRechercheMotsClefs>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -42,7 +47,7 @@ export const rechercherMotsClefsSelonNom = (
         return await f();
       }
     };
-    const oublier = await services.motsClefs.suivreNoms({
+    const oublier = await services("motsClefs").suivreNoms({
       idMotClef: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
@@ -52,17 +57,17 @@ export const rechercherMotsClefsSelonNom = (
 
 export const rechercherMotsClefsSelonDescription = (
   descriptionMotClef: string,
-): SuivreObjectifRecherche<InfoRésultatTexte> => {
+): SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheMotsClefs> => {
   return async ({
     services,
     idObjet,
     f,
   }: {
-    services: ServicesConstellation;
+    services: AccesseurService<ServicesNécessairesRechercheMotsClefs>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = async (noms: { [key: string]: string }) => {
+    const fSuivre = async (noms: TraducsTexte) => {
       const corresp = similTexte({
         texte: descriptionMotClef,
         possibilités: noms,
@@ -80,7 +85,7 @@ export const rechercherMotsClefsSelonDescription = (
         return await f();
       }
     };
-    const oublier = await services.motsClefs.suivreDescriptions({
+    const oublier = await services("motsClefs").suivreDescriptions({
       idMotClef: idObjet,
       f: fSuivre,
     });
@@ -88,15 +93,15 @@ export const rechercherMotsClefsSelonDescription = (
   };
 };
 
-export const rechercherMotsClefsSelonTexte = (
+export const rechercherMotsClefsSelonTexte = <L extends ServicesLibp2pNébuleuse>(
   texte: string,
-): SuivreObjectifRecherche<InfoRésultatTexte | InfoRésultatVide> => {
+): SuivreObjectifRecherche<InfoRésultatTexte | InfoRésultatVide, ServicesNécessairesRechercheMotsClefs> => {
   return async ({
     services,
     idObjet,
     f,
   }: {
-    services: ServicesConstellation;
+    services: AccesseurService<ServicesNécessairesRechercheMotsClefs>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte | InfoRésultatVide>;
   }): Promise<Oublier> => {

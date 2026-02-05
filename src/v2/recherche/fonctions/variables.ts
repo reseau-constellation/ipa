@@ -26,7 +26,7 @@ export const rechercherVariablesSelonNom = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = async (nomsVariable: { [key: string]: string }) => {
+    const fSuivre = async (nomsVariable: TraducsTexte) => {
       const résultat = similTexte({ texte: nom, possibilités: nomsVariable });
       if (résultat) {
         const { score, clef, info } = résultat;
@@ -61,7 +61,7 @@ export const rechercherVariablesSelonDescription = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = async (nomsVariable: { [key: string]: string }) => {
+    const fSuivre = async (nomsVariable: TraducsTexte) => {
       const résultat = similTexte({
         texte: description,
         possibilités: nomsVariable,

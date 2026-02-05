@@ -29,7 +29,7 @@ export const rechercherNuéesSelonNom = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = (noms: { [key: string]: string }) => {
+    const fSuivre = (noms: TraducsTexte) => {
       const corresp = similTexte({ texte: nomNuée, possibilités: noms });
       if (corresp) {
         const { score, clef, info } = corresp;
@@ -64,7 +64,7 @@ export const rechercherNuéesSelonDescription = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = (descriptions: { [key: string]: string }) => {
+    const fSuivre = (descriptions: TraducsTexte) => {
       const corresp = similTexte({
         texte: descriptionNuée,
         possibilités: descriptions,

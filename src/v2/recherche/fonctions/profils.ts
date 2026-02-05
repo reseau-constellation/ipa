@@ -29,7 +29,7 @@ export const rechercherProfilsSelonActivité =
       f: SuiviRecherche<InfoRésultatVide>;
     }): Promise<Oublier> => {
       const infosCompte: {
-        noms?: { [key: string]: string };
+        noms?: TraducsTexte;
         image?: Uint8Array | null;
         courriel?: string | null;
       } = {
@@ -52,7 +52,7 @@ export const rechercherProfilsSelonActivité =
           info: { type: "vide" },
         };
       };
-      const fSuivreNoms = (noms: { [key: string]: string }) => {
+      const fSuivreNoms = (noms: TraducsTexte) => {
         infosCompte.noms = noms;
         f(calculerScore());
       };
@@ -104,7 +104,7 @@ export const rechercherProfilsSelonNom = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
-    const fSuivre = (noms: { [key: string]: string }) => {
+    const fSuivre = (noms: TraducsTexte) => {
       const corresp = similTexte({ texte: nom, possibilités: noms });
       if (corresp) {
         const { score, clef, info } = corresp;

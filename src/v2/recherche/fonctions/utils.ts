@@ -2,7 +2,7 @@ import correspTexte from "approx-string-match";
 import ssim from "ssim";
 
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
-import type { Constellation } from "../../index.js";
+import type { ServicesNécessairesRecherche } from "../recherche.js";
 import type {
   InfoRésultat,
   InfoRésultatRecherche,
@@ -11,9 +11,10 @@ import type {
   RésultatObjectifRecherche,
   SuivreObjectifRecherche,
   SuiviRecherche,
+  AccesseurService,
 } from "../types.js";
 import type { Oublier } from "../../nébuleuse/types.js";
-import { ServicesConstellation } from "@/v2/constellation.js";
+import type { TraducsTexte } from "@/v2/types.js";
 
 export const rechercherDansTexte = ({
   schéma,
@@ -45,7 +46,7 @@ export const similTexte = ({
   possibilités,
 }: {
   texte: string;
-  possibilités: { [key: string]: string } | string[];
+  possibilités: TraducsTexte | string[];
 }): { score: number; clef: string; info: InfoRésultatTexte } | undefined => {
   if (Array.isArray(possibilités)) {
     possibilités = Object.fromEntries(possibilités.map((x) => [x, x]));
@@ -84,14 +85,14 @@ export const similImages = ({
   return mssim;
 };
 
-export const combinerRecherches = async <T extends InfoRésultat>({
+export const combinerRecherches = async <T extends InfoRésultat, S extends ServicesNécessairesRecherche>({
   fsRecherche,
-    services,
-      idObjet,
+  services,
+  idObjet,
   fSuivreRecherche,
 }: {
-  fsRecherche: { [key: string]: SuivreObjectifRecherche<T> };
-services: ServicesConstellation;
+  fsRecherche: { [key: string]: SuivreObjectifRecherche<T, S> };
+  services: AccesseurService<S>;
   idObjet: string;
   fSuivreRecherche: SuiviRecherche<T>;
 }): Promise<Oublier> => {
@@ -122,7 +123,7 @@ services: ServicesConstellation;
   };
 };
 
-export const sousRecherche = async <T extends InfoRésultat>({
+export const sousRecherche = async <T extends InfoRésultat, S extends ServicesNécessairesRecherche>({
   de,
   fListe,
   fRechercher,
@@ -135,8 +136,8 @@ export const sousRecherche = async <T extends InfoRésultat>({
   }: {
     fSuivreRacine: (ids: string[]) => void;
   }) => Promise<Oublier>;
-  fRechercher: SuivreObjectifRecherche<T>;
-  services: ServicesConstellation;
+  fRechercher: SuivreObjectifRecherche<T, S>;
+  services: AccesseurService<S>;
   fSuivreRecherche: SuiviRecherche<InfoRésultatRecherche<T>>;
 }): Promise<Oublier> => {
   const fBranche = async ({

@@ -22,20 +22,22 @@ import type {
   SuivreQualitéRecherche,
 } from "./types.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
-import type { ServicesConstellation } from "../constellation.js";
 import type { InfoAuteur } from "../types.js";
+import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/compte.js";
+import type { ServiceRéseau } from "../nébuleuse/services/réseau.js";
+import type { ServiceFavoris } from "../nébuleuse/services/favoris.js";
 
-export class Recherche<L extends ServicesLibp2pNébuleuse> {
-  service: <T extends keyof ServicesConstellation<L>>(
-    service: T,
-  ) => ServicesConstellation<L>[T];
+export type ServicesNécessairesRecherche<L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse> = ServicesNécessairesCompte<L> & {
+  réseau: ServiceRéseau<L>;
+}
+
+export class Recherche<S extends ServicesNécessairesRecherche, L extends ServicesLibp2pNébuleuse> {
+  service: <C extends keyof S>(service: C) => S[C];
 
   constructor({
     service,
   }: {
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    service: <C extends keyof S>(service: C) => S[C];
   }) {
     this.service = service;
   }
@@ -55,7 +57,7 @@ export class Recherche<L extends ServicesLibp2pNébuleuse> {
       idCompte: string;
       f: Suivi<string[] | undefined>;
     }) => Promise<Oublier>;
-    fObjectif: SuivreObjectifRecherche<T>;
+    fObjectif: SuivreObjectifRecherche<T, S>;
     fConfiance: SuivreConfianceRecherche;
     fQualité: SuivreQualitéRecherche;
   }): Promise<RetourRecherche> {
@@ -177,7 +179,7 @@ export class Recherche<L extends ServicesLibp2pNébuleuse> {
               });
           };
           const oublierObjectif = await fObjectif({
-            constl: this.constl,
+            services: this.service,
             idObjet,
             f: async (résultat) => {
               info.résultat = résultat;
@@ -249,9 +251,14 @@ export class Recherche<L extends ServicesLibp2pNébuleuse> {
   }
 }
 
+export type ServicesNécessairesRechercheObjets<
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> = ServicesNécessairesRecherche<L> & { favoris: ServiceFavoris<L> }
+
 export abstract class RechercheObjets<
+  S extends ServicesNécessairesRechercheObjets,
   L extends ServicesLibp2pNébuleuse,
-> extends Recherche<L> {
+> extends Recherche<S, L> {
   abstract suivreAuteursObjet({
     idObjet,
     f,
@@ -276,7 +283,7 @@ export abstract class RechercheObjets<
       f: Suivi<string[]>;
     }) => Promise<Oublier>;
     fQualité: SuivreQualitéRecherche;
-    fObjectif: SuivreObjectifRecherche<T>;
+    fObjectif: SuivreObjectifRecherche<T, S>;
     idCompte?: string;
   }): Promise<RetourRecherche> {
     const serviceFavoris = this.service("favoris");
@@ -304,7 +311,7 @@ export abstract class RechercheObjets<
           fSuivreBranche: Suivi<RésultatRecherche<T>>;
         }): Promise<Oublier> =>
           await fObjectif({
-            constl: this.constl,
+            services: this.service,
             idObjet: id,
             f: async (résultat) => {
               if (résultat)
