@@ -2398,39 +2398,12 @@ describe.only("tableaux", function () {
         ],
       };
 
-      it("correspondances colonnes", async () => {
-        const { converties } = await constl.bds.tableaux.convertirDonnées({
-          données: [{ numérique: 123, chaîne: "নমস্কার" }],
-          conversions: [
-            {
-              colonneSource: "numérique",
-              colonneCible: "colonne numérique",
-              conversion: { type: "numérique" },
-            },
-            {
-              colonneSource: "chaîne",
-              colonneCible: "colonne chaîne",
-              conversion: { type: "chaîneNonTraductible" },
-            },
-          ],
-        });
-
-        const réf: DonnéesRangéeTableau[] = [
-          {
-            "colonne numérique": 123,
-            "colonne chaîne": "নমস্কার",
-          },
-        ];
-        expect(converties).to.have.deep.members(réf);
-      });
-
       it("colonnes non spécifiée est ignorée", async () => {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: 123, chaîne: "নমস্কার" }],
           conversions: [
             {
-              colonneSource: "numérique",
-              colonneCible: "colonne numérique",
+              colonne: "numérique",
               conversion: { type: "numérique" },
             },
           ],
@@ -2462,7 +2435,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: "123" }],
           conversions: [
-            { colonneSource: "numérique", conversion: { type: "numérique" } },
+            { colonne: "numérique", conversion: { type: "numérique" } },
           ],
         });
 
@@ -2479,7 +2452,7 @@ describe.only("tableaux", function () {
           données: [{ numérique: "১২৩" }],
           conversions: [
             {
-              colonneSource: "numérique",
+              colonne: "numérique",
               conversion: { type: "numérique", systèmeNumération: "বাং" },
             },
           ],
@@ -2497,7 +2470,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: "௱௨௰௩" }],
           conversions: [
-            { colonneSource: "numérique", conversion: { type: "numérique" } },
+            { colonne: "numérique", conversion: { type: "numérique" } },
           ],
         });
 
@@ -2514,7 +2487,7 @@ describe.only("tableaux", function () {
           données: [{ numérique: 101 }],
           conversions: [
             {
-              colonneSource: "numérique",
+              colonne: "numérique",
               conversion: {
                 type: "numérique",
                 opération: [
@@ -2538,8 +2511,8 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ numérique: "abc", chaîne: "abc" }],
           conversions: [
-            { colonneSource: "numérique", conversion: { type: "numérique" } },
-            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+            { colonne: "numérique", conversion: { type: "numérique" } },
+            { colonne: "chaîne", conversion: { type: "chaîne" } },
           ],
         });
 
@@ -2555,8 +2528,8 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: "abc", numérique: undefined }],
           conversions: [
-            { colonneSource: "numérique", conversion: { type: "numérique" } },
-            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
+            { colonne: "numérique", conversion: { type: "numérique" } },
+            { colonne: "chaîne", conversion: { type: "chaîne" } },
           ],
         });
 
@@ -2571,9 +2544,7 @@ describe.only("tableaux", function () {
       it("chaîne - texte", async () => {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: "abc" }],
-          conversions: [
-            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
-          ],
+          conversions: [{ colonne: "chaîne", conversion: { type: "chaîne" } }],
         });
 
         const réf: DonnéesRangéeTableau[] = [
@@ -2588,9 +2559,7 @@ describe.only("tableaux", function () {
         const idTexte = uuidv4();
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: idTexte }],
-          conversions: [
-            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
-          ],
+          conversions: [{ colonne: "chaîne", conversion: { type: "chaîne" } }],
           traductions: { [idTexte]: { fr: "riz" } },
         });
         const réf: DonnéesRangéeTableau[] = [
@@ -2605,9 +2574,7 @@ describe.only("tableaux", function () {
         const idTexte = uuidv4();
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: idTexte }],
-          conversions: [
-            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
-          ],
+          conversions: [{ colonne: "chaîne", conversion: { type: "chaîne" } }],
         });
         const réf: DonnéesRangéeTableau[] = [
           {
@@ -2621,9 +2588,7 @@ describe.only("tableaux", function () {
         const idTexte = uuidv4();
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: "riz" }],
-          conversions: [
-            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
-          ],
+          conversions: [{ colonne: "chaîne", conversion: { type: "chaîne" } }],
           traductions: { [idTexte]: { fr: "riz" } },
         });
         const réf: DonnéesRangéeTableau[] = [
@@ -2640,7 +2605,7 @@ describe.only("tableaux", function () {
           données: [{ chaîne: "arròs" }],
           conversions: [
             {
-              colonneSource: "chaîne",
+              colonne: "chaîne",
               conversion: { type: "chaîne", langue: "ctl" },
             },
           ],
@@ -2661,7 +2626,7 @@ describe.only("tableaux", function () {
             données: [{ chaîne: "நெல்" }],
             conversions: [
               {
-                colonneSource: "chaîne",
+                colonne: "chaîne",
                 conversion: { type: "chaîne", langue: "த" },
               },
             ],
@@ -2683,9 +2648,7 @@ describe.only("tableaux", function () {
       it("chaîne - non définie", async () => {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: undefined }],
-          conversions: [
-            { colonneSource: "chaîne", conversion: { type: "chaîne" } },
-          ],
+          conversions: [{ colonne: "chaîne", conversion: { type: "chaîne" } }],
         });
 
         const réf: DonnéesRangéeTableau[] = [{}];
@@ -2696,7 +2659,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ booléenne: true }, { booléenne: false }],
           conversions: [
-            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+            { colonne: "booléenne", conversion: { type: "booléen" } },
           ],
         });
 
@@ -2715,7 +2678,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ booléenne: 0 }, { booléenne: 1 }, { booléenne: 2 }],
           conversions: [
-            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+            { colonne: "booléenne", conversion: { type: "booléen" } },
           ],
         });
 
@@ -2739,7 +2702,7 @@ describe.only("tableaux", function () {
             { booléenne: "peut-être" },
           ],
           conversions: [
-            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+            { colonne: "booléenne", conversion: { type: "booléen" } },
           ],
         });
 
@@ -2759,7 +2722,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ booléenne: true }, { booléenne: undefined }],
           conversions: [
-            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+            { colonne: "booléenne", conversion: { type: "booléen" } },
           ],
         });
 
@@ -2776,7 +2739,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ booléenne: { a: 1 } }],
           conversions: [
-            { colonneSource: "booléenne", conversion: { type: "booléen" } },
+            { colonne: "booléenne", conversion: { type: "booléen" } },
           ],
         });
 
@@ -2825,7 +2788,7 @@ describe.only("tableaux", function () {
             données: [{ fichier: "logo.svg" }],
             conversions: [
               {
-                colonneSource: "fichier",
+                colonne: "fichier",
                 conversion: { type: "fichier", baseChemin: "médias" },
               },
             ],
@@ -2842,7 +2805,7 @@ describe.only("tableaux", function () {
             données: [{ fichier: "n'existe pas.svg" }],
             conversions: [
               {
-                colonneSource: "fichier",
+                colonne: "fichier",
                 conversion: { type: "fichier", baseChemin: "médias" },
               },
             ],
@@ -2858,7 +2821,7 @@ describe.only("tableaux", function () {
               { fichier: "https://test.réseau-constellation.ca/logo.svg" },
             ],
             conversions: [
-              { colonneSource: "fichier", conversion: { type: "fichier" } },
+              { colonne: "fichier", conversion: { type: "fichier" } },
             ],
           });
 
@@ -2874,7 +2837,7 @@ describe.only("tableaux", function () {
               },
             ],
             conversions: [
-              { colonneSource: "fichier", conversion: { type: "fichier" } },
+              { colonne: "fichier", conversion: { type: "fichier" } },
             ],
           });
 
@@ -2888,7 +2851,7 @@ describe.only("tableaux", function () {
               { fichier: { contenu: LOGO, nomFichier: "mon logo.svg" } },
             ],
             conversions: [
-              { colonneSource: "fichier", conversion: { type: "fichier" } },
+              { colonne: "fichier", conversion: { type: "fichier" } },
             ],
           });
 
@@ -2900,7 +2863,7 @@ describe.only("tableaux", function () {
           const { converties } = await constl.bds.tableaux.convertirDonnées({
             données: [{ fichier: { contenu: LOGO } }],
             conversions: [
-              { colonneSource: "fichier", conversion: { type: "fichier" } },
+              { colonne: "fichier", conversion: { type: "fichier" } },
             ],
           });
 
@@ -2912,7 +2875,7 @@ describe.only("tableaux", function () {
           const { converties } = await constl.bds.tableaux.convertirDonnées({
             données: [{ fichier: 123 }],
             conversions: [
-              { colonneSource: "fichier", conversion: { type: "fichier" } },
+              { colonne: "fichier", conversion: { type: "fichier" } },
             ],
           });
 
@@ -2926,7 +2889,7 @@ describe.only("tableaux", function () {
           données: [{ chaîne: "abc" }],
           conversions: [
             {
-              colonneSource: "chaîne",
+              colonne: "chaîne",
               conversion: { type: "chaîneNonTraductible" },
             },
           ],
@@ -2945,7 +2908,7 @@ describe.only("tableaux", function () {
           données: [{ chaîne: { une: { valeur: "texte" } } }],
           conversions: [
             {
-              colonneSource: "chaîne",
+              colonne: "chaîne",
               conversion: { type: "chaîneNonTraductible" },
             },
           ],
@@ -2964,7 +2927,7 @@ describe.only("tableaux", function () {
           données: [{ chaîne: 123 }],
           conversions: [
             {
-              colonneSource: "chaîne",
+              colonne: "chaîne",
               conversion: { type: "chaîneNonTraductible" },
             },
           ],
@@ -2983,7 +2946,7 @@ describe.only("tableaux", function () {
           données: [{ chaîne: undefined }],
           conversions: [
             {
-              colonneSource: "chaîne",
+              colonne: "chaîne",
               conversion: { type: "chaîneNonTraductible" },
             },
           ],
@@ -2998,7 +2961,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: maintenant.toDateString() }],
           conversions: [
-            { colonneSource: "date", conversion: { type: "horoDatage" } },
+            { colonne: "date", conversion: { type: "horoDatage" } },
           ],
         });
 
@@ -3013,7 +2976,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: maintenant }],
           conversions: [
-            { colonneSource: "date", conversion: { type: "horoDatage" } },
+            { colonne: "date", conversion: { type: "horoDatage" } },
           ],
         });
 
@@ -3028,7 +2991,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: maintenant }],
           conversions: [
-            { colonneSource: "date", conversion: { type: "horoDatage" } },
+            { colonne: "date", conversion: { type: "horoDatage" } },
           ],
         });
 
@@ -3042,7 +3005,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: "ceci n'est pas une date" }],
           conversions: [
-            { colonneSource: "date", conversion: { type: "horoDatage" } },
+            { colonne: "date", conversion: { type: "horoDatage" } },
           ],
         });
 
@@ -3054,7 +3017,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ date: true }],
           conversions: [
-            { colonneSource: "date", conversion: { type: "horoDatage" } },
+            { colonne: "date", conversion: { type: "horoDatage" } },
           ],
         });
 
@@ -3071,7 +3034,7 @@ describe.only("tableaux", function () {
           données: [{ intervale }],
           conversions: [
             {
-              colonneSource: "intervale",
+              colonne: "intervale",
               conversion: { type: "intervaleTemps" },
             },
           ],
@@ -3092,7 +3055,7 @@ describe.only("tableaux", function () {
           données: [{ intervale: JSON.stringify(intervale) }],
           conversions: [
             {
-              colonneSource: "intervale",
+              colonne: "intervale",
               conversion: { type: "intervaleTemps" },
             },
           ],
@@ -3109,7 +3072,7 @@ describe.only("tableaux", function () {
           données: [{ intervale: "Je ne suis pas du JSON" }],
           conversions: [
             {
-              colonneSource: "intervale",
+              colonne: "intervale",
               conversion: { type: "intervaleTemps" },
             },
           ],
@@ -3126,7 +3089,7 @@ describe.only("tableaux", function () {
           ],
           conversions: [
             {
-              colonneSource: "intervale",
+              colonne: "intervale",
               conversion: { type: "intervaleTemps" },
             },
           ],
@@ -3144,7 +3107,7 @@ describe.only("tableaux", function () {
           données: [{ intervale: JSON.stringify(intervale) }],
           conversions: [
             {
-              colonneSource: "intervale",
+              colonne: "intervale",
               conversion: { type: "intervaleTemps" },
             },
           ],
@@ -3164,7 +3127,7 @@ describe.only("tableaux", function () {
           données: [{ intervale: JSON.stringify(intervale) }],
           conversions: [
             {
-              colonneSource: "intervale",
+              colonne: "intervale",
               conversion: { type: "intervaleTemps" },
             },
           ],
@@ -3179,7 +3142,7 @@ describe.only("tableaux", function () {
           données: [{ intervale: { valeur: "invalide" } }],
           conversions: [
             {
-              colonneSource: "intervale",
+              colonne: "intervale",
               conversion: { type: "intervaleTemps" },
             },
           ],
@@ -3193,7 +3156,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ géojson }],
           conversions: [
-            { colonneSource: "géojson", conversion: { type: "géojson" } },
+            { colonne: "géojson", conversion: { type: "géojson" } },
           ],
         });
 
@@ -3207,7 +3170,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ géojson: JSON.stringify(géojson) }],
           conversions: [
-            { colonneSource: "géojson", conversion: { type: "géojson" } },
+            { colonne: "géojson", conversion: { type: "géojson" } },
           ],
         });
 
@@ -3221,7 +3184,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ géojson: "je ne suis pas du json" }],
           conversions: [
-            { colonneSource: "géojson", conversion: { type: "géojson" } },
+            { colonne: "géojson", conversion: { type: "géojson" } },
           ],
         });
 
@@ -3233,7 +3196,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ géojson: 123 }],
           conversions: [
-            { colonneSource: "géojson", conversion: { type: "géojson" } },
+            { colonne: "géojson", conversion: { type: "géojson" } },
           ],
         });
 
@@ -3245,7 +3208,7 @@ describe.only("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ géojson: undefined }],
           conversions: [
-            { colonneSource: "géojson", conversion: { type: "géojson" } },
+            { colonne: "géojson", conversion: { type: "géojson" } },
           ],
         });
 
@@ -3258,7 +3221,7 @@ describe.only("tableaux", function () {
           données: [{ listeNumérique: [1, 2, 3] }],
           conversions: [
             {
-              colonneSource: "listeNumérique",
+              colonne: "listeNumérique",
               typeCatégorie: "liste",
               conversion: { type: "numérique" },
             },
@@ -3274,7 +3237,7 @@ describe.only("tableaux", function () {
           données: [{ listeNumérique: "[1, 2, 3]" }],
           conversions: [
             {
-              colonneSource: "listeNumérique",
+              colonne: "listeNumérique",
               typeCatégorie: "liste",
               conversion: { type: "numérique" },
             },
@@ -3290,7 +3253,7 @@ describe.only("tableaux", function () {
           données: [{ listeNumérique: "Je ne suis pas du json." }],
           conversions: [
             {
-              colonneSource: "listeNumérique",
+              colonne: "listeNumérique",
               typeCatégorie: "liste",
               conversion: { type: "numérique" },
             },
@@ -3306,7 +3269,7 @@ describe.only("tableaux", function () {
           données: [{ listeNumérique: 123 }],
           conversions: [
             {
-              colonneSource: "listeNumérique",
+              colonne: "listeNumérique",
               typeCatégorie: "liste",
               conversion: { type: "numérique" },
             },
@@ -3322,7 +3285,7 @@ describe.only("tableaux", function () {
           données: [{ listeNumérique: [123, "abc"] }],
           conversions: [
             {
-              colonneSource: "listeNumérique",
+              colonne: "listeNumérique",
               typeCatégorie: "liste",
               conversion: { type: "numérique" },
             },

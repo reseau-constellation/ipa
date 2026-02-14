@@ -12,26 +12,32 @@ import {
 } from "@/v2/nébuleuse/services/dispositifs.js";
 import { Appli } from "@/v2/nébuleuse/appli/index.js";
 import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
+import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
 import { ServiceLibp2pTest } from "./utils.js";
-import type { ServicesNécessairesDispositifs } from "@/v2/nébuleuse/services/dispositifs.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
+import type { ServicesNécessairesDispositifs } from "@/v2/nébuleuse/services/dispositifs.js";
 
 describe.only("Dispositifs", function () {
   describe("infos dispositifs", function () {
-    let appli: Appli<ServicesNécessairesDispositifs<ServicesLibp2pTest>>;
+    let appli: Appli<
+      ServicesNécessairesDispositifs & { dispositifs: ServiceDispositifs }
+    >;
     let dossier: string;
     let effacer: () => void;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
-      appli = new Appli<ServicesNécessairesDispositifs<ServicesLibp2pTest>>({
+      appli = new Appli<
+        ServicesNécessairesDispositifs & { dispositifs: ServiceDispositifs }
+      >({
         services: {
+          dossier: ServiceDossier,
           journal: ServiceJournal,
           stockage: ServiceStockage,
           libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-          orbite: ServiceOrbite,
+          hélia: ServiceHélia<ServicesLibp2pTest>,
+          orbite: ServiceOrbite<ServicesLibp2pTest>,
           compte: ServiceCompte,
           dispositifs: ServiceDispositifs,
         },

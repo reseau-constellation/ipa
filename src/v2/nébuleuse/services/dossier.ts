@@ -19,12 +19,11 @@ export type OptionsServiceDossier = {
 type RetourDémarrageDossier = { dossier: string; déverrouiller: Oublier };
 
 export class ServiceDossier extends ServiceAppli<
+  "dossier",
   ServicesAppli,
   RetourDémarrageDossier,
   OptionsServiceDossier
 > {
-  clef = "stockage";
-
   constructor({
     services,
     options,
@@ -33,6 +32,7 @@ export class ServiceDossier extends ServiceAppli<
     options: OptionsCommunes;
   }) {
     super({
+      clef: "dossier",
       services,
       options,
     });

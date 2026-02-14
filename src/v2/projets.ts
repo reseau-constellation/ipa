@@ -9,8 +9,9 @@ import {
 } from "@constl/utils-ipa";
 import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
 import toBuffer from "it-to-buffer";
+import Base64 from "crypto-js/enc-base64.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
-import { conversionsTypes } from "./utils.js";
+import { conversionsTypes, définis } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
 import {
@@ -28,7 +29,7 @@ import type {
 import type { TypedNested } from "@constl/bohr-db";
 import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
 import type { JSONSchemaType } from "ajv";
-import type { Constellation } from "./constellation.js";
+import type { Constellation, ServicesConstellation } from "./constellation.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   InfoAuteur,
@@ -126,19 +127,18 @@ export const schémaProjet: JSONSchemaType<PartielRécursif<StructureProjet>> = 
 export class Projets<
   L extends ServicesLibp2pNébuleuse,
 > extends ObjetConstellation<"projets", StructureProjet, L> {
-  recherche: RechercheProjets<L>;
-
   schémaObjet = schémaProjet;
 
-  constructor({ appli }: { appli: Constellation }) {
+  recherche: RechercheProjets<L>;
+
+  constructor({ services }: { services: ServicesConstellation<L> }) {
     super({
       clef: "projets",
-      appli,
+      services,
       dépendances: ["motsClefs", "bds", "compte", "orbite", "hélia"],
     });
     this.recherche = new RechercheProjets({
       projets: this,
-      constl: this.appli,
       service: (clef) => this.service(clef),
     });
 
@@ -267,7 +267,7 @@ export class Projets<
     f,
   }: {
     idProjet: string;
-    f: Suivi<{ id: string } | undefined>;
+    f: Suivi<{ id?: string } | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idProjet,
@@ -473,7 +473,7 @@ export class Projets<
     noms,
   }: {
     idProjet: string;
-    noms: { [key: string]: string };
+    noms: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idProjet });
 
@@ -522,7 +522,7 @@ export class Projets<
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idProjet,
-      f: (projet) => f(projet.noms || {}),
+      f: (projet) => f(définis(projet.noms || {})),
     });
   }
 
@@ -533,7 +533,7 @@ export class Projets<
     descriptions,
   }: {
     idProjet: string;
-    descriptions: { [key: string]: string };
+    descriptions: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idProjet });
 
@@ -582,7 +582,7 @@ export class Projets<
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idProjet,
-      f: (projet) => f(projet.descriptions || {}),
+      f: (projet) => f(définis(projet.descriptions || {})),
     });
   }
 
@@ -703,7 +703,7 @@ export class Projets<
     return await this.suivreObjet({
       idObjet: idProjet,
       f: async (projet) => {
-        await f(projet.métadonnées || {});
+        await f(définis(projet.métadonnées || {}));
       },
     });
   }
@@ -935,6 +935,82 @@ export class Projets<
       idObjet: idProjet,
       f: (projet) => f(projet.statut || null),
     });
+  }
+
+  // Empreinte
+
+  async suivreEmpreinteTête({
+    idProjet,
+    f,
+  }: {
+    idProjet: string;
+    f: Suivi<string>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    const empreintes: {
+      bds?: string[];
+      variables?: string[];
+      projet?: string;
+    } = {};
+    const fFinale = async () => {
+      const texte = [
+        empreintes.projet,
+        ...(empreintes.bds || []),
+        ...(empreintes.variables || []),
+      ]
+        .toSorted()
+        .join("/");
+      await f(Base64.stringify(md5(texte)));
+    };
+
+    const oublierEmpreinteProjet = await orbite.suivreEmpreinteTêteBd({
+      idBd: idProjet,
+      f: async (x) => {
+        empreintes.projet = x;
+        await fFinale();
+      },
+    });
+
+    const oublierEmpreintesBds = await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }) =>
+        await this.suivreBds({ idProjet, f: fSuivreRacine }),
+      fBranche: async ({
+        id: idBd,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<string>;
+      }) =>
+        await this.service("bds").suivreEmpreinteTête({
+          idStructure: idBd,
+          f: fSuivreBranche,
+        }),
+      f: async (x: string[]) => {
+        empreintes.bds = x;
+        await fFinale();
+      },
+    });
+
+    const oublierEmpreinteVariables = await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }) =>
+        await this.suivreVariables({ idBd, f: fSuivreRacine }),
+      fBranche: async ({ id: idVariable, fSuivreBranche }) =>
+        await orbite.suivreEmpreinteTêteBd({
+          idBd: idVariable,
+          f: fSuivreBranche,
+        }),
+      f: async (x: string[]) => {
+        empreintes.variables = x;
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await oublierEmpreintesBds();
+      await oublierEmpreinteVariables();
+      await oublierEmpreinteProjet();
+    };
   }
 
   // Qualité

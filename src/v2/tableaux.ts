@@ -6,6 +6,7 @@ import {
   traduire,
 } from "@constl/utils-ipa";
 import { asSplitKey, joinKey } from "@orbitdb/nested-db";
+import { typedNested, type TypedNested } from "@constl/bohr-db";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { brancheBd } from "./nébuleuse/services/services.js";
 import {
@@ -16,7 +17,6 @@ import { schémaTraducsTexte } from "./schémas.js";
 import { enleverPréfixes } from "./utils.js";
 import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
 import type { DagCborEncodable } from "@orbitdb/core";
-import { typedNested, type TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type { ServicesConstellation } from "./constellation.js";
@@ -305,13 +305,12 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       schema: schémaStructureAvecTableau,
     });
 
-    const tableau = brancheBd<
-      StructureTableau,
-      `tableaux/${typeof idTableau}`
-    >({
-      bd: bdTypée,
-      clef: `tableaux/${idTableau}`,
-    });
+    const tableau = brancheBd<StructureTableau, `tableaux/${typeof idTableau}`>(
+      {
+        bd: bdTypée,
+        clef: `tableaux/${idTableau}`,
+      },
+    );
 
     return {
       tableau,
@@ -370,7 +369,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
   }: {
     idStructure: string;
     idTableau: string;
-    noms: { [key: string]: string };
+    noms: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idStructure });
     const { tableau, oublier } = await this.ouvrirTableau({

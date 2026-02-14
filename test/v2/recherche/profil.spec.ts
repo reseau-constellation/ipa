@@ -177,7 +177,11 @@ describe("Rechercher profil", function () {
     it("ajout nom détecté", async () => {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
-          recherche({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
+          recherche({
+            services: constl.services,
+            idObjet: idCompte,
+            f: siDéfini(),
+          }),
       );
 
       await constl.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
@@ -321,7 +325,11 @@ describe("Rechercher profil", function () {
     it("résultat id détecté", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheId({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
+          rechercheId({
+            services: constl.services,
+            idObjet: idCompte,
+            f: siDéfini(),
+          }),
       );
 
       const réf: RésultatObjectifRecherche<TypeRésultat> = {
@@ -374,12 +382,20 @@ describe("Rechercher profil", function () {
     it("ajout nom détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheNom({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
+          rechercheNom({
+            services: constl.services,
+            idObjet: idCompte,
+            f: siDéfini(),
+          }),
       );
       const pRésultatCourriel = obtenir<
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
-        rechercheCourriel({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
+        rechercheCourriel({
+          services: constl.services,
+          idObjet: idCompte,
+          f: siDéfini(),
+        }),
       );
 
       await constl.profil.sauvegarderNom({
@@ -453,7 +469,11 @@ describe("Rechercher profil", function () {
     it("résultat recherche vide", async () => {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheVide({ services: constl.services, idObjet: idCompte, f: siDéfini() }),
+          rechercheVide({
+            services: constl.services,
+            idObjet: idCompte,
+            f: siDéfini(),
+          }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {

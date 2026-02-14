@@ -25,6 +25,7 @@ import { schémaTableau } from "../tableaux.js";
 import { stabiliser } from "../nébuleuse/utils.js";
 import {
   ajouterPréfixes,
+  définis,
   enleverPréfixesEtOrbite,
   moyenne,
   sauvegarderDonnéesExportées,
@@ -32,6 +33,8 @@ import {
 import { RechercheBds } from "../recherche/bds.js";
 import { ObjetConstellation } from "../objets.js";
 import { TableauxBds } from "./tableaux.js";
+import type { ServicesNécessairesObjet } from "../objets.js";
+import type { Variables } from "../variables.js";
 import type { OptionsCommunes } from "../nébuleuse/appli/appli.js";
 import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
 import type xlsx from "xlsx";
@@ -43,7 +46,6 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "../types.js";
-import type { ServicesConstellation } from "../constellation.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type {
@@ -66,6 +68,8 @@ import type {
 } from "./tableaux.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
+import type { MotsClefs } from "../motsClefs.js";
+import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
 
 // Types épingles
 
@@ -216,17 +220,30 @@ export const schémaBd: JSONSchemaType<PartielRécursif<StructureBd>> = {
   },
 };
 
+export type ServicesNécessairesBds<L extends ServicesLibp2pNébuleuse> =
+  ServicesNécessairesObjet<{ bds: StructureBd }, L> & {
+    variables: Variables<L>;
+    motsClefs: MotsClefs<L>;
+  };
+
 export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
   "bds",
   StructureBd,
-  L
+  L,
+  ServicesNécessairesBds<L>
 > {
   tableaux: TableauxBds<L>;
   recherche: RechercheBds<L>;
 
   schémaObjet = schémaBd;
 
-  constructor({ services, options }: { services: ServicesConstellation<L>; options: OptionsCommunes }) {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesBds<L>;
+    options: OptionsCommunes;
+  }) {
     super({
       clef: "bds",
       services,
@@ -234,7 +251,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
       options,
     });
 
-    this.tableaux = new TableauxBds({
+    this.tableaux = new TableauxBds<L>({
       service: (clef) => this.service(clef),
     });
     this.recherche = new RechercheBds({
@@ -332,9 +349,10 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
   }
 
   async créerSchémaDeBd({ idBd }: { idBd: string }): Promise<SchémaBd> {
-    const licence = await uneFois<string>((f) =>
-      this.suivreLicence({ idBd, f }),
-    );
+    const licence = await uneFois<string | undefined>(
+      (f) => this.suivreLicence({ idBd, f }),
+      (x) => !!x,
+    )!;
     const licenceContenu = await uneFois<string | undefined>((f) =>
       this.suivreLicenceContenu({ idBd, f }),
     );
@@ -346,7 +364,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     const motsClefs = await uneFois<string[]>((f) =>
       this.suivreMotsClefs({ idBd, f }),
     );
-    const statut = await uneFois<StatutDonnées | null>((f) =>
+    const statut = await uneFois<PartielRécursif<StatutDonnées> | null>((f) =>
       this.suivreStatut({ idBd, f }),
     );
     const nuées = await uneFois<string[]>((f) => this.suivreNuées({ idBd, f }));
@@ -794,7 +812,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     noms,
   }: {
     idBd: string;
-    noms: { [key: string]: string };
+    noms: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idBd });
 
@@ -844,7 +862,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
   }): Promise<Oublier> {
     return this.suivreObjet({
       idObjet: idBd,
-      f: async (bd) => await f(bd.noms || {}),
+      f: async (bd) => await f(définis(bd.noms || {})),
     });
   }
 
@@ -855,7 +873,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     descriptions,
   }: {
     idBd: string;
-    descriptions: { [key: string]: string };
+    descriptions: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idBd });
 
@@ -904,7 +922,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
   }): Promise<Oublier> {
     return this.suivreObjet({
       idObjet: idBd,
-      f: async (bd) => await f(bd.descriptions || {}),
+      f: async (bd) => await f(définis(bd.descriptions || {})),
     });
   }
 
@@ -1028,7 +1046,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idBd,
-      f: async (bd) => await f(bd.métadonnées || {}),
+      f: async (bd) => await f(définis(bd.métadonnées || {})),
     });
   }
 
@@ -1051,7 +1069,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     f,
   }: {
     idBd: string;
-    f: Suivi<StatutDonnées | null>;
+    f: Suivi<PartielRécursif<StatutDonnées> | null>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idBd,
@@ -1096,7 +1114,7 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     f,
   }: {
     idBd: string;
-    f: Suivi<string>;
+    f: Suivi<string | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idBd,
@@ -1746,8 +1764,8 @@ export class Bds<L extends ServicesLibp2pNébuleuse> extends ObjetConstellation<
     f: Suivi<number | undefined>;
   }): Promise<Oublier> {
     const rés: {
-      noms: { [key: string]: string };
-      descriptions: { [key: string]: string };
+      noms: TraducsTexte;
+      descriptions: TraducsTexte;
     } = {
       noms: {},
       descriptions: {},

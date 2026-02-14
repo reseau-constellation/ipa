@@ -5,6 +5,7 @@ import {
   rechercherMotsClefsSelonTexte,
 } from "@/v2/recherche/fonctions/motsClefs.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { ServicesNécessairesRechercheMotsClefs } from "@/v2/recherche/fonctions/motsClefs.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
@@ -33,7 +34,10 @@ describe("Rechercher mots-clefs", function () {
 
   describe("selon nom", function () {
     let idMotClef: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheMotsClefs
+    >;
 
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
@@ -77,7 +81,11 @@ describe("Rechercher mots-clefs", function () {
     it("résultat si le mot-clef est presque exacte", async () => {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
-          recherche({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
+          recherche({
+            services: constl.services,
+            idObjet: idMotClef,
+            f: siDéfini(),
+          }),
       );
 
       await constl.motsClefs.sauvegarderNoms({
@@ -142,10 +150,22 @@ describe("Rechercher mots-clefs", function () {
     let idMotClef: string;
 
     type TypeRésultat = InfoRésultatTexte | InfoRésultatVide;
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheId: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheMotsClefs
+    >;
+    let rechercheNom: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheMotsClefs
+    >;
+    let rechercheDescription: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheMotsClefs
+    >;
+    let rechercheVide: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheMotsClefs
+    >;
 
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
@@ -159,7 +179,11 @@ describe("Rechercher mots-clefs", function () {
     it("résultat id détecté", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheId({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
+          rechercheId({
+            services: constl.services,
+            idObjet: idMotClef,
+            f: siDéfini(),
+          }),
       );
 
       expect(résultatId).to.deep.equal({
@@ -178,7 +202,11 @@ describe("Rechercher mots-clefs", function () {
     it("résultat nom détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheNom({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
+          rechercheNom({
+            services: constl.services,
+            idObjet: idMotClef,
+            f: siDéfini(),
+          }),
       );
 
       await constl.motsClefs.sauvegarderNoms({
@@ -207,7 +235,11 @@ describe("Rechercher mots-clefs", function () {
       const pRésultatDescription = obtenir<
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
-        rechercheDescription({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
+        rechercheDescription({
+          services: constl.services,
+          idObjet: idMotClef,
+          f: siDéfini(),
+        }),
       );
 
       await constl.motsClefs.sauvegarderDescriptions({
@@ -236,7 +268,11 @@ describe("Rechercher mots-clefs", function () {
     it("résultat recherche vide", async () => {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheVide({ services: constl.services, idObjet: idMotClef, f: siDéfini() }),
+          rechercheVide({
+            services: constl.services,
+            idObjet: idMotClef,
+            f: siDéfini(),
+          }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {

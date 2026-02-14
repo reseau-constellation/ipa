@@ -5,13 +5,21 @@ import { ServiceDonnéesAppli } from "./nébuleuse/services/services.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
-import type { OptionsCommunes } from "./nébuleuse/appli/appli.js";
+import type { ServiceAppli } from "./nébuleuse/appli/index.js";
+import type { ServiceFavoris } from "./nébuleuse/services/favoris.js";
+import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
+import type {
+  OptionsCommunes,
+  ServicesAppli,
+} from "./nébuleuse/appli/appli.js";
 import type { NestedValue } from "@orbitdb/nested-db";
-import type { RelationImmédiate } from "./nébuleuse/services/réseau.js";
+import type {
+  RelationImmédiate,
+  ServiceRéseau,
+} from "./nébuleuse/services/réseau.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
-import type { ServicesConstellation } from "./constellation.js";
 import type { InfoAuteur, PartielRécursif } from "./types.js";
 import type { JSONSchemaType } from "ajv";
 import type { AccèsUtilisateur } from "./nébuleuse/services/compte/accès/types.js";
@@ -28,16 +36,26 @@ export const schémaServiceObjet: JSONSchemaType<
   required: [],
 };
 
+export type ServicesNécessairesObjet<
+  S extends { [clef: string]: NestedValue },
+  L extends ServicesLibp2pNébuleuse,
+> = ServicesNécessairesDonnées<S, L> & {
+  réseau: ServiceRéseau<L>;
+  favoris: ServiceFavoris<L>;
+};
+
 export abstract class ObjetConstellation<
   C extends string,
   S extends NestedValue,
   L extends ServicesLibp2pNébuleuse,
-> extends ServiceDonnéesAppli<
-  C,
-  StructureServiceObjet,
-  L,
-  ServicesConstellation<L>
-> {
+  Services extends Record<
+    Exclude<
+      string,
+      C | keyof ServicesNécessairesObjet<Record<C, NestedValue>, L>
+    >,
+    ServiceAppli
+  >,
+> extends ServiceDonnéesAppli<C, StructureServiceObjet, L, Services> {
   abstract schémaObjet: JSONSchemaType<PartielRécursif<S>>;
 
   constructor({
@@ -47,11 +65,8 @@ export abstract class ObjetConstellation<
     options,
   }: {
     clef: C;
-    dépendances: Extract<
-      keyof (ServicesConstellation<L> & ServicesNécessairesDonnées<L>),
-      string
-    >[];
-    services: ServicesConstellation<L>;
+    services: Services & ServicesNécessairesObjet<Record<C, NestedValue>, L>;
+    dépendances: Extract<keyof Services, string>[];
     options: OptionsCommunes;
   }) {
     super({
@@ -117,6 +132,7 @@ export abstract class ObjetConstellation<
     idCompte?: string;
   }): Promise<Oublier> {
     const compte = this.service("compte");
+    const x = this.service("hélia");
 
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
@@ -256,7 +272,7 @@ export abstract class ObjetConstellation<
 
         return await f(
           idsComptes.map((idCompte) => {
-            const n = auteurs.map((a) => a.idCompte === idCompte).length;
+            const n = auteurs.filter((a) => a.idCompte === idCompte).length;
             const confiance = 1 - (1 - CONFIANCE_DE_COAUTEUR) ** n;
             return { idCompte, confiance };
           }),

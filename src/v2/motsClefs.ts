@@ -7,6 +7,10 @@ import {
 import { schémaTraducsTexte } from "./schémas.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
 import { ObjetConstellation } from "./objets.js";
+import { définis } from "./utils.js";
+import type { AccesseurService } from "./recherche/types.js";
+import type { ServicesNécessairesRechercheMotsClefs } from "./recherche/fonctions/motsClefs.js";
+import type { ServicesNécessairesObjet } from "./objets.js";
 import type { OptionsCommunes } from "./nébuleuse/appli/appli.js";
 import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
@@ -16,7 +20,6 @@ import type {
 } from "./nébuleuse/services/favoris.js";
 import type { InfoAuteur, PartielRécursif, TraducsTexte } from "./types.js";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
-import type { ServicesConstellation } from "./constellation.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
 
@@ -48,14 +51,28 @@ export type ÉpingleMotClef = {
 
 export type ContenuÉpingleMotClef = BaseÉpingleFavoris;
 
+export type ServicesNécessairesMotsClefs<L extends ServicesLibp2pNébuleuse> =
+  ServicesNécessairesObjet<{ motsClefs: StructureMotClef }, L>;
+
 export class MotsClefs<
   L extends ServicesLibp2pNébuleuse,
-> extends ObjetConstellation<"motsClefs", StructureMotClef, L> {
-  recherche: RechercheMotsClefs<L>;
+> extends ObjetConstellation<
+  "motsClefs",
+  StructureMotClef,
+  L,
+  ServicesNécessairesMotsClefs<L>
+> {
+  recherche: RechercheMotsClefs;
 
   schémaObjet = schémaMotClef;
 
-  constructor({ services, options, }: { services: ServicesConstellation<L>; options: OptionsCommunes; }) {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesMotsClefs<L>;
+    options: OptionsCommunes;
+  }) {
     super({
       clef: "motsClefs",
       services,
@@ -63,9 +80,13 @@ export class MotsClefs<
       options,
     });
 
-    this.recherche = new RechercheMotsClefs<L>({
-      motsClefs: this,
-      service: (clef) => this.service(clef),
+    this.recherche = new RechercheMotsClefs({
+      service: ((clef) =>
+        clef === "motsClefs"
+          ? this
+          : this.service(
+              clef,
+            )) as AccesseurService<ServicesNécessairesRechercheMotsClefs>,
     });
 
     const favoris = this.service("favoris");
@@ -277,7 +298,7 @@ export class MotsClefs<
     noms,
   }: {
     idMotClef: string;
-    noms: { [key: string]: string };
+    noms: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idMotClef });
 
@@ -337,7 +358,7 @@ export class MotsClefs<
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idMotClef,
-      f: (motClef) => f(motClef.noms || {}),
+      f: (motClef) => f(définis(motClef.noms || {})),
     });
   }
 
@@ -348,7 +369,7 @@ export class MotsClefs<
     descriptions,
   }: {
     idMotClef: string;
-    descriptions: { [key: string]: string };
+    descriptions: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idMotClef });
     const { motClef, oublier } = await this.ouvrirMotClef({
@@ -400,7 +421,7 @@ export class MotsClefs<
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idMotClef,
-      f: (motClef) => f(motClef.descriptions || {}),
+      f: (motClef) => f(définis(motClef.descriptions || {})),
     });
   }
 

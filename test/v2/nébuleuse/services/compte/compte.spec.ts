@@ -1,5 +1,11 @@
+import path from "path";
 import { expect } from "aegir/chai";
 import { isValidAddress } from "@orbitdb/core";
+import {
+  obtenirAdresseRelai,
+  toutesConnectées,
+  type ServicesLibp2pTest,
+} from "@constl/utils-tests";
 import {
   ServiceCompte,
   ServiceHélia,
@@ -15,10 +21,16 @@ import { schémaDispositifs } from "@/v2/nébuleuse/services/dispositifs.js";
 import { schémaProfil } from "@/v2/nébuleuse/services/profil.js";
 import { schémaRéseau } from "@/v2/nébuleuse/services/réseau.js";
 import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
 import { ServiceLibp2pTest } from "../utils.js";
 import { créerNébuleusesTest } from "../../utils.js";
-import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
+import type {
+  ConstructeursServicesAppli,
+  OptionsAppli,
+  OptionsCommunes,
+  ServicesAppli,
+} from "@/v2/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../../utils.js";
 import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/types.js";
 import type { StructureRéseau } from "@/v2/nébuleuse/services/réseau.js";
@@ -29,21 +41,80 @@ import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { PartielRécursif, TraducsTexte } from "@/v2/types.js";
 import type { ServicesNécessairesCompte } from "@/v2/nébuleuse/services/compte/compte.js";
 import type { TypedNested } from "@constl/bohr-db";
-import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { JSONSchemaType } from "ajv";
+import type { Libp2p } from "@libp2p/interface";
+import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import type { NestedValue } from "@orbitdb/nested-db";
+
+const créerApplisTest = async <
+  T extends { [clef: Exclude<string, "dossier">]: NestedValue },
+  S extends ServicesAppli,
+>({
+  structure,
+  services,
+  n,
+}: {
+  structure: T;
+  services: S;
+  n: number;
+}) => {
+  type Services = ServicesNécessairesCompte & {
+    // compte: ServiceCompte<T>;
+  } & S;
+
+  const { dossier, effacer } = await dossierTempoPropre();
+
+  const applis: Appli<Services>[] = [];
+
+  for (const i in [...Array(n).entries()]) {
+    const appli = new Appli<Services>({
+      services: {
+        dossier: ServiceDossier,
+        journal: ServiceJournal,
+        stockage: ServiceStockage,
+        libp2p: ServiceLibp2pTest,
+        hélia: ServiceHélia<ServicesLibp2pTest>,
+        orbite: ServiceOrbite<ServicesLibp2pTest>,
+        compte: ServiceCompte<T>,
+        ...services,
+      } as ConstructeursServicesAppli<Services>,
+      options: { services: { dossier: { dossier: path.join(dossier, i) } } },
+    });
+    const opts: OptionsAppli<ServicesNécessairesCompte & ServicesAppli> = {
+      mode: "dév",
+      services: {
+        dossier: { dossier: "true" },
+        a: { b: 2 },
+      },
+    };
+    applis.push(appli);
+  }
+
+  await Promise.all(applis.map((c) => c.démarrer()));
+
+  const libp2ps: Libp2p<ServicesLibp2pNébuleuse>[] = await Promise.all(
+    applis.map(async (a) => await a.services.libp2p.libp2p()),
+  );
+  await toutesConnectées(libp2ps, { adresseRelai: obtenirAdresseRelai() });
+
+  const fermer = async () => {
+    await Promise.allSettled(applis.map((a) => a.fermer()));
+    effacer();
+  };
+
+  return { applis, fermer };
+};
 
 describe.only("Service Compte", function () {
   describe("gestion compte", async () => {
-    let appli: Appli<
-      ServicesNécessairesCompte<ServicesLibp2pTest> & { compte: ServiceCompte }
-    >;
+    let appli: Appli<ServicesNécessairesCompte & { compte: ServiceCompte }>;
     let dossier: string;
     let effacer: () => void;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
       appli = new Appli<
-        ServicesNécessairesCompte<ServicesLibp2pTest> & {
+        ServicesNécessairesCompte & {
           compte: ServiceCompte;
         }
       >({
@@ -86,7 +157,7 @@ describe.only("Service Compte", function () {
 
       await appli.fermer();
       appli = new Appli<
-        ServicesNécessairesCompte<ServicesLibp2pTest> & {
+        ServicesNécessairesCompte & {
           compte: ServiceCompte;
         }
       >({
@@ -118,7 +189,9 @@ describe.only("Service Compte", function () {
 
   describe("structure compte vide", function () {
     let appli: Appli<
-      ServicesNécessairesCompte<ServicesLibp2pTest> & { compte: ServiceCompte }
+      ServicesNécessairesCompte & {
+        compte: ServiceCompte<Record<string, never>>;
+      }
     >;
     let dossier: string;
     let effacer: () => void;
@@ -126,8 +199,8 @@ describe.only("Service Compte", function () {
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
       appli = new Appli<
-        ServicesNécessairesCompte<ServicesLibp2pTest> & {
-          compte: ServiceCompte;
+        ServicesNécessairesCompte & {
+          compte: ServiceCompte<Record<string, never>>;
         }
       >({
         services: {
@@ -137,7 +210,7 @@ describe.only("Service Compte", function () {
           libp2p: ServiceLibp2pTest,
           hélia: ServiceHélia<ServicesLibp2pTest>,
           orbite: ServiceOrbite<ServicesLibp2pTest>,
-          compte: ServiceCompte,
+          compte: ServiceCompte<Record<string, never>>,
         },
         options: { services: { dossier: { dossier } } },
       });
@@ -168,23 +241,18 @@ describe.only("Service Compte", function () {
       nullable: true,
     };
 
-    class ServiceTest1 extends ServiceDonnéesAppli<
-      "test1",
-      { a: number },
-      ServicesLibp2pTest
-    > {
-      clef = "test1";
-
+    class ServiceTest1 extends ServiceDonnéesAppli<"test1", { a: number }> {
       constructor({
         services,
         options,
       }: {
-        services: ServicesNécessairesCompte<ServicesLibp2pTest> & {
+        services: ServicesNécessairesCompte & {
           compte: ServiceCompte;
         };
         options: OptionsCommunes;
       }) {
         super({
+          clef: "test1",
           services,
           options: Object.assign({}, options, {
             schéma: schémaTest1,
@@ -199,18 +267,12 @@ describe.only("Service Compte", function () {
       nullable: true,
     };
 
-    class ServiceTest2 extends ServiceDonnéesAppli<
-      "test2",
-      { b: number },
-      ServicesLibp2pTest
-      > {
-      clef = "test2";
-
+    class ServiceTest2 extends ServiceDonnéesAppli<"test2", { b: number }> {
       constructor({
         services,
         options,
       }: {
-        services: ServicesNécessairesCompte<ServicesLibp2pTest> & {
+        services: ServicesNécessairesCompte & {
           compte: ServiceCompte;
         };
         options: OptionsCommunes;
@@ -219,27 +281,30 @@ describe.only("Service Compte", function () {
           schéma: schémaTest2,
         });
         super({
+          clef: "test2",
           services,
           options: optionsFinales,
         });
       }
     }
 
-    type ServicesDonnéesTest = {
-      test1: ServiceTest1;
-      test2: ServiceTest2;
-    };
-
-    let appli: NébuleuseTest<StructureTest, ServicesDonnéesTest>;
-    let appli2: NébuleuseTest<StructureTest, ServicesDonnéesTest>;
+    let appli: Appli<
+      ServicesNécessairesCompte & { compte: ServiceCompte<StructureTest> } & {
+        test1: ServiceTest1;
+        test2: ServiceTest2;
+      }
+    >;
+    let appli2: Appli<
+      ServicesNécessairesCompte & { compte: ServiceCompte<StructureTest> } & {
+        test1: ServiceTest1;
+        test2: ServiceTest2;
+      }
+    >;
 
     let oublier: Oublier;
 
     before(async () => {
-      const { nébuleuses, fermer } = await créerNébuleusesTest<
-        StructureTest,
-        ServicesDonnéesTest
-      >({
+      const { applis, fermer } = await créerApplisTest<StructureTest>({
         n: 2,
         services: {
           test1: ServiceTest1,
@@ -248,7 +313,7 @@ describe.only("Service Compte", function () {
       });
 
       oublier = fermer;
-      [appli, appli2] = nébuleuses;
+      [appli, appli2] = applis;
     });
 
     after(async () => {
@@ -371,11 +436,8 @@ describe.only("Service Compte", function () {
   });
 
   describe("gestion dispositifs", function () {
-    let nébuleuses: NébuleuseTest[];
-    let comptes: ServiceCompte<
-      StructureNébuleuse & Record<string, never>,
-      ServicesLibp2pTest
-    >[];
+    let applis: NébuleuseTest[];
+    let comptes: ServiceCompte<StructureNébuleuse & Record<string, never>>[];
     let fermer: () => Promise<void>;
 
     let idObjet: string;
@@ -384,7 +446,7 @@ describe.only("Service Compte", function () {
     let idsComptes: string[];
 
     before(async () => {
-      ({ nébuleuses, fermer } = await créerNébuleusesTest({
+      ({ applis, fermer } = await créerApplisTest({
         n: 2,
         services: {},
       }));

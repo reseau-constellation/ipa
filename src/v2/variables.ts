@@ -8,6 +8,7 @@ import {
 } from "./nébuleuse/services/favoris.js";
 import { RechercheVariables } from "./recherche/variables.js";
 import { ObjetConstellation } from "./objets.js";
+import { définis } from "./utils.js";
 import type { Rôle } from "./nébuleuse/services/compte/accès/index.js";
 import type { Constellation } from "./constellation.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
@@ -125,13 +126,18 @@ const standardiserCatégorieVariable = (
 
 export class Variables<
   L extends ServicesLibp2pNébuleuse,
-> extends ObjetConstellation<"variables", StructureVariable, L> {
-  recherche: RechercheVariables<L>;
+> extends ObjetConstellation<
+  "variables",
+  StructureVariable,
+  L,
+  ServicesNécessairesVariables<L>
+> {
+  recherche: RechercheVariables;
   schémaObjet = schémaVariable;
 
   constructor({ appli }: { appli: Constellation }) {
     super({
-      clef: "variable",
+      clef: "variables",
       appli,
       dépendances: ["compte", "orbite"],
     });
@@ -450,11 +456,11 @@ export class Variables<
     f,
   }: {
     idVariable: string;
-    f: Suivi<TraducsTexte | undefined>;
+    f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idVariable,
-      f: (variable) => f(variable.noms || {}),
+      f: (variable) => f(définis(variable.noms || {})),
     });
   }
 
@@ -465,7 +471,7 @@ export class Variables<
     descriptions,
   }: {
     idVariable: string;
-    descriptions: { [key: string]: string };
+    descriptions: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idVariable });
     const { variable, oublier } = await this.ouvrirVariable({
@@ -514,11 +520,11 @@ export class Variables<
     f,
   }: {
     idVariable: string;
-    f: Suivi<{ [key: string]: string }>;
+    f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idVariable,
-      f: (variable) => f(variable.descriptions || {}),
+      f: (variable) => f(définis(variable.descriptions || {})),
     });
   }
 
@@ -737,8 +743,8 @@ export class Variables<
     f: Suivi<number>;
   }): Promise<Oublier> {
     const info: {
-      noms?: { [key: string]: string };
-      descriptions?: { [key: string]: string };
+      noms?: TraducsTexte;
+      descriptions?: TraducsTexte;
       règles?: RègleVariableAvecId<RègleVariable>[];
       unités?: string | null;
       catégorie?: CatégorieVariable;

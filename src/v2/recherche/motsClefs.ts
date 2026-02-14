@@ -7,10 +7,8 @@ import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
 } from "./fonctions/motsClefs.js";
-import type {
-  ServicesNécessairesRechercheMotsClefs
-} from "./fonctions/motsClefs.js";
-import type { InfoAuteur } from "../types.js";import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesNécessairesRechercheMotsClefs } from "./fonctions/motsClefs.js";
+import type { InfoAuteur } from "../types.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type {
   InfoRésultat,
@@ -21,9 +19,7 @@ import type {
   AccesseurService,
 } from "./types.js";
 
-export class RechercheMotsClefs<
-  L extends ServicesLibp2pNébuleuse,
-> extends RechercheObjets<ServicesNécessairesRechercheMotsClefs, L> {
+export class RechercheMotsClefs extends RechercheObjets<ServicesNécessairesRechercheMotsClefs> {
   constructor({
     service,
   }: {
@@ -140,7 +136,10 @@ export class RechercheMotsClefs<
     idObjet: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    return await this.service("motsClefs").suivreAuteurs({ idMotClef: idObjet, f });
+    return await this.service("motsClefs").suivreAuteurs({
+      idMotClef: idObjet,
+      f,
+    });
   }
 
   @cacheRechercheParN
@@ -151,7 +150,10 @@ export class RechercheMotsClefs<
     idCompte,
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
-    fObjectif: SuivreObjectifRecherche<T, ServicesNécessairesRechercheMotsClefs>;
+    fObjectif: SuivreObjectifRecherche<
+      T,
+      ServicesNécessairesRechercheMotsClefs
+    >;
     n?: number;
     idCompte?: string;
   }): Promise<RetourRecherche> {

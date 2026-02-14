@@ -11,16 +11,15 @@ import type {
   ServiceOrbite,
   ServicesNécessairesOrbite,
 } from "./orbite/orbite.js";
-import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 
-export type ServicesNécessairesÉpingles<L extends ServicesLibp2pNébuleuse> =
-  ServicesNécessairesOrbite<L> & { orbite: ServiceOrbite<L> };
+export type ServicesNécessairesÉpingles = ServicesNécessairesOrbite & {
+  orbite: ServiceOrbite;
+};
 
-export class ServiceÉpingles<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> extends ServiceAppli<ServicesNécessairesÉpingles<L>> {
-  clef = "épingles";
-
+export class ServiceÉpingles extends ServiceAppli<
+  "épingles",
+  ServicesNécessairesÉpingles
+> {
   queue: PQueue;
   requêtes: Map<string, Set<string>>;
   bdsOuvertes: Map<string, { bd: BaseDatabase; oublier: Oublier }>;
@@ -31,10 +30,11 @@ export class ServiceÉpingles<
     services,
     options,
   }: {
-    services: ServicesNécessairesÉpingles<L>;
+    services: ServicesNécessairesÉpingles;
     options: OptionsCommunes;
   }) {
     super({
+      clef: "épingles",
       services,
       dépendances: ["orbite", "hélia"],
       options,

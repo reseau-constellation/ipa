@@ -11,9 +11,7 @@ import { Feed } from "@orbitdb/feed-db";
 import { SetDb } from "@orbitdb/set-db";
 import { v4 as uuidv4 } from "uuid";
 import { OrderedKeyValue } from "@orbitdb/ordered-keyvalue-db";
-import {
-  typedNested,
-} from "@constl/bohr-db";
+import { typedNested } from "@constl/bohr-db";
 import { anySignal } from "any-signal";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
@@ -36,9 +34,7 @@ import type { ServiceJournal } from "../journal.js";
 import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type { PartielRécursif } from "@/v2/types.js";
-import type {
-  TypedNested,
-} from "@constl/bohr-db";
+import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
@@ -98,12 +94,11 @@ type RetourDémarrageOrbite<L extends ServicesLibp2pNébuleuse> = {
 export class ServiceOrbite<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<
+  "orbite",
   ServicesNécessairesOrbite<L>,
   RetourDémarrageOrbite<L>,
   OptionsServiceOrbite<L>
 > {
-  clef = "orbite";
-
   signaleurArrêt: AbortController;
 
   constructor({
@@ -114,6 +109,7 @@ export class ServiceOrbite<
     options: OptionsServiceOrbite<L> & OptionsCommunes;
   }) {
     super({
+      clef: "orbite",
       services,
       dépendances: ["hélia", "journal"],
       options,

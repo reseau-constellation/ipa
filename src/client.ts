@@ -8,8 +8,6 @@ import bs58 from "bs58";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { Automatisations } from "@/automatisation.js";
-import { Licences } from "@/licences.js";
 import { Réseau } from "@/reseau.js";
 
 import { Protocoles } from "./protocoles.js";
@@ -23,6 +21,8 @@ import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import type { createOrbitDB, OrbitDB } from "@orbitdb/core";
 import type { structureBdProfil } from "@/profil.js";
 import type { type GestionnaireOrbite } from "@/orbite.js";
+import { Automatisations } from "@/automatisation.js";
+import { Licences } from "@/licences.js";
 import { Tableaux } from "@/tableaux.js";
 import { Nuées } from "@/nuées.js";
 import { Recherche } from "@/recherche/index.js";

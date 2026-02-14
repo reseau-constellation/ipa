@@ -49,7 +49,11 @@ describe("Rechercher bds", function () {
 
     it("pas de résultat quand la bd n'a pas de nom", async () => {
       const résultat = await obtenir(({ siNonDéfini }) =>
-        recherche({ services: constl.services, idObjet: idBd, f: siNonDéfini() }),
+        recherche({
+          services: constl.services,
+          idObjet: idBd,
+          f: siNonDéfini(),
+        }),
       );
       expect(résultat).to.be.empty();
     });
@@ -93,7 +97,11 @@ describe("Rechercher bds", function () {
 
     it("pas de résultat quand la bd n'a pas de description", async () => {
       const résultat = await obtenir(({ siNonDéfini }) =>
-        recherche({ services: constl.services, idObjet: idBd, f: siNonDéfini() }),
+        recherche({
+          services: constl.services,
+          idObjet: idBd,
+          f: siNonDéfini(),
+        }),
       );
       expect(résultat).to.be.empty();
     });
@@ -477,7 +485,11 @@ describe("Rechercher bds", function () {
     it("résultat nom détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultatBd>>(
         ({ siDéfini }) =>
-          rechercheNom({ services: constl.services, idObjet: idBd, f: siDéfini() }),
+          rechercheNom({
+            services: constl.services,
+            idObjet: idBd,
+            f: siDéfini(),
+          }),
       );
       await constl.bds.sauvegarderNoms({
         idBd,
@@ -505,7 +517,11 @@ describe("Rechercher bds", function () {
       const pRésultatDescription = obtenir<
         RésultatObjectifRecherche<TypeRésultatBd>
       >(({ siDéfini }) =>
-        rechercheDescription({ services: constl.services, idObjet: idBd, f: siDéfini() }),
+        rechercheDescription({
+          services: constl.services,
+          idObjet: idBd,
+          f: siDéfini(),
+        }),
       );
 
       await constl.bds.sauvegarderDescriptions({
@@ -642,7 +658,11 @@ describe("Rechercher bds", function () {
     it("résultat recherche vide", async () => {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultatBd>>(
         ({ siDéfini }) =>
-          rechercheVide({ services: constl.services, idObjet: idBd, f: siDéfini() }),
+          rechercheVide({
+            services: constl.services,
+            idObjet: idBd,
+            f: siDéfini(),
+          }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {

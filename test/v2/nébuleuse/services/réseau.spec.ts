@@ -416,10 +416,10 @@ describe("Réseau", function () {
       "confianceTest",
       ServicesNébuleuse
     > {
-      constructor({ appli }: { appli: Nébuleuse }) {
+      constructor({ services }: { services: ServicesNébuleuse }) {
         super({
           clef: "confianceTest",
-          appli,
+          services,
           dépendances: ["réseau"],
         });
         this.service("réseau").inscrireRésolutionConfiance({

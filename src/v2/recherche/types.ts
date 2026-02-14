@@ -36,12 +36,14 @@ export interface RésultatRecherche<T extends InfoRésultat = InfoRésultat> {
   id: string;
 }
 
-export type SuivreObjectifRecherche<T extends InfoRésultat = InfoRésultat, S extends ServicesNécessairesRecherche = ServicesNécessairesRecherche> =
-  (args: {
-    services: AccesseurService<S>;
-    idObjet: string;
-    f: SuiviRecherche<T>;
-  }) => Promise<Oublier>;
+export type SuivreObjectifRecherche<
+  T extends InfoRésultat = InfoRésultat,
+  S extends ServicesNécessairesRecherche = ServicesNécessairesRecherche,
+> = (args: {
+  services: AccesseurService<S>;
+  idObjet: string;
+  f: SuiviRecherche<T>;
+}) => Promise<Oublier>;
 
 export type SuiviRecherche<T extends InfoRésultat> = (
   résultat?: RésultatObjectifRecherche<T>,

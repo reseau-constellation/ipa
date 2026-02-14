@@ -93,8 +93,6 @@ export class Automatisations<
     autos: () => void;
   }>;
 
-  clef = "automatisations";
-
   constructor({
     services,
     options,
@@ -110,6 +108,7 @@ export class Automatisations<
     options: OptionsCommunes;
   }) {
     super({
+      clef: "automatisations",
       services,
       dépendances: ["compte", "stockage"],
       options: {

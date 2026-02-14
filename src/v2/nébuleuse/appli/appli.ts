@@ -34,6 +34,7 @@ export type OptionsCommunes = {
 export type OptionsAppli<T extends ServicesAppli> = OptionsCommunes & {
   services?: {
     [clef in keyof T]?: T[clef] extends ServiceAppli<
+      infer _C,
       infer _Services,
       infer _R,
       infer Opts
@@ -53,10 +54,10 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
     services,
     options,
   }: {
+    services: ConstructeursServicesAppli<S>;
     nomAppli?: string;
-    services?: ConstructeursServicesAppli<S>;
-    options?: Partial<OptionsAppli<S>>;
-  } = {}) {
+    options?: NoInfer<Partial<OptionsAppli<S>>>;
+  }) {
     services = services ?? ({} as ConstructeursServicesAppli<S>);
 
     this.options = { ...{ nomAppli: "appli", mode: "prod" }, ...options };
@@ -68,7 +69,13 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
         options: {
           ...(options?.services?.[clef] || {}),
           ...{ nomAppli: this.options.nomAppli, mode: this.options.mode },
-        } as S[typeof clef] extends ServiceAppli<infer _Services, infer _R, infer Opts> ? Opts & OptionsCommunes : never,
+        } as S[typeof clef] extends ServiceAppli<
+          infer _Services,
+          infer _R,
+          infer Opts
+        >
+          ? Opts & OptionsCommunes
+          : never,
       });
     }
     this.services = instancesServices as S;

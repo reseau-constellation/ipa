@@ -13,12 +13,11 @@ export type OptionsServiceJournal = {
 type RetourDémarrageJournal = { f: (m: string) => Promise<void> | void };
 
 export class ServiceJournal extends ServiceAppli<
+  "journal",
   ServicesAppli,
   RetourDémarrageJournal,
   OptionsServiceJournal
 > {
-  clef = "journal";
-  
   queue: PQueue;
 
   constructor({
@@ -29,6 +28,7 @@ export class ServiceJournal extends ServiceAppli<
     options: Partial<OptionsServiceJournal> & OptionsCommunes;
   }) {
     super({
+      clef: "journal",
       services,
       options: Object.assign({ f: console.log }, options),
     });

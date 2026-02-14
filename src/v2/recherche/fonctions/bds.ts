@@ -24,12 +24,18 @@ import type { Bds } from "@/v2/bds/bds.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { MotsClefs } from "@/v2/motsClefs.js";
 
-export type ServicesNécessairesRechercheBds = ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & { bds: Bds<ServicesLibp2pNébuleuse>; motsClefs: MotsClefs<ServicesLibp2pNébuleuse> };
-
+export type ServicesNécessairesRechercheBds =
+  ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & {
+    bds: Bds<ServicesLibp2pNébuleuse>;
+    motsClefs: MotsClefs<ServicesLibp2pNébuleuse>;
+  };
 
 export const rechercherBdsSelonNom = (
   nomBd: string,
-): SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheBds> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -64,7 +70,10 @@ export const rechercherBdsSelonNom = (
 
 export const rechercherBdsSelonDescription = (
   descrBd: string,
-): SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheBds> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -99,7 +108,10 @@ export const rechercherBdsSelonDescription = (
 
 export const rechercherBdsSelonIdVariable = (
   idVariable: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -134,7 +146,10 @@ export const rechercherBdsSelonIdVariable = (
 
 export const rechercherBdsSelonNomVariable = (
   nomVariable: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -169,7 +184,10 @@ export const rechercherBdsSelonNomVariable = (
 
 export const rechercherBdsSelonVariable = (
   texte: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -193,7 +211,10 @@ export const rechercherBdsSelonVariable = (
 
 export const rechercherBdsSelonIdMotClef = (
   idMotClef: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -228,7 +249,10 @@ export const rechercherBdsSelonIdMotClef = (
 
 export const rechercherBdsSelonNomMotClef = (
   nomMotClef: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -263,7 +287,10 @@ export const rechercherBdsSelonNomMotClef = (
 
 export const rechercherBdsSelonMotClef = (
   texte: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -290,8 +317,9 @@ export const rechercherBdsSelonTexte = (
 ): SuivreObjectifRecherche<
   | InfoRésultatRecherche<InfoRésultatTexte>
   | InfoRésultatTexte
-  | InfoRésultatVide
-, ServicesNécessairesRechercheBds> => {
+  | InfoRésultatVide,
+  ServicesNécessairesRechercheBds
+> => {
   return async ({
     services,
     idObjet,
@@ -308,8 +336,9 @@ export const rechercherBdsSelonTexte = (
     return await combinerRecherches<
       | InfoRésultatRecherche<InfoRésultatTexte>
       | InfoRésultatTexte
-      | InfoRésultatVide
-    , ServicesNécessairesRechercheBds>({
+      | InfoRésultatVide,
+      ServicesNécessairesRechercheBds
+    >({
       fsRecherche: {
         nom: rechercherBdsSelonNom(texte),
         descriptions: rechercherBdsSelonDescription(texte),

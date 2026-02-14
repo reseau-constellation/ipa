@@ -85,7 +85,10 @@ export const similImages = ({
   return mssim;
 };
 
-export const combinerRecherches = async <T extends InfoRésultat, S extends ServicesNécessairesRecherche>({
+export const combinerRecherches = async <
+  T extends InfoRésultat,
+  S extends ServicesNécessairesRecherche,
+>({
   fsRecherche,
   services,
   idObjet,
@@ -123,7 +126,10 @@ export const combinerRecherches = async <T extends InfoRésultat, S extends Serv
   };
 };
 
-export const sousRecherche = async <T extends InfoRésultat, S extends ServicesNécessairesRecherche>({
+export const sousRecherche = async <
+  T extends InfoRésultat,
+  S extends ServicesNécessairesRecherche,
+>({
   de,
   fListe,
   fRechercher,

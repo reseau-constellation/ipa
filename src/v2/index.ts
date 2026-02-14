@@ -14,7 +14,7 @@ export const créerConstellation = (
   opts: OptionsConstellation,
   avecMandataire = true,
 ): Constellation => {
-  opts = Object.assign({}, { nomAppli: "constellation", mode: "prod" }, opts)
+  opts = Object.assign({}, { nomAppli: "constellation", mode: "prod" }, opts);
   if (!avecMandataire) return new ConstructeurConstellation(opts);
   if (isWebWorker) {
     console.warn(

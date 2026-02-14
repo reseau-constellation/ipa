@@ -19,13 +19,17 @@ import type {
   DispositifsÉpingle,
   ÉpingleFavorisBooléenniséeAvecId,
   ÉpingleFavorisAvecId,
+  ServiceFavoris,
 } from "@/v2/nébuleuse/services/favoris.js";
 import type { JSONSchemaType } from "ajv";
 import type { Appli, OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 import type { Suivi, Oublier } from "../types.js";
 import type { PartielRécursif, TraducsTexte } from "../../types.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
-import type { ServicesNécessairesCompte } from "./compte/compte.js";
+import type {
+  ServiceCompte,
+  ServicesNécessairesCompte,
+} from "./compte/compte.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
 
 // Types épingle
@@ -104,11 +108,10 @@ export const schémaProfil: JSONSchemaType<PartielRécursif<StructureProfil>> & 
   nullable: true,
 };
 
-export type ServicesNécessairesProfil<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesCompte<L> & {
-  dispositifs: ServiceDispositifs<L>;
-  profil: Profil<L>;
+export type ServicesNécessairesProfil = ServicesNécessairesCompte & {
+  dispositifs: ServiceDispositifs;
+  compte: ServiceCompte<{ profil: StructureProfil }>;
+  favoris: ServiceFavoris;
 };
 
 export class Profil<
@@ -116,16 +119,21 @@ export class Profil<
 > extends ServiceDonnéesAppli<
   "profil",
   StructureProfil,
-  L,
-  ServicesNécessairesProfil<L>
+  ServicesNécessairesProfil
 > {
   recherche: RechercheProfils<L>;
 
-  constructor({ services, options }: { services: ServicesNécessairesProfil<L>; options: OptionsCommunes }) {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesProfil;
+    options: OptionsCommunes;
+  }) {
     super({
-      services,
       clef: "profil",
-      dépendances: ["dispositifs", "orbite", "hélia"],
+      services,
+      dépendances: ["favoris,", "dispositifs", "orbite", "hélia"],
       options: Object.assign({}, options, {
         schéma: schémaProfil,
       }),
@@ -164,7 +172,7 @@ export class Profil<
     f,
     idCompte,
   }: {
-    f: Suivi<TraducsTexte | undefined>;
+    f: Suivi<TraducsTexte>;
     idCompte?: string;
   }): Promise<Oublier> {
     return await this.suivreBd({
@@ -222,7 +230,7 @@ export class Profil<
     f,
     idCompte,
   }: {
-    f: Suivi<TraducsTexte | undefined>;
+    f: Suivi<TraducsTexte>;
     idCompte?: string;
   }): Promise<Oublier> {
     return await this.suivreBd({

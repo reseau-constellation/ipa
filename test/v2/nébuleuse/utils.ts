@@ -28,12 +28,12 @@ export class NébuleuseTest<
     options,
   }: {
     services?: ConstructeursServicesAppli<
-      S & ServicesDonnées<T, ServicesLibp2pTest>,
+      S & ServicesDonnées<T>,
       ServicesNébuleuse<T & StructureNébuleuse, ServicesLibp2pTest>
     >;
     options?: Partial<
       OptionsAppli<
-        S & ServicesNébuleuse<StructureNébuleuse & T, ServicesLibp2pTest>
+        S & ServicesNébuleuse<T & StructureNébuleuse, ServicesLibp2pTest>
       >
     >;
   }) {
@@ -43,7 +43,7 @@ export class NébuleuseTest<
         libp2p: ServiceLibp2pTest,
       } as ConstructeursServicesAppli<
         S &
-          ServicesDonnées<T, ServicesLibp2pTest> & {
+          ServicesDonnées<T> & {
             libp2p?: ServiceLibp2pTest;
           }
       >,
@@ -55,11 +55,10 @@ export class NébuleuseTest<
 export const connecterNébuleuses = async <
   T extends { [clef: string]: NestedValue } = Record<string, never>,
   S extends ServicesAppli = ServicesAppli,
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 >(
-  nébuleuses: Nébuleuse<T, S, L>[],
+  nébuleuses: Nébuleuse<T, S>[],
 ) => {
-  const libp2ps: Libp2p<L>[] = await Promise.all(
+  const libp2ps: Libp2p<ServicesLibp2pNébuleuse>[] = await Promise.all(
     nébuleuses.map(async (c) => await c.services.libp2p.libp2p()),
   );
   await toutesConnectées(libp2ps, { adresseRelai: obtenirAdresseRelai() });
@@ -75,7 +74,7 @@ export const créerNébuleusesTest = async <
 }: {
   n: number;
   services?: ConstructeursServicesAppli<
-    S & ServicesDonnées<T, ServicesLibp2pTest>,
+    S & ServicesDonnées<T>,
     ServicesNébuleuse<T & StructureNébuleuse, ServicesLibp2pTest>
   >;
   dossier?: string;

@@ -35,24 +35,32 @@ export const schémaDispositifs: JSONSchemaType<
   nullable: true,
 };
 
-export type ServicesNécessairesDispositifs<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesDonnées<L> & {
-  dispositifs: ServiceDispositifs<L>;
-};
+export type ServicesNécessairesDispositifs = ServicesNécessairesDonnées<{
+  dispositifs: StructureDispositifs;
+}>;
 
-export class ServiceDispositifs<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> extends ServiceDonnéesAppli<"dispositifs", StructureDispositifs, L> {
-  clef = "dispositifs";
-  
-  constructor({ services, options }: { services: ServicesNécessairesDispositifs<L>; options: OptionsCommunes }) {
+export class ServiceDispositifs extends ServiceDonnéesAppli<
+  "dispositifs",
+  StructureDispositifs
+> {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesDispositifs;
+    options: OptionsCommunes;
+  }) {
     super({
+      clef: "dispositifs",
       services,
       dépendances: ["compte"],
-      options: Object.assign({}, {
-        schéma: schémaDispositifs,
-      }, options),
+      options: Object.assign(
+        {},
+        {
+          schéma: schémaDispositifs,
+        },
+        options,
+      ),
     });
   }
 

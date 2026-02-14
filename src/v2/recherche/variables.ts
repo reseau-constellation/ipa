@@ -21,11 +21,7 @@ import type {
   RésultatRecherche,
 } from "./types.js";
 
-export class RechercheVariables<
-  L extends ServicesLibp2pNébuleuse,
-> extends RechercheObjets<L> {
-  variables: Variables<L>;
-
+export class RechercheVariables extends RechercheObjets<ServicesNécessairesRechercheVariables> {
   constructor({
     variables,
     constl,

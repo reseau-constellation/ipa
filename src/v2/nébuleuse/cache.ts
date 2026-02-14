@@ -374,7 +374,7 @@ export const cacheRechercheParN = <T>(
   });
 };
 
-export type RésultatProfondeur<T> = { val:T, profondeur: number };
+export type RésultatProfondeur<T> = { val: T; profondeur: number };
 
 export const cacheRechercheParProfondeur = <T>(
   _cible: unknown,

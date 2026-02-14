@@ -13,9 +13,8 @@ import {
   rechercherNuéesSelonTexte,
   rechercherNuéesSelonVariable,
 } from "./fonctions/nuées.js";
+import type { ServicesNécessairesRechercheNuées } from "./fonctions/nuées.js";
 import type { InfoAuteur } from "../types.js";
-import type { Constellation } from "../index.js";
-import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type { Nuées } from "../nuées/nuées.js";
@@ -26,11 +25,12 @@ import type {
   SuivreObjectifRecherche,
   RésultatRecherche,
   InfoRésultatRecherche,
+  AccesseurService,
 } from "./types.js";
 
 export class RechercheNuées<
   L extends ServicesLibp2pNébuleuse,
-> extends RechercheObjets<L> {
+> extends RechercheObjets<ServicesNécessairesRechercheNuées> {
   nuées: Nuées<L>;
 
   constructor({
@@ -38,9 +38,7 @@ export class RechercheNuées<
     service,
   }: {
     nuées: Nuées<L>;
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    service: AccesseurService<ServicesNécessairesRechercheNuées>;
   }) {
     super({ service });
     this.nuées = nuées;
@@ -291,7 +289,7 @@ export class RechercheNuées<
     idCompte,
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
-    fObjectif: SuivreObjectifRecherche<T>;
+    fObjectif: SuivreObjectifRecherche<T, ServicesNécessairesRechercheNuées>;
     n?: number;
     idCompte?: string;
   }): Promise<RetourRecherche> {

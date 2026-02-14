@@ -1,7 +1,7 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
-import { créerOrbitesTest, type ServicesLibp2pTest } from "@constl/utils-tests";
+import { créerOrbitesTest } from "@constl/utils-tests";
 import { isLibp2p } from "libp2p";
 import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
 import { extraireHéliaEtLibp2p } from "@/v2/nébuleuse/nébuleuse.js";
@@ -143,10 +143,7 @@ describe.only("Nébuleuse", function () {
         services,
         options,
       }: {
-        services: ServicesNécessairesDonnées<
-          { test1: { a: number } },
-          ServicesLibp2pTest
-        >;
+        services: ServicesNécessairesDonnées<{ test1: { a: number } }>;
         options: OptionsCommunes;
       }) {
         const optionsService = Object.assign({}, options, {
@@ -171,10 +168,7 @@ describe.only("Nébuleuse", function () {
         services,
         options,
       }: {
-        services: ServicesNécessairesDonnées<
-          { test2: { b: number } },
-          ServicesLibp2pTest
-        >;
+        services: ServicesNécessairesDonnées<{ test2: { b: number } }>;
         options: OptionsCommunes;
       }) {
         const optionsService = Object.assign({}, options, {

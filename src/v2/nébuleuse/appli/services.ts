@@ -7,13 +7,14 @@ type ÉvénementsServiceAppli<Démarré = true> = {
 };
 
 export abstract class ServiceAppli<
+  T extends string = string,
   S extends ServicesAppli = ServicesAppli,
   RetourDémarré = unknown,
   Options = unknown,
 > {
-  abstract clef: string;
+  clef: T;
   services: S;
-  dépendances: Extract<keyof S, string>[];
+  dépendances: (keyof S)[];
   options: Options & OptionsCommunes;
 
   événements: TypedEmitter<ÉvénementsServiceAppli<RetourDémarré>>;
@@ -21,14 +22,17 @@ export abstract class ServiceAppli<
   estDémarré: RetourDémarré | false;
 
   constructor({
+    clef,
     services,
     dépendances = [],
     options,
   }: {
+    clef: T;
     services: S;
-    dépendances?: Extract<keyof S, string>[];
+    dépendances?: (keyof S)[];
     options: Options & OptionsCommunes;
   }) {
+    this.clef = clef;
     this.dépendances = dépendances;
     this.services = services;
     this.options = options;
@@ -67,7 +71,7 @@ export abstract class ServiceAppli<
   }
 
   // Méthodes générales
-  service<C extends Extract<keyof S, string>>(clef: C): S[C] {
+  service<C extends keyof S>(clef: C): S[C] {
     if (!this.dépendances.includes(clef))
       throw new Error(
         `${String(clef)} n'est pas spécifié parmi les dépendences de ${this.clef}.`,

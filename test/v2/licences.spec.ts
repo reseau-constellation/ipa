@@ -3,7 +3,6 @@ import { type InfoLicence, infoLicences, licences } from "@/v2/licences.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
 
-
 describe("Licences", function () {
   it("licences statiques", () => {
     expect(Array.isArray(licences)).to.be.true();

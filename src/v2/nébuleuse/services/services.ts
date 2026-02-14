@@ -20,10 +20,7 @@ import type {
   NestedValueWithUndefined,
   RecursivePartial,
 } from "node_modules/@orbitdb/nested-db/dist/types.js";
-import type {
-  OptionsCommunes,
-  ServicesAppli,
-} from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../types.js";
@@ -85,7 +82,9 @@ export const brancheBd = <T extends NestedValue, C extends string>({
         };
         return delBranche;
       } else if (prop === "get") {
-        const getBranche = async (sousClef: ExtractKeys<T> | ExtractKeysAsList<T>) => {
+        const getBranche = async (
+          sousClef: ExtractKeys<T> | ExtractKeysAsList<T>,
+        ) => {
           const clefFinale = joinKey([
             clef,
             ...asSplitKey(sousClef),
@@ -94,13 +93,20 @@ export const brancheBd = <T extends NestedValue, C extends string>({
         };
         return getBranche;
       } else if (prop === "put" || prop === "set") {
-        const putBranche = async <K extends ExtractKeys<T> | ExtractKeysAsList<T>>(
-          sousClef: K, valeur: GetValueFromNestedKey<T, K>): Promise<string[]> => {
+        const putBranche = async <
+          K extends ExtractKeys<T> | ExtractKeysAsList<T>,
+        >(
+          sousClef: K,
+          valeur: GetValueFromNestedKey<T, K>,
+        ): Promise<string[]> => {
           const clefFinale = joinKey([
             clef as string,
             ...asSplitKey(sousClef),
           ]) as ExtractKeys<Record<C, T>>;
-          return await target.put(clefFinale, valeur as GetValueFromKey<Record<C, T>, ExtractKeys<Record<C, T>>>);
+          return await target.put(
+            clefFinale,
+            valeur as GetValueFromKey<Record<C, T>, ExtractKeys<Record<C, T>>>,
+          );
         };
         return putBranche;
       } else if (prop === "all") {
@@ -117,42 +123,51 @@ export const brancheBd = <T extends NestedValue, C extends string>({
 
 export type ServicesNécessairesDonnées<
   S extends { [clef: string]: NestedValue },
-  L extends ServicesLibp2pNébuleuse,
-> = ServicesNécessairesCompte<L> & { compte: ServiceCompte<S, L> };
+> = ServicesNécessairesCompte & { compte: ServiceCompte<S> };
 
 export type OptionsServiceDonnées<Structure extends NestedValue> = {
   schéma: JSONSchemaType<PartielRécursif<Structure>>;
 };
 
+export type ServicesAditionnelsDonnéesAppli = Record<
+  Exclude<string, "compte" | keyof ServicesNécessairesCompte>,
+  ServiceAppli<string>
+>;
+
 export abstract class ServiceDonnéesAppli<
   T extends string,
   Structure extends NestedValue,
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-  Services extends ServicesAppli = ServicesAppli,
+  Services extends ServicesAditionnelsDonnéesAppli = Record<
+    Exclude<string, keyof ServicesAditionnelsDonnéesAppli>,
+    never
+  >,
   RetourDémarré = unknown,
   Options extends { schéma: JSONSchemaType<PartielRécursif<Structure>> } = {
     schéma: JSONSchemaType<PartielRécursif<Structure>>;
   },
 > extends ServiceAppli<
-  Services & ServicesNécessairesDonnées<Record<T, Structure>, L>,
+  T,
+  Services & ServicesNécessairesDonnées<Record<T, Structure>>,
   RetourDémarré,
   Options
 > {
   schéma: JSONSchemaType<PartielRécursif<Structure>>;
 
   constructor({
+    clef,
     services,
     dépendances = [],
     options,
   }: {
-    services: Services & ServicesNécessairesDonnées<Record<T, Structure>, L>;
-    dépendances?: Extract<
-      keyof Services & ServicesNécessairesDonnées<Record<T, Structure>, L>,
-      string
-    >[];
-    options: Options & OptionsCommunes;
+    clef: T;
+    services: ServicesNécessairesDonnées<Record<T, Structure>> & Services;
+    dépendances?: NoInfer<
+      (keyof (Services & ServicesNécessairesDonnées<Record<T, Structure>>))[]
+    >;
+    options: NoInfer<Options> & OptionsCommunes;
   }) {
     super({
+      clef,
       services,
       dépendances: [...dépendances, "compte"],
       options,
@@ -183,7 +198,8 @@ export abstract class ServiceDonnéesAppli<
     clef?: T;
     idCompte?: string;
   }): Promise<Oublier> {
-    return this.service("compte").suivreBd({
+    const compte = this.service("compte");
+    return compte.suivreBd({
       f: async (bd) => {
         if (!bd) {
           await f(undefined);
@@ -194,9 +210,10 @@ export abstract class ServiceDonnéesAppli<
         for (const k of asSplitKey(
           clef ? joinKey([this.clef, ...splitKey(clef)]) : this.clef,
         )) {
-          if (isNestedValue<DagCborEncodable>(données)) données = (données as NestedValue)[k];
+          if (isNestedValue<DagCborEncodable>(données))
+            données = (données as NestedValue)[k];
           else {
-            return await f(undefined)
+            return await f(undefined);
           }
         }
         await f(

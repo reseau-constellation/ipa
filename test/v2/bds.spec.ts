@@ -923,6 +923,9 @@ describe("BDs", function () {
       idVarLangue = await constl.variables.créerVariable({
         catégorie: "chaîneNonTraductible",
       });
+      idVarNomLangue = await constl.variables.créerVariable({
+        catégorie: "chaîne",
+      });
 
       idMotClef = await constl.motsClefs.créerMotClef();
       idNuée = await constl.nuées.créerNuée();
@@ -1406,7 +1409,7 @@ describe("BDs", function () {
     });
 
     it("source copie établie", async () => {
-      const copiéeDe = await obtenir<{ id: string }>(({ siDéfini }) =>
+      const copiéeDe = await obtenir<{ id?: string }>(({ siDéfini }) =>
         constl.bds.suivreSource({ idBd: idBdCopie, f: siDéfini() }),
       );
       expect(copiéeDe).to.deep.equal({ id: idBdOrig });
@@ -1559,6 +1562,8 @@ describe("BDs", function () {
       expect(tableauxBdDestinataire).to.not.contain(idTableauManquant);
     });
   });
+
+  describe("empreinte");
 
   describe("score", function () {
     let idBd: string;
@@ -1909,7 +1914,8 @@ describe("BDs", function () {
         éléments,
       });
 
-      const dossierOriginal = await constlTestRéouverture.services["dossier"].dossier();
+      const dossierOriginal =
+        await constlTestRéouverture.services["dossier"].dossier();
 
       await constlTestRéouverture.fermer();
 

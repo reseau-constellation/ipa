@@ -1,11 +1,11 @@
 import { expect } from "aegir/chai";
-import { obtRessourceTest } from "../../ressources/index.js";
-import type { élément } from "@/importateur/json.js";
 import {
   ImportateurDonnéesJSON,
   aplatirDonnées,
   extraireDonnées,
-} from "@/importateur/json.js";
+} from "@/v2/importateur/json.js";
+import { obtRessourceTest } from "../../ressources/index.js";
+import type { ÉlémentJSON } from "@/v2/importateur/json.js";
 
 describe("JSON", function () {
   describe("extraire données", function () {
@@ -151,7 +151,7 @@ describe("JSON", function () {
   });
 
   describe("importateur JSON", function () {
-    let données: élément[];
+    let données: ÉlémentJSON[];
 
     before(async () => {
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon

@@ -7,11 +7,12 @@ import {
   ServiceDonnéesAppli,
   brancheBd,
 } from "@/v2/nébuleuse/services/services.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import { créerNébuleusesTest } from "../utils.js";
 import { obtenir } from "../../utils.js";
-import type { NébuleuseTest} from "../utils.js";
-import type {
-  ServicesNécessairesDonnées} from "@/v2/nébuleuse/services/services.js";
+import type { ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import type { NébuleuseTest } from "../utils.js";
+import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
 import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { Helia } from "helia";
@@ -228,10 +229,7 @@ describe.only("Services Nébuleuse", function () {
           services,
           options,
         }: {
-          services: ServicesNécessairesDonnées<
-            { A: StructureA },
-            ServicesLibp2pTest
-          >;
+          services: ServicesNécessairesDonnées<{ A: StructureA }>;
           options: OptionsCommunes;
         }) {
           const optionsService = {
@@ -245,15 +243,13 @@ describe.only("Services Nébuleuse", function () {
           });
         }
       }
+
       class ServiceDonnéesTestB extends ServiceDonnéesAppli<"B", StructureB> {
         constructor({
           services,
           options,
         }: {
-          services: ServicesNécessairesDonnées<
-            { B: StructureB },
-            ServicesLibp2pTest
-          >;
+          services: ServicesNécessairesDonnées<{ B: StructureB }>;
           options: OptionsCommunes;
         }) {
           super({
@@ -268,7 +264,13 @@ describe.only("Services Nébuleuse", function () {
       }
 
       before(async () => {
-        const { nébuleuses, fermer } = await créerNébuleusesTest<Structure>({
+        const { nébuleuses, fermer } = await créerNébuleusesTest<
+          Structure,
+          {
+            A: ServiceDonnéesTestA;
+            B: ServiceDonnéesTestB;
+          }
+        >({
           n: 1,
           services: {
             A: ServiceDonnéesTestA,
@@ -317,6 +319,100 @@ describe.only("Services Nébuleuse", function () {
         );
 
         expect(val).to.deep.equal(2);
+      });
+    });
+
+    describe("services aditionnels", function () {
+      type StructureA = { a: number };
+      type Structure = {
+        A: StructureA;
+      };
+
+      const schémaStructureA: JSONSchemaType<PartielRécursif<StructureA>> = {
+        type: "object",
+        properties: {
+          a: { type: "number", nullable: true },
+        },
+      };
+
+      let nébuleuse: NébuleuseTest<
+        Structure,
+        { A: ServiceDonnéesTestA; autre: AutreService }
+      >;
+      let oublier: Oublier;
+
+      class ServiceDonnéesTestA extends ServiceDonnéesAppli<
+        "A",
+        StructureA,
+        AutresServices
+      > {
+        constructor({
+          services,
+          options,
+        }: {
+          services: ServicesNécessairesDonnées<{ A: StructureA }> &
+            AutresServices;
+          options: OptionsCommunes;
+        }) {
+          const optionsService = {
+            ...options,
+            schéma: schémaStructureA,
+          };
+          super({
+            clef: "A",
+            services,
+            dépendances: ["autre"],
+            options: optionsService,
+          });
+        }
+
+        accéderAutreService() {
+          return this.service("autre").valeur();
+        }
+      }
+
+      class AutreService extends ServiceAppli<"autre"> {
+        constructor({
+          services,
+          options,
+        }: {
+          services: ServicesNébuleuse;
+          options: OptionsCommunes;
+        }) {
+          super({ clef: "autre", services, options });
+        }
+
+        valeur() {
+          return 3;
+        }
+      }
+
+      type AutresServices = { autre: AutreService };
+
+      before(async () => {
+        const { nébuleuses, fermer } = await créerNébuleusesTest<
+          Structure,
+          {
+            A: ServiceDonnéesTestA;
+            autre: AutreService;
+          }
+        >({
+          n: 1,
+          services: {
+            A: ServiceDonnéesTestA,
+            autre: AutreService,
+          },
+        });
+        nébuleuse = nébuleuses[0];
+        oublier = fermer;
+      });
+
+      after(async () => {
+        if (oublier) await oublier();
+      });
+
+      it("accès autre service", async () => {
+        expect(nébuleuse.services.A.accéderAutreService()).to.equal(3);
       });
     });
   });

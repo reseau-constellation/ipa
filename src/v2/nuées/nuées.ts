@@ -14,6 +14,7 @@ import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { schémaTableau } from "../tableaux.js";
 import {
+  définis,
   enleverPréfixesEtOrbite,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
@@ -46,7 +47,6 @@ import type {
   AccèsUtilisateur,
 } from "../nébuleuse/services/compte/accès/types.js";
 import type { TypedNested } from "@constl/bohr-db";
-import type { ServicesConstellation } from "../constellation.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
@@ -239,7 +239,6 @@ export class Nuées<
     });
     this.recherche = new RechercheNuées({
       nuées: this,
-      constl: this.appli,
       service: (clef) => this.service(clef),
     });
 
@@ -774,7 +773,7 @@ export class Nuées<
     noms,
   }: {
     idNuée: string;
-    noms: { [key: string]: string };
+    noms: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idNuée });
 
@@ -840,7 +839,7 @@ export class Nuées<
       fParents: async ({ idNuée: idParent, f: fParent }) =>
         await this.suivreObjet({
           idObjet: idParent,
-          f: (nuée) => fParent(nuée?.noms || {}),
+          f: (nuée) => fParent(définis(nuée?.noms || {})),
         }),
     });
   }
@@ -852,7 +851,7 @@ export class Nuées<
     descriptions,
   }: {
     idNuée: string;
-    descriptions: { [key: string]: string };
+    descriptions: TraducsTexte;
   }): Promise<void> {
     await this.confirmerPermission({ idNuée });
     const { nuée, oublier } = await this.ouvrirNuée({
@@ -914,7 +913,7 @@ export class Nuées<
       fParents: async ({ idNuée: idParent, f: fParent }) =>
         await this.suivreObjet({
           idObjet: idParent,
-          f: (nuée) => fParent(nuée?.descriptions || {}),
+          f: (nuée) => fParent(définis(nuée?.descriptions || {})),
         }),
     });
   }
@@ -2058,8 +2057,8 @@ export class Nuées<
     f: Suivi<number | undefined>;
   }): Promise<Oublier> {
     const rés: {
-      noms: { [key: string]: string };
-      descriptions: { [key: string]: string };
+      noms: TraducsTexte;
+      descriptions: TraducsTexte;
     } = {
       noms: {},
       descriptions: {},

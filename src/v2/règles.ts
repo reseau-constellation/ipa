@@ -193,7 +193,7 @@ export function générerFonctionValidation<
   colsIndex,
 }: {
   règle: RègleColonne<R>;
-  varsÀColonnes: { [key: string]: string };
+  varsÀColonnes: TraducsTexte;
   donnéesCatégorie?: DagCborEncodable[];
   colsIndex: string[];
 }): FonctionValidation<T, R> {

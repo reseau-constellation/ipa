@@ -1,15 +1,18 @@
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
+import { Licences } from "../licences.js";
 import {
-  ServiceCompte,
   ServiceHélia,
   ServiceLibp2p,
   ServiceOrbite,
   ServiceStockage,
+  ServiceCompte,
 } from "./services/index.js";
 import { ServiceDispositifs } from "./services/dispositifs.js";
 import { Profil } from "./services/profil.js";
 import { ServiceRéseau } from "./services/réseau.js";
 import { ServiceJournal } from "./services/journal.js";
+
+import { ServiceDossier } from "./services/dossier.js";
 import type { ServiceÉpingles } from "./services/épingles.js";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
@@ -21,10 +24,7 @@ import type { StructureDispositifs } from "./services/dispositifs.js";
 import type { ServicesLibp2pNébuleuse } from "./services/libp2p/libp2p.js";
 import type { StructureProfil } from "./services/profil.js";
 import type { StructureRéseau } from "./services/réseau.js";
-import type {
-  ServicesDonnées,
-  ServicesNécessairesCompte,
-} from "./services/compte/compte.js";
+import type { ServicesNécessairesCompte } from "./services/compte/compte.js";
 import type { ServiceFavoris } from "./services/favoris.js";
 
 export type StructureNébuleuse = {
@@ -36,13 +36,13 @@ export type StructureNébuleuse = {
 export type ServicesNébuleuse<
   T extends StructureNébuleuse = StructureNébuleuse,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesCompte<L> & {
-  compte: ServiceCompte<T, L>;
-  dispositifs: ServiceDispositifs<L>;
+> = ServicesNécessairesCompte & {
+  compte: ServiceCompte<T>;
+  dispositifs: ServiceDispositifs;
   profil: Profil<L>;
-  réseau: ServiceRéseau<L>;
-  épingles: ServiceÉpingles<L>;
-  favoris: ServiceFavoris<L>;
+  réseau: ServiceRéseau;
+  épingles: ServiceÉpingles;
+  favoris: ServiceFavoris;
 };
 
 export const extraireHéliaEtLibp2p = <
@@ -76,25 +76,22 @@ export class Nébuleuse<
 > extends Appli<ServicesNébuleuse<StructureNébuleuse & T, L> & S> {
   orbite: ServiceOrbite<L>;
   profil: Profil<L>;
-  compte: ServiceCompte<StructureNébuleuse & T, L>;
-  réseau: ServiceRéseau<L>;
-  favoris: ServiceFavoris<L>;
+  compte: ServiceCompte<StructureNébuleuse & T>;
+  réseau: ServiceRéseau;
+  favoris: ServiceFavoris;
 
   constructor({
     services,
     options,
   }: {
     services?: ConstructeursServicesAppli<
-      S &
-        ServicesDonnées<T, L> &
-        Partial<ServicesNébuleuse<StructureNébuleuse & T, L>>
+      S & Partial<ServicesNébuleuse<StructureNébuleuse, L>>
     >;
-    options?: Partial<
-      OptionsAppli<S & ServicesNébuleuse<StructureNébuleuse & T, L>>
+    options?: NoInfer<
+      Partial<OptionsAppli<S & ServicesNébuleuse<StructureNébuleuse, L>>>
     >;
   } = {}) {
-    services =
-      services ?? ({} as ConstructeursServicesAppli<S & ServicesDonnées<T, L>>);
+    services = services ?? ({} as ConstructeursServicesAppli<S>);
     options = options ?? {};
     const optionsNébuleuse = options as OptionsAppli<
       ServicesNébuleuse<StructureNébuleuse & T, L>
@@ -109,19 +106,19 @@ export class Nébuleuse<
     }
     super({
       services: {
+        dossier: ServiceDossier,
         journal: ServiceJournal,
         stockage: ServiceStockage,
-        libp2p: ServiceLibp2p,
+        libp2p: ServiceLibp2p<L>,
         hélia: ServiceHélia,
         orbite: ServiceOrbite,
-        compte: ServiceCompte<T, L>,
+        compte: ServiceCompte,
         dispositifs: ServiceDispositifs,
         profil: Profil,
+        licences: Licences,
         réseau: ServiceRéseau,
         ...services,
-      } as ConstructeursServicesAppli<
-        S & ServicesNébuleuse<StructureNébuleuse & T, L>
-      >,
+      } as ServicesNébuleuse<StructureNébuleuse & T, L> & S,
       options,
     });
 

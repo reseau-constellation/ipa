@@ -5,6 +5,8 @@ import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
 import { idcValide, zipper } from "@constl/utils-ipa";
 import { TimeoutController } from "timeout-abort-controller";
+import type { NestedValueWithUndefined } from "@orbitdb/nested-db";
+import type { SansNonDéfinis } from "./types.js";
 import type xlsx from "xlsx";
 
 const { saveAs } = fileSaver;
@@ -175,4 +177,12 @@ export const enleverPréfixes = (id: string): string => {
 
 export const enleverPréfixesEtOrbite = (id: string): string => {
   return enleverPréfixeOrbite(enleverPréfixes(id));
+};
+
+export const définis = <T extends NestedValueWithUndefined>(
+  x: T,
+): SansNonDéfinis<T> => {
+  return Object.fromEntries(
+    Object.entries(x).filter(([_, v]) => v !== undefined),
+  ) as SansNonDéfinis<T>;
 };

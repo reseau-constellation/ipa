@@ -60,20 +60,15 @@ const défautsConstsCompte: RequisRécursif<ConstsCompte> = {
 
 export type SchémaDeStructureCompte<T extends { [clef: string]: NestedValue }> =
   JSONSchemaType<PartielRécursif<T>>;
-export type SchémaCompte<T> =
-  T extends ServicesDonnées<infer S, infer _L> ? S : never;
+export type SchémaCompte<T> = T extends ServicesDonnées<infer S> ? S : never;
 
-export type ServicesNécessairesCompte<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesOrbite<L> & {
-  orbite: ServiceOrbite<L>;
-};
+export type ServicesNécessairesCompte =
+  ServicesNécessairesOrbite<ServicesLibp2pNébuleuse> & {
+    orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
+  };
 
-export const compilerSchémaCompte = <
-  T extends { [clef: string]: NestedValue },
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
->(
-  compte: ServiceCompte<T, L>,
+export const compilerSchémaCompte = <T extends { [clef: string]: NestedValue }>(
+  compte: ServiceCompte<T>,
 ): SchémaDeStructureCompte<T> => {
   const schéma: SchémaDeStructureCompte<T> = {
     type: "object",
@@ -88,11 +83,8 @@ export const compilerSchémaCompte = <
   return schéma;
 };
 
-export type ServicesDonnées<
-  T extends { [clef: string]: NestedValue },
-  L extends ServicesLibp2pNébuleuse,
-> = {
-  [C in Extract<keyof T, "string">]: ServiceDonnéesAppli<C, T[C], L>;
+export type ServicesDonnées<T extends { [clef: string]: NestedValue }> = {
+  [C in Extract<keyof T, "string">]: ServiceDonnéesAppli<C, T[C]>;
 };
 
 export type ÉvénementsCompte = {
@@ -109,14 +101,12 @@ export class ServiceCompte<
   T extends { [clef: string]: NestedValue } = {
     [clef: string]: NestedValue;
   },
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<
-  ServicesNécessairesCompte<L>,
+  "compte",
+  ServicesNécessairesCompte,
   RetourDémarrageCompte<T>,
   OptionsCompte
 > {
-  clef = "compte";
-
   événements: TypedEmitter<
     {
       démarré: (args: RetourDémarrageCompte<T>) => void;
@@ -127,10 +117,11 @@ export class ServiceCompte<
     services,
     options,
   }: {
-    services: ServicesNécessairesCompte<L>;
+    services: ServicesNécessairesCompte;
     options: PartielRécursif<OptionsCompte> & OptionsCommunes;
   }) {
     super({
+      clef: "compte",
       services,
       dépendances: ["orbite", "libp2p", "stockage"],
       options: merge(options, { consts: défautsConstsCompte }),
@@ -149,7 +140,7 @@ export class ServiceCompte<
 
     const bdTypée = typedNested({
       db: bd,
-      schema: compilerSchémaCompte<T, L>(this),
+      schema: compilerSchémaCompte<T>(this),
     });
     this.estDémarré = { idCompte, bd: bdTypée, oublier };
     return await super.démarrer();
@@ -310,7 +301,7 @@ export class ServiceCompte<
     idCompte?: string;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
-    const schéma = compilerSchémaCompte(this);
+    const schéma = compilerSchémaCompte<T>(this);
 
     if (idCompte) {
       return await orbite.suivreBdEmboîtéeTypée<T>({

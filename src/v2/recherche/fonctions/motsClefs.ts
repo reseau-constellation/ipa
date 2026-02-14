@@ -18,11 +18,17 @@ import type {
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { MotsClefs } from "@/v2/motsClefs.js";
 
-export type ServicesNécessairesRechercheMotsClefs = ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & { motsClefs: MotsClefs<ServicesLibp2pNébuleuse> };
+export type ServicesNécessairesRechercheMotsClefs =
+  ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & {
+    motsClefs: MotsClefs<ServicesLibp2pNébuleuse>;
+  };
 
 export const rechercherMotsClefsSelonNom = (
   nomMotClef: string,
-): SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheMotsClefs> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheMotsClefs
+> => {
   return async ({
     services,
     idObjet,
@@ -57,7 +63,10 @@ export const rechercherMotsClefsSelonNom = (
 
 export const rechercherMotsClefsSelonDescription = (
   descriptionMotClef: string,
-): SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheMotsClefs> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheMotsClefs
+> => {
   return async ({
     services,
     idObjet,
@@ -93,9 +102,12 @@ export const rechercherMotsClefsSelonDescription = (
   };
 };
 
-export const rechercherMotsClefsSelonTexte = <L extends ServicesLibp2pNébuleuse>(
+export const rechercherMotsClefsSelonTexte = (
   texte: string,
-): SuivreObjectifRecherche<InfoRésultatTexte | InfoRésultatVide, ServicesNécessairesRechercheMotsClefs> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte | InfoRésultatVide,
+  ServicesNécessairesRechercheMotsClefs
+> => {
   return async ({
     services,
     idObjet,

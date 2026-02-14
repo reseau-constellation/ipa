@@ -75,8 +75,7 @@ export type DonnéesRangéeTableauÀImporter = {
 
 export type ConversionColonne<T extends ConversionDonnées = ConversionDonnées> =
   {
-    colonneSource: string;
-    colonneCible?: string;
+    colonne: string;
     typeCatégorie?: "simple" | "liste";
     conversion: T;
   };
@@ -742,6 +741,8 @@ export class TableauxBds<
     converties: DonnéesRangéeTableau[];
     traductions: { [clef: string]: TraducsTexte };
   }> {
+    if (!conversions.length) return { converties: données };
+
     const hélia = this.service("hélia");
 
     const convertirRangée = async (
@@ -753,17 +754,15 @@ export class TableauxBds<
         const valeur = rangée[colonne];
 
         const conversionColonne = conversions.find(
-          (c) => c.colonneSource === colonne,
+          (c) => c.colonne === colonne,
         );
         if (!conversionColonne) continue;
-
-        const idColonne = conversionColonne.colonneCible || colonne;
 
         const valeurColonne = await convertirValeur({
           valeur,
           conversion: conversionColonne,
         });
-        if (valeurColonne !== undefined) convertie[idColonne] = valeurColonne;
+        if (valeurColonne !== undefined) convertie[colonne] = valeurColonne;
       }
 
       return convertie;

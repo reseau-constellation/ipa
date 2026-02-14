@@ -229,7 +229,11 @@ describe("Utils recherche", function () {
 
     it("résultat détecté", async () => {
       const résultat = await obtenir(({ siDéfini }) =>
-        recherche({ services: constl.services, idObjet: "voici mon id", f: siDéfini() }),
+        recherche({
+          services: constl.services,
+          idObjet: "voici mon id",
+          f: siDéfini(),
+        }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {

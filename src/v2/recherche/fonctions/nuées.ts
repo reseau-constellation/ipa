@@ -7,25 +7,39 @@ import {
   sousRecherche,
 } from "@/v2/recherche/fonctions/utils.js";
 import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
+import type { Nuées } from "@/v2/nuées/nuées.js";
+import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { Constellation } from "@/v2/index.js";
 import type {
   SuivreObjectifRecherche,
   InfoRésultatTexte,
   SuiviRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
+  AccesseurService,
 } from "../types.js";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
+import type { TraducsTexte } from "@/v2/types.js";
+import type { MotsClefs } from "@/v2/motsClefs.js";
+
+export type ServicesNécessairesRechercheNuées =
+  ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & {
+    nuées: Nuées<ServicesLibp2pNébuleuse>;
+    motsClefs: MotsClefs<ServicesLibp2pNébuleuse>;
+  };
 
 export const rechercherNuéesSelonNom = (
   nomNuée: string,
-): SuivreObjectifRecherche<InfoRésultatTexte> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheNuées
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -44,7 +58,7 @@ export const rechercherNuéesSelonNom = (
         f();
       }
     };
-    const oublier = await constl.nuées.suivreNoms({
+    const oublier = await services("nuées").suivreNoms({
       idNuée: idObjet,
       f: fSuivre,
     });
@@ -54,13 +68,16 @@ export const rechercherNuéesSelonNom = (
 
 export const rechercherNuéesSelonDescription = (
   descriptionNuée: string,
-): SuivreObjectifRecherche<InfoRésultatTexte> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheNuées
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -82,7 +99,7 @@ export const rechercherNuéesSelonDescription = (
         f();
       }
     };
-    const oublier = await constl.nuées.suivreDescriptions({
+    const oublier = await services("nuées").suivreDescriptions({
       idNuée: idObjet,
       f: fSuivre,
     });
@@ -92,13 +109,16 @@ export const rechercherNuéesSelonDescription = (
 
 export const rechercherNuéesSelonIdVariable = (
   idVariable: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheNuées
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -107,7 +127,7 @@ export const rechercherNuéesSelonIdVariable = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.nuées.suivreVariables({
+      return await services("nuées").suivreVariables({
         idNuée: idObjet,
         f: fSuivreRacine,
       });
@@ -119,7 +139,7 @@ export const rechercherNuéesSelonIdVariable = (
       de: "variable",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -127,13 +147,16 @@ export const rechercherNuéesSelonIdVariable = (
 
 export const rechercherNuéesSelonNomVariable = (
   nomVariable: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheNuées
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -142,7 +165,7 @@ export const rechercherNuéesSelonNomVariable = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.nuées.suivreVariables({
+      return await services("nuées").suivreVariables({
         idNuée: idObjet,
         f: fSuivreRacine,
       });
@@ -154,7 +177,7 @@ export const rechercherNuéesSelonNomVariable = (
       de: "variable",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -162,13 +185,16 @@ export const rechercherNuéesSelonNomVariable = (
 
 export const rechercherNuéesSelonVariable = (
   texte: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheNuées
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }) => {
@@ -177,7 +203,7 @@ export const rechercherNuéesSelonVariable = (
         id: rechercherNuéesSelonIdVariable(texte),
         nom: rechercherNuéesSelonNomVariable(texte),
       },
-      constl,
+      services,
       idObjet,
       fSuivreRecherche: f,
     });
@@ -186,13 +212,16 @@ export const rechercherNuéesSelonVariable = (
 
 export const rechercherNuéesSelonIdMotClef = (
   idMotClef: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheNuées
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -201,7 +230,7 @@ export const rechercherNuéesSelonIdMotClef = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.nuées.suivreMotsClefs({
+      return await services("nuées").suivreMotsClefs({
         idNuée: idObjet,
         f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.val)),
       });
@@ -213,7 +242,7 @@ export const rechercherNuéesSelonIdMotClef = (
       de: "motClef",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -221,13 +250,16 @@ export const rechercherNuéesSelonIdMotClef = (
 
 export const rechercherNuéesSelonNomMotClef = (
   nomMotClef: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheNuées
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }): Promise<Oublier> => {
@@ -236,7 +268,7 @@ export const rechercherNuéesSelonNomMotClef = (
     }: {
       fSuivreRacine: (idsVariables: string[]) => void;
     }): Promise<Oublier> => {
-      return await constl.nuées.suivreMotsClefs({
+      return await services("nuées").suivreMotsClefs({
         idNuée: idObjet,
         f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.val)),
       });
@@ -248,7 +280,7 @@ export const rechercherNuéesSelonNomMotClef = (
       de: "motClef",
       fListe,
       fRechercher,
-      constl,
+      services,
       fSuivreRecherche: f,
     });
   };
@@ -256,13 +288,16 @@ export const rechercherNuéesSelonNomMotClef = (
 
 export const rechercherNuéesSelonMotClef = (
   texte: string,
-): SuivreObjectifRecherche<InfoRésultatRecherche<InfoRésultatTexte>> => {
+): SuivreObjectifRecherche<
+  InfoRésultatRecherche<InfoRésultatTexte>,
+  ServicesNécessairesRechercheNuées
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
   }) => {
@@ -271,7 +306,7 @@ export const rechercherNuéesSelonMotClef = (
         id: rechercherNuéesSelonIdMotClef(texte),
         nom: rechercherNuéesSelonNomMotClef(texte),
       },
-      constl,
+      services,
       idObjet,
       fSuivreRecherche: f,
     });
@@ -283,14 +318,15 @@ export const rechercherNuéesSelonTexte = (
 ): SuivreObjectifRecherche<
   | InfoRésultatRecherche<InfoRésultatTexte>
   | InfoRésultatTexte
-  | InfoRésultatVide
+  | InfoRésultatVide,
+  ServicesNécessairesRechercheNuées
 > => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheNuées>;
     idObjet: string;
     f: SuiviRecherche<
       | InfoRésultatRecherche<InfoRésultatTexte>
@@ -301,7 +337,8 @@ export const rechercherNuéesSelonTexte = (
     return await combinerRecherches<
       | InfoRésultatRecherche<InfoRésultatTexte>
       | InfoRésultatTexte
-      | InfoRésultatVide
+      | InfoRésultatVide,
+      ServicesNécessairesRechercheNuées
     >({
       fsRecherche: {
         nom: rechercherNuéesSelonNom(texte),
@@ -311,7 +348,7 @@ export const rechercherNuéesSelonTexte = (
         id: rechercherSelonId(texte),
         tous: rechercherTousSiVide(texte),
       },
-      constl,
+      services,
       idObjet,
       fSuivreRecherche: f,
     });

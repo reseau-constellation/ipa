@@ -47,12 +47,11 @@ type RetourDémarrageLibp2p<L extends ServicesLibp2pNébuleuse> = {
 export class ServiceLibp2p<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<
+  "libp2p",
   ServicesNécessairesLibp2p,
   RetourDémarrageLibp2p<L>,
   OptionsServiceLibp2p<L>
 > {
-  clef = "libp2p";
-
   constructor({
     services,
     options,
@@ -61,6 +60,7 @@ export class ServiceLibp2p<
     options: OptionsServiceLibp2p<L> & OptionsCommunes;
   }) {
     super({
+      clef: "libp2p",
       services,
       dépendances: ["stockage"],
       options,
@@ -95,7 +95,7 @@ export class ServiceLibp2p<
       // modifie l'objet `configLibp2p` et lui ajoute la clef générée.
       const clefPrivéeExistante = configLibp2p.privateKey;
 
-      libp2p = await createLibp2p<L>(configLibp2p);
+      libp2p = await createLibp2p<L>(configLibp2p as Libp2pOptions<L>);
 
       // Uniquement rendre `libp2p` s'il a été créé ici.
       this.estDémarré = { libp2p };

@@ -64,7 +64,12 @@ describe("Rechercher nuées", function () {
 
     it("ajout nom détecté", async () => {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
-        ({ siDéfini }) => recherche({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+        ({ siDéfini }) =>
+          recherche({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
       await constl.nuées.sauvegarderNoms({
         idNuée,
@@ -115,7 +120,11 @@ describe("Rechercher nuées", function () {
       it("ajout description détecté", async () => {
         const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
           ({ siDéfini }) =>
-            recherche({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+            recherche({
+              services: constl.services,
+              idObjet: idNuée,
+              f: siDéfini(),
+            }),
         );
 
         await constl.nuées.sauvegarderDescriptions({
@@ -197,7 +206,11 @@ describe("Rechercher nuées", function () {
     it("ajout mot-clef détecté", async () => {
       const pRésultatId = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheId({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+          rechercheId({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
       await constl.nuées.ajouterMotsClefs({
         idNuée,
@@ -231,11 +244,19 @@ describe("Rechercher nuées", function () {
     it("ajout nom mot-clef détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheNom({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+          rechercheNom({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
       const pRésultatTous = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheTous({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+          rechercheTous({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
 
       await constl.motsClefs.sauvegarderNoms({
@@ -330,7 +351,11 @@ describe("Rechercher nuées", function () {
     it("ajout variable détecté", async () => {
       const pRésultatId = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheId({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+          rechercheId({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
 
       const idTableau = await constl.nuées.ajouterTableau({ idNuée });
@@ -367,11 +392,19 @@ describe("Rechercher nuées", function () {
     it("ajout nom variable détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheNom({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+          rechercheNom({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
       const pRésultatTous = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheTous({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+          rechercheTous({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
 
       await constl.variables.sauvegarderNoms({
@@ -441,7 +474,11 @@ describe("Rechercher nuées", function () {
     it("résultat id détecté", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheId({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+          rechercheId({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
       expect(résultatId).to.deep.equal({
         type: "résultat",
@@ -493,7 +530,11 @@ describe("Rechercher nuées", function () {
       const pRésultatDescription = obtenir<
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
-        rechercheDescription({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+        rechercheDescription({
+          services: constl.services,
+          idObjet: idNuée,
+          f: siDéfini(),
+        }),
       );
 
       await constl.nuées.sauvegarderDescriptions({
@@ -631,7 +672,11 @@ describe("Rechercher nuées", function () {
     it("résultat recherche vide", async () => {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
-          rechercheVide({ services: constl.services, idObjet: idNuée, f: siDéfini() }),
+          rechercheVide({
+            services: constl.services,
+            idObjet: idNuée,
+            f: siDéfini(),
+          }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {

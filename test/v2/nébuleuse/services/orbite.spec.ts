@@ -30,12 +30,12 @@ import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { obtenir, dossierTempoPropre } from "../../utils.js";
 import { attendreQue } from "../../appli/utils/fonctions.js";
 import { ServiceLibp2pTest } from "./utils.js";
+import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { ServicesNécessairesOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import type { JSONSchemaType } from "ajv";
 import type { BaseDatabase, KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
-import { PartielRécursif } from "@/v2/types.js";
 
 describe.only("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pTest>[];
@@ -464,7 +464,7 @@ describe.only("Service Orbite", function () {
 
       const schéma: JSONSchemaType<PartielRécursif<{ a: number }>> = {
         type: "object",
-        properties: { a: { type: "number" } },
+        properties: { a: { type: "number", nullable: true } },
       };
 
       const val = await obtenir<{ a?: number | null }>(({ siDéfini }) =>

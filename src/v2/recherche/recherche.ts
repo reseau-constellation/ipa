@@ -27,11 +27,13 @@ import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/c
 import type { ServiceRéseau } from "../nébuleuse/services/réseau.js";
 import type { ServiceFavoris } from "../nébuleuse/services/favoris.js";
 
-export type ServicesNécessairesRecherche<L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse> = ServicesNécessairesCompte<L> & {
+export type ServicesNécessairesRecherche<
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> = ServicesNécessairesCompte<L> & {
   réseau: ServiceRéseau<L>;
-}
+};
 
-export class Recherche<S extends ServicesNécessairesRecherche, L extends ServicesLibp2pNébuleuse> {
+export class Recherche<S extends ServicesNécessairesRecherche> {
   service: <C extends keyof S>(service: C) => S[C];
 
   constructor({
@@ -253,12 +255,11 @@ export class Recherche<S extends ServicesNécessairesRecherche, L extends Servic
 
 export type ServicesNécessairesRechercheObjets<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesRecherche<L> & { favoris: ServiceFavoris<L> }
+> = ServicesNécessairesRecherche<L> & { favoris: ServiceFavoris<L> };
 
 export abstract class RechercheObjets<
   S extends ServicesNécessairesRechercheObjets,
-  L extends ServicesLibp2pNébuleuse,
-> extends Recherche<S, L> {
+> extends Recherche<S> {
   abstract suivreAuteursObjet({
     idObjet,
     f,

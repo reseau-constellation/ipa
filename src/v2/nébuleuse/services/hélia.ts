@@ -36,12 +36,11 @@ type RetourDémarrageHélia<L extends ServicesLibp2pNébuleuse> = {
 export class ServiceHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<
+  "hélia",
   ServicesNécessairesHélia<L>,
   RetourDémarrageHélia<L>,
   OptionsServiceHélia<L>
 > {
-  clef = "hélia";
-
   constructor({
     services,
     options,
@@ -50,6 +49,7 @@ export class ServiceHélia<
     options: OptionsServiceHélia<L> & OptionsCommunes;
   }) {
     super({
+      clef: "hélia",
       services,
       dépendances: ["libp2p", "dossier"],
       options,

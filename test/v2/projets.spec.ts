@@ -963,12 +963,14 @@ describe("Projets", function () {
     });
 
     it("source copie établie", async () => {
-      const copiéeDe = await obtenir<{ id: string }>(({ siDéfini }) =>
+      const copiéeDe = await obtenir<{ id?: string }>(({ siDéfini }) =>
         constl.projets.suivreSource({ idProjet: idProjetCopie, f: siDéfini() }),
       );
       expect(copiéeDe).to.deep.equal({ id: idProjetOrig });
     });
   });
+
+  describe("empreinte");
 
   describe("auteurs", function () {
     let idProjet: string;

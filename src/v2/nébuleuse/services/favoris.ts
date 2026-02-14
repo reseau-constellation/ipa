@@ -5,14 +5,15 @@ import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixes } from "../../utils.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
-import type { RelationImmédiate } from "./réseau.js";
-import type { Appli, OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
+import type { ServiceDispositifs } from "./dispositifs.js";
+import type { ServicesNécessairesDonnées } from "./services.js";
+import type { RelationImmédiate, ServiceRéseau } from "./réseau.js";
+import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
-import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
-import type { ServicesNébuleuse, StructureNébuleuse } from "../nébuleuse.js";
 import type { AccèsUtilisateur } from "./compte/accès/types.js";
+import type { ServiceÉpingles } from "./épingles.js";
 
 // Types réplications
 export type Réplication = {
@@ -147,13 +148,18 @@ const typeÉpinglePrésent = (
   return épingle?.type !== undefined;
 };
 
-export class ServiceFavoris<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> extends ServiceDonnéesAppli<
+export type ServicesNécessairesFavoris = ServicesNécessairesDonnées<
+  Record<"favoris", StructureServiceFavoris>
+> & {
+  dispositifs: ServiceDispositifs;
+  réseau: ServiceRéseau;
+  épingles: ServiceÉpingles;
+};
+
+export class ServiceFavoris extends ServiceDonnéesAppli<
   "favoris",
   StructureServiceFavoris,
-  L,
-  ServicesNébuleuse<StructureNébuleuse, L>,
+  ServicesNécessairesFavoris,
   { oublier: Oublier }
 > {
   résolveurs: Map<string, Résolveur>;
@@ -162,13 +168,13 @@ export class ServiceFavoris<
     services,
     options,
   }: {
-    services: ServicesNébuleuse<StructureNébuleuse, L>;
+    services: ServicesNécessairesFavoris;
     options: OptionsCommunes;
   }) {
     super({
       clef: "favoris",
       services,
-      dépendances: ["compte", "réseau", "épingles"],
+      dépendances: ["dispositifs", "réseau", "épingles"],
       options: Object.assign({}, options, {
         schéma: SchémaServiceFavoris,
       }),
@@ -472,7 +478,7 @@ export class ServiceFavoris<
     dispositifs: DispositifsÉpingle;
     idDispositif?: string;
   }): Promise<boolean> {
-    const ceDispositif = await this.service("compte").obtIdDispositif();
+    const ceDispositif = await this.service("orbite").obtIdDispositif();
     idDispositif = idDispositif || ceDispositif;
 
     if (dispositifs === "AUCUN") {
@@ -563,6 +569,7 @@ export class ServiceFavoris<
     de: string;
     f: Suivi<RelationImmédiate[]>;
   }): Promise<Oublier> {
+    // À faire : utiliser `orbite`
     const compte = this.service("compte");
 
     return await suivreDeFonctionListe({

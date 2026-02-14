@@ -89,7 +89,7 @@ describe.only("Constellation", function () {
 
       for (const i in [...Array(2).entries()]) {
         const constl = créerConstellation({
-          dossier: path.join(dossier, i),
+          services: { dossier: { dossier: path.join(dossier, i) } },
         });
         constls.push(constl);
       }

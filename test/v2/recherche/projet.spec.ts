@@ -529,7 +529,11 @@ describe("Rechercher projets", function () {
     it("résultat nom détecté", async () => {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultatBd>>(
         ({ siDéfini }) =>
-          rechercheNomBd({ services: constl.services, idObjet: idProjet, f: siDéfini() }),
+          rechercheNomBd({
+            services: constl.services,
+            idObjet: idProjet,
+            f: siDéfini(),
+          }),
       );
 
       await constl.bds.sauvegarderNoms({
@@ -566,7 +570,11 @@ describe("Rechercher projets", function () {
       const pRésultatDescription = obtenir<
         RésultatObjectifRecherche<TypeRésultatBd>
       >(({ siDéfini }) =>
-        rechercheDescriptionBd({ services: constl.services, idObjet: idProjet, f: siDéfini() }),
+        rechercheDescriptionBd({
+          services: constl.services,
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
       );
       await constl.bds.sauvegarderDescriptions({
         idBd,
@@ -602,7 +610,11 @@ describe("Rechercher projets", function () {
       const pRésultatVariable = obtenir<
         RésultatObjectifRecherche<TypeRésultatBd>
       >(({ siDéfini }) =>
-        rechercheVariablesBd({ services: constl.services, idObjet: idProjet, f: siDéfini() }),
+        rechercheVariablesBd({
+          services: constl.services,
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
       );
 
       const idVariable = await constl.variables.créerVariable({
@@ -771,7 +783,11 @@ describe("Rechercher projets", function () {
       const pRésultatNom = obtenir<
         RésultatObjectifRecherche<TypeRésultatProjet>
       >(({ siDéfini }) =>
-        rechercheNom({ services: constl.services, idObjet: idProjet, f: siDéfini() }),
+        rechercheNom({
+          services: constl.services,
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
       );
       await constl.projets.sauvegarderNoms({
         idProjet,
@@ -800,7 +816,11 @@ describe("Rechercher projets", function () {
       const pRésultatDescription = obtenir<
         RésultatObjectifRecherche<TypeRésultatProjet>
       >(({ siDéfini }) =>
-        rechercheDescription({ services: constl.services, idObjet: idProjet, f: siDéfini() }),
+        rechercheDescription({
+          services: constl.services,
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
       );
 
       await constl.projets.sauvegarderDescriptions({
@@ -831,7 +851,11 @@ describe("Rechercher projets", function () {
       const pRésultatBd = obtenir<
         RésultatObjectifRecherche<TypeRésultatProjet>
       >(({ siDéfini }) =>
-        rechercheBds({ services: constl.services, idObjet: idProjet, f: siDéfini() }),
+        rechercheBds({
+          services: constl.services,
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
       );
       await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
 
@@ -860,7 +884,11 @@ describe("Rechercher projets", function () {
       const pRésultatVariable = obtenir<
         RésultatObjectifRecherche<TypeRésultatProjet>
       >(({ siDéfini }) =>
-        rechercheVariables({ services: constl.services, idObjet: idProjet, f: siDéfini() }),
+        rechercheVariables({
+          services: constl.services,
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
       );
       const idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
@@ -993,7 +1021,11 @@ describe("Rechercher projets", function () {
       const résultat = await obtenir<
         RésultatObjectifRecherche<TypeRésultatProjet>
       >(({ siDéfini }) =>
-        rechercheVide({ services: constl.services, idObjet: idProjet, f: siDéfini() }),
+        rechercheVide({
+          services: constl.services,
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
       );
 
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
