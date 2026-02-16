@@ -28,15 +28,26 @@ import { cacheSuivi } from "../nébuleuse/cache.js";
 import { RechercheNuées } from "../recherche/nuées.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import { ObjetConstellation } from "../objets.js";
+import {
+  statutComplet,
+  type InfoAuteur,
+  type Métadonnées,
+  type PartielRécursif,
+  type StatutDonnées,
+  type TraducsTexte,
+} from "../types.js";
 import { TableauxNuées } from "./tableaux.js";
+import type { Variables } from "../variables.js";
 import type { ServicesNécessairesObjet } from "../objets.js";
 import type {
   DonnéesTableauNuéeExportées,
   FiltresDonnées,
+  ServicesNécessairesTableauxNuées,
 } from "./tableaux.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 import type { DonnéesTableauExportées } from "../bds/tableaux.js";
 import type {
+  AccesseurService,
   InfoRésultatVide,
   RésultatObjectifRecherche,
   RésultatRecherche,
@@ -48,7 +59,6 @@ import type {
   AccèsUtilisateur,
 } from "../nébuleuse/services/compte/accès/types.js";
 import type { TypedNested } from "@constl/bohr-db";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
   DifférenceTableaux,
@@ -56,17 +66,11 @@ import type {
   StructureTableau,
 } from "../tableaux.js";
 import type {
-  InfoAuteur,
-  Métadonnées,
-  PartielRécursif,
-  StatutDonnées,
-  TraducsTexte,
-} from "../types.js";
-import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "../nébuleuse/services/favoris.js";
 import type {
+  Bds,
   DifférenceBDTableauManquant,
   DifférenceBDTableauSupplémentaire,
   DifférenceBds,
@@ -78,6 +82,9 @@ import type {
 } from "../bds/bds.js";
 import type { JSONSchemaType } from "ajv";
 import type xlsx from "xlsx";
+import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
+import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.js";
+import type { MotsClefs } from "../motsClefs.js";
 
 // Types épingles
 
@@ -219,28 +226,36 @@ export const schémaNuée: JSONSchemaType<PartielRécursif<StructureNuée>> = {
   },
 };
 
-export type ServicesNécessairesNuées = ServicesNécessairesObjet<"nuées">;
+export type ServicesNécessairesNuées = ServicesNécessairesObjet<"nuées"> & {
+  motsClefs: MotsClefs;
+  variables: Variables;
+  bds: Bds;
+};
 
-export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
+export class Nuées extends ObjetConstellation<"nuées", StructureNuée, ServicesNécessairesNuées> {
   tableaux: TableauxNuées;
   recherche: RechercheNuées;
 
   schémaObjet = schémaNuée;
 
-  constructor({ services }: { services: ServicesNécessairesNuées }) {
+  constructor({ options, services }: { options: OptionsAppli; services: ServicesNécessairesNuées }) {
     super({
       clef: "nuées",
       services,
       dépendances: ["variables", "bds", "compte", "orbite", "hélia"],
+      options,
     });
 
+    const accesseurService = ((clef) =>
+      clef === "nuées" ? this : this.service(clef)) as AccesseurService<
+      ServicesNécessairesRechercheNuées & ServicesNécessairesTableauxNuées
+    >;
+
     this.tableaux = new TableauxNuées({
-      nuées: this,
-      service: (clef) => this.service(clef),
+      service: accesseurService,
     });
     this.recherche = new RechercheNuées({
-      nuées: this,
-      service: (clef) => this.service(clef),
+      service: accesseurService,
     });
 
     const favoris = this.service("favoris");
@@ -339,7 +354,7 @@ export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
       }),
     );
 
-    const statut = await uneFois<StatutDonnées | null>((f) =>
+    const statut = await uneFois<StatutDonnées | undefined>((f) =>
       this.suivreStatut({ idNuée, f }),
     );
 
@@ -531,7 +546,7 @@ export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
     f,
   }: {
     idNuée: string;
-    f: Suivi<{ id: string } | undefined>;
+    f: Suivi<{ id?: string } | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idNuée,
@@ -703,7 +718,7 @@ export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
     const fsOublier: Oublier[] = [];
     const orbite = this.service("orbite");
     if (épingle.épingle.épingle.base) {
-      const oublierBase = await orbite.suivreBdEmboîtéeTypée({
+      const oublierBase = await orbite.suivreBdEmboîtéeTypée<StructureNuée>({
         id: épingle.idObjet,
         schéma: schémaNuée,
         f: async (bd) => {
@@ -1045,7 +1060,7 @@ export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
       fParents: async ({ idNuée: idParent, f: fParent }) =>
         await this.suivreObjet({
           idObjet: idParent,
-          f: (nuée) => fParent(nuée?.métadonnées || {}),
+          f: (nuée) => fParent(définis(nuée?.métadonnées || {})),
         }),
     });
   }
@@ -1166,7 +1181,7 @@ export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
     }) =>
       await this.suivreObjet({
         idObjet: idNuée,
-        f: (nuée) => f(Object.keys(nuée.tableaux) || {}),
+        f: (nuée) => f(Object.keys(nuée.tableaux || {})),
       });
 
     if (ascendance) {
@@ -1254,11 +1269,11 @@ export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
     f,
   }: {
     idNuée: string;
-    f: Suivi<StatutDonnées | null>;
+    f: Suivi<StatutDonnées | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idNuée,
-      f: (nuée) => f(nuée?.statut || null),
+      f: (nuée) => f(statutComplet(nuée?.statut) ? nuée.statut : undefined),
     });
   }
 
@@ -1342,7 +1357,7 @@ export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
         f: fParent,
       }: {
         idNuée: string;
-        f: Suivi<StructureAutorisationNuée | undefined>;
+        f: Suivi<PartielRécursif<StructureAutorisationNuée> | undefined>;
       }) =>
         await this.suivreObjet({
           idObjet: idParent,

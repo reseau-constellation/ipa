@@ -15,9 +15,7 @@ import {
 } from "./fonctions/nuées.js";
 import type { ServicesNécessairesRechercheNuées } from "./fonctions/nuées.js";
 import type { InfoAuteur } from "../types.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
-import type { Nuées } from "../nuées/nuées.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,
@@ -28,20 +26,14 @@ import type {
   AccesseurService,
 } from "./types.js";
 
-export class RechercheNuées<
-  L extends ServicesLibp2pNébuleuse,
-> extends RechercheObjets<ServicesNécessairesRechercheNuées> {
-  nuées: Nuées<L>;
+export class RechercheNuées extends RechercheObjets<ServicesNécessairesRechercheNuées> {
 
   constructor({
-    nuées: nuées,
     service,
   }: {
-    nuées: Nuées<L>;
     service: AccesseurService<ServicesNécessairesRechercheNuées>;
   }) {
     super({ service });
-    this.nuées = nuées;
   }
 
   @cacheRechercheParN
@@ -278,7 +270,7 @@ export class RechercheNuées<
     idObjet: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    return await this.nuées.suivreAuteurs({ idNuée: idObjet, f });
+    return await this.service("nuées").suivreAuteurs({ idNuée: idObjet, f });
   }
 
   @cacheRechercheParN
@@ -297,9 +289,9 @@ export class RechercheNuées<
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.nuées.suivreNuées({ f: ignorerNonDéfinis(f), idCompte }),
+        await this.service("nuées").suivreNuées({ f: ignorerNonDéfinis(f), idCompte }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
-        await this.nuées.suivreScoreQualité({
+        await this.service("nuées").suivreScoreQualité({
           idNuée: idObjet,
           f: async (score) => await fSuiviQualité(score.total),
         }),

@@ -7,8 +7,8 @@ import {
   sousRecherche,
 } from "@/v2/recherche/fonctions/utils.js";
 import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
+import type { Variables } from "@/v2/variables.js";
 import type { Nuées } from "@/v2/nuées/nuées.js";
-import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   SuivreObjectifRecherche,
@@ -23,9 +23,10 @@ import type { TraducsTexte } from "@/v2/types.js";
 import type { MotsClefs } from "@/v2/motsClefs.js";
 
 export type ServicesNécessairesRechercheNuées =
-  ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & {
-    nuées: Nuées<ServicesLibp2pNébuleuse>;
-    motsClefs: MotsClefs<ServicesLibp2pNébuleuse>;
+  ServicesNécessairesRechercheObjets & {
+    nuées: Nuées;
+    motsClefs: MotsClefs;
+    variables: Variables;
   };
 
 export const rechercherNuéesSelonNom = (

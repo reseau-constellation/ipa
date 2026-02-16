@@ -7,7 +7,7 @@ import {
 import { Tableaux } from "../tableaux.js";
 import type { AccesseurService } from "../recherche/types.js";
 import type { DonnéesRangéeTableauAvecId } from "../bds/tableaux.js";
-import type { TraducsTexte } from "../types.js";
+import type { PartielRécursif, TraducsTexte } from "../types.js";
 import type { Suivi, Oublier } from "../nébuleuse/types.js";
 import type { FiltresBds, Héritage, Nuées, ValeurAscendance } from "./nuées.js";
 import type {
@@ -50,7 +50,6 @@ export class TableauxNuées extends Tableaux {
   constructor({
     service,
   }: {
-    nuées: Nuées;
     service: AccesseurService<ServicesNécessairesTableauxNuées>;
   }) {
     super({ service });
@@ -312,7 +311,7 @@ export class TableauxNuées extends Tableaux {
       nomsVariables?: { [idVar: string]: TraducsTexte };
       colonnes?: InfoColonneAvecCatégorie[];
       données?: DonnéesRangéeNuée[];
-      traducs?: { [clef: string]: TraducsTexte };
+      traducs?: { [clef: string]: PartielRécursif<TraducsTexte> };
     } = {};
     const fsOublier: Oublier[] = [];
 

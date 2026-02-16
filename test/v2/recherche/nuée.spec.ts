@@ -8,9 +8,11 @@ import {
   rechercherNuéesSelonIdVariable,
   rechercherNuéesSelonVariable,
   rechercherNuéesSelonTexte,
-  rechercherNuéesSelonDescription,
+  rechercherNuéesSelonDescription
 } from "@/v2/recherche/fonctions/nuées.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
+import type {
+  ServicesNécessairesRechercheNuées} from "@/v2/recherche/fonctions/nuées.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   RésultatObjectifRecherche,
@@ -41,7 +43,7 @@ describe("Rechercher nuées", function () {
   describe("Selon nom", function () {
     let idNuée: string;
 
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheNuées>;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -97,7 +99,7 @@ describe("Rechercher nuées", function () {
   describe("selon description", function () {
     let idNuée: string;
 
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheNuées>;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -157,9 +159,9 @@ describe("Rechercher nuées", function () {
 
     type TypeRésultat = InfoRésultatRecherche<InfoRésultatTexte>;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheTous: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheId: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheNom: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheTous: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -300,9 +302,9 @@ describe("Rechercher nuées", function () {
 
     type TypeRésultat = InfoRésultatRecherche<InfoRésultatTexte>;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheTous: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheId: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheNom: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheTous: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -453,12 +455,12 @@ describe("Rechercher nuées", function () {
         >
       | InfoRésultatVide;
 
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheVariable: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheMotClef: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheNom: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheId: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheDescription: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheVariable: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheMotClef: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheVide: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();

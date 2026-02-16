@@ -46,7 +46,7 @@ import type {
   CatégorieVariable,
   Variables,
 } from "./variables.js";
-import type { ServiceCompte, ServiceOrbite } from "./nébuleuse/index.js";
+import type { ServiceCompte, ServiceHélia, ServiceOrbite } from "./nébuleuse/index.js";
 
 // Types éléments
 
@@ -182,6 +182,7 @@ export type DifférenceColonneSupplémentaire = {
 // Tableaux
 
 export type ServicesNécessairesTableaux = {
+  hélia: ServiceHélia;
   orbite: ServiceOrbite;
   compte: ServiceCompte;
   variables: Variables;
@@ -1396,7 +1397,7 @@ export class Tableaux {
     colonnes: InfoColonneAvecCatégorie[];
     documentsMédias: Set<string>;
     langues?: string[];
-    traducs?: { [clef: string]: TraducsTexte };
+    traducs?: { [clef: string]:  Partial<TraducsTexte> };
   }): Promise<DonnéesRangéeTableau> {
     const élémentFinal: DonnéesRangéeTableau = {};
 
@@ -1418,7 +1419,7 @@ export class Tableaux {
 
             return v;
           } else if (catégorie === "chaîne") {
-            return traduire(traducs?.[v] || {}, langues || []) || v;
+            return traduire(définis(traducs?.[v] || {}), langues || []) || v;
           }
           return v;
         default:

@@ -12,6 +12,8 @@ import {
   rechercherProjetsSelonVariable,
 } from "@/v2/recherche/fonctions/projets.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
+import type {
+  ServicesNécessairesRechercheProjets} from "@/v2/recherche/fonctions/projets.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
@@ -41,7 +43,7 @@ describe("Rechercher projets", function () {
 
   describe("selon nom", function () {
     let idProjet: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheProjets>;
 
     before(async () => {
       idProjet = await constl.projets.créerProjet();
@@ -100,7 +102,7 @@ describe("Rechercher projets", function () {
 
   describe("selon description", function () {
     let idProjet: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheProjets>;
 
     before(async () => {
       idProjet = await constl.projets.créerProjet();
@@ -159,13 +161,13 @@ describe("Rechercher projets", function () {
     let idMotClef: string;
 
     let rechercheNomMotClef: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
+      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheProjets
     >;
     let rechercheIdMotClef: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
+      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheProjets
     >;
     let rechercheMotClef: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>, ServicesNécessairesRechercheProjets
     >;
 
     before(async () => {
@@ -308,13 +310,13 @@ describe("Rechercher projets", function () {
     let idVariable: string;
 
     let rechercheNomVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
+      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheProjets
     >;
     let rechercheIdVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
+      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheProjets
     >;
     let rechercheVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>, ServicesNécessairesRechercheProjets
     >;
 
     before(async () => {
@@ -475,12 +477,12 @@ describe("Rechercher projets", function () {
     >;
 
     let rechercheIdBd: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
+      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheProjets
     >;
-    let rechercheNomBd: SuivreObjectifRecherche<TypeRésultatBd>;
-    let rechercheDescriptionBd: SuivreObjectifRecherche<TypeRésultatBd>;
-    let rechercheVariablesBd: SuivreObjectifRecherche<TypeRésultatBd>;
-    let rechercheMotsClefBd: SuivreObjectifRecherche<TypeRésultatBd>;
+    let rechercheNomBd: SuivreObjectifRecherche<TypeRésultatBd, ServicesNécessairesRechercheProjets>;
+    let rechercheDescriptionBd: SuivreObjectifRecherche<TypeRésultatBd, ServicesNécessairesRechercheProjets>;
+    let rechercheVariablesBd: SuivreObjectifRecherche<TypeRésultatBd, ServicesNécessairesRechercheProjets>;
+    let rechercheMotsClefBd: SuivreObjectifRecherche<TypeRésultatBd, ServicesNécessairesRechercheProjets>;
 
     before(async () => {
       idProjet = await constl.projets.créerProjet();
@@ -735,13 +737,13 @@ describe("Rechercher projets", function () {
         >
       | InfoRésultatVide;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultatProjet>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultatProjet>;
-    let rechercheDescription: SuivreObjectifRecherche<TypeRésultatProjet>;
-    let rechercheBds: SuivreObjectifRecherche<TypeRésultatProjet>;
-    let rechercheVariables: SuivreObjectifRecherche<TypeRésultatProjet>;
-    let rechercheMotsClefs: SuivreObjectifRecherche<TypeRésultatProjet>;
-    let rechercheVide: SuivreObjectifRecherche<TypeRésultatProjet>;
+    let rechercheId: SuivreObjectifRecherche<TypeRésultatProjet, ServicesNécessairesRechercheProjets>;
+    let rechercheNom: SuivreObjectifRecherche<TypeRésultatProjet, ServicesNécessairesRechercheProjets>;
+    let rechercheDescription: SuivreObjectifRecherche<TypeRésultatProjet, ServicesNécessairesRechercheProjets>;
+    let rechercheBds: SuivreObjectifRecherche<TypeRésultatProjet, ServicesNécessairesRechercheProjets>;
+    let rechercheVariables: SuivreObjectifRecherche<TypeRésultatProjet, ServicesNécessairesRechercheProjets>;
+    let rechercheMotsClefs: SuivreObjectifRecherche<TypeRésultatProjet, ServicesNécessairesRechercheProjets>;
+    let rechercheVide: SuivreObjectifRecherche<TypeRésultatProjet, ServicesNécessairesRechercheProjets>;
 
     before(async () => {
       idProjet = await constl.projets.créerProjet();

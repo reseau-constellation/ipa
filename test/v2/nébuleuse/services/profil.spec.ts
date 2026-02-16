@@ -8,12 +8,10 @@ import { idcEtFichierValide } from "@/v2/utils.js";
 import { obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
-import type {
-  ServicesNécessairesProfil,
-  ÉpingleProfil,
-} from "@/v2/nébuleuse/services/profil.js";
+import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { TraducsTexte } from "@/v2/types.js";
+import { ÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
 
 describe.only("Profil", function () {
   let fermer: () => Promise<void>;
@@ -396,30 +394,23 @@ describe.only("Profil", function () {
   });
 
   describe("rejoindre compte", function () {
-    let applis: Appli<ServicesNécessairesProfil & { profil: ServiceProfil }>[];
-    let comptes: ServiceCompte<StructureNébuleuse & Record<string, never>>[];
+    let nébuleuses: NébuleuseTest[];
+    let comptes: ServiceCompte[]
+
     let fermer: () => Promise<void>;
 
-    let idObjet: string;
-
-    let idsDispositifs: string[];
-    let idsComptes: string[];
-
     before(async () => {
-      ({ applis, fermer } = await créerApplisTest({
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({
         n: 2,
         services: {},
       }));
-      comptes = applis.map((a) => a.services["compte"]);
+      comptes = nébuleuses.map((n) => n.services["compte"]);
 
-      idsDispositifs = await Promise.all(
-        comptes.map(async (compte) => await compte.obtIdDispositif()),
-      );
       idsComptes = await Promise.all(
         comptes.map((compte) => compte.obtIdCompte()),
       );
 
-      await applis[0].profil.sauvegarderNom({
+      await nébuleuses[0].profil.sauvegarderNom({
         nom: "Julien Malard-Adam",
         langue: "fr",
       });
@@ -438,7 +429,7 @@ describe.only("Profil", function () {
 
     it("le nouveau dispositif suit le profil", async () => {
       const noms = await obtenir<TraducsTexte | undefined>(({ si }) =>
-        applis[1].profil.suivreNoms({
+        nébuleuses[1].profil.suivreNoms({
           f: si((x) => !!x && Object.keys(x).includes("fr")),
         }),
       );
@@ -447,13 +438,13 @@ describe.only("Profil", function () {
     });
 
     it("le nouveau dispositif peut modifier le compte", async () => {
-      await applis[1].profil.sauvegarderNom({
+      await nébuleuses[1].profil.sauvegarderNom({
         langue: "த",
         nom: "ம.-அதான் ஜூலீஎன்",
       });
 
       const pNoms = obtenir<TraducsTexte | undefined>(({ si }) =>
-        applis[0].profil.suivreNoms({
+        nébuleuses[0].profil.suivreNoms({
           f: si((x) => !!x && Object.keys(x).includes("த")),
         }),
       );

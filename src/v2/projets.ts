@@ -959,11 +959,11 @@ export class Projets extends ObjetConstellation<
     f,
   }: {
     idProjet: string;
-    f: Suivi<PartielRécursif<StatutDonnées> | null>;
+    f: Suivi<PartielRécursif<StatutDonnées> | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idProjet,
-      f: (projet) => f(projet.statut || null),
+      f: (projet) => f(projet.statut),
     });
   }
 

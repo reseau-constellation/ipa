@@ -28,7 +28,6 @@ import type { CatégorieBaseVariables } from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
 import type { BookType, WorkBook } from "xlsx";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { ErreurDonnée, FonctionValidation } from "../règles.js";
 import type {
   DonnéesRangéeTableau,
@@ -340,7 +339,7 @@ export class TableauxBds extends Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    f: Suivi<string>;
+    f: Suivi<string | undefined>;
   }): Promise<Oublier> {
     return await this.suivreTableau({
       idStructure,
@@ -1119,7 +1118,7 @@ export class TableauxBds extends Tableaux {
       nomsVariables?: { [idVar: string]: TraducsTexte };
       colonnes?: InfoColonneAvecCatégorie[];
       données?: DonnéesRangéeTableauAvecId[];
-      traducs?: { [clef: string]: TraducsTexte };
+      traducs?: { [clef: string]:  Partial<TraducsTexte> };
     } = {};
     const fsOublier: Oublier[] = [];
 

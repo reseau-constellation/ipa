@@ -41,7 +41,7 @@ describe("Rechercher bds", function () {
 
   describe("selon nom", function () {
     let idBd: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheBds>;
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -89,7 +89,7 @@ describe("Rechercher bds", function () {
 
   describe("selon description", function () {
     let idBd: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheBds>;
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -142,9 +142,9 @@ describe("Rechercher bds", function () {
 
     type TypeRésultat = InfoRésultatRecherche<InfoRésultatTexte>;
 
-    let rechercheNomMotClef: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheIdMotClef: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheMotClef: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheNomMotClef: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheBds>;
+    let rechercheIdMotClef: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheBds>;
+    let rechercheMotClef: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheBds>;
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -285,13 +285,13 @@ describe("Rechercher bds", function () {
     let idVariable: string;
 
     let rechercheNomVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
+      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds
     >;
     let rechercheIdVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>
+      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds
     >;
     let rechercheVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>, ServicesNécessairesRechercheBds
     >;
 
     before(async () => {

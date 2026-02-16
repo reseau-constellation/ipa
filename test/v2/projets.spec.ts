@@ -19,6 +19,7 @@ import type {
   Métadonnées,
   StatutDonnées,
   TraducsTexte,
+  PartielRécursif
 } from "@/v2/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
@@ -434,7 +435,7 @@ describe("Projets", function () {
         statut: nouveauStatut,
       });
 
-      const statut = await obtenir<StatutDonnées | null>(({ si }) =>
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | undefined>(({ si }) =>
         constl.projets.suivreStatut({
           idProjet,
           f: si((x) => x?.statut !== "active"),
@@ -939,7 +940,7 @@ describe("Projets", function () {
     });
 
     it("le statut est copié", async () => {
-      const statut = await obtenir<StatutDonnées | null>(({ siDéfini }) =>
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | undefined>(({ siDéfini }) =>
         constl.projets.suivreStatut({ idProjet: idProjetCopie, f: siDéfini() }),
       );
       expect(statut).to.deep.equal(réfStatut);

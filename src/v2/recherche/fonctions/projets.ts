@@ -14,6 +14,7 @@ import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "./variables.js";
+import type { Bds } from "@/v2/bds/bds.js";
 import type { MotsClefs } from "@/v2/motsClefs.js";
 import type { Variables } from "@/v2/variables.js";
 import type { Projets } from "@/v2/projets.js";
@@ -31,6 +32,7 @@ import type { TraducsTexte } from "@/v2/types.js";
 
 export type ServicesNécessairesRechercheProjets =
   ServicesNécessairesRechercheObjets & {
+    bds: Bds;
     projets: Projets;
     variables: Variables;
     motsClefs: MotsClefs;

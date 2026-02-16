@@ -750,7 +750,7 @@ export class Bds extends ObjetConstellation<
           fSuivreBranche,
         }: {
           id: string;
-          fSuivreBranche: Suivi<string>;
+          fSuivreBranche: Suivi<string | undefined>;
         }) => {
           return await this.tableaux.suivreIdDonnées({
             idStructure: épingle.idObjet,

@@ -1019,7 +1019,7 @@ describe("BDs", function () {
       });
 
       it("statut", async () => {
-        const statutBd = await obtenir<PartielRécursif<StatutDonnées> | null>(
+        const statutBd = await obtenir<PartielRécursif<StatutDonnées> | undefined>(
           ({ siPasNul }) =>
             constl.bds.suivreStatut({
               idBd,
