@@ -170,6 +170,7 @@
     "ssim": "^0.0.0",
     "timeout-abort-controller": "^3.0.0",
     "tiny-typed-emitter": "^2.1.0",
+    "ts-deepmerge": "^7.0.3",
     "tslib": "^2.8.1",
     "uint8arrays": "^5.1.0",
     "uuid": "^13.0.0",

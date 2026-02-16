@@ -253,6 +253,9 @@ importers:
       tiny-typed-emitter:
         specifier: ^2.1.0
         version: 2.1.0
+      ts-deepmerge:
+        specifier: ^7.0.3
+        version: 7.0.3
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
