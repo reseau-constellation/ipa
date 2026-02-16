@@ -11,6 +11,7 @@ import {
 } from "@/v2/recherche/fonctions/bds.js";
 import { rechercherVariablesSelonTexte } from "@/v2/recherche/fonctions/variables.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { ServicesNécessairesRechercheBds } from "@/v2/recherche/fonctions/bds.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
@@ -441,12 +442,30 @@ describe("Rechercher bds", function () {
       | InfoRésultatRecherche<InfoRésultatTexte>
       | InfoRésultatVide;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultatBd>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultatBd>;
-    let rechercheDescription: SuivreObjectifRecherche<TypeRésultatBd>;
-    let rechercheVariables: SuivreObjectifRecherche<TypeRésultatBd>;
-    let rechercheMotsClefs: SuivreObjectifRecherche<TypeRésultatBd>;
-    let rechercheVide: SuivreObjectifRecherche<TypeRésultatBd>;
+    let rechercheId: SuivreObjectifRecherche<
+      TypeRésultatBd,
+      ServicesNécessairesRechercheBds
+    >;
+    let rechercheNom: SuivreObjectifRecherche<
+      TypeRésultatBd,
+      ServicesNécessairesRechercheBds
+    >;
+    let rechercheDescription: SuivreObjectifRecherche<
+      TypeRésultatBd,
+      ServicesNécessairesRechercheBds
+    >;
+    let rechercheVariables: SuivreObjectifRecherche<
+      TypeRésultatBd,
+      ServicesNécessairesRechercheBds
+    >;
+    let rechercheMotsClefs: SuivreObjectifRecherche<
+      TypeRésultatBd,
+      ServicesNécessairesRechercheBds
+    >;
+    let rechercheVide: SuivreObjectifRecherche<
+      TypeRésultatBd,
+      ServicesNécessairesRechercheBds
+    >;
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });

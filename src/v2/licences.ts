@@ -1,7 +1,7 @@
 import { faisRien } from "@constl/utils-ipa";
 import { ServiceAppli } from "./nébuleuse/appli/services.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
-import type { OptionsCommunes } from "./nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 
 // Données de https://github.com/github/choosealicense.com
@@ -406,7 +406,7 @@ export const infoLicences: { [key: string]: InfoLicence } = {
 export const licences = Object.keys(infoLicences);
 
 export class Licences extends ServiceAppli<"licences"> {
-  constructor({ options }: { options: OptionsCommunes }) {
+  constructor({ options }: { options: OptionsAppli }) {
     super({
       clef: "licences",
       services: {},
@@ -426,3 +426,8 @@ export class Licences extends ServiceAppli<"licences"> {
     return faisRien;
   }
 }
+
+export const serviceLicences =
+  () =>
+  ({ options }: { options: OptionsAppli }) =>
+    new Licences({ options });

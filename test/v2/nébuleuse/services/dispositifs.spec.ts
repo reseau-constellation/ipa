@@ -1,22 +1,25 @@
 import { expect } from "aegir/chai";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import {
-  ServiceCompte,
-  ServiceHélia,
-  ServiceOrbite,
-  ServiceStockage,
-} from "@/v2/nébuleuse/index.js";
-import {
-  ServiceDispositifs,
   détecterTypeDispositif,
+  serviceDispositifs,
 } from "@/v2/nébuleuse/services/dispositifs.js";
 import { Appli } from "@/v2/nébuleuse/appli/index.js";
-import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
-import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
+import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { serviceCompte } from "@/v2/nébuleuse/services/compte/compte.js";
+import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
+import { serviceOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
+import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
+import { schémaNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
-import { ServiceLibp2pTest } from "./utils.js";
+import { serviceLibp2pTest } from "./utils.js";
+import type { StructureNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
-import type { ServicesNécessairesDispositifs } from "@/v2/nébuleuse/services/dispositifs.js";
+import type {
+  ServicesNécessairesDispositifs,
+  ServiceDispositifs,
+} from "@/v2/nébuleuse/services/dispositifs.js";
 
 describe.only("Dispositifs", function () {
   describe("infos dispositifs", function () {
@@ -32,17 +35,16 @@ describe.only("Dispositifs", function () {
         ServicesNécessairesDispositifs & { dispositifs: ServiceDispositifs }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia<ServicesLibp2pTest>,
-          orbite: ServiceOrbite<ServicesLibp2pTest>,
-          compte: ServiceCompte,
-          dispositifs: ServiceDispositifs,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia<ServicesLibp2pTest>(),
+          orbite: serviceOrbite<ServicesLibp2pTest>(),
+          compte: serviceCompte<StructureNébuleuse>({
+            schéma: schémaNébuleuse,
+          }),
+          dispositifs: serviceDispositifs(),
         },
       });
       await appli.démarrer();

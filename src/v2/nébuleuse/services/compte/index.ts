@@ -1,9 +1,5 @@
 export {
   ServiceCompte,
-  OptionsCompte,
-  SchémaDeStructureCompte,
-  SchémaCompte,
+  OptionsServiceCompte,
   ServicesNécessairesCompte,
-  compilerSchémaCompte,
-  ServicesDonnées,
 } from "./compte.js";

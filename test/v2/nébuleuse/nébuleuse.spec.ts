@@ -11,7 +11,7 @@ import { dossierTempoPropre } from "../utils.js";
 import { NébuleuseTest } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
 import type {
-  OptionsCommunes,
+  OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
@@ -122,7 +122,7 @@ describe.only("Nébuleuse", function () {
         options,
       }: {
         services: ServicesAppli;
-        options: OptionsCommunes;
+        options: OptionsAppli;
       }) {
         super({
           clef: "test générique",
@@ -144,7 +144,7 @@ describe.only("Nébuleuse", function () {
         options,
       }: {
         services: ServicesNécessairesDonnées<{ test1: { a: number } }>;
-        options: OptionsCommunes;
+        options: OptionsAppli;
       }) {
         const optionsService = Object.assign({}, options, {
           schéma: schémaTest1,
@@ -169,7 +169,7 @@ describe.only("Nébuleuse", function () {
         options,
       }: {
         services: ServicesNécessairesDonnées<{ test2: { b: number } }>;
-        options: OptionsCommunes;
+        options: OptionsAppli;
       }) {
         const optionsService = Object.assign({}, options, {
           schéma: schémaTest2,
@@ -196,9 +196,12 @@ describe.only("Nébuleuse", function () {
 
       nébuleuse = new NébuleuseTest<StructureDonnées>({
         services: {
-          générique: ServiceGénérique,
-          test1: ServiceTest1,
-          test2: ServiceTest2,
+          générique: ({ options, services }) =>
+            new ServiceGénérique({ options, services }),
+          test1: ({ options, services }) =>
+            new ServiceTest1({ options, services }),
+          test2: ({ options, services }) =>
+            new ServiceTest2({ options, services }),
         },
         options: {
           services: {

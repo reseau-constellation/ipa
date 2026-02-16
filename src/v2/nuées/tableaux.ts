@@ -5,18 +5,19 @@ import {
   traduire,
 } from "@constl/utils-ipa";
 import { Tableaux } from "../tableaux.js";
+import type { AccesseurService } from "../recherche/types.js";
 import type { DonnéesRangéeTableauAvecId } from "../bds/tableaux.js";
 import type { TraducsTexte } from "../types.js";
 import type { Suivi, Oublier } from "../nébuleuse/types.js";
-import type { ServicesConstellation } from "../constellation.js";
 import type { FiltresBds, Héritage, Nuées, ValeurAscendance } from "./nuées.js";
 import type {
   DifférenceTableaux,
   InfoColonne,
   InfoColonneAvecCatégorie,
+  ServicesNécessairesTableaux,
 } from "../tableaux.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { FonctionValidation, RègleColonne } from "../règles.js";
+import type { Bds } from "../bds/bds.js";
 
 // Types filtres
 
@@ -38,22 +39,22 @@ export type DonnéesTableauNuéeExportées = {
   documentsMédias: Set<string>;
 };
 
-export class TableauxNuées<
-  L extends ServicesLibp2pNébuleuse,
-> extends Tableaux<L> {
-  nuées: Nuées<L>;
+export type ServicesNécessairesTableauxNuées = ServicesNécessairesTableaux & {
+  bds: Bds;
+  nuées: Nuées;
+};
+
+export class TableauxNuées extends Tableaux {
+  service: AccesseurService<ServicesNécessairesTableauxNuées>;
 
   constructor({
-    nuées,
     service,
   }: {
-    nuées: Nuées<L>;
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    nuées: Nuées;
+    service: AccesseurService<ServicesNécessairesTableauxNuées>;
   }) {
     super({ service });
-    this.nuées = nuées;
+    this.service = service;
   }
 
   // Noms
@@ -67,7 +68,7 @@ export class TableauxNuées<
     idTableau: string;
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
-    return await this.nuées.suivreDeParents<TraducsTexte>({
+    return await this.service("nuées").suivreDeParents<TraducsTexte>({
       idNuée: idStructure,
       f: async (noms) =>
         await f(Object.assign({}, ...noms.map(({ val }) => val))),
@@ -91,7 +92,7 @@ export class TableauxNuées<
     idTableau: string;
     f: Suivi<ValeurAscendance<InfoColonne[]>[]>;
   }): Promise<Oublier> {
-    return await this.nuées.suivreDeParents<InfoColonne[]>({
+    return await this.service("nuées").suivreDeParents<InfoColonne[]>({
       idNuée: idStructure,
       f,
       fParents: async ({ idNuée, f }) =>
@@ -142,7 +143,7 @@ export class TableauxNuées<
       });
     };
 
-    return await this.nuées.suivreDeParents<RègleColonne[]>({
+    return await this.service("nuées").suivreDeParents<RègleColonne[]>({
       idNuée: idStructure,
       f: async (règles) => {
         await f(enleverDupliquées(règles.map((r) => r.val).flat()));
@@ -184,7 +185,7 @@ export class TableauxNuées<
     }) =>
       await suivreDeFonctionListe({
         fListe: async ({ fSuivreRacine }) =>
-          await this.nuées.suivreBds({
+          await this.service("nuées").suivreBds({
             idNuée: idStructure,
             f: fSuivreRacine,
             héritage,

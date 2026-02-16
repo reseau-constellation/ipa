@@ -2,20 +2,21 @@ import path from "path";
 import { obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
-import { ServiceLibp2pTest } from "./services/utils.js";
+import { serviceLibp2pTest } from "./services/utils.js";
+import type { ServiceLibp2pTest } from "./services/utils.js";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
+  OptionsNébuleuse,
   ServicesNébuleuse,
   StructureNébuleuse,
 } from "@/v2/nébuleuse/nébuleuse.js";
 import type {
   ConstructeursServicesAppli,
-  OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
-import type { ServicesDonnées } from "@/v2/nébuleuse/services/compte/compte.js";
+
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 
@@ -28,24 +29,19 @@ export class NébuleuseTest<
     options,
   }: {
     services?: ConstructeursServicesAppli<
-      S & ServicesDonnées<T>,
-      ServicesNébuleuse<T & StructureNébuleuse, ServicesLibp2pTest>
+      S,
+      ServicesNébuleuse<T & StructureNébuleuse>
     >;
-    options?: Partial<
-      OptionsAppli<
-        S & ServicesNébuleuse<T & StructureNébuleuse, ServicesLibp2pTest>
-      >
-    >;
+    options?: Omit<OptionsNébuleuse<T, ServicesLibp2pTest>, "libp2p">;
   }) {
     super({
       services: {
         ...(services || {}),
-        libp2p: ServiceLibp2pTest,
+        libp2p: serviceLibp2pTest(),
       } as ConstructeursServicesAppli<
-        S &
-          ServicesDonnées<T> & {
-            libp2p?: ServiceLibp2pTest;
-          }
+        S & {
+          libp2p?: ServiceLibp2pTest;
+        }
       >,
       options,
     });
@@ -53,7 +49,7 @@ export class NébuleuseTest<
 }
 
 export const connecterNébuleuses = async <
-  T extends { [clef: string]: NestedValue } = Record<string, never>,
+  T extends { [clef: string]: NestedValue },
   S extends ServicesAppli = ServicesAppli,
 >(
   nébuleuses: Nébuleuse<T, S>[],
@@ -74,8 +70,8 @@ export const créerNébuleusesTest = async <
 }: {
   n: number;
   services?: ConstructeursServicesAppli<
-    S & ServicesDonnées<T>,
-    ServicesNébuleuse<T & StructureNébuleuse, ServicesLibp2pTest>
+    S,
+    ServicesNébuleuse<T & StructureNébuleuse>
   >;
   dossier?: string;
 }): Promise<{
@@ -91,7 +87,11 @@ export const créerNébuleusesTest = async <
   for (const i in [...Array(n).entries()]) {
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
-      options: { services: { dossier: { dossier: path.join(dossier, i) } } },
+      options: {
+        services: {
+          dossier: { dossier: path.join(dossier, i) },
+        },
+      },
     });
     nébuleuses.push(nébuleuse);
   }

@@ -5,9 +5,9 @@ import {
   rechercherProfilsSelonCourriel,
   rechercherProfilsSelonTexte,
 } from "@/v2/recherche/fonctions/profils.js";
-import { rechercherVariablesSelonTexte } from "@/v2/recherche/fonctions/variables.js";
 import { obtRessourceTest } from "test/ressources/index.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { ServicesNécessairesRechercheProfils } from "@/v2/recherche/fonctions/profils.js";
 import type {
   RésultatObjectifRecherche,
   InfoRésultatVide,
@@ -24,7 +24,10 @@ describe("Rechercher profil", function () {
     let fermer: Oublier;
 
     let idCompte: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatVide>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatVide,
+      ServicesNécessairesRechercheProfils
+    >;
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
@@ -144,7 +147,10 @@ describe("Rechercher profil", function () {
     let fermer: Oublier;
 
     let idCompte: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheProfils
+    >;
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
@@ -228,7 +234,10 @@ describe("Rechercher profil", function () {
     let fermer: Oublier;
 
     let idCompte: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheProfils
+    >;
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
@@ -299,10 +308,22 @@ describe("Rechercher profil", function () {
 
     type TypeRésultat = InfoRésultatTexte | InfoRésultatVide;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheCourriel: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheId: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheProfils
+    >;
+    let rechercheNom: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheProfils
+    >;
+    let rechercheCourriel: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheProfils
+    >;
+    let rechercheVide: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheProfils
+    >;
 
     before(async () => {
       ({ fermer, constls } = await créerConstellationsTest({
@@ -315,7 +336,7 @@ describe("Rechercher profil", function () {
       rechercheId = rechercherProfilsSelonTexte(idCompte.slice(0, 15));
       rechercheNom = rechercherProfilsSelonTexte("Julien Malard");
       rechercheCourriel = rechercherProfilsSelonTexte("julien.");
-      rechercheVide = rechercherVariablesSelonTexte("");
+      rechercheVide = rechercherProfilsSelonTexte("");
     });
 
     after(async () => {

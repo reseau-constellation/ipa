@@ -21,16 +21,13 @@ import type {
   SuivreObjectifRecherche,
   SuivreQualitéRecherche,
 } from "./types.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { InfoAuteur } from "../types.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/compte.js";
 import type { ServiceRéseau } from "../nébuleuse/services/réseau.js";
 import type { ServiceFavoris } from "../nébuleuse/services/favoris.js";
 
-export type ServicesNécessairesRecherche<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesCompte<L> & {
-  réseau: ServiceRéseau<L>;
+export type ServicesNécessairesRecherche = ServicesNécessairesCompte & {
+  réseau: ServiceRéseau;
 };
 
 export class Recherche<S extends ServicesNécessairesRecherche> {
@@ -253,9 +250,8 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
   }
 }
 
-export type ServicesNécessairesRechercheObjets<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesRecherche<L> & { favoris: ServiceFavoris<L> };
+export type ServicesNécessairesRechercheObjets =
+  ServicesNécessairesRecherche & { favoris: ServiceFavoris };
 
 export abstract class RechercheObjets<
   S extends ServicesNécessairesRechercheObjets,

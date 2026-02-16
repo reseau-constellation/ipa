@@ -5,7 +5,7 @@ import PQueue from "p-queue";
 import { isValidAddress, type BaseDatabase } from "@orbitdb/core";
 import { ServiceAppli } from "../appli/services.js";
 import { idcEtFichierValide } from "../../utils.js";
-import type { OptionsCommunes } from "../appli/appli.js";
+import type { OptionsAppli } from "../appli/appli.js";
 import type { Oublier } from "../types.js";
 import type {
   ServiceOrbite,
@@ -31,7 +31,7 @@ export class ServiceÉpingles extends ServiceAppli<
     options,
   }: {
     services: ServicesNécessairesÉpingles;
-    options: OptionsCommunes;
+    options: OptionsAppli;
   }) {
     super({
       clef: "épingles",

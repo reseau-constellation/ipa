@@ -15,7 +15,6 @@ import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { RechercheObjets } from "./recherche.js";
 import type { ServicesNécessairesRechercheBds } from "./fonctions/bds.js";
 import type { Bds } from "../bds/bds.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type {
   RésultatRecherche,
@@ -28,16 +27,14 @@ import type {
 } from "./types.js";
 import type { InfoAuteur } from "../types.js";
 
-export class RechercheBds<
-  L extends ServicesLibp2pNébuleuse,
-> extends RechercheObjets<ServicesNécessairesRechercheBds> {
-  bds: Bds<L>;
+export class RechercheBds extends RechercheObjets<ServicesNécessairesRechercheBds> {
+  bds: Bds;
 
   constructor({
     bds,
     service,
   }: {
-    bds: Bds<L>;
+    bds: Bds;
     service: AccesseurService<ServicesNécessairesRechercheBds>;
   }) {
     super({ service });

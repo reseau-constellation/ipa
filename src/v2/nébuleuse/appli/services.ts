@@ -1,6 +1,6 @@
 import { TypedEmitter } from "tiny-typed-emitter";
 import { STATUTS } from "./consts.js";
-import type { OptionsCommunes, ServicesAppli } from "./appli.js";
+import type { OptionsAppli, ServicesAppli } from "./appli.js";
 
 type ÉvénementsServiceAppli<Démarré = true> = {
   démarré: (args: Démarré) => void;
@@ -15,7 +15,7 @@ export abstract class ServiceAppli<
   clef: T;
   services: S;
   dépendances: (keyof S)[];
-  options: Options & OptionsCommunes;
+  options: Options & OptionsAppli;
 
   événements: TypedEmitter<ÉvénementsServiceAppli<RetourDémarré>>;
   statut: (typeof STATUTS)[keyof typeof STATUTS];
@@ -30,7 +30,7 @@ export abstract class ServiceAppli<
     clef: T;
     services: S;
     dépendances?: (keyof S)[];
-    options: Options & OptionsCommunes;
+    options: Options & OptionsAppli;
   }) {
     this.clef = clef;
     this.dépendances = dépendances;

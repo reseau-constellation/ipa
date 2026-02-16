@@ -2,7 +2,7 @@ import { join } from "path";
 import fs from "fs";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import type { ServiceDossier } from "./dossier.js";
-import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
 export class StockageLocal implements Storage {
   fichier: string;
@@ -113,7 +113,7 @@ export class ServiceStockage extends ServiceAppli<
     options,
   }: {
     services: ServicesNécessairesStockage;
-    options: OptionsCommunes;
+    options: OptionsAppli;
   }) {
     super({
       clef: "stockage",
@@ -162,3 +162,15 @@ export class ServiceStockage extends ServiceAppli<
     }
   }
 }
+
+export const serviceStockage =
+  () =>
+  ({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesStockage;
+    options: OptionsAppli;
+  }) => {
+    return new ServiceStockage({ services, options });
+  };

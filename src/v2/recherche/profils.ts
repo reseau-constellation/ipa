@@ -9,37 +9,24 @@ import {
 } from "./fonctions/profils.js";
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
-import type { ServicesConstellation } from "../constellation.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
-import type { Profil } from "../nébuleuse/services/profil.js";
+import type { ServicesNécessairesRechercheProfils } from "./fonctions/profils.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
-import type { Constellation } from "../index.js";
 import type {
   RésultatRecherche,
   InfoRésultatVide,
   InfoRésultat,
   SuivreObjectifRecherche,
   InfoRésultatTexte,
+  AccesseurService,
 } from "./types.js";
 
-export class RechercheProfils<
-  L extends ServicesLibp2pNébuleuse,
-> extends Recherche<L> {
-  profils: Profil<L>;
-
+export class RechercheProfils extends Recherche<ServicesNécessairesRechercheProfils> {
   constructor({
-    profils,
-    constl,
     service,
   }: {
-    profils: Profil<L>;
-    constl: Constellation;
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    service: AccesseurService<ServicesNécessairesRechercheProfils>;
   }) {
-    super({ constl, service });
-    this.profils = profils;
+    super({ service });
   }
 
   @cacheRechercheParN
@@ -166,7 +153,7 @@ export class RechercheProfils<
     n,
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
-    fObjectif: SuivreObjectifRecherche<T>;
+    fObjectif: SuivreObjectifRecherche<T, ServicesNécessairesRechercheProfils>;
     n?: number;
   }): Promise<RetourRecherche> {
     const réseau = this.service("réseau");
@@ -194,7 +181,7 @@ export class RechercheProfils<
     }): Promise<Oublier> => {
       const fRechercherSelonActivité = rechercherProfilsSelonActivité();
       return await fRechercherSelonActivité({
-        constl: this.constl,
+        services: this.service,
         idObjet,
         f: async (résultat) => {
           await f(résultat?.score || 0);

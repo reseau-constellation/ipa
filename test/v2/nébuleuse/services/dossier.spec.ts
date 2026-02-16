@@ -5,7 +5,10 @@ import { isElectronMain, isNode } from "wherearewe";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 
 import { dossierTempoPropre } from "test/v2/utils.js";
-import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import {
+  type ServiceDossier,
+  serviceDossier,
+} from "@/v2/nébuleuse/services/dossier.js";
 import type Quibble from "quibble";
 
 describe("Dossier", function () {
@@ -35,9 +38,8 @@ describe("Dossier", function () {
   it("valeur par défaut", async () => {
     appli = new Appli<{ dossier: ServiceDossier }>({
       services: {
-        dossier: ServiceDossier,
+        dossier: serviceDossier({ dossier }),
       },
-      options: { services: { dossier: { dossier } } },
     });
     await appli.démarrer();
 
@@ -51,9 +53,8 @@ describe("Dossier", function () {
     const dossierAppli = join(dossier, "sous", "dossier");
     appli = new Appli<{ dossier: ServiceDossier }>({
       services: {
-        dossier: ServiceDossier,
+        dossier: serviceDossier({ dossier }),
       },
-      options: { services: { dossier: { dossier } } },
     });
     await appli.démarrer();
 
@@ -66,7 +67,7 @@ describe("Dossier", function () {
   it("utilisation nom appli", async () => {
     appli = new Appli({
       services: {
-        dossier: ServiceDossier,
+        dossier: serviceDossier(),
       },
       options: { nomAppli: "Mon appli" },
     });
@@ -82,7 +83,7 @@ describe("Dossier", function () {
   it("mode développement", async () => {
     appli = new Appli({
       services: {
-        dossier: ServiceDossier,
+        dossier: serviceDossier(),
       },
       options: { nomAppli: "Mon appli", mode: "dév" },
     });

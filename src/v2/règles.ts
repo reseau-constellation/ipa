@@ -3,7 +3,7 @@ import { obtIdIndex } from "./bds/tableaux.js";
 import type { DonnéesRangéeTableau } from "./tableaux.js";
 import type { JSONSchemaType } from "ajv";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { PartielRécursif } from "./types.js";
+import type { PartielRécursif, TraducsTexte } from "./types.js";
 import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
 import type { CatégorieVariable } from "./variables.js";
 
@@ -131,6 +131,13 @@ export const schémaSpécificationRègleColonne: JSONSchemaType<
   },
   nullable: true,
   required: [],
+};
+
+export const règleComplète = (
+  règle?: PartielRécursif<SpécificationRègleColonne>,
+): règle is SpécificationRègleColonne => {
+  // À faire : être plus exhaustif (peut-être avec AJV ?)
+  return Boolean(règle && règle.colonne && règle.règle?.type);
 };
 
 // Erreurs

@@ -8,10 +8,7 @@ import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
 import type { ServiceAppli } from "./nébuleuse/appli/index.js";
 import type { ServiceFavoris } from "./nébuleuse/services/favoris.js";
 import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
-import type {
-  OptionsCommunes,
-  ServicesAppli,
-} from "./nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   RelationImmédiate,
@@ -19,7 +16,6 @@ import type {
 } from "./nébuleuse/services/réseau.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
-import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type { InfoAuteur, PartielRécursif } from "./types.js";
 import type { JSONSchemaType } from "ajv";
 import type { AccèsUtilisateur } from "./nébuleuse/services/compte/accès/types.js";
@@ -36,26 +32,24 @@ export const schémaServiceObjet: JSONSchemaType<
   required: [],
 };
 
-export type ServicesNécessairesObjet<
-  S extends { [clef: string]: NestedValue },
-  L extends ServicesLibp2pNébuleuse,
-> = ServicesNécessairesDonnées<S, L> & {
-  réseau: ServiceRéseau<L>;
-  favoris: ServiceFavoris<L>;
-};
+export type ServicesNécessairesObjet<T extends string> =
+  ServicesNécessairesDonnées<Record<T, StructureServiceObjet>> & {
+    réseau: ServiceRéseau;
+    favoris: ServiceFavoris;
+  };
 
 export abstract class ObjetConstellation<
   C extends string,
   S extends NestedValue,
-  L extends ServicesLibp2pNébuleuse,
   Services extends Record<
-    Exclude<
-      string,
-      C | keyof ServicesNécessairesObjet<Record<C, NestedValue>, L>
-    >,
+    Exclude<string, C | keyof ServicesNécessairesObjet<C>>,
     ServiceAppli
   >,
-> extends ServiceDonnéesAppli<C, StructureServiceObjet, L, Services> {
+> extends ServiceDonnéesAppli<
+  C,
+  StructureServiceObjet,
+  Services & ServicesNécessairesObjet<C>
+> {
   abstract schémaObjet: JSONSchemaType<PartielRécursif<S>>;
 
   constructor({
@@ -65,9 +59,9 @@ export abstract class ObjetConstellation<
     options,
   }: {
     clef: C;
-    services: Services & ServicesNécessairesObjet<Record<C, NestedValue>, L>;
+    services: Services & ServicesNécessairesObjet<C>;
     dépendances: Extract<keyof Services, string>[];
-    options: OptionsCommunes;
+    options: OptionsAppli;
   }) {
     super({
       clef,
@@ -132,7 +126,6 @@ export abstract class ObjetConstellation<
     idCompte?: string;
   }): Promise<Oublier> {
     const compte = this.service("compte");
-    const x = this.service("hélia");
 
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>

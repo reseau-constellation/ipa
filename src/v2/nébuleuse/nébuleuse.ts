@@ -1,18 +1,46 @@
+import { merge } from "ts-deepmerge";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
-import { Licences } from "../licences.js";
+import { serviceJournal } from "./services/journal.js";
+import { serviceDossier } from "./services/dossier.js";
 import {
-  ServiceHélia,
-  ServiceLibp2p,
-  ServiceOrbite,
-  ServiceStockage,
-  ServiceCompte,
-} from "./services/index.js";
-import { ServiceDispositifs } from "./services/dispositifs.js";
-import { Profil } from "./services/profil.js";
-import { ServiceRéseau } from "./services/réseau.js";
-import { ServiceJournal } from "./services/journal.js";
+  serviceLibp2p,
+  type OptionsServiceLibp2p,
+  type ServicesLibp2pNébuleuse,
+} from "./services/libp2p/libp2p.js";
+import { serviceHélia } from "./services/hélia.js";
+import { serviceStockage } from "./services/stockage.js";
+import {
+  serviceOrbite,
+  type OptionsServiceOrbite,
+} from "./services/orbite/orbite.js";
+import {
+  type OptionsServiceCompte,
+  serviceCompte,
+  type ServicesNécessairesCompte,
+} from "./services/compte/compte.js";
+import {
+  schémaDispositifs,
+  serviceDispositifs,
+  type ServiceDispositifs,
+  type StructureDispositifs,
+} from "./services/dispositifs.js";
+import {
+  schémaProfil,
+  type Profil,
+  type StructureProfil,
+} from "./services/profil.js";
+import {
+  schémaRéseau,
+  serviceRéseau,
+  type ServiceRéseau,
+  type StructureRéseau,
+} from "./services/réseau.js";
+import { serviceProfil } from "./services/profil.js";
+import type { ServiceOrbite, ServiceCompte } from "./services/index.js";
+import type { JSONSchemaType } from "ajv";
+import type { OptionsServiceJournal } from "./services/journal.js";
 
-import { ServiceDossier } from "./services/dossier.js";
+import type { OptionsServiceDossier } from "./services/dossier.js";
 import type { ServiceÉpingles } from "./services/épingles.js";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
@@ -20,12 +48,9 @@ import type {
   OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
-import type { StructureDispositifs } from "./services/dispositifs.js";
-import type { ServicesLibp2pNébuleuse } from "./services/libp2p/libp2p.js";
-import type { StructureProfil } from "./services/profil.js";
-import type { StructureRéseau } from "./services/réseau.js";
-import type { ServicesNécessairesCompte } from "./services/compte/compte.js";
 import type { ServiceFavoris } from "./services/favoris.js";
+import type { OptionsServiceHélia } from "./services/hélia.js";
+import type { PartielRécursif } from "../types.js";
 
 export type StructureNébuleuse = {
   dispositifs: StructureDispositifs;
@@ -33,24 +58,35 @@ export type StructureNébuleuse = {
   réseau: StructureRéseau;
 };
 
+export const schémaNébuleuse: JSONSchemaType<
+  PartielRécursif<StructureNébuleuse>
+> = {
+  type: "object",
+  properties: {
+    dispositifs: schémaDispositifs,
+    profil: schémaProfil,
+    réseau: schémaRéseau,
+  },
+};
+
 export type ServicesNébuleuse<
   T extends StructureNébuleuse = StructureNébuleuse,
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = ServicesNécessairesCompte & {
   compte: ServiceCompte<T>;
   dispositifs: ServiceDispositifs;
-  profil: Profil<L>;
+  profil: Profil;
   réseau: ServiceRéseau;
   épingles: ServiceÉpingles;
   favoris: ServiceFavoris;
 };
 
 export const extraireHéliaEtLibp2p = <
-  T extends StructureNébuleuse,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
->(
-  options: OptionsAppli<ServicesNébuleuse<T, L>>["services"],
-) => {
+>(options: {
+  orbite?: OptionsServiceOrbite<L>;
+  hélia?: OptionsServiceHélia<L>;
+  libp2p?: OptionsServiceLibp2p<L>;
+}) => {
   const { orbite } = options?.orbite || {};
   let { hélia } = options?.hélia || {};
   let { libp2p } = options?.libp2p || {};
@@ -69,13 +105,28 @@ export const extraireHéliaEtLibp2p = <
   return { hélia, libp2p };
 };
 
+export type OptionsNébuleuse<
+  T extends { [clef: string]: NestedValue },
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> = {
+  options?: OptionsAppli;
+  services?: {
+    journal?: OptionsServiceJournal;
+    dossier?: OptionsServiceDossier;
+    libp2p?: OptionsServiceLibp2p<L>;
+    hélia?: OptionsServiceHélia<L>;
+    orbite?: OptionsServiceOrbite<L>;
+    compte?: OptionsServiceCompte<T>;
+  };
+};
+
 export class Nébuleuse<
   T extends { [clef: string]: NestedValue } = Record<string, never>,
   S extends ServicesAppli = Record<string, never>,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> extends Appli<ServicesNébuleuse<StructureNébuleuse & T, L> & S> {
-  orbite: ServiceOrbite<L>;
-  profil: Profil<L>;
+> extends Appli<ServicesNébuleuse<StructureNébuleuse & T> & S> {
+  orbite: ServiceOrbite;
+  profil: Profil;
   compte: ServiceCompte<StructureNébuleuse & T>;
   réseau: ServiceRéseau;
   favoris: ServiceFavoris;
@@ -85,41 +136,40 @@ export class Nébuleuse<
     options,
   }: {
     services?: ConstructeursServicesAppli<
-      S & Partial<ServicesNébuleuse<StructureNébuleuse, L>>
+      S & Partial<ServicesNébuleuse<StructureNébuleuse>>
     >;
-    options?: NoInfer<
-      Partial<OptionsAppli<S & ServicesNébuleuse<StructureNébuleuse, L>>>
-    >;
-  } = {}) {
+    options?: OptionsNébuleuse<T, L>;
+  }) {
+    options = options || {};
     services = services ?? ({} as ConstructeursServicesAppli<S>);
-    options = options ?? {};
-    const optionsNébuleuse = options as OptionsAppli<
-      ServicesNébuleuse<StructureNébuleuse & T, L>
-    >;
+    const { hélia, libp2p } = extraireHéliaEtLibp2p(options?.services || {});
 
-    const { hélia, libp2p } = extraireHéliaEtLibp2p(optionsNébuleuse.services);
-    if (!optionsNébuleuse.services) optionsNébuleuse.services = {};
+    if (!options.services) options.services = {};
+    if (libp2p) options.services.libp2p = { libp2p };
+    if (hélia) options.services.hélia = { hélia };
 
-    if (libp2p) optionsNébuleuse.services.libp2p = { libp2p };
-    if (hélia) {
-      optionsNébuleuse.services.hélia = { hélia };
-    }
+    const optionsCompte: OptionsServiceCompte<StructureNébuleuse & T> = {
+      ...options?.services.compte,
+      schéma: merge(options?.services?.compte?.schéma || {}, schémaNébuleuse),
+    };
+
     super({
       services: {
-        dossier: ServiceDossier,
-        journal: ServiceJournal,
-        stockage: ServiceStockage,
-        libp2p: ServiceLibp2p<L>,
-        hélia: ServiceHélia,
-        orbite: ServiceOrbite,
-        compte: ServiceCompte,
-        dispositifs: ServiceDispositifs,
-        profil: Profil,
-        licences: Licences,
-        réseau: ServiceRéseau,
+        dossier: serviceDossier(options?.services.dossier),
+        journal: serviceJournal(options?.services.journal),
+        stockage: serviceStockage(),
+        libp2p: serviceLibp2p(options?.services.libp2p),
+        hélia: serviceHélia(options?.services.hélia),
+        orbite: serviceOrbite(options?.services.orbite),
+        compte: serviceCompte<StructureNébuleuse & T>(optionsCompte),
+        dispositifs: serviceDispositifs(),
+        profil: serviceProfil(),
+        réseau: serviceRéseau(),
         ...services,
-      } as ServicesNébuleuse<StructureNébuleuse & T, L> & S,
-      options,
+      } as ConstructeursServicesAppli<
+        ServicesNébuleuse<StructureNébuleuse & T> & S
+      >,
+      options: options.options,
     });
 
     this.orbite = this.services["orbite"];
@@ -147,7 +197,8 @@ export class Nébuleuse<
           }),
         );
       } else {
-        console.warn("On a pas pu tout effacer.");
+        const journal = this.services["journal"];
+        journal.écrire("On a pas pu effacer le compte local.");
       }
     } else {
       const fs = await import("fs");

@@ -23,7 +23,7 @@ import { réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
 import { ContrôleurNébuleuse } from "../compte/accès/ContrôleurNébuleuse.js";
 import { mandatOrbite } from "./mandat.js";
-import type { OptionsCommunes } from "../../appli/appli.js";
+import type { OptionsAppli } from "../../appli/appli.js";
 import type {
   OrbitDB,
   BaseDatabase,
@@ -106,7 +106,7 @@ export class ServiceOrbite<
     options,
   }: {
     services: ServicesNécessairesOrbite<L>;
-    options: OptionsServiceOrbite<L> & OptionsCommunes;
+    options: OptionsServiceOrbite<L> & OptionsAppli;
   }) {
     super({
       clef: "orbite",
@@ -469,3 +469,20 @@ export class ServiceOrbite<
     );
   }
 }
+
+export const serviceOrbite =
+  <L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse>(
+    optionsOrbite?: OptionsServiceOrbite<L>,
+  ) =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesOrbite<L>;
+  }) => {
+    return new ServiceOrbite<L>({
+      services,
+      options: { ...optionsOrbite, ...options },
+    });
+  };

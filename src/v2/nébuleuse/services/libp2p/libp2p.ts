@@ -16,7 +16,7 @@ import type { PeerUpdate, PrivateKey, ServiceMap } from "@libp2p/interface";
 import type { ServiceStockage } from "../stockage.js";
 
 import type { ServiceClefPrivée } from "./config/utils.js";
-import type { OptionsCommunes } from "../../appli/appli.js";
+import type { OptionsAppli } from "../../appli/appli.js";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;
@@ -57,7 +57,7 @@ export class ServiceLibp2p<
     options,
   }: {
     services: ServicesNécessairesLibp2p;
-    options: OptionsServiceLibp2p<L> & OptionsCommunes;
+    options: OptionsServiceLibp2p<L> & OptionsAppli;
   }) {
     super({
       clef: "libp2p",
@@ -177,3 +177,20 @@ export class ServiceLibp2p<
     await super.fermer();
   }
 }
+
+export const serviceLibp2p =
+  <L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse>(
+    optionsLibp2p?: OptionsServiceLibp2p<L>,
+  ) =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesLibp2p;
+  }) => {
+    return new ServiceLibp2p<L>({
+      services,
+      options: { ...optionsLibp2p, ...options },
+    });
+  };

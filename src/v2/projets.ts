@@ -10,6 +10,7 @@ import {
 import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
 import toBuffer from "it-to-buffer";
 import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { conversionsTypes, définis } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
@@ -20,6 +21,9 @@ import {
   résoudreDéfauts,
 } from "./nébuleuse/services/favoris.js";
 import { ObjetConstellation } from "./objets.js";
+import type { Variables } from "./variables.js";
+import type { MotsClefs } from "./motsClefs.js";
+import type { ServicesNécessairesObjet } from "./objets.js";
 import type { BookType, WorkBook } from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
@@ -29,8 +33,6 @@ import type {
 import type { TypedNested } from "@constl/bohr-db";
 import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
 import type { JSONSchemaType } from "ajv";
-import type { Constellation, ServicesConstellation } from "./constellation.js";
-import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   InfoAuteur,
   Métadonnées,
@@ -39,7 +41,10 @@ import type {
   TraducsTexte,
 } from "./types.js";
 import type { Suivi, Oublier } from "./nébuleuse/types.js";
-import type { DonnéesBdExportées, ÉpingleBd } from "./bds/bds.js";
+import type { Bds, DonnéesBdExportées, ÉpingleBd } from "./bds/bds.js";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
+import type { ServicesNécessairesRechercheProjets } from "./recherche/fonctions/projets.js";
+import type { AccesseurService } from "./recherche/types.js";
 
 // Types mots-clefs
 
@@ -124,22 +129,43 @@ export const schémaProjet: JSONSchemaType<PartielRécursif<StructureProjet>> = 
   },
 };
 
-export class Projets<
-  L extends ServicesLibp2pNébuleuse,
-> extends ObjetConstellation<"projets", StructureProjet, L> {
+export type ServicesNécessairesProjets = ServicesNécessairesObjet<"projets"> & {
+  motsClefs: MotsClefs;
+  bds: Bds;
+  variables: Variables;
+};
+
+export class Projets extends ObjetConstellation<
+  "projets",
+  StructureProjet,
+  ServicesNécessairesProjets
+> {
   schémaObjet = schémaProjet;
 
-  recherche: RechercheProjets<L>;
+  recherche: RechercheProjets;
 
-  constructor({ services }: { services: ServicesConstellation<L> }) {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesProjets;
+    options: OptionsAppli;
+  }) {
     super({
       clef: "projets",
       services,
       dépendances: ["motsClefs", "bds", "compte", "orbite", "hélia"],
+      options,
     });
+
     this.recherche = new RechercheProjets({
       projets: this,
-      service: (clef) => this.service(clef),
+      service: ((clef) =>
+        clef === "projets"
+          ? this
+          : this.service(
+              clef,
+            )) as AccesseurService<ServicesNécessairesRechercheProjets>,
     });
 
     const favoris = this.service("favoris");
@@ -778,7 +804,7 @@ export class Projets<
     const oublierMotsClefsPropres = await this.suivreObjet({
       idObjet: idProjet,
       f: async (projet) => {
-        motsClefs.propres = Object.keys(projet.motsClefs).map((id) =>
+        motsClefs.propres = Object.keys(projet.motsClefs || {}).map((id) =>
           serviceMotsClefs.ajouterProtocole(id),
         );
         return await fFinale();
@@ -874,7 +900,11 @@ export class Projets<
     return await this.suivreObjet({
       idObjet: idProjet,
       f: (projet) =>
-        f(Object.keys(projet.motsClefs).map((id) => bds.ajouterProtocole(id))),
+        f(
+          Object.keys(projet.motsClefs || {}).map((id) =>
+            bds.ajouterProtocole(id),
+          ),
+        ),
     });
   }
 
@@ -929,7 +959,7 @@ export class Projets<
     f,
   }: {
     idProjet: string;
-    f: Suivi<StatutDonnées | null>;
+    f: Suivi<PartielRécursif<StatutDonnées> | null>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idProjet,
@@ -983,7 +1013,7 @@ export class Projets<
         fSuivreBranche: Suivi<string>;
       }) =>
         await this.service("bds").suivreEmpreinteTête({
-          idStructure: idBd,
+          idBd,
           f: fSuivreBranche,
         }),
       f: async (x: string[]) => {
@@ -994,7 +1024,7 @@ export class Projets<
 
     const oublierEmpreinteVariables = await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }) =>
-        await this.suivreVariables({ idBd, f: fSuivreRacine }),
+        await this.suivreVariables({ idProjet, f: fSuivreRacine }),
       fBranche: async ({ id: idVariable, fSuivreBranche }) =>
         await orbite.suivreEmpreinteTêteBd({
           idBd: idVariable,

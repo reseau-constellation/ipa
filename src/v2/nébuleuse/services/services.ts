@@ -20,11 +20,13 @@ import type {
   NestedValueWithUndefined,
   RecursivePartial,
 } from "node_modules/@orbitdb/nested-db/dist/types.js";
-import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
+import type {
+  OptionsAppli,
+  ServicesAppli,
+} from "@/v2/nébuleuse/appli/appli.js";
 
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../types.js";
-import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 import type {
   ServiceCompte,
   ServicesNécessairesCompte,
@@ -137,10 +139,7 @@ export type ServicesAditionnelsDonnéesAppli = Record<
 export abstract class ServiceDonnéesAppli<
   T extends string,
   Structure extends NestedValue,
-  Services extends ServicesAditionnelsDonnéesAppli = Record<
-    Exclude<string, keyof ServicesAditionnelsDonnéesAppli>,
-    never
-  >,
+  Services extends ServicesAditionnelsDonnéesAppli = ServicesAppli,
   RetourDémarré = unknown,
   Options extends { schéma: JSONSchemaType<PartielRécursif<Structure>> } = {
     schéma: JSONSchemaType<PartielRécursif<Structure>>;
@@ -164,7 +163,7 @@ export abstract class ServiceDonnéesAppli<
     dépendances?: NoInfer<
       (keyof (Services & ServicesNécessairesDonnées<Record<T, Structure>>))[]
     >;
-    options: NoInfer<Options> & OptionsCommunes;
+    options: NoInfer<Options> & OptionsAppli;
   }) {
     super({
       clef,

@@ -23,6 +23,12 @@ export type StatutDonnées =
       idNouvelle?: string;
     };
 
+export const statutComplet = (
+  statut?: PartielRécursif<StatutDonnées>,
+): statut is StatutDonnées => {
+  return statut?.statut !== undefined;
+};
+
 export type Métadonnées = { [clef: string]: DagCborEncodable };
 
 export type InfoAuteur = {

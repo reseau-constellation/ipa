@@ -33,14 +33,14 @@ export type OptionsConstellation<
 export type ServicesSpécifiquesConstellation<
   L extends ServicesLibp2pNébuleuse,
 > = {
-  motsClefs: MotsClefs<L>;
-  bds: Bds<L>;
-  favoris: ServiceFavoris<L>;
-  épingles: ServiceÉpingles<L>;
-  variables: Variables<L>;
+  motsClefs: MotsClefs;
+  bds: Bds;
+  favoris: ServiceFavoris;
+  épingles: ServiceÉpingles;
+  variables: Variables;
   nuées: Nuées<L>;
   automatisations: Automatisations<L>;
-  projets: Projets<L>;
+  projets: Projets;
   licences: Licences;
 };
 
@@ -50,21 +50,21 @@ export type StructureConstellation<L extends ServicesLibp2pNébuleuse> =
 export type ServicesConstellation<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = ServicesSpécifiquesConstellation<L> &
-  ServicesNébuleuse<StructureConstellation<L>, L>;
+  ServicesNébuleuse<StructureConstellation<L>>;
 
 export class Constellation<
   T extends { [clef: string]: NestedValue } = Record<string, never>,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
   S extends ServicesDonnées<T, L> = ServicesDonnées<T, L>,
 > extends Nébuleuse<T, S & ServicesSpécifiquesConstellation<L>, L> {
-  bds: Bds<L>;
-  motsClefs: MotsClefs<L>;
+  bds: Bds;
+  motsClefs: MotsClefs;
   nuées: Nuées<L>;
-  favoris: ServiceFavoris<L>;
-  épingles: ServiceÉpingles<L>;
-  variables: Variables<L>;
+  favoris: ServiceFavoris;
+  épingles: ServiceÉpingles;
+  variables: Variables;
   automatisations: Automatisations<L>;
-  projets: Projets<L>;
+  projets: Projets;
   licences: Licences;
 
   constructor(
@@ -75,7 +75,7 @@ export class Constellation<
       services ?? ({} as ConstructeursServicesAppli<ServicesDonnées<T, L>>);
     super({
       services: {
-        bds: Bds<L>,
+        bds: Bds,
         motsClefs: MotsClefs<L>,
         favoris: ServiceFavoris<L>,
         épingles: ServiceÉpingles<L>,

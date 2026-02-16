@@ -7,34 +7,25 @@ import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "./fonctions/variables.js";
+import type { ServicesNécessairesRechercheVariables } from "./fonctions/variables.js";
 import type { InfoAuteur } from "../types.js";
-import type { Constellation } from "../index.js";
-import type { ServicesConstellation } from "../constellation.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
-import type { Variables } from "../variables.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,
   InfoRésultatVide,
   SuivreObjectifRecherche,
   RésultatRecherche,
+  AccesseurService,
 } from "./types.js";
 
 export class RechercheVariables extends RechercheObjets<ServicesNécessairesRechercheVariables> {
   constructor({
-    variables,
-    constl,
     service,
   }: {
-    variables: Variables<L>;
-    constl: Constellation;
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    service: AccesseurService<ServicesNécessairesRechercheVariables>;
   }) {
-    super({ constl, service });
-    this.variables = variables;
+    super({ service });
   }
 
   @cacheRechercheParN
@@ -145,7 +136,10 @@ export class RechercheVariables extends RechercheObjets<ServicesNécessairesRech
     idObjet: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    return await this.variables.suivreAuteurs({ idVariable: idObjet, f });
+    return await this.service("variables").suivreAuteurs({
+      idVariable: idObjet,
+      f,
+    });
   }
 
   @cacheRechercheParN
@@ -156,7 +150,10 @@ export class RechercheVariables extends RechercheObjets<ServicesNécessairesRech
     idCompte,
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
-    fObjectif: SuivreObjectifRecherche<T>;
+    fObjectif: SuivreObjectifRecherche<
+      T,
+      ServicesNécessairesRechercheVariables
+    >;
     n?: number;
     idCompte?: string;
   }): Promise<RetourRecherche> {
@@ -164,12 +161,12 @@ export class RechercheVariables extends RechercheObjets<ServicesNécessairesRech
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.variables.suivreVariables({
+        await this.service("variables").suivreVariables({
           f: ignorerNonDéfinis(f),
           idCompte,
         }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
-        await this.variables.suivreScoreQualité({
+        await this.service("variables").suivreScoreQualité({
           idVariable: idObjet,
           f: fSuiviQualité,
         }),

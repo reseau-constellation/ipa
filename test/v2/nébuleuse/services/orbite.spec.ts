@@ -16,26 +16,27 @@ import { isBrowser } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import {
-  ServiceLibp2p,
-  ServiceHélia,
-  ServiceStockage,
-  ServiceOrbite,
-} from "@/v2/nébuleuse/index.js";
-import {
   ORIGINALE,
   mandatOrbite,
 } from "@/v2/nébuleuse/services/orbite/mandat.js";
-import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
-import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
+import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import {
+  serviceOrbite,
+  type ServicesNécessairesOrbite,
+} from "@/v2/nébuleuse/services/orbite/orbite.js";
+import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
+import { serviceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import { obtenir, dossierTempoPropre } from "../../utils.js";
 import { attendreQue } from "../../appli/utils/fonctions.js";
-import { ServiceLibp2pTest } from "./utils.js";
+import { serviceLibp2pTest } from "./utils.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { ServicesNécessairesOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import type { JSONSchemaType } from "ajv";
 import type { BaseDatabase, KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
+import type { ServiceOrbite } from "@/v2/nébuleuse/index.js";
 
 describe.only("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pTest>[];
@@ -215,21 +216,17 @@ describe.only("Service Orbite", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-          stockage: ServiceStockage,
-          orbite: ServiceOrbite,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
+          stockage: serviceStockage(),
+          orbite: serviceOrbite(),
         },
       });
       await appli.démarrer();
 
-      const serviceOrbite = appli.services["orbite"];
-      const orbite = await serviceOrbite.orbite();
+      const orbite = await appli.services["orbite"].orbite();
 
       expect(orbite).to.exist();
     });
@@ -259,21 +256,17 @@ describe.only("Service Orbite", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-          stockage: ServiceStockage,
-          orbite: ServiceOrbite,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
+          stockage: serviceStockage(),
+          orbite: serviceOrbite(),
         },
       });
       await appli.démarrer();
 
-      const serviceOrbite = appli.services["orbite"];
-      const orbite = await serviceOrbite.orbite();
+      const orbite = await appli.services["orbite"].orbite();
       await appli.fermer();
 
       expect(orbite.ipfs.libp2p.status).to.equal("stopped");
@@ -295,27 +288,18 @@ describe.only("Service Orbite", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
           // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
-          libp2p: ServiceLibp2p,
-          hélia: ServiceHélia,
-          stockage: ServiceStockage,
-          orbite: ServiceOrbite,
-        },
-        options: {
-          services: {
-            dossier: { dossier },
-            orbite: {
-              orbite: orbiteOriginale,
-            },
-          },
+          libp2p: serviceLibp2p(),
+          hélia: serviceHélia(),
+          stockage: serviceStockage(),
+          orbite: serviceOrbite({ orbite: orbiteOriginale }),
         },
       });
       await appli.démarrer();
 
-      const serviceOrbite = appli.services["orbite"];
-      const orbite = await serviceOrbite.orbite();
+      const orbite = await appli.services["orbite"].orbite();
       await appli.fermer();
 
       expect(orbite.ipfs.libp2p.status).to.equal("started");
@@ -340,15 +324,12 @@ describe.only("Service Orbite", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-          stockage: ServiceStockage,
-          orbite: ServiceOrbite,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
+          stockage: serviceStockage(),
+          orbite: serviceOrbite(),
         },
       });
       await appli.démarrer();
@@ -560,15 +541,12 @@ describe.only("Service Orbite", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-          stockage: ServiceStockage,
-          orbite: ServiceOrbite,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
+          stockage: serviceStockage(),
+          orbite: serviceOrbite(),
         },
       });
       await appli.démarrer();
@@ -632,15 +610,12 @@ describe.only("Service Orbite", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-          stockage: ServiceStockage,
-          orbite: ServiceOrbite,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
+          stockage: serviceStockage(),
+          orbite: serviceOrbite(),
         },
       });
       await appli.démarrer();

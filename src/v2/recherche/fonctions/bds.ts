@@ -8,6 +8,7 @@ import {
   sousRecherche,
 } from "@/v2/recherche/fonctions/utils.js";
 import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
+import type { Variables } from "@/v2/variables.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 
 import type { Oublier } from "@/v2/nébuleuse/types.js";
@@ -21,13 +22,13 @@ import type {
 } from "@/v2/recherche/types.js";
 import type { TraducsTexte } from "@/v2/types.js";
 import type { Bds } from "@/v2/bds/bds.js";
-import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { MotsClefs } from "@/v2/motsClefs.js";
 
 export type ServicesNécessairesRechercheBds =
-  ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & {
-    bds: Bds<ServicesLibp2pNébuleuse>;
-    motsClefs: MotsClefs<ServicesLibp2pNébuleuse>;
+  ServicesNécessairesRechercheObjets & {
+    bds: Bds;
+    motsClefs: MotsClefs;
+    variables: Variables;
   };
 
 export const rechercherBdsSelonNom = (

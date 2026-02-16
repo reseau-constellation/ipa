@@ -9,9 +9,10 @@ import {
 import { RechercheVariables } from "./recherche/variables.js";
 import { ObjetConstellation } from "./objets.js";
 import { définis } from "./utils.js";
+import type { ServicesNécessairesRechercheVariables } from "./recherche/fonctions/variables.js";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
+import type { ServicesNécessairesObjet } from "./objets.js";
 import type { Rôle } from "./nébuleuse/services/compte/accès/index.js";
-import type { Constellation } from "./constellation.js";
-import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   InfoAuteur,
   PartielRécursif,
@@ -30,6 +31,7 @@ import type {
   RègleVariable,
   RègleVariableAvecId,
 } from "./règles.js";
+import type { AccesseurService } from "./recherche/types.js";
 
 // Types structure
 
@@ -107,6 +109,27 @@ export type CatégorieVariable =
       catégorie: CatégorieBaseVariables;
     };
 
+const catégorieComplète = (
+  catégorie?: PartielRécursif<CatégorieVariable>,
+): catégorie is CatégorieVariable => {
+  return Boolean(catégorie?.type && catégorie.catégorie);
+};
+
+const règlesComplètes = (
+  règles?: PartielRécursif<{
+    [idRègle: string]: RègleVariable;
+  }>,
+): {
+  [idRègle: string]: RègleVariable;
+} => {
+  // À faire : être plus exhaustif
+  return Object.fromEntries(
+    Object.entries(règles || {}).filter(
+      (items): items is [string, RègleVariable] => !!items[1]?.type,
+    ),
+  );
+};
+
 // Types épingles
 
 export type ÉpingleVariable = {
@@ -124,28 +147,38 @@ const standardiserCatégorieVariable = (
     : catégorie;
 };
 
-export class Variables<
-  L extends ServicesLibp2pNébuleuse,
-> extends ObjetConstellation<
+export type ServicesNécessairesVariables =
+  ServicesNécessairesObjet<"variables">;
+
+export class Variables extends ObjetConstellation<
   "variables",
   StructureVariable,
-  L,
-  ServicesNécessairesVariables<L>
+  ServicesNécessairesVariables
 > {
   recherche: RechercheVariables;
   schémaObjet = schémaVariable;
 
-  constructor({ appli }: { appli: Constellation }) {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesVariables;
+    options: OptionsAppli;
+  }) {
     super({
       clef: "variables",
-      appli,
+      services,
       dépendances: ["compte", "orbite"],
+      options,
     });
 
-    this.recherche = new RechercheVariables<L>({
-      variables: this,
-      constl: this.appli,
-      service: (clef) => this.service(clef),
+    this.recherche = new RechercheVariables({
+      service: ((clef) =>
+        clef === "variables"
+          ? this
+          : this.service(
+              clef,
+            )) as AccesseurService<ServicesNécessairesRechercheVariables>,
     });
 
     const favoris = this.service("favoris");
@@ -558,7 +591,9 @@ export class Variables<
       f: async (variable) => {
         const catégorie = variable["catégorie"];
         await f(
-          catégorie ? standardiserCatégorieVariable(catégorie) : undefined,
+          catégorieComplète(catégorie)
+            ? standardiserCatégorieVariable(catégorie)
+            : undefined,
         );
       },
     });
@@ -694,7 +729,7 @@ export class Variables<
     const oublierRèglesPropres = await this.suivreObjet({
       idObjet: idVariable,
       f: async (variable) => {
-        règles.propres = variable.règles || {};
+        règles.propres = règlesComplètes(variable.règles);
         await fFinale();
       },
     });
@@ -725,7 +760,7 @@ export class Variables<
     f,
   }: {
     idVariable: string;
-    f: Suivi<StatutDonnées | null>;
+    f: Suivi<PartielRécursif<StatutDonnées> | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idVariable,

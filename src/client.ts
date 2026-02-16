@@ -8,10 +8,8 @@ import bs58 from "bs58";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { Réseau } from "@/reseau.js";
 
 import { Protocoles } from "./protocoles.js";
-import type { PartielRécursif } from "@/types.js";
 import type { ÉpingleCompte } from "@/favoris.js";
 import type { Helia } from "helia";
 import type { JSONSchemaType } from "ajv";
@@ -19,21 +17,10 @@ import type { Libp2p } from "@libp2p/interface";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import type { createOrbitDB, OrbitDB } from "@orbitdb/core";
-import type { structureBdProfil } from "@/profil.js";
 import type { type GestionnaireOrbite } from "@/orbite.js";
-import { Automatisations } from "@/automatisation.js";
-import { Licences } from "@/licences.js";
-import { Tableaux } from "@/tableaux.js";
-import { Nuées } from "@/nuées.js";
-import { Recherche } from "@/recherche/index.js";
-import { Projets } from "@/projets.js";
-import { Favoris, TOUS } from "@/favoris.js";
+import { TOUS } from "@/favoris.js";
 import { Épingles } from "@/epingles.js";
-import { MotsClefs } from "@/motsClefs.js";
-import { Variables } from "@/variables.js";
-import { Profil, schémaStructureBdProfil } from "@/profil.js";
-import { BDs } from "@/bds.js";
-import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
+import { exporterStockageLocal } from "@/stockageLocal.js";
 
 type ÉvénementsClient<T extends ServicesLibp2p = ServicesLibp2p> = {
   comptePrêt: (args: { idCompte: string }) => void;
@@ -71,44 +58,6 @@ export type optsOrbite<T extends ServicesLibp2p = ServicesLibp2p> =
   | OrbitDB<T>
   | optsInitOrbite<T>;
 
-export type structureBdCompte = {
-  protocoles: string;
-  nomsDispositifs: string;
-
-  profil: structureBdProfil;
-  motsClefs: string;
-  variables: string;
-  bds: string;
-  projets: string;
-  nuées: string;
-  favoris: string;
-
-  réseau?: string;
-  automatisations?: string;
-};
-
-export const schémaStructureBdCompte: JSONSchemaType<
-  PartielRécursif<structureBdCompte>
-> = {
-  type: "object",
-  properties: {
-    protocoles: { type: "string", nullable: true },
-    nomsDispositifs: { type: "string", nullable: true },
-
-    profil: schémaStructureBdProfil,
-    motsClefs: { type: "string", nullable: true },
-    variables: { type: "string", nullable: true },
-    bds: { type: "string", nullable: true },
-    projets: { type: "string", nullable: true },
-    nuées: { type: "string", nullable: true },
-    favoris: { type: "string", nullable: true },
-
-    réseau: { type: "string", nullable: true },
-    automatisations: { type: "string", nullable: true },
-  },
-  required: [],
-};
-
 export type structureNomsDispositifs = {
   [idDispositif: string]: { nom?: string; type?: string };
 };
@@ -138,26 +87,9 @@ const join = async (...args: string[]) => {
 };
 
 export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
-  _opts: optsConstellation<T>;
   événements: TypedEmitter<ÉvénementsClient<T>>;
 
-  orbite?: GestionnaireOrbite;
-  sfip?: Helia<Libp2p<T>>;
-
   épingles: Épingles;
-  profil: Profil;
-  bds: BDs;
-  tableaux: Tableaux;
-  variables: Variables;
-  réseau: Réseau;
-  favoris: Favoris;
-  projets: Projets;
-  recherche: Recherche;
-  motsClefs: MotsClefs;
-  automatisations: Automatisations;
-  nuées: Nuées;
-  licences: Licences;
-  protocoles: Protocoles;
 
   erreurInitialisation?: Error;
   _orbiteExterne: boolean;
@@ -172,8 +104,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   signaleurArrêt: AbortController;
 
   constructor(opts: optsConstellation<T> = {}) {
-    this._opts = opts;
-
     this.événements = new TypedEmitter<ÉvénementsClient<T>>();
     this.signaleurArrêt = new AbortController();
 
@@ -185,30 +115,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     this.ennikkai = new எண்ணிக்கை({});
 
     this.épingles = new Épingles({ client: this });
-
-    this.profil = new Profil({ client: this });
-
-    this.motsClefs = new MotsClefs({ client: this });
-
-    this.tableaux = new Tableaux({ client: this });
-
-    this.variables = new Variables({ client: this });
-
-    this.bds = new BDs({ client: this });
-
-    this.projets = new Projets({ client: this });
-
-    this.nuées = new Nuées({ client: this });
-
-    this.favoris = new Favoris({ client: this });
-
-    this.automatisations = new Automatisations({ client: this });
-
-    this.recherche = new Recherche({ client: this });
-
-    this.licences = new Licences({ client: this });
-
-    this.réseau = new Réseau({ client: this });
 
     this.protocoles = new Protocoles({
       client: this,

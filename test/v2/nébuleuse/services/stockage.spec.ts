@@ -2,11 +2,14 @@ import fs from "fs";
 import path from "path";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
-import { ServiceStockage } from "@/v2/nébuleuse/index.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
-import { StockageLocal } from "@/v2/nébuleuse/services/stockage.js";
-import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import {
+  StockageLocal,
+  serviceStockage,
+} from "@/v2/nébuleuse/services/stockage.js";
+import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { dossierTempoPropre } from "../../utils.js";
+import type { ServiceStockage } from "@/v2/nébuleuse/index.js";
 import type { ServicesNécessairesStockage } from "@/v2/nébuleuse/services/stockage.js";
 
 describe.only("Stockage", function () {
@@ -22,11 +25,8 @@ describe.only("Stockage", function () {
       ServicesNécessairesStockage & { stockage: ServiceStockage }
     >({
       services: {
-        dossier: ServiceDossier,
-        stockage: ServiceStockage,
-      },
-      options: {
-        services: { dossier: { dossier } },
+        dossier: serviceDossier({ dossier }),
+        stockage: serviceStockage(),
       },
     });
     await appli.démarrer();
@@ -60,11 +60,8 @@ describe.only("Stockage", function () {
       ServicesNécessairesStockage & { stockage: ServiceStockage }
     >({
       services: {
-        dossier: ServiceDossier,
-        stockage: ServiceStockage,
-      },
-      options: {
-        services: { dossier: { dossier } },
+        dossier: serviceDossier({ dossier }),
+        stockage: serviceStockage(),
       },
     });
     await appli.démarrer();
@@ -86,11 +83,8 @@ describe.only("Stockage", function () {
       ServicesNécessairesStockage & { stockage: ServiceStockage }
     >({
       services: {
-        dossier: ServiceDossier,
-        stockage: ServiceStockage,
-      },
-      options: {
-        services: { dossier: { dossier } },
+        dossier: serviceDossier({ dossier }),
+        stockage: serviceStockage(),
       },
     });
     await appli.démarrer();
@@ -114,11 +108,10 @@ describe.only("Stockage", function () {
       ServicesNécessairesStockage & { stockage: ServiceStockage }
     >({
       services: {
-        dossier: ServiceDossier,
-        stockage: ServiceStockage,
-      },
-      options: {
-        services: { dossier: { dossier: path.join(dossier, "sous-dossier") } },
+        dossier: serviceDossier({
+          dossier: path.join(dossier, "sous-dossier"),
+        }),
+        stockage: serviceStockage(),
       },
     });
     await appli2.démarrer();

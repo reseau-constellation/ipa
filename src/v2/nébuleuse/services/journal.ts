@@ -2,7 +2,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import PQueue from "p-queue";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import type {
-  OptionsCommunes,
+  OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
 
@@ -21,15 +21,13 @@ export class ServiceJournal extends ServiceAppli<
   queue: PQueue;
 
   constructor({
-    services,
     options,
   }: {
-    services: ServicesAppli;
-    options: Partial<OptionsServiceJournal> & OptionsCommunes;
+    options: Partial<OptionsServiceJournal> & OptionsAppli;
   }) {
     super({
       clef: "journal",
-      services,
+      services: {},
       options: Object.assign({ f: console.log }, options),
     });
 
@@ -71,3 +69,9 @@ export class ServiceJournal extends ServiceAppli<
     return await f(message);
   }
 }
+
+export const serviceJournal =
+  (optionsJournal?: OptionsServiceJournal) =>
+  ({ options }: { options: OptionsAppli }) => {
+    return new ServiceJournal({ options: { ...optionsJournal, ...options } });
+  };

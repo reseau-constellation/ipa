@@ -2,8 +2,9 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
-import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
+import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { dossierTempoPropre } from "../../utils.js";
+import type { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
 
 describe.only("Journal", function () {
   if (isNode || isElectronMain)
@@ -20,12 +21,7 @@ describe.only("Journal", function () {
         fichier = join(dossier, "journal.txt");
         appli = new Appli<{ journal: ServiceJournal }>({
           services: {
-            journal: ServiceJournal,
-          },
-          options: {
-            services: {
-              journal: { f: fichier },
-            },
+            journal: serviceJournal({ f: fichier }),
           },
         });
         await appli.démarrer();
@@ -58,16 +54,11 @@ describe.only("Journal", function () {
     before(async () => {
       appli = new Appli<{ journal: ServiceJournal }>({
         services: {
-          journal: ServiceJournal,
-        },
-        options: {
-          services: {
-            journal: {
-              f: (m) => {
-                val += m;
-              },
+          journal: serviceJournal({
+            f: (m) => {
+              val += m;
             },
-          },
+          }),
         },
       });
       await appli.démarrer();

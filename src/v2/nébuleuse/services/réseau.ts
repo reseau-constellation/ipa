@@ -22,7 +22,7 @@ import {
 import type { ServicesNécessairesDonnées } from "./services.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../types.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
@@ -78,6 +78,10 @@ export const schémaRéseau: JSONSchemaType<PartielRécursif<StructureRéseau>> 
   nullable: true,
 };
 
+export type ServicesNécessairesRéseau = ServicesNécessairesDonnées<{
+  réseau: StructureRéseau;
+}>;
+
 export class ServiceRéseau extends ServiceDonnéesAppli<
   "réseau",
   StructureRéseau
@@ -98,8 +102,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     services,
     options,
   }: {
-    services: ServicesNécessairesDonnées<{ réseau: StructureRéseau }>;
-    options: OptionsCommunes;
+    services: ServicesNécessairesRéseau;
+    options: OptionsAppli;
   }) {
     super({
       clef: "réseau",
@@ -906,3 +910,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   // Réseautage
 }
+
+export const serviceRéseau =
+  () =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesRéseau;
+  }) =>
+    new ServiceRéseau({ options, services });

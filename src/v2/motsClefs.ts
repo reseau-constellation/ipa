@@ -11,9 +11,8 @@ import { définis } from "./utils.js";
 import type { AccesseurService } from "./recherche/types.js";
 import type { ServicesNécessairesRechercheMotsClefs } from "./recherche/fonctions/motsClefs.js";
 import type { ServicesNécessairesObjet } from "./objets.js";
-import type { OptionsCommunes } from "./nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
-import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
@@ -51,16 +50,13 @@ export type ÉpingleMotClef = {
 
 export type ContenuÉpingleMotClef = BaseÉpingleFavoris;
 
-export type ServicesNécessairesMotsClefs<L extends ServicesLibp2pNébuleuse> =
-  ServicesNécessairesObjet<{ motsClefs: StructureMotClef }, L>;
+export type ServicesNécessairesMotsClefs =
+  ServicesNécessairesObjet<"motsClefs">;
 
-export class MotsClefs<
-  L extends ServicesLibp2pNébuleuse,
-> extends ObjetConstellation<
+export class MotsClefs extends ObjetConstellation<
   "motsClefs",
   StructureMotClef,
-  L,
-  ServicesNécessairesMotsClefs<L>
+  ServicesNécessairesMotsClefs
 > {
   recherche: RechercheMotsClefs;
 
@@ -70,8 +66,8 @@ export class MotsClefs<
     services,
     options,
   }: {
-    services: ServicesNécessairesMotsClefs<L>;
-    options: OptionsCommunes;
+    services: ServicesNécessairesMotsClefs;
+    options: OptionsAppli;
   }) {
     super({
       clef: "motsClefs",

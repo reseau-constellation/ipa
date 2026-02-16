@@ -1,12 +1,11 @@
-import { merge } from "lodash-es";
 import { typedNested } from "@constl/bohr-db";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { suivreFonctionImbriquée, uneFois } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
+import { merge } from "ts-deepmerge";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import { ajouterPréfixes, enleverPréfixes } from "@/v2/utils.js";
 import { cacheSuivi } from "../../cache.js";
-import { ServiceDonnéesAppli } from "../services.js";
 import {
   CLEF_ID_COMPTE,
   CLEF_N_CHANGEMENT_COMPTES,
@@ -20,7 +19,8 @@ import {
   MODÉRATRICE,
   estContrôleurNébuleuse,
 } from "./accès/index.js";
-import type { OptionsCommunes } from "../../appli/appli.js";
+import type { StructureNébuleuse } from "../../nébuleuse.js";
+import type { OptionsAppli } from "../../appli/appli.js";
 import type { PartielRécursif, RequisRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type {
@@ -49,8 +49,9 @@ export type ConstsCompte = {
   maxTailleImageVisualiser: number;
 };
 
-export type OptionsCompte = {
-  consts: ConstsCompte;
+export type OptionsServiceCompte<T extends { [clef: string]: NestedValue }> = {
+  consts?: ConstsCompte;
+  schéma: JSONSchemaType<PartielRécursif<T>>;
 };
 
 const défautsConstsCompte: RequisRécursif<ConstsCompte> = {
@@ -58,34 +59,10 @@ const défautsConstsCompte: RequisRécursif<ConstsCompte> = {
   maxTailleImageVisualiser: MAX_TAILLE_IMAGE_VISUALISER,
 };
 
-export type SchémaDeStructureCompte<T extends { [clef: string]: NestedValue }> =
-  JSONSchemaType<PartielRécursif<T>>;
-export type SchémaCompte<T> = T extends ServicesDonnées<infer S> ? S : never;
-
 export type ServicesNécessairesCompte =
   ServicesNécessairesOrbite<ServicesLibp2pNébuleuse> & {
     orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
   };
-
-export const compilerSchémaCompte = <T extends { [clef: string]: NestedValue }>(
-  compte: ServiceCompte<T>,
-): SchémaDeStructureCompte<T> => {
-  const schéma: SchémaDeStructureCompte<T> = {
-    type: "object",
-    properties: {},
-  };
-  for (const s of Object.values(compte.services)) {
-    if (s instanceof ServiceDonnéesAppli) {
-      schéma.properties[s.clef] = s.schéma;
-    }
-  }
-
-  return schéma;
-};
-
-export type ServicesDonnées<T extends { [clef: string]: NestedValue }> = {
-  [C in Extract<keyof T, "string">]: ServiceDonnéesAppli<C, T[C]>;
-};
 
 export type ÉvénementsCompte = {
   changementCompte: (args: { idCompte: string }) => void;
@@ -105,7 +82,7 @@ export class ServiceCompte<
   "compte",
   ServicesNécessairesCompte,
   RetourDémarrageCompte<T>,
-  OptionsCompte
+  Required<OptionsServiceCompte<T>>
 > {
   événements: TypedEmitter<
     {
@@ -118,13 +95,15 @@ export class ServiceCompte<
     options,
   }: {
     services: ServicesNécessairesCompte;
-    options: PartielRécursif<OptionsCompte> & OptionsCommunes;
+    options: OptionsServiceCompte<T> & OptionsAppli;
   }) {
+    const consts = merge(options.consts || {}, défautsConstsCompte);
+
     super({
       clef: "compte",
       services,
       dépendances: ["orbite", "libp2p", "stockage"],
-      options: merge(options, { consts: défautsConstsCompte }),
+      options: { ...options, consts },
     });
 
     this.événements = new TypedEmitter();
@@ -140,7 +119,7 @@ export class ServiceCompte<
 
     const bdTypée = typedNested({
       db: bd,
-      schema: compilerSchémaCompte<T>(this),
+      schema: this.options.schéma,
     });
     this.estDémarré = { idCompte, bd: bdTypée, oublier };
     return await super.démarrer();
@@ -301,12 +280,11 @@ export class ServiceCompte<
     idCompte?: string;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
-    const schéma = compilerSchémaCompte<T>(this);
 
     if (idCompte) {
       return await orbite.suivreBdEmboîtéeTypée<T>({
         id: enleverPréfixes(idCompte),
-        schéma,
+        schéma: this.options.schéma,
         f,
       });
     } else {
@@ -317,7 +295,7 @@ export class ServiceCompte<
         fSuivre: async ({ id, fSuivre }) =>
           await orbite.suivreBdEmboîtéeTypée({
             id: enleverPréfixes(id),
-            schéma,
+            schéma: this.options.schéma,
             f: fSuivre,
           }),
         journal: async (m) =>
@@ -454,3 +432,20 @@ export class ServiceCompte<
     await oublier();
   }
 }
+
+export const serviceCompte =
+  <T extends { [clef: string]: NestedValue } = StructureNébuleuse>(
+    optionsCompte: OptionsServiceCompte<T>,
+  ) =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesCompte;
+  }) => {
+    return new ServiceCompte<T>({
+      services,
+      options: { ...optionsCompte, ...options },
+    });
+  };

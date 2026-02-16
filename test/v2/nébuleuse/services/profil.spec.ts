@@ -8,7 +8,10 @@ import { idcEtFichierValide } from "@/v2/utils.js";
 import { obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
-import type { ÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
+import type {
+  ServicesNécessairesProfil,
+  ÉpingleProfil,
+} from "@/v2/nébuleuse/services/profil.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { TraducsTexte } from "@/v2/types.js";
 
@@ -65,7 +68,7 @@ describe.only("Profil", function () {
     });
   });
 
-  describe("Courriels", function () {
+  describe("courriels", function () {
     const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
     it("Pas de courriel pour commencer", async () => {
@@ -77,7 +80,7 @@ describe.only("Profil", function () {
       expect(courriel).to.be.null();
     });
 
-    it("Ajouter un courriel", async () => {
+    it("ajouter un courriel", async () => {
       await nébuleuse.profil.sauvegarderCourriel({ courriel: COURRIEL });
       const courriel = await obtenir(({ siPasNul }) =>
         nébuleuse.profil.suivreCourriel({
@@ -87,7 +90,7 @@ describe.only("Profil", function () {
       expect(courriel).to.equal(COURRIEL);
     });
 
-    it("Effacer le courriel", async () => {
+    it("effacer le courriel", async () => {
       await nébuleuse.profil.effacerCourriel();
       const courriel = await obtenir(({ siNul }) =>
         nébuleuse.profil.suivreCourriel({
@@ -98,8 +101,8 @@ describe.only("Profil", function () {
     });
   });
 
-  describe("Noms", function () {
-    it("Pas de noms pour commencer", async () => {
+  describe("noms", function () {
+    it("pas de noms pour commencer", async () => {
       const noms = await obtenir(({ siDéfini }) =>
         nébuleuse.profil.suivreNoms({
           f: siDéfini(),
@@ -108,7 +111,7 @@ describe.only("Profil", function () {
       expect(noms).to.be.empty();
     });
 
-    it("Ajouter un nom", async () => {
+    it("ajouter un nom", async () => {
       await nébuleuse.profil.sauvegarderNom({
         langue: "fr",
         nom: "Julien Malard-Adam",
@@ -132,7 +135,7 @@ describe.only("Profil", function () {
       expect(nomsModifiés.த).to.equal("ஜூலீஎன்");
     });
 
-    it("Changer un nom", async () => {
+    it("changer un nom", async () => {
       await nébuleuse.profil.sauvegarderNom({
         langue: "த",
         nom: "ம.-ஆதான் ஜூலீஎன்",
@@ -145,7 +148,7 @@ describe.only("Profil", function () {
       expect(noms.த).to.equal("ம.-ஆதான் ஜூலீஎன்");
     });
 
-    it("Effacer un nom", async () => {
+    it("effacer un nom", async () => {
       await nébuleuse.profil.effacerNom({ langue: "fr" });
 
       const noms = await obtenir<TraducsTexte>(({ si }) =>
@@ -157,8 +160,8 @@ describe.only("Profil", function () {
     });
   });
 
-  describe("Bios", function () {
-    it("Pas de bios pour commencer", async () => {
+  describe("bios", function () {
+    it("pas de bios pour commencer", async () => {
       const bios = await obtenir<TraducsTexte>(({ siDéfini }) =>
         nébuleuse.profil.suivreBios({
           f: siDéfini(),
@@ -167,7 +170,7 @@ describe.only("Profil", function () {
       expect(Object.keys(bios)).to.be.empty();
     });
 
-    it("Ajouter une bio", async () => {
+    it("ajouter une bio", async () => {
       await nébuleuse.profil.sauvegarderBio({
         langue: "fr",
         bio: "Julien Malard-Adam",
@@ -191,7 +194,7 @@ describe.only("Profil", function () {
       expect(biosModifiées?.मै).to.equal("अहाँ सिखैत रहू।");
     });
 
-    it("Changer une bio", async () => {
+    it("changer une bio", async () => {
       await nébuleuse.profil.sauvegarderBio({
         langue: "मै",
         bio: "अहाँ सिखैत रहू",
@@ -204,7 +207,7 @@ describe.only("Profil", function () {
       expect(bios.मै).to.equal("अहाँ सिखैत रहू");
     });
 
-    it("Effacer une bio", async () => {
+    it("effacer une bio", async () => {
       await nébuleuse.profil.effacerBio({ langue: "fr" });
       const bios = await obtenir<TraducsTexte>(({ si }) =>
         nébuleuse.profil.suivreBios({
@@ -215,8 +218,8 @@ describe.only("Profil", function () {
     });
   });
 
-  describe("Images", function () {
-    it("Pas d'image pour commencer", async () => {
+  describe("images", function () {
+    it("pas d'image pour commencer", async () => {
       const val = await obtenir(({ siDéfini }) =>
         nébuleuse.profil.suivreImage({
           f: siDéfini(),
@@ -226,7 +229,7 @@ describe.only("Profil", function () {
       expect(val).to.be.null();
     });
 
-    it("Ajouter une image", async () => {
+    it("ajouter une image", async () => {
       const idImage = await nébuleuse.profil.sauvegarderImage({
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
@@ -245,7 +248,7 @@ describe.only("Profil", function () {
       expect(image?.image).to.deep.equal(new Uint8Array(IMAGE));
     });
 
-    it("Effacer l'image", async () => {
+    it("effacer l'image", async () => {
       await nébuleuse.profil.effacerImage();
 
       const val = await obtenir<{ image: Uint8Array; idImage: string } | null>(
@@ -257,7 +260,7 @@ describe.only("Profil", function () {
       expect(val).to.be.null();
     });
 
-    it("Ajouter une image trop grande", async () => {
+    it("ajouter une image trop grande", async () => {
       expect(
         nébuleuse.profil.sauvegarderImage({
           image: {
@@ -389,6 +392,77 @@ describe.only("Profil", function () {
         }),
       );
       expect(épingle).to.be.undefined();
+    });
+  });
+
+  describe("rejoindre compte", function () {
+    let applis: Appli<ServicesNécessairesProfil & { profil: ServiceProfil }>[];
+    let comptes: ServiceCompte<StructureNébuleuse & Record<string, never>>[];
+    let fermer: () => Promise<void>;
+
+    let idObjet: string;
+
+    let idsDispositifs: string[];
+    let idsComptes: string[];
+
+    before(async () => {
+      ({ applis, fermer } = await créerApplisTest({
+        n: 2,
+        services: {},
+      }));
+      comptes = applis.map((a) => a.services["compte"]);
+
+      idsDispositifs = await Promise.all(
+        comptes.map(async (compte) => await compte.obtIdDispositif()),
+      );
+      idsComptes = await Promise.all(
+        comptes.map((compte) => compte.obtIdCompte()),
+      );
+
+      await applis[0].profil.sauvegarderNom({
+        nom: "Julien Malard-Adam",
+        langue: "fr",
+      });
+
+      await comptes[0].ajouterDispositif({
+        idDispositif: await comptes[1].obtIdDispositif(),
+      });
+      await comptes[1].rejoindreCompte({
+        idCompte: await comptes[0].obtIdCompte(),
+      });
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    it("le nouveau dispositif suit le profil", async () => {
+      const noms = await obtenir<TraducsTexte | undefined>(({ si }) =>
+        applis[1].profil.suivreNoms({
+          f: si((x) => !!x && Object.keys(x).includes("fr")),
+        }),
+      );
+
+      expect(noms?.fr).to.equal("Julien Malard-Adam");
+    });
+
+    it("le nouveau dispositif peut modifier le compte", async () => {
+      await applis[1].profil.sauvegarderNom({
+        langue: "த",
+        nom: "ம.-அதான் ஜூலீஎன்",
+      });
+
+      const pNoms = obtenir<TraducsTexte | undefined>(({ si }) =>
+        applis[0].profil.suivreNoms({
+          f: si((x) => !!x && Object.keys(x).includes("த")),
+        }),
+      );
+
+      const noms = await pNoms;
+      expect(noms).to.deep.equal({
+        fr: "Julien Malard-Adam",
+        த: "ம.-அதான் ஜூலீஎன்",
+      });
     });
   });
 });

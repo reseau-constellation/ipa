@@ -4,10 +4,9 @@ import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Suivi } from "../types.js";
-import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 
 export type StructureDispositifs = {
   dispositifs: {
@@ -48,19 +47,16 @@ export class ServiceDispositifs extends ServiceDonnéesAppli<
     options,
   }: {
     services: ServicesNécessairesDispositifs;
-    options: OptionsCommunes;
+    options: OptionsAppli;
   }) {
     super({
       clef: "dispositifs",
       services,
       dépendances: ["compte"],
-      options: Object.assign(
-        {},
-        {
-          schéma: schémaDispositifs,
-        },
-        options,
-      ),
+      options: {
+        schéma: schémaDispositifs,
+        ...options,
+      },
     });
   }
 
@@ -140,3 +136,14 @@ export const détecterTypeDispositif = (): string | undefined => {
   }
   return undefined;
 };
+
+export const serviceDispositifs =
+  () =>
+  ({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesDispositifs;
+    options: OptionsAppli;
+  }) =>
+    new ServiceDispositifs({ services, options });

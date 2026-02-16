@@ -11,18 +11,18 @@ import { cacheSuivi } from "./nébuleuse/cache.js";
 import { brancheBd } from "./nébuleuse/services/services.js";
 import {
   générerFonctionValidation,
+  règleComplète,
   schémaSpécificationRègleColonne,
 } from "./règles.js";
 import { schémaTraducsTexte } from "./schémas.js";
-import { enleverPréfixes } from "./utils.js";
+import { définis, enleverPréfixes } from "./utils.js";
+import type { AccesseurService } from "./recherche/types.js";
 import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
 import type { NestedValue } from "@orbitdb/nested-db";
-import type { ServicesConstellation } from "./constellation.js";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { PartielRécursif, TraducsTexte } from "./types.js";
-import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   DétailsRègleBornesDynamiqueColonne,
   DétailsRègleBornesDynamiqueVariable,
@@ -41,7 +41,12 @@ import type {
   SpécificationRègleColonne,
   FonctionValidation,
 } from "./règles.js";
-import type { CatégorieBaseVariables, CatégorieVariable } from "./variables.js";
+import type {
+  CatégorieBaseVariables,
+  CatégorieVariable,
+  Variables,
+} from "./variables.js";
+import type { ServiceCompte, ServiceOrbite } from "./nébuleuse/index.js";
 
 // Types éléments
 
@@ -176,17 +181,19 @@ export type DifférenceColonneSupplémentaire = {
 
 // Tableaux
 
-export class Tableaux<L extends ServicesLibp2pNébuleuse> {
-  service: <T extends keyof ServicesConstellation<L>>(
-    service: T,
-  ) => ServicesConstellation<L>[T];
+export type ServicesNécessairesTableaux = {
+  orbite: ServiceOrbite;
+  compte: ServiceCompte;
+  variables: Variables;
+};
+
+export class Tableaux {
+  service: AccesseurService<ServicesNécessairesTableaux>;
 
   constructor({
     service,
   }: {
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    service: AccesseurService<ServicesNécessairesTableaux>;
   }) {
     this.service = service;
   }
@@ -325,7 +332,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
   }: {
     idStructure: string;
     idTableau: string;
-    f: Suivi<StructureTableau>;
+    f: Suivi<PartielRécursif<StructureTableau>>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
@@ -333,7 +340,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       id: enleverPréfixes(idStructure),
       schéma: schémaStructureAvecTableau,
       f: async (tableau) => {
-        let données: NestedValue | null | undefined = tableau;
+        let données: PartielRécursif<NestedValue> | null | undefined = tableau;
 
         for (const k of asSplitKey(joinKey(["tableaux", idTableau]))) {
           données = données?.[k] as NestedValue | undefined;
@@ -342,7 +349,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
             break;
           }
         }
-        await f(données as StructureTableau);
+        await f(données as PartielRécursif<StructureTableau>);
       },
     });
   }
@@ -435,7 +442,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
     return await this.suivreTableau({
       idStructure,
       idTableau,
-      f: (tableau) => f(tableau.noms),
+      f: (tableau) => f(définis(tableau.noms || {})),
     });
   }
 
@@ -709,7 +716,7 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       f: async (tableau) => {
         await f(
           Object.values(tableau.colonnes || [])
-            .map((c) => c.variable)
+            .map((c) => c?.variable)
             .filter((v): v is string => !!v && variables.identifiantValide(v)),
         );
       },
@@ -837,13 +844,18 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
       idStructure,
       idTableau,
       f: async (tableau) => {
-        const règlesTableau: RègleColonne[] = Object.entries(
-          tableau.règles,
-        ).map(([id, règle]) => ({
-          règle: { id, règle: règle.règle },
-          source: { type: "tableau", idStructure, idTableau },
-          colonne: règle.colonne,
-        }));
+        const règlesComplètes = Object.entries(tableau.règles || {}).filter(
+          (items): items is [string, SpécificationRègleColonne] =>
+            règleComplète(items[1]),
+        );
+
+        const règlesTableau: RègleColonne[] = règlesComplètes.map(
+          ([id, règle]) => ({
+            règle: { id, règle: règle.règle },
+            source: { type: "tableau", idStructure, idTableau },
+            colonne: règle.colonne,
+          }),
+        );
         dicRègles.tableau = Object.values(règlesTableau);
         return await fFinale();
       },
@@ -1266,12 +1278,12 @@ export class Tableaux<L extends ServicesLibp2pNébuleuse> {
   }: {
     idStructure: string;
     idTableau: string;
-    f: Suivi<{ [clef: string]: TraducsTexte }>;
+    f: Suivi<{ [clef: string]: Partial<TraducsTexte> }>;
   }): Promise<Oublier> {
     return await this.suivreTableau({
       idStructure,
       idTableau,
-      f: async (tableau) => await f(tableau.traducs),
+      f: async (tableau) => await f(définis(tableau.traducs || {})),
     });
   }
 

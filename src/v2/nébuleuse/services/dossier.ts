@@ -5,7 +5,7 @@ import { faisRien } from "@constl/utils-ipa";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import type { Jsonifiable, Oublier } from "../types.js";
 import type {
-  OptionsCommunes,
+  OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
 
@@ -24,16 +24,10 @@ export class ServiceDossier extends ServiceAppli<
   RetourDémarrageDossier,
   OptionsServiceDossier
 > {
-  constructor({
-    services,
-    options,
-  }: {
-    services: ServicesAppli;
-    options: OptionsCommunes;
-  }) {
+  constructor({ options }: { options: OptionsServiceDossier & OptionsAppli }) {
     super({
       clef: "dossier",
-      services,
+      services: {},
       options,
     });
   }
@@ -153,3 +147,9 @@ export class ServiceDossier extends ServiceAppli<
     }
   }
 }
+
+export const serviceDossier =
+  (optionsDossier?: OptionsServiceDossier) =>
+  ({ options }: { options: OptionsAppli }) => {
+    return new ServiceDossier({ options: { ...optionsDossier, ...options } });
+  };

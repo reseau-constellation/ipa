@@ -10,20 +10,21 @@ import {
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import { créerNébuleusesTest } from "../utils.js";
 import { obtenir } from "../../utils.js";
-import type { ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { NébuleuseTest } from "../utils.js";
-import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
-import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
-import type { OrbitDB } from "@orbitdb/core";
-import type { Helia } from "helia";
-import type { Libp2p } from "libp2p";
-import type { ServicesLibp2pTest } from "@constl/utils-tests";
-import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
+import type {
+  OptionsServiceDonnées,
+  ServicesNécessairesDonnées,
+} from "@/v2/nébuleuse/services/services.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { OrbitDB } from "@orbitdb/core";
+import type { Libp2p } from "libp2p";
+import type { TypedNested } from "@constl/bohr-db";
 import type { NestedDatabaseType } from "@orbitdb/nested-db";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { PartielRécursif } from "@/v2/types.js";
+import type { Helia } from "helia";
 
 const ERREUR_DUPLIQUÉS =
   "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
@@ -230,9 +231,10 @@ describe.only("Services Nébuleuse", function () {
           options,
         }: {
           services: ServicesNécessairesDonnées<{ A: StructureA }>;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
-          const optionsService = {
+          const optionsService: OptionsServiceDonnées<StructureA> &
+            OptionsAppli = {
             ...options,
             schéma: schémaStructureA,
           };
@@ -250,7 +252,7 @@ describe.only("Services Nébuleuse", function () {
           options,
         }: {
           services: ServicesNécessairesDonnées<{ B: StructureB }>;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "B",
@@ -273,8 +275,10 @@ describe.only("Services Nébuleuse", function () {
         >({
           n: 1,
           services: {
-            A: ServiceDonnéesTestA,
-            B: ServiceDonnéesTestB,
+            A: ({ options, services }) =>
+              new ServiceDonnéesTestA({ options, services }),
+            B: ({ options, services }) =>
+              new ServiceDonnéesTestB({ options, services }),
           },
         });
         nébuleuse = nébuleuses[0];
@@ -352,7 +356,7 @@ describe.only("Services Nébuleuse", function () {
         }: {
           services: ServicesNécessairesDonnées<{ A: StructureA }> &
             AutresServices;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           const optionsService = {
             ...options,
@@ -372,14 +376,8 @@ describe.only("Services Nébuleuse", function () {
       }
 
       class AutreService extends ServiceAppli<"autre"> {
-        constructor({
-          services,
-          options,
-        }: {
-          services: ServicesNébuleuse;
-          options: OptionsCommunes;
-        }) {
-          super({ clef: "autre", services, options });
+        constructor({ options }: { options: OptionsAppli }) {
+          super({ clef: "autre", services: {}, options });
         }
 
         valeur() {
@@ -399,8 +397,9 @@ describe.only("Services Nébuleuse", function () {
         >({
           n: 1,
           services: {
-            A: ServiceDonnéesTestA,
-            autre: AutreService,
+            A: ({ services, options }) =>
+              new ServiceDonnéesTestA({ services, options }),
+            autre: ({ options }) => new AutreService({ options }),
           },
         });
         nébuleuse = nébuleuses[0];

@@ -12,7 +12,7 @@ import {
 import { chronomètre, générerFAuto } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
-import type { OptionsCommunes } from "../nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { PartielRécursif } from "../types.js";
@@ -105,7 +105,7 @@ export class Automatisations<
       projets: Projets<L>;
       nuées: Nuées<L>;
     };
-    options: OptionsCommunes;
+    options: OptionsAppli;
   }) {
     super({
       clef: "automatisations",

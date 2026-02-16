@@ -10,10 +10,12 @@ import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "@/v2/nébuleuse/services/favoris.js";
-import { ajouterPréfixes, enleverPréfixes } from "@/v2/utils.js";
+import { ajouterPréfixes, définis, enleverPréfixes } from "@/v2/utils.js";
 import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
-import { nulÀObjetVide } from "./utils.js";
+import type { ServiceRéseau } from "./réseau.js";
+import type { AccesseurService } from "@/v2/recherche/types.js";
+import type { ServicesNécessairesRechercheProfils } from "@/v2/recherche/fonctions/profils.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
@@ -22,10 +24,9 @@ import type {
   ServiceFavoris,
 } from "@/v2/nébuleuse/services/favoris.js";
 import type { JSONSchemaType } from "ajv";
-import type { Appli, OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { Suivi, Oublier } from "../types.js";
 import type { PartielRécursif, TraducsTexte } from "../../types.js";
-import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 import type {
   ServiceCompte,
   ServicesNécessairesCompte,
@@ -112,36 +113,40 @@ export type ServicesNécessairesProfil = ServicesNécessairesCompte & {
   dispositifs: ServiceDispositifs;
   compte: ServiceCompte<{ profil: StructureProfil }>;
   favoris: ServiceFavoris;
+  réseau: ServiceRéseau;
 };
 
-export class Profil<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> extends ServiceDonnéesAppli<
+export class Profil extends ServiceDonnéesAppli<
   "profil",
   StructureProfil,
   ServicesNécessairesProfil
 > {
-  recherche: RechercheProfils<L>;
+  recherche: RechercheProfils;
 
   constructor({
     services,
     options,
   }: {
     services: ServicesNécessairesProfil;
-    options: OptionsCommunes;
+    options: OptionsAppli;
   }) {
     super({
       clef: "profil",
       services,
-      dépendances: ["favoris,", "dispositifs", "orbite", "hélia"],
-      options: Object.assign({}, options, {
+      dépendances: ["favoris", "dispositifs", "orbite", "hélia"],
+      options: {
+        ...options,
         schéma: schémaProfil,
-      }),
+      },
     });
-    this.recherche = new RechercheProfils<L>({
-      profils: this,
-      constl: this.appli,
-      service: (clef) => this.service(clef),
+
+    this.recherche = new RechercheProfils({
+      service: ((clef) =>
+        clef === "profil"
+          ? this
+          : this.service(
+              clef,
+            )) as AccesseurService<ServicesNécessairesRechercheProfils>,
     });
   }
 
@@ -178,7 +183,7 @@ export class Profil<
     return await this.suivreBd({
       idCompte,
       clef: "noms",
-      f: nulÀObjetVide(f),
+      f: (noms) => f(définis(noms || {})),
     });
   }
 
@@ -236,7 +241,7 @@ export class Profil<
     return await this.suivreBd({
       idCompte,
       clef: "bios",
-      f: nulÀObjetVide(f),
+      f: (bios) => f(définis(bios || {})),
     });
   }
 
@@ -509,3 +514,14 @@ export class Profil<
     };
   }
 }
+
+export const serviceProfil =
+  () =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesProfil;
+  }) =>
+    new Profil({ options, services });

@@ -15,12 +15,11 @@ import type {
   SuiviRecherche,
   SuivreObjectifRecherche,
 } from "../types.js";
-import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { MotsClefs } from "@/v2/motsClefs.js";
 
 export type ServicesNécessairesRechercheMotsClefs =
-  ServicesNécessairesRechercheObjets<ServicesLibp2pNébuleuse> & {
-    motsClefs: MotsClefs<ServicesLibp2pNébuleuse>;
+  ServicesNécessairesRechercheObjets & {
+    motsClefs: MotsClefs;
   };
 
 export const rechercherMotsClefsSelonNom = (

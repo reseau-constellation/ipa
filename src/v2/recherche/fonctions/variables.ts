@@ -5,24 +5,35 @@ import {
   rechercherTousSiVide,
   similTexte,
 } from "./utils.js";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 import type {
+  AccesseurService,
   InfoRésultatTexte,
   InfoRésultatVide,
   SuiviRecherche,
   SuivreObjectifRecherche,
 } from "../types.js";
-import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
+import type { Variables } from "@/v2/variables.js";
+import type { TraducsTexte } from "@/v2/types.js";
+
+export type ServicesNécessairesRechercheVariables =
+  ServicesNécessairesRechercheObjets & {
+    variables: Variables;
+  };
 
 export const rechercherVariablesSelonNom = (
   nom: string,
-): SuivreObjectifRecherche<InfoRésultatTexte> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheVariables
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheVariables>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -41,7 +52,7 @@ export const rechercherVariablesSelonNom = (
         return await f();
       }
     };
-    const oublier = await constl.variables.suivreNoms({
+    const oublier = await services("variables").suivreNoms({
       idVariable: idObjet,
       f: ignorerNonDéfinis(fSuivre),
     });
@@ -51,13 +62,16 @@ export const rechercherVariablesSelonNom = (
 
 export const rechercherVariablesSelonDescription = (
   description: string,
-): SuivreObjectifRecherche<InfoRésultatTexte> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheVariables
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheVariables>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
@@ -79,7 +93,7 @@ export const rechercherVariablesSelonDescription = (
         return await f();
       }
     };
-    const oublier = await constl.variables.suivreDescriptions({
+    const oublier = await services("variables").suivreDescriptions({
       idVariable: idObjet,
       f: fSuivre,
     });
@@ -89,13 +103,16 @@ export const rechercherVariablesSelonDescription = (
 
 export const rechercherVariablesSelonTexte = (
   texte: string,
-): SuivreObjectifRecherche<InfoRésultatTexte | InfoRésultatVide> => {
+): SuivreObjectifRecherche<
+  InfoRésultatTexte | InfoRésultatVide,
+  ServicesNécessairesRechercheVariables
+> => {
   return async ({
-    constl,
+    services,
     idObjet,
     f,
   }: {
-    constl: Constellation;
+    services: AccesseurService<ServicesNécessairesRechercheVariables>;
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte | InfoRésultatVide>;
   }): Promise<Oublier> => {
@@ -111,7 +128,7 @@ export const rechercherVariablesSelonTexte = (
         id: fRechercherId,
         vide: fRechercherTous,
       },
-      constl,
+      services,
       idObjet,
       fSuivreRecherche: f,
     });

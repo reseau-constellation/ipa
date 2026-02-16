@@ -6,11 +6,10 @@ type ÉvénementsAppli = {
   démarrée: () => void;
   fermée: () => void;
 };
-export type ConstructeurServiceAppli<T, S extends ServicesAppli> = new (args: {
+
+export type ConstructeurServiceAppli<T, S extends ServicesAppli> = (args: {
   services: S;
-  options: T extends ServiceAppli<infer _Services, infer _R, infer Opts>
-    ? Opts & OptionsCommunes
-    : never;
+  options: OptionsAppli;
 }) => T;
 
 export type ServicesAppli = {
@@ -26,27 +25,14 @@ export type ConstructeursServicesAppli<
   [clef in keyof T]: ConstructeurServiceAppli<T[clef], T & A>;
 };
 
-export type OptionsCommunes = {
+export type OptionsAppli = {
   nomAppli: string;
   mode: "dév" | "prod";
 };
 
-export type OptionsAppli<T extends ServicesAppli> = OptionsCommunes & {
-  services?: {
-    [clef in keyof T]?: T[clef] extends ServiceAppli<
-      infer _C,
-      infer _Services,
-      infer _R,
-      infer Opts
-    >
-      ? Opts | undefined
-      : never;
-  };
-};
-
 export class Appli<S extends ServicesAppli = ServicesAppli> {
   statut: (typeof STATUTS)[keyof typeof STATUTS];
-  options: OptionsAppli<S>;
+  options: OptionsAppli;
   services: S;
   événements: TypedEmitter<ÉvénementsAppli>;
 
@@ -56,7 +42,7 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
   }: {
     services: ConstructeursServicesAppli<S>;
     nomAppli?: string;
-    options?: NoInfer<Partial<OptionsAppli<S>>>;
+    options?: Partial<OptionsAppli>;
   }) {
     services = services ?? ({} as ConstructeursServicesAppli<S>);
 
@@ -64,18 +50,9 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
 
     const instancesServices: ServicesAppli = {};
     for (const clef of Object.keys(services)) {
-      instancesServices[clef] = new services[clef]({
+      instancesServices[clef] = services[clef]({
         services: instancesServices as S,
-        options: {
-          ...(options?.services?.[clef] || {}),
-          ...{ nomAppli: this.options.nomAppli, mode: this.options.mode },
-        } as S[typeof clef] extends ServiceAppli<
-          infer _Services,
-          infer _R,
-          infer Opts
-        >
-          ? Opts & OptionsCommunes
-          : never,
+        options: this.options,
       });
     }
     this.services = instancesServices as S;

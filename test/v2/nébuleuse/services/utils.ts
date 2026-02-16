@@ -14,7 +14,7 @@ import type {
   ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,
 } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import type { OptionsCommunes } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { ConfigLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
 
 export const obtenirOptionsLibp2pLocal = (config: ConfigLibp2p = {}) => {
@@ -52,7 +52,7 @@ export class ServiceLibp2pTest extends ServiceLibp2p<ServicesLibp2pTest> {
     options,
   }: {
     services: ServicesNécessairesLibp2p;
-    options: OptionsServiceLibp2p<ServicesLibp2pTest> & OptionsCommunes;
+    options: OptionsServiceLibp2p<ServicesLibp2pTest> & OptionsAppli;
   }) {
     super({
       services,
@@ -61,3 +61,18 @@ export class ServiceLibp2pTest extends ServiceLibp2p<ServicesLibp2pTest> {
     this.options.libp2p = obtenirOptionsLibp2pTest();
   }
 }
+
+export const serviceLibp2pTest =
+  (optionsLibp2p?: OptionsServiceLibp2p<ServicesLibp2pTest>) =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesLibp2p;
+  }) => {
+    return new ServiceLibp2pTest({
+      options: { ...optionsLibp2p, ...options },
+      services,
+    });
+  };

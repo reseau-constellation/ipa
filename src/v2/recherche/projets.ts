@@ -15,9 +15,8 @@ import {
   rechercherProjetsSelonTexte,
   rechercherProjetsSelonVariable,
 } from "./fonctions/projets.js";
+import type { ServicesNécessairesRechercheProjets } from "./fonctions/projets.js";
 import type { InfoAuteur } from "../types.js";
-import type { ServicesConstellation } from "../constellation.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type { Projets } from "../projets.js";
 import type {
@@ -27,24 +26,17 @@ import type {
   SuivreObjectifRecherche,
   RésultatRecherche,
   InfoRésultatRecherche,
+  AccesseurService,
 } from "./types.js";
 
-export class RechercheProjets<
-  L extends ServicesLibp2pNébuleuse,
-> extends RechercheObjets<L> {
-  projets: Projets<L>;
-
+export class RechercheProjets extends RechercheObjets<ServicesNécessairesRechercheProjets> {
   constructor({
-    projets,
     service,
   }: {
-    projets: Projets<L>;
-    service: <T extends keyof ServicesConstellation<L>>(
-      service: T,
-    ) => ServicesConstellation<L>[T];
+    projets: Projets;
+    service: AccesseurService<ServicesNécessairesRechercheProjets>;
   }) {
     super({ service });
-    this.projets = projets;
   }
 
   @cacheRechercheParN
@@ -341,7 +333,10 @@ export class RechercheProjets<
     idObjet: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    return await this.projets.suivreAuteurs({ idProjet: idObjet, f });
+    return await this.service("projets").suivreAuteurs({
+      idProjet: idObjet,
+      f,
+    });
   }
 
   @cacheRechercheParN
@@ -352,7 +347,7 @@ export class RechercheProjets<
     idCompte,
   }: {
     f: Suivi<RésultatRecherche<T>[]>;
-    fObjectif: SuivreObjectifRecherche<T>;
+    fObjectif: SuivreObjectifRecherche<T, ServicesNécessairesRechercheProjets>;
     n?: number;
     idCompte?: string;
   }): Promise<RetourRecherche> {
@@ -360,9 +355,12 @@ export class RechercheProjets<
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.projets.suivreProjets({ f: ignorerNonDéfinis(f), idCompte }),
+        await this.service("projets").suivreProjets({
+          f: ignorerNonDéfinis(f),
+          idCompte,
+        }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
-        await this.projets.suivreScoreQualité({
+        await this.service("projets").suivreScoreQualité({
           idProjet: idObjet,
           f: fSuiviQualité,
         }),

@@ -8,7 +8,7 @@ import { toBuffer } from "@constl/utils-ipa";
 import { CID } from "multiformats";
 import { ServiceAppli } from "../appli/index.js";
 import { obtStockageDonnées } from "./utils.js";
-import type { OptionsCommunes } from "../appli/appli.js";
+import type { OptionsAppli } from "../appli/appli.js";
 import type {
   ServiceLibp2p,
   ServicesLibp2pNébuleuse,
@@ -46,7 +46,7 @@ export class ServiceHélia<
     options,
   }: {
     services: ServicesNécessairesHélia<L>;
-    options: OptionsServiceHélia<L> & OptionsCommunes;
+    options: OptionsServiceHélia<L> & OptionsAppli;
   }) {
     super({
       clef: "hélia",
@@ -156,3 +156,20 @@ export const obtenirOptionsHélia = async <L extends ServicesLibp2pNébuleuse>({
 
   return optionsHelia;
 };
+
+export const serviceHélia =
+  <L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse>(
+    optionsHélia?: OptionsServiceHélia<L>,
+  ) =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesHélia<L>;
+  }) => {
+    return new ServiceHélia<L>({
+      services,
+      options: { ...optionsHélia, ...options },
+    });
+  };

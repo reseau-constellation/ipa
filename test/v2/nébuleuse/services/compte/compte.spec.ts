@@ -6,39 +6,32 @@ import {
   toutesConnectées,
   type ServicesLibp2pTest,
 } from "@constl/utils-tests";
-import {
-  ServiceCompte,
-  ServiceHélia,
-  ServiceOrbite,
-  ServiceStockage,
-} from "@/v2/nébuleuse/index.js";
-import { compilerSchémaCompte } from "@/v2/nébuleuse/services/compte/compte.js";
+import { merge } from "lodash-es";
+import { serviceCompte } from "@/v2/nébuleuse/services/compte/compte.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
-import { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
+import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { MODÉRATRICE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
-import { schémaDispositifs } from "@/v2/nébuleuse/services/dispositifs.js";
-import { schémaProfil } from "@/v2/nébuleuse/services/profil.js";
-import { schémaRéseau } from "@/v2/nébuleuse/services/réseau.js";
-import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
-import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
+import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
+import { serviceOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
+import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
+import {
+  schémaNébuleuse,
+  type OptionsNébuleuse,
+  type StructureNébuleuse,
+} from "@/v2/nébuleuse/nébuleuse.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
-import { ServiceLibp2pTest } from "../utils.js";
-import { créerNébuleusesTest } from "../../utils.js";
+import { serviceLibp2pTest } from "../utils.js";
+import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
 import type {
   ConstructeursServicesAppli,
   OptionsAppli,
-  OptionsCommunes,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
-import type { NébuleuseTest } from "../../utils.js";
 import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/types.js";
-import type { StructureRéseau } from "@/v2/nébuleuse/services/réseau.js";
-import type { StructureProfil } from "@/v2/nébuleuse/services/profil.js";
-import type { StructureDispositifs } from "@/v2/nébuleuse/services/dispositifs.js";
-import type { StructureNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { PartielRécursif, TraducsTexte } from "@/v2/types.js";
+import type { PartielRécursif } from "@/v2/types.js";
 import type { ServicesNécessairesCompte } from "@/v2/nébuleuse/services/compte/compte.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
@@ -47,19 +40,25 @@ import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/l
 import type { NestedValue } from "@orbitdb/nested-db";
 
 const créerApplisTest = async <
-  T extends { [clef: Exclude<string, "dossier">]: NestedValue },
+  T extends { [clef: string]: NestedValue },
   S extends ServicesAppli,
 >({
-  structure,
+  options,
   services,
   n,
 }: {
-  structure: T;
-  services: S;
+  options?: Omit<
+    NonNullable<OptionsNébuleuse<T, ServicesLibp2pTest>["services"]>,
+    "libp2p" | "dossier"
+  >;
+  services: ConstructeursServicesAppli<
+    S,
+    ServicesNécessairesCompte & { compte: ServiceCompte<T> }
+  >;
   n: number;
 }) => {
   type Services = ServicesNécessairesCompte & {
-    // compte: ServiceCompte<T>;
+    compte: ServiceCompte<T>;
   } & S;
 
   const { dossier, effacer } = await dossierTempoPropre();
@@ -69,24 +68,20 @@ const créerApplisTest = async <
   for (const i in [...Array(n).entries()]) {
     const appli = new Appli<Services>({
       services: {
-        dossier: ServiceDossier,
-        journal: ServiceJournal,
-        stockage: ServiceStockage,
-        libp2p: ServiceLibp2pTest,
-        hélia: ServiceHélia<ServicesLibp2pTest>,
-        orbite: ServiceOrbite<ServicesLibp2pTest>,
-        compte: ServiceCompte<T>,
+        dossier: serviceDossier({ dossier: path.join(dossier, i) }),
+        journal: serviceJournal(options?.journal),
+        stockage: serviceStockage(),
+        libp2p: serviceLibp2pTest(),
+        hélia: serviceHélia<ServicesLibp2pTest>(options?.hélia),
+        orbite: serviceOrbite<ServicesLibp2pTest>(options?.orbite),
+        compte: serviceCompte<T>({
+          ...options?.compte,
+          schéma: merge(schémaNébuleuse, options?.compte?.schéma || {}),
+        }),
         ...services,
       } as ConstructeursServicesAppli<Services>,
-      options: { services: { dossier: { dossier: path.join(dossier, i) } } },
     });
-    const opts: OptionsAppli<ServicesNécessairesCompte & ServicesAppli> = {
-      mode: "dév",
-      services: {
-        dossier: { dossier: "true" },
-        a: { b: 2 },
-      },
-    };
+
     applis.push(appli);
   }
 
@@ -119,15 +114,16 @@ describe.only("Service Compte", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia<ServicesLibp2pTest>,
-          orbite: ServiceOrbite<ServicesLibp2pTest>,
-          compte: ServiceCompte,
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia<ServicesLibp2pTest>(),
+          orbite: serviceOrbite<ServicesLibp2pTest>(),
+          compte: serviceCompte<StructureNébuleuse>({
+            schéma: schémaNébuleuse,
+          }),
         },
-        options: { services: { dossier: { dossier } } },
       });
       await appli.démarrer();
     });
@@ -162,15 +158,14 @@ describe.only("Service Compte", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-          orbite: ServiceOrbite,
-          compte: ServiceCompte,
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
+          orbite: serviceOrbite(),
+          compte: serviceCompte({ schéma: { type: "object" } }),
         },
-        options: { services: { dossier: { dossier } } },
       });
       await appli.démarrer();
 
@@ -204,15 +199,16 @@ describe.only("Service Compte", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          journal: ServiceJournal,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia<ServicesLibp2pTest>,
-          orbite: ServiceOrbite<ServicesLibp2pTest>,
-          compte: ServiceCompte<Record<string, never>>,
+          dossier: serviceDossier({ dossier }),
+          journal: serviceJournal(),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
+          orbite: serviceOrbite(),
+          compte: serviceCompte<Record<string, never>>({
+            schéma: { type: "object" },
+          }),
         },
-        options: { services: { dossier: { dossier } } },
       });
       await appli.démarrer();
     });
@@ -247,16 +243,14 @@ describe.only("Service Compte", function () {
         options,
       }: {
         services: ServicesNécessairesCompte & {
-          compte: ServiceCompte;
+          compte: ServiceCompte<StructureTest>;
         };
-        options: OptionsCommunes;
+        options: OptionsAppli;
       }) {
         super({
           clef: "test1",
           services,
-          options: Object.assign({}, options, {
-            schéma: schémaTest1,
-          }),
+          options: { ...options, schéma: schémaTest1 },
         });
       }
     }
@@ -273,9 +267,9 @@ describe.only("Service Compte", function () {
         options,
       }: {
         services: ServicesNécessairesCompte & {
-          compte: ServiceCompte;
+          compte: ServiceCompte<StructureTest>;
         };
-        options: OptionsCommunes;
+        options: OptionsAppli;
       }) {
         const optionsFinales = Object.assign({}, options, {
           schéma: schémaTest2,
@@ -304,12 +298,18 @@ describe.only("Service Compte", function () {
     let oublier: Oublier;
 
     before(async () => {
-      const { applis, fermer } = await créerApplisTest<StructureTest>({
+      const { applis, fermer } = await créerApplisTest<
+        StructureTest,
+        { test1: ServiceTest1; test2: ServiceTest2 }
+      >({
         n: 2,
         services: {
-          test1: ServiceTest1,
-          test2: ServiceTest2,
+          test1: ({ options, services }) =>
+            new ServiceTest1({ options, services }),
+          test2: ({ options, services }) =>
+            new ServiceTest2({ options, services }),
         },
+        options: {},
       });
 
       oublier = fermer;
@@ -318,38 +318,6 @@ describe.only("Service Compte", function () {
 
     after(async () => {
       await oublier();
-    });
-
-    it("compiler schéma compte", async () => {
-      const serviceCompte = appli.services["compte"];
-      const schéma = compilerSchémaCompte(serviceCompte);
-
-      const réf: JSONSchemaType<
-        PartielRécursif<
-          StructureTest & { profil: StructureProfil } & {
-            dispositifs: StructureDispositifs;
-          } & { réseau: StructureRéseau }
-        >
-      > = {
-        type: "object",
-        properties: {
-          dispositifs: schémaDispositifs,
-          profil: schémaProfil,
-          réseau: schémaRéseau,
-          test1: {
-            type: "object",
-            properties: { a: { type: "number", nullable: true } },
-            nullable: true,
-          },
-          test2: {
-            type: "object",
-            properties: { b: { type: "number", nullable: true } },
-            nullable: true,
-          },
-        },
-      };
-
-      expect(schéma).to.deep.equal(réf);
     });
 
     it("structure des services reflétés dans la structure du compte", async () => {
@@ -436,7 +404,7 @@ describe.only("Service Compte", function () {
   });
 
   describe("gestion dispositifs", function () {
-    let applis: NébuleuseTest[];
+    let applis: Appli<ServicesNécessairesCompte & { compte: ServiceCompte }>[];
     let comptes: ServiceCompte<StructureNébuleuse & Record<string, never>>[];
     let fermer: () => Promise<void>;
 
@@ -450,7 +418,7 @@ describe.only("Service Compte", function () {
         n: 2,
         services: {},
       }));
-      comptes = nébuleuses.map((n) => n.services["compte"]);
+      comptes = applis.map((a) => a.services["compte"]);
 
       idsDispositifs = await Promise.all(
         comptes.map(async (compte) => await compte.obtIdDispositif()),
@@ -458,11 +426,6 @@ describe.only("Service Compte", function () {
       idsComptes = await Promise.all(
         comptes.map((compte) => compte.obtIdCompte()),
       );
-
-      await nébuleuses[0].profil.sauvegarderNom({
-        nom: "Julien Malard-Adam",
-        langue: "fr",
-      });
     });
 
     after(async () => {
@@ -565,7 +528,7 @@ describe.only("Service Compte", function () {
     });
 
     it("le nouveau dispositif peut modifier les objets crées par le compte", async () => {
-      const { bd: bd_orbite2, oublier } = await nébuleuses[1].services[
+      const { bd: bd_orbite2, oublier } = await applis[1].services[
         "orbite"
       ].ouvrirBd({
         id: idObjet,
@@ -573,42 +536,13 @@ describe.only("Service Compte", function () {
       });
       await attendreInvité(
         bd_orbite2,
-        await nébuleuses[1].services["compte"].obtIdDispositif(),
+        await applis[1].services["compte"].obtIdDispositif(),
       );
       await bd_orbite2.put("a", 1);
       const val = await bd_orbite2.get("a");
       await oublier();
 
       expect(val).to.equal(1);
-    });
-
-    it("le nouveau dispositif suit le profil", async () => {
-      const noms = await obtenir<TraducsTexte | undefined>(({ si }) =>
-        nébuleuses[1].profil.suivreNoms({
-          f: si((x) => !!x && Object.keys(x).includes("fr")),
-        }),
-      );
-
-      expect(noms?.fr).to.equal("Julien Malard-Adam");
-    });
-
-    it("le nouveau dispositif peut modifier le compte", async () => {
-      await nébuleuses[1].profil.sauvegarderNom({
-        langue: "த",
-        nom: "ம.-அதான் ஜூலீஎன்",
-      });
-
-      const pNoms = obtenir<TraducsTexte | undefined>(({ si }) =>
-        nébuleuses[0].profil.suivreNoms({
-          f: si((x) => !!x && Object.keys(x).includes("த")),
-        }),
-      );
-
-      const noms = await pNoms;
-      expect(noms).to.deep.equal({
-        fr: "Julien Malard-Adam",
-        த: "ம.-அதான் ஜூலீஎன்",
-      });
     });
   });
 });

@@ -17,6 +17,13 @@ import { créerConstellation, type Constellation } from "@/v2/index.js";
 import { moyenne } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
+import type {
+  InfoAuteur,
+  Métadonnées,
+  StatutDonnées,
+  TraducsTexte,
+  PartielRécursif,
+} from "@/v2/types.js";
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import type {
   DifférenceBds,
@@ -25,12 +32,6 @@ import type {
   ScoreBd,
   ÉpingleBd,
 } from "@/v2/bds/bds.js";
-import type {
-  InfoAuteur,
-  Métadonnées,
-  StatutDonnées,
-  TraducsTexte,
-} from "@/v2/types.js";
 import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
 import type { DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
@@ -876,11 +877,12 @@ describe("BDs", function () {
         statut: nouveauStatut,
       });
 
-      const statut = await obtenir<StatutDonnées | null>(({ si }) =>
-        constl.bds.suivreStatut({
-          idBd,
-          f: si((x) => x?.statut !== "active"),
-        }),
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | null>(
+        ({ si }) =>
+          constl.bds.suivreStatut({
+            idBd,
+            f: si((x) => x?.statut !== "active"),
+          }),
       );
 
       expect(statut).to.deep.equal(nouveauStatut);
@@ -1017,11 +1019,12 @@ describe("BDs", function () {
       });
 
       it("statut", async () => {
-        const statutBd = await obtenir<StatutDonnées | null>(({ siPasNul }) =>
-          constl.bds.suivreStatut({
-            idBd,
-            f: siPasNul(),
-          }),
+        const statutBd = await obtenir<PartielRécursif<StatutDonnées> | null>(
+          ({ siPasNul }) =>
+            constl.bds.suivreStatut({
+              idBd,
+              f: siPasNul(),
+            }),
         );
 
         expect(statutBd).to.deep.equal(statut);
@@ -1366,8 +1369,9 @@ describe("BDs", function () {
     });
 
     it("le statut est copié", async () => {
-      const statut = await obtenir<StatutDonnées | null>(({ siDéfini }) =>
-        constl.bds.suivreStatut({ idBd: idBdCopie, f: siDéfini() }),
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | null>(
+        ({ siDéfini }) =>
+          constl.bds.suivreStatut({ idBd: idBdCopie, f: siDéfini() }),
       );
       expect(statut).to.deep.equal(réfStatut);
     });
@@ -1563,7 +1567,137 @@ describe("BDs", function () {
     });
   });
 
-  describe("empreinte");
+  describe("empreinte", function () {
+    let idBd: string;
+    let idTableau: string;
+    let idVariable: string;
+    let idColonne: string;
+
+    let empreinte: string;
+
+    before(async () => {
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+    });
+
+    it("sans tableaux", async () => {
+      empreinte = await obtenir<string>(({ siDéfini }) =>
+        constl.bds.suivreEmpreinteTête({
+          idBd,
+          f: siDéfini(),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("ajout tableau", async () => {
+      const promesseEmpreinte = obtenir<string>(({ si }) =>
+        constl.bds.suivreEmpreinteTête({
+          idBd,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+
+      idTableau = await constl.bds.ajouterTableau({ idBd });
+
+      empreinte = await promesseEmpreinte;
+
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("ajout colonne", async () => {
+      const promesseEmpreinte = obtenir<string>(({ si }) =>
+        constl.bds.suivreEmpreinteTête({
+          idBd,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+
+      idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idVariable,
+      });
+
+      empreinte = await promesseEmpreinte;
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement nom tableau détecté", async () => {
+      const promesseEmpreinte = obtenir<string>(({ si }) =>
+        constl.bds.suivreEmpreinteTête({
+          idBd,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+
+      await constl.bds.tableaux.sauvegarderNom({
+        idStructure: idBd,
+        idTableau,
+        langue: "fr",
+        nom: "Insectes de Montréal",
+      });
+
+      empreinte = await promesseEmpreinte;
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement nom bd détecté", async () => {
+      const promesseEmpreinte = obtenir<string>(({ si }) =>
+        constl.bds.suivreEmpreinteTête({
+          idBd,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+
+      await constl.bds.sauvegarderNom({
+        idBd,
+        langue: "fr",
+        nom: "Science citoyenne",
+      });
+
+      empreinte = await promesseEmpreinte;
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement données tableau détecté", async () => {
+      const promesseEmpreinte = obtenir<string>(({ si }) =>
+        constl.bds.suivreEmpreinteTête({
+          idBd,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
+        idTableau,
+        éléments: [{ [idColonne]: 2 }],
+      });
+
+      empreinte = await promesseEmpreinte;
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement noms variable détecté", async () => {
+      const promesseEmpreinte = obtenir<string>(({ si }) =>
+        constl.bds.suivreEmpreinteTête({
+          idBd,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+
+      await constl.variables.sauvegarderNom({
+        idVariable,
+        langue: "fr",
+        nom: "Population observée",
+      });
+
+      empreinte = await promesseEmpreinte;
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+  });
 
   describe("score", function () {
     let idBd: string;

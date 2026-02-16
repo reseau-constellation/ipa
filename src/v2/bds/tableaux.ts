@@ -193,9 +193,7 @@ export function indexÉlémentsÉgaux(
 
 // Tableaux
 
-export class TableauxBds<
-  L extends ServicesLibp2pNébuleuse,
-> extends Tableaux<L> {
+export class TableauxBds extends Tableaux {
   async créerTableau({
     idStructure,
     idTableau,

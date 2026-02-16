@@ -2,7 +2,7 @@ import { expect } from "aegir/chai";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import type {
-  OptionsCommunes,
+  OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
 
@@ -24,7 +24,7 @@ describe.only("Appli", function () {
       class ServiceA extends ServiceAppli<"a"> {
         dépendances = [];
 
-        constructor({ options }: { options: OptionsCommunes }) {
+        constructor({ options }: { options: OptionsAppli }) {
           super({
             clef: "a",
             services: {},
@@ -39,7 +39,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: { a: ServiceA };
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -56,7 +56,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: { a: ServiceA; b: ServiceB };
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "c",
@@ -69,9 +69,9 @@ describe.only("Appli", function () {
 
       const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
-          c: ServiceC,
+          a: ({ options }) => new ServiceA({ options }),
+          b: ({ options, services }) => new ServiceB({ options, services }),
+          c: ({ options, services }) => new ServiceC({ options, services }),
         },
       });
       await appli.démarrer();
@@ -89,7 +89,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "a",
@@ -100,7 +100,7 @@ describe.only("Appli", function () {
       }
       const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
+          a: ({ options, services }) => new ServiceA({ options, services }),
         },
       });
       appli.démarrer();
@@ -122,7 +122,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "a",
@@ -138,7 +138,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -148,10 +148,10 @@ describe.only("Appli", function () {
           });
         }
       }
-      const appli = new Appli({
+      const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
+          a: ({ options, services }) => new ServiceA({ options, services }),
+          b: ({ options, services }) => new ServiceB({ options, services }),
         },
       });
 
@@ -176,7 +176,7 @@ describe.only("Appli", function () {
         c: ServiceC;
       };
       class ServiceA extends ServiceAppli {
-        constructor({ options }: { options: OptionsCommunes }) {
+        constructor({ options }: { options: OptionsAppli }) {
           super({
             clef: "a",
             services: {},
@@ -197,7 +197,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: { a: ServiceA };
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -220,7 +220,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "c",
@@ -236,11 +236,11 @@ describe.only("Appli", function () {
           return await super.fermer();
         }
       }
-      const appli = new Appli({
+      const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
-          c: ServiceC,
+          a: ({ options }) => new ServiceA({ options }),
+          b: ({ options, services }) => new ServiceB({ options, services }),
+          c: ({ options, services }) => new ServiceC({ options, services }),
         },
       });
       await appli.démarrer();
@@ -257,7 +257,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "a",
@@ -268,7 +268,7 @@ describe.only("Appli", function () {
       }
       const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
+          a: ({ options, services }) => new ServiceA({ options, services }),
         },
       });
       await appli.démarrer();
@@ -285,17 +285,11 @@ describe.only("Appli", function () {
       type ServicesTest = {
         a: ServiceA;
       };
-      class ServiceA extends ServiceAppli<"a", ServicesTest> {
-        constructor({
-          services,
-          options,
-        }: {
-          services: ServicesTest;
-          options: OptionsCommunes;
-        }) {
+      class ServiceA extends ServiceAppli<"a"> {
+        constructor({ options }: { options: OptionsAppli }) {
           super({
             clef: "a",
-            services,
+            services: {},
             options,
           });
         }
@@ -326,7 +320,7 @@ describe.only("Appli", function () {
       }
       const appli = new AppliTest({
         services: {
-          a: ServiceA,
+          a: ({ options }) => new ServiceA({ options }),
         },
       });
       appli.démarrer(); // On n'attend pas avant de fermer
@@ -338,13 +332,13 @@ describe.only("Appli", function () {
         a: ServiceA;
         b: ServiceB;
       };
-      class ServiceA extends ServiceAppli<"a", ServicesTest> {
+      class ServiceA extends ServiceAppli<"a", { b: ServiceB }> {
         constructor({
           services,
           options,
         }: {
-          services: ServicesTest;
-          options: OptionsCommunes;
+          services: { b: ServiceB };
+          options: OptionsAppli;
         }) {
           super({
             clef: "a",
@@ -354,13 +348,13 @@ describe.only("Appli", function () {
           });
         }
       }
-      class ServiceB extends ServiceAppli<"b", ServicesTest> {
+      class ServiceB extends ServiceAppli<"b"> {
         constructor({
           services,
           options,
         }: {
-          services: ServicesTest;
-          options: OptionsCommunes;
+          services: ServicesAppli;
+          options: OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -370,10 +364,10 @@ describe.only("Appli", function () {
           });
         }
       }
-      const appli = new Appli({
+      const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
+          a: ({ options, services }) => new ServiceA({ options, services }),
+          b: ({ options, services }) => new ServiceB({ options, services }),
         },
       });
       await appli.démarrer();
@@ -388,24 +382,18 @@ describe.only("Appli", function () {
       type ServicesTest = {
         a: ServiceA;
       };
-      class ServiceA extends ServiceAppli<"a", ServicesTest> {
-        constructor({
-          services,
-          options,
-        }: {
-          services: ServicesTest;
-          options: OptionsCommunes;
-        }) {
+      class ServiceA extends ServiceAppli<"a"> {
+        constructor({ options }: { options: OptionsAppli }) {
           super({
             clef: "a",
-            services,
+            services: {},
             options,
           });
         }
       }
       const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
+          a: ({ options }) => new ServiceA({ options }),
         },
       });
       await appli.démarrer();
@@ -430,7 +418,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "a",
@@ -444,7 +432,7 @@ describe.only("Appli", function () {
       }
       const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
+          a: ({ options, services }) => new ServiceA({ options, services }),
         },
       });
       await appli.démarrer();
@@ -458,17 +446,11 @@ describe.only("Appli", function () {
       type ServicesTest = {
         a: ServiceA;
       };
-      class ServiceA extends ServiceAppli<"a", ServicesTest> {
-        constructor({
-          services,
-          options,
-        }: {
-          services: ServicesTest;
-          options: OptionsCommunes;
-        }) {
+      class ServiceA extends ServiceAppli<"a"> {
+        constructor({ options }: { options: OptionsAppli }) {
           super({
             clef: "a",
-            services,
+            services: {},
             options,
           });
         }
@@ -478,7 +460,7 @@ describe.only("Appli", function () {
       }
       const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
+          a: ({ options }) => new ServiceA({ options }),
         },
       });
       try {
@@ -498,7 +480,7 @@ describe.only("Appli", function () {
         b: ServiceB;
       };
       class ServiceA extends ServiceAppli {
-        constructor({ options }: { options: OptionsCommunes }) {
+        constructor({ options }: { options: OptionsAppli }) {
           super({
             clef: "a",
             services: {},
@@ -509,13 +491,13 @@ describe.only("Appli", function () {
           return 3;
         }
       }
-      class ServiceB extends ServiceAppli<"b", ServicesTest> {
+      class ServiceB extends ServiceAppli<"b", { a: ServiceA }> {
         constructor({
           services,
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -529,10 +511,10 @@ describe.only("Appli", function () {
           return super.démarrer();
         }
       }
-      const appli = new Appli({
+      const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
+          a: ({ options }) => new ServiceA({ options }),
+          b: ({ options, services }) => new ServiceB({ options, services }),
         },
       });
       await appli.démarrer();
@@ -543,17 +525,11 @@ describe.only("Appli", function () {
         a: ServiceA;
         b: ServiceB;
       };
-      class ServiceA extends ServiceAppli<"a", ServicesTest, string> {
-        constructor({
-          services,
-          options,
-        }: {
-          services: ServicesTest;
-          options: OptionsCommunes;
-        }) {
+      class ServiceA extends ServiceAppli<"a", ServicesAppli, string> {
+        constructor({ options }: { options: OptionsAppli }) {
           super({
             clef: "a",
-            services,
+            services: {},
             options,
           });
         }
@@ -562,13 +538,13 @@ describe.only("Appli", function () {
           return await super.démarrer();
         }
       }
-      class ServiceB extends ServiceAppli<"b", ServicesTest> {
+      class ServiceB extends ServiceAppli<"b", { a: ServiceA }> {
         constructor({
           services,
           options,
         }: {
-          services: ServicesTest;
-          options: OptionsCommunes;
+          services: { a: ServiceA };
+          options: OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -585,10 +561,10 @@ describe.only("Appli", function () {
         }
       }
 
-      const appli = new Appli({
+      const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
+          a: ({ options }) => new ServiceA({ options }),
+          b: ({ options, services }) => new ServiceB({ options, services }),
         },
       });
       await appli.démarrer();
@@ -605,7 +581,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "a",
@@ -623,7 +599,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsCommunes;
+          options: OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -640,10 +616,10 @@ describe.only("Appli", function () {
           return this.service("a").fonction();
         }
       }
-      const appli = new Appli({
+      const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
+          a: ({ options, services }) => new ServiceA({ options, services }),
+          b: ({ options, services }) => new ServiceB({ options, services }),
         },
       });
       await appli.démarrer();
@@ -674,7 +650,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: { a: ServiceA };
-          options: OptionsServiceA & OptionsCommunes;
+          options: OptionsServiceA & OptionsAppli;
         }) {
           super({
             clef: "a",
@@ -700,7 +676,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsServiceB & OptionsCommunes;
+          options: OptionsServiceB & OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -714,18 +690,13 @@ describe.only("Appli", function () {
           return super.démarrer();
         }
       }
-      const options = {
-        services: {
-          a: { a: 8 },
-          b: { b: 7 },
-        },
-      };
       const appli = new Appli<ServicesTest>({
         services: {
-          a: ServiceA,
-          b: ServiceB,
+          a: ({ options, services }) =>
+            new ServiceA({ options: { a: 8, ...options }, services }),
+          b: ({ options, services }) =>
+            new ServiceB({ options: { b: 7, ...options }, services }),
         },
-        options,
       });
 
       await appli.démarrer();
@@ -750,7 +721,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: { a: ServiceA };
-          options: OptionsServiceA & OptionsCommunes;
+          options: OptionsServiceA & OptionsAppli;
         }) {
           super({
             clef: "a",
@@ -776,7 +747,7 @@ describe.only("Appli", function () {
           options,
         }: {
           services: ServicesTest;
-          options: OptionsServiceB & OptionsCommunes;
+          options: OptionsServiceB & OptionsAppli;
         }) {
           super({
             clef: "b",
@@ -790,18 +761,13 @@ describe.only("Appli", function () {
           return super.démarrer();
         }
       }
-      const options = {
+      const appli = new Appli<ServicesTest>({
         services: {
-          a: { a: 8 },
-          b: { b: 7 },
+          a: ({ options, services }) =>
+            new ServiceA({ options: { a: 8, ...options }, services }),
+          b: ({ options, services }) =>
+            new ServiceB({ options: { b: 7, ...options }, services }),
         },
-      };
-      const appli = new Appli({
-        services: {
-          a: ServiceA,
-          b: ServiceB,
-        },
-        options,
       });
 
       await appli.démarrer();

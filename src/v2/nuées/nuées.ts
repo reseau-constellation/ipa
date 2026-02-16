@@ -29,6 +29,7 @@ import { RechercheNuées } from "../recherche/nuées.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import { ObjetConstellation } from "../objets.js";
 import { TableauxNuées } from "./tableaux.js";
+import type { ServicesNécessairesObjet } from "../objets.js";
 import type {
   DonnéesTableauNuéeExportées,
   FiltresDonnées,
@@ -218,15 +219,15 @@ export const schémaNuée: JSONSchemaType<PartielRécursif<StructureNuée>> = {
   },
 };
 
-export class Nuées<
-  L extends ServicesLibp2pNébuleuse,
-> extends ObjetConstellation<"nuées", StructureNuée, L> {
-  tableaux: TableauxNuées<L>;
-  recherche: RechercheNuées<L>;
+export type ServicesNécessairesNuées = ServicesNécessairesObjet<"nuées">;
+
+export class Nuées extends ObjetConstellation<"nuées", StructureNuée, {}> {
+  tableaux: TableauxNuées;
+  recherche: RechercheNuées;
 
   schémaObjet = schémaNuée;
 
-  constructor({ services }: { services: ServicesConstellations }) {
+  constructor({ services }: { services: ServicesNécessairesNuées }) {
     super({
       clef: "nuées",
       services,

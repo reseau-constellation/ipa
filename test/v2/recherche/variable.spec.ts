@@ -5,6 +5,7 @@ import {
   rechercherVariablesSelonTexte,
 } from "@/v2/recherche/fonctions/variables.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { ServicesNécessairesRechercheVariables } from "@/v2/recherche/fonctions/variables.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
@@ -33,7 +34,10 @@ describe("Rechercher variables", function () {
 
   describe("selon nom", function () {
     let idVariable: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheVariables
+    >;
 
     before(async () => {
       idVariable = await constl.variables.créerVariable({
@@ -146,7 +150,10 @@ describe("Rechercher variables", function () {
 
   describe("selon description", function () {
     let idVariable: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheVariables
+    >;
 
     before(async () => {
       idVariable = await constl.variables.créerVariable({
@@ -260,10 +267,22 @@ describe("Rechercher variables", function () {
 
     type TypeRésultat = InfoRésultatTexte | InfoRésultatVide;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheDescription: SuivreObjectifRecherche<TypeRésultat>;
-    let rechercheVide: SuivreObjectifRecherche<TypeRésultat>;
+    let rechercheId: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheVariables
+    >;
+    let rechercheNom: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheVariables
+    >;
+    let rechercheDescription: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheVariables
+    >;
+    let rechercheVide: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheVariables
+    >;
 
     before(async () => {
       idVariable = await constl.variables.créerVariable({

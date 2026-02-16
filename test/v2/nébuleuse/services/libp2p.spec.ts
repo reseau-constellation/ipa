@@ -15,18 +15,22 @@ import {
 import { privateKeyFromRaw } from "@libp2p/crypto/keys";
 import { multiaddr } from "@multiformats/multiaddr";
 import { obtenirOptionsLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
-import { ServiceStockage } from "@/v2/nébuleuse/index.js";
-import { ServiceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import { serviceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
-import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
 import {
-  ServiceLibp2pTest,
   obtenirOptionsLibp2pLocal,
   obtenirOptionsLibp2pTest,
+  serviceLibp2pTest,
 } from "./utils.js";
+import type { ServiceLibp2pTest } from "./utils.js";
 import type { ServicesLibp2pNébuleuseDéfaut } from "@/v2/nébuleuse/services/libp2p/config/utils.js";
-import type { ServicesNécessairesLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import type {
+  ServicesNécessairesLibp2p,
+  ServiceLibp2p,
+} from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { PrivateKey } from "@libp2p/interface";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
@@ -53,12 +57,9 @@ describe.only("Service Libp2p", function () {
         ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
       >({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
         },
       });
       await appli.démarrer();
@@ -75,12 +76,9 @@ describe.only("Service Libp2p", function () {
         ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
       >({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
         },
       });
       await appli.démarrer();
@@ -93,12 +91,9 @@ describe.only("Service Libp2p", function () {
         ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
       >({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
         },
       });
       await appli.démarrer();
@@ -127,12 +122,9 @@ describe.only("Service Libp2p", function () {
         ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
       >({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
         },
       });
       await appli.démarrer();
@@ -152,23 +144,16 @@ describe.only("Service Libp2p", function () {
         ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
       >({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
           // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
-          libp2p: ServiceLibp2p,
-        },
-        options: {
-          services: {
-            dossier: { dossier },
-            libp2p: { libp2p: libp2pOriginal },
-          },
+          libp2p: serviceLibp2p({ libp2p: libp2pOriginal }),
         },
       });
 
       await appli.démarrer();
 
-      const serviceLibp2p = appli.services["libp2p"];
-      const libp2p = await serviceLibp2p.libp2p();
+      const libp2p = await appli.services["libp2p"].libp2p();
       await appli.fermer();
 
       expect(libp2p.status).to.equal("started");
@@ -327,17 +312,11 @@ describe.only("Service Libp2p", function () {
           }
         >({
           services: {
-            dossier: ServiceDossier,
-            stockage: ServiceStockage,
-            libp2p: ServiceLibp2p,
-          },
-          options: {
-            services: {
-              dossier: { dossier: dossierAppli },
-              libp2p: {
-                libp2p: obtenirOptionsLibp2pLocal(),
-              },
-            },
+            dossier: serviceDossier({ dossier: dossierAppli }),
+            stockage: serviceStockage(),
+            libp2p: serviceLibp2p({
+              libp2p: obtenirOptionsLibp2pLocal(),
+            }),
           },
         });
 
@@ -366,17 +345,11 @@ describe.only("Service Libp2p", function () {
           }
         >({
           services: {
-            dossier: ServiceDossier,
-            stockage: ServiceStockage,
-            libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>,
-          },
-          options: {
-            services: {
-              dossier: { dossier: dossierAppli },
-              libp2p: {
-                libp2p: optionsLibp2p,
-              },
-            },
+            dossier: serviceDossier({ dossier: dossierAppli }),
+            stockage: serviceStockage(),
+            libp2p: serviceLibp2p<ServicesLibp2pNébuleuseDéfaut>({
+              libp2p: optionsLibp2p,
+            }),
           },
         });
 
@@ -451,18 +424,12 @@ describe.only("Service Libp2p", function () {
           }
         >({
           services: {
-            dossier: ServiceDossier,
-            stockage: ServiceStockage,
+            dossier: serviceDossier({ dossier }),
+            stockage: serviceStockage(),
             // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
-            libp2p: ServiceLibp2p,
-          },
-          options: {
-            services: {
-              dossier: { dossier },
-              libp2p: {
-                libp2p: optionsLibp2p,
-              },
-            },
+            libp2p: serviceLibp2p({
+              libp2p: optionsLibp2p,
+            }),
           },
         });
         await appli.démarrer();
@@ -485,18 +452,12 @@ describe.only("Service Libp2p", function () {
           }
         >({
           services: {
-            dossier: ServiceDossier,
-            stockage: ServiceStockage,
+            dossier: serviceDossier({ dossier }),
+            stockage: serviceStockage(),
             // On n'a pas besoin de ServiceLibp2pTest parce que `pairParDéfaut` est spécifié
-            libp2p: ServiceLibp2p,
-          },
-          options: {
-            services: {
-              dossier: { dossier },
-              libp2p: {
-                libp2p: optionsLibp2p,
-              },
-            },
+            libp2p: serviceLibp2p({
+              libp2p: optionsLibp2p,
+            }),
           },
         });
         await appli.démarrer();
@@ -524,18 +485,12 @@ describe.only("Service Libp2p", function () {
           }
         >({
           services: {
-            dossier: ServiceDossier,
-            stockage: ServiceStockage,
+            dossier: serviceDossier({ dossier }),
+            stockage: serviceStockage(),
             // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
-            libp2p: ServiceLibp2p,
-          },
-          options: {
-            services: {
-              dossier: { dossier },
-              libp2p: {
-                libp2p: libp2pOriginal,
-              },
-            },
+            libp2p: serviceLibp2p({
+              libp2p: libp2pOriginal,
+            }),
           },
         });
         await appli.démarrer();
@@ -563,14 +518,9 @@ describe.only("Service Libp2p", function () {
       ({ dossier, effacer } = await dossierTempoPropre());
       appli = new Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2p }>({
         services: {
-          dossier: ServiceDossier,
-          libp2p: ServiceLibp2pTest,
-          stockage: ServiceStockage,
-        },
-        options: {
-          services: {
-            dossier: { dossier },
-          },
+          dossier: serviceDossier({ dossier }),
+          libp2p: serviceLibp2pTest(),
+          stockage: serviceStockage(),
         },
       });
       await appli.démarrer();

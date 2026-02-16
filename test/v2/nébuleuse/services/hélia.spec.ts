@@ -9,14 +9,19 @@ import { createLibp2p } from "libp2p";
 import { isBrowser } from "wherearewe";
 import { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
-import { ServiceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import { ServiceHélia } from "@/v2/nébuleuse/services/hélia.js";
+import { serviceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
-import { ServiceStockage } from "@/v2/nébuleuse/index.js";
-import { ServiceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
+import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import { dossierTempoPropre } from "../../utils.js";
-import { ServiceLibp2pTest } from "./utils.js";
-import type { ServicesNécessairesHélia } from "@/v2/nébuleuse/services/hélia.js";
+import { serviceLibp2pTest } from "./utils.js";
+import type { ServiceLibp2pTest } from "./utils.js";
+import type { ServiceStockage } from "@/v2/nébuleuse/index.js";
+import type {
+  ServicesNécessairesHélia,
+  ServiceHélia,
+} from "@/v2/nébuleuse/services/hélia.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Libp2p } from "libp2p";
 import type { Helia } from "helia";
@@ -40,19 +45,15 @@ describe.only("Service Hélia", function () {
     it("hélia démarre", async () => {
       appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
         },
       });
       await appli.démarrer();
 
-      const serviceHélia = appli.services["hélia"];
-      const hélia = await serviceHélia.hélia();
+      const hélia = await appli.services["hélia"].hélia();
 
       expect(hélia).to.exist();
     });
@@ -83,19 +84,15 @@ describe.only("Service Hélia", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
         },
       });
       await appli.démarrer();
 
-      const serviceHélia = appli.services["hélia"];
-      const hélia = await serviceHélia.hélia();
+      const hélia = await appli.services["hélia"].hélia();
       await appli.fermer();
 
       expect(hélia.libp2p.status).to.equal("stopped");
@@ -109,24 +106,17 @@ describe.only("Service Hélia", function () {
 
       appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2p,
-          hélia: ServiceHélia,
-        },
-        options: {
-          services: {
-            dossier: { dossier },
-            hélia: {
-              hélia: héliaOriginal as Helia<Libp2p<ServicesLibp2pNébuleuse>>,
-            },
-          },
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHélia({
+            hélia: héliaOriginal as Helia<Libp2p<ServicesLibp2pNébuleuse>>,
+          }),
         },
       });
       await appli.démarrer();
 
-      const serviceHélia = appli.services["hélia"];
-      const hélia = await serviceHélia.hélia();
+      const hélia = await appli.services["hélia"].hélia();
       await appli.fermer();
 
       expect(hélia.libp2p.status).to.equal("started");
@@ -136,7 +126,6 @@ describe.only("Service Hélia", function () {
 
   describe("fonctionnalités", function () {
     let appli: Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>;
-    let serviceHélia: ServiceHélia;
 
     let idc: string;
 
@@ -154,18 +143,13 @@ describe.only("Service Hélia", function () {
         }
       >({
         services: {
-          dossier: ServiceDossier,
-          stockage: ServiceStockage,
-          libp2p: ServiceLibp2pTest,
-          hélia: ServiceHélia,
-        },
-        options: {
-          services: { dossier: { dossier } },
+          dossier: serviceDossier({ dossier }),
+          stockage: serviceStockage(),
+          libp2p: serviceLibp2pTest(),
+          hélia: serviceHélia(),
         },
       });
       await appli.démarrer();
-
-      serviceHélia = appli.services["hélia"];
     });
 
     after(async () => {
@@ -174,7 +158,7 @@ describe.only("Service Hélia", function () {
     });
 
     it("ajouter fichier à SFIP", async () => {
-      idc = await serviceHélia.ajouterFichierÀSFIP({
+      idc = await appli.services["hélia"].ajouterFichierÀSFIP({
         contenu,
         nomFichier: "un fichier.txt",
       });
@@ -186,12 +170,16 @@ describe.only("Service Hélia", function () {
     });
 
     it("obtenir fichier de SFIP", async () => {
-      const obtenu = await serviceHélia.obtFichierDeSFIP({ id: idc });
+      const obtenu = await appli.services["hélia"].obtFichierDeSFIP({
+        id: idc,
+      });
       expect(new TextDecoder().decode(obtenu!)).to.equal(texte);
     });
 
     it("obtenir flux itérable de SFIP", async () => {
-      const flux = await serviceHélia.obtItérableAsyncSFIP({ id: idc });
+      const flux = await appli.services["hélia"].obtItérableAsyncSFIP({
+        id: idc,
+      });
       const obtenu = await toBuffer(flux);
       expect(new TextDecoder().decode(obtenu!)).to.equal(texte);
     });
