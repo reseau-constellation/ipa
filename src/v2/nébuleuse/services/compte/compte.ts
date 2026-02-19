@@ -145,6 +145,14 @@ export class BaseServiceCompte<
     return { idCompte };
   }
 
+  // Accès configuration
+  async maxTailleImages(): Promise<{visualiser: number; sauvegarder: number}> {
+    return {
+      sauvegarder: this.options.consts.maxTailleImageSauvegarder,
+      visualiser: this.options.consts.maxTailleImageVisualiser,
+    }
+  }
+
   // Gestion compte
 
   async obtIdCompte(): Promise<string> {

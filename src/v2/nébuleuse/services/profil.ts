@@ -253,7 +253,7 @@ export class Profil extends ServiceDonnéesAppli<
   }): Promise<string> {
     const compte = this.service("compte");
 
-    const maxTailleImage = compte.options.consts.maxTailleImageSauvegarder;
+    const { sauvegarder: maxTailleImage } = await compte.maxTailleImages();
 
     if (image.contenu.byteLength > maxTailleImage) {
       throw new Error("Taille maximale excédée");
@@ -280,8 +280,7 @@ export class Profil extends ServiceDonnéesAppli<
     f: Suivi<{ image: Uint8Array; idImage: string } | null>;
     idCompte?: string;
   }): Promise<Oublier> {
-    const maxTailleImage =
-      this.service("compte").options.consts.maxTailleImageVisualiser;
+    const { visualiser: maxTailleImage } = await this.service("compte").maxTailleImages();
 
     return await this.suivreBd({
       clef: "image",
