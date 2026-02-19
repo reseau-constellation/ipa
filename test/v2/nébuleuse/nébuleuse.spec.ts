@@ -199,19 +199,22 @@ describe.only("Nébuleuse", function () {
           générique: ({ options, services }) =>
             new ServiceGénérique({ options, services }),
           test1: ({ options, services }) =>
-            new ServiceTest1({ options, services }),
+            new ServiceTest1({
+              options: {
+                ...options,
+                schéma: {
+                  type: "object",
+                  properties: { a: { type: "number", nullable: true } },
+                },
+              },
+              services,
+            }),
           test2: ({ options, services }) =>
             new ServiceTest2({ options, services }),
         },
         options: {
           services: {
             dossier: { dossier },
-            test1: {
-              schéma: {
-                type: "object",
-                properties: { a: { type: "number", nullable: true } },
-              },
-            },
           },
         },
       });

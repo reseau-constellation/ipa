@@ -159,3 +159,15 @@ export class ServiceÉpingles extends ServiceAppli<
     await super.fermer();
   }
 }
+
+export const serviceÉpingles =
+  () =>
+  ({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesÉpingles;
+    options: OptionsAppli;
+  }) => {
+    return new ServiceÉpingles({ services, options });
+  };

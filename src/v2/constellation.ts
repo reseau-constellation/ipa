@@ -1,23 +1,18 @@
+import { merge } from "ts-deepmerge";
 import { Variables } from "./variables.js";
 import { MotsClefs } from "./motsClefs.js";
 import { Nébuleuse } from "./nébuleuse/nébuleuse.js";
 import { Bds } from "./bds/bds.js";
-import { ServiceFavoris } from "./nébuleuse/services/favoris.js";
-import { ServiceÉpingles } from "./nébuleuse/services/épingles.js";
 import { Nuées } from "./nuées/nuées.js";
 import { Licences } from "./licences.js";
-import type { Projets } from "./projets.js";
-import type {
-  ConstructeursServicesAppli,
-  OptionsAppli,
-} from "./nébuleuse/appli/appli.js";
-import type {
-  SchémaCompte,
-  ServicesDonnées,
-} from "./nébuleuse/services/compte/compte.js";
-import type { Automatisations } from "./automatisations/automatisations.js";
+import { Projets } from "./projets.js";
+import { Automatisations } from "./automatisations/automatisations.js";
+import type { ServiceÉpingles } from "./nébuleuse/services/épingles.js";
+import type { ServiceFavoris } from "./nébuleuse/services/favoris.js";
+import type { StructureServiceObjet } from "./objets.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
+  OptionsNébuleuse,
   ServicesNébuleuse,
   StructureNébuleuse,
 } from "./nébuleuse/nébuleuse.js";
@@ -28,65 +23,61 @@ export type OptionsConstellation<
 > = {
   sujetRéseau?: string;
   protocoles?: string[];
-} & Partial<OptionsAppli<ServicesConstellation<L>>>;
+} & OptionsNébuleuse<StructureConstellation, L>;
 
-export type ServicesSpécifiquesConstellation<
-  L extends ServicesLibp2pNébuleuse,
-> = {
+export type ServicesSpécifiquesConstellation = {
   motsClefs: MotsClefs;
   bds: Bds;
-  favoris: ServiceFavoris;
-  épingles: ServiceÉpingles;
   variables: Variables;
-  nuées: Nuées<L>;
-  automatisations: Automatisations<L>;
+  nuées: Nuées;
+  automatisations: Automatisations;
   projets: Projets;
   licences: Licences;
 };
 
-export type StructureConstellation<L extends ServicesLibp2pNébuleuse> =
-  StructureNébuleuse & SchémaCompte<ServicesSpécifiquesConstellation<L>>;
+export type StructureConstellation = StructureNébuleuse & {
+  motsClefs: StructureServiceObjet,
+  bds: StructureServiceObjet,
+  variables: StructureServiceObjet,
+  nuées: StructureServiceObjet,
+  automatisations: StructureServiceObjet,
+  projets: StructureServiceObjet,
+};
 
-export type ServicesConstellation<
-  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesSpécifiquesConstellation<L> &
-  ServicesNébuleuse<StructureConstellation<L>>;
+export type ServicesConstellation = ServicesSpécifiquesConstellation &
+  ServicesNébuleuse<StructureConstellation>;
 
 export class Constellation<
   T extends { [clef: string]: NestedValue } = Record<string, never>,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-  S extends ServicesDonnées<T, L> = ServicesDonnées<T, L>,
-> extends Nébuleuse<T, S & ServicesSpécifiquesConstellation<L>, L> {
+> extends Nébuleuse<T, ServicesSpécifiquesConstellation, L> {
   bds: Bds;
   motsClefs: MotsClefs;
-  nuées: Nuées<L>;
+  nuées: Nuées;
   favoris: ServiceFavoris;
   épingles: ServiceÉpingles;
   variables: Variables;
-  automatisations: Automatisations<L>;
+  automatisations: Automatisations;
   projets: Projets;
   licences: Licences;
 
   constructor(
-    options: OptionsConstellation,
-    services?: ConstructeursServicesAppli<ServicesDonnées<T, L>>,
+    options: OptionsConstellation<L>,
   ) {
-    services =
-      services ?? ({} as ConstructeursServicesAppli<ServicesDonnées<T, L>>);
+    const défauts = { nomAppli: "constellation" }
+    options = merge(défauts, options)
+
     super({
       services: {
-        bds: Bds,
-        motsClefs: MotsClefs<L>,
-        favoris: ServiceFavoris<L>,
-        épingles: ServiceÉpingles<L>,
-        variables: Variables<L>,
-        nuées: Nuées<L>,
-        licences: Licences,
-        ...(services || {}),
-      } as ConstructeursServicesAppli<S & ServicesSpécifiquesConstellation<L>>,
-      options: {
-        services: options.services,
+        motsClefs: ({ services, options }) => new MotsClefs({ services, options }),
+        bds: ({ services, options }) => new Bds({ services, options }),
+        variables: ({ services, options }) => new Variables({ services, options }),
+        nuées: ({ services, options }) => new Nuées({ services, options }),
+        projets: ({ services, options }) => new Projets({ services, options }),
+        automatisations: ({ services, options }) => new Automatisations({ services, options }),
+        licences: ({ options }) => new Licences({ options }),
       },
+      options,
     });
 
     // Pour garder l'IPA d'avant que j'aime bien...

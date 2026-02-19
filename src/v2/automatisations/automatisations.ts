@@ -68,21 +68,16 @@ const différente = (
   return deepEqual(spéc1, spéc2);
 };
 
-export type ServicesNécessairesAutomatisations<
-  L extends ServicesLibp2pNébuleuse,
-> = ServicesNécessairesCompte<L> & {
-  bds: Bds<L>;
-  projets: Projets<L>;
-  nuées: Nuées<L>;
+export type ServicesNécessairesAutomatisations = ServicesNécessairesCompte & {
+  bds: Bds;
+  projets: Projets;
+  nuées: Nuées;
 };
 
-export class Automatisations<
-  L extends ServicesLibp2pNébuleuse,
-> extends ServiceDonnéesAppli<
+export class Automatisations extends ServiceDonnéesAppli<
   "automatisations",
   StructureServiceAutomatisations,
-  L,
-  ServicesNécessairesAutomatisations<L>,
+  ServicesNécessairesAutomatisations,
   { oublier: Oublier }
 > {
   queue: PQueue;

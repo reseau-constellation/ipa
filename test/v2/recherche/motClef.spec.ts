@@ -50,7 +50,7 @@ describe("Rechercher mots-clefs", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idMotClef,
           f: siNonDéfini(),
         }),
@@ -70,7 +70,7 @@ describe("Rechercher mots-clefs", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idMotClef,
           f: siNonDéfini(),
         }),
@@ -82,7 +82,7 @@ describe("Rechercher mots-clefs", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idMotClef,
             f: siDéfini(),
           }),
@@ -116,7 +116,7 @@ describe("Rechercher mots-clefs", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idMotClef,
           f: si((x) => x !== undefined && x.score > 0.5),
         }),
@@ -180,7 +180,7 @@ describe("Rechercher mots-clefs", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheId({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idMotClef,
             f: siDéfini(),
           }),
@@ -203,7 +203,7 @@ describe("Rechercher mots-clefs", function () {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheNom({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idMotClef,
             f: siDéfini(),
           }),
@@ -236,7 +236,7 @@ describe("Rechercher mots-clefs", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
         rechercheDescription({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idMotClef,
           f: siDéfini(),
         }),
@@ -269,7 +269,7 @@ describe("Rechercher mots-clefs", function () {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheVide({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idMotClef,
             f: siDéfini(),
           }),

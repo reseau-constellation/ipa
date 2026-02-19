@@ -36,19 +36,20 @@ import {
   type StructureRéseau,
 } from "./services/réseau.js";
 import { serviceProfil } from "./services/profil.js";
+import { serviceÉpingles, type ServiceÉpingles } from "./services/épingles.js";
+import { serviceFavoris } from "./services/favoris.js";
+import type { ServiceFavoris } from "./services/favoris.js";
 import type { ServiceOrbite, ServiceCompte } from "./services/index.js";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsServiceJournal } from "./services/journal.js";
 
 import type { OptionsServiceDossier } from "./services/dossier.js";
-import type { ServiceÉpingles } from "./services/épingles.js";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   ConstructeursServicesAppli,
   OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
-import type { ServiceFavoris } from "./services/favoris.js";
 import type { OptionsServiceHélia } from "./services/hélia.js";
 import type { PartielRécursif } from "../types.js";
 
@@ -116,7 +117,7 @@ export type OptionsNébuleuse<
     libp2p?: OptionsServiceLibp2p<L>;
     hélia?: OptionsServiceHélia<L>;
     orbite?: OptionsServiceOrbite<L>;
-    compte?: OptionsServiceCompte<T>;
+    compte?: OptionsServiceCompte<T & StructureNébuleuse>;
   };
 };
 
@@ -150,7 +151,10 @@ export class Nébuleuse<
 
     const optionsCompte: OptionsServiceCompte<StructureNébuleuse & T> = {
       ...options?.services.compte,
-      schéma: merge(options?.services?.compte?.schéma || {}, schémaNébuleuse),
+      schéma: merge(
+        options?.services?.compte?.schéma || {},
+        schémaNébuleuse,
+      ) as JSONSchemaType<PartielRécursif<StructureNébuleuse & T>>,
     };
 
     super({
@@ -165,6 +169,8 @@ export class Nébuleuse<
         dispositifs: serviceDispositifs(),
         profil: serviceProfil(),
         réseau: serviceRéseau(),
+        épingles: serviceÉpingles(),
+        favoris: serviceFavoris(),
         ...services,
       } as ConstructeursServicesAppli<
         ServicesNébuleuse<StructureNébuleuse & T> & S

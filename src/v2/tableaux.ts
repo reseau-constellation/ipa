@@ -46,7 +46,11 @@ import type {
   CatégorieVariable,
   Variables,
 } from "./variables.js";
-import type { ServiceCompte, ServiceHélia, ServiceOrbite } from "./nébuleuse/index.js";
+import type {
+  ServiceCompte,
+  ServiceHélia,
+  ServiceOrbite,
+} from "./nébuleuse/index.js";
 
 // Types éléments
 
@@ -1397,7 +1401,7 @@ export class Tableaux {
     colonnes: InfoColonneAvecCatégorie[];
     documentsMédias: Set<string>;
     langues?: string[];
-    traducs?: { [clef: string]:  Partial<TraducsTexte> };
+    traducs?: { [clef: string]: Partial<TraducsTexte> };
   }): Promise<DonnéesRangéeTableau> {
     const élémentFinal: DonnéesRangéeTableau = {};
 

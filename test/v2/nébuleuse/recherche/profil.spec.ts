@@ -6,7 +6,7 @@ import {
   rechercherProfilsSelonTexte,
 } from "@/v2/recherche/fonctions/profils.js";
 import { obtRessourceTest } from "test/ressources/index.js";
-import { créerConstellationsTest, obtenir } from "../utils.js";
+import { créerConstellationsTest, obtenir } from "../../utils.js";
 import type { ServicesNécessairesRechercheProfils } from "@/v2/recherche/fonctions/profils.js";
 import type {
   RésultatObjectifRecherche,
@@ -49,7 +49,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatVide>
       >(({ siDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idCompte,
           f: siDéfini(),
         }),
@@ -68,7 +68,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0),
           }),
@@ -91,7 +91,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 1 / 3),
           }),
@@ -116,7 +116,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 2 / 3),
           }),
@@ -172,7 +172,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatTexte>
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -184,7 +184,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: siDéfini(),
           }),
@@ -208,7 +208,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ si }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0.5),
           }),
@@ -259,7 +259,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatTexte>
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -271,7 +271,7 @@ describe("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ si }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0),
           }),
@@ -347,7 +347,7 @@ describe("Rechercher profil", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheId({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: siDéfini(),
           }),
@@ -371,7 +371,7 @@ describe("Rechercher profil", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
           rechercheId({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: siNonDéfini(),
           }),
@@ -380,7 +380,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheNom({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -389,7 +389,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheCourriel({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -404,7 +404,7 @@ describe("Rechercher profil", function () {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheNom({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: siDéfini(),
           }),
@@ -413,7 +413,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
         rechercheCourriel({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idCompte,
           f: siDéfini(),
         }),
@@ -461,7 +461,7 @@ describe("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ si }) =>
         rechercheCourriel({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idCompte,
           f: si((r) => !!r && r.score > 1 / 3),
         }),
@@ -491,7 +491,7 @@ describe("Rechercher profil", function () {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheVide({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idCompte,
             f: siDéfini(),
           }),

@@ -10,7 +10,7 @@ import {
   sousRecherche,
 } from "@/v2/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "test/ressources/index.js";
-import { créerConstellationsTest, obtenir } from "../utils.js";
+import { créerConstellationsTest, obtenir } from "../../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
@@ -230,7 +230,7 @@ describe("Utils recherche", function () {
     it("résultat détecté", async () => {
       const résultat = await obtenir(({ siDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: "voici mon id",
           f: siDéfini(),
         }),
@@ -267,7 +267,7 @@ describe("Utils recherche", function () {
             abc: rechercheAbc,
             abcdef: rechercheAbcdef,
           },
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: "abcdefghij",
           fSuivreRecherche: siDéfini(),
         }),
@@ -308,7 +308,7 @@ describe("Utils recherche", function () {
               return faisRien;
             },
             fRechercher: rechercheId,
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             fSuivreRecherche: siNonDéfini(),
           }),
       );
@@ -325,7 +325,7 @@ describe("Utils recherche", function () {
               return faisRien;
             },
             fRechercher: rechercheId,
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             fSuivreRecherche: siNonDéfini(),
           }),
       );
@@ -360,7 +360,7 @@ describe("Utils recherche", function () {
             return faisRien;
           },
           fRechercher: rechercheId,
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           fSuivreRecherche: si((x) => !!x && x.score > 0.5),
         }),
       );
@@ -393,7 +393,11 @@ describe("Utils recherche", function () {
 
     it("tous ont le même score", async () => {
       const résultat = await obtenir(({ siDéfini }) =>
-        recherche({ services: constl.services, idObjet: "abc", f: siDéfini() }),
+        recherche({
+          services: (clef) => constl.services[clef],
+          idObjet: "abc",
+          f: siDéfini(),
+        }),
       );
       const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
         type: "résultat",

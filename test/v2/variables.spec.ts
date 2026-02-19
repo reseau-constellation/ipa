@@ -581,11 +581,12 @@ describe.only("Variables", function () {
         statut: nouveauStatut,
       });
 
-      const statut = await obtenir<PartielRécursif<StatutDonnées> | undefined>(({ si }) =>
-        constl.variables.suivreStatut({
-          idVariable,
-          f: si((x) => x?.statut !== "active"),
-        }),
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | undefined>(
+        ({ si }) =>
+          constl.variables.suivreStatut({
+            idVariable,
+            f: si((x) => x?.statut !== "active"),
+          }),
       );
 
       expect(statut).to.deep.equal(nouveauStatut);

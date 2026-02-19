@@ -52,7 +52,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: siNonDéfini(),
         }),
@@ -72,7 +72,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: siNonDéfini(),
         }),
@@ -84,7 +84,7 @@ describe("Rechercher variables", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idVariable,
             f: siDéfini(),
           }),
@@ -118,7 +118,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: si((x) => x !== undefined && x.score > 0.5),
         }),
@@ -168,7 +168,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: siNonDéfini(),
         }),
@@ -189,7 +189,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: siNonDéfini(),
         }),
@@ -209,7 +209,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: siDéfini(),
         }),
@@ -241,7 +241,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ si }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: si((x) => x !== undefined && x.score > 0.5),
         }),
@@ -307,7 +307,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
       >(({ siDéfini }) =>
         rechercheId({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: siDéfini(),
         }),
@@ -330,7 +330,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<InfoRésultatTexte | InfoRésultatVide>
       >(({ siDéfini }) =>
         rechercheNom({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: siDéfini(),
         }),
@@ -354,7 +354,7 @@ describe("Rechercher variables", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
         rechercheDescription({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idVariable,
           f: siDéfini(),
         }),
@@ -387,7 +387,7 @@ describe("Rechercher variables", function () {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheVide({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idVariable,
             f: siDéfini(),
           }),

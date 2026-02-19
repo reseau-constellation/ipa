@@ -41,7 +41,10 @@ describe("Rechercher bds", function () {
 
   describe("selon nom", function () {
     let idBd: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheBds>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheBds
+    >;
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -51,7 +54,7 @@ describe("Rechercher bds", function () {
     it("pas de résultat quand la bd n'a pas de nom", async () => {
       const résultat = await obtenir(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -61,7 +64,11 @@ describe("Rechercher bds", function () {
 
     it("ajout nom détecté", async () => {
       const pRésultat = obtenir(({ siDéfini }) =>
-        recherche({ services: constl.services, idObjet: idBd, f: siDéfini() }),
+        recherche({
+          services: (clef) => constl.services[clef],
+          idObjet: idBd,
+          f: siDéfini(),
+        }),
       );
       await constl.bds.sauvegarderNoms({
         idBd,
@@ -89,7 +96,10 @@ describe("Rechercher bds", function () {
 
   describe("selon description", function () {
     let idBd: string;
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheBds>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheBds
+    >;
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -99,7 +109,7 @@ describe("Rechercher bds", function () {
     it("pas de résultat quand la bd n'a pas de description", async () => {
       const résultat = await obtenir(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -109,7 +119,11 @@ describe("Rechercher bds", function () {
 
     it("ajout description détecté", async () => {
       const pRésultat = obtenir(({ siDéfini }) =>
-        recherche({ services: constl.services, idObjet: idBd, f: siDéfini() }),
+        recherche({
+          services: (clef) => constl.services[clef],
+          idObjet: idBd,
+          f: siDéfini(),
+        }),
       );
       await constl.bds.sauvegarderDescriptions({
         idBd,
@@ -142,9 +156,18 @@ describe("Rechercher bds", function () {
 
     type TypeRésultat = InfoRésultatRecherche<InfoRésultatTexte>;
 
-    let rechercheNomMotClef: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheBds>;
-    let rechercheIdMotClef: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheBds>;
-    let rechercheMotClef: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheBds>;
+    let rechercheNomMotClef: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheBds
+    >;
+    let rechercheIdMotClef: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheBds
+    >;
+    let rechercheMotClef: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheBds
+    >;
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -158,21 +181,21 @@ describe("Rechercher bds", function () {
     it("pas de résultat quand la bd n'a pas de mot-clef", async () => {
       const résultatNom = await obtenir(({ siNonDéfini }) =>
         rechercheNomMotClef({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
       );
       const résultatId = await obtenir(({ siNonDéfini }) =>
         rechercheIdMotClef({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
       );
       const résultatTous = await obtenir(({ siNonDéfini }) =>
         rechercheMotClef({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -185,14 +208,14 @@ describe("Rechercher bds", function () {
     it("ajout mot-clef détecté", async () => {
       const pRésultatId = obtenir(({ siNonDéfini }) =>
         rechercheIdMotClef({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
       );
       const pRésultatTous = obtenir(({ siNonDéfini }) =>
         rechercheMotClef({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -232,14 +255,14 @@ describe("Rechercher bds", function () {
     it("ajout nom mot-clef détecté", async () => {
       const pRésultatNom = obtenir(({ siNonDéfini }) =>
         rechercheNomMotClef({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
       );
       const pRésultatTous = obtenir(({ siNonDéfini }) =>
         rechercheMotClef({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -285,13 +308,16 @@ describe("Rechercher bds", function () {
     let idVariable: string;
 
     let rechercheNomVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds
+      InfoRésultatRecherche<InfoRésultatTexte>,
+      ServicesNécessairesRechercheBds
     >;
     let rechercheIdVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte>, ServicesNécessairesRechercheBds
+      InfoRésultatRecherche<InfoRésultatTexte>,
+      ServicesNécessairesRechercheBds
     >;
     let rechercheVariable: SuivreObjectifRecherche<
-      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>, ServicesNécessairesRechercheBds
+      InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>,
+      ServicesNécessairesRechercheBds
     >;
 
     before(async () => {
@@ -310,21 +336,21 @@ describe("Rechercher bds", function () {
     it("pas de résultat quand la bd n'a pas de variable", async () => {
       const résultatNom = await obtenir(({ siNonDéfini }) =>
         rechercheNomVariable({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
       );
       const résultatId = await obtenir(({ siNonDéfini }) =>
         rechercheIdVariable({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
       );
       const résultatTous = await obtenir(({ siNonDéfini }) =>
         rechercheVariable({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -337,14 +363,14 @@ describe("Rechercher bds", function () {
     it("ajout variable détecté", async () => {
       const pRésultatId = obtenir(({ siNonDéfini }) =>
         rechercheIdVariable({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
       );
       const pRésultatTous = obtenir(({ siNonDéfini }) =>
         rechercheVariable({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -386,14 +412,14 @@ describe("Rechercher bds", function () {
     it("ajout nom variable détecté", async () => {
       const pRésultatNom = obtenir(({ siNonDéfini }) =>
         rechercheNomVariable({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
       );
       const pRésultatTous = obtenir(({ siNonDéfini }) =>
         rechercheVariable({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -481,7 +507,7 @@ describe("Rechercher bds", function () {
     it("résultat id détecté", async () => {
       const résultatId = await obtenir(({ siNonDéfini }) =>
         rechercheId({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siNonDéfini(),
         }),
@@ -505,7 +531,7 @@ describe("Rechercher bds", function () {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultatBd>>(
         ({ siDéfini }) =>
           rechercheNom({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idBd,
             f: siDéfini(),
           }),
@@ -537,7 +563,7 @@ describe("Rechercher bds", function () {
         RésultatObjectifRecherche<TypeRésultatBd>
       >(({ siDéfini }) =>
         rechercheDescription({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: siDéfini(),
         }),
@@ -572,7 +598,7 @@ describe("Rechercher bds", function () {
         RésultatObjectifRecherche<TypeRésultatBd>
       >(({ si }) =>
         rechercheVariables({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: si(
             (r) =>
@@ -628,7 +654,7 @@ describe("Rechercher bds", function () {
         RésultatObjectifRecherche<TypeRésultatBd>
       >(({ si }) =>
         rechercheMotsClefs({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idBd,
           f: si(
             (r) =>
@@ -678,7 +704,7 @@ describe("Rechercher bds", function () {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultatBd>>(
         ({ siDéfini }) =>
           rechercheVide({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idBd,
             f: siDéfini(),
           }),

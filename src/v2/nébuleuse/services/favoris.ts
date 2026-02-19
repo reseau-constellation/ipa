@@ -606,3 +606,14 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     });
   }
 }
+
+export const serviceFavoris =
+  () =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesFavoris;
+  }) =>
+    new ServiceFavoris({ services, options });

@@ -1118,7 +1118,7 @@ export class TableauxBds extends Tableaux {
       nomsVariables?: { [idVar: string]: TraducsTexte };
       colonnes?: InfoColonneAvecCatégorie[];
       données?: DonnéesRangéeTableauAvecId[];
-      traducs?: { [clef: string]:  Partial<TraducsTexte> };
+      traducs?: { [clef: string]: Partial<TraducsTexte> };
     } = {};
     const fsOublier: Oublier[] = [];
 

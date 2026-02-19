@@ -19,7 +19,6 @@ import {
   MODÉRATRICE,
   estContrôleurNébuleuse,
 } from "./accès/index.js";
-import type { StructureNébuleuse } from "../../nébuleuse.js";
 import type { OptionsAppli } from "../../appli/appli.js";
 import type { PartielRécursif, RequisRécursif } from "@/v2/types.js";
 import type { Oublier, Suivi } from "../../types.js";
@@ -74,7 +73,7 @@ type RetourDémarrageCompte<T extends { [clef: string]: NestedValue }> = {
   oublier: Oublier;
 };
 
-export class ServiceCompte<
+export class BaseServiceCompte<
   T extends { [clef: string]: NestedValue } = {
     [clef: string]: NestedValue;
   },
@@ -433,8 +432,20 @@ export class ServiceCompte<
   }
 }
 
+/*
+Ci-dessous, on exclut les options de l'objet pour éviter des erreurs de type dans les
+dans les constructers d'autres services qui dépendent de `ServiceCompte`
+*/
+export type ServiceCompte<
+  T extends { [clef: string]: NestedValue } = {
+    [clef: string]: NestedValue;
+  },
+> = Omit<BaseServiceCompte<T>, "options"> & {
+  options: OptionsAppli & Omit<OptionsServiceCompte<T>, "schéma">;
+};
+
 export const serviceCompte =
-  <T extends { [clef: string]: NestedValue } = StructureNébuleuse>(
+  <T extends { [clef: string]: NestedValue }>(
     optionsCompte: OptionsServiceCompte<T>,
   ) =>
   ({
@@ -443,9 +454,9 @@ export const serviceCompte =
   }: {
     options: OptionsAppli;
     services: ServicesNécessairesCompte;
-  }) => {
-    return new ServiceCompte<T>({
+  }): ServiceCompte<T> => {
+    return new BaseServiceCompte<T>({
       services,
       options: { ...optionsCompte, ...options },
-    });
+    }) as ServiceCompte<T>;
   };

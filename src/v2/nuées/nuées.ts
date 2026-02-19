@@ -232,13 +232,23 @@ export type ServicesNécessairesNuées = ServicesNécessairesObjet<"nuées"> & {
   bds: Bds;
 };
 
-export class Nuées extends ObjetConstellation<"nuées", StructureNuée, ServicesNécessairesNuées> {
+export class Nuées extends ObjetConstellation<
+  "nuées",
+  StructureNuée,
+  ServicesNécessairesNuées
+> {
   tableaux: TableauxNuées;
   recherche: RechercheNuées;
 
   schémaObjet = schémaNuée;
 
-  constructor({ options, services }: { options: OptionsAppli; services: ServicesNécessairesNuées }) {
+  constructor({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesNuées;
+  }) {
     super({
       clef: "nuées",
       services,

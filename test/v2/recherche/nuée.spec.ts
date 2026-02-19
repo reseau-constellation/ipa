@@ -8,11 +8,10 @@ import {
   rechercherNuéesSelonIdVariable,
   rechercherNuéesSelonVariable,
   rechercherNuéesSelonTexte,
-  rechercherNuéesSelonDescription
+  rechercherNuéesSelonDescription,
 } from "@/v2/recherche/fonctions/nuées.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
-import type {
-  ServicesNécessairesRechercheNuées} from "@/v2/recherche/fonctions/nuées.js";
+import type { ServicesNécessairesRechercheNuées } from "@/v2/recherche/fonctions/nuées.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   RésultatObjectifRecherche,
@@ -43,7 +42,10 @@ describe("Rechercher nuées", function () {
   describe("Selon nom", function () {
     let idNuée: string;
 
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheNuées>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheNuées
+    >;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -56,7 +58,7 @@ describe("Rechercher nuées", function () {
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
         recherche({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idNuée,
           f: siNonDéfini(),
         }),
@@ -68,7 +70,7 @@ describe("Rechercher nuées", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),
@@ -99,7 +101,10 @@ describe("Rechercher nuées", function () {
   describe("selon description", function () {
     let idNuée: string;
 
-    let recherche: SuivreObjectifRecherche<InfoRésultatTexte, ServicesNécessairesRechercheNuées>;
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheNuées
+    >;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -111,7 +116,7 @@ describe("Rechercher nuées", function () {
           RésultatObjectifRecherche<InfoRésultatTexte> | undefined
         >(({ siNonDéfini }) =>
           recherche({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siNonDéfini(),
           }),
@@ -123,7 +128,7 @@ describe("Rechercher nuées", function () {
         const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
           ({ siDéfini }) =>
             recherche({
-              services: constl.services,
+              services: (clef) => constl.services[clef],
               idObjet: idNuée,
               f: siDéfini(),
             }),
@@ -159,9 +164,18 @@ describe("Rechercher nuées", function () {
 
     type TypeRésultat = InfoRésultatRecherche<InfoRésultatTexte>;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheTous: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheId: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheNom: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheTous: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -176,7 +190,7 @@ describe("Rechercher nuées", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
           rechercheId({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siNonDéfini(),
           }),
@@ -185,7 +199,7 @@ describe("Rechercher nuées", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheNom({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idNuée,
           f: siNonDéfini(),
         }),
@@ -194,7 +208,7 @@ describe("Rechercher nuées", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheTous({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idNuée,
           f: siNonDéfini(),
         }),
@@ -209,7 +223,7 @@ describe("Rechercher nuées", function () {
       const pRésultatId = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheId({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),
@@ -247,7 +261,7 @@ describe("Rechercher nuées", function () {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheNom({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),
@@ -255,7 +269,7 @@ describe("Rechercher nuées", function () {
       const pRésultatTous = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheTous({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),
@@ -302,9 +316,18 @@ describe("Rechercher nuées", function () {
 
     type TypeRésultat = InfoRésultatRecherche<InfoRésultatTexte>;
 
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheTous: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheId: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheNom: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheTous: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -321,7 +344,7 @@ describe("Rechercher nuées", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
           rechercheId({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siNonDéfini(),
           }),
@@ -330,7 +353,7 @@ describe("Rechercher nuées", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheNom({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idNuée,
           f: siNonDéfini(),
         }),
@@ -339,7 +362,7 @@ describe("Rechercher nuées", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheTous({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idNuée,
           f: siNonDéfini(),
         }),
@@ -354,7 +377,7 @@ describe("Rechercher nuées", function () {
       const pRésultatId = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheId({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),
@@ -395,7 +418,7 @@ describe("Rechercher nuées", function () {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheNom({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),
@@ -403,7 +426,7 @@ describe("Rechercher nuées", function () {
       const pRésultatTous = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheTous({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),
@@ -455,12 +478,30 @@ describe("Rechercher nuées", function () {
         >
       | InfoRésultatVide;
 
-    let rechercheNom: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheId: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheDescription: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheVariable: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheMotClef: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
-    let rechercheVide: SuivreObjectifRecherche<TypeRésultat, ServicesNécessairesRechercheNuées>;
+    let rechercheNom: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheId: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheDescription: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheVariable: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheMotClef: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
+    let rechercheVide: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheNuées
+    >;
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -477,7 +518,7 @@ describe("Rechercher nuées", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheId({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),
@@ -499,7 +540,7 @@ describe("Rechercher nuées", function () {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ si }) =>
           rechercheNom({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: si((r) => !!r && r.de === "nom"),
           }),
@@ -533,7 +574,7 @@ describe("Rechercher nuées", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
         rechercheDescription({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idNuée,
           f: siDéfini(),
         }),
@@ -567,7 +608,7 @@ describe("Rechercher nuées", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ si }) =>
         rechercheVariable({
-          services: constl.services,
+          services: (clef) => constl.services[clef],
           idObjet: idNuée,
           f: si(
             (r) =>
@@ -624,7 +665,7 @@ describe("Rechercher nuées", function () {
       const pRésultatMotClef = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ si }) =>
           rechercheMotClef({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: si(
               (r) =>
@@ -675,7 +716,7 @@ describe("Rechercher nuées", function () {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheVide({
-            services: constl.services,
+            services: (clef) => constl.services[clef],
             idObjet: idNuée,
             f: siDéfini(),
           }),

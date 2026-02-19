@@ -120,8 +120,14 @@ describe.only("Service Compte", function () {
           libp2p: serviceLibp2pTest(),
           hélia: serviceHélia<ServicesLibp2pTest>(),
           orbite: serviceOrbite<ServicesLibp2pTest>(),
-          compte: serviceCompte<StructureNébuleuse>({
-            schéma: schémaNébuleuse,
+          compte: serviceCompte<{
+            [clef: string]: NestedValue;
+          }>({
+            schéma: { type: "object" } as JSONSchemaType<
+              PartielRécursif<{
+                [clef: string]: NestedValue;
+              }>
+            >,
           }),
         },
       });
@@ -247,10 +253,13 @@ describe.only("Service Compte", function () {
         };
         options: OptionsAppli;
       }) {
+        const optionsFinales = Object.assign({}, options, {
+          schéma: schémaTest1,
+        });
         super({
           clef: "test1",
           services,
-          options: { ...options, schéma: schémaTest1 },
+          options: optionsFinales,
         });
       }
     }
@@ -405,7 +414,7 @@ describe.only("Service Compte", function () {
 
   describe("gestion dispositifs", function () {
     let applis: Appli<ServicesNécessairesCompte & { compte: ServiceCompte }>[];
-    let comptes: ServiceCompte<StructureNébuleuse & Record<string, never>>[];
+    let comptes: ServiceCompte<{ [clef: string]: NestedValue }>[];
     let fermer: () => Promise<void>;
 
     let idObjet: string;

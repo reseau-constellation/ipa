@@ -1356,11 +1356,12 @@ describe("Nuées", function () {
       });
 
       it("statut", async () => {
-        const statutNuée = await obtenir<StatutDonnées | null>(({ siPasNul }) =>
-          constl.nuées.suivreStatut({
-            idNuée,
-            f: siPasNul(),
-          }),
+        const statutNuée = await obtenir<StatutDonnées | undefined>(
+          ({ siDéfini }) =>
+            constl.nuées.suivreStatut({
+              idNuée,
+              f: siDéfini(),
+            }),
         );
 
         expect(statutNuée).to.deep.equal(statut);
@@ -2047,7 +2048,7 @@ describe("Nuées", function () {
     });
 
     it("source copie établie", async () => {
-      const copiéeDe = await obtenir<{ id: string }>(({ siDéfini }) =>
+      const copiéeDe = await obtenir<{ id?: string }>(({ siDéfini }) =>
         constl.nuées.suivreSource({ idNuée: idNuéeCopie, f: siDéfini() }),
       );
       expect(copiéeDe).to.deep.equal({ id: idNuéeOrig });

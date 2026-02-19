@@ -1019,12 +1019,13 @@ describe("BDs", function () {
       });
 
       it("statut", async () => {
-        const statutBd = await obtenir<PartielRécursif<StatutDonnées> | undefined>(
-          ({ siPasNul }) =>
-            constl.bds.suivreStatut({
-              idBd,
-              f: siPasNul(),
-            }),
+        const statutBd = await obtenir<
+          PartielRécursif<StatutDonnées> | undefined
+        >(({ siPasNul }) =>
+          constl.bds.suivreStatut({
+            idBd,
+            f: siPasNul(),
+          }),
         );
 
         expect(statutBd).to.deep.equal(statut);

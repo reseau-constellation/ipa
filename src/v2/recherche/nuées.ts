@@ -27,7 +27,6 @@ import type {
 } from "./types.js";
 
 export class RechercheNuées extends RechercheObjets<ServicesNécessairesRechercheNuées> {
-
   constructor({
     service,
   }: {
@@ -289,7 +288,10 @@ export class RechercheNuées extends RechercheObjets<ServicesNécessairesRecherc
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.service("nuées").suivreNuées({ f: ignorerNonDéfinis(f), idCompte }),
+        await this.service("nuées").suivreNuées({
+          f: ignorerNonDéfinis(f),
+          idCompte,
+        }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
         await this.service("nuées").suivreScoreQualité({
           idNuée: idObjet,

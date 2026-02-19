@@ -8,10 +8,10 @@ import { idcEtFichierValide } from "@/v2/utils.js";
 import { obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
+import type { ÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
 import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { TraducsTexte } from "@/v2/types.js";
-import { ÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
 
 describe.only("Profil", function () {
   let fermer: () => Promise<void>;
@@ -395,7 +395,7 @@ describe.only("Profil", function () {
 
   describe("rejoindre compte", function () {
     let nébuleuses: NébuleuseTest[];
-    let comptes: ServiceCompte[]
+    let comptes: ServiceCompte[];
 
     let fermer: () => Promise<void>;
 

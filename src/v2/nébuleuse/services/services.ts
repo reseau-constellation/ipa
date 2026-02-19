@@ -66,6 +66,7 @@ export const brancheBd = <T extends NestedValue, C extends string>({
             // @ts-expect-error ça me dépasse pour l'instant
             return await target.insert(clefFinale, valeur!);
           } else {
+            // @ts-expect-error ça me dépasse pour l'instant
             return await target.insert(
               clef as ExtractKeys<Record<C, T>>,
               clefOuValeur,

@@ -23,11 +23,11 @@ import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 describe.only("Objets", function () {
   let fermer: () => Promise<void>;
   let nébuleuses: Nébuleuse<
-    StructureServiceObjet,
+    { objetTest: StructureServiceObjet },
     { objetTest: ServiceObjetTest }
   >[];
   let nébuleuse: Nébuleuse<
-    StructureServiceObjet,
+    { objetTest: StructureServiceObjet },
     { objetTest: ServiceObjetTest }
   >;
   let compte: ServiceCompte;
@@ -52,7 +52,7 @@ describe.only("Objets", function () {
   class ServiceObjetTest extends ObjetConstellation<
     typeof protocole,
     StructureObjet,
-    { compte: ServiceCompte }
+    ServicesNécessairesObjet<typeof protocole>
   > {
     schémaObjet = schémaObjetTest;
 
@@ -64,7 +64,7 @@ describe.only("Objets", function () {
       options: OptionsAppli;
     }) {
       super({
-        clef: "objetTest",
+        clef: protocole,
         services,
         dépendances: [],
         options,
@@ -84,7 +84,10 @@ describe.only("Objets", function () {
   }
 
   before("préparer constls", async () => {
-    ({ fermer, nébuleuses } = await créerNébuleusesTest({
+    ({ fermer, nébuleuses } = await créerNébuleusesTest<
+      { objetTest: StructureServiceObjet },
+      { objetTest: ServiceObjetTest }
+    >({
       n: 2,
       services: {
         objetTest: ({ options, services }) =>
