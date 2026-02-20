@@ -237,7 +237,7 @@ describe.only("Service Compte", function () {
   describe("structure compte", function () {
     type StructureTest = { test1: { a: number }; test2: { b: number } };
 
-    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> = {
+    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> & { nullable: true }  = {
       type: "object",
       properties: { a: { type: "number", nullable: true } },
       nullable: true,
@@ -253,18 +253,16 @@ describe.only("Service Compte", function () {
         };
         options: OptionsAppli;
       }) {
-        const optionsFinales = Object.assign({}, options, {
-          schéma: schémaTest1,
-        });
+
         super({
           clef: "test1",
           services,
-          options: optionsFinales,
+          options,
         });
       }
     }
 
-    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> = {
+    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> & { nullable: true } = {
       type: "object",
       properties: { b: { type: "number", nullable: true } },
       nullable: true,
@@ -280,14 +278,19 @@ describe.only("Service Compte", function () {
         };
         options: OptionsAppli;
       }) {
-        const optionsFinales = Object.assign({}, options, {
-          schéma: schémaTest2,
-        });
         super({
           clef: "test2",
           services,
-          options: optionsFinales,
+          options,
         });
+      }
+    }
+
+    const schéma: JSONSchemaType<PartielRécursif<StructureTest>> =  {
+      type: "object",
+      properties: {
+        test1: schémaTest1,
+        test2: schémaTest2
       }
     }
 
@@ -318,7 +321,9 @@ describe.only("Service Compte", function () {
           test2: ({ options, services }) =>
             new ServiceTest2({ options, services }),
         },
-        options: {},
+        options: {
+          compte: { schéma }
+        },
       });
 
       oublier = fermer;

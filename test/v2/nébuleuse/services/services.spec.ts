@@ -13,7 +13,6 @@ import { obtenir } from "../../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { JSONSchemaType } from "ajv";
 import type {
-  OptionsServiceDonnées,
   ServicesNécessairesDonnées,
 } from "@/v2/nébuleuse/services/services.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
@@ -198,14 +197,15 @@ describe.only("Services Nébuleuse", function () {
         B: StructureB;
       };
 
-      const schémaStructureA: JSONSchemaType<PartielRécursif<StructureA>> = {
+      const schémaStructureA: JSONSchemaType<PartielRécursif<StructureA>> & { nullable: true } = {
         type: "object",
         properties: {
           a: { type: "number", nullable: true },
         },
+        nullable: true,
       };
 
-      const schémaStructureB: JSONSchemaType<PartielRécursif<StructureB>> = {
+      const schémaStructureB: JSONSchemaType<PartielRécursif<StructureB>> & { nullable: true } = {
         type: "object",
         properties: {
           b: {
@@ -217,6 +217,7 @@ describe.only("Services Nébuleuse", function () {
             },
           },
         },
+        nullable: true,
       };
 
       let nébuleuse: NébuleuseTest<
@@ -233,15 +234,10 @@ describe.only("Services Nébuleuse", function () {
           services: ServicesNécessairesDonnées<{ A: StructureA }>;
           options: OptionsAppli;
         }) {
-          const optionsService: OptionsServiceDonnées<StructureA> &
-            OptionsAppli = {
-            ...options,
-            schéma: schémaStructureA,
-          };
           super({
             clef: "A",
             services,
-            options: optionsService,
+            options,
           });
         }
       }
@@ -257,11 +253,16 @@ describe.only("Services Nébuleuse", function () {
           super({
             clef: "B",
             services,
-            options: {
-              ...options,
-              schéma: schémaStructureB,
-            },
+            options,
           });
+        }
+      }
+
+      const schémaStructure: JSONSchemaType<PartielRécursif<Structure>> = {
+        type: "object",
+        properties: {
+          A: schémaStructureA,
+          B: schémaStructureB,
         }
       }
 
@@ -280,6 +281,13 @@ describe.only("Services Nébuleuse", function () {
             B: ({ options, services }) =>
               new ServiceDonnéesTestB({ options, services }),
           },
+          options: {
+            services: {
+              compte: {
+                schéma: schémaStructure
+              }
+            }
+          }
         });
         nébuleuse = nébuleuses[0];
         oublier = fermer;

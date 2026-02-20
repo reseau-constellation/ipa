@@ -132,7 +132,7 @@ describe.only("Nébuleuse", function () {
       }
     }
 
-    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> = {
+    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> & { nullable: true } = {
       type: "object",
       properties: { a: { type: "number", nullable: true } },
       nullable: true,
@@ -146,18 +146,16 @@ describe.only("Nébuleuse", function () {
         services: ServicesNécessairesDonnées<{ test1: { a: number } }>;
         options: OptionsAppli;
       }) {
-        const optionsService = Object.assign({}, options, {
-          schéma: schémaTest1,
-        });
+
         super({
           clef: "test1",
           services,
-          options: optionsService,
+          options,
         });
       }
     }
 
-    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> = {
+    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> & { nullable: true } = {
       type: "object",
       properties: { b: { type: "number", nullable: true } },
       nullable: true,
@@ -171,13 +169,10 @@ describe.only("Nébuleuse", function () {
         services: ServicesNécessairesDonnées<{ test2: { b: number } }>;
         options: OptionsAppli;
       }) {
-        const optionsService = Object.assign({}, options, {
-          schéma: schémaTest2,
-        });
         super({
           clef: "test2",
           services,
-          options: optionsService,
+          options,
         });
       }
     }
@@ -186,6 +181,14 @@ describe.only("Nébuleuse", function () {
       test1: { a: number };
       test2: { b: number };
     };
+
+    const schéma: JSONSchemaType<PartielRécursif<StructureDonnées>> = {
+      type: "object",
+      properties: {
+        test1: schémaTest1,
+        test2: schémaTest2
+      }
+    }
 
     let nébuleuse: NébuleuseTest<StructureDonnées>;
     let dossier: string;
@@ -199,22 +202,14 @@ describe.only("Nébuleuse", function () {
           générique: ({ options, services }) =>
             new ServiceGénérique({ options, services }),
           test1: ({ options, services }) =>
-            new ServiceTest1({
-              options: {
-                ...options,
-                schéma: {
-                  type: "object",
-                  properties: { a: { type: "number", nullable: true } },
-                },
-              },
-              services,
-            }),
+            new ServiceTest1({ options, services }),
           test2: ({ options, services }) =>
             new ServiceTest2({ options, services }),
         },
         options: {
           services: {
             dossier: { dossier },
+            compte: { schéma }
           },
         },
       });

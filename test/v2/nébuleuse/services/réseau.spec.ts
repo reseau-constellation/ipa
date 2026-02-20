@@ -15,6 +15,7 @@ import type {
 } from "@/v2/nébuleuse/services/réseau.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {
@@ -416,11 +417,12 @@ describe("Réseau", function () {
       "confianceTest",
       ServicesNébuleuse
     > {
-      constructor({ services }: { services: ServicesNébuleuse }) {
+      constructor({ services, options }: { services: ServicesNébuleuse; options: OptionsAppli }) {
         super({
           clef: "confianceTest",
           services,
-          dépendances: ["réseau"],
+          dépendances: ["réseau"], 
+          options,
         });
         this.service("réseau").inscrireRésolutionConfiance({
           clef: this.clef,
@@ -447,7 +449,7 @@ describe("Réseau", function () {
     before(async () => {
       ({ nébuleuses, fermer } = await créerNébuleusesTest({
         n: 3,
-        services: { confianceTest: ServiceConfianceTest },
+        services: { confianceTest: ({ options, services }) => new ServiceConfianceTest({ options, services }) },
       }));
 
       idsComptes = await Promise.all(
@@ -486,11 +488,11 @@ describe("Réseau", function () {
 
     it("confiance bloquée transitive", async () => {
       await nébuleuses[1].réseau.bloquerCompte({ idCompte: idsComptes[2] });
-      const comptes = await nébuleuses[0].réseau.suivreComptes();
+      const confianceCompte2 = await obtenir(({})=> nébuleuses[0].réseau.suivreConfianceCompte({
+        idCompte: idsComptes[2],
+        f,
+      }));
 
-      const confianceCompte2 = comptes.find(
-        (c) => c.idCompte === idsComptes[2],
-      ).confiance;
       expect(confianceCompte2).to.be.lessThan(0);
     });
 
@@ -515,5 +517,64 @@ describe("Réseau", function () {
 
   describe("reconnexion après réouverture");
 
-  describe("automatisation ajout dispositif");
+  describe("automatisation ajout dispositif", function () {
+    let idBd: string;
+
+    const attendreConnectés = new attente.AttendreRésultat<
+      statutDispositif[]
+    >();
+    const fsOublier: schémaFonctionOublier[] = [];
+
+    before(async () => {
+      const fOublierConnexions =
+        await client3.réseau.suivreConnexionsDispositifs({
+          f: (x) => attendreConnectés.mettreÀJour(x),
+        });
+      fsOublier.push(fOublierConnexions);
+
+      idBd = await client.créerBdIndépendante({ type: "keyvalue" });
+    });
+
+    after(async () => {
+      await Promise.allSettled(fsOublier.map((f) => f()));
+    });
+
+    it("Nouveau dispositif ajouté au compte", async () => {
+      const invitation = await client.générerInvitationRejoindreCompte();
+
+      client4.demanderEtPuisRejoindreCompte({
+        idCompte: invitation.idCompte,
+        codeSecret: "code secret invalid:",
+      });
+      await client3.demanderEtPuisRejoindreCompte(invitation);
+
+      const mesDispositifs = await obtenir<string[]>(({ si }) =>
+        client.suivreDispositifs({
+          f: si((x) => x.includes(idDispositif3)),
+        }),
+      );
+      expect(mesDispositifs).to.have.members([
+        idDispositif1,
+        idDispositif2,
+        idDispositif3,
+      ]);
+      expect(mesDispositifs).to.not.have.members([idDispositif4]);
+    });
+
+    it("Nouveau dispositif indique le nouveau compte", async () => {
+      const idCompte3 = await client3.obtIdCompte();
+      expect(idCompte3).to.equal(idCompte1);
+    });
+
+    it("Le nouveau dispositif peut modifier mes BDs", async () => {
+      const { bd: bd_orbite3, fOublier } = await client3.ouvrirBdTypée({
+        id: idBd,
+        type: "keyvalue",
+        schéma: schémaKVNumérique,
+      });
+      const autorisé = await orbiteTest.peutÉcrire(bd_orbite3, orbite3);
+      await fOublier();
+      expect(autorisé).to.be.true();
+    });
+  });
 });

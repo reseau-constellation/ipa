@@ -1,4 +1,3 @@
-import path from "path";
 import { obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
@@ -78,13 +77,19 @@ export const créerNébuleusesTest = async <
   nébuleuses: NébuleuseTest<T, S>[];
   fermer: Oublier;
 }> => {
+  options ??= {};
+  options.services ??= {}
+  
   let effacer: () => void;
-  if (!dossier) ({ dossier, effacer } = await dossierTempoPropre());
-  else effacer = () => {};
+  if (!options.services.dossier) {
+    const dossier = await dossierTempoPropre();
+    effacer = dossier.effacer;
+    options.services.dossier = dossier
+  } else effacer = () => {};
 
   const nébuleuses: NébuleuseTest<T, S>[] = [];
 
-  for (const i in [...Array(n).entries()]) {
+  for (const _ in [...Array(n).entries()]) {
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
       options,

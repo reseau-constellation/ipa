@@ -142,16 +142,13 @@ export abstract class ServiceDonnéesAppli<
   Structure extends NestedValue,
   Services extends ServicesAditionnelsDonnéesAppli = ServicesAppli,
   RetourDémarré = unknown,
-  Options extends { schéma: JSONSchemaType<PartielRécursif<Structure>> } = {
-    schéma: JSONSchemaType<PartielRécursif<Structure>>;
-  },
+  Options = unknown,
 > extends ServiceAppli<
   T,
   Services & ServicesNécessairesDonnées<Record<T, Structure>>,
   RetourDémarré,
   Options
 > {
-  schéma: JSONSchemaType<PartielRécursif<Structure>>;
 
   constructor({
     clef,
@@ -172,7 +169,6 @@ export abstract class ServiceDonnéesAppli<
       dépendances: [...dépendances, "compte"],
       options,
     });
-    this.schéma = options.schéma;
   }
 
   async bd(): Promise<TypedNested<Structure>> {

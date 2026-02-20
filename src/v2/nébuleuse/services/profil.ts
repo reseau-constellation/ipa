@@ -134,10 +134,7 @@ export class Profil extends ServiceDonnéesAppli<
       clef: "profil",
       services,
       dépendances: ["favoris", "dispositifs", "orbite", "hélia"],
-      options: {
-        ...options,
-        schéma: schémaProfil,
-      },
+      options,
     });
 
     this.recherche = new RechercheProfils({

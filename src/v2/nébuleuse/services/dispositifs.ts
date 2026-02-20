@@ -53,10 +53,7 @@ export class ServiceDispositifs extends ServiceDonnéesAppli<
       clef: "dispositifs",
       services,
       dépendances: ["compte"],
-      options: {
-        schéma: schémaDispositifs,
-        ...options,
-      },
+      options,
     });
   }
 
