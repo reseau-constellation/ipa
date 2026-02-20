@@ -7,7 +7,6 @@ import bs58 from "bs58";
 
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
-import { TypedEmitter } from "tiny-typed-emitter";
 
 import { Protocoles } from "./protocoles.js";
 import type { ÉpingleCompte } from "@/favoris.js";
@@ -17,19 +16,10 @@ import type { Libp2p } from "@libp2p/interface";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import type { createOrbitDB, OrbitDB } from "@orbitdb/core";
-import type { type GestionnaireOrbite } from "@/orbite.js";
 import { TOUS } from "@/favoris.js";
 import { Épingles } from "@/epingles.js";
 import { exporterStockageLocal } from "@/stockageLocal.js";
 
-type ÉvénementsClient<T extends ServicesLibp2p = ServicesLibp2p> = {
-  comptePrêt: (args: { idCompte: string }) => void;
-  erreurInitialisation: (args: Error) => void;
-  sfipEtOrbitePrêts: (args: {
-    sfip: Helia<Libp2p<T>>;
-    orbite: GestionnaireOrbite;
-  }) => void;
-};
 
 export interface Signature {
   signature: string;
@@ -87,7 +77,6 @@ const join = async (...args: string[]) => {
 };
 
 export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
-  événements: TypedEmitter<ÉvénementsClient<T>>;
 
   épingles: Épingles;
 
@@ -101,11 +90,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   ennikkai: எண்ணிக்கை;
 
   _intervaleVerrou?: NodeJS.Timeout;
-  signaleurArrêt: AbortController;
 
   constructor(opts: optsConstellation<T> = {}) {
-    this.événements = new TypedEmitter<ÉvénementsClient<T>>();
-    this.signaleurArrêt = new AbortController();
 
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
