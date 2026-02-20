@@ -1,6 +1,7 @@
 import { isUint8Array } from "util/types";
 import {
   attendreStabilité,
+  effacerPropriétésNonDéfinies,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   suivreFonctionImbriquée,
@@ -738,7 +739,10 @@ export class TableauxBds extends Tableaux {
     converties: DonnéesRangéeTableau[];
     traductions: { [clef: string]: TraducsTexte };
   }> {
-    if (!conversions.length) return { converties: données };
+    if (!conversions.length) return { 
+      // @ts-expect-error Le type de `effacerPropriétésNonDéfinies` exclut `null`
+      converties: données.map(effacerPropriétésNonDéfinies), traductions: {} 
+    };
 
     const hélia = this.service("hélia");
 
