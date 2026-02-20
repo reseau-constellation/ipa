@@ -117,7 +117,8 @@ export type OptionsNébuleuse<
     libp2p?: OptionsServiceLibp2p<L>;
     hélia?: OptionsServiceHélia<L>;
     orbite?: OptionsServiceOrbite<L>;
-    compte?: OptionsServiceCompte<T & StructureNébuleuse>;
+      // On n'inclut pas `StructureNébuleuse` dans `OptionsServiceCompte` car celle-ci est ajoutée dans l'initialisateur de `Nébuleuse`
+    compte?: OptionsServiceCompte<T>;
   };
 };
 
