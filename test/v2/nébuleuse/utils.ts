@@ -66,14 +66,14 @@ export const créerNébuleusesTest = async <
 >({
   n,
   services,
-  dossier,
+  options,
 }: {
   n: number;
   services?: ConstructeursServicesAppli<
     S,
     ServicesNébuleuse<T & StructureNébuleuse>
   >;
-  dossier?: string;
+  options?: Omit<OptionsNébuleuse<T, ServicesLibp2pTest>, "libp2p"> | undefined;
 }): Promise<{
   nébuleuses: NébuleuseTest<T, S>[];
   fermer: Oublier;
@@ -87,11 +87,7 @@ export const créerNébuleusesTest = async <
   for (const i in [...Array(n).entries()]) {
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
-      options: {
-        services: {
-          dossier: { dossier: path.join(dossier, i) },
-        },
-      },
+      options,
     });
     nébuleuses.push(nébuleuse);
   }
