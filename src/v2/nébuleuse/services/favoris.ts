@@ -16,9 +16,9 @@ import type { AccèsUtilisateur } from "./compte/accès/types.js";
 import type { ServiceÉpingles } from "./épingles.js";
 
 // Types réplications
-export type Réplication = {
+export type Réplication<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {
   idDispositif: string;
-  épingle: BooléenniserÉpingle<ÉpingleFavoris>;
+  épingle: BooléenniserÉpingle<ÉpingleFavoris<T>>;
 };
 
 // Types épingles
