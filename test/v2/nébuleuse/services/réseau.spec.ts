@@ -2,9 +2,10 @@ import { expect } from "aegir/chai";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { faisRien } from "@constl/utils-ipa";
-import { obtenir } from "test/v2/utils.js";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
+import { obtenir } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
 import type {
   CompteBloqué,
@@ -15,7 +16,6 @@ import type {
 } from "@/v2/nébuleuse/services/réseau.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {
@@ -417,11 +417,17 @@ describe("Réseau", function () {
       "confianceTest",
       ServicesNébuleuse
     > {
-      constructor({ services, options }: { services: ServicesNébuleuse; options: OptionsAppli }) {
+      constructor({
+        services,
+        options,
+      }: {
+        services: ServicesNébuleuse;
+        options: OptionsAppli;
+      }) {
         super({
           clef: "confianceTest",
           services,
-          dépendances: ["réseau"], 
+          dépendances: ["réseau"],
           options,
         });
         this.service("réseau").inscrireRésolutionConfiance({
@@ -449,7 +455,10 @@ describe("Réseau", function () {
     before(async () => {
       ({ nébuleuses, fermer } = await créerNébuleusesTest({
         n: 3,
-        services: { confianceTest: ({ options, services }) => new ServiceConfianceTest({ options, services }) },
+        services: {
+          confianceTest: ({ options, services }) =>
+            new ServiceConfianceTest({ options, services }),
+        },
       }));
 
       idsComptes = await Promise.all(
@@ -488,10 +497,12 @@ describe("Réseau", function () {
 
     it("confiance bloquée transitive", async () => {
       await nébuleuses[1].réseau.bloquerCompte({ idCompte: idsComptes[2] });
-      const confianceCompte2 = await obtenir(({})=> nébuleuses[0].réseau.suivreConfianceCompte({
-        idCompte: idsComptes[2],
-        f,
-      }));
+      const confianceCompte2 = await obtenir(({}) =>
+        nébuleuses[0].réseau.suivreConfianceCompte({
+          idCompte: idsComptes[2],
+          f,
+        }),
+      );
 
       expect(confianceCompte2).to.be.lessThan(0);
     });

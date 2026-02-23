@@ -19,7 +19,7 @@ import { uneFois, obtenir } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/xlsx.js";
 
-import { obtRessourceTest } from "./ressources/index.js";
+import { obtRessourceTest } from "./v2/ressources/index.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import type { WorkBook } from "xlsx";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";

@@ -7,12 +7,12 @@ import {
   MEMBRE,
   MODÉRATRICE,
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
-import { obtRessourceTest } from "test/ressources/index.js";
 import {
   TOUS_DISPOSITIFS,
   DISPOSITIFS_INSTALLÉS,
 } from "@/v2/nébuleuse/services/favoris.js";
 import { enleverPréfixeOrbite, enleverPréfixesEtOrbite } from "@/v2/utils.js";
+import { obtRessourceTest } from "./ressources/index.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type {
   InfoAuteur,

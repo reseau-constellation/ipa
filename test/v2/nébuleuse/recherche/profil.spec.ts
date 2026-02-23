@@ -5,7 +5,7 @@ import {
   rechercherProfilsSelonCourriel,
   rechercherProfilsSelonTexte,
 } from "@/v2/recherche/fonctions/profils.js";
-import { obtRessourceTest } from "test/ressources/index.js";
+import { obtRessourceTest } from "../../ressources/index.js";
 import { créerConstellationsTest, obtenir } from "../../utils.js";
 import type { ServicesNécessairesRechercheProfils } from "@/v2/recherche/fonctions/profils.js";
 import type {

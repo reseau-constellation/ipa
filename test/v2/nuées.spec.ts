@@ -7,13 +7,13 @@ import {
   MEMBRE,
   MODÉRATRICE,
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
-import { obtRessourceTest } from "test/ressources/index.js";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
 } from "@/v2/nébuleuse/services/favoris.js";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import { moyenne, type DonnéesFichierBdExportées } from "@/v2/utils.js";
+import { obtRessourceTest } from "./ressources/index.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
 import type { DonnéesRangéeNuée } from "@/v2/nuées/tableaux.js";

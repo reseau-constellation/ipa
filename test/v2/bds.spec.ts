@@ -14,7 +14,7 @@ import {
 } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { créerConstellation, type Constellation } from "@/v2/index.js";
 import { moyenne } from "@/v2/utils.js";
-import { obtRessourceTest } from "../ressources/index.js";
+import { obtRessourceTest } from "./ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import type {

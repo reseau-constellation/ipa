@@ -9,7 +9,7 @@ import {
   similTexte,
   sousRecherche,
 } from "@/v2/recherche/fonctions/utils.js";
-import { obtRessourceTest } from "test/ressources/index.js";
+import { obtRessourceTest } from "../../ressources/index.js";
 import { créerConstellationsTest, obtenir } from "../../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";

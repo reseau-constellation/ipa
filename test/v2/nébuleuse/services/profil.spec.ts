@@ -6,7 +6,7 @@ import {
 } from "@/v2/nébuleuse/services/favoris.js";
 import { idcEtFichierValide } from "@/v2/utils.js";
 import { obtenir } from "../../utils.js";
-import { obtRessourceTest } from "../../../ressources/index.js";
+import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
 import type { ServiceCompte } from "@/v2/nébuleuse/index.js";

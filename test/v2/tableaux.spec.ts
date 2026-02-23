@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
 import { MEMBRE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
-import { obtRessourceTest } from "test/ressources/index.js";
+import { obtRessourceTest } from "./ressources/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/types.js";

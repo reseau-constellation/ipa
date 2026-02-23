@@ -4,7 +4,7 @@ import {
   aplatirDonnées,
   extraireDonnées,
 } from "@/v2/importateur/json.js";
-import { obtRessourceTest } from "../../ressources/index.js";
+import { obtRessourceTest } from "../ressources/index.js";
 import type { ÉlémentJSON } from "@/v2/importateur/json.js";
 
 describe("JSON", function () {

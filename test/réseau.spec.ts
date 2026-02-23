@@ -9,7 +9,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { MEMBRE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 
-import { obtRessourceTest } from "./ressources/index.js";
+import { obtRessourceTest } from "./v2/ressources/index.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
