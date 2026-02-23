@@ -1,4 +1,3 @@
-import { isUint8Array } from "util/types";
 import {
   attendreStabilité,
   effacerPropriétésNonDéfinies,
@@ -739,10 +738,12 @@ export class TableauxBds extends Tableaux {
     converties: DonnéesRangéeTableau[];
     traductions: { [clef: string]: TraducsTexte };
   }> {
-    if (!conversions.length) return { 
-      // @ts-expect-error Le type de `effacerPropriétésNonDéfinies` exclut `null`
-      converties: données.map(effacerPropriétésNonDéfinies), traductions: {} 
-    };
+    if (!conversions.length)
+      return {
+        // @ts-expect-error Le type de `effacerPropriétésNonDéfinies` exclut `null`
+        converties: données.map(effacerPropriétésNonDéfinies),
+        traductions: {},
+      };
 
     const hélia = this.service("hélia");
 
@@ -811,7 +812,7 @@ export class TableauxBds extends Tableaux {
         contenu: Uint8Array;
         nomFichier: string;
       };
-      return isUint8Array(contenu) && typeof nomFichier === "string";
+      return contenu instanceof Uint8Array && typeof nomFichier === "string";
     };
     const cacheFichiers = new Map<string, string>();
     const résoudreFichier = async ({
