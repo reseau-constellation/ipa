@@ -253,7 +253,7 @@ describe.only("Validation", function () {
             erreur: règle,
           },
         ];
-        expect(erreurs).to.have.members(réf);
+        expect(erreurs).to.have.deep.members(réf);
       });
     });
 
