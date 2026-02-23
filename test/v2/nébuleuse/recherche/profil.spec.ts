@@ -17,7 +17,7 @@ import type {
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { Constellation } from "@/v2/index.js";
 
-describe("Rechercher profil", function () {
+describe.only("Rechercher profil", function () {
   describe("selon activité", function () {
     let constls: Constellation[];
     let constl: Constellation;

@@ -22,7 +22,7 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 
-describe("Rechercher bds", function () {
+describe.only("Rechercher bds", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;

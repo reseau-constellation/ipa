@@ -176,10 +176,12 @@ describe.only("Appli", function () {
         c: ServiceC;
       };
       class ServiceA extends ServiceAppli {
-        constructor({ options }: { options: OptionsAppli }) {
+        // Il faut inclure l'options `services` pour pouvoir tester la fermeture des autres services 
+        // dans `fermer` par la suite.
+        constructor({ options, services }: { options: OptionsAppli; services: ServicesAppli }) {
           super({
             clef: "a",
-            services: {},
+            services: services,
             options,
           });
         }
@@ -238,7 +240,7 @@ describe.only("Appli", function () {
       }
       const appli = new Appli<ServicesTest>({
         services: {
-          a: ({ options }) => new ServiceA({ options }),
+          a: ({ options, services }) => new ServiceA({ options, services }),
           b: ({ options, services }) => new ServiceB({ options, services }),
           c: ({ options, services }) => new ServiceC({ options, services }),
         },

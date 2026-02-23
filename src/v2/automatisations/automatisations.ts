@@ -5,15 +5,11 @@ import deepEqual from "deep-equal";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
-import {
-  schémaServiceAutomatisations,
-  schémaSpécificationAutomatisation,
-} from "./types.js";
+import { schémaSpécificationAutomatisation } from "./types.js";
 import { chronomètre, générerFAuto } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { PartielRécursif } from "../types.js";
 import type {
@@ -92,13 +88,12 @@ export class Automatisations extends ServiceDonnéesAppli<
     services,
     options,
   }: {
-    services: ServicesNécessairesDonnées<
-      { automatisations: StructureServiceAutomatisations },
-      L
-    > & {
-      bds: Bds<L>;
-      projets: Projets<L>;
-      nuées: Nuées<L>;
+    services: ServicesNécessairesDonnées<{
+      automatisations: StructureServiceAutomatisations;
+    }> & {
+      bds: Bds;
+      projets: Projets;
+      nuées: Nuées;
     };
     options: OptionsAppli;
   }) {
@@ -106,10 +101,7 @@ export class Automatisations extends ServiceDonnéesAppli<
       clef: "automatisations",
       services,
       dépendances: ["compte", "stockage"],
-      options: {
-        ...options,
-        schéma: schémaServiceAutomatisations,
-      },
+      options,
     });
 
     this.queue = new PQueue({ concurrency: 1 });
@@ -397,12 +389,12 @@ export class Automatisations extends ServiceDonnéesAppli<
     let étatAuto: ÉtatAutomatisation;
 
     const spéc = await this.résoudreFichierAuto(auto);
-    const fAuto = générerFAuto<L>({
+    const fAuto = générerFAuto({
       spéc,
       service: (clef) => this.service(clef),
     });
 
-    const chrono = await chronomètre<L>({
+    const chrono = await chronomètre({
       auto,
       suiviÉtat: async (état) => {
         étatAuto = état;

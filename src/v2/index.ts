@@ -30,7 +30,7 @@ export const créerConstellation = (
   );
 
   if (isElectronRenderer) {
-    console.warn(
+    mandataire.services.journal.écrire(
       "Constellation a été initialisée par le processus de rendu d'Électron. " +
         "Ce n'est pas un gros gros problème, mais nous vous recommandons d'utiliser " +
         "Constellation dans le processus principal, ce qui est beaucoup plus performant " +

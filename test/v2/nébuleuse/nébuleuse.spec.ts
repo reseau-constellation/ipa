@@ -132,7 +132,9 @@ describe.only("Nébuleuse", function () {
       }
     }
 
-    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> & { nullable: true } = {
+    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> & {
+      nullable: true;
+    } = {
       type: "object",
       properties: { a: { type: "number", nullable: true } },
       nullable: true,
@@ -146,7 +148,6 @@ describe.only("Nébuleuse", function () {
         services: ServicesNécessairesDonnées<{ test1: { a: number } }>;
         options: OptionsAppli;
       }) {
-
         super({
           clef: "test1",
           services,
@@ -155,7 +156,9 @@ describe.only("Nébuleuse", function () {
       }
     }
 
-    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> & { nullable: true } = {
+    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> & {
+      nullable: true;
+    } = {
       type: "object",
       properties: { b: { type: "number", nullable: true } },
       nullable: true,
@@ -186,9 +189,9 @@ describe.only("Nébuleuse", function () {
       type: "object",
       properties: {
         test1: schémaTest1,
-        test2: schémaTest2
-      }
-    }
+        test2: schémaTest2,
+      },
+    };
 
     let nébuleuse: NébuleuseTest<StructureDonnées>;
     let dossier: string;
@@ -209,7 +212,7 @@ describe.only("Nébuleuse", function () {
         options: {
           services: {
             dossier: { dossier },
-            compte: { schéma }
+            compte: { schéma },
           },
         },
       });

@@ -10,3 +10,6 @@ export const CONFIANCE_DE_FAVORIS = 0.7;
 
 export const FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE = 0.8;
 export const FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE = 0.9;
+
+//
+export const PROTOCOLE_NÉBULEUSE = "/nébuleuse/1.0.0";

@@ -4,11 +4,11 @@ import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 
-import { dossierTempoPropre } from "test/v2/utils.js";
 import {
   type ServiceDossier,
   serviceDossier,
 } from "@/v2/nébuleuse/services/dossier.js";
+import { dossierTempoPropre } from "../../utils.js";
 import type Quibble from "quibble";
 
 describe("Dossier", function () {

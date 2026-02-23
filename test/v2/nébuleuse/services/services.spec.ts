@@ -12,9 +12,7 @@ import { créerNébuleusesTest } from "../utils.js";
 import { obtenir } from "../../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { JSONSchemaType } from "ajv";
-import type {
-  ServicesNécessairesDonnées,
-} from "@/v2/nébuleuse/services/services.js";
+import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { Libp2p } from "libp2p";
@@ -197,7 +195,9 @@ describe.only("Services Nébuleuse", function () {
         B: StructureB;
       };
 
-      const schémaStructureA: JSONSchemaType<PartielRécursif<StructureA>> & { nullable: true } = {
+      const schémaStructureA: JSONSchemaType<PartielRécursif<StructureA>> & {
+        nullable: true;
+      } = {
         type: "object",
         properties: {
           a: { type: "number", nullable: true },
@@ -205,7 +205,9 @@ describe.only("Services Nébuleuse", function () {
         nullable: true,
       };
 
-      const schémaStructureB: JSONSchemaType<PartielRécursif<StructureB>> & { nullable: true } = {
+      const schémaStructureB: JSONSchemaType<PartielRécursif<StructureB>> & {
+        nullable: true;
+      } = {
         type: "object",
         properties: {
           b: {
@@ -263,8 +265,8 @@ describe.only("Services Nébuleuse", function () {
         properties: {
           A: schémaStructureA,
           B: schémaStructureB,
-        }
-      }
+        },
+      };
 
       before(async () => {
         const { nébuleuses, fermer } = await créerNébuleusesTest<
@@ -284,10 +286,10 @@ describe.only("Services Nébuleuse", function () {
           options: {
             services: {
               compte: {
-                schéma: schémaStructure
-              }
-            }
-          }
+                schéma: schémaStructure,
+              },
+            },
+          },
         });
         nébuleuse = nébuleuses[0];
         oublier = fermer;

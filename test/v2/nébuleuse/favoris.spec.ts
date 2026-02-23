@@ -1,13 +1,20 @@
 import { expect } from "aegir/chai";
 import { isNode, isElectronMain } from "wherearewe";
 import { faisRien } from "@constl/utils-ipa";
-import { TOUS_DISPOSITIFS, type DispositifsÉpingle, type Réplication, type Résolveur, type ÉpingleFavorisAvecId, type ÉpingleFavorisBooléenniséeAvecId } from "@/v2/nébuleuse/services/favoris.js";
+import {
+  TOUS_DISPOSITIFS,
+  type DispositifsÉpingle,
+  type Réplication,
+  type Résolveur,
+  type ÉpingleFavorisAvecId,
+  type ÉpingleFavorisBooléenniséeAvecId,
+} from "@/v2/nébuleuse/services/favoris.js";
 import { obtenir } from "../utils.js";
 import { créerNébuleusesTest } from "./utils.js";
 import type { NébuleuseTest } from "./utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 
-describe("Favoris", function () {
+describe.only("Favoris", function () {
   let nébuleuses: NébuleuseTest[];
   let nébuleuse: NébuleuseTest;
   let fermer: () => Promise<void>;
@@ -15,14 +22,14 @@ describe("Favoris", function () {
   let idDispositif: string;
 
   type ÉpingleTest = {
-    type: "test",
+    type: "test";
     épingle: {
       base: DispositifsÉpingle;
-    }
-  }
-  const idObjet = "/typeobjet/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-  const erreurs: string[] = []
-
+    };
+  };
+  const idObjet =
+    "/typeobjet/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+  const erreurs: string[] = [];
 
   before(async () => {
     ({ fermer, nébuleuses } = await créerNébuleusesTest({
@@ -30,10 +37,12 @@ describe("Favoris", function () {
       options: {
         services: {
           journal: {
-            f: erreur => {erreurs.push(erreur)},
-          }
-        }
-      }
+            f: (erreur) => {
+              erreurs.push(erreur);
+            },
+          },
+        },
+      },
     }));
     nébuleuse = nébuleuses[0];
 
@@ -90,51 +99,56 @@ describe("Favoris", function () {
   });
 
   describe("résolution épingles", function () {
-
     it("inscrire résolution", async () => {
       const résolution: Résolveur<ÉpingleTest> = async ({
         épingle,
         f,
       }: {
         épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleTest>;
-        f: Suivi<Set<string>>
+        f: Suivi<Set<string>>;
       }): Promise<Oublier> => {
-        await f(new Set(épingle.épingle.épingle.base ? [épingle.idObjet] : []))
-        return faisRien
+        await f(new Set(épingle.épingle.épingle.base ? [épingle.idObjet] : []));
+        return faisRien;
       };
-      
+
       await nébuleuse.favoris.inscrireRésolution({
         clef: "test",
         résolution,
       });
-      
+
       const épingle: ÉpingleFavorisAvecId<ÉpingleTest["épingle"]> = {
         idObjet,
         épingle: {
           type: "test",
           épingle: {
-            base: idDispositif
-          }
-        }
-      }
-      const résolus = await obtenir<Set<string>>(({siDéfini})=>nébuleuse.favoris.suivreRésolutionÉpingle({
-        épingle,
-        f: siDéfini()
-      }));
-      
-      expect([...résolus]).to.have.members([idObjet])
+            base: idDispositif,
+          },
+        },
+      };
+      const résolus = await obtenir<Set<string>>(({ siDéfini }) =>
+        nébuleuse.favoris.suivreRésolutionÉpingle({
+          épingle,
+          f: siDéfini(),
+        }),
+      );
+
+      expect([...résolus]).to.have.members([idObjet]);
     });
 
     it("erreur si résolution non inscrite", async () => {
-      const résolus = await obtenir<Set<string>>(({siDéfini})=> nébuleuse.favoris.suivreRésolutionÉpingle({
-        épingle: {
-          idObjet,
-          épingle: { type: "INEXISTANTE" }
-        },
-        f: siDéfini()
-      }));
-      expect([...résolus]).to.have.members([idObjet])
-      expect(erreurs).to.include("Résolveur pour épingle de type INEXISTANTE non disponible. Cet objet ne sera pas épinglé.")
+      const résolus = await obtenir<Set<string>>(({ siDéfini }) =>
+        nébuleuse.favoris.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet,
+            épingle: { type: "INEXISTANTE" },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolus]).to.have.members([idObjet]);
+      expect(erreurs).to.include(
+        "Résolveur pour épingle de type INEXISTANTE non disponible. Cet objet ne sera pas épinglé.",
+      );
     });
 
     it("pas d'erreur même si référence circulaire", async () => {
@@ -143,96 +157,120 @@ describe("Favoris", function () {
   });
 
   describe("gestion favoris", function () {
-
     it("épingler favoris", async () => {
-      await nébuleuse.favoris.épinglerFavori({ idObjet, épingle: {
-        type: "test",
-
-      } });
-      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(({siPasVide})=>nébuleuse.favoris.suivreFavoris({
-        f: siPasVide(),
-      }));
-
-      const réf: ÉpingleFavorisAvecId[] = [{
+      await nébuleuse.favoris.épinglerFavori({
         idObjet,
-        épingle:  {
-          type: "test",
-          épingle: {
-            base: TOUS_DISPOSITIFS,
-          }
-        }
-      }]
-      expect(favoris).to.deep.equal(réf);
-    });
-
-    it("détecter sur autre compte", async () => {
-      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(({siPasVide})=>nébuleuses[1].favoris.suivreFavoris({
-        f: siPasVide(),
-      }));
-
-      const réf: ÉpingleFavorisAvecId<ÉpingleTest["épingle"]>[] = [{
-        idObjet,
-        épingle:  {
-          type: "test",
-          épingle: {
-            base: TOUS_DISPOSITIFS,
-          }
-        }
-      }]
-      expect(favoris).to.deep.equal(réf);
-    });
-
-    it("rechercher épingles objet", async () => {
-      const épingles = await obtenir<{
-          idCompte: string;
-          épingle: ÉpingleFavorisAvecId;
-      }[]>(({siPasVide}) => nébuleuses[1].favoris.suivreÉpinglesObjet({
-        idObjet,
-        f: siPasVide(),
-      }));
-
-      const réf: {
-        idCompte: string;
-        épingle: ÉpingleFavorisAvecId<ÉpingleTest["épingle"]>;
-      }[] = [{
-        idCompte: await nébuleuse.compte.obtIdCompte(),
         épingle: {
+          type: "test",
+        },
+      });
+      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
+        ({ siPasVide }) =>
+          nébuleuse.favoris.suivreFavoris({
+            f: siPasVide(),
+          }),
+      );
+
+      const réf: ÉpingleFavorisAvecId[] = [
+        {
           idObjet,
           épingle: {
             type: "test",
             épingle: {
               base: TOUS_DISPOSITIFS,
-            }
-          }
-        }
-      }]
-      expect(épingles).to.have.deep.members(réf)
+            },
+          },
+        },
+      ];
+      expect(favoris).to.deep.equal(réf);
+    });
+
+    it("détecter sur autre compte", async () => {
+      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
+        ({ siPasVide }) =>
+          nébuleuses[1].favoris.suivreFavoris({
+            f: siPasVide(),
+          }),
+      );
+
+      const réf: ÉpingleFavorisAvecId<ÉpingleTest["épingle"]>[] = [
+        {
+          idObjet,
+          épingle: {
+            type: "test",
+            épingle: {
+              base: TOUS_DISPOSITIFS,
+            },
+          },
+        },
+      ];
+      expect(favoris).to.deep.equal(réf);
+    });
+
+    it("rechercher épingles objet", async () => {
+      const épingles = await obtenir<
+        {
+          idCompte: string;
+          épingle: ÉpingleFavorisAvecId;
+        }[]
+      >(({ siPasVide }) =>
+        nébuleuses[1].favoris.suivreÉpinglesObjet({
+          idObjet,
+          f: siPasVide(),
+        }),
+      );
+
+      const réf: {
+        idCompte: string;
+        épingle: ÉpingleFavorisAvecId<ÉpingleTest["épingle"]>;
+      }[] = [
+        {
+          idCompte: await nébuleuse.compte.obtIdCompte(),
+          épingle: {
+            idObjet,
+            épingle: {
+              type: "test",
+              épingle: {
+                base: TOUS_DISPOSITIFS,
+              },
+            },
+          },
+        },
+      ];
+      expect(épingles).to.have.deep.members(réf);
     });
 
     it("rechercher réplications objet", async () => {
-      const réplications = await obtenir<Réplication[]>(({siPasVide}) => nébuleuses[1].favoris.suivreRéplications({
-        idObjet,
-        f: siPasVide(),
-      }));
+      const réplications = await obtenir<Réplication[]>(({ siPasVide }) =>
+        nébuleuses[1].favoris.suivreRéplications({
+          idObjet,
+          f: siPasVide(),
+        }),
+      );
 
-      const réf: Réplication<ÉpingleTest["épingle"]>[] = [{
-        idDispositif: await nébuleuse.compte.obtIdDispositif(),
-        épingle: {
-          type: "test",
+      const réf: Réplication<ÉpingleTest["épingle"]>[] = [
+        {
+          idDispositif: await nébuleuse.compte.obtIdDispositif(),
           épingle: {
-            base: TOUS_DISPOSITIFS,
-          }
-        }
-      }]
-      expect(réplications).to.have.deep.members(réf)
+            type: "test",
+            épingle: {
+              base: TOUS_DISPOSITIFS,
+            },
+          },
+        },
+      ];
+      expect(réplications).to.have.deep.members(réf);
     });
 
     it("désépingler favoris", async () => {
       await nébuleuse.favoris.désépinglerFavori({ idObjet });
 
-      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(({siVide})=>nébuleuse.favoris.suivreFavoris({
-        f: siVide(),
-      }));
+      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
+        ({ siVide }) =>
+          nébuleuse.favoris.suivreFavoris({
+            f: siVide(),
+          }),
+      );
 
       expect(favoris).to.be.empty();
     });

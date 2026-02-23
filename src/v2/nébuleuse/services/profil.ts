@@ -277,7 +277,8 @@ export class Profil extends ServiceDonnéesAppli<
     f: Suivi<{ image: Uint8Array; idImage: string } | null>;
     idCompte?: string;
   }): Promise<Oublier> {
-    const { visualiser: maxTailleImage } = await this.service("compte").maxTailleImages();
+    const { visualiser: maxTailleImage } =
+      await this.service("compte").maxTailleImages();
 
     return await this.suivreBd({
       clef: "image",

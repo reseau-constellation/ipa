@@ -149,7 +149,6 @@ export abstract class ServiceDonnéesAppli<
   RetourDémarré,
   Options
 > {
-
   constructor({
     clef,
     services,

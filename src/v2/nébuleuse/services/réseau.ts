@@ -10,23 +10,21 @@ import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
 } from "uint8arrays";
-import { PROTOCOLE_CONSTELLATION } from "@/v2/recherche/consts.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../cache.js";
-import { ServiceDonnéesAppli } from "./services.js";
-import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
-import { appelerLorsque } from "./utils.js";
 import {
+  PROTOCOLE_NÉBULEUSE,
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
   FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
 } from "./consts.js";
+import { ServiceDonnéesAppli } from "./services.js";
+import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
+import { appelerLorsque } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../types.js";
-import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
-import type { ServicesNécessairesCompte } from "./compte/compte.js";
 
 // Types connexions
 
@@ -131,7 +129,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
 
     await libp2p.handle(
-      PROTOCOLE_CONSTELLATION,
+      PROTOCOLE_NÉBULEUSE,
       async ({ stream, connection }) => {
         const idPair = connection.remotePeer.toCID().toString();
         pipe(stream, (source) =>
@@ -164,7 +162,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     );
 
     const idTopologie = await libp2p.register(
-      PROTOCOLE_CONSTELLATION,
+      PROTOCOLE_NÉBULEUSE,
       {
         async onConnect(peerId, conn) {
           const identifiantsCompte = {
@@ -172,7 +170,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             idDispositif: await compte.obtIdDispositif(),
           };
 
-          const flux = await conn.newStream(PROTOCOLE_CONSTELLATION);
+          const flux = await conn.newStream(PROTOCOLE_NÉBULEUSE);
           await pipe(
             [uint8ArrayFromString(JSON.stringify(identifiantsCompte))],
             flux,
@@ -195,7 +193,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const libp2p = await this.service("libp2p").libp2p();
     const { idTopologie } = this.estDémarré;
     libp2p.unregister(idTopologie);
-    await libp2p.unhandle([PROTOCOLE_CONSTELLATION]);
+    await libp2p.unhandle([PROTOCOLE_NÉBULEUSE]);
 
     return await super.fermer();
   }

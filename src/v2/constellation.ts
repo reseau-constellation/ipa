@@ -7,9 +7,10 @@ import { Nuées } from "./nuées/nuées.js";
 import { Licences } from "./licences.js";
 import { Projets } from "./projets.js";
 import { Automatisations } from "./automatisations/automatisations.js";
+import { schémaServiceObjet, type StructureServiceObjet } from "./objets.js";
+import { schémaServiceAutomatisations } from "./automatisations/types.js";
 import type { ServiceÉpingles } from "./nébuleuse/services/épingles.js";
 import type { ServiceFavoris } from "./nébuleuse/services/favoris.js";
-import type { StructureServiceObjet } from "./objets.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
 import type {
   OptionsNébuleuse,
@@ -17,6 +18,9 @@ import type {
   StructureNébuleuse,
 } from "./nébuleuse/nébuleuse.js";
 import type { NestedValue } from "@orbitdb/nested-db";
+import type { PartielRécursif } from "./types.js";
+import type { StructureServiceAutomatisations } from "./automatisations/types.js";
+import type { JSONSchemaType } from "ajv";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
@@ -35,22 +39,40 @@ export type ServicesSpécifiquesConstellation = {
   licences: Licences;
 };
 
-export type StructureConstellation = StructureNébuleuse & {
-  motsClefs: StructureServiceObjet,
-  bds: StructureServiceObjet,
-  variables: StructureServiceObjet,
-  nuées: StructureServiceObjet,
-  automatisations: StructureServiceObjet,
-  projets: StructureServiceObjet,
+export type StructureConstellation = {
+  motsClefs: StructureServiceObjet;
+  bds: StructureServiceObjet;
+  variables: StructureServiceObjet;
+  nuées: StructureServiceObjet;
+  projets: StructureServiceObjet;
+  automatisations: StructureServiceAutomatisations;
+};
+
+export const schémaConstellation: JSONSchemaType<
+  PartielRécursif<StructureConstellation>
+> = {
+  type: "object",
+  properties: {
+    motsClefs: schémaServiceObjet,
+    bds: schémaServiceObjet,
+    variables: schémaServiceObjet,
+    nuées: schémaServiceObjet,
+    projets: schémaServiceObjet,
+    automatisations: schémaServiceAutomatisations,
+  },
 };
 
 export type ServicesConstellation = ServicesSpécifiquesConstellation &
-  ServicesNébuleuse<StructureConstellation>;
+  ServicesNébuleuse<StructureNébuleuse & StructureConstellation>;
 
 export class Constellation<
   T extends { [clef: string]: NestedValue } = Record<string, never>,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> extends Nébuleuse<T, ServicesSpécifiquesConstellation, L> {
+> extends Nébuleuse<
+  T & StructureConstellation,
+  ServicesSpécifiquesConstellation,
+  L
+> {
   bds: Bds;
   motsClefs: MotsClefs;
   nuées: Nuées;
@@ -61,20 +83,28 @@ export class Constellation<
   projets: Projets;
   licences: Licences;
 
-  constructor(
-    options: OptionsConstellation<L>,
-  ) {
-    const défauts = { nomAppli: "constellation" }
-    options = merge(défauts, options)
+  constructor(options: OptionsConstellation<L>) {
+    const défauts = {
+      nomAppli: "constellation",
+      services: {
+        compte: {
+          schéma: schémaConstellation,
+        },
+      },
+    };
+    options = merge(défauts, options);
 
     super({
       services: {
-        motsClefs: ({ services, options }) => new MotsClefs({ services, options }),
+        motsClefs: ({ services, options }) =>
+          new MotsClefs({ services, options }),
         bds: ({ services, options }) => new Bds({ services, options }),
-        variables: ({ services, options }) => new Variables({ services, options }),
+        variables: ({ services, options }) =>
+          new Variables({ services, options }),
         nuées: ({ services, options }) => new Nuées({ services, options }),
         projets: ({ services, options }) => new Projets({ services, options }),
-        automatisations: ({ services, options }) => new Automatisations({ services, options }),
+        automatisations: ({ services, options }) =>
+          new Automatisations({ services, options }),
         licences: ({ options }) => new Licences({ options }),
       },
       options,

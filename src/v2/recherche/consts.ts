@@ -1,5 +1,3 @@
-export const PROTOCOLE_CONSTELLATION = "/constellation/1.0.0";
-
 // Constantes recherche
 export const PROFONDEUR_MINIMALE_RECHERCHE = 3;
 

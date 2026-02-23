@@ -465,7 +465,7 @@ export const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationA
 
 export const schémaServiceAutomatisations: JSONSchemaType<
   PartielRécursif<StructureServiceAutomatisations>
-> = {
+> & { nullable: true } = {
   type: "object",
   additionalProperties: {
     type: "object",
@@ -560,4 +560,5 @@ export const schémaServiceAutomatisations: JSONSchemaType<
     required: [],
   },
   required: [],
+  nullable: true,
 };

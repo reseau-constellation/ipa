@@ -27,7 +27,6 @@ import type {
   SourceDonnéesImportationAdresseOptionel,
   Fréquence,
 } from "./types.js";
-import type { ServicesLibp2pNébuleuse } from "../nébuleuse/services/libp2p/libp2p.js";
 import type { AccesseurService } from "../recherche/types.js";
 
 if (isElectronMain || isNode) {
@@ -70,12 +69,12 @@ export const fAutoAvecÉtats = (
   };
 };
 
-export const générerFAuto = <L extends ServicesLibp2pNébuleuse>({
+export const générerFAuto = ({
   spéc,
   service,
 }: {
   spéc: SpécificationAutomatisation;
-  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+  service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): (() => Promise<void>) => {
   switch (spéc.type) {
     case "importation": {
@@ -91,12 +90,12 @@ export const générerFAuto = <L extends ServicesLibp2pNébuleuse>({
   }
 };
 
-export const générerFImportation = <L extends ServicesLibp2pNébuleuse>({
+export const générerFImportation = ({
   spéc,
   service,
 }: {
   spéc: SpécificationImporter;
-  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+  service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): (() => Promise<void>) => {
   return async () => {
     const données = await obtDonnéesImportation(spéc);
@@ -134,12 +133,12 @@ export const générerFImportation = <L extends ServicesLibp2pNébuleuse>({
   };
 };
 
-export const générerFExportation = <L extends ServicesLibp2pNébuleuse>({
+export const générerFExportation = ({
   spéc,
   service,
 }: {
   spéc: SpécificationExporter;
-  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+  service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): (() => Promise<void>) => {
   return async () => {
     const os = await import("os");
@@ -323,7 +322,7 @@ export type Chronomètre = {
   fermer: () => Promise<void>;
 };
 
-export const chronomètre = async <L extends ServicesLibp2pNébuleuse>({
+export const chronomètre = async ({
   auto,
   suiviÉtat,
   f,
@@ -332,7 +331,7 @@ export const chronomètre = async <L extends ServicesLibp2pNébuleuse>({
   auto: SpécificationAutomatisation;
   suiviÉtat: Suivi<ÉtatAutomatisation>;
   f: () => Promise<void>;
-  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+  service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
   if (auto.fréquence.type === "manuelle") {
     return await chronoManuel({ f, suiviÉtat });
@@ -412,7 +411,7 @@ export const obtTempsDernièreFois = async (
   return isNaN(dernièreFois) ? -Infinity : dernièreFois;
 };
 
-export const chronoFixe = async <L extends ServicesLibp2pNébuleuse>({
+export const chronoFixe = async ({
   f,
   fréquence,
   suiviÉtat,
@@ -423,7 +422,7 @@ export const chronoFixe = async <L extends ServicesLibp2pNébuleuse>({
   fréquence: FréquenceFixe;
   suiviÉtat: Suivi<ÉtatAutomatisation>;
   id: string;
-  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+  service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
   const queue = schéduler();
   const annuler = new AbortController();
@@ -473,7 +472,7 @@ export const chronoFixe = async <L extends ServicesLibp2pNébuleuse>({
   };
 };
 
-export const chronoDynamique = async <L extends ServicesLibp2pNébuleuse>({
+export const chronoDynamique = async ({
   f,
   suiviÉtat,
   auto,
@@ -482,7 +481,7 @@ export const chronoDynamique = async <L extends ServicesLibp2pNébuleuse>({
   f: () => Promise<void>;
   suiviÉtat: Suivi<ÉtatAutomatisation>;
   auto: SpécificationAutomatisation;
-  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+  service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
   if (auto.type === "importation")
     return await chronoDynamiqueImportation({
@@ -494,9 +493,7 @@ export const chronoDynamique = async <L extends ServicesLibp2pNébuleuse>({
   else return await chronoDynamiqueExportation({ f, auto, suiviÉtat, service });
 };
 
-export const chronoDynamiqueImportation = async <
-  L extends ServicesLibp2pNébuleuse,
->({
+export const chronoDynamiqueImportation = async ({
   f,
   auto,
   suiviÉtat,
@@ -505,7 +502,7 @@ export const chronoDynamiqueImportation = async <
   f: () => Promise<void>;
   auto: SpécificationImporter;
   suiviÉtat: Suivi<ÉtatAutomatisation>;
-  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+  service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
   const queue = schéduler();
 
@@ -584,9 +581,7 @@ export const chronoDynamiqueImportation = async <
   }
 };
 
-export const chronoDynamiqueExportation = async <
-  L extends ServicesLibp2pNébuleuse,
->({
+export const chronoDynamiqueExportation = async ({
   f,
   auto,
   suiviÉtat,
@@ -595,7 +590,7 @@ export const chronoDynamiqueExportation = async <
   f: () => Promise<void>;
   auto: SpécificationExporter;
   suiviÉtat: Suivi<ÉtatAutomatisation>;
-  service: AccesseurService<ServicesNécessairesAutomatisations<L>>;
+  service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
   const stockage = service("stockage");
   const bds = service("bds");

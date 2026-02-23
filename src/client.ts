@@ -20,7 +20,6 @@ import { TOUS } from "@/favoris.js";
 import { Épingles } from "@/epingles.js";
 import { exporterStockageLocal } from "@/stockageLocal.js";
 
-
 export interface Signature {
   signature: string;
   clefPublique: string;
@@ -77,7 +76,6 @@ const join = async (...args: string[]) => {
 };
 
 export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
-
   épingles: Épingles;
 
   erreurInitialisation?: Error;
@@ -92,7 +90,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   _intervaleVerrou?: NodeJS.Timeout;
 
   constructor(opts: optsConstellation<T> = {}) {
-
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
 

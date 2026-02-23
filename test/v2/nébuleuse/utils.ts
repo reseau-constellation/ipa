@@ -78,13 +78,13 @@ export const créerNébuleusesTest = async <
   fermer: Oublier;
 }> => {
   options ??= {};
-  options.services ??= {}
-  
+  options.services ??= {};
+
   let effacer: () => void;
   if (!options.services.dossier) {
     const dossier = await dossierTempoPropre();
     effacer = dossier.effacer;
-    options.services.dossier = dossier
+    options.services.dossier = dossier;
   } else effacer = () => {};
 
   const nébuleuses: NébuleuseTest<T, S>[] = [];

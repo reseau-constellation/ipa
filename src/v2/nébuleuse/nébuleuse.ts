@@ -117,7 +117,7 @@ export type OptionsNébuleuse<
     libp2p?: OptionsServiceLibp2p<L>;
     hélia?: OptionsServiceHélia<L>;
     orbite?: OptionsServiceOrbite<L>;
-      // On n'inclut pas `StructureNébuleuse` dans `OptionsServiceCompte` car celle-ci est ajoutée dans l'initialisateur de `Nébuleuse`
+    // On n'inclut pas `StructureNébuleuse` dans `OptionsServiceCompte` car celle-ci est ajoutée dans l'initialisateur de `Nébuleuse`
     compte?: OptionsServiceCompte<T>;
   };
 };
@@ -138,7 +138,8 @@ export class Nébuleuse<
     options,
   }: {
     services?: ConstructeursServicesAppli<
-      S & Partial<ServicesNébuleuse<StructureNébuleuse>>
+      S & Partial<ServicesNébuleuse<StructureNébuleuse & T>>,
+      ServicesNébuleuse<StructureNébuleuse & T>
     >;
     options?: OptionsNébuleuse<T, L>;
   }) {

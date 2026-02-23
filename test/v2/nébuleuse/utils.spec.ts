@@ -2,7 +2,7 @@ import { multiaddr } from "@multiformats/multiaddr";
 import { expect } from "aegir/chai";
 import { dépunicodifier } from "@/v2/nébuleuse/utils.js";
 
-describe("utils", function () {
+describe.only("utils", function () {
   describe("Dépunycodifier", function () {
     it("Convertir à Unicode", () => {
       const converti = dépunicodifier(

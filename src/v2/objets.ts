@@ -26,10 +26,11 @@ export type StructureServiceObjet = {
 
 export const schémaServiceObjet: JSONSchemaType<
   PartielRécursif<StructureServiceObjet>
-> = {
+> & { nullable: true } = {
   type: "object",
   additionalProperties: true,
   required: [],
+  nullable: true,
 };
 
 export type ServicesNécessairesObjet<T extends string> =

@@ -237,7 +237,9 @@ describe.only("Service Compte", function () {
   describe("structure compte", function () {
     type StructureTest = { test1: { a: number }; test2: { b: number } };
 
-    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> & { nullable: true }  = {
+    const schémaTest1: JSONSchemaType<PartielRécursif<{ a: number }>> & {
+      nullable: true;
+    } = {
       type: "object",
       properties: { a: { type: "number", nullable: true } },
       nullable: true,
@@ -253,7 +255,6 @@ describe.only("Service Compte", function () {
         };
         options: OptionsAppli;
       }) {
-
         super({
           clef: "test1",
           services,
@@ -262,7 +263,9 @@ describe.only("Service Compte", function () {
       }
     }
 
-    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> & { nullable: true } = {
+    const schémaTest2: JSONSchemaType<PartielRécursif<{ b: number }>> & {
+      nullable: true;
+    } = {
       type: "object",
       properties: { b: { type: "number", nullable: true } },
       nullable: true,
@@ -286,13 +289,13 @@ describe.only("Service Compte", function () {
       }
     }
 
-    const schéma: JSONSchemaType<PartielRécursif<StructureTest>> =  {
+    const schéma: JSONSchemaType<PartielRécursif<StructureTest>> = {
       type: "object",
       properties: {
         test1: schémaTest1,
-        test2: schémaTest2
-      }
-    }
+        test2: schémaTest2,
+      },
+    };
 
     let appli: Appli<
       ServicesNécessairesCompte & { compte: ServiceCompte<StructureTest> } & {
@@ -322,7 +325,7 @@ describe.only("Service Compte", function () {
             new ServiceTest2({ options, services }),
         },
         options: {
-          compte: { schéma }
+          compte: { schéma },
         },
       });
 

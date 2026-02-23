@@ -953,7 +953,8 @@ export class Nuées extends ObjetConstellation<
     idNuée: string;
     image: { contenu: Uint8Array; nomFichier: string };
   }): Promise<string> {
-    const { sauvegarder: maxTailleImage } = await this.service("compte").maxTailleImages();
+    const { sauvegarder: maxTailleImage } =
+      await this.service("compte").maxTailleImages();
 
     if (image.contenu.byteLength > maxTailleImage) {
       throw new Error("Taille maximale excédée");
