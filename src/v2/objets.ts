@@ -67,7 +67,7 @@ export abstract class ObjetConstellation<
     super({
       clef,
       services,
-      dépendances,
+      dépendances: [...dépendances, "réseau"],
       options: Object.assign({}, options, {
         schéma: schémaServiceObjet,
       }),
