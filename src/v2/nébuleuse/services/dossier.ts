@@ -55,7 +55,8 @@ export class ServiceDossier extends ServiceAppli<
     dossier: string;
     déverrouiller: Oublier;
   }> {
-    let dossier: string;
+    let dossier = this.options.dossier;
+
     const { nomAppli, mode } = this.options;
     if (this.options.dossier) {
       if (isNode || isElectronMain) {
@@ -66,19 +67,21 @@ export class ServiceDossier extends ServiceAppli<
       dossier = this.options.dossier;
     }
 
-    if (isNode || isElectronMain) {
-      const fs = await import("fs");
-      // Utiliser l'application native
-      const envPaths = (await import("env-paths")).default;
-      const chemins = envPaths(nomAppli, { suffix: "" });
-      dossier = join(
-        chemins.data,
-        mode === "dév" ? `${nomAppli}-dév` : nomAppli,
-      );
-      if (!fs.existsSync(dossier)) fs.mkdirSync(dossier, { recursive: true });
-    } else {
-      // Pour navigateur
-      dossier = `./${this.options.nomAppli}`;
+    if (!dossier) {
+      if (isNode || isElectronMain) {
+        const fs = await import("fs");
+        // Utiliser l'application native
+        const envPaths = (await import("env-paths")).default;
+        const chemins = envPaths(nomAppli, { suffix: "" });
+        dossier = join(
+          chemins.data,
+          mode === "dév" ? `${nomAppli}-dév` : nomAppli,
+        );
+        if (!fs.existsSync(dossier)) fs.mkdirSync(dossier, { recursive: true });
+      } else {
+        // Pour navigateur
+        dossier = `./${this.options.nomAppli}`;
+      }
     }
     const déverrouiller = await this.verrouillerDossier(dossier);
     return { dossier, déverrouiller };

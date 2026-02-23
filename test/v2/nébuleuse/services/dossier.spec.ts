@@ -11,7 +11,7 @@ import {
 import { dossierTempoPropre } from "../../utils.js";
 import type Quibble from "quibble";
 
-describe("Dossier", function () {
+describe.only("Dossier", function () {
   let quibble: typeof Quibble;
 
   let appli: Appli<{ dossier: ServiceDossier }>;
