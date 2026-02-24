@@ -247,7 +247,7 @@ export class Bds extends ObjetConstellation<
     super({
       clef: "bds",
       services,
-      dépendances: ["variables", "motsClefs", "compte", "orbite", "hélia"],
+      dépendances: ["variables", "motsClefs", "favoris", "compte", "orbite", "hélia"],
       options,
     });
 
