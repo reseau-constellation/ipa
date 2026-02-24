@@ -62,7 +62,7 @@ export class ServiceLibp2p<
     super({
       clef: "libp2p",
       services,
-      dépendances: ["stockage"],
+      dépendances: ["stockage", "dossier"],
       options,
     });
   }
