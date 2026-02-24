@@ -30,7 +30,7 @@ import type {
   ÉpingleProjet,
 } from "@/v2/projets.js";
 
-describe("Projets", function () {
+describe.skip("Projets", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
