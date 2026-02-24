@@ -2,9 +2,8 @@ import { expect } from "aegir/chai";
 import { CID } from "multiformats";
 import { que } from "@constl/utils-tests";
 import { diviserIdcEtFichier, idcEtFichierValide } from "@/v2/utils.js";
-import { obtRessourceTest } from "./ressources/index.js";
-import { créerConstellationsTest } from "./utils.js";
-import type { Constellation } from "@/v2/index.js";
+import { obtRessourceTest } from "../ressources/index.js";
+import { créerNébuleusesTest, NébuleuseTest } from "./utils.js";
 
 describe.only("Épingles", function () {
   describe("vérification idc", function () {
@@ -33,27 +32,27 @@ describe.only("Épingles", function () {
 
   describe("épingler et désépingler", function () {
     let fermer: () => Promise<void>;
-    let constls: Constellation[];
-    let constl: Constellation;
+    let nébuleuses: NébuleuseTest[];
+    let nébuleuse: NébuleuseTest;
 
     let idBd: string;
     let idc: string;
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
+      ({ fermer, nébuleuses } = await créerNébuleusesTest({
         n: 1,
       }));
-      constl = constls[0];
+      nébuleuse = nébuleuses[0];
 
       const fichier: Uint8Array = await obtRessourceTest({
         nomFichier: "logo.png",
       });
-      idc = await constl.services.hélia.ajouterFichierÀSFIP({
+      idc = await nébuleuse.services.hélia.ajouterFichierÀSFIP({
         contenu: fichier,
         nomFichier: "logo.svg",
       });
 
-      const { bd, oublier } = await constl.orbite.créerBd({ type: "keyvalue" });
+      const { bd, oublier } = await nébuleuse.orbite.créerBd({ type: "keyvalue" });
       idBd = bd.address;
       await bd.put("a", 1);
       await oublier();
@@ -64,14 +63,14 @@ describe.only("Épingles", function () {
     });
 
     it("épingler hélia", async () => {
-      await constl.épingles.épingler({
+      await nébuleuse.services["épingles"].épingler({
         idRequête: "a",
         épingles: new Set([idc]),
       });
 
-      await que(async () => await constl.épingles.estÉpinglé({ id: idc }));
+      await que(async () => await nébuleuse.services["épingles"].estÉpinglé({ id: idc }));
 
-      const hélia = await constl.services.hélia.hélia();
+      const hélia = await nébuleuse.services.hélia.hélia();
       const épingléSurHélia = await hélia.pins.isPinned(
         CID.parse(diviserIdcEtFichier(idc).idc),
       );
@@ -80,11 +79,11 @@ describe.only("Épingles", function () {
     });
 
     it("désépingler hélia", async () => {
-      await constl.épingles.désépingler({ idRequête: "a" });
+      await nébuleuse.services["épingles"].désépingler({ idRequête: "a" });
 
-      await que(async () => !(await constl.épingles.estÉpinglé({ id: idc })));
+      await que(async () => !(await nébuleuse.services["épingles"].estÉpinglé({ id: idc })));
 
-      const hélia = await constl.services.hélia.hélia();
+      const hélia = await nébuleuse.services.hélia.hélia();
       const épingléSurHélia = await hélia.pins.isPinned(
         CID.parse(diviserIdcEtFichier(idc).idc),
       );
@@ -93,33 +92,33 @@ describe.only("Épingles", function () {
     });
 
     it("épingler orbite", async () => {
-      await constl.épingles.épingler({
+      await nébuleuse.services["épingles"].épingler({
         idRequête: "a",
         épingles: new Set([idBd]),
       });
 
-      await que(async () => await constl.épingles.estÉpinglé({ id: idBd }));
+      await que(async () => await nébuleuse.services["épingles"].estÉpinglé({ id: idBd }));
     });
 
     it("désépingler orbite", async () => {
-      await constl.épingles.désépingler({ idRequête: "a" });
+      await nébuleuse.services["épingles"].désépingler({ idRequête: "a" });
 
       await que(
-        async () => (await constl.épingles.estÉpinglé({ id: idBd })) === false,
+        async () => (await nébuleuse.services["épingles"].estÉpinglé({ id: idBd })) === false,
       );
     });
   });
 
   describe("cycle de vie", function () {
     let fermer: () => Promise<void>;
-    let constls: Constellation[];
-    let constl: Constellation;
+    let nébuleuses: NébuleuseTest[];
+    let nébuleuse: NébuleuseTest;
 
     beforeEach(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
+      ({ fermer, nébuleuses } = await créerNébuleusesTest({
         n: 1,
       }));
-      constl = constls[0];
+      nébuleuse = nébuleuses[0];
     });
 
     afterEach(async () => {
@@ -130,23 +129,23 @@ describe.only("Épingles", function () {
       let fermée = false;
       const lorsqueFermée = () => (fermée = true);
 
-      const { bd, oublier } = await constl.orbite.créerBd({ type: "keyvalue" });
+      const { bd, oublier } = await nébuleuse.orbite.créerBd({ type: "keyvalue" });
       bd.events.on("close", lorsqueFermée);
 
       await bd.put("a", 1);
 
-      await constl.épingles.épingler({
+      await nébuleuse.services["épingles"].épingler({
         idRequête: "a",
         épingles: new Set([bd.address]),
       });
       await que(
-        async () => await constl.épingles.estÉpinglé({ id: bd.address }),
+        async () => await nébuleuse.services["épingles"].estÉpinglé({ id: bd.address }),
       );
 
       await oublier();
       expect(fermée).to.be.false();
 
-      await constl.épingles.fermer();
+      await nébuleuse.services["épingles"].fermer();
 
       bd.events.off("close", lorsqueFermée);
       expect(fermée).to.be.true();
@@ -156,7 +155,7 @@ describe.only("Épingles", function () {
       const idBdInexistante =
         "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
 
-      await constl.épingles.épingler({
+      await nébuleuse.services["épingles"].épingler({
         idRequête: "a",
         épingles: new Set([idBdInexistante]),
       });
@@ -166,7 +165,7 @@ describe.only("Épingles", function () {
       const idcInexistant =
         "bafkreie7ohywtosou76tasm7j63yigtzxe7d5zqus4zu3j6oltvgtibeom";
 
-      await constl.épingles.épingler({
+      await nébuleuse.services["épingles"].épingler({
         idRequête: "a",
         épingles: new Set([idcInexistant]),
       });
