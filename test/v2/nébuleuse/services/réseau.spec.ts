@@ -526,7 +526,7 @@ describe("Réseau", function () {
     it("comptes par profondeur");
   });
 
-  describe("reconnexion après réouverture");
+  describe("reconnexion après réouverture", function () {});
 
   describe("automatisation ajout dispositif", function () {
     let idBd: string;
