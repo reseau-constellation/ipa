@@ -46,13 +46,6 @@ const obtEnnikkai = () => {
 
 // Types données tableaux
 
-export interface DonnéesRangéeTableauAvecId<
-  T extends DonnéesRangéeTableau = DonnéesRangéeTableau,
-> {
-  données: T;
-  id: string;
-}
-
 export type DonnéesTableauExportées = {
   nomTableau: string;
   données: DonnéesRangéeTableau[];
@@ -175,16 +168,6 @@ export const schémaDonnéesTableau: JSONSchemaType<
 };
 
 // Fonctions
-
-export const obtIdIndex = (
-  v: { [clef: string]: DagCborEncodable },
-  colsIndex: string[],
-): string => {
-  const valsIndex = Object.fromEntries(
-    Object.entries(v).filter((x) => colsIndex.includes(x[0])),
-  );
-  return Base64.stringify(md5(JSON.stringify(valsIndex)));
-};
 
 export function indexÉlémentsÉgaux(
   élément1: DonnéesRangéeTableau,

@@ -17,7 +17,6 @@ import {
 import { schémaTraducsTexte } from "./schémas.js";
 import { définis, enleverPréfixes } from "./utils.js";
 import type { AccesseurService } from "./recherche/types.js";
-import type { DonnéesRangéeTableauAvecId } from "./bds/tableaux.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
 import type { NestedValue } from "@orbitdb/nested-db";
@@ -57,6 +56,13 @@ import type {
 export type DonnéesRangéeTableau = {
   [key: string]: DagCborEncodable;
 };
+
+export interface DonnéesRangéeTableauAvecId<
+  T extends DonnéesRangéeTableau = DonnéesRangéeTableau,
+> {
+  données: T;
+  id: string;
+}
 
 // Types scores
 

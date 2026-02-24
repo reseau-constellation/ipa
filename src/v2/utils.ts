@@ -5,6 +5,9 @@ import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
 import { idcValide, zipper } from "@constl/utils-ipa";
 import { TimeoutController } from "timeout-abort-controller";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
+import type { DagCborEncodable } from "@orbitdb/core";
 import type { NestedValueWithUndefined } from "@orbitdb/nested-db";
 import type { SansNonDéfinis } from "./types.js";
 import type xlsx from "xlsx";
@@ -19,6 +22,16 @@ export type DonnéesFichierBdExportées = {
 
 export const conversionsTypes: { [key: string]: xlsx.BookType } = {
   xls: "biff8",
+};
+
+export const obtIdIndex = (
+  v: { [clef: string]: DagCborEncodable },
+  colsIndex: string[],
+): string => {
+  const valsIndex = Object.fromEntries(
+    Object.entries(v).filter((x) => colsIndex.includes(x[0])),
+  );
+  return Base64.stringify(md5(JSON.stringify(valsIndex)));
 };
 
 export const sauvegarderDonnéesExportées = async ({
