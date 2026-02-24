@@ -1,12 +1,15 @@
 import { ServiceDonnéesAppli } from "./services.js";
+import type { Oublier } from "../types.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { OptionsAppli } from "../appli/appli.js";
-import type { ServicesNécessairesCompte, ServiceCompte } from "./compte/compte.js";
+import type {
+  ServicesNécessairesCompte,
+  ServiceCompte,
+} from "./compte/compte.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
 import type { ServiceFavoris } from "./favoris.js";
 import type { ServiceRéseau } from "./réseau.js";
-import { Oublier } from "../types.js";
 
 export type StructureProtocole = {
   string: null;

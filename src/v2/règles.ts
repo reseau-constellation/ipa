@@ -1,6 +1,9 @@
 import { validerCatégorieVal } from "@constl/utils-ipa";
 import { obtIdIndex } from "./utils.js";
-import type { DonnéesRangéeTableau, DonnéesRangéeTableauAvecId } from "./tableaux.js";
+import type {
+  DonnéesRangéeTableau,
+  DonnéesRangéeTableauAvecId,
+} from "./tableaux.js";
 import type { JSONSchemaType } from "ajv";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { PartielRécursif, TraducsTexte } from "./types.js";

@@ -64,9 +64,7 @@ import type {
 } from "../tableaux.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 import type { ErreurDonnée, RègleColonne } from "../règles.js";
-import type {
-  DonnéesTableauExportées,
-} from "./tableaux.js";
+import type { DonnéesTableauExportées } from "./tableaux.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { MotsClefs } from "../motsClefs.js";
@@ -247,7 +245,14 @@ export class Bds extends ObjetConstellation<
     super({
       clef: "bds",
       services,
-      dépendances: ["variables", "motsClefs", "favoris", "compte", "orbite", "hélia"],
+      dépendances: [
+        "variables",
+        "motsClefs",
+        "favoris",
+        "compte",
+        "orbite",
+        "hélia",
+      ],
       options,
     });
 

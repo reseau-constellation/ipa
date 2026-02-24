@@ -8,8 +8,8 @@ import {
   type ServiceDossier,
   serviceDossier,
 } from "@/v2/nébuleuse/services/dossier.js";
-import { dossierTempoPropre } from "../../utils.js";
 import type Quibble from "quibble";
+import { dossierTempoPropre } from "../../utils.js";
 
 describe.only("Dossier", function () {
   let quibble: typeof Quibble;
@@ -53,7 +53,7 @@ describe.only("Dossier", function () {
     const dossierAppli = join(dossier, "sous", "dossier");
     appli = new Appli<{ dossier: ServiceDossier }>({
       services: {
-        dossier: serviceDossier({ dossier }),
+        dossier: serviceDossier({ dossier: dossierAppli }),
       },
     });
     await appli.démarrer();

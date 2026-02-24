@@ -6,16 +6,16 @@ import {
 } from "@constl/utils-ipa";
 import { Tableaux } from "../tableaux.js";
 import type { AccesseurService } from "../recherche/types.js";
-import type { DonnéesRangéeTableauAvecId } from "../bds/tableaux.js";
-import type { PartielRécursif, TraducsTexte } from "../types.js";
-import type { Suivi, Oublier } from "../nébuleuse/types.js";
-import type { FiltresBds, Héritage, Nuées, ValeurAscendance } from "./nuées.js";
 import type {
+  DonnéesRangéeTableauAvecId,
   DifférenceTableaux,
   InfoColonne,
   InfoColonneAvecCatégorie,
   ServicesNécessairesTableaux,
 } from "../tableaux.js";
+import type { PartielRécursif, TraducsTexte } from "../types.js";
+import type { Suivi, Oublier } from "../nébuleuse/types.js";
+import type { FiltresBds, Héritage, Nuées, ValeurAscendance } from "./nuées.js";
 import type { FonctionValidation, RègleColonne } from "../règles.js";
 import type { Bds } from "../bds/bds.js";
 

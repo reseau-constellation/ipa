@@ -43,8 +43,8 @@ import type { DonnéesFichierBdExportées } from "../utils.js";
 let எண்ணிக்கை: எண்ணிக்கை_வகை | undefined = undefined;
 const obtEnnikkai = () => {
   if (!எண்ணிக்கை) எண்ணிக்கை = new எண்ணிக்கை_வகை({});
-  return எண்ணிக்கை
-}
+  return எண்ணிக்கை;
+};
 
 // Types données tableaux
 
