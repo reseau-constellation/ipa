@@ -252,7 +252,7 @@ export class Nuées extends ObjetConstellation<
     super({
       clef: "nuées",
       services,
-      dépendances: ["variables", "bds", "compte", "orbite", "hélia"],
+      dépendances: ["variables", "bds", "favoris", "compte", "orbite", "hélia"],
       options,
     });
 
