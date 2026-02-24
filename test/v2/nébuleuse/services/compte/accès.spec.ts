@@ -16,8 +16,13 @@ import type {
   InstanceContrôleurNébuleuse,
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import type { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
+import { préparerOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 
 describe.only("Accès", function () {
+  before(async () => {
+    préparerOrbite();
+  });
+
   describe("par identités orbite", function () {
     let orbites: OrbitDB[];
     let orbite1: OrbitDB;
