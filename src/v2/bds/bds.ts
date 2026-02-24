@@ -60,11 +60,11 @@ import type {
   InfoColonneAvecCatégorie,
   ScoreCouvertureTableau,
   ServicesNécessairesTableaux,
+  DonnéesRangéeTableauAvecId,
 } from "../tableaux.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 import type { ErreurDonnée, RègleColonne } from "../règles.js";
 import type {
-  DonnéesRangéeTableauAvecId,
   DonnéesTableauExportées,
 } from "./tableaux.js";
 import type { TypedNested } from "@constl/bohr-db";
