@@ -106,7 +106,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     super({
       clef: "réseau",
       services,
-      dépendances: ["compte", "hélia", "libp2p", "stockage", "journal"],
+      dépendances: ["compte", "orbite", "hélia", "libp2p", "stockage", "journal"],
       options: {
         ...options,
         schéma: schémaRéseau,
@@ -125,7 +125,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const libp2p = await this.service("libp2p").libp2p();
     const compte = this.service("compte");
     const orbite = this.service("orbite");
-
+    return { idTopologie: "à faire" }
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
 
     await libp2p.handle(

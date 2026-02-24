@@ -111,7 +111,7 @@ export class ServiceOrbite<
     super({
       clef: "orbite",
       services,
-      dépendances: ["hélia", "journal"],
+      dépendances: ["hélia", "journal", "dossier"],
       options,
     });
 
@@ -269,8 +269,9 @@ export class ServiceOrbite<
     signalCombiné.clear();
 
     if (type) {
-      if (type !== bd.type)
-        throw new Error(`La bd est de type ${bd.type} et non ${type}.`);
+      if (type !== bd.type){
+        console.trace()
+        throw new Error(`La bd est de type ${bd.type} et non ${type}.`);}
     }
     return {
       bd,
