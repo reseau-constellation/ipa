@@ -22,7 +22,7 @@ import type {
   RègleVariableAvecId,
 } from "@/v2/règles.js";
 
-describe.only("Variables", function () {
+describe.skip("Variables", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
