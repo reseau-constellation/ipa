@@ -168,7 +168,7 @@ export class Variables extends ObjetConstellation<
     super({
       clef: "variables",
       services,
-      dépendances: ["compte", "orbite"],
+      dépendances: ["favoris", "compte", "orbite"],
       options,
     });
 
