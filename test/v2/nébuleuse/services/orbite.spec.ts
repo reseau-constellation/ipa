@@ -490,7 +490,7 @@ describe.only("Service Orbite", function () {
       const tête = await obtenir<string>(({ siDéfini }) =>
         orbite.suivreEmpreinteTêteBd({ idBd, f: siDéfini() }),
       );
-      expect(tête).to.equal("");
+      expect(tête.length).to.be.greaterThan(0);
 
       await bd.put("a", 1);
 
@@ -502,6 +502,7 @@ describe.only("Service Orbite", function () {
       await oublier();
 
       expect(têteMaintenant.length).to.be.greaterThan(0);
+      expect(têteMaintenant).to.not.equal(tête);
     });
 
     it("appliquer fonction orbite", async () => {
@@ -520,7 +521,7 @@ describe.only("Service Orbite", function () {
 
       await oublier();
 
-      expect(données).to.deep.equal({ a: 2 });
+      expect(données).to.deep.equal([{ key:'a', value: 2, hash: données[0].hash }]);
       expect(typeof résultat).to.equal("string");
     });
   });
