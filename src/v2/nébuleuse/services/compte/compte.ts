@@ -136,7 +136,7 @@ export class BaseServiceCompte<
     if (!idCompte) {
       const orbite = this.service("orbite");
       const { bd, oublier } = await orbite.créerBd({ type: "nested" });
-      idCompte = ajouterPréfixes(bd.address, "/appli/compte");
+      idCompte = ajouterPréfixes(bd.address, "/nébuleuse/compte");
       await oublier();
 
       await this.service("stockage").sauvegarderItem(CLEF_ID_COMPTE, idCompte);
@@ -187,8 +187,8 @@ export class BaseServiceCompte<
 
   idCompteValide(id: string): boolean {
     return (
-      id.startsWith("/appli/compte") &&
-      isValidAddress(id.replace("/appli/compte", ""))
+      id.startsWith("/nébuleuse/compte") &&
+      isValidAddress(id.replace("/nébuleuse/compte", ""))
     );
   }
 
@@ -327,7 +327,7 @@ export class BaseServiceCompte<
       const monCompte = await this.obtIdCompte();
       const accès = bd.access;
       const rôle = (await accès.utilisateursAutorisés()).find(
-        (x) => x.idCompte === monCompte,
+        (x) => x.idCompte === enleverPréfixes(monCompte),
       )?.rôle;
       await oublier();
       return rôle;
@@ -388,7 +388,7 @@ export class BaseServiceCompte<
     if (!estContrôleurNébuleuse(accès))
       throw new Error(`Type d'accès ${bd.access} non reconnu.`);
 
-    const oublierAccès = await accès.suivreUtilisateursAutorisés(f);
+    const oublierAccès = await accès.suivreUtilisateursAutorisés(autorisés => f(autorisés.map(x=>({rôle: x.rôle, idCompte: ajouterPréfixes(x.idCompte, "/nébuleuse/compte")}))));
 
     return async () => {
       await Promise.all([oublierAccès(), oublierBd()]);

@@ -177,15 +177,17 @@ export const enleverPréfixeOrbite = (id: string) =>
 
 export const ajouterPréfixes = (id: string, préfix: string): string => {
   if (!id.startsWith(préfix) && !id.startsWith(PROTOCOLE_ORBITE))
-    id = `${PROTOCOLE_ORBITE}/${id}`;
+    id = `${PROTOCOLE_ORBITE}${id}`;
 
   if (!préfix.startsWith("/")) préfix = `/${préfix}`;
-  if (!id.startsWith(`${préfix}`)) id = `${préfix}/${id}`;
+  if (!id.startsWith("/")) id = `/${id}`;
+  if (!id.startsWith(`${préfix}`)) id = `${préfix}${id}`;
+
   return id;
 };
 
 export const enleverPréfixes = (id: string): string => {
-  return id.replace(/\/constl\/[^/]+/, "");
+  return id.replace(/\/nébuleuse\/[^/]+/, "");
 };
 
 export const enleverPréfixesEtOrbite = (id: string): string => {
