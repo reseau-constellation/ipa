@@ -270,7 +270,6 @@ export class ServiceOrbite<
 
     if (type) {
       if (type !== bd.type){
-        console.trace()
         throw new Error(`La bd est de type ${bd.type} et non ${type}.`);}
     }
     return {
