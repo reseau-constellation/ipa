@@ -22,6 +22,7 @@ import { cacheSuivi } from "../nébuleuse/cache.js";
 import {
   idcEtFichierValide,
   justeDéfinis,
+  obtIdIndex,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import type { CatégorieBaseVariables } from "../variables.js";
@@ -31,6 +32,7 @@ import type { BookType, WorkBook } from "xlsx";
 import type { ErreurDonnée, FonctionValidation } from "../règles.js";
 import type {
   DonnéesRangéeTableau,
+  DonnéesRangéeTableauAvecId,
   InfoColonne,
   InfoColonneAvecCatégorie,
 } from "../tableaux.js";

@@ -32,8 +32,7 @@ import type {
   ScoreBd,
   ÉpingleBd,
 } from "@/v2/bds/bds.js";
-import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
-import type { DonnéesRangéeTableauAvecId } from "@/v2/bds/tableaux.js";
+import type { DonnéesRangéeTableau, DonnéesRangéeTableauAvecId, InfoColonne } from "@/v2/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
 
 describe("BDs", function () {
