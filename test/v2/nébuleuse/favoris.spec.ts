@@ -14,7 +14,7 @@ import { créerNébuleusesTest } from "./utils.js";
 import type { NébuleuseTest } from "./utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 
-describe.only("Favoris", function () {
+describe("Favoris", function () {
   let nébuleuses: NébuleuseTest[];
   let nébuleuse: NébuleuseTest;
   let fermer: () => Promise<void>;

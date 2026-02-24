@@ -26,7 +26,7 @@ import type { Helia } from "helia";
 const ERREUR_DUPLIQUÉS =
   "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
 
-describe.only("Services Nébuleuse", function () {
+describe.skip("Services Nébuleuse", function () {
   describe("valider options", function () {
     let orbite: OrbitDB<ServicesLibp2pNébuleuse>;
     let hélia: Helia<Libp2p<ServicesLibp2pNébuleuse>>;

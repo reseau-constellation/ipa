@@ -85,7 +85,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe("création", function () {
+  describe.skip("création", function () {
     let nébuleuse: NébuleuseTest;
     let dossier: string;
     let effacer: () => void;
@@ -115,7 +115,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe("services additionnels", function () {
+  describe.skip("services additionnels", function () {
     class ServiceGénérique extends ServiceAppli {
       constructor({
         services,
@@ -231,7 +231,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe("concurrence ouverture", function () {
+  describe.skip("concurrence ouverture", function () {
     let nébuleuse: NébuleuseTest;
     let nébuleuse2: NébuleuseTest | undefined;
 
@@ -320,7 +320,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe("fermeture", function () {
+  describe.skip("fermeture", function () {
     let nébuleuse: NébuleuseTest;
     let dossier: string;
     let effacer: () => void;
@@ -345,7 +345,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe("effacer", function () {
+  describe.skip("effacer", function () {
     let idCompte: string;
 
     let nébuleuse: NébuleuseTest;

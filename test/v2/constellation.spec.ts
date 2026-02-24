@@ -16,7 +16,7 @@ import type { Constellation } from "@/v2/constellation.js";
 import type { TraducsTexte } from "@/v2/types.js";
 import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/types.js";
 
-describe.only("Constellation", function () {
+describe("Constellation", function () {
   describe("création", function () {
     let fermer: () => Promise<void>;
     let constls: Constellation[];

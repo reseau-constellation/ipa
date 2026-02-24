@@ -9,7 +9,7 @@ import type { ÉpingleMotClef } from "@/v2/motsClefs.js";
 import type { Constellation } from "@/v2/index.js";
 import type { InfoAuteur, TraducsTexte } from "@/v2/types.js";
 
-describe.only("Mots-clefs", function () {
+describe("Mots-clefs", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;

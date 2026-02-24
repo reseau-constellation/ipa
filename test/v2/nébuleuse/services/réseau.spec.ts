@@ -531,11 +531,6 @@ describe("Réseau", function () {
   describe("automatisation ajout dispositif", function () {
     let idBd: string;
 
-    const attendreConnectés = new attente.AttendreRésultat<
-      statutDispositif[]
-    >();
-    const fsOublier: schémaFonctionOublier[] = [];
-
     before(async () => {
       const fOublierConnexions =
         await client3.réseau.suivreConnexionsDispositifs({

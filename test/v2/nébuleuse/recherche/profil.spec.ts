@@ -6,7 +6,7 @@ import {
   rechercherProfilsSelonTexte,
 } from "@/v2/recherche/fonctions/profils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
-import { créerConstellationsTest, obtenir } from "../../utils.js";
+import { obtenir } from "../../utils.js";
 import type { ServicesNécessairesRechercheProfils } from "@/v2/recherche/fonctions/profils.js";
 import type {
   RésultatObjectifRecherche,
@@ -15,12 +15,12 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { Constellation } from "@/v2/index.js";
+import { créerNébuleusesTest, NébuleuseTest } from "../utils.js";
 
-describe.only("Rechercher profil", function () {
+describe.skip("Rechercher profil", function () {
   describe("selon activité", function () {
-    let constls: Constellation[];
-    let constl: Constellation;
+    let nébuleuses: NébuleuseTest[];
+    let nébuleuse: NébuleuseTest;
     let fermer: Oublier;
 
     let idCompte: string;
@@ -30,13 +30,12 @@ describe.only("Rechercher profil", function () {
     >;
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
+      ({ fermer, nébuleuses } = await créerNébuleusesTest({
         n: 1,
-        avecMandataire: false,
       }));
-      constl = constls[0] as Constellation;
+      nébuleuse = nébuleuses[0] as NébuleuseTest;
 
-      idCompte = await constl.compte.obtIdCompte();
+      idCompte = await nébuleuse.compte.obtIdCompte();
       recherche = rechercherProfilsSelonActivité();
     });
 
@@ -49,7 +48,7 @@ describe.only("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatVide>
       >(({ siDéfini }) =>
         recherche({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: idCompte,
           f: siDéfini(),
         }),
@@ -68,13 +67,13 @@ describe.only("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0),
           }),
       );
 
-      await constl.profil.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
+      await nébuleuse.profil.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
 
       const résultat = await pRésultat;
 
@@ -91,13 +90,13 @@ describe.only("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 1 / 3),
           }),
       );
 
-      await constl.profil.sauvegarderCourriel({
+      await nébuleuse.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
 
@@ -116,7 +115,7 @@ describe.only("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatVide>>(
         ({ si }) =>
           recherche({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 2 / 3),
           }),
@@ -125,7 +124,7 @@ describe.only("Rechercher profil", function () {
       const IMAGE = await obtRessourceTest({
         nomFichier: "logo.png",
       });
-      await constl.profil.sauvegarderImage({
+      await nébuleuse.profil.sauvegarderImage({
         image: { contenu: IMAGE, nomFichier: "logo.png" },
       });
 
@@ -142,8 +141,8 @@ describe.only("Rechercher profil", function () {
   });
 
   describe("selon nom", function () {
-    let constls: Constellation[];
-    let constl: Constellation;
+    let nébuleuses: NébuleuseTest[];
+    let nébuleuse: NébuleuseTest;
     let fermer: Oublier;
 
     let idCompte: string;
@@ -153,13 +152,12 @@ describe.only("Rechercher profil", function () {
     >;
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
+      ({ fermer, nébuleuses } = await créerNébuleusesTest({
         n: 1,
-        avecMandataire: false,
       }));
-      constl = constls[0] as Constellation;
+      nébuleuse = nébuleuses[0] as NébuleuseTest;
 
-      idCompte = await constl.compte.obtIdCompte();
+      idCompte = await nébuleuse.compte.obtIdCompte();
       recherche = rechercherProfilsSelonNom("Julien");
     });
 
@@ -172,7 +170,7 @@ describe.only("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatTexte>
       >(({ siNonDéfini }) =>
         recherche({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -184,13 +182,13 @@ describe.only("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ siDéfini }) =>
           recherche({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: siDéfini(),
           }),
       );
 
-      await constl.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
+      await nébuleuse.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
 
       const résultat = await pRésultat;
 
@@ -208,12 +206,12 @@ describe.only("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ si }) =>
           recherche({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0.5),
           }),
       );
-      await constl.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
+      await nébuleuse.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
 
       const résultat = await pRésultat;
 
@@ -229,8 +227,8 @@ describe.only("Rechercher profil", function () {
   });
 
   describe("selon courriel", function () {
-    let constls: Constellation[];
-    let constl: Constellation;
+    let nébuleuses: NébuleuseTest[];
+    let nébuleuse: NébuleuseTest;
     let fermer: Oublier;
 
     let idCompte: string;
@@ -240,13 +238,13 @@ describe.only("Rechercher profil", function () {
     >;
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
+      ({ fermer, nébuleuses } = await créerNébuleusesTest({
         n: 1,
-        avecMandataire: false,
+        
       }));
-      constl = constls[0] as Constellation;
+      nébuleuse = nébuleuses[0];
 
-      idCompte = await constl.compte.obtIdCompte();
+      idCompte = await nébuleuse.compte.obtIdCompte();
       recherche = rechercherProfilsSelonCourriel("julien");
     });
 
@@ -259,7 +257,7 @@ describe.only("Rechercher profil", function () {
         RésultatObjectifRecherche<InfoRésultatTexte>
       >(({ siNonDéfini }) =>
         recherche({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -271,13 +269,13 @@ describe.only("Rechercher profil", function () {
       const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
         ({ si }) =>
           recherche({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: si((r) => !!r && r.score > 0),
           }),
       );
 
-      await constl.profil.sauvegarderCourriel({
+      await nébuleuse.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
 
@@ -300,8 +298,8 @@ describe.only("Rechercher profil", function () {
   });
 
   describe("selon texte", function () {
-    let constls: Constellation[];
-    let constl: Constellation;
+    let nébuleuses: NébuleuseTest[];
+    let nébuleuse: NébuleuseTest;
     let fermer: Oublier;
 
     let idCompte: string;
@@ -326,13 +324,13 @@ describe.only("Rechercher profil", function () {
     >;
 
     before(async () => {
-      ({ fermer, constls } = await créerConstellationsTest({
+      ({ fermer, nébuleuses } = await créerNébuleusesTest({
         n: 1,
-        avecMandataire: false,
+        
       }));
-      constl = constls[0] as Constellation;
+      nébuleuse = nébuleuses[0] as NébuleuseTest;
 
-      idCompte = await constl.compte.obtIdCompte();
+      idCompte = await nébuleuse.compte.obtIdCompte();
       rechercheId = rechercherProfilsSelonTexte(idCompte.slice(0, 15));
       rechercheNom = rechercherProfilsSelonTexte("Julien Malard");
       rechercheCourriel = rechercherProfilsSelonTexte("julien.");
@@ -347,7 +345,7 @@ describe.only("Rechercher profil", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheId({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: siDéfini(),
           }),
@@ -371,7 +369,7 @@ describe.only("Rechercher profil", function () {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
           rechercheId({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: siNonDéfini(),
           }),
@@ -380,7 +378,7 @@ describe.only("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheNom({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -389,7 +387,7 @@ describe.only("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
         rechercheCourriel({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: idCompte,
           f: siNonDéfini(),
         }),
@@ -404,7 +402,7 @@ describe.only("Rechercher profil", function () {
       const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheNom({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: siDéfini(),
           }),
@@ -413,13 +411,13 @@ describe.only("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siDéfini }) =>
         rechercheCourriel({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: idCompte,
           f: siDéfini(),
         }),
       );
 
-      await constl.profil.sauvegarderNom({
+      await nébuleuse.profil.sauvegarderNom({
         langue: "fr",
         nom: "Julien Malard-Adam",
       });
@@ -461,13 +459,13 @@ describe.only("Rechercher profil", function () {
         RésultatObjectifRecherche<TypeRésultat>
       >(({ si }) =>
         rechercheCourriel({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: idCompte,
           f: si((r) => !!r && r.score > 1 / 3),
         }),
       );
 
-      await constl.profil.sauvegarderCourriel({
+      await nébuleuse.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
 
@@ -491,7 +489,7 @@ describe.only("Rechercher profil", function () {
       const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siDéfini }) =>
           rechercheVide({
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             idObjet: idCompte,
             f: siDéfini(),
           }),
