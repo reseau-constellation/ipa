@@ -38,6 +38,7 @@ import type { JSONSchemaType } from "ajv";
 import type { Libp2p } from "@libp2p/interface";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { NestedValue } from "@orbitdb/nested-db";
+import { enleverPréfixes } from "@/v2/utils.js";
 
 const créerApplisTest = async <
   T extends { [clef: string]: NestedValue },
@@ -404,7 +405,7 @@ describe.only("Service Compte", function () {
         TypedNested<StructureNébuleuse & StructureTest> | undefined
       >(({ si }) =>
         appli2.services.compte.suivreBd({
-          f: si((bd) => bd?.address !== idCompte2),
+          f: si((bd) => bd?.address !== enleverPréfixes(idCompte2)),
         }),
       );
 
@@ -416,7 +417,7 @@ describe.only("Service Compte", function () {
       });
 
       const bd = await promesseValeur;
-      expect(bd?.address).to.equal(idCompte);
+      expect(bd?.address).to.equal(enleverPréfixes(idCompte));
     });
   });
 
