@@ -38,7 +38,11 @@ import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type { PartielRécursif, TraducsTexte } from "../types.js";
 import type { DonnéesFichierBdExportées } from "../utils.js";
 
-const எண்ணிக்கை = new எண்ணிக்கை_வகை({});
+let எண்ணிக்கை: எண்ணிக்கை_வகை | undefined = undefined;
+const obtEnnikkai = () => {
+  if (!எண்ணிக்கை) எண்ணிக்கை = new எண்ணிக்கை_வகை({});
+  return எண்ணிக்கை
+}
 
 // Types données tableaux
 
@@ -1003,14 +1007,14 @@ export class TableauxBds extends Tableaux {
           } else if (typeof valeur === "string") {
             try {
               if (systèmeNumération) {
-                valNumérique = எண்ணிக்கை.எண்ணுக்கு({
+                valNumérique = obtEnnikkai().எண்ணுக்கு({
                   உரை: valeur,
                   மொழி: systèmeNumération,
                 });
               } else {
                 valNumérique = Number(valeur);
                 if (isNaN(valNumérique)) {
-                  valNumérique = எண்ணிக்கை.எண்ணுக்கு({
+                  valNumérique = obtEnnikkai().எண்ணுக்கு({
                     உரை: valeur,
                   });
                 }
