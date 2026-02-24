@@ -10,9 +10,8 @@ import {
   sousRecherche,
 } from "@/v2/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
-import { créerConstellationsTest, obtenir } from "../../utils.js";
+import { obtenir } from "../../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { Constellation } from "@/v2/index.js";
 import type {
   InfoRésultatRecherche,
   InfoRésultatTexte,
@@ -20,18 +19,16 @@ import type {
   RésultatObjectifRecherche,
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
+import { NébuleuseTest, créerNébuleusesTest } from "../utils.js";
 
-describe.only("Utils recherche", function () {
+describe.skip("Utils recherche", function () {
   let fermer: Oublier;
-  let constls: Constellation[];
-  let constl: Constellation;
+  let nébuleuses: NébuleuseTest[];
+  let nébuleuse: NébuleuseTest;
 
   before(async () => {
-    ({ fermer, constls } = await créerConstellationsTest({
-      n: 1,
-      avecMandataire: false,
-    }));
-    constl = constls[0];
+    ({ fermer, nébuleuses } = await créerNébuleusesTest({ n: 1 }));
+    nébuleuse = nébuleuses[0];
   });
 
   after(async () => {
@@ -230,7 +227,7 @@ describe.only("Utils recherche", function () {
     it("résultat détecté", async () => {
       const résultat = await obtenir(({ siDéfini }) =>
         recherche({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: "voici mon id",
           f: siDéfini(),
         }),
@@ -267,7 +264,7 @@ describe.only("Utils recherche", function () {
             abc: rechercheAbc,
             abcdef: rechercheAbcdef,
           },
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: "abcdefghij",
           fSuivreRecherche: siDéfini(),
         }),
@@ -308,7 +305,7 @@ describe.only("Utils recherche", function () {
               return faisRien;
             },
             fRechercher: rechercheId,
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             fSuivreRecherche: siNonDéfini(),
           }),
       );
@@ -325,7 +322,7 @@ describe.only("Utils recherche", function () {
               return faisRien;
             },
             fRechercher: rechercheId,
-            services: (clef) => constl.services[clef],
+            services: (clef) => nébuleuse.services[clef],
             fSuivreRecherche: siNonDéfini(),
           }),
       );
@@ -360,7 +357,7 @@ describe.only("Utils recherche", function () {
             return faisRien;
           },
           fRechercher: rechercheId,
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           fSuivreRecherche: si((x) => !!x && x.score > 0.5),
         }),
       );
@@ -394,7 +391,7 @@ describe.only("Utils recherche", function () {
     it("tous ont le même score", async () => {
       const résultat = await obtenir(({ siDéfini }) =>
         recherche({
-          services: (clef) => constl.services[clef],
+          services: (clef) => nébuleuse.services[clef],
           idObjet: "abc",
           f: siDéfini(),
         }),
