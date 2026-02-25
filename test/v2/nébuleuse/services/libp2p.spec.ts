@@ -3,10 +3,11 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { createLibp2p, isLibp2p } from "libp2p";
 import {
+  obtenirAdresseRelai,
   OptionsDéfautLibp2pNavigateur,
   OptionsDéfautLibp2pNode,
 } from "@constl/utils-tests";
-import { isBrowser, isNode } from "wherearewe";
+import { isBrowser, isElectronRenderer, isNode } from "wherearewe";
 import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
@@ -533,6 +534,12 @@ describe.only("Service Libp2p", function () {
 
     it("suivi", async () => {
       const libp2p = appli.services["libp2p"];
+
+      // Ceci est nécessaire sur le navigateur pour que la node puisse découvrir sa propre adresse.
+      if (!(isNode || isElectronRenderer)) {
+        await (await libp2p.libp2p()).dial(multiaddr(obtenirAdresseRelai()))
+      }
+
       const idPair = (await libp2p.libp2p()).peerId.toString();
       const adresses = await obtenir<string[]>(({ siPasVide }) =>
         libp2p.suivreMesAdresses({ f: siPasVide() }),
