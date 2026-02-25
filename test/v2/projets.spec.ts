@@ -976,7 +976,119 @@ describe.skip("Projets", function () {
     });
   });
 
-  describe("empreinte");
+  describe("empreinte", function () {
+    let idProjet: string;
+    let idBd: string;
+    let idTableau: string;
+    let idVariable: string;
+    let idColonne: string;
+
+    let empreinte: string;
+
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+
+      idTableau = await constl.bds.ajouterTableau({ idBd });
+      idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idVariable,
+      });
+    });
+
+    it("sans bds", async () => {
+      empreinte = await obtenir<string>(({ siDéfini }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: siDéfini(),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("ajout bds", async () => {
+      await constl.projets.ajouterBds({
+        idProjet,
+        idsBds: idBd
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement nom bds détecté", async () => {
+      await constl.bds.sauvegarderNom({
+        idBd,
+        langue: "fr",
+        nom: "Insectes de Montréal",
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement nom projet détecté", async () => {
+      await constl.projets.sauvegarderNom({
+        idProjet,
+        langue: "fr",
+        nom: "Science citoyenne",
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement données bds détecté", async () => {
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
+        idTableau,
+        éléments: [{ [idColonne]: 2 }],
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+
+    it("changement noms variable détecté", async () => {
+      await constl.variables.sauvegarderNom({
+        idVariable,
+        langue: "fr",
+        nom: "Population observée",
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+  });
 
   describe("auteurs", function () {
     let idProjet: string;
