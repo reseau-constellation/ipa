@@ -4,16 +4,16 @@ import { générerConfigÆgir } from "@constl/utils-tests";
 import cors from "cors";
 import express from "express";
 
-const générerServeurRessourcesTests = async (opts, idsPairs) => {
+const générerServeurRessourcesTests = async (opts) => {
   /**
    * @type {Express | undefined}
    */
   let serveurLocal = undefined;
 
-  // if (
-  //   opts.target.includes("browser") ||
-  //   opts.target.includes("electron-renderer")
-  // ) {
+  if (
+    opts.target.includes("browser") ||
+    opts.target.includes("electron-renderer")
+  ) {
   const appliExpress = express();
 
   // Permettre l'accès à partir de l'hôte locale
@@ -38,26 +38,22 @@ const générerServeurRessourcesTests = async (opts, idsPairs) => {
     const cheminFichier = path.join(
       url.fileURLToPath(new URL(".", import.meta.url)),
       "test",
+      "v2",
       "ressources",
       decodeURIComponent(nomFichier),
     );
 
     res.sendFile(cheminFichier);
   });
-  appliExpress.get("/idsPairs", function (_, res) {
-    res.send(idsPairs);
-  });
+
   serveurLocal = appliExpress.listen(3000);
-  // }
+  }
   return async () => serveurLocal?.close();
 };
 
 const avantTest = async (opts) => {
   // Pour pouvoir accéder les fichiers test dans le navigateur
-  const fermerServeurLocal = await générerServeurRessourcesTests(opts, {
-    // idPairNode,
-    // idPairNavig,
-  });
+  const fermerServeurLocal = await générerServeurRessourcesTests(opts);
 
   return {
     // fermerNavigateur,
