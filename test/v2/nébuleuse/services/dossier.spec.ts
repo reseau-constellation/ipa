@@ -118,7 +118,7 @@ describe.only("Dossier", function () {
       },
     });
     await expect(appli2.démarrer()).to.eventually.be.rejectedWith(
-      `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n${MESSAGE_ERREUR}`,
+      `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n"${MESSAGE_ERREUR}"`,
     );
   });
 });
