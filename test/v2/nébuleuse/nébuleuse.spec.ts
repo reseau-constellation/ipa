@@ -85,7 +85,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe.skip("création", function () {
+  describe("création", function () {
     let nébuleuse: NébuleuseTest;
     let dossier: string;
     let effacer: () => void;
@@ -115,7 +115,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe.skip("services additionnels", function () {
+  describe("services additionnels", function () {
     class ServiceGénérique extends ServiceAppli {
       constructor({
         services,
@@ -231,7 +231,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe.skip("concurrence ouverture", function () {
+  describe("concurrence ouverture", function () {
     let nébuleuse: NébuleuseTest;
     let nébuleuse2: NébuleuseTest | undefined;
 
@@ -244,7 +244,11 @@ describe.only("Nébuleuse", function () {
 
     afterEach(async () => {
       if (nébuleuse) await nébuleuse.fermer();
-      if (nébuleuse2) await nébuleuse2.fermer();
+      if (nébuleuse2) try {
+        await nébuleuse2.fermer()
+      } catch (e) {
+        if (!e.toString().includes("Erreur de démarrage")) throw e;
+      };
       nébuleuse2 = undefined;
 
       if (effacer) effacer();
@@ -267,22 +271,20 @@ describe.only("Nébuleuse", function () {
     });
 
     it("message verrou", async () => {
-      {
-        nébuleuse = new NébuleuseTest({
-          services: {},
-          options: { services: { dossier: { dossier } } },
-        });
-        await nébuleuse.démarrer();
+      nébuleuse = new NébuleuseTest({
+        services: {},
+        options: { services: { dossier: { dossier } } },
+      });
+      await nébuleuse.démarrer();
 
-        const message = "Un message du processus initial.";
-        await nébuleuse.services["dossier"].spécifierMessageVerrou({ message });
+      const message = "Un message du processus initial.";
+      await nébuleuse.services["dossier"].spécifierMessageVerrou({ message });
 
-        nébuleuse2 = new NébuleuseTest({
-          services: {},
-          options: { services: { dossier: { dossier } } },
-        });
-        await expect(nébuleuse2.démarrer()).to.be.rejectedWith(message);
-      }
+      nébuleuse2 = new NébuleuseTest({
+        services: {},
+        options: { services: { dossier: { dossier } } },
+      });
+      await expect(nébuleuse2.démarrer()).to.be.rejectedWith(message);
     });
 
     it("réouverture après fermeture", async () => {
