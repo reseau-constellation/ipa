@@ -7,14 +7,14 @@ import type {
 } from "@/v2/nébuleuse/appli/appli.js";
 
 describe.only("Appli", function () {
-  describe("Démarrage", function () {
-    it("Démarrer sans services", async () => {
+  describe("démarrage", function () {
+    it("démarrer sans services", async () => {
       const appli = new Appli({ services: {} });
       await appli.démarrer();
       expect(appli.estDémarrée).to.be.true();
     });
 
-    it("Services démarrés en ordre", async () => {
+    it("services démarrés en ordre", async () => {
       type ServicesTest = {
         a: ServiceA;
         b: ServiceB;
@@ -78,7 +78,7 @@ describe.only("Appli", function () {
       expect(appli.estDémarrée).to.be.true();
     });
 
-    it("Services bien démarrés lorsque Appli est démarrée", async () => {
+    it("services bien démarrés lorsque Appli est démarrée", async () => {
       type ServicesTest = {
         a: ServiceA;
       };
@@ -111,7 +111,7 @@ describe.only("Appli", function () {
       ).to.be.true();
     });
 
-    it("Erreur lorsque dépendances circulaires", async () => {
+    it("erreur lorsque dépendances circulaires", async () => {
       type ServicesTest = {
         a: ServiceA;
         b: ServiceB;
@@ -157,6 +157,55 @@ describe.only("Appli", function () {
 
       await expect(appli.démarrer()).to.eventually.be.rejectedWith(
         "circulaire",
+      );
+    });
+
+    it("erreur lorsque dépendance non incluse", async () => {
+      type ServicesTest = {
+        a: ServiceA;
+        b: ServiceB;
+      };
+      class ServiceA extends ServiceAppli<"a", { b: ServiceB }> {
+        constructor({
+          services,
+          options,
+        }: {
+          services: ServicesTest;
+          options: OptionsAppli;
+        }) {
+          super({
+            clef: "a",
+            services,
+            dépendances: ["b"],
+            options,
+          });
+        }
+      }
+      class ServiceB extends ServiceAppli<"b", { a: ServiceA }> {
+        constructor({
+          services,
+          options,
+        }: {
+          services: ServicesTest;
+          options: OptionsAppli;
+        }) {
+          super({
+            clef: "b",
+            services,
+            dépendances: ["a"],
+            options,
+          });
+        }
+      }
+      const appli = new Appli<{a: ServiceA}>({
+        services: {
+          // @ts-expect-error On fait exprès d'oublier service b
+          a: ({ options, services }) => new ServiceA({ options, services }),
+        },
+      });
+
+      await expect(appli.démarrer()).to.eventually.be.rejectedWith(
+        `Dépendance(s) b du service a manquante(s).`,
       );
     });
   });

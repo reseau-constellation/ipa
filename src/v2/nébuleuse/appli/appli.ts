@@ -84,6 +84,17 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
     this.statut = STATUTS.DÉMARRAGE_EN_COURS;
 
     try {
+      for (const service of Object.values(this.services)) {
+        const manquantes = service.dépendances.filter(
+          (d) => this.services[d] === undefined,
+        );
+        if (manquantes.length) {
+          throw new Error(
+            `Dépendance(s) ${manquantes.join(", ")} du service ${service.clef} manquante(s).`,
+          );
+        }
+      }
+
       await this.démarrerServices();
     } catch (e) {
       this.statut = STATUTS.ERREUR_DÉMARRAGE;
