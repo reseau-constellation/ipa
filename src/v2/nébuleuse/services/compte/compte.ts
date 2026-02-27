@@ -388,7 +388,14 @@ export class BaseServiceCompte<
     if (!estContrôleurNébuleuse(accès))
       throw new Error(`Type d'accès ${bd.access} non reconnu.`);
 
-    const oublierAccès = await accès.suivreUtilisateursAutorisés(autorisés => f(autorisés.map(x=>({rôle: x.rôle, idCompte: ajouterPréfixes(x.idCompte, "/nébuleuse/compte")}))));
+    const oublierAccès = await accès.suivreUtilisateursAutorisés((autorisés) =>
+      f(
+        autorisés.map((x) => ({
+          rôle: x.rôle,
+          idCompte: ajouterPréfixes(x.idCompte, "/nébuleuse/compte"),
+        })),
+      ),
+    );
 
     return async () => {
       await Promise.all([oublierAccès(), oublierBd()]);

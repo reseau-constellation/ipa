@@ -1013,7 +1013,7 @@ describe.skip("Projets", function () {
     it("ajout bds", async () => {
       await constl.projets.ajouterBds({
         idProjet,
-        idsBds: idBd
+        idsBds: idBd,
       });
 
       empreinte = await obtenir<string>(({ si }) =>

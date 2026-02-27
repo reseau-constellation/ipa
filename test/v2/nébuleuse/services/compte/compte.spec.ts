@@ -21,6 +21,7 @@ import {
   type OptionsNébuleuse,
   type StructureNébuleuse,
 } from "@/v2/nébuleuse/nébuleuse.js";
+import { enleverPréfixes } from "@/v2/utils.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
 import { serviceLibp2pTest } from "../utils.js";
 import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
@@ -38,7 +39,6 @@ import type { JSONSchemaType } from "ajv";
 import type { Libp2p } from "@libp2p/interface";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { NestedValue } from "@orbitdb/nested-db";
-import { enleverPréfixes } from "@/v2/utils.js";
 
 const créerApplisTest = async <
   T extends { [clef: string]: NestedValue },

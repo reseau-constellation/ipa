@@ -7,6 +7,7 @@ import {
   MEMBRE,
   MODÉRATRICE,
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
+import { préparerOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import { attendreQue } from "../../../appli/utils/fonctions.js";
 import { attendreInvité, peutÉcrire } from "../../../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
@@ -16,7 +17,6 @@ import type {
   InstanceContrôleurNébuleuse,
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import type { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
-import { préparerOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 
 describe.only("Accès", function () {
   before(async () => {

@@ -537,7 +537,7 @@ describe.only("Service Libp2p", function () {
 
       // Ceci est nécessaire sur le navigateur pour que la node puisse découvrir sa propre adresse.
       if (!(isNode || isElectronRenderer)) {
-        await (await libp2p.libp2p()).dial(multiaddr(obtenirAdresseRelai()))
+        await (await libp2p.libp2p()).dial(multiaddr(obtenirAdresseRelai()));
       }
 
       const idPair = (await libp2p.libp2p()).peerId.toString();

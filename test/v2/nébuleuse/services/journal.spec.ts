@@ -3,8 +3,8 @@ import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
-import type { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { dossierTempoPropre } from "../../utils.js";
+import type { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
 
 describe.only("Journal", function () {
   if (isNode || isElectronMain)

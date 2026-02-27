@@ -14,39 +14,39 @@ const générerServeurRessourcesTests = async (opts) => {
     opts.target.includes("browser") ||
     opts.target.includes("electron-renderer")
   ) {
-  const appliExpress = express();
+    const appliExpress = express();
 
-  // Permettre l'accès à partir de l'hôte locale
-  appliExpress.use(
-    cors({
-      origin: function (origin, callback) {
-        if (!origin) {
-          callback(null, true);
-          return;
-        }
-        if (new URL(origin).hostname === "127.0.0.1") {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
-      },
-    }),
-  );
-  appliExpress.get("/fichier/:nomFichier", function (req, res) {
-    const { nomFichier } = req.params;
-
-    const cheminFichier = path.join(
-      url.fileURLToPath(new URL(".", import.meta.url)),
-      "test",
-      "v2",
-      "ressources",
-      decodeURIComponent(nomFichier),
+    // Permettre l'accès à partir de l'hôte locale
+    appliExpress.use(
+      cors({
+        origin: function (origin, callback) {
+          if (!origin) {
+            callback(null, true);
+            return;
+          }
+          if (new URL(origin).hostname === "127.0.0.1") {
+            callback(null, true);
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
+      }),
     );
+    appliExpress.get("/fichier/:nomFichier", function (req, res) {
+      const { nomFichier } = req.params;
 
-    res.sendFile(cheminFichier);
-  });
+      const cheminFichier = path.join(
+        url.fileURLToPath(new URL(".", import.meta.url)),
+        "test",
+        "v2",
+        "ressources",
+        decodeURIComponent(nomFichier),
+      );
 
-  serveurLocal = appliExpress.listen(3000);
+      res.sendFile(cheminFichier);
+    });
+
+    serveurLocal = appliExpress.listen(3000);
   }
   return async () => serveurLocal?.close();
 };

@@ -11,6 +11,8 @@ import {
 } from "@/v2/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { obtenir } from "../../utils.js";
+import { créerNébuleusesTest } from "../utils.js";
+import type { NébuleuseTest} from "../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   InfoRésultatRecherche,
@@ -19,7 +21,6 @@ import type {
   RésultatObjectifRecherche,
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
-import { NébuleuseTest, créerNébuleusesTest } from "../utils.js";
 
 describe.skip("Utils recherche", function () {
   let fermer: Oublier;

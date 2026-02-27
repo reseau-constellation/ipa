@@ -7,6 +7,8 @@ import {
 } from "@/v2/recherche/fonctions/profils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { obtenir } from "../../utils.js";
+import { créerNébuleusesTest } from "../utils.js";
+import type { NébuleuseTest } from "../utils.js";
 import type { ServicesNécessairesRechercheProfils } from "@/v2/recherche/fonctions/profils.js";
 import type {
   RésultatObjectifRecherche,
@@ -15,7 +17,6 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import { créerNébuleusesTest, NébuleuseTest } from "../utils.js";
 
 describe.skip("Rechercher profil", function () {
   describe("selon activité", function () {
@@ -240,7 +241,6 @@ describe.skip("Rechercher profil", function () {
     before(async () => {
       ({ fermer, nébuleuses } = await créerNébuleusesTest({
         n: 1,
-        
       }));
       nébuleuse = nébuleuses[0];
 
@@ -326,7 +326,6 @@ describe.skip("Rechercher profil", function () {
     before(async () => {
       ({ fermer, nébuleuses } = await créerNébuleusesTest({
         n: 1,
-        
       }));
       nébuleuse = nébuleuses[0] as NébuleuseTest;
 

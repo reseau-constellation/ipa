@@ -3,7 +3,8 @@ import { CID } from "multiformats";
 import { que } from "@constl/utils-tests";
 import { diviserIdcEtFichier, idcEtFichierValide } from "@/v2/utils.js";
 import { obtRessourceTest } from "../ressources/index.js";
-import { créerNébuleusesTest, NébuleuseTest } from "./utils.js";
+import { créerNébuleusesTest } from "./utils.js";
+import type { NébuleuseTest } from "./utils.js";
 
 describe.only("Épingles", function () {
   describe("vérification idc", function () {
@@ -52,7 +53,9 @@ describe.only("Épingles", function () {
         nomFichier: "logo.svg",
       });
 
-      const { bd, oublier } = await nébuleuse.orbite.créerBd({ type: "keyvalue" });
+      const { bd, oublier } = await nébuleuse.orbite.créerBd({
+        type: "keyvalue",
+      });
       idBd = bd.address;
       await bd.put("a", 1);
       await oublier();
@@ -68,7 +71,10 @@ describe.only("Épingles", function () {
         épingles: new Set([idc]),
       });
 
-      await que(async () => await nébuleuse.services["épingles"].estÉpinglé({ id: idc }));
+      await que(
+        async () =>
+          await nébuleuse.services["épingles"].estÉpinglé({ id: idc }),
+      );
 
       const hélia = await nébuleuse.services.hélia.hélia();
       const épingléSurHélia = await hélia.pins.isPinned(
@@ -81,7 +87,10 @@ describe.only("Épingles", function () {
     it("désépingler hélia", async () => {
       await nébuleuse.services["épingles"].désépingler({ idRequête: "a" });
 
-      await que(async () => !(await nébuleuse.services["épingles"].estÉpinglé({ id: idc })));
+      await que(
+        async () =>
+          !(await nébuleuse.services["épingles"].estÉpinglé({ id: idc })),
+      );
 
       const hélia = await nébuleuse.services.hélia.hélia();
       const épingléSurHélia = await hélia.pins.isPinned(
@@ -97,14 +106,19 @@ describe.only("Épingles", function () {
         épingles: new Set([idBd]),
       });
 
-      await que(async () => await nébuleuse.services["épingles"].estÉpinglé({ id: idBd }));
+      await que(
+        async () =>
+          await nébuleuse.services["épingles"].estÉpinglé({ id: idBd }),
+      );
     });
 
     it("désépingler orbite", async () => {
       await nébuleuse.services["épingles"].désépingler({ idRequête: "a" });
 
       await que(
-        async () => (await nébuleuse.services["épingles"].estÉpinglé({ id: idBd })) === false,
+        async () =>
+          (await nébuleuse.services["épingles"].estÉpinglé({ id: idBd })) ===
+          false,
       );
     });
   });
@@ -129,7 +143,9 @@ describe.only("Épingles", function () {
       let fermée = false;
       const lorsqueFermée = () => (fermée = true);
 
-      const { bd, oublier } = await nébuleuse.orbite.créerBd({ type: "keyvalue" });
+      const { bd, oublier } = await nébuleuse.orbite.créerBd({
+        type: "keyvalue",
+      });
       bd.events.on("close", lorsqueFermée);
 
       await bd.put("a", 1);
@@ -139,7 +155,8 @@ describe.only("Épingles", function () {
         épingles: new Set([bd.address]),
       });
       await que(
-        async () => await nébuleuse.services["épingles"].estÉpinglé({ id: bd.address }),
+        async () =>
+          await nébuleuse.services["épingles"].estÉpinglé({ id: bd.address }),
       );
 
       await oublier();

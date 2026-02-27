@@ -3,7 +3,10 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
 import { créerConstellationsTest, obtenir } from "./utils.js";
-import type { DonnéesRangéeTableau, DonnéesRangéeTableauAvecId } from "@/v2/tableaux.js";
+import type {
+  DonnéesRangéeTableau,
+  DonnéesRangéeTableauAvecId,
+} from "@/v2/tableaux.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type {
   SourceDonnéesImportationFichier,

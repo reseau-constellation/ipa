@@ -521,7 +521,9 @@ describe.only("Service Orbite", function () {
 
       await oublier();
 
-      expect(données).to.deep.equal([{ key:'a', value: 2, hash: données[0].hash }]);
+      expect(données).to.deep.equal([
+        { key: "a", value: 2, hash: données[0].hash },
+      ]);
       expect(typeof résultat).to.equal("string");
     });
   });
