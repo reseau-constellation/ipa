@@ -322,7 +322,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe.skip("fermeture", function () {
+  describe("fermeture", function () {
     let nébuleuse: NébuleuseTest;
     let dossier: string;
     let effacer: () => void;
@@ -347,7 +347,7 @@ describe.only("Nébuleuse", function () {
     });
   });
 
-  describe.skip("effacer", function () {
+  describe("effacer", function () {
     let idCompte: string;
 
     let nébuleuse: NébuleuseTest;

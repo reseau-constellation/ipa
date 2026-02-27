@@ -1,4 +1,5 @@
 import { merge } from "ts-deepmerge";
+import { isBrowser, isElectronRenderer } from "wherearewe";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { serviceJournal } from "./services/journal.js";
 import { serviceDossier } from "./services/dossier.js";
@@ -169,7 +170,7 @@ export class Nébuleuse<
         orbite: serviceOrbite(options?.services.orbite),
         compte: serviceCompte<StructureNébuleuse & T>(optionsCompte),
         dispositifs: serviceDispositifs(),
-        profil: serviceProfil(),
+        // profil: serviceProfil(),
         réseau: serviceRéseau(),
         épingles: serviceÉpingles(),
         favoris: serviceFavoris(),
@@ -196,8 +197,8 @@ export class Nébuleuse<
 
     await this.fermer();
 
-    if (indexedDB) {
-      if (indexedDB.databases) {
+    if (isElectronRenderer || isBrowser) {
+      if (typeof indexedDB !== "undefined" && indexedDB.databases) {
         const indexedDbDatabases = await indexedDB.databases();
         await Promise.allSettled(
           indexedDbDatabases.map((bd) => {
@@ -210,7 +211,7 @@ export class Nébuleuse<
       }
     } else {
       const fs = await import("fs");
-      fs.rmdirSync(dossier);
+      fs.rmSync(dossier, { recursive: true });
     }
   }
 }
