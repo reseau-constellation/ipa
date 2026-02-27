@@ -97,9 +97,9 @@ export class ServiceDossier extends ServiceAppli<
       if (!fs.existsSync(fichierVerrou)) {
         fs.writeFileSync(fichierVerrou, "");
       } else {
-        const infoFichier = fs.statSync(fichierVerrou);
-        const modifiéÀ = infoFichier.mtime;
         const verifierSiVieux = () => {
+          const infoFichier = fs.statSync(fichierVerrou);
+          const modifiéÀ = infoFichier.mtime;
           const maintenant = new Date();
 
           if (maintenant.getTime() - modifiéÀ.getTime() > INTERVALE_VERROU) {
@@ -119,7 +119,7 @@ export class ServiceDossier extends ServiceAppli<
           verifierSiVieux();
         } catch {
           await new Promise((résoudre) =>
-            setTimeout(résoudre, INTERVALE_VERROU),
+            setTimeout(résoudre, INTERVALE_VERROU * 1.2),
           );
           verifierSiVieux();
         }

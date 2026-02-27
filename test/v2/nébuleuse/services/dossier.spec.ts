@@ -5,11 +5,12 @@ import { isElectronMain, isNode } from "wherearewe";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 
 import {
+  FICHIER_VERROU,
   type ServiceDossier,
   serviceDossier,
 } from "@/v2/nébuleuse/services/dossier.js";
-import type Quibble from "quibble";
 import { dossierTempoPropre } from "../../utils.js";
+import type Quibble from "quibble";
 
 describe.only("Dossier", function () {
   let quibble: typeof Quibble;
@@ -94,5 +95,30 @@ describe.only("Dossier", function () {
     if (isElectronMain || isNode)
       expect(val).to.equal(join(dossier, "Mon appli", "Mon appli-dév"));
     else expect(val).to.equal(`./Mon appli`);
+  });
+
+  it("verrouillage dossier", async () => {
+    const MESSAGE_ERREUR = "message erreur";
+    appli = new Appli<{ dossier: ServiceDossier }>({
+      services: {
+        dossier: serviceDossier({ dossier }),
+      },
+    });
+    await appli.démarrer();
+    await appli.services.dossier.spécifierMessageVerrou({
+      message: MESSAGE_ERREUR,
+    });
+
+    const fichierVerrou = join(dossier, FICHIER_VERROU);
+
+    if (isElectronMain || isNode) expect(fs.existsSync(fichierVerrou));
+    const appli2 = new Appli<{ dossier: ServiceDossier }>({
+      services: {
+        dossier: serviceDossier({ dossier }),
+      },
+    });
+    await expect(appli2.démarrer()).to.eventually.be.rejectedWith(
+      `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n${MESSAGE_ERREUR}`,
+    );
   });
 });
