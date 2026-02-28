@@ -175,7 +175,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     super({
       clef: "favoris",
       services,
-      dépendances: ["dispositifs", "réseau", "épingles"],
+      dépendances: ["dispositifs", "réseau", "épingles", "journal", "orbite", "compte"],
       options: Object.assign({}, options, {
         schéma: schémaServiceFavoris,
       }),
