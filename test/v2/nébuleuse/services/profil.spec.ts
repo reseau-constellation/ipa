@@ -13,7 +13,7 @@ import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { TraducsTexte } from "@/v2/types.js";
 
-describe.skip("Profil", function () {
+describe.only("Profil", function () {
   let fermer: () => Promise<void>;
   let nébuleuses: NébuleuseTest[];
   let nébuleuse: NébuleuseTest;
@@ -25,7 +25,6 @@ describe.skip("Profil", function () {
   before(async () => {
     ({ fermer, nébuleuses } = await créerNébuleusesTest({
       n: 2,
-      services: {},
     }));
 
     [nébuleuse] = nébuleuses;
@@ -232,7 +231,10 @@ describe.skip("Profil", function () {
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
 
-      expect(idcEtFichierValide(idImage)).to.be.true();
+      expect(idcEtFichierValide(idImage)).to.deep.equal({
+        idc: "bafybeicy6czjmgt4mc7sdvlleydglkdivt4bkodcpze35rduj6hvig6t2u",
+        fichier: "logo.svg"
+      });
 
       const image = await obtenir<{
         image: Uint8Array;
