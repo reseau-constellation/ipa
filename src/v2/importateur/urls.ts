@@ -22,6 +22,7 @@ export async function importerFeuilleCalculDURL(
     cellDates: true,
   };
   const optsXLSX: ParsingOptions = Object.assign(
+    {},
     optionsParDéfault,
     options || {},
   );

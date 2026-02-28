@@ -97,7 +97,7 @@ export const créerNébuleusesTest = async <
     const dossier = path.join(dossierBase, String(i))
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
-      options: merge(options, { services: { dossier: { dossier } }}),
+      options: merge({}, options, { services: { dossier: { dossier } }}),
     });
     nébuleuses.push(nébuleuse);
   }

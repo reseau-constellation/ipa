@@ -77,7 +77,7 @@ const créerApplisTest = async <
         orbite: serviceOrbite<ServicesLibp2pTest>(options?.orbite),
         compte: serviceCompte<T>({
           ...options?.compte,
-          schéma: merge(schémaNébuleuse, options?.compte?.schéma || {}),
+          schéma: merge({}, schémaNébuleuse, options?.compte?.schéma || {}),
         }),
         ...services,
       } as ConstructeursServicesAppli<Services>,

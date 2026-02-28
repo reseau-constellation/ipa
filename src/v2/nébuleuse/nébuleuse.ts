@@ -155,6 +155,7 @@ export class Nébuleuse<
     const optionsCompte: OptionsServiceCompte<StructureNébuleuse & T> = {
       ...options?.services.compte,
       schéma: merge(
+        {},
         options?.services?.compte?.schéma || {},
         schémaNébuleuse,
       ) as JSONSchemaType<PartielRécursif<StructureNébuleuse & T>>,

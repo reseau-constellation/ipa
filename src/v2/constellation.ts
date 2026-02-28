@@ -92,7 +92,7 @@ export class Constellation<
         },
       },
     };
-    options = merge(défauts, options);
+    options = merge({}, défauts, options);
 
     super({
       services: {

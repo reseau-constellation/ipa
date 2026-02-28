@@ -96,7 +96,7 @@ export class BaseServiceCompte<
     services: ServicesNécessairesCompte;
     options: OptionsServiceCompte<T> & OptionsAppli;
   }) {
-    const consts = merge(options.consts || {}, défautsConstsCompte);
+    const consts = merge({}, options.consts || {}, défautsConstsCompte);
 
     super({
       clef: "compte",
