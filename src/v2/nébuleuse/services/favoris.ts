@@ -2,7 +2,7 @@ import deepEqual from "deep-equal";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
-import { ajouterPréfixeOrbite, enleverPréfixes } from "../../utils.js";
+import { ajouterPréfixeOrbite, enleverPréfixes, enleverPréfixesEtOrbite } from "../../utils.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
@@ -321,9 +321,10 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   }): Promise<void> {
     const bd = await this.bd();
 
-    const existant = await bd.get(enleverPréfixes(idObjet));
+    const sansPréfixes = enleverPréfixesEtOrbite(idObjet)
+    const existant = await bd.get(sansPréfixes);
     if (!deepEqual(existant, épingle))
-      await bd.put(enleverPréfixes(idObjet), épingle);
+      await bd.put(sansPréfixes, épingle);
   }
 
   async désépinglerFavori({ idObjet }: { idObjet: string }): Promise<void> {
