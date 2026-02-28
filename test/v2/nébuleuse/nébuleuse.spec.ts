@@ -3,12 +3,14 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { créerOrbitesTest } from "@constl/utils-tests";
 import { isLibp2p } from "libp2p";
+import { useFakeTimers } from "sinon";
 import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
 import { extraireHéliaEtLibp2p } from "@/v2/nébuleuse/nébuleuse.js";
-import { FICHIER_VERROU } from "@/v2/nébuleuse/services/dossier.js";
+import { FICHIER_VERROU, INTERVALE_VERROU } from "@/v2/nébuleuse/services/dossier.js";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import { dossierTempoPropre } from "../utils.js";
 import { NébuleuseTest } from "./utils.js";
+import type sinon from "sinon";
 import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
 import type {
   OptionsAppli,
@@ -232,6 +234,8 @@ describe.only("Nébuleuse", function () {
   });
 
   describe("concurrence ouverture", function () {
+    let horloge: sinon.SinonFakeTimers;
+
     let nébuleuse: NébuleuseTest;
     let nébuleuse2: NébuleuseTest | undefined;
 
@@ -239,10 +243,13 @@ describe.only("Nébuleuse", function () {
     let effacer: () => void;
 
     beforeEach(async () => {
+      horloge = useFakeTimers({shouldAdvanceTime: true, now: new Date(), shouldClearNativeTimers: true });
       ({ dossier, effacer } = await dossierTempoPropre());
     });
 
     afterEach(async () => {
+      horloge.restore();
+
       if (nébuleuse) await nébuleuse.fermer();
       if (nébuleuse2) try {
         await nébuleuse2.fermer()
@@ -265,7 +272,10 @@ describe.only("Nébuleuse", function () {
         services: {},
         options: { services: { dossier: { dossier } } },
       });
-      await expect(nébuleuse2.démarrer()).to.be.rejectedWith(
+
+      const démarrer = nébuleuse2.démarrer()
+      await horloge.tickAsync(INTERVALE_VERROU);
+      await expect(démarrer).to.be.rejectedWith(
         `Le compte sur ${dossier} est déjà ouvert`,
       );
     });
@@ -284,7 +294,10 @@ describe.only("Nébuleuse", function () {
         services: {},
         options: { services: { dossier: { dossier } } },
       });
-      await expect(nébuleuse2.démarrer()).to.be.rejectedWith(message);
+
+      const démarrer = nébuleuse2.démarrer()
+      await horloge.tickAsync(INTERVALE_VERROU);
+      await expect(démarrer).to.be.rejectedWith(message);
     });
 
     it("réouverture après fermeture", async () => {
@@ -315,7 +328,9 @@ describe.only("Nébuleuse", function () {
         services: {},
         options: { services: { dossier: { dossier } } },
       });
-      await nébuleuse.démarrer();
+      const démarrer = nébuleuse.démarrer();
+      await horloge.tickAsync(INTERVALE_VERROU);
+      await démarrer;
 
       const idCompte = await nébuleuse.compte.obtIdCompte();
       expect(nébuleuse.compte.idCompteValide(idCompte)).to.be.true();
