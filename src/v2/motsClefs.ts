@@ -84,12 +84,18 @@ export class MotsClefs extends ObjetConstellation<
               clef,
             )) as AccesseurService<ServicesNécessairesRechercheMotsClefs>,
     });
+  }
+
+  async démarrer() {
+    const retour = await super.démarrer();
 
     const favoris = this.service("favoris");
     favoris.inscrireRésolution({
       clef: "mot-clef",
       résolution: this.suivreRésolutionÉpingle.bind(this),
     });
+
+    return retour
   }
 
   @cacheSuivi
