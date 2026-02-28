@@ -1,4 +1,6 @@
+import path from "path";
 import { obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
+import { merge } from "ts-deepmerge";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
 import { serviceLibp2pTest } from "./services/utils.js";
@@ -80,19 +82,22 @@ export const créerNébuleusesTest = async <
   options ??= {};
   options.services ??= {};
 
+  let dossierBase: string;
   let effacer: () => void;
-  if (!options.services.dossier) {
-    const dossier = await dossierTempoPropre();
-    effacer = dossier.effacer;
-    options.services.dossier = dossier;
-  } else effacer = () => {};
+  if (!options.services.dossier?.dossier) {
+    ({ dossier: dossierBase, effacer } = await dossierTempoPropre());
+  } else {
+    dossierBase = options.services.dossier.dossier
+    effacer = () => {}
+  };
 
   const nébuleuses: NébuleuseTest<T, S>[] = [];
 
-  for (const _ in [...Array(n).entries()]) {
+  for (const i in [...Array(n).entries()]) {
+    const dossier = path.join(dossierBase, String(i))
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
-      options,
+      options: merge(options, { services: { dossier: { dossier } }}),
     });
     nébuleuses.push(nébuleuse);
   }
