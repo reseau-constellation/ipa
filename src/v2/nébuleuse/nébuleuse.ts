@@ -170,7 +170,7 @@ export class Nébuleuse<
         orbite: serviceOrbite(options?.services.orbite),
         compte: serviceCompte<StructureNébuleuse & T>(optionsCompte),
         dispositifs: serviceDispositifs(),
-        // profil: serviceProfil(),
+        profil: serviceProfil(),
         réseau: serviceRéseau(),
         épingles: serviceÉpingles(),
         favoris: serviceFavoris(),
