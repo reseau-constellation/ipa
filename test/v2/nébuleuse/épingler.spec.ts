@@ -31,7 +31,7 @@ describe.only("Épingles", function () {
     });
   });
 
-  describe.skip("épingler et désépingler", function () {
+  describe("épingler et désépingler", function () {
     let fermer: () => Promise<void>;
     let nébuleuses: NébuleuseTest[];
     let nébuleuse: NébuleuseTest;
@@ -123,7 +123,7 @@ describe.only("Épingles", function () {
     });
   });
 
-  describe.skip("cycle de vie", function () {
+  describe("cycle de vie", function () {
     let fermer: () => Promise<void>;
     let nébuleuses: NébuleuseTest[];
     let nébuleuse: NébuleuseTest;
