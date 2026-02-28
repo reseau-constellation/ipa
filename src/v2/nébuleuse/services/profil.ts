@@ -147,6 +147,15 @@ export class Profil extends ServiceDonnéesAppli<
     });
   }
 
+  async démarrer() {
+    const retour = await super.démarrer();
+    this.service("favoris").inscrireRésolution({
+      clef: this.clef,
+      résolution: this.suivreRésolutionÉpingle.bind(this)
+    })
+    return retour
+  }
+
   async initialiser(): Promise<void> {
     const bd = await this.bd();
     await bd.set("initialisé", true);
