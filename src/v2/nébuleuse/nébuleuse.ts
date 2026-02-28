@@ -38,8 +38,8 @@ import {
 } from "./services/réseau.js";
 import { serviceProfil } from "./services/profil.js";
 import { serviceÉpingles, type ServiceÉpingles } from "./services/épingles.js";
-import { serviceFavoris } from "./services/favoris.js";
-import type { ServiceFavoris } from "./services/favoris.js";
+import { schémaServiceFavoris, serviceFavoris } from "./services/favoris.js";
+import type { ServiceFavoris, StructureServiceFavoris } from "./services/favoris.js";
 import type { ServiceOrbite, ServiceCompte } from "./services/index.js";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsServiceJournal } from "./services/journal.js";
@@ -58,6 +58,7 @@ export type StructureNébuleuse = {
   dispositifs: StructureDispositifs;
   profil: StructureProfil;
   réseau: StructureRéseau;
+  favoris: StructureServiceFavoris;
 };
 
 export const schémaNébuleuse: JSONSchemaType<
@@ -68,6 +69,7 @@ export const schémaNébuleuse: JSONSchemaType<
     dispositifs: schémaDispositifs,
     profil: schémaProfil,
     réseau: schémaRéseau,
+    favoris: schémaServiceFavoris,
   },
 };
 

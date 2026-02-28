@@ -102,7 +102,7 @@ export type Résolveur<T extends ÉpingleFavoris = ÉpingleFavoris> = (args: {
 
 // Structure données
 
-const schémaÉpingleFavoris: JSONSchemaType<PartielRécursif<ÉpingleFavoris>> = {
+export const schémaÉpingleFavoris: JSONSchemaType<PartielRécursif<ÉpingleFavoris>> = {
   type: "object",
   properties: {
     type: { type: "string", nullable: true },
@@ -130,14 +130,15 @@ const schémaÉpingleFavoris: JSONSchemaType<PartielRécursif<ÉpingleFavoris>> 
   required: [],
 };
 
-type StructureServiceFavoris = { [idObjet: string]: ÉpingleFavoris };
+export type StructureServiceFavoris = { [idObjet: string]: ÉpingleFavoris };
 
-const SchémaServiceFavoris: JSONSchemaType<
+export const schémaServiceFavoris: JSONSchemaType<
   PartielRécursif<StructureServiceFavoris>
-> = {
+> & { nullable: true } = {
   type: "object",
   additionalProperties: schémaÉpingleFavoris,
   required: [],
+  nullable: true,
 };
 
 // Fonctions
@@ -176,7 +177,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       services,
       dépendances: ["dispositifs", "réseau", "épingles"],
       options: Object.assign({}, options, {
-        schéma: SchémaServiceFavoris,
+        schéma: schémaServiceFavoris,
       }),
     });
     this.résolveurs = new Map();
