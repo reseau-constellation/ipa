@@ -866,7 +866,7 @@ describe("Nuées", function () {
     });
 
     it.skip("réordonner tableaux", async () => {
-      console.log("pas encore possible");
+      throw new Error("pas encore possible");
     });
 
     it("effacer un tableau", async () => {
