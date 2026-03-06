@@ -153,7 +153,7 @@ index d08d879af6cd83fba553f6887a01a21c562b4511..76b68f82bfca23d0f81e80f005b6e5a4
        return decodeIdentity(bytes)
      }
 diff --git a/src/manifest-store.js b/src/manifest-store.js
-index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..04829cd98f95a67021c75772a33b0b69d8aae035 100644
+index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..85d3ee26ac2d7175b9c4bb9913c1ec4d131cc8ab 100644
 --- a/src/manifest-store.js
 +++ b/src/manifest-store.js
 @@ -20,12 +20,12 @@ const ManifestStore = async ({ ipfs, storage } = {}) => {
@@ -161,8 +161,9 @@ index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..04829cd98f95a67021c75772a33b0b69
    )
  
 -  const get = async (address) => {
+-    const bytes = await storage.get(address)
 +  const get = async (address, signal) => {
-     const bytes = await storage.get(address)
++    const bytes = await storage.get(address, signal)
      const { value } = await Block.decode({ bytes, codec, hasher })
      if (value) {
        // Write to storage to make sure it gets pinned on IPFS
