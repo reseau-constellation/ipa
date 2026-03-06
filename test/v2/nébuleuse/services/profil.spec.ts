@@ -371,7 +371,7 @@ describe.only("Profil", function () {
               épingle: { base: true, favoris: true },
             },
           },
-          f: si((x) => {console.log(JSON.stringify(x, undefined, 2)); return !!x && x.size > 3}),
+          f: si((x) => !!x && x.size > 3),
         }),
       );
       expect([...résolution]).to.have.members([
@@ -388,7 +388,7 @@ describe.only("Profil", function () {
       const épingle = await obtenir(({ siNonDéfini }) =>
         nébuleuse.profil.suivreÉpingle({
           idCompte: idsComptes[1],
-          f: si(x=>{console.log("hmmm", x); return x === undefined}),
+          f: siNonDéfini(),
         }),
       );
       expect(épingle).to.be.undefined();
