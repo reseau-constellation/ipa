@@ -4,7 +4,7 @@ import {
   AUCUN_DISPOSITIF,
   TOUS_DISPOSITIFS,
 } from "@/v2/nébuleuse/services/favoris.js";
-import { idcEtFichierValide } from "@/v2/utils.js";
+import { enleverPréfixes, idcEtFichierValide } from "@/v2/utils.js";
 import { obtenir } from "../../utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
@@ -276,7 +276,7 @@ describe.only("Profil", function () {
     let idImage: string;
 
     const idCompteInexistant =
-      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
 
     it("épingler profil", async () => {
       await nébuleuse.profil.épingler({
@@ -313,8 +313,8 @@ describe.only("Profil", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolution]).to.have.members([idsComptes[1]]);
-
+      expect([...résolution]).to.have.members([enleverPréfixes(idsComptes[1])]);
+      
       idImage = await nébuleuses[1].profil.sauvegarderImage({
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
@@ -333,14 +333,14 @@ describe.only("Profil", function () {
         }),
       );
       expect([...résolutionAvecImage]).to.have.members([
-        idsComptes[1],
+        enleverPréfixes(idsComptes[1]),
         idImage,
       ]);
     });
 
     it("résoudre épingle - favoris", async () => {
       await nébuleuses[1].profil.épingler({ idCompte: idCompteInexistant });
-      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+      const résolution = await obtenir<Set<string>>(({ si }) =>
         nébuleuse.profil.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idsComptes[1],
@@ -349,20 +349,20 @@ describe.only("Profil", function () {
               épingle: { base: true, favoris: true },
             },
           },
-          f: siDéfini(),
+          f: si((x) => !!x && x.size > 2),
         }),
       );
       expect([...résolution]).to.have.members([
-        idsComptes[1],
+        enleverPréfixes(idsComptes[1]),
         idImage,
-        idCompteInexistant,
+        enleverPréfixes(idCompteInexistant),
       ]);
     });
 
     it("résoudre épingle - favoris circulaires", async () => {
       await nébuleuses[1].profil.épingler({ idCompte: idsComptes[0] });
 
-      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+      const résolution = await obtenir<Set<string>>(({ si }) =>
         nébuleuse.profil.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idsComptes[1],
@@ -371,14 +371,14 @@ describe.only("Profil", function () {
               épingle: { base: true, favoris: true },
             },
           },
-          f: siDéfini(),
+          f: si((x) => {console.log(JSON.stringify(x, undefined, 2)); return !!x && x.size > 3}),
         }),
       );
       expect([...résolution]).to.have.members([
-        idsComptes[1],
+        enleverPréfixes(idsComptes[1]),
         idImage,
-        idCompteInexistant,
-        idsComptes[0],
+        enleverPréfixes(idCompteInexistant),
+        enleverPréfixes(idsComptes[0]),
       ]);
     });
 
@@ -388,7 +388,7 @@ describe.only("Profil", function () {
       const épingle = await obtenir(({ siNonDéfini }) =>
         nébuleuse.profil.suivreÉpingle({
           idCompte: idsComptes[1],
-          f: siNonDéfini(),
+          f: si(x=>{console.log("hmmm", x); return x === undefined}),
         }),
       );
       expect(épingle).to.be.undefined();
