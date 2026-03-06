@@ -1,8 +1,9 @@
 import deepEqual from "deep-equal";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
-import { ajouterPréfixeOrbite, enleverPréfixes, enleverPréfixesEtOrbite } from "../../utils.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
@@ -96,41 +97,52 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
 // Type résolveur
 
 export type Résolveur<T extends ÉpingleFavoris = ÉpingleFavoris> = (args: {
-  épingle: ÉpingleFavorisBooléenniséeAvecId<T>;
+  épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<T>>;
   f: Suivi<Set<string>>;
 }) => Promise<Oublier>;
 
+export const idObjetÀClef = (idObjet: string): string => {
+  return Base64.stringify(md5(idObjet));
+}
+
 // Structure données
 
-export const schémaÉpingleFavoris: JSONSchemaType<PartielRécursif<ÉpingleFavoris>> = {
+export const schémaÉpingleFavoris: JSONSchemaType<PartielRécursif<ÉpingleFavorisAvecId>> = {
   type: "object",
   properties: {
-    type: { type: "string", nullable: true },
+    idObjet: { type: "string", nullable: true },
     épingle: {
       type: "object",
       properties: {
-        base: {
-          type: ["string", "array"],
-          anyOf: [
-            {
-              type: "string",
+        type: { type: "string", nullable: true },
+        épingle: {
+          type: "object",
+          properties: {
+            base: {
+              type: ["string", "array"],
+              anyOf: [
+                {
+                  type: "string",
+                },
+                {
+                  type: "array",
+                  items: { type: "string" },
+                },
+              ],
+              nullable: true,
             },
-            {
-              type: "array",
-              items: { type: "string" },
-            },
-          ],
+          },
+          additionalProperties: true,
           nullable: true,
         },
       },
-      additionalProperties: true,
+      required: [],
       nullable: true,
-    },
-  },
-  required: [],
+    }
+  }
 };
 
-export type StructureServiceFavoris = { [idObjet: string]: ÉpingleFavoris };
+export type StructureServiceFavoris = { [clef: string]: ÉpingleFavorisAvecId };
 
 export const schémaServiceFavoris: JSONSchemaType<
   PartielRécursif<StructureServiceFavoris>
@@ -209,15 +221,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       return await this.suivreBd({
         f: (x) => {
           return fSuivreRacine(
-            Object.entries(x || {})
-              .map(([idObjet, épingle]) => {
-                if (typeÉpinglePrésent(épingle))
-                  return {
-                    idObjet,
-                    épingle,
-                  };
-                return undefined;
-              })
+            Object.values(x || {})
               .filter(
                 (x): x is { idObjet: string; épingle: ÉpingleFavoris } => !!x,
               ),
@@ -304,7 +308,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     return await résolveur({
       f,
       épingle: {
-        idObjet: ajouterPréfixeOrbite(épingle.idObjet),
+        idObjet: épingle.idObjet,
         épingle: épingleBooléennisée,
       },
     });
@@ -321,15 +325,20 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   }): Promise<void> {
     const bd = await this.bd();
 
-    const sansPréfixes = enleverPréfixesEtOrbite(idObjet)
-    const existant = await bd.get(sansPréfixes);
+    const épingleAvecIdObjet: ÉpingleFavorisAvecId = {
+      idObjet, épingle
+    }
+    const clef = idObjetÀClef(idObjet)
+    const existant = await bd.get(clef);
     if (!deepEqual(existant, épingle))
-      await bd.put(sansPréfixes, épingle);
+      await bd.put(clef, épingleAvecIdObjet);
   }
 
   async désépinglerFavori({ idObjet }: { idObjet: string }): Promise<void> {
     const bd = await this.bd();
-    await bd.del(enleverPréfixes(idObjet));
+
+    const clef = idObjetÀClef(idObjet);
+    await bd.del(clef);
   }
 
   @cacheSuivi
@@ -341,19 +350,11 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     idCompte?: string;
   }): Promise<Oublier> {
     const fFinale = async (
-      favoris?: PartielRécursif<{ [key: string]: ÉpingleFavoris }> | null,
+      favoris?: PartielRécursif<{ [key: string]: ÉpingleFavorisAvecId }> | null,
     ) => {
       if (!favoris) return await f(undefined);
 
-      const favorisFinaux: ÉpingleFavorisAvecId[] = Object.entries(favoris)
-        .map(([empreinte, épingle]) => {
-          if (typeÉpinglePrésent(épingle))
-            return {
-              idObjet: ajouterPréfixeOrbite(empreinte),
-              épingle,
-            };
-          return undefined;
-        })
+      const favorisFinaux: ÉpingleFavorisAvecId[] = Object.values(favoris)
         .filter((x): x is ÉpingleFavorisAvecId => !!x);
       await f(favorisFinaux);
     };
@@ -514,10 +515,10 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     return await this.suivreBd({
       f: async (favoris) => {
         const favorisObjet = favoris?.[idObjet];
-        if (typeÉpinglePrésent(favorisObjet))
+        if (typeÉpinglePrésent(favorisObjet?.épingle))
           await f(
             await this.résoudreÉpinglesSurDispositif({
-              épingle: favorisObjet,
+              épingle: favorisObjet.épingle,
               idDispositif,
             }),
           );
@@ -533,9 +534,9 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     épingle: ÉpingleFavoris<T>;
     idDispositif?: string;
   }): Promise<BooléenniserÉpingle<ÉpingleFavoris<T>>> {
-    const résultat = Object.fromEntries([
-      ["type", épingle.type],
-      ...(
+    const résultat = {
+      type: épingle.type,
+      épingle: Object.fromEntries((
         await Promise.all(
           Object.entries(épingle.épingle || {}).map(async ([clef, val]) => {
             if (Array.isArray(val) || typeof val === "string") {
@@ -560,7 +561,8 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
           }),
         )
       ).filter((x): x is [string, BooléenniserÉpingle<ÉpingleFavoris>] => !!x),
-    ]) as BooléenniserÉpingle<ÉpingleFavoris<T>>;
+    )
+   } as BooléenniserÉpingle<ÉpingleFavoris<T>>;
     return résultat;
   }
 
