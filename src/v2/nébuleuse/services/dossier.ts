@@ -130,7 +130,7 @@ export class ServiceDossier extends ServiceAppli<
       }, INTERVALE_VERROU);
       return async () => {
         clearInterval(intervale);
-        fs.rmSync(join(dossier, FICHIER_VERROU));
+        fs.rmSync(fichierVerrou);
       };
     } else {
       return faisRien;
