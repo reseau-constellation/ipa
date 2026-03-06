@@ -185,6 +185,11 @@ describe("Favoris", function () {
       expect(favoris).to.deep.equal(réf);
     });
 
+    it("bien épinglé", async () => {
+      const épinglé = await nébuleuse.services.épingles.estÉpinglé({ id: idObjet })
+      expect(épinglé).to.be.true();
+    })
+
     it("détecter sur autre compte", async () => {
       const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
         ({ siPasVide }) =>
