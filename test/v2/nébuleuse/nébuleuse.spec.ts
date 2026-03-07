@@ -258,7 +258,6 @@ describe.only("Nébuleuse", function () {
       } finally {
         nébuleuse2 = undefined;
       };
-      nébuleuse2 = undefined;
 
       if (effacer) effacer();
     });
