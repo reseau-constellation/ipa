@@ -322,7 +322,11 @@ describe.only("Nébuleuse", function () {
 
     it("fichier verrou résiduel", async () => {
       // On simule un fichier verrou qui n'aurait pas été bien effacé à la fermeture
-      writeFileSync(join(dossier, FICHIER_VERROU), "");
+      if (isElectronMain || isNode) {
+        writeFileSync(join(dossier, FICHIER_VERROU), "");
+      } else {
+        localStorage.setItem(join(dossier, FICHIER_VERROU), JSON.stringify({message: "", temps: Date.now() }))
+      }
 
       // On peut démarrer malgré tout
       nébuleuse = new NébuleuseTest({
