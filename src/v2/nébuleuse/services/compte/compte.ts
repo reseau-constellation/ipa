@@ -34,7 +34,7 @@ import type {
   OptionsContrôleurNébuleuse,
   Rôle,
 } from "./accès/index.js";
-import type { NestedValue } from "@orbitdb/nested-db";
+import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 
@@ -109,12 +109,7 @@ export class BaseServiceCompte<
   }
 
   async démarrer() {
-    const { idCompte } = await this.initialiserIdCompte();
-
-    const { bd, oublier } = await this.service("orbite").ouvrirBd({
-      id: enleverPréfixes(idCompte),
-      type: "nested",
-    });
+    const { idCompte, bd, oublier } = await this.initialiserBdCompte();
 
     const bdTypée = typedNested({
       db: bd,
@@ -130,19 +125,24 @@ export class BaseServiceCompte<
     await super.fermer();
   }
 
-  async initialiserIdCompte(): Promise<{ idCompte: string }> {
+  async initialiserBdCompte(): Promise<{ idCompte: string; bd: NestedDatabaseType, oublier: Oublier }> {
     let idCompte = await this.service("stockage").obtenirItem(CLEF_ID_COMPTE);
 
-    if (!idCompte) {
-      const orbite = this.service("orbite");
-      const { bd, oublier } = await orbite.créerBd({ type: "nested" });
-      idCompte = ajouterPréfixes(bd.address, "/nébuleuse/compte");
-      await oublier();
+    if (idCompte) {
+      const { bd, oublier } = await this.service("orbite").ouvrirBd({
+        id: enleverPréfixes(idCompte),
+        type: "nested",
+      });
 
-      await this.service("stockage").sauvegarderItem(CLEF_ID_COMPTE, idCompte);
+      return { idCompte, bd, oublier };
     }
 
-    return { idCompte };
+    const orbite = this.service("orbite");
+    const { bd, oublier } = await orbite.créerBd({ type: "nested" });
+    idCompte = ajouterPréfixes(bd.address, "/nébuleuse/compte");
+
+    await this.service("stockage").sauvegarderItem(CLEF_ID_COMPTE, idCompte);
+    return { idCompte, bd, oublier };
   }
 
   // Accès configuration
@@ -250,15 +250,13 @@ export class BaseServiceCompte<
       async (f) => accès.suivreDispositifsAutorisées(f),
       (autorisés) => !!autorisés?.find((a) => a.idDispositif === moi),
     );
-    await oublier();
-
-    // Là on peut y aller
-    const estDémarré = await this.démarré();
-    estDémarré.idCompte = idCompte;
 
     // On sauvegarde le nouvel identifiant de compte
     const stockage = this.service("stockage");
     stockage.sauvegarderItem(CLEF_ID_COMPTE, idCompte);
+
+    // Là on peut y aller
+    await this.démarrer()
 
     // On garde compte du nombre de changements de compte
     // afin de pouvoir, dans `réseau.ts`, ignorer les anciens changements qui peuvent
