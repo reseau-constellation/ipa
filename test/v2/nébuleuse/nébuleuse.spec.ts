@@ -255,6 +255,8 @@ describe.only("Nébuleuse", function () {
         await nébuleuse2.fermer()
       } catch (e) {
         if (!e.toString().includes("Erreur de démarrage")) throw e;
+      } finally {
+        nébuleuse2 = undefined;
       };
       nébuleuse2 = undefined;
 
