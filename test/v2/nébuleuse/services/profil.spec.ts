@@ -445,13 +445,23 @@ describe.only("Profil", function () {
         nom: "ம.-அதான் ஜூலீஎன்",
       });
 
-      const pNoms = obtenir<TraducsTexte | undefined>(({ si }) =>
+      const nomsSurDispositif2 = await obtenir<TraducsTexte | undefined>(({ si }) =>
+        nébuleuses[1].profil.suivreNoms({
+          f: si((x) => !!x && Object.keys(x).includes("த")),
+        }),
+      );
+
+      expect(nomsSurDispositif2).to.deep.equal({
+        fr: "Julien Malard-Adam",
+        த: "ம.-அதான் ஜூலீஎன்",
+      });
+
+      const noms = await obtenir<TraducsTexte | undefined>(({ si }) =>
         nébuleuses[0].profil.suivreNoms({
           f: si((x) => !!x && Object.keys(x).includes("த")),
         }),
       );
 
-      const noms = await pNoms;
       expect(noms).to.deep.equal({
         fr: "Julien Malard-Adam",
         த: "ம.-அதான் ஜூலீஎன்",
