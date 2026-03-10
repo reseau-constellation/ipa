@@ -5,7 +5,7 @@ import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
 import { idcValide, zipper } from "@constl/utils-ipa";
 import { TimeoutController } from "timeout-abort-controller";
-import Base64 from "crypto-js/enc-base64.js";
+import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { NestedValueWithUndefined } from "@orbitdb/nested-db";

@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "xlsx";
 import { TimeoutController } from "timeout-abort-controller";
 import PQueue from "p-queue";
-import Base64 from "crypto-js/enc-base64.js";
+import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import {

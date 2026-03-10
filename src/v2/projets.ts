@@ -9,7 +9,7 @@ import {
 } from "@constl/utils-ipa";
 import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
 import toBuffer from "it-to-buffer";
-import Base64 from "crypto-js/enc-base64.js";
+import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { conversionsTypes, définis } from "./utils.js";

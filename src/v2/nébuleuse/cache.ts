@@ -1,5 +1,5 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
-import Base64 from "crypto-js/enc-base64.js";
+import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { v4 as uuidv4 } from "uuid";
 

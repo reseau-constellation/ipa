@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import { OrderedKeyValue } from "@orbitdb/ordered-keyvalue-db";
 import { typedNested } from "@constl/bohr-db";
 import { anySignal } from "any-signal";
-import Base64 from "crypto-js/enc-base64.js";
+import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { CID } from "multiformats";
 import { STATUTS } from "@/v2/nébuleuse/appli/consts.js";

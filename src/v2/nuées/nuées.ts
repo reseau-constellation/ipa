@@ -10,7 +10,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
-import Base64 from "crypto-js/enc-base64.js";
+import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { schémaTableau } from "../tableaux.js";
 import {

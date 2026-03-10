@@ -1,7 +1,7 @@
 import deepEqual from "deep-equal";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
-import Base64 from "crypto-js/enc-base64.js";
+import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
