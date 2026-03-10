@@ -203,11 +203,9 @@ export class Nébuleuse<
     if (isElectronRenderer || isBrowser) {
       if (typeof indexedDB !== "undefined" && indexedDB.databases) {
         const indexedDbDatabases = await indexedDB.databases();
-        await Promise.allSettled(
-          indexedDbDatabases.map((bd) => {
-            if (bd.name) indexedDB.deleteDatabase(bd.name);
-          }),
-        );
+        indexedDbDatabases.map((bd) => {
+          if (bd.name) indexedDB.deleteDatabase(bd.name);
+        });
       } else {
         const journal = this.services["journal"];
         journal.écrire("On a pas pu effacer le compte local.");
