@@ -103,7 +103,7 @@
     "@chriscdn/promise-semaphore": "^3.1.2",
     "@constl/bohr-db": "^2.0.0",
     "@constl/mandataire": "^3.1.2",
-    "@constl/utils-ipa": "^3.0.0",
+    "@constl/utils-ipa": "^3.0.1",
     "@helia/unixfs": "^5.1.0",
     "@ipld/dag-cbor": "^9.2.5",
     "@libp2p/autonat": "^2.0.38",
@@ -164,7 +164,7 @@
     "lodash-es": "^4.17.21",
     "merge-options": "^3.0.4",
     "multiformats": "^13.4.1",
-    "p-queue": "^9.0.0",
+    "p-queue": "^8.1.0",
     "p-retry": "^7.1.0",
     "platform": "^1.3.6",
     "prom-client": "^15.1.3",
@@ -189,13 +189,17 @@
       "iso-constants",
       "node-datachannel"
     ],
+    "overrides": {
+      "p-queue": "^8.1.0"
+    },
     "patchedDependencies": {
       "@chainsafe/libp2p-gossipsub@14.1.2": "patches/@chainsafe__libp2p-gossipsub@14.1.2.patch",
       "@orbitdb/core@3.0.2": "patches/@orbitdb__core@3.0.2.patch",
       "@orbitdb/core-types": "patches/@orbitdb__core-types.patch",
       "@orbitdb/nested-db": "patches/@orbitdb__nested-db.patch",
       "@orbitdb/set-db": "patches/@orbitdb__set-db.patch",
-      "@orbitdb/feed-db": "patches/@orbitdb__feed-db.patch"
+      "@orbitdb/feed-db": "patches/@orbitdb__feed-db.patch",
+      "@orbitdb/nested-db@2.0.4": "patches/@orbitdb__nested-db@2.0.4.patch"
     }
   }
 }
