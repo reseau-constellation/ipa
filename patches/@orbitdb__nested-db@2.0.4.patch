@@ -1,0 +1,41 @@
+diff --git a/dist/nested.js b/dist/nested.js
+index 062e4a906174872bae0346e74e74dd9d8eafe30c..f6dbc7f0f866d97c51923fc6a7093a8bf8fd0903 100644
+--- a/dist/nested.js
++++ b/dist/nested.js
+@@ -1,7 +1,7 @@
+ import { Database } from "@orbitdb/core";
+ import { flatten, isNestedKey, isNestedValue, isSubkey, joinKey, removeUndefineds, splitKey, toNested, } from "./utils.js";
+ const type = "nested";
+-const Nested = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, }) => {
++const Nested = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, signal }) => {
+     const database = await Database({
+         ipfs,
+         identity,
+@@ -16,6 +16,7 @@ const Nested = () => async ({ ipfs, identity, address, name, access, directory,
+         referencesCount,
+         syncAutomatically,
+         onUpdate,
++        signal
+     });
+     const { put, set, insert, get, del, iterator, all } = NestedApi({
+         database,
+diff --git a/src/nested.ts b/src/nested.ts
+index abc7a5277d762fcb852dd749576a3f115345c1eb..6c0cf734e0ecc7d7c7f71c542769f4ed084e5c3c 100644
+--- a/src/nested.ts
++++ b/src/nested.ts
+@@ -64,6 +64,7 @@ const Nested =
+     referencesCount?: number;
+     syncAutomatically?: boolean;
+     onUpdate?: (log: Log, entry: LogEntry) => void;
++    signal?: AbortSignal;
+   }) => {
+     const database = await Database({
+       ipfs,
+@@ -79,6 +80,7 @@ const Nested =
+       referencesCount,
+       syncAutomatically,
+       onUpdate,
++      signal,
+     });
+ 
+     const { put, set, insert, get, del, iterator, all } = NestedApi({

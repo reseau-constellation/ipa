@@ -19,3 +19,31 @@ index 81bfced85634ff0e61e3b5938156ad7ddc87b91d..170da78a7ae0b7025ccc3dc81a5cc279
      });
      const { put, set, get, del, move, iterator, all } = NestedApi({ database });
      return {
+diff --git a/src/nested.ts b/src/nested.ts
+index e8de43d6fd6ebf293f1867798a4cee1984ead73f..fb0d176d80461c45d3fe2ae48337af35edc38b72 100644
+--- a/src/nested.ts
++++ b/src/nested.ts
+@@ -55,6 +55,7 @@ const Nested =
+     referencesCount,
+     syncAutomatically,
+     onUpdate,
++    signal,
+   }: {
+     ipfs: HeliaLibp2p<Libp2p<T>>;
+     identity?: Identity;
+@@ -69,6 +70,7 @@ const Nested =
+     referencesCount?: number;
+     syncAutomatically?: boolean;
+     onUpdate?: (log: Log, entry: LogEntry) => void;
++    signal?: AbortSignal;
+   }) => {
+     const database = await Database({
+       ipfs,
+@@ -84,6 +86,7 @@ const Nested =
+       referencesCount,
+       syncAutomatically,
+       onUpdate,
++      signal
+     });
+ 
+     const { put, set, get, del, move, iterator, all } = NestedApi({ database });

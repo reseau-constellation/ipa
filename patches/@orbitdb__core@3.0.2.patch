@@ -173,7 +173,7 @@ index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..85d3ee26ac2d7175b9c4bb9913c1ec4d
      return value
    }
 diff --git a/src/oplog/log.js b/src/oplog/log.js
-index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..4524aa95d6a67cf475cd6d1fcce2d932579798ac 100644
+index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..0549046b7f665005d37445550e83af665c638911 100644
 --- a/src/oplog/log.js
 +++ b/src/oplog/log.js
 @@ -52,7 +52,7 @@ const DefaultAccessController = async () => {
@@ -185,6 +185,15 @@ index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..4524aa95d6a67cf475cd6d1fcce2d932
    /**
     * @namespace Log
     * @description The instance returned by {@link module:Log}
+@@ -76,7 +76,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+   access = access || await DefaultAccessController()
+ 
+   // Index and storage of entries for this Log
+-  const oplogStore = await OplogStore({ logHeads, entryStorage, indexStorage, headsStorage, encryption })
++  const oplogStore = await OplogStore({ logHeads, entryStorage, indexStorage, headsStorage, encryption, signal })
+ 
+   // Conflict-resolution sorting function
+   sortFn = NoZeroes(sortFn || LastWriteWins)
 @@ -136,7 +136,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
      if (!hash) {
        throw new Error('hash is required')
