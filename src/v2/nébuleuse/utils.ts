@@ -16,6 +16,12 @@ const attendre = (t: number, signal: AbortSignal): Promise<void> => {
   });
 };
 
+const erreurAvortée = (e?: Error): boolean => {
+  if (!e) return false;
+  if (e instanceof AggregateError) return e.errors.map(erreurAvortée).some(x=>x === true);
+  return e.name.includes("AbortError")
+}
+
 const pSignal = async (signal: AbortSignal): Promise<never> => {
   if (signal.aborted) throw new AbortError(Error("Signal avorté"));
   return new Promise<never>((_résoudre, rejeter) => {
@@ -45,7 +51,7 @@ export const réessayer = async <T>(
       avant = Date.now();
       return await Promise.race([f(), pSignal(signal)]);
     } catch (e) {
-      if (signal.aborted) throw new AbortError(Error("Signal avorté"));
+      if (signal.aborted || erreurAvortée(e as Error)) throw new AbortError(Error("Signal avorté"));
       console.log(e);
       n++;
       const maintenant = Date.now();
