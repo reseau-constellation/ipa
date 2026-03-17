@@ -78,18 +78,18 @@ export class AccèsParComptes {
   queue: PQueue;
   événements: TypedEmitter<{ misÀJour: () => void }>;
   oublier: Oublier[];
-  signaleurArrêt: AbortController;
+  signal?: AbortSignal;
 
   _comptes: Map<string, { rôles: Set<Rôle>; accès: AccèsCompte }>;
   _dispositifs: Map<string, Set<Rôle>>;
 
-  constructor(orbite: OrbitDB) {
+  constructor({orbite, signal}: {orbite: OrbitDB, signal?: AbortSignal}) {
     this.orbite = orbite;
 
     this.queue = new PQueue({ concurrency: 1 });
     this.événements = new TypedEmitter();
     this.oublier = [];
-    this.signaleurArrêt = new AbortController();
+    this.signal = signal;
 
     this._comptes = new Map();
     this._dispositifs = new Map();
@@ -105,7 +105,7 @@ export class AccèsParComptes {
             accès: accèsCompte,
             rôles: new Set([rôle]),
           };
-          await accèsCompte.démarrer({ signal: this.signaleurArrêt.signal });
+          await accèsCompte.démarrer({ signal: this.signal });
 
           this._comptes.set(id, utilisateur);
 
@@ -203,7 +203,6 @@ export class AccèsParComptes {
   }
 
   async fermer(): Promise<void> {
-    this.signaleurArrêt.abort();
     await Promise.allSettled(this.oublier.map((f) => f()));
   }
 }
