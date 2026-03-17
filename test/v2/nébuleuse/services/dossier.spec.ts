@@ -6,13 +6,16 @@ import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 
 import {
   FICHIER_VERROU,
+  INTERVALE_VERROU,
   type ServiceDossier,
   serviceDossier,
 } from "@/v2/nébuleuse/services/dossier.js";
-import { dossierTempoPropre } from "../../utils.js";
+import { dossierTempoPropre, utiliserFauxChronomètres } from "../../utils.js";
+import type { SinonFakeTimers } from "sinon";
 import type Quibble from "quibble";
 
 describe.only("Dossier", function () {
+  let horloge: SinonFakeTimers
   let quibble: typeof Quibble;
 
   let appli: Appli<{ dossier: ServiceDossier }>;
@@ -20,6 +23,7 @@ describe.only("Dossier", function () {
   let effacer: () => void;
 
   beforeEach(async () => {
+    horloge = utiliserFauxChronomètres();
     ({ dossier, effacer } = await dossierTempoPropre());
 
     if (isNode || isElectronMain) {
@@ -31,6 +35,7 @@ describe.only("Dossier", function () {
   });
 
   afterEach(async () => {
+    horloge.restore();
     if (appli) await appli.fermer();
     if (effacer) effacer();
     quibble?.default.reset();
@@ -117,7 +122,10 @@ describe.only("Dossier", function () {
         dossier: serviceDossier({ dossier }),
       },
     });
-    await expect(appli2.démarrer()).to.eventually.be.rejectedWith(
+
+    const démarrage = appli2.démarrer()
+    await horloge.tickAsync(INTERVALE_VERROU);
+    await expect(démarrage).to.eventually.be.rejectedWith(
       `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n"${MESSAGE_ERREUR}"`,
     );
   });

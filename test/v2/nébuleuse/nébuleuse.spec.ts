@@ -3,13 +3,12 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { créerOrbitesTest } from "@constl/utils-tests";
 import { isLibp2p } from "libp2p";
-import { useFakeTimers } from "sinon";
 import { isBrowser, isElectronMain, isElectronRenderer, isNode } from "wherearewe";
 import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
 import { extraireHéliaEtLibp2p } from "@/v2/nébuleuse/nébuleuse.js";
 import { FICHIER_VERROU, INTERVALE_VERROU } from "@/v2/nébuleuse/services/dossier.js";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
-import { dossierTempoPropre } from "../utils.js";
+import { dossierTempoPropre, utiliserFauxChronomètres } from "../utils.js";
 import { NébuleuseTest } from "./utils.js";
 import type sinon from "sinon";
 import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
@@ -244,7 +243,7 @@ describe.only("Nébuleuse", function () {
     let effacer: () => void;
 
     beforeEach(async () => {
-      horloge = useFakeTimers({shouldAdvanceTime: true, now: new Date(), shouldClearNativeTimers: true });
+      horloge = utiliserFauxChronomètres();
       ({ dossier, effacer } = await dossierTempoPropre());
     });
 

@@ -1,8 +1,8 @@
 import { join } from "path";
 import { isElectronMain, isNode } from "wherearewe";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
-import type TypeFs from "fs";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
+import type TypeFs from "fs";
 import type { Jsonifiable, Oublier } from "../types.js";
 import type {
   OptionsAppli,

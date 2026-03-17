@@ -4,6 +4,7 @@ import { dossierTempo } from "@constl/utils-tests";
 
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
+import { useFakeTimers } from "sinon";
 import { créerConstellation } from "@/v2/index.js";
 import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/ContrôleurNébuleuse.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
@@ -321,3 +322,9 @@ export const créerConstellationsTest = async ({
     fermer,
   };
 };
+
+export const utiliserFauxChronomètres = () => {
+  const horloge = useFakeTimers({shouldAdvanceTime: true, now: new Date(), shouldClearNativeTimers: true });
+  after(()=>horloge.reset())
+  return horloge
+}
