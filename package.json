@@ -100,7 +100,7 @@
     "@chainsafe/libp2p-gossipsub": "^14.1.2",
     "@chainsafe/libp2p-noise": "^16.1.5",
     "@chainsafe/libp2p-yamux": "^7.0.4",
-    "@chriscdn/promise-semaphore": "^3.1.2",
+    "@chriscdn/promise-semaphore": "^4.0.0",
     "@constl/bohr-db": "^2.0.0",
     "@constl/mandataire": "^3.1.2",
     "@constl/utils-ipa": "^3.0.1",
@@ -199,7 +199,8 @@
       "@orbitdb/nested-db": "patches/@orbitdb__nested-db.patch",
       "@orbitdb/set-db": "patches/@orbitdb__set-db.patch",
       "@orbitdb/feed-db": "patches/@orbitdb__feed-db.patch",
-      "@orbitdb/nested-db@2.0.4": "patches/@orbitdb__nested-db@2.0.4.patch"
+      "@orbitdb/nested-db@2.0.4": "patches/@orbitdb__nested-db@2.0.4.patch",
+      "@orbitdb/ordered-keyvalue-db": "patches/@orbitdb__ordered-keyvalue-db.patch"
     }
   }
 }

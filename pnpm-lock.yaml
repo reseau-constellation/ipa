@@ -15,7 +15,7 @@ patchedDependencies:
     hash: 3ee0c93666d6beca12538cd8544368bd9b55f6606812915851f642e8dd3d31d9
     path: patches/@orbitdb__core-types.patch
   '@orbitdb/core@3.0.2':
-    hash: e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0
+    hash: 94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab
     path: patches/@orbitdb__core@3.0.2.patch
   '@orbitdb/feed-db':
     hash: 910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87
@@ -26,6 +26,9 @@ patchedDependencies:
   '@orbitdb/nested-db@2.0.4':
     hash: b14971941a824cc42babb14a091b0aaedf8abd6cb48d83f894b46c357562ee05
     path: patches/@orbitdb__nested-db@2.0.4.patch
+  '@orbitdb/ordered-keyvalue-db':
+    hash: ad3e1461ccdaa546db8bfbbf80796bf05fb516989965be441e8d6306121fd918
+    path: patches/@orbitdb__ordered-keyvalue-db.patch
   '@orbitdb/set-db':
     hash: 8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43
     path: patches/@orbitdb__set-db.patch
@@ -44,8 +47,8 @@ importers:
         specifier: ^7.0.4
         version: 7.0.4
       '@chriscdn/promise-semaphore':
-        specifier: ^3.1.2
-        version: 3.1.2
+        specifier: ^4.0.0
+        version: 4.0.0
       '@constl/bohr-db':
         specifier: ^2.0.0
         version: 2.0.0(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
@@ -126,7 +129,7 @@ importers:
         version: 2.0.1
       '@orbitdb/core':
         specifier: ^3.0.2
-        version: 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
+        version: 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
       '@orbitdb/feed-db':
         specifier: ^1.3.0
         version: 1.3.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
@@ -135,7 +138,7 @@ importers:
         version: 2.0.4(patch_hash=b14971941a824cc42babb14a091b0aaedf8abd6cb48d83f894b46c357562ee05)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/ordered-keyvalue-db':
         specifier: ^1.3.5
-        version: 1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+        version: 1.3.5(patch_hash=ad3e1461ccdaa546db8bfbbf80796bf05fb516989965be441e8d6306121fd918)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/set-db':
         specifier: ^2.0.1
         version: 2.0.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
@@ -984,8 +987,8 @@ packages:
   '@chainsafe/netmask@2.0.0':
     resolution: {integrity: sha512-I3Z+6SWUoaljh3TBzCnCxjlUyN8tA+NAk5L6m9IxvCf1BENQTePzPMis97CoN/iMW1St3WN+AWCCRp+TTBRiDg==}
 
-  '@chriscdn/promise-semaphore@3.1.2':
-    resolution: {integrity: sha512-rELbH6FSr9wr5J249Ax8dpzQdTaqEgcW+lilDKZxB13Hz0Bz3Iyx4q/7qZxPMnra9FUW4ZOkVf+bx5tbi6Goog==}
+  '@chriscdn/promise-semaphore@4.0.0':
+    resolution: {integrity: sha512-vMFXvksQF3zy3e0r5hL8FUMhajcbSd7HJOcGI4CLYQgjd5znoqHIfzYCYVlw0mCYUjzqk5NTIp7mY7m+IB3+uQ==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -9575,18 +9578,18 @@ snapshots:
     dependencies:
       '@chainsafe/is-ip': 2.1.0
 
-  '@chriscdn/promise-semaphore@3.1.2': {}
+  '@chriscdn/promise-semaphore@4.0.0': {}
 
   '@colors/colors@1.5.0': {}
 
   '@constl/bohr-db@2.0.0(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
       '@constl/multi-db': 0.1.0(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
-      '@orbitdb/core': 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
+      '@orbitdb/core': 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
       '@orbitdb/core-types': 1.2.1(patch_hash=3ee0c93666d6beca12538cd8544368bd9b55f6606812915851f642e8dd3d31d9)
       '@orbitdb/feed-db': 1.3.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/nested-db': 2.0.4(patch_hash=b14971941a824cc42babb14a091b0aaedf8abd6cb48d83f894b46c357562ee05)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
-      '@orbitdb/ordered-keyvalue-db': 1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+      '@orbitdb/ordered-keyvalue-db': 1.3.5(patch_hash=ad3e1461ccdaa546db8bfbbf80796bf05fb516989965be441e8d6306121fd918)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/set-db': 2.0.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       ajv: 8.17.1
       events: 3.3.0
@@ -9608,7 +9611,7 @@ snapshots:
 
   '@constl/multi-db@0.1.0(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
-      '@orbitdb/core': 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
+      '@orbitdb/core': 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
       '@orbitdb/feed-db': 1.3.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/nested-db': 1.3.6(patch_hash=04a2149ba1f088407d9c537b7b6cce1c404f78114c0a29f506e843b154f55b6e)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/set-db': 2.0.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
@@ -9661,7 +9664,7 @@ snapshots:
       '@helia/block-brokers': 4.2.4
       '@libp2p/peer-id': 5.1.9
       '@libp2p/webrtc': 5.2.24(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
-      '@orbitdb/core': 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
+      '@orbitdb/core': 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
       blockstore-core: 5.0.4
       blockstore-fs: 2.0.5
       blockstore-idb: 2.0.4
@@ -11174,7 +11177,7 @@ snapshots:
       timeout-abort-controller: 3.0.0
       uint8arrays: 5.1.0
 
-  '@orbitdb/core@3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)':
+  '@orbitdb/core@3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)':
     dependencies:
       '@ipld/dag-cbor': 9.2.5
       '@libp2p/crypto': 5.0.5
@@ -11188,7 +11191,7 @@ snapshots:
 
   '@orbitdb/feed-db@1.3.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
-      '@orbitdb/core': 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
+      '@orbitdb/core': 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
       helia: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
     transitivePeerDependencies:
       - bufferutil
@@ -11198,8 +11201,8 @@ snapshots:
 
   '@orbitdb/nested-db@1.3.6(patch_hash=04a2149ba1f088407d9c537b7b6cce1c404f78114c0a29f506e843b154f55b6e)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
-      '@orbitdb/core': 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
-      '@orbitdb/ordered-keyvalue-db': 1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+      '@orbitdb/core': 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
+      '@orbitdb/ordered-keyvalue-db': 1.3.5(patch_hash=ad3e1461ccdaa546db8bfbbf80796bf05fb516989965be441e8d6306121fd918)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       helia: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       it-all: 3.0.9
     transitivePeerDependencies:
@@ -11210,8 +11213,8 @@ snapshots:
 
   '@orbitdb/nested-db@2.0.4(patch_hash=b14971941a824cc42babb14a091b0aaedf8abd6cb48d83f894b46c357562ee05)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
-      '@orbitdb/core': 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
-      '@orbitdb/ordered-keyvalue-db': 1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+      '@orbitdb/core': 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
+      '@orbitdb/ordered-keyvalue-db': 1.3.5(patch_hash=ad3e1461ccdaa546db8bfbbf80796bf05fb516989965be441e8d6306121fd918)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       helia: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       it-all: 3.0.9
       ts-deepmerge: 7.0.3
@@ -11221,9 +11224,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@orbitdb/ordered-keyvalue-db@1.3.5(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
+  '@orbitdb/ordered-keyvalue-db@1.3.5(patch_hash=ad3e1461ccdaa546db8bfbbf80796bf05fb516989965be441e8d6306121fd918)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
-      '@orbitdb/core': 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
+      '@orbitdb/core': 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
       helia: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       it-all: 3.0.9
     transitivePeerDependencies:
@@ -11234,7 +11237,7 @@ snapshots:
 
   '@orbitdb/set-db@2.0.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
-      '@orbitdb/core': 3.0.2(patch_hash=e07a08eb2848138521733633616eecc21200dff171ac826d9c3bab67260c9af0)
+      '@orbitdb/core': 3.0.2(patch_hash=94d14499e1909ca1ffb13cc8d1290d2030783ed51d0cb46b3a64cb306dec55ab)
       helia: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
     transitivePeerDependencies:
       - bufferutil
