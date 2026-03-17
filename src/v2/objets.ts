@@ -104,7 +104,7 @@ export abstract class ObjetConstellation<
   identifiantValide(identifiant: string): boolean {
     return (
       identifiant.startsWith(`/constl/${this.clef}/orbitdb/`) &&
-      isValidAddress(identifiant.replace(`/constl/${this.clef}/orbitdb/`, ""))
+      isValidAddress(identifiant.replace(`/constl/${this.clef}`, ""))
     );
   }
 
