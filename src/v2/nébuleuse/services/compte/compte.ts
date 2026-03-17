@@ -283,9 +283,11 @@ export class BaseServiceCompte<
   async suivreBd({
     f,
     idCompte,
+    signal,
   }: {
     f: Suivi<TypedNested<T> | undefined>;
     idCompte?: string;
+    signal?: AbortSignal;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
@@ -294,6 +296,7 @@ export class BaseServiceCompte<
         id: enleverPréfixes(idCompte),
         schéma: this.options.schéma,
         f,
+        signal,
       });
     } else {
       return await suivreFonctionImbriquée<TypedNested<T>>({
@@ -305,6 +308,7 @@ export class BaseServiceCompte<
             id: enleverPréfixes(id),
             schéma: this.options.schéma,
             f: fSuivre,
+            signal,
           }),
         journal: async (m) =>
           await this.service("journal").écrire(m.toString()),
