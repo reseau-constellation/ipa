@@ -29,8 +29,8 @@ describe.only("Journal", function () {
       });
 
       after(async () => {
-        await appli.fermer();
-        effacer();
+        await appli?.fermer();
+        effacer?.();
       });
 
       it("écrire valeur", async () => {
@@ -66,7 +66,7 @@ describe.only("Journal", function () {
     });
 
     after(async () => {
-      await appli.fermer();
+      await appli?.fermer();
     });
 
     it("écrire valeur", async () => {

@@ -222,8 +222,8 @@ describe.only("Nébuleuse", function () {
     });
 
     after(async () => {
-      await nébuleuse.fermer();
-      effacer();
+      await nébuleuse?.fermer();
+      effacer?.();
     });
 
     it("accès aux services additionnels", async () => {
@@ -356,8 +356,8 @@ describe.only("Nébuleuse", function () {
     });
 
     after(async () => {
-      await nébuleuse.fermer();
-      effacer();
+      await nébuleuse?.fermer();
+      effacer?.();
     });
 
     it("fermeture immédiatement après ouverture", async function () {
@@ -385,8 +385,8 @@ describe.only("Nébuleuse", function () {
     });
 
     after(async () => {
-      await nébuleuse.fermer();
-      effacer();
+      await nébuleuse?.fermer();
+      effacer?.();
     });
 
     it("données compte bien effacées", async function () {

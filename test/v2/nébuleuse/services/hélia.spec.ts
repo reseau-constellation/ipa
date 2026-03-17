@@ -39,7 +39,7 @@ describe.only("Service Hélia", function () {
 
     afterEach(async () => {
       await appli?.fermer();
-      effacer();
+      effacer?.();
     });
 
     it("hélia démarre", async () => {
@@ -74,7 +74,7 @@ describe.only("Service Hélia", function () {
 
     afterEach(async () => {
       if (appli?.estDémarrée) await appli?.fermer();
-      effacer();
+      effacer?.();
     });
 
     it("hélia fermé si endogène", async () => {
@@ -154,7 +154,7 @@ describe.only("Service Hélia", function () {
 
     after(async () => {
       await appli?.fermer();
-      effacer();
+      effacer?.();
     });
 
     it("ajouter fichier à SFIP", async () => {

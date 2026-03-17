@@ -205,8 +205,8 @@ describe.only("Service Orbite", function () {
     });
 
     after(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("orbite démarre", async () => {
@@ -245,8 +245,8 @@ describe.only("Service Orbite", function () {
     });
 
     afterEach(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("orbite fermé si endogène", async () => {
@@ -336,8 +336,8 @@ describe.only("Service Orbite", function () {
     });
 
     after(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("créer bd", async () => {
@@ -556,8 +556,8 @@ describe.only("Service Orbite", function () {
     });
 
     after(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("signature valide", async () => {
@@ -625,8 +625,8 @@ describe.only("Service Orbite", function () {
     });
 
     after(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("erreur ouverture si annulée", async () => {

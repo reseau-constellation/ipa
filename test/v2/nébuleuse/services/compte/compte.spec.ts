@@ -95,7 +95,7 @@ const créerApplisTest = async <
 
   const fermer = async () => {
     await Promise.allSettled(applis.map((a) => a.fermer()));
-    effacer();
+    effacer?.();
   };
 
   return { applis, fermer };
@@ -136,8 +136,8 @@ describe.only("Service Compte", function () {
     });
 
     after(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("obtenir id libp2p", async () => {
@@ -221,8 +221,8 @@ describe.only("Service Compte", function () {
     });
 
     after(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("erreur lors d'accès données", async () => {

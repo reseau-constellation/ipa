@@ -183,7 +183,7 @@ describe.skip("Automatisations", function () {
           await constl.automatisations.annulerAutomatisation({ id: idAuto });
         idAuto = undefined;
 
-        effacer();
+        effacer?.();
       });
 
       // Fonctionalités d'importation

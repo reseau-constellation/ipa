@@ -51,8 +51,8 @@ describe.only("Dispositifs", function () {
     });
 
     after(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("autodétecter type", () => {

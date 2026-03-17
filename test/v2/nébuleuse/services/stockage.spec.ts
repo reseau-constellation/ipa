@@ -34,8 +34,8 @@ describe.only("Stockage", function () {
   });
 
   afterEach(async () => {
-    await appli.fermer();
-    effacer();
+    await appli?.fermer();
+    effacer?.();
   });
 
   it("mettre et obtenir valeur", async () => {

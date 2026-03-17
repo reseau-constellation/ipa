@@ -49,8 +49,8 @@ describe.only("Service Libp2p", function () {
     });
 
     this.afterEach(async () => {
-      await appli.fermer();
-      effacer();
+      await appli?.fermer();
+      effacer?.();
     });
 
     it("libp2p démarre", async () => {
@@ -114,8 +114,8 @@ describe.only("Service Libp2p", function () {
     });
 
     afterEach(async () => {
-      if (appli.estDémarrée) await appli.fermer();
-      effacer();
+      if (appli?.estDémarrée) await appli.fermer();
+      effacer?.();
     });
 
     it("libp2p fermée si endogène", async () => {
@@ -172,7 +172,7 @@ describe.only("Service Libp2p", function () {
       });
 
       afterEach(async () => {
-        effacer();
+        effacer?.();
       });
 
       it("dossier configuration priorisé", async () => {
@@ -302,7 +302,7 @@ describe.only("Service Libp2p", function () {
 
       afterEach(async () => {
         if (appli) await appli.fermer();
-        effacer();
+        effacer?.();
       });
 
       it("dossier dans options appli", async () => {
@@ -529,7 +529,7 @@ describe.only("Service Libp2p", function () {
 
     afterEach(async () => {
       if (appli.estDémarrée) await appli.fermer();
-      effacer();
+      effacer?.();
     });
 
     it("suivi", async () => {

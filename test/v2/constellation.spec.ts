@@ -96,7 +96,7 @@ describe("Constellation", function () {
 
       fermer = async () => {
         await Promise.allSettled(constls.map((c) => c.fermer()));
-        effacer();
+        effacer?.();
       };
     });
 

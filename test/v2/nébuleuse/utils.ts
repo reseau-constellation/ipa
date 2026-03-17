@@ -108,7 +108,7 @@ export const créerNébuleusesTest = async <
 
   const fermer = async () => {
     await Promise.allSettled(nébuleuses.map((c) => c.fermer()));
-    effacer();
+    effacer?.();
   };
 
   return {
