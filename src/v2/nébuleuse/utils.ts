@@ -22,7 +22,7 @@ const erreurAvortée = (e?: Error): boolean => {
   return e.name.includes("AbortError")
 }
 
-const pSignal = async (signal: AbortSignal): Promise<never> => {
+export const pSignal = async (signal: AbortSignal): Promise<never> => {
   if (signal.aborted) throw new AbortError(Error("Signal avorté"));
   return new Promise<never>((_résoudre, rejeter) => {
     const lorsquAvorté = () => {
