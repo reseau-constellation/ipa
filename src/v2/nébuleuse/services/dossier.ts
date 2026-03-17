@@ -120,7 +120,7 @@ export class ServiceDossier extends ServiceAppli<
     };
     const obtenirContenuVerrou = (): string => {
       if (installé) {
-        return new TextDecoder().decode(fs.readFileSync(fichierVerrou));
+        return (new TextDecoder().decode(fs.readFileSync(fichierVerrou))).replace(/^"+|"+$/g, '');
       } else {
         return (
           JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || ""
