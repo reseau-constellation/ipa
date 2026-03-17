@@ -386,7 +386,6 @@ export class Réseau {
       const fluxÀÉcrire = pushable();
       this.connexionsDirectes[idPair] = fluxÀÉcrire;
       pipe(fluxÀÉcrire, flux); // Pas d'await
-      this.verrouFlux.release(idPair);
       return fluxÀÉcrire;
     } finally {
       this.verrouFlux.release(idPair);
