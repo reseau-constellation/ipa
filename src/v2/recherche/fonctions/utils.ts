@@ -188,6 +188,8 @@ export const sousRecherche = async <
         résultat.info.clef = meilleur.résultat.clef;
       }
       await fSuivreRecherche(résultat);
+    } else {
+      await fSuivreRecherche(undefined)
     }
   };
 
