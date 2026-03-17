@@ -1,0 +1,49 @@
+diff --git a/dist/ordered-keyvalue.js b/dist/ordered-keyvalue.js
+index 92cb3b0663127740c68cb7db2cc3ab226c4d37d9..ab13ca73e0a105540e95149165b904faa0b04f12 100644
+--- a/dist/ordered-keyvalue.js
++++ b/dist/ordered-keyvalue.js
+@@ -2,7 +2,7 @@ import { Database, } from "@orbitdb/core";
+ import itAll from "it-all";
+ import { getScalePosition } from "./utils.js";
+ const type = "ordered-keyvalue";
+-const OrderedKeyValue = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, }) => {
++const OrderedKeyValue = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, signal}) => {
+     const database = await Database({
+         ipfs,
+         identity,
+@@ -17,6 +17,7 @@ const OrderedKeyValue = () => async ({ ipfs, identity, address, name, access, di
+         referencesCount,
+         syncAutomatically,
+         onUpdate,
++        signal
+     });
+     const { put, set, del, move, get, iterator, all } = OrderedKeyValueApi({
+         database,
+diff --git a/src/ordered-keyvalue.ts b/src/ordered-keyvalue.ts
+index 827df964577ad46fb6f02a1c81680c8811ead5f9..8644e617015e73c628096652688bb78f14672ebb 100644
+--- a/src/ordered-keyvalue.ts
++++ b/src/ordered-keyvalue.ts
+@@ -37,6 +37,7 @@ const OrderedKeyValue =
+     referencesCount,
+     syncAutomatically,
+     onUpdate,
++    signal,
+   }: {
+     ipfs: HeliaLibp2p<Libp2p<T>>;
+     identity?: Identity;
+@@ -51,6 +52,7 @@ const OrderedKeyValue =
+     referencesCount?: number;
+     syncAutomatically?: boolean;
+     onUpdate?: (log: Log, entry: LogEntry) => void;
++    signal?: AbortSignal;
+   }) => {
+     const database = await Database({
+       ipfs,
+@@ -66,6 +68,7 @@ const OrderedKeyValue =
+       referencesCount,
+       syncAutomatically,
+       onUpdate,
++      signal,
+     });
+ 
+     const { put, set, del, move, get, iterator, all } = OrderedKeyValueApi({

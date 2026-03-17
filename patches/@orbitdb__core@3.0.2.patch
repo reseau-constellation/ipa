@@ -153,10 +153,10 @@ index d08d879af6cd83fba553f6887a01a21c562b4511..76b68f82bfca23d0f81e80f005b6e5a4
        return decodeIdentity(bytes)
      }
 diff --git a/src/manifest-store.js b/src/manifest-store.js
-index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..85d3ee26ac2d7175b9c4bb9913c1ec4d131cc8ab 100644
+index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..773fe97f902bc4b881f918c33fd70fcacec824a3 100644
 --- a/src/manifest-store.js
 +++ b/src/manifest-store.js
-@@ -20,12 +20,12 @@ const ManifestStore = async ({ ipfs, storage } = {}) => {
+@@ -20,17 +20,17 @@ const ManifestStore = async ({ ipfs, storage } = {}) => {
      await IPFSBlockStorage({ ipfs, pin: true })
    )
  
@@ -172,8 +172,45 @@ index 23225d17a41f0dfc562748e948ca3bc0f9d82e7e..85d3ee26ac2d7175b9c4bb9913c1ec4d
      }
      return value
    }
+ 
+-  const create = async ({ name, type, accessController, meta }) => {
++  const create = async ({ name, type, accessController, meta, signal }) => {
+     if (!name) throw new Error('name is required')
+     if (!type) throw new Error('type is required')
+     if (!accessController) throw new Error('accessController is required')
+@@ -47,7 +47,7 @@ const ManifestStore = async ({ ipfs, storage } = {}) => {
+ 
+     const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
+     const hash = cid.toString(hashStringEncoding)
+-    await storage.put(hash, bytes)
++    await storage.put(hash, bytes, signal)
+ 
+     return {
+       hash,
+diff --git a/src/oplog/heads.js b/src/oplog/heads.js
+index d51a677b5d39e3e76dd930ddeaa988f8bc0e1ef7..aa64b8e631c46f09792d95be5bb23894b6c49191 100644
+--- a/src/oplog/heads.js
++++ b/src/oplog/heads.js
+@@ -9,7 +9,7 @@ import MemoryStorage from '../storage/memory.js'
+ 
+ const DefaultStorage = MemoryStorage
+ 
+-const Heads = async ({ storage, heads, decryptPayloadFn, decryptEntryFn }) => {
++const Heads = async ({ storage, heads, decryptPayloadFn, decryptEntryFn, signal }) => {
+   storage = storage || await DefaultStorage()
+ 
+   const encoder = new TextEncoder()
+@@ -39,7 +39,7 @@ const Heads = async ({ storage, heads, decryptPayloadFn, decryptEntryFn }) => {
+   }
+ 
+   const iterator = async function * () {
+-    const bytes = await storage.get('heads')
++    const bytes = await storage.get('heads', signal)
+     const headHashes = bytes ? JSON.parse(decoder.decode(bytes)) : []
+     for (const hash of headHashes) {
+       yield hash
 diff --git a/src/oplog/log.js b/src/oplog/log.js
-index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..0549046b7f665005d37445550e83af665c638911 100644
+index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..5dcd1b1c8959d9dac2eb3b2a31b41d078500ac72 100644
 --- a/src/oplog/log.js
 +++ b/src/oplog/log.js
 @@ -52,7 +52,7 @@ const DefaultAccessController = async () => {
@@ -194,15 +231,6 @@ index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..0549046b7f665005d37445550e83af66
  
    // Conflict-resolution sorting function
    sortFn = NoZeroes(sortFn || LastWriteWins)
-@@ -136,7 +136,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
-     if (!hash) {
-       throw new Error('hash is required')
-     }
--    return oplogStore.get(hash)
-+    return oplogStore.get(hash, signal)
-   }
- 
-   const has = async (hash) => {
 @@ -298,12 +298,12 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
  
        await traverseAndVerify()
@@ -219,7 +247,7 @@ index 0bddde6cd874580e9562e9c77a0d5bf98eb405a2..0549046b7f665005d37445550e83af66
        return true
      }
 diff --git a/src/oplog/oplog-store.js b/src/oplog/oplog-store.js
-index fb4a732274e056e1adf499b685b5a34cc304ade5..5d71925bae5647ff87e78e17e12d74115fd324aa 100644
+index fb4a732274e056e1adf499b685b5a34cc304ade5..e5aa23fd614e90db90d1a0f4dc41c2a5f06f1dd8 100644
 --- a/src/oplog/oplog-store.js
 +++ b/src/oplog/oplog-store.js
 @@ -5,7 +5,7 @@ import MemoryStorage from '../storage/memory.js'
@@ -231,8 +259,12 @@ index fb4a732274e056e1adf499b685b5a34cc304ade5..5d71925bae5647ff87e78e17e12d7411
    // Setup encryption and decryption functions
    const encryptEntryFn = encryption?.replication?.encrypt
    const decryptEntryFn = encryption?.replication?.decrypt
-@@ -21,7 +21,7 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
-   const _heads = await Heads({ storage: headsStorage, heads: logHeads, decryptPayloadFn, decryptEntryFn })
+@@ -18,10 +18,10 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
+   // Heads storage
+   headsStorage = headsStorage || await DefaultStorage()
+   // Add heads to the state storage, ie. init the log state
+-  const _heads = await Heads({ storage: headsStorage, heads: logHeads, decryptPayloadFn, decryptEntryFn })
++  const _heads = await Heads({ storage: headsStorage, heads: logHeads, decryptPayloadFn, decryptEntryFn, signal })
  
    const get = async (hash) => {
 -    const bytes = await _entries.get(hash)
@@ -266,7 +298,7 @@ index fb4a732274e056e1adf499b685b5a34cc304ade5..5d71925bae5647ff87e78e17e12d7411
      await _heads.add(entry)
      return entry.hash
 diff --git a/src/orbitdb.js b/src/orbitdb.js
-index cc055cb011aa58bd77698694423d1ff88aa0ab2d..f4df6590910ff16ad7a31ed02b135123e1f95072 100644
+index cc055cb011aa58bd77698694423d1ff88aa0ab2d..d84cd4a2bc9f92ddbbd822e69af8540a671deb1a 100644
 --- a/src/orbitdb.js
 +++ b/src/orbitdb.js
 @@ -106,6 +106,8 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
@@ -300,15 +332,17 @@ index cc055cb011aa58bd77698694423d1ff88aa0ab2d..f4df6590910ff16ad7a31ed02b135123
        name = manifest.name
        type = type || manifest.type
        meta = manifest.meta
-@@ -134,7 +136,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+@@ -134,8 +136,8 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
        // If the address given was not valid, eg. just the name of the database
        type = type || DefaultDatabaseType
        AccessController = AccessController || DefaultAccessController()
 -      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, name: address })
+-      const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta })
 +      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, name: address, signal })
-       const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta })
++      const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta, signal })
        manifest = m.manifest
        address = OrbitDBAddress(m.hash)
+       name = manifest.name
 @@ -154,7 +156,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
  
      address = address.toString()
@@ -361,7 +395,7 @@ index 5c35309fd13700c1aa96818cbe9fc663c315e873..cb6e1785b24b25c6bda38075bbb011fa
      }
      return value
 diff --git a/src/storage/ipfs-block.js b/src/storage/ipfs-block.js
-index 44dfd68c7cdcf0defce4d6b72f202e46c2778c74..a766e9efe394448ba679b7b96bed486076bec6cb 100644
+index 44dfd68c7cdcf0defce4d6b72f202e46c2778c74..5ca4d989f6419fac62695bd3ef70ebdacb50f86b 100644
 --- a/src/storage/ipfs-block.js
 +++ b/src/storage/ipfs-block.js
 @@ -8,6 +8,7 @@ import { CID } from 'multiformats/cid'
@@ -372,7 +406,7 @@ index 44dfd68c7cdcf0defce4d6b72f202e46c2778c74..a766e9efe394448ba679b7b96bed4860
  
  const DefaultTimeout = 30000 // 30 seconds
  
-@@ -35,13 +36,19 @@ const IPFSBlockStorage = async ({ ipfs, pin, timeout } = {}) => {
+@@ -35,14 +36,20 @@ const IPFSBlockStorage = async ({ ipfs, pin, timeout } = {}) => {
     * @function
     * @param {string} hash The hash of the block to put.
     * @param {*} data The data to store in the IPFS block.
@@ -385,6 +419,7 @@ index 44dfd68c7cdcf0defce4d6b72f202e46c2778c74..a766e9efe394448ba679b7b96bed4860
      const cid = CID.parse(hash, base58btc)
 -    const { signal } = new TimeoutController(timeout || DefaultTimeout)
 -    await ipfs.blockstore.put(cid, data, { signal })
+-
 +    const { signal: timeoutSignal } = new TimeoutController(timeout || DefaultTimeout)
 +    const combinedSignal = anySignal([
 +      timeoutSignal,
@@ -392,9 +427,10 @@ index 44dfd68c7cdcf0defce4d6b72f202e46c2778c74..a766e9efe394448ba679b7b96bed4860
 +    ])
 +    timeoutControllers.add(combinedSignal)
 +    await ipfs.blockstore.put(cid, data, { signal: combinedSignal })
- 
++    combinedSignal.clear()
      await persist(hash)
    }
+ 
 @@ -52,16 +59,26 @@ const IPFSBlockStorage = async ({ ipfs, pin, timeout } = {}) => {
     * Gets data from an IPFS block.
     * @function
@@ -417,7 +453,7 @@ index 44dfd68c7cdcf0defce4d6b72f202e46c2778c74..a766e9efe394448ba679b7b96bed4860
 +    timeoutControllers.add(combinedSignal)
 +
 +    const block = await ipfs.blockstore.get(cid, { signal: combinedSignal })
-+
++    combinedSignal.clear()
      timeoutControllers.delete(controller)
 +    timeoutControllers.delete(combinedSignal)
 +
@@ -425,7 +461,7 @@ index 44dfd68c7cdcf0defce4d6b72f202e46c2778c74..a766e9efe394448ba679b7b96bed4860
        return block
      }
 diff --git a/src/sync.js b/src/sync.js
-index 019c5ba2b43adc742662ada1790af004a3cebff8..0309bd47df600fbe9b037c8c08a43118db95db68 100644
+index 019c5ba2b43adc742662ada1790af004a3cebff8..141c52d2df0834ef349b52e6ba8183090053df21 100644
 --- a/src/sync.js
 +++ b/src/sync.js
 @@ -4,6 +4,7 @@ import { EventEmitter } from 'events'
@@ -445,6 +481,15 @@ index 019c5ba2b43adc742662ada1790af004a3cebff8..0309bd47df600fbe9b037c8c08a43118
    /**
     * @namespace module:Sync~Sync
     * @description The instance returned by {@link module:Sync}.
+@@ -148,7 +149,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+     return (async function * () {
+       const heads = await log.heads()
+       for await (const { hash } of heads) {
+-        const bytes = await log.storage.get(hash)
++        const bytes = await log.storage.get(hash, signal)
+         yield bytes
+       }
+     })()
 @@ -191,10 +192,14 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
            return
          }
@@ -470,3 +515,12 @@ index 019c5ba2b43adc742662ada1790af004a3cebff8..0309bd47df600fbe9b037c8c08a43118
            }
          }
        } else {
+@@ -248,7 +254,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+    */
+   const add = async (entry) => {
+     if (started && entry && entry.hash) {
+-      const bytes = await log.storage.get(entry.hash)
++      const bytes = await log.storage.get(entry.hash, signal)
+       await pubsub.publish(address, bytes)
+     }
+   }
