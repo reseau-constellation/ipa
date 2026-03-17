@@ -335,7 +335,7 @@ export class BaseServiceCompte<
       await oublier();
       return rôle;
     } else {
-      throw new Error(`Type d'accès ${bd.access} non reconnu.`);
+      throw new Error(`Type d'accès ${bd.access.type} non reconnu.`);
     }
   }
 
@@ -389,7 +389,7 @@ export class BaseServiceCompte<
     });
     const accès = bd.access;
     if (!estContrôleurNébuleuse(accès))
-      throw new Error(`Type d'accès ${bd.access} non reconnu.`);
+      throw new Error(`Type d'accès ${bd.access.type} non reconnu.`);
 
     const oublierAccès = await accès.suivreUtilisateursAutorisés((autorisés) =>
       f(
