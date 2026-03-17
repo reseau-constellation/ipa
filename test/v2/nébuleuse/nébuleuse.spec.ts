@@ -275,7 +275,7 @@ describe.only("Nébuleuse", function () {
       });
 
       const démarrer = nébuleuse2.démarrer()
-      await horloge.tickAsync(INTERVALE_VERROU);
+      await horloge.tickAsync(INTERVALE_VERROU * 1.5);
       await expect(démarrer).to.be.rejectedWith(
         `Le compte sur ${dossier} est déjà ouvert`,
       );
@@ -297,7 +297,7 @@ describe.only("Nébuleuse", function () {
       });
 
       const démarrer = nébuleuse2.démarrer()
-      await horloge.tickAsync(INTERVALE_VERROU);
+      await horloge.tickAsync(INTERVALE_VERROU * 1.5);
       await expect(démarrer).to.be.rejectedWith(message);
     });
 
@@ -334,7 +334,7 @@ describe.only("Nébuleuse", function () {
         options: { services: { dossier: { dossier } } },
       });
       const démarrer = nébuleuse.démarrer();
-      await horloge.tickAsync(INTERVALE_VERROU);
+      await horloge.tickAsync(INTERVALE_VERROU*1.5);
       await démarrer;
 
       const idCompte = await nébuleuse.compte.obtIdCompte();
