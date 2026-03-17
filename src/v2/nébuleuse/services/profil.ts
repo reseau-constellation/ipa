@@ -444,9 +444,11 @@ export class Profil extends ServiceDonnéesAppli<
   async suivreRésolutionÉpingle({
     épingle,
     f,
+    signal,
   }: {
     épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<ÉpingleProfil>>;
     f: Suivi<Set<string>>;
+    signal: AbortSignal;
   }): Promise<Oublier> {
     const info: {
       base?: (string | undefined)[];
@@ -481,6 +483,7 @@ export class Profil extends ServiceDonnéesAppli<
             : [ajouterPréfixeOrbite(idCompteSansPréfixes)];
           await fFinale();
         },
+        signal,
       });
       fsOublier.push(oublierBase);
     }

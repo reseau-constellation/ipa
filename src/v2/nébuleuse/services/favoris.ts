@@ -99,6 +99,7 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
 export type Résolveur<T extends ÉpingleFavoris = ÉpingleFavoris> = (args: {
   épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<T>>;
   f: Suivi<Set<string>>;
+  signal: AbortSignal
 }) => Promise<Oublier>;
 
 export const idObjetÀClef = (idObjet: string): string => {
@@ -176,6 +177,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   { oublier: Oublier }
 > {
   résolveurs: Map<string, Résolveur>;
+  signaleurArrêt: AbortController
 
   constructor({
     services,
@@ -193,6 +195,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       }),
     });
     this.résolveurs = new Map();
+    this.signaleurArrêt = new AbortController();
 
     const réseau = this.service("réseau");
     réseau.inscrireRésolutionConfiance({
@@ -202,6 +205,9 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   }
 
   async démarrer(): Promise<{ oublier: Oublier }> {
+    // Réinitialiser le signaleur, mais uniquement si nécessaire.
+    if (this.signaleurArrêt.signal.aborted) this.signaleurArrêt = new AbortController();
+
     const épingles = this.service("épingles");
 
     const fFinale = async (
@@ -262,6 +268,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   async fermer(): Promise<void> {
     const { oublier } = await this.démarré();
 
+    this.signaleurArrêt.abort();
     await oublier();
     return await super.fermer();
   }
@@ -311,6 +318,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
         idObjet: épingle.idObjet,
         épingle: épingleBooléennisée,
       },
+      signal: this.signaleurArrêt.signal
     });
   }
 
