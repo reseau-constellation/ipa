@@ -90,51 +90,81 @@ export class ServiceDossier extends ServiceAppli<
   // Fichier verrou
 
   private async verrouillerDossier(dossier: string): Promise<Oublier> {
-    if (isElectronMain || isNode) {
-      const fs = await import("fs");
-      const fichierVerrou = join(dossier, FICHIER_VERROU);
+    const installé = isElectronMain || isNode;
+    let fs: typeof import("fs");
+    if (installé) fs = await import("fs");
 
-      if (!fs.existsSync(fichierVerrou)) {
-        fs.writeFileSync(fichierVerrou, "");
-      } else {
-        const verifierSiVieux = () => {
-          const infoFichier = fs.statSync(fichierVerrou);
-          const modifiéÀ = infoFichier.mtime;
-          const maintenant = new Date();
-
-          if (maintenant.getTime() - modifiéÀ.getTime() > INTERVALE_VERROU) {
-            fs.writeFileSync(fichierVerrou, "");
-          } else {
-            const contenuFichier = new TextDecoder().decode(
-              fs.readFileSync(fichierVerrou),
-            );
-            const erreur = new Error(
-              `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n${contenuFichier}`,
-            );
-            erreur.name = ERREUR_INIT_IPA_DÉJÀ_LANCÉ;
-            throw erreur;
-          }
-        };
-        try {
-          verifierSiVieux();
-        } catch {
-          await new Promise((résoudre) =>
-            setTimeout(résoudre, INTERVALE_VERROU * 1.2),
-          );
-          verifierSiVieux();
-        }
-      }
-      const intervale = setInterval(() => {
-        const maintenant = new Date();
-        fs.utimesSync(fichierVerrou, maintenant, maintenant);
-      }, INTERVALE_VERROU);
-      return async () => {
-        clearInterval(intervale);
-        fs.rmSync(fichierVerrou);
-      };
-    } else {
-      return faisRien;
+    const fichierVerrou = join(dossier, FICHIER_VERROU);
+    const verrouillé = () => {
+      return (installé) ? fs.existsSync(fichierVerrou) : localStorage.getItem(fichierVerrou)
     }
+    const verrouiller = (message: string = "") => {
+      if (installé) fs.writeFileSync(fichierVerrou, message)
+      else localStorage.setItem(fichierVerrou, JSON.stringify({message, temps: Date.now() }))
+    }
+    const dernièreModificationVerrou = (): number => {
+      if (installé) {
+        return fs.statSync(fichierVerrou).mtime.getTime();
+      } else {
+        return JSON.parse(localStorage.getItem(fichierVerrou) || "{}").temps || -Infinity;
+      }
+    }
+    const obtenirContenuVerrou = (): string => {
+      if (installé) {
+        return new TextDecoder().decode(
+          fs.readFileSync(fichierVerrou),
+        );
+      } else {
+        return JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || ""
+      }
+    }
+    const actualiserVerrou = () => {
+      if (installé) {
+        const maintenant = new Date();
+        fs.utimesSync(fichierVerrou, maintenant, maintenant)
+      } else {
+        const message: string = JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || "" 
+        localStorage.setItem(fichierVerrou, JSON.stringify({message, temps: Date.now() }));
+      }
+    }
+    const relâcherVerrou = () => {
+      if (installé) fs.rmSync(fichierVerrou);
+      else localStorage.removeItem(fichierVerrou);
+    }
+
+    if (!verrouillé()) {
+      verrouiller();
+    } else {
+      const verifierSiVieux = () => {
+        const maintenant = new Date();
+
+        if (maintenant.getTime() - dernièreModificationVerrou() > INTERVALE_VERROU) {
+          verrouiller("");
+        } else {
+          const contenuFichier = obtenirContenuVerrou();
+          const erreur = new Error(
+            `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n${contenuFichier}`,
+          );
+          erreur.name = ERREUR_INIT_IPA_DÉJÀ_LANCÉ;
+          throw erreur;
+        }
+      };
+      try {
+        verifierSiVieux();
+      } catch {
+        await new Promise((résoudre) =>
+          setTimeout(résoudre, INTERVALE_VERROU * 1.2),
+        );
+        verifierSiVieux();
+      }
+    }
+    const intervale = setInterval(() => {
+      actualiserVerrou();
+    }, INTERVALE_VERROU);
+    return async () => {
+      clearInterval(intervale);
+      relâcherVerrou();
+    };
   }
 
   async spécifierMessageVerrou({
