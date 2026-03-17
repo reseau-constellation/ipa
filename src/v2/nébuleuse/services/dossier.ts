@@ -1,7 +1,7 @@
 import { join } from "path";
 import { isElectronMain, isNode } from "wherearewe";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
-import { faisRien } from "@constl/utils-ipa";
+import type TypeFs from "fs";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import type { Jsonifiable, Oublier } from "../types.js";
 import type {
@@ -91,7 +91,7 @@ export class ServiceDossier extends ServiceAppli<
 
   private async verrouillerDossier(dossier: string): Promise<Oublier> {
     const installé = isElectronMain || isNode;
-    let fs: typeof import("fs");
+    let fs: typeof TypeFs;
     if (installé) fs = await import("fs");
 
     const fichierVerrou = join(dossier, FICHIER_VERROU);
