@@ -313,7 +313,7 @@ export const créerConstellationsTest = async ({
 
   const fermer = async () => {
     await Promise.allSettled(constls.map((c) => c.fermer()));
-    effacer();
+    effacer?.();
   };
 
   return {
