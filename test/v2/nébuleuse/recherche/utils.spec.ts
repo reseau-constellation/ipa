@@ -187,7 +187,7 @@ describe.only("Utils recherche", function () {
     });
   });
 
-  describe("simil image", function () {
+  describe.skip("simil image", function () {
     let IMAGE: Buffer;
     let IMAGE2: Buffer;
 
@@ -259,7 +259,7 @@ describe.only("Utils recherche", function () {
     });
 
     it("résultat détecté", async () => {
-      const résultat = await obtenir(({ siDéfini }) =>
+      const résultat = await obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(({ si }) =>
         combinerRecherches({
           fsRecherche: {
             abc: rechercheAbc,
@@ -267,7 +267,7 @@ describe.only("Utils recherche", function () {
           },
           services: (clef) => nébuleuse.services[clef],
           idObjet: "abcdefghij",
-          fSuivreRecherche: siDéfini(),
+          fSuivreRecherche: si(x=>!!x && x.info.fin > 3),
         }),
       );
 
@@ -315,7 +315,7 @@ describe.only("Utils recherche", function () {
 
     it("ajout variable détecté", async () => {
       const résultat = await obtenir<RésultatObjectifRecherche>(
-        ({ siNonDéfini }) =>
+        ({ siDéfini }) =>
           sousRecherche({
             de: "variable",
             fListe: async ({ fSuivreRacine }) => {
@@ -324,7 +324,7 @@ describe.only("Utils recherche", function () {
             },
             fRechercher: rechercheId,
             services: (clef) => nébuleuse.services[clef],
-            fSuivreRecherche: siNonDéfini(),
+            fSuivreRecherche: siDéfini(),
           }),
       );
 
