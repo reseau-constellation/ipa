@@ -40,11 +40,9 @@ export const réessayer = async <T>(
   let avant = Date.now();
   const _interne = async ({
     f,
-    signal,
     n,
   }: {
     f: () => Promise<T>;
-    signal: AbortSignal;
     n: number;
   }): Promise<T> => {
     try {
@@ -61,10 +59,10 @@ export const réessayer = async <T>(
 
         if (signal.aborted) throw new AbortError(Error("Signal avorté"));
       }
-      return await _interne({ f, signal, n });
+      return await _interne({ f, n });
     }
   };
-  return await _interne({ f, signal, n: 0 });
+  return await _interne({ f, n: 0 });
 };
 
 export const dépunicodifier = (ma: Multiaddr): Multiaddr => {
