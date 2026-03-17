@@ -55,7 +55,7 @@ export const réessayer = async <T>(
       console.log(e);
       n++;
       const maintenant = Date.now();
-      const tempsÀAttendre = n * 1000 - (maintenant - avant);
+      const tempsÀAttendre = n * 1000 + (maintenant - avant);
       if (tempsÀAttendre > 0) {
         await attendre(tempsÀAttendre, signal);
 
