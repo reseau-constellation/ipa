@@ -256,21 +256,17 @@ export class ServiceOrbite<
   }): Promise<{ bd: BdsOrbite[T] | BaseDatabase; oublier: Oublier }> {
     const orbite = await this.orbite();
 
-    const signalCombiné = anySignal([
-      this.signaleurArrêt.signal,
-      ...(signal ? [signal] : []),
-    ]);
+    const signalFinal = signal ? anySignal([this.signaleurArrêt.signal, signal]) : this.signaleurArrêt.signal;
 
     const bd = await réessayer(
-      () => orbite.open(id, { signal: signalCombiné }),
-      signalCombiné,
+      () => orbite.open(id, { signal: signalFinal }),
+      signalFinal,
     );
+
     const journal = this.service("journal");
     const gérerErreur = async (erreur: Error) =>
       await journal.écrire(erreur.toString());
     bd.sync.events.addListener("error", gérerErreur);
-
-    signalCombiné.clear();
 
     if (type) {
       if (type !== bd.type) {
