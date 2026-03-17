@@ -188,14 +188,15 @@ export class ServiceOrbite<
   }): Promise<{ bd: BdsOrbite[T]; oublier: Oublier }> {
     const orbite = await this.orbite();
 
-    options = {
+    const signalFinal = options.signal ? anySignal([this.signaleurArrêt.signal, options.signal]) : this.signaleurArrêt.signal
+    const optionsFinales: OpenDatabaseOptions = {
       AccessController: ContrôleurNébuleuse(),
       ...options,
-    };
-    const bd = (await orbite.open(nom || uuidv4(), {
-      ...options,
       type,
-    })) as BdsOrbite[T];
+      signal: signalFinal,
+    };
+
+    const bd = (await orbite.open(nom || uuidv4(), optionsFinales)) as BdsOrbite[T];
 
     const journal = this.service("journal");
     bd.events.on("error", async (e: string) => await journal.écrire(e));
