@@ -58,7 +58,8 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 
             if (!requêtesOrbite.has(adresse))
               requêtesOrbite.set(adresse, new Set());
-            const résultat = mandatBd(
+
+            const résultat = estMandatairifié(bd) ? bd : mandatBd(
               bd,
               requêtesOrbite.get(adresse)!,
               cacheBdsOrbite,
@@ -79,6 +80,12 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
     },
   });
 };
+
+type MandataireBd = BaseDatabase & { [ORIGINALE]: BaseDatabase }
+
+export const estMandatairifié = (x: BaseDatabase | MandataireBd): x is MandataireBd => {
+  return !!(x as MandataireBd)[ORIGINALE]
+}
 
 // Ce mandataire-ci s'assure que la base de données n'est fermée que lorsque la dernière copie est fermée
 const mandatBd = (
