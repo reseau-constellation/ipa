@@ -448,10 +448,12 @@ export class Profil extends ServiceDonnéesAppli<
     épingle,
     f,
     signal,
+    ignorer,
   }: {
     épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<ÉpingleProfil>>;
     f: Suivi<Set<string>>;
-    signal: AbortSignal;
+    signal?: AbortSignal;
+    ignorer?: Set<string>;
   }): Promise<Oublier> {
     const info: {
       base?: (string | undefined)[];
@@ -506,14 +508,15 @@ export class Profil extends ServiceDonnéesAppli<
           }),
         fBranche: async ({
           fSuivreBranche,
-          branche: épingle,
+          branche,
         }: {
           fSuivreBranche: Suivi<Set<string>>;
           branche: ÉpingleFavorisAvecId;
         }) => {
           return await serviceFavoris.suivreRésolutionÉpingle({
-            épingle,
+            épingle: branche,
             f: fSuivreBranche,
+            ignorer,
           });
         },
         fIdDeBranche: (épingle) => épingle.idObjet,
