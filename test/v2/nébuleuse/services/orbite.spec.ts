@@ -95,13 +95,67 @@ describe.only("Mandataire OrbitDB", function () {
       await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
     ).address;
 
-    // Ici on appelle le mandataire séparément sur la même base de données
+    // Ici on appelle le mandataire séparément sur la même instance d'OrbitDB
     const [bd1, bd2] = await Promise.all([
       mandatOrbite(orbites[1]).open(idBd),
       mandatOrbite(orbites[1]).open(idBd),
     ]);
 
     expect(mêmeBd(bd1, bd2)).to.be.true();
+  });
+
+  it("sans concurrence - ouverture selon le nom", async () => {
+    const nomBd = "bd test" + uuidv4();
+
+    const mandat = mandatOrbite(orbites[0]);
+    const bd1 = await mandat.open(nomBd, { type: "keyvalue" });
+    const bd2 = await mandat.open(nomBd, { type: "keyvalue" });
+
+    expect(mêmeBd(bd1, bd2)).to.be.true();
+  });
+
+  it("avec concurrence - ouverture selon le nom", async () => {
+    const nomBd = "bd test" + uuidv4();
+
+    const mandat = mandatOrbite(orbites[0]);
+    const [bd1, bd2] = await Promise.all([
+      mandat.open(nomBd, { type: "keyvalue" }), 
+      mandat.open(nomBd, { type: "keyvalue" })
+    ]);
+
+    expect(mêmeBd(bd1, bd2)).to.be.true();
+  });
+
+  it("sans concurrence - ouverture selon nom et id", async () => {
+    const nomBd = "bd test" + uuidv4();
+
+    const mandat = mandatOrbite(orbites[0]);
+    const bd1 = await mandat.open(nomBd, { type: "keyvalue" });
+    const bd2 = await mandat.open(bd1.address, { type: "keyvalue" });
+
+    expect(mêmeBd(bd1, bd2)).to.be.true();
+  });
+
+  it("sans concurrence - ouverture selon le nom mais différent types", async () => {
+    const nomBd = "bd test" + uuidv4();
+
+    const mandat = mandatOrbite(orbites[0]);
+    const bd1 = await mandat.open(nomBd, { type: "keyvalue" });
+    const bd2 = await mandat.open(nomBd, { type: "events" });
+
+    expect(mêmeBd(bd1, bd2)).to.be.false();
+  });
+
+  it("avec concurrence - ouverture selon le nom mais différent types", async () => {
+    const nomBd = "bd test" + uuidv4();
+
+    const mandat = mandatOrbite(orbites[0]);
+    const [bd1, bd2] = await Promise.all([
+      mandat.open(nomBd, { type: "keyvalue" }), 
+      mandat.open(nomBd, { type: "events" })
+    ]);
+
+    expect(mêmeBd(bd1, bd2)).to.be.false();
   });
 
   it("fermeture bd", async () => {
