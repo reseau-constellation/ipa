@@ -20,7 +20,7 @@ import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { RelationImmédiate } from "@/v2/nébuleuse/services/réseau.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
-describe.skip("Objets", function () {
+describe.only("Objets", function () {
   let fermer: () => Promise<void>;
   let nébuleuses: Nébuleuse<
     { objetTest: StructureServiceObjet },
@@ -136,14 +136,14 @@ describe.skip("Objets", function () {
     });
 
     it("enlever protocole - avec uniquement orbite", async () => {
-      const adresse = nébuleuse.services.objetTest.ajouterProtocole(
+      const adresse = nébuleuse.services.objetTest.enleverProtocole(
         `/orbitdb/${racine}`,
       );
       expect(adresse).to.equal(racine);
     });
 
     it("enlever protocole - déjà enlevé", async () => {
-      const adresse = nébuleuse.services.objetTest.ajouterProtocole(racine);
+      const adresse = nébuleuse.services.objetTest.enleverProtocole(racine);
       expect(adresse).to.equal(racine);
     });
 
