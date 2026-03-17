@@ -160,7 +160,7 @@ const ContrôleurNébuleuse =
       address = `/${nomType}/${address}`;
     }
 
-    const accès = new AccèsParComptes(orbitdb);
+    const accès = new AccèsParComptes({orbite: orbitdb, signal});
     const queue = new PQueue({ concurrency: 1 });
 
     const mettreAccèsÀJour = async () => {
