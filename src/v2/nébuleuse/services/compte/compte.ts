@@ -257,6 +257,7 @@ export class BaseServiceCompte<
 
     // Là on peut y aller
     await this.démarrer()
+    await oublier();
 
     // On garde compte du nombre de changements de compte
     // afin de pouvoir, dans `réseau.ts`, ignorer les anciens changements qui peuvent
