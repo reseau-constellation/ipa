@@ -83,7 +83,7 @@ export class AccèsParComptes {
   _comptes: Map<string, { rôles: Set<Rôle>; accès: AccèsCompte }>;
   _dispositifs: Map<string, Set<Rôle>>;
 
-  constructor({orbite, signal}: {orbite: OrbitDB, signal?: AbortSignal}) {
+  constructor({ orbite, signal }: { orbite: OrbitDB; signal?: AbortSignal }) {
     this.orbite = orbite;
 
     this.queue = new PQueue({ concurrency: 1 });

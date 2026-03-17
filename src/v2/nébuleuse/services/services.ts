@@ -220,7 +220,7 @@ export abstract class ServiceDonnéesAppli<
         );
       },
       idCompte,
-      signal
+      signal,
     });
   }
 }

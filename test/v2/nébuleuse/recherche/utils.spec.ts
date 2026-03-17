@@ -12,7 +12,7 @@ import {
 import { obtRessourceTest } from "../../ressources/index.js";
 import { obtenir } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
-import type { NébuleuseTest} from "../utils.js";
+import type { NébuleuseTest } from "../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   InfoRésultatRecherche,

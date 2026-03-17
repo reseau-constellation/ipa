@@ -96,41 +96,54 @@ export class ServiceDossier extends ServiceAppli<
 
     const fichierVerrou = join(dossier, FICHIER_VERROU);
     const verrouillé = () => {
-      return (installé) ? fs.existsSync(fichierVerrou) : localStorage.getItem(fichierVerrou)
-    }
+      return installé
+        ? fs.existsSync(fichierVerrou)
+        : localStorage.getItem(fichierVerrou);
+    };
     const verrouiller = (message: string = "") => {
-      if (installé) fs.writeFileSync(fichierVerrou, message)
-      else localStorage.setItem(fichierVerrou, JSON.stringify({message, temps: Date.now() }))
-    }
+      if (installé) fs.writeFileSync(fichierVerrou, message);
+      else
+        localStorage.setItem(
+          fichierVerrou,
+          JSON.stringify({ message, temps: Date.now() }),
+        );
+    };
     const dernièreModificationVerrou = (): number => {
       if (installé) {
         return fs.statSync(fichierVerrou).mtime.getTime();
       } else {
-        return JSON.parse(localStorage.getItem(fichierVerrou) || "{}").temps || -Infinity;
+        return (
+          JSON.parse(localStorage.getItem(fichierVerrou) || "{}").temps ||
+          -Infinity
+        );
       }
-    }
+    };
     const obtenirContenuVerrou = (): string => {
       if (installé) {
-        return new TextDecoder().decode(
-          fs.readFileSync(fichierVerrou),
-        );
+        return new TextDecoder().decode(fs.readFileSync(fichierVerrou));
       } else {
-        return JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || ""
+        return (
+          JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || ""
+        );
       }
-    }
+    };
     const actualiserVerrou = () => {
       if (installé) {
         const maintenant = new Date();
-        fs.utimesSync(fichierVerrou, maintenant, maintenant)
+        fs.utimesSync(fichierVerrou, maintenant, maintenant);
       } else {
-        const message: string = JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || "" 
-        localStorage.setItem(fichierVerrou, JSON.stringify({message, temps: Date.now() }));
+        const message: string =
+          JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || "";
+        localStorage.setItem(
+          fichierVerrou,
+          JSON.stringify({ message, temps: Date.now() }),
+        );
       }
-    }
+    };
     const relâcherVerrou = () => {
       if (installé) fs.rmSync(fichierVerrou);
       else localStorage.removeItem(fichierVerrou);
-    }
+    };
 
     if (!verrouillé()) {
       verrouiller();
@@ -138,7 +151,10 @@ export class ServiceDossier extends ServiceAppli<
       const verifierSiVieux = () => {
         const maintenant = new Date();
 
-        if (maintenant.getTime() - dernièreModificationVerrou() > INTERVALE_VERROU) {
+        if (
+          maintenant.getTime() - dernièreModificationVerrou() >
+          INTERVALE_VERROU
+        ) {
           verrouiller("");
         } else {
           const contenuFichier = obtenirContenuVerrou();
@@ -178,7 +194,10 @@ export class ServiceDossier extends ServiceAppli<
       const fs = await import("fs");
       fs.writeFileSync(fichierVerrou, JSON.stringify(message));
     } else {
-      localStorage.setItem(fichierVerrou, JSON.stringify({message, temps: Date.now() }));
+      localStorage.setItem(
+        fichierVerrou,
+        JSON.stringify({ message, temps: Date.now() }),
+      );
     }
   }
 }

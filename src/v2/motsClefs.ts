@@ -95,7 +95,7 @@ export class MotsClefs extends ObjetConstellation<
       résolution: this.suivreRésolutionÉpingle.bind(this),
     });
 
-    return retour
+    return retour;
   }
 
   @cacheSuivi

@@ -34,19 +34,26 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
           const nomOuAdresse = args[0];
 
-          const signal = args[1]?.signal
-          
-          if (signal) await Promise.race([verrouOrbite.acquire(nomOuAdresse), pSignal(signal)])
+          const signal = args[1]?.signal;
+
+          if (signal)
+            await Promise.race([
+              verrouOrbite.acquire(nomOuAdresse),
+              pSignal(signal),
+            ]);
           else await verrouOrbite.acquire(nomOuAdresse);
           if (signal?.aborted) throw new Error("Opération avortée");
 
           try {
-            let bd = (isValidAddress(nomOuAdresse) && cacheBdsOrbite.get(nomOuAdresse)) || (await target.open(...args));;
+            let bd =
+              (isValidAddress(nomOuAdresse) &&
+                cacheBdsOrbite.get(nomOuAdresse)) ||
+              (await target.open(...args));
             const adresse = bd.address;
 
             // S'il s'agissait d'un nom, on essaie de prendre la version en cache pour réutiliser le mandataire bd
             if (!isValidAddress(nomOuAdresse)) {
-              bd = (cacheBdsOrbite.get(adresse)) || bd
+              bd = cacheBdsOrbite.get(adresse) || bd;
             }
 
             if (!requêtesOrbite.has(adresse))

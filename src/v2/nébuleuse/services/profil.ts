@@ -1,15 +1,17 @@
 import { v4 as uuidv4 } from "uuid";
-import {
-  ignorerNonDéfinis,
-  suivreDeFonctionListe,
-} from "@constl/utils-ipa";
+import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { RechercheProfils } from "@/v2/recherche/profils.js";
 import {
   AUCUN_DISPOSITIF,
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "@/v2/nébuleuse/services/favoris.js";
-import { ajouterPréfixeOrbite, définis, enleverPréfixesEtOrbite, idcEtFichierValide } from "@/v2/utils.js";
+import {
+  ajouterPréfixeOrbite,
+  définis,
+  enleverPréfixesEtOrbite,
+  idcEtFichierValide,
+} from "@/v2/utils.js";
 import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import type { ServiceRéseau } from "./réseau.js";
@@ -150,9 +152,9 @@ export class Profil extends ServiceDonnéesAppli<
     const retour = await super.démarrer();
     this.service("favoris").inscrireRésolution({
       clef: this.clef,
-      résolution: this.suivreRésolutionÉpingle.bind(this)
-    })
-    return retour
+      résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
+    return retour;
   }
 
   async initialiser(): Promise<void> {
@@ -430,9 +432,10 @@ export class Profil extends ServiceDonnéesAppli<
     return await favoris.suivreFavoris({
       idCompte: idCompteQuiÉpingle,
       f: async (épingles) => {
-        const épingleBd: ÉpingleFavorisAvecId<ContenuÉpingleProfil> | undefined = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idCompte &&
-            épingle.type === "profil"
+        const épingleBd:
+          | ÉpingleFavorisAvecId<ContenuÉpingleProfil>
+          | undefined = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === idCompte && épingle.type === "profil"
             ? épingle
             : undefined;
         });
@@ -468,19 +471,20 @@ export class Profil extends ServiceDonnéesAppli<
     const fsOublier: Oublier[] = [];
 
     if (épingle.épingle?.épingle?.base && épingle.idObjet) {
-      const idCompteSansPréfixes = enleverPréfixesEtOrbite(épingle.idObjet)
-      
+      const idCompteSansPréfixes = enleverPréfixesEtOrbite(épingle.idObjet);
+
       // Au cas où la bd ne serait pas immédiatement rejoignable
-      info.base = [ajouterPréfixeOrbite(idCompteSansPréfixes)]
+      info.base = [ajouterPréfixeOrbite(idCompteSansPréfixes)];
       await fFinale();
 
       const oublierBase = await this.suivreBd({
         idCompte: ajouterPréfixeOrbite(idCompteSansPréfixes),
         f: async (profil) => {
           const idImage = profil?.image;
-          info.base = idImage && idcEtFichierValide(idImage)
-            ? [ajouterPréfixeOrbite(idCompteSansPréfixes), idImage]
-            : [ajouterPréfixeOrbite(idCompteSansPréfixes)];
+          info.base =
+            idImage && idcEtFichierValide(idImage)
+              ? [ajouterPréfixeOrbite(idCompteSansPréfixes), idImage]
+              : [ajouterPréfixeOrbite(idCompteSansPréfixes)];
           await fFinale();
         },
         signal,

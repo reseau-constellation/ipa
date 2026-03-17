@@ -38,7 +38,9 @@ describe.only("Objets", function () {
   type StructureObjet = { a: number };
 
   const protocole = "objetTest" as const;
-  const schémaObjetTest: JSONSchemaType<PartielRécursif<StructureObjet>> & {nullable: true} = {
+  const schémaObjetTest: JSONSchemaType<PartielRécursif<StructureObjet>> & {
+    nullable: true;
+  } = {
     type: "object",
     properties: {
       a: {
@@ -47,7 +49,7 @@ describe.only("Objets", function () {
       },
     },
     required: [],
-    nullable: true
+    nullable: true,
   };
 
   class ServiceObjetTest extends ObjetConstellation<
@@ -97,10 +99,14 @@ describe.only("Objets", function () {
       options: {
         services: {
           compte: {
-            schéma: { type: "object", properties: { [protocole]: schémaServiceObjet }, nullable: true }
-          }
-        }
-      }
+            schéma: {
+              type: "object",
+              properties: { [protocole]: schémaServiceObjet },
+              nullable: true,
+            },
+          },
+        },
+      },
     }));
     nébuleuse = nébuleuses[0];
     compte = nébuleuse.compte;

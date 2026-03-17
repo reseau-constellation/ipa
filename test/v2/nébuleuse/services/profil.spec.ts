@@ -233,7 +233,7 @@ describe.only("Profil", function () {
 
       expect(idcEtFichierValide(idImage)).to.deep.equal({
         idc: "bafybeicy6czjmgt4mc7sdvlleydglkdivt4bkodcpze35rduj6hvig6t2u",
-        fichier: "logo.svg"
+        fichier: "logo.svg",
       });
 
       const image = await obtenir<{
@@ -314,7 +314,7 @@ describe.only("Profil", function () {
         }),
       );
       expect([...résolution]).to.have.members([enleverPréfixes(idsComptes[1])]);
-      
+
       idImage = await nébuleuses[1].profil.sauvegarderImage({
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
@@ -445,10 +445,11 @@ describe.only("Profil", function () {
         nom: "ம.-அதான் ஜூலீஎன்",
       });
 
-      const nomsSurDispositif2 = await obtenir<TraducsTexte | undefined>(({ si }) =>
-        nébuleuses[1].profil.suivreNoms({
-          f: si((x) => !!x && Object.keys(x).includes("த")),
-        }),
+      const nomsSurDispositif2 = await obtenir<TraducsTexte | undefined>(
+        ({ si }) =>
+          nébuleuses[1].profil.suivreNoms({
+            f: si((x) => !!x && Object.keys(x).includes("த")),
+          }),
       );
 
       expect(nomsSurDispositif2).to.deep.equal({

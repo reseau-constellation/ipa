@@ -120,7 +120,8 @@ export class ServiceOrbite<
 
   async démarrer() {
     // Réinitialiser le signaleur, mais uniquement si nécessaire.
-    if (this.signaleurArrêt.signal.aborted) this.signaleurArrêt = new AbortController();
+    if (this.signaleurArrêt.signal.aborted)
+      this.signaleurArrêt = new AbortController();
 
     // Générer Orbite si nécessaire
     const hélia = await this.service("hélia").hélia();
@@ -188,7 +189,9 @@ export class ServiceOrbite<
   }): Promise<{ bd: BdsOrbite[T]; oublier: Oublier }> {
     const orbite = await this.orbite();
 
-    const signalFinal = options.signal ? anySignal([this.signaleurArrêt.signal, options.signal]) : this.signaleurArrêt.signal
+    const signalFinal = options.signal
+      ? anySignal([this.signaleurArrêt.signal, options.signal])
+      : this.signaleurArrêt.signal;
     const optionsFinales: OpenDatabaseOptions = {
       AccessController: ContrôleurNébuleuse(),
       ...options,
@@ -196,7 +199,10 @@ export class ServiceOrbite<
       signal: signalFinal,
     };
 
-    const bd = (await orbite.open(nom || uuidv4(), optionsFinales)) as BdsOrbite[T];
+    const bd = (await orbite.open(
+      nom || uuidv4(),
+      optionsFinales,
+    )) as BdsOrbite[T];
 
     const journal = this.service("journal");
     bd.events.on("error", async (e: string) => await journal.écrire(e));
@@ -256,7 +262,9 @@ export class ServiceOrbite<
   }): Promise<{ bd: BdsOrbite[T] | BaseDatabase; oublier: Oublier }> {
     const orbite = await this.orbite();
 
-    const signalFinal = signal ? anySignal([this.signaleurArrêt.signal, signal]) : this.signaleurArrêt.signal;
+    const signalFinal = signal
+      ? anySignal([this.signaleurArrêt.signal, signal])
+      : this.signaleurArrêt.signal;
 
     const bd = await réessayer(
       () => orbite.open(id, { signal: signalFinal }),

@@ -197,7 +197,7 @@ describe.only("Appli", function () {
           });
         }
       }
-      const appli = new Appli<{a: ServiceA}>({
+      const appli = new Appli<{ a: ServiceA }>({
         services: {
           // @ts-expect-error On fait exprès d'oublier service b
           a: ({ options, services }) => new ServiceA({ options, services }),

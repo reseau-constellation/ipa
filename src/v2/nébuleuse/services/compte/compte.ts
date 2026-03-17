@@ -125,7 +125,11 @@ export class BaseServiceCompte<
     await super.fermer();
   }
 
-  async initialiserBdCompte(): Promise<{ idCompte: string; bd: NestedDatabaseType, oublier: Oublier }> {
+  async initialiserBdCompte(): Promise<{
+    idCompte: string;
+    bd: NestedDatabaseType;
+    oublier: Oublier;
+  }> {
     let idCompte = await this.service("stockage").obtenirItem(CLEF_ID_COMPTE);
 
     if (idCompte) {
@@ -256,7 +260,7 @@ export class BaseServiceCompte<
     stockage.sauvegarderItem(CLEF_ID_COMPTE, idCompte);
 
     // Là on peut y aller
-    await this.démarrer()
+    await this.démarrer();
     await oublier();
 
     // On garde compte du nombre de changements de compte

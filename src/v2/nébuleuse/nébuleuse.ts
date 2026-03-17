@@ -39,7 +39,10 @@ import {
 import { serviceProfil } from "./services/profil.js";
 import { serviceÉpingles, type ServiceÉpingles } from "./services/épingles.js";
 import { schémaServiceFavoris, serviceFavoris } from "./services/favoris.js";
-import type { ServiceFavoris, StructureServiceFavoris } from "./services/favoris.js";
+import type {
+  ServiceFavoris,
+  StructureServiceFavoris,
+} from "./services/favoris.js";
 import type { ServiceOrbite, ServiceCompte } from "./services/index.js";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsServiceJournal } from "./services/journal.js";

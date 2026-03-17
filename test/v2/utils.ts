@@ -324,7 +324,11 @@ export const créerConstellationsTest = async ({
 };
 
 export const utiliserFauxChronomètres = () => {
-  const horloge = useFakeTimers({shouldAdvanceTime: true, now: new Date(), shouldClearNativeTimers: true });
-  after(()=>horloge.reset())
-  return horloge
-}
+  const horloge = useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date(),
+    shouldClearNativeTimers: true,
+  });
+  after(() => horloge.reset());
+  return horloge;
+};

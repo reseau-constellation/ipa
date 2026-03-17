@@ -87,17 +87,17 @@ export const créerNébuleusesTest = async <
   if (!options.services.dossier?.dossier) {
     ({ dossier: dossierBase, effacer } = await dossierTempoPropre());
   } else {
-    dossierBase = options.services.dossier.dossier
-    effacer = () => {}
-  };
+    dossierBase = options.services.dossier.dossier;
+    effacer = () => {};
+  }
 
   const nébuleuses: NébuleuseTest<T, S>[] = [];
 
   for (const i in [...Array(n).entries()]) {
-    const dossier = path.join(dossierBase, String(i))
+    const dossier = path.join(dossierBase, String(i));
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
-      options: merge({}, options, { services: { dossier: { dossier } }}),
+      options: merge({}, options, { services: { dossier: { dossier } } }),
     });
     nébuleuses.push(nébuleuse);
   }

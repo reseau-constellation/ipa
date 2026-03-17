@@ -186,9 +186,11 @@ describe("Favoris", function () {
     });
 
     it("bien épinglé", async () => {
-      const épinglé = await nébuleuse.services.épingles.estÉpinglé({ id: idObjet })
+      const épinglé = await nébuleuse.services.épingles.estÉpinglé({
+        id: idObjet,
+      });
       expect(épinglé).to.be.true();
-    })
+    });
 
     it("détecter sur autre compte", async () => {
       const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(

@@ -100,8 +100,8 @@ describe.only("Stockage", function () {
 
     const exporté = JSON.parse(await stockage.exporter());
 
-    if (isBrowser || isElectronRenderer) delete exporté.VERROU
-    expect((exporté)).to.deep.equal({ a: "texte" });
+    if (isBrowser || isElectronRenderer) delete exporté.VERROU;
+    expect(exporté).to.deep.equal({ a: "texte" });
   });
 
   it("non interférence entre instances", async () => {

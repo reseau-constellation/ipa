@@ -3,10 +3,18 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { créerOrbitesTest } from "@constl/utils-tests";
 import { isLibp2p } from "libp2p";
-import { isBrowser, isElectronMain, isElectronRenderer, isNode } from "wherearewe";
+import {
+  isBrowser,
+  isElectronMain,
+  isElectronRenderer,
+  isNode,
+} from "wherearewe";
 import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
 import { extraireHéliaEtLibp2p } from "@/v2/nébuleuse/nébuleuse.js";
-import { FICHIER_VERROU, INTERVALE_VERROU } from "@/v2/nébuleuse/services/dossier.js";
+import {
+  FICHIER_VERROU,
+  INTERVALE_VERROU,
+} from "@/v2/nébuleuse/services/dossier.js";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import { dossierTempoPropre, utiliserFauxChronomètres } from "../utils.js";
 import { NébuleuseTest } from "./utils.js";
@@ -251,13 +259,14 @@ describe.only("Nébuleuse", function () {
       horloge.restore();
 
       if (nébuleuse) await nébuleuse.fermer();
-      if (nébuleuse2) try {
-        await nébuleuse2.fermer()
-      } catch (e) {
-        if (!e.toString().includes("Erreur de démarrage")) throw e;
-      } finally {
-        nébuleuse2 = undefined;
-      };
+      if (nébuleuse2)
+        try {
+          await nébuleuse2.fermer();
+        } catch (e) {
+          if (!e.toString().includes("Erreur de démarrage")) throw e;
+        } finally {
+          nébuleuse2 = undefined;
+        }
 
       if (effacer) effacer();
     });
@@ -274,7 +283,7 @@ describe.only("Nébuleuse", function () {
         options: { services: { dossier: { dossier } } },
       });
 
-      const démarrer = nébuleuse2.démarrer()
+      const démarrer = nébuleuse2.démarrer();
       await horloge.tickAsync(INTERVALE_VERROU * 1.5);
       await expect(démarrer).to.be.rejectedWith(
         `Le compte sur ${dossier} est déjà ouvert`,
@@ -296,7 +305,7 @@ describe.only("Nébuleuse", function () {
         options: { services: { dossier: { dossier } } },
       });
 
-      const démarrer = nébuleuse2.démarrer()
+      const démarrer = nébuleuse2.démarrer();
       await horloge.tickAsync(INTERVALE_VERROU * 1.5);
       await expect(démarrer).to.be.rejectedWith(message);
     });
@@ -325,7 +334,10 @@ describe.only("Nébuleuse", function () {
       if (isElectronMain || isNode) {
         writeFileSync(join(dossier, FICHIER_VERROU), "");
       } else {
-        localStorage.setItem(join(dossier, FICHIER_VERROU), JSON.stringify({message: "", temps: Date.now() }))
+        localStorage.setItem(
+          join(dossier, FICHIER_VERROU),
+          JSON.stringify({ message: "", temps: Date.now() }),
+        );
       }
 
       // On peut démarrer malgré tout
@@ -334,7 +346,7 @@ describe.only("Nébuleuse", function () {
         options: { services: { dossier: { dossier } } },
       });
       const démarrer = nébuleuse.démarrer();
-      await horloge.tickAsync(INTERVALE_VERROU*1.5);
+      await horloge.tickAsync(INTERVALE_VERROU * 1.5);
       await démarrer;
 
       const idCompte = await nébuleuse.compte.obtIdCompte();

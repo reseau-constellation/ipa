@@ -119,8 +119,8 @@ describe.only("Mandataire OrbitDB", function () {
 
     const mandat = mandatOrbite(orbites[0]);
     const [bd1, bd2] = await Promise.all([
-      mandat.open(nomBd, { type: "keyvalue" }), 
-      mandat.open(nomBd, { type: "keyvalue" })
+      mandat.open(nomBd, { type: "keyvalue" }),
+      mandat.open(nomBd, { type: "keyvalue" }),
     ]);
 
     expect(mêmeBd(bd1, bd2)).to.be.true();
@@ -151,8 +151,8 @@ describe.only("Mandataire OrbitDB", function () {
 
     const mandat = mandatOrbite(orbites[0]);
     const [bd1, bd2] = await Promise.all([
-      mandat.open(nomBd, { type: "keyvalue" }), 
-      mandat.open(nomBd, { type: "events" })
+      mandat.open(nomBd, { type: "keyvalue" }),
+      mandat.open(nomBd, { type: "events" }),
     ]);
 
     expect(mêmeBd(bd1, bd2)).to.be.false();
