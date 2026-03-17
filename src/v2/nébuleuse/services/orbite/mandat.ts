@@ -1,6 +1,7 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
-import type { BaseDatabase, OrbitDB } from "@orbitdb/core";
+import { isValidAddress, type BaseDatabase, type OrbitDB } from "@orbitdb/core";
+import { pSignal } from "../../utils.js";
 import type { ServiceMap } from "@libp2p/interface";
 
 // Un mandataire pour orbite qui évite les conditions de concurrence pour `open`
@@ -17,7 +18,7 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 ) => {
   if (!verrous.has(orbite.identity.id))
     verrous.set(orbite.identity.id, new Semaphore());
-  const verrouOrbite = verrous.get(orbite.identity.id);
+  const verrouOrbite = verrous.get(orbite.identity.id)!;
 
   if (!requêtes.has(orbite.identity.id))
     requêtes.set(orbite.identity.id, new Map());
@@ -33,12 +34,20 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
           const nomOuAdresse = args[0];
 
-          await verrouOrbite.acquire(nomOuAdresse);
+          const signal = args[1]?.signal
+          
+          if (signal) await Promise.race([verrouOrbite.acquire(nomOuAdresse), pSignal(signal)])
+          else await verrouOrbite.acquire(nomOuAdresse);
+          if (signal?.aborted) throw new Error("Opération avortée");
 
           try {
-            const bd =
-              cacheBdsOrbite.get(nomOuAdresse) || (await target.open(...args));
+            let bd = (isValidAddress(nomOuAdresse) && cacheBdsOrbite.get(nomOuAdresse)) || (await target.open(...args));;
             const adresse = bd.address;
+
+            // S'il s'agissait d'un nom, on essaie de prendre la version en cache pour réutiliser le mandataire bd
+            if (!isValidAddress(nomOuAdresse)) {
+              bd = (cacheBdsOrbite.get(adresse)) || bd
+            }
 
             if (!requêtesOrbite.has(adresse))
               requêtesOrbite.set(adresse, new Set());
@@ -50,9 +59,9 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
             );
             cacheBdsOrbite.set(adresse, bd);
 
-            verrouOrbite.release(nomOuAdresse);
             return résultat;
           } finally {
+            // Sera exécuté avant le `return` ci-dessus
             verrouOrbite.release(nomOuAdresse);
           }
         };
