@@ -326,12 +326,14 @@ export class ServiceOrbite<
     id,
     schéma,
     f,
+    signal,
   }: {
     id: string;
     schéma: JSONSchemaType<PartielRécursif<T>>;
     f: Suivi<TypedNested<T>>;
+    signal?: AbortSignal;
   }): Promise<Oublier> {
-    const { bd, oublier } = await this.ouvrirBd({ id, type: "nested" });
+    const { bd, oublier } = await this.ouvrirBd({ id, type: "nested", signal });
 
     const bdTypée = typedNested({ db: bd, schema: schéma });
 
