@@ -4,7 +4,7 @@ import {
   MEMBRE,
   MODÉRATRICE,
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
-import { ObjetConstellation } from "@/v2/objets.js";
+import { ObjetConstellation, schémaServiceObjet } from "@/v2/objets.js";
 import { CONFIANCE_DE_COAUTEUR } from "@/v2/nébuleuse/services/consts.js";
 import { obtenir } from "./utils.js";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
@@ -38,7 +38,7 @@ describe.only("Objets", function () {
   type StructureObjet = { a: number };
 
   const protocole = "objetTest" as const;
-  const schémaObjetTest: JSONSchemaType<PartielRécursif<StructureObjet>> = {
+  const schémaObjetTest: JSONSchemaType<PartielRécursif<StructureObjet>> & {nullable: true} = {
     type: "object",
     properties: {
       a: {
@@ -47,6 +47,7 @@ describe.only("Objets", function () {
       },
     },
     required: [],
+    nullable: true
   };
 
   class ServiceObjetTest extends ObjetConstellation<
@@ -93,6 +94,13 @@ describe.only("Objets", function () {
         objetTest: ({ options, services }) =>
           new ServiceObjetTest({ options, services }),
       },
+      options: {
+        services: {
+          compte: {
+            schéma: { type: "object", properties: { [protocole]: schémaServiceObjet }, nullable: true }
+          }
+        }
+      }
     }));
     nébuleuse = nébuleuses[0];
     compte = nébuleuse.compte;
