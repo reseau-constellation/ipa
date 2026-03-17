@@ -77,7 +77,7 @@ describe.only("Mandataire OrbitDB", function () {
     expect(mêmeBd(bd1, bd2)).to.be.true();
   });
 
-  it("pas de concurrence avec le mandataire", async () => {
+  it("pas de problème de concurrence avec le mandataire", async () => {
     const idBd = (
       await orbites[0].open("bd test" + uuidv4(), { type: "keyvalue" })
     ).address;
