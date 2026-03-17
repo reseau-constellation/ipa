@@ -47,6 +47,13 @@ export class ServiceÉpingles extends ServiceAppli<
     this.signaleurArrêt = new AbortController();
   }
 
+  async démarrer(): Promise<unknown> {
+    // Réinitialiser le signaleur, mais uniquement si nécessaire.
+    if (this.signaleurArrêt.signal.aborted) this.signaleurArrêt = new AbortController();
+
+    return await super.démarrer()
+  }
+
   async épingler({
     idRequête,
     épingles,

@@ -119,6 +119,9 @@ export class ServiceOrbite<
   }
 
   async démarrer() {
+    // Réinitialiser le signaleur, mais uniquement si nécessaire.
+    if (this.signaleurArrêt.signal.aborted) this.signaleurArrêt = new AbortController();
+
     // Générer Orbite si nécessaire
     const hélia = await this.service("hélia").hélia();
     const orbite = this.options.orbite || (await this.générerOrbite({ hélia }));
