@@ -388,6 +388,7 @@ export class Réseau {
       pipe(fluxÀÉcrire, flux); // Pas d'await
       return fluxÀÉcrire;
     } finally {
+      // Sera relâché avant le `return` ci-dessus
       this.verrouFlux.release(idPair);
     }
   }
