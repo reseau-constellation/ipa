@@ -142,11 +142,13 @@ export class ServiceDossier extends ServiceAppli<
   }: {
     message: Jsonifiable;
   }): Promise<void> {
+    const dossier = await this.dossier();
+    const fichierVerrou = join(dossier, FICHIER_VERROU);
     if (isElectronMain || isNode) {
-      const dossier = await this.dossier();
       const fs = await import("fs");
-      const fichierVerrou = join(dossier, FICHIER_VERROU);
       fs.writeFileSync(fichierVerrou, JSON.stringify(message));
+    } else {
+      localStorage.setItem(fichierVerrou, JSON.stringify({message, temps: Date.now() }));
     }
   }
 }
