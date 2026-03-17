@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
+import { isBrowser, isElectronRenderer } from "wherearewe";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import {
   StockageLocal,
@@ -97,8 +98,10 @@ describe.only("Stockage", function () {
   it("exporter", async () => {
     await stockage.sauvegarderItem("a", "texte");
 
-    const exporté = await stockage.exporter();
-    expect(JSON.parse(exporté)).to.deep.equal({ a: "texte" });
+    const exporté = JSON.parse(await stockage.exporter());
+
+    if (isBrowser || isElectronRenderer) delete exporté.VERROU
+    expect((exporté)).to.deep.equal({ a: "texte" });
   });
 
   it("non interférence entre instances", async () => {
