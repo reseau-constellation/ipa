@@ -22,7 +22,7 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 
-describe.skip("Utils recherche", function () {
+describe.only("Utils recherche", function () {
   let fermer: Oublier;
   let nébuleuses: NébuleuseTest[];
   let nébuleuse: NébuleuseTest;
