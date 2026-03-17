@@ -4,6 +4,7 @@ import { expect } from "aegir/chai";
 import { créerOrbitesTest } from "@constl/utils-tests";
 import { isLibp2p } from "libp2p";
 import { useFakeTimers } from "sinon";
+import { isBrowser, isElectronMain, isElectronRenderer, isNode } from "wherearewe";
 import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
 import { extraireHéliaEtLibp2p } from "@/v2/nébuleuse/nébuleuse.js";
 import { FICHIER_VERROU, INTERVALE_VERROU } from "@/v2/nébuleuse/services/dossier.js";
@@ -390,6 +391,10 @@ describe.only("Nébuleuse", function () {
     });
 
     it("données compte bien effacées", async function () {
+      // Pour l'instant, la réinitialiation des `Datastore` et `Blockstore` empêchent le redémarrage du compte
+      // sur le navigateur.
+      if (isBrowser || isElectronRenderer) this.skip();
+
       await nébuleuse.effacer();
 
       // On rouvre une nouvelle nébuleuse avec le même dossier
