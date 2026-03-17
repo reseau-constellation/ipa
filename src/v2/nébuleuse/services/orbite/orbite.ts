@@ -163,6 +163,8 @@ export class ServiceOrbite<
   }): Promise<OrbitDB<L>> {
     préparerOrbite();
 
+    const journal = this.service("journal");
+
     const dossier = await this.service("dossier").dossier();
     const dossierOrbite = join(dossier, "orbite");
     const orbite = mandatOrbite(
@@ -171,6 +173,7 @@ export class ServiceOrbite<
         id: "nébuleuse",
         directory: dossierOrbite,
       }),
+      (erreur) => journal.écrire(erreur.toString())
     );
 
     return orbite;
@@ -203,9 +206,6 @@ export class ServiceOrbite<
       nom || uuidv4(),
       optionsFinales,
     )) as BdsOrbite[T];
-
-    const journal = this.service("journal");
-    bd.events.on("error", async (e: string) => await journal.écrire(e));
 
     return { bd, oublier: async () => await bd.close() };
   }
@@ -271,11 +271,6 @@ export class ServiceOrbite<
       signalFinal,
     );
 
-    const journal = this.service("journal");
-    const gérerErreur = async (erreur: Error) =>
-      await journal.écrire(erreur.toString());
-    bd.sync.events.addListener("error", gérerErreur);
-
     if (type) {
       if (type !== bd.type) {
         throw new Error(`La bd est de type ${bd.type} et non ${type}.`);
@@ -285,7 +280,6 @@ export class ServiceOrbite<
       bd,
       oublier: async () => {
         await bd.close();
-        bd.sync.events.removeListener("error", gérerErreur);
       },
     };
   }
