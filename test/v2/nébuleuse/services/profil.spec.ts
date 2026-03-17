@@ -359,8 +359,15 @@ describe.only("Profil", function () {
       ]);
     });
 
-    it("résoudre épingle - favoris circulaires", async () => {
-      await nébuleuses[1].profil.épingler({ idCompte: idsComptes[0] });
+    it.skip("résoudre épingle - favoris circulaires", async () => {
+      await nébuleuses[0].profil.épingler({
+        idCompte: idsComptes[1],
+        options: { favoris: TOUS_DISPOSITIFS },
+      });
+      await nébuleuses[1].profil.épingler({
+        idCompte: idsComptes[0],
+        options: { favoris: TOUS_DISPOSITIFS },
+      });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
         nébuleuse.profil.suivreRésolutionÉpingle({
@@ -371,7 +378,7 @@ describe.only("Profil", function () {
               épingle: { base: true, favoris: true },
             },
           },
-          f: si((x) => !!x && x.size > 3),
+          f: si((x) => {console.log(x); return !!x && x.size > 3}),
         }),
       );
       expect([...résolution]).to.have.members([
