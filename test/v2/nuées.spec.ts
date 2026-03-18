@@ -3860,7 +3860,7 @@ describe("Nuées", function () {
 
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne =
-        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+        "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
       await constl.nuées.inviterAuteur({
         idNuée,
         idCompte: compteHorsLigne,
@@ -4172,7 +4172,7 @@ describe("Nuées", function () {
           licence: "ODbl-1_0",
         });
         const idNuéeNExistePas =
-          "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"; // N'existe pas
+          "/constl/nuée/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"; // N'existe pas
         schéma.nuées = [idNuéeNExistePas];
 
         idBd = await constl.bds.créerBdDeSchéma({ schéma });

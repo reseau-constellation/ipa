@@ -170,7 +170,7 @@ describe.only("Épingles", function () {
 
     it("pas d'erreur si bd non disponible", async () => {
       const idBdInexistante =
-        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+        "/constl/bd/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
 
       await nébuleuse.services["épingles"].épingler({
         idRequête: "a",
