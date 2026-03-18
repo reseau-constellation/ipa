@@ -95,11 +95,13 @@ export class ServiceDossier extends ServiceAppli<
     if (installé) fs = await import("fs");
 
     const fichierVerrou = join(dossier, FICHIER_VERROU);
+
     const verrouillé = () => {
       return installé
         ? fs.existsSync(fichierVerrou)
         : localStorage.getItem(fichierVerrou);
     };
+
     const verrouiller = (message: string = "") => {
       if (installé) fs.writeFileSync(fichierVerrou, message);
       else
@@ -108,6 +110,7 @@ export class ServiceDossier extends ServiceAppli<
           JSON.stringify({ message, temps: Date.now() }),
         );
     };
+
     const dernièreModificationVerrou = (): number => {
       if (installé) {
         return fs.statSync(fichierVerrou).mtime.getTime();
@@ -118,15 +121,19 @@ export class ServiceDossier extends ServiceAppli<
         );
       }
     };
+
     const obtenirContenuVerrou = (): string => {
       if (installé) {
-        return (new TextDecoder().decode(fs.readFileSync(fichierVerrou))).replace(/^"+|"+$/g, '');
+        return new TextDecoder()
+          .decode(fs.readFileSync(fichierVerrou))
+          .replace(/^"+|"+$/g, "");
       } else {
         return (
           JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || ""
         );
       }
     };
+
     const actualiserVerrou = () => {
       if (installé) {
         const maintenant = new Date();
@@ -174,9 +181,11 @@ export class ServiceDossier extends ServiceAppli<
         verifierSiVieux();
       }
     }
+
     const intervale = setInterval(() => {
       actualiserVerrou();
     }, INTERVALE_VERROU);
+
     return async () => {
       clearInterval(intervale);
       relâcherVerrou();
