@@ -137,7 +137,9 @@ export class ServiceDossier extends ServiceAppli<
     const actualiserVerrou = () => {
       if (installé) {
         const maintenant = new Date();
-        fs.utimesSync(fichierVerrou, maintenant, maintenant);
+        // Pour une raison ou une autre, parfois ça continue après la destruction du fichier verrou (surtout sur Ubuntu et Windows).
+        if (fs.existsSync(fichierVerrou))
+          fs.utimesSync(fichierVerrou, maintenant, maintenant);
       } else {
         const message: string =
           JSON.parse(localStorage.getItem(fichierVerrou) || "{}").message || "";
