@@ -5,7 +5,7 @@ export {
   ContrôleurNébuleuse,
   estContrôleurNébuleuse,
   InstanceContrôleurNébuleuse,
-} from "./_contrôleurNébuleuse.js";
+} from "./contrôleurNébuleuse.js";
 
 export { ContrôleurAccès } from "./contrôleurModératrices.js";
 export { Rôle, AccèsUtilisateur, AccèsDispositif } from "./types.js";
