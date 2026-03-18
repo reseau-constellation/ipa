@@ -167,12 +167,11 @@ export class AccèsParComptes {
   async estUnMembre(id: string): Promise<boolean> {
     await this.àJour();
 
+    // Les modératrices sont aussi des membres
     if (isValidAddress(id)) {
       return !!this._comptes.get(id)?.rôles.has(MEMBRE);
     } else {
-      return !!this.dispositifs.find(
-        (d) => d.idDispositif === id && d.rôle === MEMBRE,
-      );
+      return !!this.dispositifs.find((d) => d.idDispositif === id);
     }
   }
 
@@ -195,7 +194,7 @@ export class AccèsParComptes {
   async existeDéjà({ id, rôle }: { id: string; rôle: Rôle }) {
     if (rôle === "MEMBRE")
       return (await this.estUnMembre(id)) || (await this.estUneModératrice(id));
-    else return await this.estUnMembre(id);
+    else return await this.estUneModératrice(id);
   }
 
   async àJour(): Promise<void> {

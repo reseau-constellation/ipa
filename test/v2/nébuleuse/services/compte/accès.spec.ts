@@ -95,6 +95,35 @@ describe.only("Accès", function () {
       expect(autorisé).to.be.true();
     });
 
+    it("promotion d'un membre à une modératrice", async () => {
+      await accès.autoriser(MEMBRE, orbite2.identity.id);
+
+      await attendreInvité(bd, orbite2.identity.id);
+      await accès.autoriser(MODÉRATRICE, orbite2.identity.id);
+      await attendreQue(() => accès.estUneModératrice(orbite2.identity.id));
+
+      // Effectué sur l'instance originale
+      const membre = await accès.estUnMembre(orbite2.identity.id);
+      expect(membre).to.be.true();
+
+      const modératrice = await accès.estUneModératrice(orbite2.identity.id);
+      expect(modératrice).to.be.true();
+
+      // Effectué sur l'instance ajoutée
+      const bdSurOrbite2 = (await orbite2.open(bd.address)) as KeyValueDatabase;
+      const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
+
+      await attendreInvité(bdSurOrbite2, orbite2.identity.id);
+
+      const membreSurBd2 = await accès2.estUnMembre(orbite2.identity.id);
+      expect(membreSurBd2).to.be.true();
+
+      const modératriceSurBd2 = await accès2.estUneModératrice(
+        orbite2.identity.id,
+      );
+      expect(modératriceSurBd2).to.be.true();
+    });
+
     it("erreur - un membre ne peut pas inviter d'autres membres", async () => {
       await accès.autoriser(MEMBRE, orbite2.identity.id);
       const bdSurOrbite2 = await orbite2.open(bd.address);
@@ -345,6 +374,33 @@ describe.only("Accès", function () {
 
       const autorisé = await peutÉcrire(bdSurOrbite2);
       expect(autorisé).to.be.true();
+    });
+
+    it("promotion d'un membre à une modératrice", async () => {
+      await accès.autoriser(MEMBRE, idCompte2);
+
+      await attendreInvité(bd, idCompte2);
+      await accès.autoriser(MODÉRATRICE, idCompte2);
+      await attendreQue(() => accès.estUneModératrice(idCompte2));
+
+      // Effectué sur l'instance originale
+      const membre = await accès.estUnMembre(idCompte2);
+      expect(membre).to.be.true();
+
+      const modératrice = await accès.estUneModératrice(idCompte2);
+      expect(modératrice).to.be.true();
+
+      // Effectué sur l'instance ajoutée
+      const bdSurOrbite2 = (await orbite2.open(bd.address)) as KeyValueDatabase;
+      const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
+
+      await attendreInvité(bdSurOrbite2, idCompte2);
+
+      const membreSurBd2 = await accès2.estUnMembre(idCompte2);
+      expect(membreSurBd2).to.be.false();
+
+      const modératriceSurBd2 = await accès2.estUneModératrice(idCompte2);
+      expect(modératriceSurBd2).to.be.true();
     });
 
     it("erreur - un membre ne peut pas inviter d'autres membres", async () => {
