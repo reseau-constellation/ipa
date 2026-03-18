@@ -259,7 +259,9 @@ describe.only("Utils recherche", function () {
     });
 
     it("résultat détecté", async () => {
-      const résultat = await obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(({ si }) =>
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte>
+      >(({ si }) =>
         combinerRecherches({
           fsRecherche: {
             abc: rechercheAbc,
@@ -267,7 +269,7 @@ describe.only("Utils recherche", function () {
           },
           services: (clef) => nébuleuse.services[clef],
           idObjet: "abcdefghij",
-          fSuivreRecherche: si(x=>!!x && x.info.fin > 3),
+          fSuivreRecherche: si((x) => !!x && x.info.fin > 3),
         }),
       );
 

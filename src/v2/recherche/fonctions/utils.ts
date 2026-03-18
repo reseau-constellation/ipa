@@ -189,7 +189,7 @@ export const sousRecherche = async <
       }
       await fSuivreRecherche(résultat);
     } else {
-      await fSuivreRecherche(undefined)
+      await fSuivreRecherche(undefined);
     }
   };
 

@@ -100,7 +100,7 @@ export type Résolveur<T extends ÉpingleFavoris = ÉpingleFavoris> = (args: {
   épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<T>>;
   f: Suivi<Set<string>>;
   signal: AbortSignal;
-  ignorer: Set<string>
+  ignorer: Set<string>;
 }) => Promise<Oublier>;
 
 export const idObjetÀClef = (idObjet: string): string => {

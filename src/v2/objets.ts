@@ -216,7 +216,6 @@ export abstract class ObjetConstellation<
         fSuivreBranche: Suivi<InfoAuteur>;
         branche: AccèsUtilisateur;
       }) => {
-        console.log(branche);
         // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
         await fSuivreBranche({
           idCompte,
