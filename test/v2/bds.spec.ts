@@ -2470,7 +2470,7 @@ describe("BDs", function () {
 
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne =
-        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+        "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
       await constl.bds.inviterAuteur({
         idBd,
         idCompte: compteHorsLigne,
