@@ -6,7 +6,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
 import { useFakeTimers } from "sinon";
 import { créerConstellation } from "@/v2/index.js";
-import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/ContrôleurNébuleuse.js";
+import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/_contrôleurNébuleuse.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";

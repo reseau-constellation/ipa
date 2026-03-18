@@ -21,7 +21,7 @@ import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../appli/index.js";
 import { réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
-import { ContrôleurNébuleuse } from "../compte/accès/ContrôleurNébuleuse.js";
+import { ContrôleurNébuleuse } from "../compte/accès/_contrôleurNébuleuse.js";
 import { mandatOrbite } from "./mandat.js";
 import type { OptionsAppli } from "../../appli/appli.js";
 import type {
