@@ -82,7 +82,7 @@ describe.only("Objets", function () {
       const idObjet = bd.address;
       await oublierBd();
 
-      return idObjet;
+      return this.ajouterProtocole(idObjet);
     }
   }
 
@@ -256,13 +256,14 @@ describe.only("Objets", function () {
 
     before(async () => {
       idObjet = await nébuleuse.services.objetTest.créerObjet();
+      await nébuleuse.services.objetTest.ajouterÀMesObjets({ idObjet });
     });
 
     it("compte créateur autorisé pour commencer", async () => {
-      const auteurs = await obtenir<InfoAuteur[]>(({ siPasVide }) =>
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         serviceObjetTest.suivreAuteursObjet({
           idObjet,
-          f: siPasVide(),
+          f: si((x) => !!x?.find((a) => a.accepté)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -276,7 +277,7 @@ describe.only("Objets", function () {
     });
 
     it("inviter compte", async () => {
-      await compte.donnerAccèsObjet({
+      await serviceObjetTest.donnerAccèsObjet({
         idObjet,
         identité: idsComptes[1],
         rôle: MEMBRE,
@@ -284,7 +285,12 @@ describe.only("Objets", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         serviceObjetTest.suivreAuteursObjet({
           idObjet,
-          f: si((x) => !!x && x.length > 1),
+          f: si(
+            (x) =>
+              !!x &&
+              x.length > 1 &&
+              !!x.find((a) => a.idCompte === idsComptes[0])?.accepté,
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -329,7 +335,7 @@ describe.only("Objets", function () {
     it("modification par le nouvel auteur", async () => {
       await obtenir(({ siDéfini }) =>
         nébuleuses[1].compte.suivrePermission({
-          idObjet: idObjet,
+          idObjet: serviceObjetTest.àIdOrbite(idObjet),
           f: siDéfini(),
         }),
       );
@@ -347,7 +353,7 @@ describe.only("Objets", function () {
     });
 
     it("promotion à modératrice", async () => {
-      await compte.donnerAccèsObjet({
+      await serviceObjetTest.donnerAccèsObjet({
         idObjet,
         identité: idsComptes[1],
         rôle: MODÉRATRICE,
@@ -359,7 +365,8 @@ describe.only("Objets", function () {
           f: si(
             (x) =>
               !!x &&
-              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE &&
+              x.every(a=>a.accepté),
           ),
         }),
       );
@@ -380,8 +387,9 @@ describe.only("Objets", function () {
 
     it("inviter compte hors ligne", async () => {
       const compteHorsLigne =
-        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-      await compte.donnerAccèsObjet({
+        "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+
+        await serviceObjetTest.donnerAccèsObjet({
         idObjet,
         identité: compteHorsLigne,
         rôle: MEMBRE,
@@ -390,7 +398,7 @@ describe.only("Objets", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         serviceObjetTest.suivreAuteursObjet({
           idObjet,
-          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne)),
+          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne) && x.reduce((a, b)=> Number(b.accepté) + a, 0) === 2),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -422,13 +430,13 @@ describe.only("Objets", function () {
     });
 
     it("de coauteurs", async () => {
-      const promesseRelations = obtenir<RelationImmédiate[]>(({ siPasVide }) =>
+      const promesseRelations = obtenir<RelationImmédiate[]>(({ si }) =>
         nébuleuse.services.objetTest.résolutionConfiance({
           de: idsComptes[0],
-          f: siPasVide(),
+          f: si(x=>!!x && x.length > 1),
         }),
       );
-      await compte.donnerAccèsObjet({
+      await serviceObjetTest.donnerAccèsObjet({
         idObjet,
         identité: idsComptes[1],
         rôle: MEMBRE,
@@ -436,6 +444,10 @@ describe.only("Objets", function () {
       const relations = await promesseRelations;
 
       const réf: RelationImmédiate[] = [
+        {
+          idCompte: idsComptes[0],
+          confiance: CONFIANCE_DE_COAUTEUR,
+        },
         {
           idCompte: idsComptes[1],
           confiance: CONFIANCE_DE_COAUTEUR,
