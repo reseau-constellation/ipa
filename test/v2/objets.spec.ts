@@ -20,7 +20,7 @@ import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { RelationImmédiate } from "@/v2/nébuleuse/services/réseau.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
-describe.skip("Objets", function () {
+describe.only("Objets", function () {
   let fermer: () => Promise<void>;
   let nébuleuses: Nébuleuse<
     { objetTest: StructureServiceObjet },
