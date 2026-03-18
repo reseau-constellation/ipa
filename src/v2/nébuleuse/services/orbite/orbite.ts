@@ -173,7 +173,7 @@ export class ServiceOrbite<
         id: "nébuleuse",
         directory: dossierOrbite,
       }),
-      (erreur) => journal.écrire(erreur.toString())
+      (erreur) => journal.écrire(erreur.toString()),
     );
 
     return orbite;
