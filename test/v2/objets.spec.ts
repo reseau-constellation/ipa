@@ -365,8 +365,9 @@ describe.only("Objets", function () {
           f: si(
             (x) =>
               !!x &&
-              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE &&
-              x.every(a=>a.accepté),
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+                MODÉRATRICE &&
+              x.every((a) => a.accepté),
           ),
         }),
       );
@@ -389,7 +390,7 @@ describe.only("Objets", function () {
       const compteHorsLigne =
         "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
 
-        await serviceObjetTest.donnerAccèsObjet({
+      await serviceObjetTest.donnerAccèsObjet({
         idObjet,
         identité: compteHorsLigne,
         rôle: MEMBRE,
@@ -398,9 +399,14 @@ describe.only("Objets", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         serviceObjetTest.suivreAuteursObjet({
           idObjet,
-          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne) && x.reduce((a, b)=> Number(b.accepté) + a, 0) === 2),
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === compteHorsLigne) &&
+              x.reduce((a, b) => Number(b.accepté) + a, 0) === 2,
+          ),
         }),
       );
+
       const réf: InfoAuteur[] = [
         {
           idCompte: idsComptes[0],
@@ -433,7 +439,7 @@ describe.only("Objets", function () {
       const promesseRelations = obtenir<RelationImmédiate[]>(({ si }) =>
         nébuleuse.services.objetTest.résolutionConfiance({
           de: idsComptes[0],
-          f: si(x=>!!x && x.length > 1),
+          f: si((x) => !!x && x.length > 1),
         }),
       );
       await serviceObjetTest.donnerAccèsObjet({
