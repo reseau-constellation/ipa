@@ -5,6 +5,11 @@ import { dossierTempo } from "@constl/utils-tests";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
 import { useFakeTimers } from "sinon";
+import {
+  isValidAddress,
+  type BaseDatabase,
+  type KeyValueDatabase,
+} from "@orbitdb/core";
 import { créerConstellation } from "@/v2/index.js";
 import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
@@ -16,7 +21,6 @@ import type { Oublier, RetourRecherche, Suivi } from "@/v2/nébuleuse/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
-import type { BaseDatabase, KeyValueDatabase } from "@orbitdb/core";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,
@@ -36,7 +40,12 @@ export const attendreInvité = async (
   if (!estContrôleurNébuleuse(accès))
     throw new Error(`Contrôleur d'accès non supporté : ${accès.type}`);
 
-  return await attendreQue(() => accès.estAutorisé(idInvité));
+  const estInvité = async () => {
+    return isValidAddress(idInvité)
+      ? !!accès.accès.utilisateurs.find((u) => u.idCompte === idInvité)
+      : !!accès.accès.dispositifs.find((d) => d.idDispositif === idInvité);
+  };
+  return await attendreQue(estInvité);
 };
 
 export const peutÉcrire = async (
