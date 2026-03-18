@@ -287,10 +287,10 @@ const ContrôleurNébuleuse =
       const oublier = appelerLorsque({
         émetteur: accès.événements,
         événement: "misÀJour",
-        f: async () => await f(await utilisateursAutorisés()),
+        f: async () => await f(accès.utilisateurs),
       });
 
-      await f(await utilisateursAutorisés());
+      await f(accès.utilisateurs);
       return oublier;
     };
 
@@ -307,7 +307,7 @@ const ContrôleurNébuleuse =
         événement: "misÀJour",
         f: async () => await f(await dispositifsAutorisés()),
       });
-      await f(await dispositifsAutorisés());
+      await f(accès.dispositifs);
 
       return oublier;
     };
