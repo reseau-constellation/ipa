@@ -575,9 +575,7 @@ export class Nuées extends ObjetConstellation<
     idCompte: string;
     rôle: Rôle;
   }): Promise<void> {
-    const compte = this.service("compte");
-
-    return await compte.donnerAccèsObjet({
+    return await this.donnerAccèsObjet({
       idObjet: idNuée,
       identité: idCompte,
       rôle,

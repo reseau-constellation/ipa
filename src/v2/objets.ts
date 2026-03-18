@@ -5,6 +5,7 @@ import { ServiceDonnéesAppli } from "./nébuleuse/services/services.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
+import { MEMBRE } from "./nébuleuse/services/compte/accès/consts.js";
 import type { ServiceAppli } from "./nébuleuse/appli/index.js";
 import type { ServiceFavoris } from "./nébuleuse/services/favoris.js";
 import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
@@ -18,7 +19,10 @@ import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { InfoAuteur, PartielRécursif } from "./types.js";
 import type { JSONSchemaType } from "ajv";
-import type { AccèsUtilisateur } from "./nébuleuse/services/compte/accès/types.js";
+import type {
+  AccèsUtilisateur,
+  Rôle,
+} from "./nébuleuse/services/compte/accès/types.js";
 
 export type StructureServiceObjet = {
   [idObjet: string]: null;
@@ -67,7 +71,7 @@ export abstract class ObjetConstellation<
     super({
       clef,
       services,
-      dépendances: [...dépendances, "réseau"],
+      dépendances: [...dépendances, "réseau", "orbite"],
       options: Object.assign({}, options, {
         schéma: schémaServiceObjet,
       }),
@@ -134,9 +138,7 @@ export abstract class ObjetConstellation<
           idCompte,
           f: async (objets) =>
             await fSuivreRacine(
-              objets
-                ? Object.keys(objets).map(this.ajouterProtocole.bind(this))
-                : [],
+              Object.keys(objets || {}).map(ajouterPréfixeOrbite),
             ),
         }),
       fBranche: async ({ id: idObjet, fSuivreBranche }) => {
@@ -144,7 +146,9 @@ export abstract class ObjetConstellation<
           idObjet,
           idCompte,
           f: async (permission) =>
-            await fSuivreBranche(permission ? idObjet : undefined),
+            await fSuivreBranche(
+              permission ? this.ajouterProtocole(idObjet) : undefined,
+            ),
         });
       },
       f,
@@ -200,7 +204,7 @@ export abstract class ObjetConstellation<
         fSuivreRacine: Suivi<AccèsUtilisateur[]>;
       }) =>
         await compte.suivreAutorisations({
-          idObjet: idObjet,
+          idObjet: this.àIdOrbite(idObjet),
           f: fSuivreRacine,
         }),
       fBranche: async ({
@@ -212,6 +216,7 @@ export abstract class ObjetConstellation<
         fSuivreBranche: Suivi<InfoAuteur>;
         branche: AccèsUtilisateur;
       }) => {
+        console.log(branche);
         // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
         await fSuivreBranche({
           idCompte,
@@ -231,6 +236,24 @@ export abstract class ObjetConstellation<
       },
       fIdDeBranche: (x) => x.idCompte,
       f,
+    });
+  }
+
+  async donnerAccèsObjet({
+    idObjet,
+    identité,
+    rôle = MEMBRE,
+  }: {
+    idObjet: string;
+    identité: string;
+    rôle: Rôle;
+  }): Promise<void> {
+    const compte = this.service("compte");
+
+    await compte.donnerAccèsObjet({
+      idObjet: this.àIdOrbite(idObjet),
+      identité,
+      rôle,
     });
   }
 

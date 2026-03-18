@@ -197,10 +197,8 @@ export class MotsClefs extends ObjetConstellation<
     idCompte: string;
     rôle: Rôle;
   }): Promise<void> {
-    const compte = this.service("compte");
-
-    return await compte.donnerAccèsObjet({
-      idObjet: this.àIdOrbite(idMotClef),
+    return await this.donnerAccèsObjet({
+      idObjet: idMotClef,
       identité: idCompte,
       rôle,
     });

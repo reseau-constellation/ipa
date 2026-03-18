@@ -4578,7 +4578,7 @@ describe.skip("tableaux", function () {
         idTableau,
       });
 
-      await constlsAccès[0].compte.donnerAccèsObjet({
+      await constlsAccès[0].bds.donnerAccèsObjet({
         idObjet: idBd,
         identité: await constlsAccès[1].compte.obtIdCompte(),
         rôle: MEMBRE,

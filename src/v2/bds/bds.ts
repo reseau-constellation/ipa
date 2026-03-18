@@ -610,9 +610,7 @@ export class Bds extends ObjetConstellation<
     idCompte: string;
     rôle: Rôle;
   }): Promise<void> {
-    const compte = this.service("compte");
-
-    return await compte.donnerAccèsObjet({
+    return await this.donnerAccèsObjet({
       idObjet: idBd,
       identité: idCompte,
       rôle,

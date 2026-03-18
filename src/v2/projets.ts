@@ -321,10 +321,8 @@ export class Projets extends ObjetConstellation<
     idCompte: string;
     rôle: Rôle;
   }): Promise<void> {
-    const compte = this.service("compte");
-
-    return await compte.donnerAccèsObjet({
-      idObjet: this.àIdOrbite(idProjet),
+    return await this.donnerAccèsObjet({
+      idObjet: idProjet,
       identité: idCompte,
       rôle,
     });

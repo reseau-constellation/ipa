@@ -334,10 +334,8 @@ export class Variables extends ObjetConstellation<
     idCompte: string;
     rôle: Rôle;
   }): Promise<void> {
-    const compte = this.service("compte");
-
-    return await compte.donnerAccèsObjet({
-      idObjet: this.àIdOrbite(idVariable),
+    return await this.donnerAccèsObjet({
+      idObjet: idVariable,
       identité: idCompte,
       rôle,
     });

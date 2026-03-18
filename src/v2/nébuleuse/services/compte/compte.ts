@@ -389,7 +389,7 @@ export class BaseServiceCompte<
     f: Suivi<AccèsUtilisateur[]>;
   }): Promise<Oublier> {
     const { bd, oublier: oublierBd } = await this.service("orbite").ouvrirBd({
-      id: idObjet,
+      id: enleverPréfixes(idObjet),
     });
     const accès = bd.access;
     if (!estContrôleurNébuleuse(accès))
@@ -441,6 +441,8 @@ export class BaseServiceCompte<
     identité: string;
     rôle: Rôle;
   }): Promise<void> {
+    identité = enleverPréfixes(identité);
+
     if (!isValidAddress(identité)) {
       throw new Error(`Identité "${identité}" non valide.`);
     }
