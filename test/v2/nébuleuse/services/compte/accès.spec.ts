@@ -205,6 +205,34 @@ describe.only("Accès", function () {
       expect(await accès.dispositifsAutorisés()).to.have.deep.members(réf);
     });
 
+    it("inviter dispositif hors ligne", async () => {
+      const dispositifHorsLigne =
+        "0276a3425b234ad294b0b48010a702bfebfab52b6665a82a3b1f0c58445854db0e";
+
+      await accès.autoriser(MEMBRE, dispositifHorsLigne);
+
+      await attendreInvité(bd, dispositifHorsLigne);
+
+      const membre = await accès.estUnMembre(dispositifHorsLigne);
+      expect(membre).to.be.true();
+
+      const autorisés = await obtenir<AccèsDispositif[]>(({ si }) =>
+        accès.suivreDispositifsAutorisées(si((x) => x.length > 1)),
+      );
+
+      const réf: AccèsDispositif[] = [
+        {
+          rôle: MODÉRATRICE,
+          idDispositif: orbite1.identity.id,
+        },
+        {
+          rôle: MEMBRE,
+          idDispositif: dispositifHorsLigne,
+        },
+      ];
+      expect(autorisés).to.deep.equal(réf);
+    });
+
     it("erreur si rôle invalide", async () => {
       await expect(
         // @ts-expect-error On fait exprès
@@ -506,6 +534,50 @@ describe.only("Accès", function () {
 
       expect(autorisés).to.have.deep.members(réf);
       expect(await accès.dispositifsAutorisés()).to.have.deep.members(réf);
+    });
+
+    it("inviter utilisateur hors ligne", async () => {
+      const utilisateurHorsLigne =
+        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+
+      await accès.autoriser(MEMBRE, utilisateurHorsLigne);
+
+      await attendreInvité(bd, utilisateurHorsLigne);
+
+      const membre =
+        accès.accès.utilisateurs.find(
+          (u) => u.idCompte === utilisateurHorsLigne,
+        )?.rôle === MEMBRE;
+
+      expect(membre).to.be.true();
+
+      const autorisés = await obtenir<AccèsUtilisateur[]>(({ si }) =>
+        accès.suivreUtilisateursAutorisés(si((x) => x.length > 1)),
+      );
+
+      const réf: AccèsUtilisateur[] = [
+        {
+          idCompte: idCompte1,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: utilisateurHorsLigne,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(autorisés).to.deep.equal(réf);
+
+      // Le dispositif du membre n'apparaîtera pas, car celui-ci n'est pas en ligne.
+      const réfDispositifs: AccèsDispositif[] = [
+        {
+          idDispositif: orbite1.identity.id,
+          rôle: MODÉRATRICE,
+        },
+      ];
+      const dispositifsAutorisés = await obtenir<AccèsDispositif[]>(
+        ({ siPasVide }) => accès.suivreDispositifsAutorisées(siPasVide()),
+      );
+      expect(dispositifsAutorisés).to.deep.equal(réfDispositifs);
     });
 
     it("erreur si rôle invalide", async () => {
