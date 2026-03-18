@@ -9,9 +9,9 @@ import {
   type ÉpingleFavorisAvecId,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "@/v2/nébuleuse/services/favoris.js";
-import { obtenir } from "../utils.js";
-import { créerNébuleusesTest } from "./utils.js";
-import type { NébuleuseTest } from "./utils.js";
+import { obtenir } from "../../utils.js";
+import { créerNébuleusesTest } from "../utils.js";
+import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 
 describe("Favoris", function () {
