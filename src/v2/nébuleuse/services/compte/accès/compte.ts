@@ -105,9 +105,10 @@ export class AccèsParComptes {
             accès: accèsCompte,
             rôles: new Set([rôle]),
           };
-          await accèsCompte.démarrer({ signal: this.signal });
 
           this._comptes.set(id, utilisateur);
+
+          this.événements.emit("misÀJour");
 
           const oublierUtilisateur = appelerLorsque({
             émetteur: utilisateur.accès.événements,
@@ -116,6 +117,8 @@ export class AccèsParComptes {
               this.événements.emit("misÀJour");
             },
           });
+
+          await accèsCompte.démarrer({ signal: this.signal });
           this.oublier.push(oublierUtilisateur);
         }
         utilisateur.rôles.add(rôle);
