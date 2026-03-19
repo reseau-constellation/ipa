@@ -7,7 +7,7 @@ import {
   OptionsDéfautLibp2pNavigateur,
   OptionsDéfautLibp2pNode,
 } from "@constl/utils-tests";
-import { isBrowser, isElectronRenderer, isNode } from "wherearewe";
+import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
@@ -26,6 +26,7 @@ import {
   obtenirOptionsLibp2pTest,
   serviceLibp2pTest,
 } from "./utils.js";
+import type { ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { ServiceLibp2pTest } from "./utils.js";
 import type { ServicesLibp2pNébuleuseDéfaut } from "@/v2/nébuleuse/services/libp2p/config/utils.js";
 import type {
@@ -291,7 +292,7 @@ describe.only("Service Libp2p", function () {
       let appli: Appli<
         ServicesNécessairesLibp2p & {
           libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
-        }
+        } & ServicesAppli
       >;
       let dossier: string;
       let effacer: () => void;
@@ -419,7 +420,7 @@ describe.only("Service Libp2p", function () {
           return mesOptions;
         };
 
-        const appli = new Appli<
+        appli = new Appli<
           ServicesNécessairesLibp2p & {
             libp2p: ServiceLibp2p<ServicesLibp2pTestModifiés>;
           }
@@ -480,7 +481,7 @@ describe.only("Service Libp2p", function () {
             ? OptionsDéfautLibp2pNavigateur()
             : OptionsDéfautLibp2pNode(),
         );
-        const appli = new Appli<
+        appli = new Appli<
           ServicesNécessairesLibp2p & {
             libp2p: ServiceLibp2p<ServicesLibp2pTest>;
           }
@@ -536,7 +537,7 @@ describe.only("Service Libp2p", function () {
       const libp2p = appli.services["libp2p"];
 
       // Ceci est nécessaire sur le navigateur pour que la node puisse découvrir sa propre adresse.
-      if (!(isNode || isElectronRenderer)) {
+      if (!(isNode || isElectronMain)) {
         await (await libp2p.libp2p()).dial(multiaddr(obtenirAdresseRelai()));
       }
 
