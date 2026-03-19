@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { CID } from "multiformats";
 import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "@/v2/nébuleuse/services/consts.js";
 import {
   AUCUN_DISPOSITIF,
@@ -12,7 +13,6 @@ import type { ÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
 import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { TraducsTexte } from "@/v2/types.js";
-import { CID } from "multiformats";
 
 describe.only("Profil", function () {
   let fermer: () => Promise<void>;
