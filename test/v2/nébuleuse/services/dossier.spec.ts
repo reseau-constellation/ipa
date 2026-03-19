@@ -124,6 +124,8 @@ describe.only("Dossier", function () {
     });
 
     const démarrage = appli2.démarrer();
+
+    await horloge.tickAsync(INTERVALE_VERROU * 1.5);
     await horloge.tickAsync(INTERVALE_VERROU * 1.5);
     await expect(démarrage).to.eventually.be.rejectedWith(
       `Le compte sur ${dossier} est déjà ouvert par un autre processus.\n${MESSAGE_ERREUR}`,
