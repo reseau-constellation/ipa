@@ -165,7 +165,7 @@ describe.only("Service Hélia", function () {
       expect(typeof idc).to.equal("string");
 
       const [idcRacine, nomFichier] = idc.split("/");
-      CID.parse(idcRacine);
+      expect(CID.parse(idcRacine) instanceof CID).to.be.true();
       expect(nomFichier).to.equal("un fichier.txt");
     });
 
