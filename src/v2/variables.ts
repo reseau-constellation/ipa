@@ -22,6 +22,7 @@ import type {
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type {
   BaseÉpingleFavoris,
+  ÉpingleFavorisAvecId,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
@@ -399,8 +400,7 @@ export class Variables extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleVariable = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idVariable &&
-            épingle.type === "variable";
+          return idObjet === idVariable && épingle.type === "variable";
         }) as ÉpingleFavorisAvecId<ContenuÉpingleVariable> | undefined;
         await f(épingleVariable?.épingle as ÉpingleVariable);
       },
@@ -417,10 +417,16 @@ export class Variables extends ObjetConstellation<
     épingle,
     f,
   }: {
-    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleVariable>;
+    épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<ÉpingleVariable>>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
-    await f(new Set(épingle.épingle.épingle.base ? [épingle.idObjet] : []));
+    await f(
+      new Set(
+        épingle.épingle?.épingle?.base && épingle.idObjet
+          ? [épingle.idObjet]
+          : [],
+      ),
+    );
 
     return faisRien;
   }
