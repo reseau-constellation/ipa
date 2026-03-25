@@ -531,7 +531,7 @@ export class Variables extends ObjetConstellation<
     const { variable, oublier } = await this.ouvrirVariable({
       idVariable,
     });
-    await variable.set(`noms/${langue}`, description);
+    await variable.set(`descriptions/${langue}`, description);
     await oublier();
   }
 
@@ -546,7 +546,7 @@ export class Variables extends ObjetConstellation<
     const { variable, oublier } = await this.ouvrirVariable({
       idVariable,
     });
-    await variable.del(`noms/${langue}`);
+    await variable.del(`descriptions/${langue}`);
     await oublier();
   }
 
