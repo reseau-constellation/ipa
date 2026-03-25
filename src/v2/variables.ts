@@ -219,6 +219,7 @@ export class Variables extends ObjetConstellation<
     if (épingler) await this.épingler({ idVariable });
 
     await variable.put("type", "variable");
+    await variable.put("statut", { statut: "active" });
     await variable.put("catégorie", standardiserCatégorieVariable(catégorie));
 
     await oublier();
