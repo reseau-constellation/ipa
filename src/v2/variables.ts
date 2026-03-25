@@ -648,7 +648,7 @@ export class Variables extends ObjetConstellation<
     idRègle = idRègle || uuidv4();
 
     const { variable, oublier } = await this.ouvrirVariable({ idVariable });
-    await variable.insert({ règles: { idRègle: règle } });
+    await variable.insert({ règles: { [idRègle]: règle } });
 
     await oublier();
 
