@@ -711,12 +711,14 @@ export class Variables extends ObjetConstellation<
       );
     };
 
+    const idRègleCatégorie = uuidv4();
+
     const oublierCatégorie = await this.suivreCatégorie({
       idVariable,
       f: async (catégorie) => {
         if (catégorie) {
           const règleCat: { [id: string]: RègleCatégorie } = {
-            [uuidv4()]: {
+            [idRègleCatégorie]: {
               type: "catégorie",
               détails: { catégorie },
             },
