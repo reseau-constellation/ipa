@@ -210,7 +210,7 @@ export class Variables extends ObjetConstellation<
     const { bd, oublier: oublierBd } = await compte.créerObjet({
       type: "nested",
     });
-    const idVariable = bd.address;
+    const idVariable = this.ajouterProtocole(bd.address);
     await oublierBd();
     const { variable, oublier } = await this.ouvrirVariable({ idVariable });
 
@@ -223,7 +223,7 @@ export class Variables extends ObjetConstellation<
     await variable.put("catégorie", standardiserCatégorieVariable(catégorie));
 
     await oublier();
-    return this.ajouterProtocole(idVariable);
+    return idVariable;
   }
 
   async ajouterÀMesVariables({
@@ -399,12 +399,10 @@ export class Variables extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleVariable = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === this.àIdOrbite(idVariable) &&
-            épingle.type === "variable"
-            ? épingle
-            : undefined;
-        }) as ÉpingleVariable | undefined;
-        await f(épingleVariable);
+          return idObjet === idVariable &&
+            épingle.type === "variable";
+        }) as ÉpingleFavorisAvecId<ContenuÉpingleVariable> | undefined;
+        await f(épingleVariable?.épingle as ÉpingleVariable);
       },
     });
   }
@@ -412,7 +410,7 @@ export class Variables extends ObjetConstellation<
   async désépingler({ idVariable }: { idVariable: string }): Promise<void> {
     const favoris = this.service("favoris");
 
-    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idVariable) });
+    await favoris.désépinglerFavori({ idObjet: idVariable });
   }
 
   async suivreRésolutionÉpingle({
