@@ -368,6 +368,7 @@ describe.only("tableaux", function () {
             f: siPasVide(),
           }),
         );
+
         const réf: ErreurColonne[] = [
           {
             type: "variableDédoublée",
@@ -669,6 +670,7 @@ describe.only("tableaux", function () {
             ),
           }),
         );
+
         const vals = {
           [idColNumérique]: undefined,
         };
@@ -706,6 +708,7 @@ describe.only("tableaux", function () {
             ),
           }),
         );
+
         const vals = {
           [idColNumérique]: 123,
         };
