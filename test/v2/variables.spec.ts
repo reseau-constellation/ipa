@@ -349,15 +349,17 @@ describe.only("Variables", function () {
           f: siPasVide(),
         }),
       );
-      const réf: RègleCatégorie = {
-        type: "catégorie",
-        détails: {
-          catégorie: {
-            type: "simple",
-            catégorie: "numérique",
+      const réf: RègleCatégorie[] = [
+        {
+          type: "catégorie",
+          détails: {
+            catégorie: {
+              type: "simple",
+              catégorie: "numérique",
+            },
           },
         },
-      };
+      ];
 
       expect(règles.map((r) => r.règle)).to.deep.equal(réf);
       idRègleCatégorie = règles.find((r) => r.règle.type === "catégorie")!.id;
