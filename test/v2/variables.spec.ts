@@ -62,7 +62,7 @@ describe.only("Variables", function () {
 
     it("accès", async () => {
       const permission = await obtenir(({ siDéfini }) =>
-        constl.compte.suivrePermission({
+        constl.variables.suivrePermission({
           idObjet: idVariable,
           f: siDéfini(),
         }),
