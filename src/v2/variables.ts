@@ -268,8 +268,6 @@ export class Variables extends ObjetConstellation<
       throw new Error("Catégorie manquante pour la variable originale.");
 
     const idNouvelleVariable = await this.créerVariable({ catégorie });
-    const { variable: nouvelleVariable, oublier: oublierNouvelleVariable } =
-      await this.ouvrirVariable({ idVariable: idNouvelleVariable });
 
     const noms = await variable.get("noms");
     if (noms)
@@ -286,7 +284,11 @@ export class Variables extends ObjetConstellation<
       });
 
     const unités = await variable.get("unités");
-    if (unités) await nouvelleVariable.put("unités", unités);
+    if (unités)
+      await this.sauvegarderUnités({
+        idVariable: idNouvelleVariable,
+        idUnité: unités,
+      });
 
     const règles = await variable.get("règles");
     if (règles) {
@@ -310,7 +312,6 @@ export class Variables extends ObjetConstellation<
     });
 
     await oublier();
-    await oublierNouvelleVariable();
 
     return idNouvelleVariable;
   }
