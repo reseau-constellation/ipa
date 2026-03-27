@@ -353,6 +353,7 @@ describe.only("tableaux", function () {
           idTableau,
           idVariable,
         });
+
         // Ajouter une autre colonne avec la même variable
         const idColonne2 = await constl.bds.tableaux.ajouterColonne({
           idStructure: idBd,
