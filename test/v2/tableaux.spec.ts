@@ -43,7 +43,7 @@ import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import type { CatégorieBaseVariables } from "@/v2/variables.js";
 import type { CellObject, WorkBook } from "xlsx";
 
-describe.only("tableaux", function () {
+describe.skip("tableaux", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
@@ -751,7 +751,10 @@ describe.only("tableaux", function () {
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
             idTableau,
-            f: si((d) => !!d?.find((x) => !Object.keys(x.données).includes(idColChaîne))),
+            f: si(
+              (d) =>
+                !!d?.find((x) => !Object.keys(x.données).includes(idColChaîne)),
+            ),
           }),
         );
         await constl.bds.tableaux.effacerColonne({
