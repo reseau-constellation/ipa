@@ -529,7 +529,9 @@ export class Tableaux {
       idTableau,
     });
 
-    await tableau.insert(`colonnes/${idColonne}`, { variable: idVariable });
+    if (idVariable)
+      await tableau.insert(`colonnes/${idColonne}`, { variable: idVariable });
+    else await tableau.del(`colonnes/${idColonne}/variable`);
 
     await oublier();
   }
@@ -726,7 +728,10 @@ export class Tableaux {
         await f(
           Object.values(tableau.colonnes || [])
             .map((c) => c?.variable)
-            .filter((v): v is string => !!v && variables.identifiantValide({identifiant: v})),
+            .filter(
+              (v): v is string =>
+                !!v && variables.identifiantValide({ identifiant: v }),
+            ),
         );
       },
     });
@@ -1139,7 +1144,7 @@ export class Tableaux {
             déjàVue.add(idVariable);
           }
         }
-        await f(erreurs)
+        await f(erreurs);
       },
     });
   }
