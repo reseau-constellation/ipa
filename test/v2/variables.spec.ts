@@ -57,7 +57,9 @@ describe.only("Variables", function () {
       idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      expect(constl.variables.identifiantValide(idVariable)).to.be.true();
+      expect(
+        await constl.variables.identifiantValide({ identifiant: idVariable }),
+      ).to.be.true();
     });
 
     it("accès", async () => {
@@ -781,17 +783,24 @@ describe.only("Variables", function () {
   describe("auteurs", function () {
     let idVariable: string;
 
+    const accepté = (idCompte: string) => (auteurs?: InfoAuteur[]) =>
+      !!auteurs?.find((a) => a.idCompte === idCompte && a.accepté);
+    let compte1Accepté: (auteurs?: InfoAuteur[]) => boolean;
+    let compte2Accepté: (auteurs?: InfoAuteur[]) => boolean;
+
     before(async () => {
       idVariable = await constl.variables.créerVariable({
         catégorie: "géojson",
       });
+      compte1Accepté = accepté(idsComptes[0]);
+      compte2Accepté = accepté(idsComptes[1]);
     });
 
     it("compte créateur autorisé pour commencer", async () => {
-      const auteurs = await obtenir<InfoAuteur[]>(({ siPasVide }) =>
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.variables.suivreAuteurs({
           idVariable,
-          f: siPasVide(),
+          f: si(compte1Accepté),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -813,7 +822,7 @@ describe.only("Variables", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.variables.suivreAuteurs({
           idVariable,
-          f: si((x) => !!x && x.length > 1),
+          f: si((x) => !!x && x.length > 1 && compte1Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -837,7 +846,7 @@ describe.only("Variables", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.variables.suivreAuteurs({
           idVariable,
-          f: si((x) => !!x?.find((a) => a.idCompte === idsComptes[1])?.accepté),
+          f: si((x) => compte1Accepté(x) && compte2Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -857,7 +866,7 @@ describe.only("Variables", function () {
 
     it("modification par le nouvel auteur", async () => {
       await obtenir(({ siDéfini }) =>
-        constls[1].compte.suivrePermission({
+        constls[1].variables.suivrePermission({
           idObjet: idVariable,
           f: siDéfini(),
         }),
@@ -887,8 +896,12 @@ describe.only("Variables", function () {
           idVariable,
           f: si(
             (x) =>
-              !!x &&
-              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+              !!(
+                x?.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+                MODÉRATRICE
+              ) &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
           ),
         }),
       );
@@ -919,7 +932,12 @@ describe.only("Variables", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.variables.suivreAuteurs({
           idVariable,
-          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne)),
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === compteHorsLigne) &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -931,7 +949,7 @@ describe.only("Variables", function () {
         {
           idCompte: idsComptes[1],
           accepté: true,
-          rôle: MEMBRE,
+          rôle: MODÉRATRICE,
         },
         {
           idCompte: compteHorsLigne,
