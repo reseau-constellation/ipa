@@ -17,7 +17,7 @@ import type { InfoAuteur, PartielRécursif } from "@/v2/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { RelationImmédiate } from "@/v2/nébuleuse/services/réseau.js";
+import type { RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
 describe.only("Objets", function () {
