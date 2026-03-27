@@ -187,7 +187,8 @@ export const ajouterPréfixes = (id: string, préfix: string): string => {
 };
 
 export const enleverPréfixes = (id: string): string => {
-  return id.replace(/\/nébuleuse\/[^/]+/, "");
+  const composantes = id.split("/");
+  return "/" + composantes.slice(composantes.indexOf("orbitdb")).join("/");
 };
 
 export const enleverPréfixesEtOrbite = (id: string): string => {
