@@ -15,7 +15,7 @@ export const ORIGINALE = Symbol("orbite originale");
 
 export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   orbite: OrbitDB<L>,
-  lorsquErreur?: (e: Error) => void,
+  lorsquErreur: (e: Error) => void = console.log,
 ) => {
   if (!verrous.has(orbite.identity.id))
     verrous.set(orbite.identity.id, new Semaphore());
@@ -60,8 +60,8 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
             if (!requêtesOrbite.has(adresse))
               requêtesOrbite.set(adresse, new Set());
 
-            if (lorsquErreur) {
-              bd.events.on('error', lorsquErreur)
+            if (!cacheBdsOrbite.has(adresse) && lorsquErreur) {
+              bd.events.on("error", lorsquErreur);
             }
             const résultat = mandatBd(
               bd,
