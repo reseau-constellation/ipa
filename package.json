@@ -129,7 +129,7 @@
     "@noble/hashes": "^2.0.1",
     "@orbitdb/core": "^3.0.2",
     "@orbitdb/feed-db": "^1.3.0",
-    "@orbitdb/nested-db": "^2.0.4",
+    "@orbitdb/nested-db": "^2.0.5",
     "@orbitdb/ordered-keyvalue-db": "^1.3.5",
     "@orbitdb/set-db": "^2.0.1",
     "ajv": "^8.17.1",
@@ -199,7 +199,6 @@
       "@orbitdb/nested-db": "patches/@orbitdb__nested-db.patch",
       "@orbitdb/set-db": "patches/@orbitdb__set-db.patch",
       "@orbitdb/feed-db": "patches/@orbitdb__feed-db.patch",
-      "@orbitdb/nested-db@2.0.4": "patches/@orbitdb__nested-db@2.0.4.patch",
       "@orbitdb/ordered-keyvalue-db": "patches/@orbitdb__ordered-keyvalue-db.patch"
     }
   }

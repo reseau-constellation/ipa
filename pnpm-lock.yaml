@@ -23,9 +23,6 @@ patchedDependencies:
   '@orbitdb/nested-db':
     hash: 04a2149ba1f088407d9c537b7b6cce1c404f78114c0a29f506e843b154f55b6e
     path: patches/@orbitdb__nested-db.patch
-  '@orbitdb/nested-db@2.0.4':
-    hash: b14971941a824cc42babb14a091b0aaedf8abd6cb48d83f894b46c357562ee05
-    path: patches/@orbitdb__nested-db@2.0.4.patch
   '@orbitdb/ordered-keyvalue-db':
     hash: 893e8270d0b561f8bb20ca3501aa330542ab5a6522b3c32156d1cae481362c13
     path: patches/@orbitdb__ordered-keyvalue-db.patch
@@ -134,8 +131,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/nested-db':
-        specifier: ^2.0.4
-        version: 2.0.4(patch_hash=b14971941a824cc42babb14a091b0aaedf8abd6cb48d83f894b46c357562ee05)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+        specifier: ^2.0.5
+        version: 2.0.5(patch_hash=04a2149ba1f088407d9c537b7b6cce1c404f78114c0a29f506e843b154f55b6e)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/ordered-keyvalue-db':
         specifier: ^1.3.5
         version: 1.3.5(patch_hash=893e8270d0b561f8bb20ca3501aa330542ab5a6522b3c32156d1cae481362c13)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
@@ -619,8 +616,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  '@babel/parser@7.29.0':
-    resolution: {integrity: sha512-IyDgFV5GeDUVX4YdF/3CPULtVGSXXMLh1xVIgdCgxApktqnQV0r7/8Nqthg+8YLGaAtdyIlo2qIdZrbCv4+7ww==}
+  '@babel/parser@7.29.2':
+    resolution: {integrity: sha512-4GgRzy/+fsBa72/RZVJmGKPmZu9Byn8o4MoLpmNe1m8ZfYnz5emHLQz3U4gLud6Zwl0RZIcgiLD7Uq7ySFuDLA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -930,8 +927,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@babel/runtime@7.28.6':
-    resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
+  '@babel/runtime@7.29.2':
+    resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -2019,8 +2016,8 @@ packages:
   '@orbitdb/nested-db@1.3.6':
     resolution: {integrity: sha512-bgCtGXNTuioKy7reJ1+CoBoFzmBqBygKiSu8l5uMVBn/CV3UPUPIRyr7i66iTfkTnzlkenQdXfHjys6St7rU2A==}
 
-  '@orbitdb/nested-db@2.0.4':
-    resolution: {integrity: sha512-czP2DPh/AFcodCOKHhqH7yvQ1iFfd0Pbl4h84UYjB4WKTAPWaTODo3LrBg7TDDptu9ALZcjSVye6QU3zqeDPhQ==}
+  '@orbitdb/nested-db@2.0.5':
+    resolution: {integrity: sha512-mdCJ5Y6sINqv+lYirDnJ5WOTQ/KhRsiFNVVPWLTfotlgRcJ/JE9bWCmlWmM2+UtCNFbw69rBWEQ1lGKuBet8CQ==}
 
   '@orbitdb/ordered-keyvalue-db@1.3.5':
     resolution: {integrity: sha512-Sq2V6BVwcaK0AUACQaeP4o6y/tjGPieT+k3oto8wMvPi1EkSxWvEe2CjIlCmwb9WYIDlfa00N7PEtW8DXtm7cQ==}
@@ -7073,6 +7070,10 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
 
+  picomatch@2.3.2:
+    resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
+    engines: {node: '>=8.6'}
+
   picomatch@4.0.3:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
@@ -8148,8 +8149,8 @@ packages:
     resolution: {integrity: sha512-7jDLIdD2Zp0bDe5r3D2qtkd1QOCacylBuL7oa4udvN6v2pqr4+LcCr67C8DR1zkpaZ8XosF5m1yQSabKAW6f2g==}
     engines: {node: '>=14.16'}
 
-  terser@5.46.0:
-    resolution: {integrity: sha512-jTwoImyr/QbOWFFso3YoU3ik0jBBDJ6JTOQiy/J2YxVJdZCc+5u7skhNwiOR3FQIygFqVUPHl7qbbxtjW2K3Qg==}
+  terser@5.46.1:
+    resolution: {integrity: sha512-vzCjQO/rgUuK9sf8VJZvjqiqiHFaZLnOiimmUuOKODxWL8mm/xua7viT7aqX7dgPY60otQjUotzFMmCB4VdmqQ==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -8859,8 +8860,8 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
-  yaml@2.8.2:
-    resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
+  yaml@2.8.3:
+    resolution: {integrity: sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
@@ -9007,7 +9008,7 @@ snapshots:
 
   '@babel/generator@7.29.1':
     dependencies:
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       '@babel/types': 7.29.0
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
@@ -9141,7 +9142,7 @@ snapshots:
     dependencies:
       '@babel/types': 7.28.5
 
-  '@babel/parser@7.29.0':
+  '@babel/parser@7.29.2':
     dependencies:
       '@babel/types': 7.29.0
 
@@ -9468,7 +9469,7 @@ snapshots:
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.5)
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/runtime@7.28.6': {}
+  '@babel/runtime@7.29.2': {}
 
   '@babel/template@7.27.2':
     dependencies:
@@ -9479,7 +9480,7 @@ snapshots:
   '@babel/template@7.28.6':
     dependencies:
       '@babel/code-frame': 7.29.0
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       '@babel/types': 7.29.0
 
   '@babel/traverse@7.28.5':
@@ -9499,7 +9500,7 @@ snapshots:
       '@babel/code-frame': 7.29.0
       '@babel/generator': 7.29.1
       '@babel/helper-globals': 7.28.0
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       '@babel/template': 7.28.6
       '@babel/types': 7.29.0
       debug: 4.4.3(supports-color@8.1.1)
@@ -9588,7 +9589,7 @@ snapshots:
       '@orbitdb/core': 3.0.2(patch_hash=58b4346c0e9a89fc4cc802d5ccbea17a8312573874d53706d0fa400ad22f3ba6)
       '@orbitdb/core-types': 1.2.1(patch_hash=3ee0c93666d6beca12538cd8544368bd9b55f6606812915851f642e8dd3d31d9)
       '@orbitdb/feed-db': 1.3.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
-      '@orbitdb/nested-db': 2.0.4(patch_hash=b14971941a824cc42babb14a091b0aaedf8abd6cb48d83f894b46c357562ee05)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
+      '@orbitdb/nested-db': 2.0.5(patch_hash=04a2149ba1f088407d9c537b7b6cce1c404f78114c0a29f506e843b154f55b6e)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/ordered-keyvalue-db': 1.3.5(patch_hash=893e8270d0b561f8bb20ca3501aa330542ab5a6522b3c32156d1cae481362c13)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       '@orbitdb/set-db': 2.0.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
       ajv: 8.17.1
@@ -11211,7 +11212,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@orbitdb/nested-db@2.0.4(patch_hash=b14971941a824cc42babb14a091b0aaedf8abd6cb48d83f894b46c357562ee05)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
+  '@orbitdb/nested-db@2.0.5(patch_hash=04a2149ba1f088407d9c537b7b6cce1c404f78114c0a29f506e843b154f55b6e)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))':
     dependencies:
       '@orbitdb/core': 3.0.2(patch_hash=58b4346c0e9a89fc4cc802d5ccbea17a8312573874d53706d0fa400ad22f3ba6)
       '@orbitdb/ordered-keyvalue-db': 1.3.5(patch_hash=893e8270d0b561f8bb20ca3501aa330542ab5a6522b3c32156d1cae481362c13)(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
@@ -11379,7 +11380,7 @@ snapshots:
   '@react-native/codegen@0.82.1(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       glob: 7.2.3
       hermes-parser: 0.32.0
       invariant: 2.2.4
@@ -11629,7 +11630,7 @@ snapshots:
 
   '@types/babel__core@7.20.5':
     dependencies:
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       '@babel/types': 7.29.0
       '@types/babel__generator': 7.27.0
       '@types/babel__template': 7.4.4
@@ -11641,7 +11642,7 @@ snapshots:
 
   '@types/babel__template@7.4.4':
     dependencies:
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       '@babel/types': 7.29.0
 
   '@types/babel__traverse@7.28.0':
@@ -12301,7 +12302,7 @@ snapshots:
   anymatch@3.1.3:
     dependencies:
       normalize-path: 3.0.0
-      picomatch: 2.3.1
+      picomatch: 2.3.2
 
   append-transform@2.0.0:
     dependencies:
@@ -15628,7 +15629,7 @@ snapshots:
   istanbul-lib-instrument@5.2.1:
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -15896,7 +15897,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
-      picomatch: 2.3.1
+      picomatch: 2.3.2
 
   jest-validate@29.7.0:
     dependencies:
@@ -16536,7 +16537,7 @@ snapshots:
       metro-cache: 0.83.5
       metro-core: 0.83.5
       metro-runtime: 0.83.5
-      yaml: 2.8.2
+      yaml: 2.8.3
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -16565,7 +16566,7 @@ snapshots:
   metro-minify-terser@0.83.5:
     dependencies:
       flow-enums-runtime: 0.0.6
-      terser: 5.46.0
+      terser: 5.46.1
 
   metro-react-native-babel-preset@0.64.0(@babel/core@7.28.5):
     dependencies:
@@ -16617,7 +16618,7 @@ snapshots:
 
   metro-runtime@0.83.5:
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       flow-enums-runtime: 0.0.6
 
   metro-source-map@0.83.5:
@@ -16660,7 +16661,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.5
       '@babel/generator': 7.29.1
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       '@babel/types': 7.29.0
       flow-enums-runtime: 0.0.6
       metro: 0.83.5
@@ -16681,7 +16682,7 @@ snapshots:
       '@babel/code-frame': 7.29.0
       '@babel/core': 7.28.5
       '@babel/generator': 7.29.1
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.2
       '@babel/template': 7.28.6
       '@babel/traverse': 7.29.0
       '@babel/types': 7.29.0
@@ -17707,6 +17708,8 @@ snapshots:
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
+
+  picomatch@2.3.2: {}
 
   picomatch@4.0.3: {}
 
@@ -19043,7 +19046,7 @@ snapshots:
       type-fest: 2.19.0
       unique-string: 3.0.0
 
-  terser@5.46.0:
+  terser@5.46.1:
     dependencies:
       '@jridgewell/source-map': 0.3.11
       acorn: 8.16.0
@@ -19764,7 +19767,7 @@ snapshots:
 
   yaml@2.8.1: {}
 
-  yaml@2.8.2: {}
+  yaml@2.8.3: {}
 
   yargs-parser@18.1.3:
     dependencies:
