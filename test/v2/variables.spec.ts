@@ -542,10 +542,10 @@ describe.only("Variables", function () {
         idVariable,
         idUnité: "mm",
       });
-      const unités = await obtenir(({ siPasNul }) =>
+      const unités = await obtenir(({ siDéfini }) =>
         constl.variables.suivreUnités({
           idVariable,
-          f: siPasNul(),
+          f: siDéfini(),
         }),
       );
       expect(unités).to.equal("mm");
