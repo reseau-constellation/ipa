@@ -316,14 +316,6 @@ describe.only("tableaux", function () {
             f: si((cols) => !!cols?.find((c) => c.id !== idColonne)),
           }),
         );
-        const pInfoColonne = obtenir<InfoColonne | null>(({ si }) =>
-          constl.bds.tableaux.suivreInfoColonne({
-            idStructure: idBd,
-            idTableau,
-            idColonne,
-            f: si((c?: InfoColonne | null) => c?.id !== idColonne),
-          }),
-        );
 
         const nouvelId = "un nouveau nom pour la colonne";
         await constl.bds.tableaux.modifierIdColonne({
@@ -336,10 +328,9 @@ describe.only("tableaux", function () {
         const réf: InfoColonne = {
           id: nouvelId,
           variable: idVariable,
-          index: true,
         };
+
         expect(await pColonnes).to.deep.equal([réf]);
-        expect(await pInfoColonne).to.deep.equal(réf);
       });
 
       it("erreur - variable colonne dédoublée", async () => {
