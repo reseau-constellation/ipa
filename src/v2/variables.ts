@@ -777,6 +777,7 @@ export class Variables extends ObjetConstellation<
   }
 
   // Qualité
+
   @cacheSuivi
   async suivreScoreQualité({
     idVariable,
