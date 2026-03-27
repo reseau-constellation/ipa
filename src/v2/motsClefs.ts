@@ -123,7 +123,7 @@ export class MotsClefs extends ObjetConstellation<
     const { bd, oublier: oublierBd } = await compte.créerObjet({
       type: "nested",
     });
-    const idMotClef = bd.address;
+    const idMotClef = this.ajouterProtocole(bd.address);
     await oublierBd();
     const { motClef, oublier } = await this.ouvrirMotClef({ idMotClef });
 
@@ -137,7 +137,7 @@ export class MotsClefs extends ObjetConstellation<
     });
 
     await oublier();
-    return this.ajouterProtocole(idMotClef);
+    return idMotClef;
   }
 
   async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
