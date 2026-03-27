@@ -726,7 +726,7 @@ export class Tableaux {
         await f(
           Object.values(tableau.colonnes || [])
             .map((c) => c?.variable)
-            .filter((v): v is string => !!v && variables.identifiantValide(v)),
+            .filter((v): v is string => !!v && variables.identifiantValide({identifiant: v})),
         );
       },
     });
