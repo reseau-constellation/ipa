@@ -8,6 +8,7 @@ import { ObjetConstellation, schémaServiceObjet } from "@/v2/objets.js";
 import { CONFIANCE_DE_COAUTEUR } from "@/v2/nébuleuse/services/consts.js";
 import { obtenir } from "./utils.js";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
+import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import type {
   ServicesNécessairesObjet,
   StructureServiceObjet,
