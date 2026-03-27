@@ -617,21 +617,19 @@ export class Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    f: Suivi<InfoColonne[] | undefined>;
+    f: Suivi<InfoColonne[]>;
   }): Promise<Oublier> {
     return await this.suivreTableau({
       idStructure,
       idTableau,
       f: async (tableau) => {
-        const colonnes = tableau.colonnes;
-        if (colonnes)
-          await f(
-            Object.entries(colonnes).map(([id, info]) => ({
-              id,
-              ...info,
-            })),
-          );
-        else await f(undefined);
+        const colonnes = tableau.colonnes || [];
+        await f(
+          Object.entries(colonnes).map(([id, info]) => ({
+            id,
+            ...info,
+          })),
+        );
       },
     });
   }
