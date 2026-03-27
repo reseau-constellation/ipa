@@ -264,10 +264,6 @@ describe.only("tableaux", function () {
       });
 
       it("modification index colonne", async () => {
-        const idVariable = await constl.variables.créerVariable({
-          catégorie: "horoDatage",
-        });
-
         const pColonnes = obtenir<InfoColonne[]>(({ si }) =>
           constl.bds.tableaux.suivreColonnes({
             idStructure: idBd,
@@ -298,7 +294,6 @@ describe.only("tableaux", function () {
 
         const réf: InfoColonne = {
           id: idColonne,
-          variable: idVariable,
           index: true,
         };
         expect(await pColonnes).to.deep.equal([réf]);
