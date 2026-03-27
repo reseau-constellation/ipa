@@ -162,23 +162,23 @@ describe.only("Objets", function () {
     });
 
     it("identifiant valide", async () => {
-      const valide = nébuleuse.services.objetTest.identifiantValide(
-        `/constl/${protocole}/orbitdb/${racine}`,
-      );
+      const valide = nébuleuse.services.objetTest.identifiantValide({
+        identifiant: `/constl/${protocole}/orbitdb/${racine}`,
+      });
       expect(valide).to.be.true();
     });
 
     it("identifiant valide - sans protocole", async () => {
-      const valide = nébuleuse.services.objetTest.identifiantValide(
-        `/orbitdb/${racine}`,
-      );
+      const valide = nébuleuse.services.objetTest.identifiantValide({
+        identifiant: `/orbitdb/${racine}`,
+      });
       expect(valide).to.be.false();
     });
 
     it("identifiant valide - sans orbite", async () => {
-      const valide = nébuleuse.services.objetTest.identifiantValide(
-        `${racine}`,
-      );
+      const valide = nébuleuse.services.objetTest.identifiantValide({
+        identifiant: `${racine}`,
+      });
       expect(valide).to.be.false();
     });
   });
