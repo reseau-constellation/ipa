@@ -80,9 +80,9 @@ describe.only("Variables", function () {
     });
 
     it("détectée sur un autre compte", async () => {
-      const sesVariables = await obtenir<string[]>(({ siDéfini }) =>
+      const sesVariables = await obtenir<string[]>(({ siPasVide }) =>
         constls[1].variables.suivreVariables({
-          f: siDéfini(),
+          f: siPasVide(),
           idCompte: idsComptes[0],
         }),
       );
