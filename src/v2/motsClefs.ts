@@ -281,12 +281,11 @@ export class MotsClefs extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleMotClef = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === this.àIdOrbite(idMotClef) &&
-            épingle.type === "mot-clef"
+          return idObjet === idMotClef && épingle.type === "mot-clef"
             ? épingle
             : undefined;
-        }) as ÉpingleMotClef | undefined;
-        await f(épingleMotClef);
+        }) as ÉpingleFavorisAvecId<ContenuÉpingleMotClef> | undefined;
+        await f(épingleMotClef?.épingle as ÉpingleMotClef);
       },
     });
   }
@@ -294,17 +293,23 @@ export class MotsClefs extends ObjetConstellation<
   async désépingler({ idMotClef }: { idMotClef: string }): Promise<void> {
     const favoris = this.service("favoris");
 
-    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idMotClef) });
+    await favoris.désépinglerFavori({ idObjet: idMotClef });
   }
 
   async suivreRésolutionÉpingle({
     épingle,
     f,
   }: {
-    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleMotClef>;
+    épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<ÉpingleMotClef>>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
-    await f(new Set(épingle.épingle.épingle.base ? [épingle.idObjet] : []));
+    await f(
+      new Set(
+        épingle.épingle?.épingle?.base && épingle.idObjet
+          ? [épingle.idObjet]
+          : [],
+      ),
+    );
 
     return faisRien;
   }
