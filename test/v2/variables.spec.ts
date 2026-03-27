@@ -718,6 +718,20 @@ describe.only("Variables", function () {
       idVariable = await constl.variables.créerVariable({ catégorie: "image" });
     });
 
+    it("épinglée par défaut", async () => {
+      const épingle = await obtenir<ÉpingleVariable>(({ siDéfini }) =>
+        constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleVariable = {
+        type: "variable",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
     it("désépingler", async () => {
       await constl.variables.désépingler({ idVariable });
 
