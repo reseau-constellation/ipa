@@ -666,7 +666,10 @@ describe.only("tableaux", function () {
             idStructure: idBd,
             idTableau,
             f: si(
-              (d) => !!d?.find((x) => !Object.keys(x).includes(idColNumérique)),
+              (d) =>
+                !!d?.find(
+                  (x) => !Object.keys(x.données).includes(idColNumérique),
+                ),
             ),
           }),
         );
@@ -704,7 +707,10 @@ describe.only("tableaux", function () {
             idStructure: idBd,
             idTableau,
             f: si(
-              (d) => !!d?.find((x) => Object.keys(x).includes(idColNumérique)),
+              (d) =>
+                !!d?.find((x) =>
+                  Object.keys(x.données).includes(idColNumérique),
+                ),
             ),
           }),
         );
@@ -745,9 +751,7 @@ describe.only("tableaux", function () {
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
             idTableau,
-            f: si(
-              (d) => !!d?.find((x) => !Object.keys(x).includes(idColChaîne)),
-            ),
+            f: si((d) => !!d?.find((x) => !Object.keys(x.données).includes(idColChaîne))),
           }),
         );
         await constl.bds.tableaux.effacerColonne({
@@ -757,7 +761,7 @@ describe.only("tableaux", function () {
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
-          { id: idÉlément, données: { [idColNumérique]: 123 } },
+          { id: idÉlément, données: { [idColNumérique]: 123.456 } },
         ];
         expect(await pDonnées).to.deep.equal(réf);
       });
@@ -785,7 +789,8 @@ describe.only("tableaux", function () {
             idStructure: idBd,
             idTableau,
             f: si(
-              (d) => !!d?.find((x) => Object.keys(x).includes(idColChaîne)),
+              (d) =>
+                !!d?.find((x) => Object.keys(x.données).includes(idColChaîne)),
             ),
           }),
         );
@@ -798,7 +803,7 @@ describe.only("tableaux", function () {
         const réf: DonnéesRangéeTableauAvecId[] = [
           {
             id: idÉlément,
-            données: { [idColChaîne]: "வணக்கம்", [idColNumérique]: 123 },
+            données: { [idColChaîne]: "வணக்கம்", [idColNumérique]: 123.456 },
           },
         ];
         expect(await pDonnées).to.deep.equal(réf);
@@ -875,16 +880,18 @@ describe.only("tableaux", function () {
           })
         )[0];
 
-        const pDonnées = obtenir(({ si }) =>
+        const pDonnées = obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
             idTableau,
             clefsSelonVariables: true,
             f: si(
-              (x) =>
-                !!x &&
-                Object.keys(x).length === 2 &&
-                !Object.keys(x).includes(idColNumérique),
+              (d) =>
+                !!d?.find(
+                  (x) =>
+                    Object.keys(x.données).length === 2 &&
+                    !Object.keys(x.données).includes(idColNumérique),
+                ),
             ),
           }),
         );
