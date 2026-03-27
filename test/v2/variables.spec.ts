@@ -528,13 +528,13 @@ describe.only("Variables", function () {
     });
 
     it("aucune unité pour commencer", async () => {
-      const unités = await obtenir(({ siNul }) =>
+      const unités = await obtenir(({ siNonDéfini }) =>
         constl.variables.suivreUnités({
           idVariable,
-          f: siNul(),
+          f: siNonDéfini(),
         }),
       );
-      expect(unités).to.be.null();
+      expect(unités).to.be.undefined();
     });
 
     it("changer les unités", async () => {
