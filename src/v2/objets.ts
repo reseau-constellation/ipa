@@ -105,7 +105,7 @@ export abstract class ObjetConstellation<
     return id;
   }
 
-  identifiantValide(identifiant: string): boolean {
+  identifiantValide({ identifiant }: { identifiant: string }): boolean {
     return (
       identifiant.startsWith(`/constl/${this.clef}/orbitdb/`) &&
       isValidAddress(identifiant.replace(`/constl/${this.clef}`, ""))
@@ -253,6 +253,26 @@ export abstract class ObjetConstellation<
       idObjet: this.àIdOrbite(idObjet),
       identité,
       rôle,
+    });
+  }
+
+  async suivrePermission({
+    idObjet,
+    f,
+    idCompte,
+  }: {
+    idObjet: string;
+    f: Suivi<Rôle | undefined>;
+    idCompte?: string;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+    if (!this.identifiantValide({ identifiant: idObjet }))
+      throw new Error(`Identifiant non valide : ${idObjet}.`);
+
+    return await compte.suivrePermission({
+      idObjet: this.àIdOrbite(idObjet),
+      f,
+      idCompte,
     });
   }
 
