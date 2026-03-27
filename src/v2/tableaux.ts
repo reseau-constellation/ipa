@@ -1139,6 +1139,7 @@ export class Tableaux {
             déjàVue.add(idVariable);
           }
         }
+        await f(erreurs)
       },
     });
   }
