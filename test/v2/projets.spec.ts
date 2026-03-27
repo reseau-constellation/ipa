@@ -63,12 +63,14 @@ describe.skip("Projets", function () {
 
     it("création", async () => {
       idProjet = await constl.projets.créerProjet();
-      expect(constl.projets.identifiantValide(idProjet)).to.be.true();
+      expect(
+        await constl.projets.identifiantValide({ identifiant: idProjet }),
+      ).to.be.true();
     });
 
     it("accès", async () => {
       const permission = await obtenir(({ siDéfini }) =>
-        constl.compte.suivrePermission({
+        constl.projets.suivrePermission({
           idObjet: idProjet,
           f: siDéfini(),
         }),
@@ -353,7 +355,7 @@ describe.skip("Projets", function () {
       const métadonnées = await obtenir<Métadonnées>(({ si }) =>
         constl.projets.suivreMétadonnées({
           idProjet,
-          f: si((n) => !!n && !n["clef1"]),
+          f: si((n) => !!n && !Object.keys(n).includes("clef1")),
         }),
       );
       expect(métadonnées).to.deep.equal({ clef2: 123, clef3: "du texte" });
@@ -604,8 +606,37 @@ describe.skip("Projets", function () {
   });
 
   describe("épingles", function () {
+    let idProjet: string;
+
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+    });
+
+    it("épinglée par défaut", async () => {
+      const épingle = await obtenir<ÉpingleProjet>(({ siDéfini }) =>
+        constl.projets.suivreÉpingle({ idProjet, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleProjet = {
+        type: "projet",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          bds: {
+            type: "bd",
+            épingle: {
+              base: TOUS_DISPOSITIFS,
+              données: {
+                tableaux: TOUS_DISPOSITIFS,
+                fichiers: DISPOSITIFS_INSTALLÉS,
+              },
+            },
+          },
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
     it("désépingler projet", async () => {
-      const idProjet = await constl.projets.créerProjet();
       await constl.projets.désépingler({ idProjet });
 
       const épingle = await obtenir(({ siNonDéfini }) =>
@@ -900,7 +931,9 @@ describe.skip("Projets", function () {
       idProjetCopie = await constl.projets.copierProjet({
         idProjet: idProjetOrig,
       });
-      expect(constl.projets.identifiantValide(idProjetCopie)).to.be.true();
+      expect(
+        await constl.projets.identifiantValide({ identifiant: idProjetCopie }),
+      ).to.be.true();
     });
 
     it("les noms sont copiés", async () => {
@@ -1167,7 +1200,7 @@ describe.skip("Projets", function () {
 
     it("modification par le nouvel auteur", async () => {
       await obtenir(({ siDéfini }) =>
-        constls[1].compte.suivrePermission({
+        constls[1].projets.suivrePermission({
           idObjet: idProjet,
           f: siDéfini(),
         }),
