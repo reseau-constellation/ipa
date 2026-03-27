@@ -456,9 +456,17 @@ export class TableauxBds extends Tableaux {
       const { données, variablesColonnes } = info;
 
       if (données && variablesColonnes) {
+        // Enlever les données qui ne sont pas dans les colonnes
         const donnéesFinales: DonnéesRangéeTableauAvecId<T>[] = Object.entries(
           données,
         ).map(([id, élément]): DonnéesRangéeTableauAvecId<T> => {
+          élément = Object.fromEntries(
+            Object.entries(élément).filter(([col, _val]) =>
+              Object.keys(variablesColonnes).includes(col),
+            ),
+          ) as T;
+
+          // Si désiré, convertir les colonnes en nom de variable
           const données: T = clefsSelonVariables
             ? Object.keys(élément).reduce((acc: T, elem: string) => {
                 // Convertir au nom de la variable si souhaité
