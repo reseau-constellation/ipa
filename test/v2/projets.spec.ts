@@ -86,9 +86,9 @@ describe.skip("Projets", function () {
     });
 
     it("détectée sur un autre compte", async () => {
-      const sesProjets = await obtenir<string[]>(({ siDéfini }) =>
+      const sesProjets = await obtenir<string[]>(({ siPasVide }) =>
         constls[1].projets.suivreProjets({
-          f: siDéfini(),
+          f: siPasVide(),
           idCompte: idsComptes[0],
         }),
       );
