@@ -15,6 +15,7 @@ import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
 import type {
   BaseÉpingleFavoris,
+  ÉpingleFavorisAvecId,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
 import type {
