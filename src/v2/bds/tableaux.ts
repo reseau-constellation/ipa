@@ -20,11 +20,13 @@ import { cholqij } from "@/dates.js";
 import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import {
+  enleverPréfixes,
   idcEtFichierValide,
   justeDéfinis,
   obtIdIndex,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
+import { estContrôleurNébuleuse } from "../nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
 import type { CatégorieBaseVariables } from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
@@ -195,7 +197,11 @@ export class TableauxBds extends Tableaux {
     const orbite = this.service("orbite");
 
     const { bd: bdStructure, oublier: oublierStructure } =
-      await orbite.ouvrirBd({ id: idStructure });
+      await orbite.ouvrirBd({ id: enleverPréfixes(idStructure) });
+
+    if (!estContrôleurNébuleuse(bdStructure.access))
+      throw new Error(`Type d'accès ${bdStructure.access.type} non reconnu.`);
+
     const adresseAccèsStructure = bdStructure.access.address;
     await oublierStructure();
 
