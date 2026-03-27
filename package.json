@@ -129,7 +129,7 @@
     "@noble/hashes": "^2.0.1",
     "@orbitdb/core": "^3.0.2",
     "@orbitdb/feed-db": "^1.3.0",
-    "@orbitdb/nested-db": "^2.0.5",
+    "@orbitdb/nested-db": "^2.0.6",
     "@orbitdb/ordered-keyvalue-db": "^1.3.5",
     "@orbitdb/set-db": "^2.0.1",
     "ajv": "^8.17.1",
