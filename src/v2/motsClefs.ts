@@ -4,7 +4,7 @@ import {
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "./nébuleuse/services/favoris.js";
-import { schémaTraducsTexte } from "./schémas.js";
+import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheMotsClefs } from "./recherche/motsClefs.js";
 import { ObjetConstellation } from "./objets.js";
 import { définis } from "./utils.js";
@@ -17,7 +17,12 @@ import type {
   BaseÉpingleFavoris,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
-import type { InfoAuteur, PartielRécursif, TraducsTexte } from "./types.js";
+import type {
+  InfoAuteur,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "./types.js";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
@@ -28,6 +33,7 @@ export type StructureMotClef = {
   type: "mot-clef";
   noms: TraducsTexte;
   descriptions: TraducsTexte;
+  statut: StatutDonnées;
 };
 
 export const schémaMotClef: JSONSchemaType<PartielRécursif<StructureMotClef>> =
@@ -37,6 +43,7 @@ export const schémaMotClef: JSONSchemaType<PartielRécursif<StructureMotClef>> 
       type: { type: "string", nullable: true },
       noms: schémaTraducsTexte,
       descriptions: schémaTraducsTexte,
+      statut: schémaStatutDonnées,
     },
     required: [],
   };
@@ -124,7 +131,10 @@ export class MotsClefs extends ObjetConstellation<
 
     if (épingler) await this.épingler({ idMotClef });
 
-    await motClef.put("type", "mot-clef");
+    await motClef.insert({
+      type: "mot-clef",
+      statut: { statut: "active" },
+    });
 
     await oublier();
     return this.ajouterProtocole(idMotClef);
@@ -143,6 +153,14 @@ export class MotsClefs extends ObjetConstellation<
         idMotClef: idNouveauMotClef,
         descriptions,
       });
+
+    const statut = (await motClef.get("statut")) || {
+      statut: "active",
+    };
+    await this.sauvegarderStatut({
+      idMotClef: idNouveauMotClef,
+      statut,
+    });
 
     await oublier();
     return idNouveauMotClef;
@@ -422,6 +440,34 @@ export class MotsClefs extends ObjetConstellation<
     return await this.suivreObjet({
       idObjet: idMotClef,
       f: (motClef) => f(définis(motClef.descriptions || {})),
+    });
+  }
+
+  // Statut
+
+  async sauvegarderStatut({
+    idMotClef,
+    statut,
+  }: {
+    idMotClef: string;
+    statut: StatutDonnées;
+  }): Promise<void> {
+    const { motClef, oublier } = await this.ouvrirMotClef({ idMotClef });
+    await motClef.set("statut", statut);
+
+    await oublier();
+  }
+
+  async suivreStatut({
+    idMotClef,
+    f,
+  }: {
+    idMotClef: string;
+    f: Suivi<PartielRécursif<StatutDonnées> | undefined>;
+  }): Promise<Oublier> {
+    return await this.suivreObjet({
+      idObjet: idMotClef,
+      f: async (motClef) => await f(motClef.statut),
     });
   }
 
