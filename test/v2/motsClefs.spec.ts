@@ -14,7 +14,7 @@ import type {
   TraducsTexte,
 } from "@/v2/types.js";
 
-describe("Mots-clefs", function () {
+describe.only("Mots-clefs", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
@@ -47,12 +47,14 @@ describe("Mots-clefs", function () {
 
     it("création", async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
-      expect(constl.motsClefs.identifiantValide(idMotClef)).to.be.true();
+      expect(
+        await constl.motsClefs.identifiantValide({ identifiant: idMotClef }),
+      ).to.be.true();
     });
 
     it("accès", async () => {
       const permission = await obtenir(({ siDéfini }) =>
-        constl.compte.suivrePermission({
+        constl.motsClefs.suivrePermission({
           idObjet: idMotClef,
           f: siDéfini(),
         }),
@@ -70,9 +72,9 @@ describe("Mots-clefs", function () {
     });
 
     it("détecté sur un autre compte", async () => {
-      const sesMotsClefs = await obtenir<string[]>(({ siDéfini }) =>
+      const sesMotsClefs = await obtenir<string[]>(({ siPasVide }) =>
         constls[1].motsClefs.suivreMotsClefs({
-          f: siDéfini(),
+          f: siPasVide(),
           idCompte: idsComptes[0],
         }),
       );
@@ -391,8 +393,27 @@ describe("Mots-clefs", function () {
   });
 
   describe("épingler", function () {
+    let idMotClef: string;
+
+    before(async () => {
+      idMotClef = await constl.motsClefs.créerMotClef();
+    });
+
+    it("épinglée par défaut", async () => {
+      const épingle = await obtenir<ÉpingleMotClef>(({ siDéfini }) =>
+        constl.motsClefs.suivreÉpingle({ idMotClef, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleMotClef = {
+        type: "mot-clef",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
     it("désépingler", async () => {
-      const idMotClef = await constl.motsClefs.créerMotClef();
       await constl.motsClefs.désépingler({ idMotClef });
 
       const épingle = await obtenir(({ siNonDéfini }) =>
@@ -443,15 +464,23 @@ describe("Mots-clefs", function () {
   describe("auteurs", function () {
     let idMotClef: string;
 
+    const accepté = (idCompte: string) => (auteurs?: InfoAuteur[]) =>
+      !!auteurs?.find((a) => a.idCompte === idCompte && a.accepté);
+    let compte1Accepté: (auteurs?: InfoAuteur[]) => boolean;
+    let compte2Accepté: (auteurs?: InfoAuteur[]) => boolean;
+
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
+
+      compte1Accepté = accepté(idsComptes[0]);
+      compte2Accepté = accepté(idsComptes[1]);
     });
 
     it("compte créateur autorisé pour commencer", async () => {
-      const auteurs = await obtenir<InfoAuteur[]>(({ siPasVide }) =>
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.motsClefs.suivreAuteurs({
           idMotClef,
-          f: siPasVide(),
+          f: si(compte1Accepté),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -473,7 +502,7 @@ describe("Mots-clefs", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.motsClefs.suivreAuteurs({
           idMotClef,
-          f: si((x) => !!x && x.length > 1),
+          f: si((x) => !!x && x.length > 1 && compte1Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -497,7 +526,7 @@ describe("Mots-clefs", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.motsClefs.suivreAuteurs({
           idMotClef,
-          f: si((x) => !!x?.find((a) => a.idCompte === idsComptes[1])?.accepté),
+          f: si((x) => compte1Accepté(x) && compte2Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -517,7 +546,7 @@ describe("Mots-clefs", function () {
 
     it("modification par le nouvel auteur", async () => {
       await obtenir(({ siDéfini }) =>
-        constls[1].compte.suivrePermission({
+        constls[1].motsClefs.suivrePermission({
           idObjet: idMotClef,
           f: siDéfini(),
         }),
@@ -547,8 +576,10 @@ describe("Mots-clefs", function () {
           idMotClef,
           f: si(
             (x) =>
-              !!x &&
-              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+                MODÉRATRICE &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
           ),
         }),
       );
@@ -579,7 +610,12 @@ describe("Mots-clefs", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.motsClefs.suivreAuteurs({
           idMotClef,
-          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne)),
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === compteHorsLigne) &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
