@@ -12,7 +12,7 @@ import type {
   ServicesNécessairesObjet,
   StructureServiceObjet,
 } from "@/v2/objets.js";
-import type { Nébuleuse, ServiceCompte } from "@/v2/nébuleuse/index.js";
+import type { Nébuleuse } from "@/v2/nébuleuse/index.js";
 import type { InfoAuteur, PartielRécursif } from "@/v2/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
@@ -30,7 +30,6 @@ describe.only("Objets", function () {
     { objetTest: StructureServiceObjet },
     { objetTest: ServiceObjetTest }
   >;
-  let compte: ServiceCompte;
   let serviceObjetTest: ServiceObjetTest;
 
   let idsComptes: string[];
@@ -109,7 +108,6 @@ describe.only("Objets", function () {
       },
     }));
     nébuleuse = nébuleuses[0];
-    compte = nébuleuse.compte;
     serviceObjetTest = nébuleuse.services.objetTest;
 
     idsComptes = await Promise.all(
