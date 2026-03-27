@@ -577,8 +577,8 @@ export class Tableaux {
 
     const infoColonne = await tableau.get(`colonnes/${idColonne}`);
     if (infoColonne) {
-      await tableau.put(`colonnes/${nouvelId}`, infoColonne);
       await tableau.del(`colonnes/${idColonne}`);
+      await tableau.put(`colonnes/${nouvelId}`, infoColonne);
     }
 
     await oublier();
