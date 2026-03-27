@@ -333,12 +333,13 @@ describe.only("Objets", function () {
     });
 
     it("modification par le nouvel auteur", async () => {
-      await obtenir(({ siDéfini }) =>
-        nébuleuses[1].compte.suivrePermission({
-          idObjet: serviceObjetTest.àIdOrbite(idObjet),
+      const permission = await obtenir<Rôle | undefined>(({ siDéfini }) =>
+        nébuleuses[1].services.objetTest.suivrePermission({
+          idObjet,
           f: siDéfini(),
         }),
       );
+      expect(permission).to.equal(MEMBRE);
 
       // Modification de l'objet
       const { objet, oublier } =
