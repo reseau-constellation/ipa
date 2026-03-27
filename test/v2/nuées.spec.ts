@@ -73,12 +73,14 @@ describe("Nuées", function () {
 
     it("création", async () => {
       idNuée = await constl.nuées.créerNuée();
-      expect(constl.nuées.identifiantValide(idNuée)).to.be.true();
+      expect(
+        await constl.nuées.identifiantValide({ identifiant: idNuée }),
+      ).to.be.true();
     });
 
     it("accès", async () => {
       const permission = await obtenir(({ siDéfini }) =>
-        constl.compte.suivrePermission({
+        constl.nuées.suivrePermission({
           idObjet: idNuée,
           f: siDéfini(),
         }),
@@ -96,9 +98,9 @@ describe("Nuées", function () {
     });
 
     it("détectée sur un autre compte", async () => {
-      const sesNuées = await obtenir<string[]>(({ siDéfini }) =>
+      const sesNuées = await obtenir<string[]>(({ siPasVide }) =>
         constls[1].nuées.suivreNuées({
-          f: siDéfini(),
+          f: siPasVide(),
           idCompte: idsComptes[0],
         }),
       );
@@ -360,7 +362,7 @@ describe("Nuées", function () {
       const métadonnées = await obtenir<Métadonnées>(({ si }) =>
         constl.nuées.suivreMétadonnées({
           idNuée,
-          f: si((n) => !!n && !n["clef1"]),
+          f: si((n) => !!n && !Object.keys(n).includes("clef1")),
         }),
       );
       expect(métadonnées).to.deep.equal({ clef2: 123, clef3: "du texte" });
@@ -585,7 +587,7 @@ describe("Nuées", function () {
         });
 
         await obtenir(({ siDéfini }) =>
-          constl.compte.suivrePermission({
+          constl.nuées.suivrePermission({
             idObjet: idBd,
             idCompte: idsComptes[2],
             f: siDéfini(),
@@ -757,7 +759,7 @@ describe("Nuées", function () {
         });
 
         await obtenir(({ siDéfini }) =>
-          constl.compte.suivrePermission({
+          constl.nuées.suivrePermission({
             idObjet: idBd,
             idCompte: idsComptes[2],
             f: siDéfini(),
@@ -982,8 +984,37 @@ describe("Nuées", function () {
   });
 
   describe("épingles", function () {
+    let idNuée: string;
+
+    before(async () => {
+      idNuée = await constl.nuées.créerNuée();
+    });
+
+    it("épinglée par défaut", async () => {
+      const épingle = await obtenir<ÉpingleNuée>(({ siDéfini }) =>
+        constl.nuées.suivreÉpingle({ idNuée, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleNuée = {
+        type: "nuée",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          bds: {
+            type: "bd",
+            épingle: {
+              base: TOUS_DISPOSITIFS,
+              données: {
+                tableaux: TOUS_DISPOSITIFS,
+                fichiers: DISPOSITIFS_INSTALLÉS,
+              },
+            },
+          },
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
     it("désépingler nuée", async () => {
-      const idNuée = await constl.nuées.créerNuée();
       await constl.nuées.désépingler({ idNuée });
 
       const épingle = await obtenir(({ siNonDéfini }) =>
@@ -3811,7 +3842,7 @@ describe("Nuées", function () {
 
     it("modification par le nouvel auteur", async () => {
       await obtenir(({ siDéfini }) =>
-        constls[1].compte.suivrePermission({ idObjet: idNuée, f: siDéfini() }),
+        constls[1].nuées.suivrePermission({ idObjet: idNuée, f: siDéfini() }),
       );
 
       // Modification de la nuée
