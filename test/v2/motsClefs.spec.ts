@@ -7,7 +7,12 @@ import {
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { ÉpingleMotClef } from "@/v2/motsClefs.js";
 import type { Constellation } from "@/v2/index.js";
-import type { InfoAuteur, TraducsTexte } from "@/v2/types.js";
+import type {
+  InfoAuteur,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "@/v2/types.js";
 
 describe("Mots-clefs", function () {
   let fermer: () => Promise<void>;
@@ -341,6 +346,47 @@ describe("Mots-clefs", function () {
         த: "நீரியலுக்காக ஒரு சிறப்பு சொலு",
         हिं: "जल विज्ञान के आँकड़ों के लिये",
       });
+    });
+  });
+
+  describe("statut", function () {
+    let idMotClef: string;
+
+    it("statut actif par défaut", async () => {
+      idMotClef = await constl.motsClefs.créerMotClef();
+      const statut = await obtenir(({ siDéfini }) =>
+        constl.motsClefs.suivreStatut({
+          idMotClef,
+          f: siDéfini(),
+        }),
+      );
+
+      const réf: StatutDonnées = {
+        statut: "active",
+      };
+      expect(statut).to.deep.equal(réf);
+    });
+
+    it("changer statut", async () => {
+      const nouveauStatut: StatutDonnées = {
+        statut: "obsolète",
+        // Pour une vraie application, utiliser un identifiant valide, bien entendu.
+        idNouvelle: "/orbitdb/unAutreMotClef",
+      };
+      await constl.motsClefs.sauvegarderStatut({
+        idMotClef,
+        statut: nouveauStatut,
+      });
+
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | undefined>(
+        ({ si }) =>
+          constl.motsClefs.suivreStatut({
+            idMotClef,
+            f: si((x) => x?.statut !== "active"),
+          }),
+      );
+
+      expect(statut).to.deep.equal(nouveauStatut);
     });
   });
 
