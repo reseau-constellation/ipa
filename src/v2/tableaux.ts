@@ -1125,9 +1125,10 @@ export class Tableaux {
             if (idVariable) acc[idVariable] = (acc[idVariable] || 0) + 1;
             return acc;
           }, {});
+
         const déjàVue = new Set<string>();
         for (const [idVariable, n] of Object.entries(décompte)) {
-          if (n > 1 && déjàVue.has(idVariable)) {
+          if (n > 1 && !déjàVue.has(idVariable)) {
             const erreur: ErreurColonneVariableDédoublée = {
               type: "variableDédoublée",
               colonnes: colonnes
