@@ -35,7 +35,7 @@ import {
   serviceRéseau,
   type ServiceRéseau,
   type StructureRéseau,
-} from "./services/réseau.js";
+} from "./services/réseau/réseau.js";
 import { serviceProfil } from "./services/profil.js";
 import { serviceÉpingles, type ServiceÉpingles } from "./services/épingles.js";
 import { schémaServiceFavoris, serviceFavoris } from "./services/favoris.js";

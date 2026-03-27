@@ -14,7 +14,7 @@ import {
 } from "@/v2/utils.js";
 import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
-import type { ServiceRéseau } from "./réseau.js";
+import type { ServiceRéseau } from "./réseau/réseau.js";
 import type { AccesseurService } from "@/v2/recherche/types.js";
 import type { ServicesNécessairesRechercheProfils } from "@/v2/recherche/fonctions/profils.js";
 import type {

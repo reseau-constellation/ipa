@@ -10,21 +10,21 @@ import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
 } from "uint8arrays";
-import { cacheRechercheParProfondeur, cacheSuivi } from "../cache.js";
+import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.js";
 import {
   PROTOCOLE_NÉBULEUSE,
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
   FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
-} from "./consts.js";
-import { ServiceDonnéesAppli } from "./services.js";
-import { MODÉRATRICE, estContrôleurNébuleuse } from "./compte/accès/index.js";
-import { appelerLorsque } from "./utils.js";
-import type { ServicesNécessairesDonnées } from "./services.js";
+} from "../consts.js";
+import { ServiceDonnéesAppli } from "../services.js";
+import { MODÉRATRICE, estContrôleurNébuleuse } from "../compte/accès/index.js";
+import { appelerLorsque } from "../utils.js";
+import type { ServicesNécessairesDonnées } from "../services.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
-import type { Oublier, RetourRechercheProfondeur, Suivi } from "../types.js";
+import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 
 // Types connexions
 
@@ -114,10 +114,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         "stockage",
         "journal",
       ],
-      options: {
-        ...options,
-        schéma: schémaRéseau,
-      },
+      options,
     });
 
     this.bloquésPrivé = new Set();
@@ -218,10 +215,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     }) => Promise<Oublier>;
   }) {
     this.résolutionsConfiance.set(clef, résolution);
-  }
-
-  async x() {
-    await this.suivreComptes({});
   }
 
   // Suivi connexions
@@ -913,7 +906,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   async demanderEtPuisRejoindreCompte({ idCompte }): Promise<void> {}
 
-  async inviterÀRejoidreCompte({});
+  async inviterÀRejoidreCompte({}) {}
 
   // Réseautage
 }

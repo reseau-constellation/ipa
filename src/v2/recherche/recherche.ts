@@ -23,7 +23,7 @@ import type {
 } from "./types.js";
 import type { InfoAuteur } from "../types.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/compte.js";
-import type { ServiceRéseau } from "../nébuleuse/services/réseau.js";
+import type { ServiceRéseau } from "../nébuleuse/services/réseau/réseau.js";
 import type { ServiceFavoris } from "../nébuleuse/services/favoris.js";
 
 export type ServicesNécessairesRecherche = ServicesNécessairesCompte & {

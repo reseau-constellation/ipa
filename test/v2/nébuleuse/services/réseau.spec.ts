@@ -13,7 +13,7 @@ import type {
   ConnexionDispositif,
   ConnexionLibp2p,
   RelationImmédiate,
-} from "@/v2/nébuleuse/services/réseau.js";
+} from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 
@@ -524,6 +524,10 @@ describe("Réseau", function () {
     it("relations immédiates");
     it("relations réseau");
     it("comptes par profondeur");
+  });
+
+  describe("connexion", function () {
+    it("");
   });
 
   describe("reconnexion après réouverture", function () {});

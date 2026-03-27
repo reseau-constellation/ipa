@@ -9,7 +9,7 @@ import type {
 } from "./compte/compte.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
 import type { ServiceFavoris } from "./favoris.js";
-import type { ServiceRéseau } from "./réseau.js";
+import type { ServiceRéseau } from "./réseau/réseau.js";
 
 export type StructureProtocole = {
   string: null;

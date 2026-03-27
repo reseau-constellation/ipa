@@ -14,7 +14,7 @@ import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   RelationImmédiate,
   ServiceRéseau,
-} from "./nébuleuse/services/réseau.js";
+} from "./nébuleuse/services/réseau/réseau.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { InfoAuteur, PartielRécursif } from "./types.js";
