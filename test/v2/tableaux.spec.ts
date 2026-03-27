@@ -308,6 +308,7 @@ describe.only("tableaux", function () {
         const idColonne = await constl.bds.tableaux.ajouterColonne({
           idStructure: idBd,
           idTableau,
+          idVariable,
         });
         const pColonnes = obtenir<InfoColonne[]>(({ si }) =>
           constl.bds.tableaux.suivreColonnes({
