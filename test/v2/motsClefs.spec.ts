@@ -373,7 +373,7 @@ describe.only("Mots-clefs", function () {
       const nouveauStatut: StatutDonnées = {
         statut: "obsolète",
         // Pour une vraie application, utiliser un identifiant valide, bien entendu.
-        idNouvelle: "/orbitdb/unAutreMotClef",
+        idNouvelle: "/constl/motClef/orbitdb/unAutreMotClef",
       };
       await constl.motsClefs.sauvegarderStatut({
         idMotClef,

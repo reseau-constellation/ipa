@@ -578,7 +578,7 @@ describe.only("Variables", function () {
       const nouveauStatut: StatutDonnées = {
         statut: "obsolète",
         // Pour une vraie application, utiliser un identifiant valide, bien entendu.
-        idNouvelle: "/orbitdb/uneAutreVariable",
+        idNouvelle: "/constl/variable/orbitdb/uneAutreVariable",
       };
       await constl.variables.sauvegarderStatut({
         idVariable,

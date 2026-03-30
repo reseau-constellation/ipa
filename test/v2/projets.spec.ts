@@ -430,7 +430,7 @@ describe.skip("Projets", function () {
       const nouveauStatut: StatutDonnées = {
         statut: "obsolète",
         // Pour une vraie application, utiliser un identifiant valide, bien entendu.
-        idNouvelle: "/orbitdb/uneAutreBaseDeDonnées",
+        idNouvelle: "constl/projet/orbitdb/unAutreProjet",
       };
       await constl.projets.sauvegarderStatut({
         idProjet,
@@ -1291,7 +1291,7 @@ describe.skip("Projets", function () {
 
     const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n";
     const idBdIndisponible =
-      "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      "/constl/bd/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
     before(async () => {
       const octets = await obtRessourceTest({
