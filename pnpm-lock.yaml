@@ -199,6 +199,9 @@ importers:
       genversion:
         specifier: ^3.2.0
         version: 3.2.0
+      geojson-validation:
+        specifier: ^1.0.2
+        version: 1.0.2
       helia:
         specifier: ^5.5.1
         version: 5.5.1(react-native@0.82.1(@babel/core@7.28.5)(react@19.2.0))
@@ -302,6 +305,9 @@ importers:
       '@types/file-saver':
         specifier: ^2.0.7
         version: 2.0.7
+      '@types/geojson-validation':
+        specifier: ^1.0.3
+        version: 1.0.3
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -2325,6 +2331,9 @@ packages:
 
   '@types/file-saver@2.0.7':
     resolution: {integrity: sha512-dNKVfHd/jk0SkR/exKGj2ggkB45MAkzvWCaqLUUgkyjITkGNzH8H+yUwr+BLJUBjZOe9w8X3wgmXhZDRg1ED6A==}
+
+  '@types/geojson-validation@1.0.3':
+    resolution: {integrity: sha512-S+Ka75g23eK33jblC6u3Tc7GKrBfo0VuHhydPw9WdWRib7sGPAubUbNiUkdTrX9dl5F18/iD8ERzH31AYLFiKg==}
 
   '@types/glob@7.2.0':
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
@@ -11685,6 +11694,8 @@ snapshots:
   '@types/estree@1.0.8': {}
 
   '@types/file-saver@2.0.7': {}
+
+  '@types/geojson-validation@1.0.3': {}
 
   '@types/glob@7.2.0':
     dependencies:
