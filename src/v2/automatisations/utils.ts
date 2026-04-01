@@ -515,7 +515,7 @@ export const chronoDynamiqueImportation = async ({
 
   const fAvecStockage = async () => {
     const maintenant = new Date().getTime().toString();
-    await service("stockage").sauvegarderItem(clefDernièreFois, maintenant);
+    await service("stockage").sauvegarderItem({clef: clefDernièreFois, valeur: maintenant});
     await f();
   };
 
@@ -602,7 +602,7 @@ export const chronoDynamiqueExportation = async ({
   const clefDernièreFois = obtClefStockage(auto.id);
 
   const génFAvecStockage = (empreinte: string) => async () => {
-    await stockage.sauvegarderItem(clefDernièreFois, empreinte);
+    await stockage.sauvegarderItem({clef: clefDernièreFois, valeur: empreinte});
     await f();
   };
 
