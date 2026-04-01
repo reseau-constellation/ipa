@@ -435,7 +435,7 @@ export class Projets extends ObjetConstellation<
       const oublierBase = await this.suivreObjet({
         idObjet: épingle.idObjet,
         f: async (projet) => {
-          info.base = [épingle.idObjet, projet.image];
+          info.base = [this.àIdOrbite(épingle.idObjet), projet.image];
           await fFinale();
         },
       });

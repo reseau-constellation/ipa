@@ -307,7 +307,7 @@ export class MotsClefs extends ObjetConstellation<
     await f(
       new Set(
         épingle.épingle?.épingle?.base && épingle.idObjet
-          ? [épingle.idObjet]
+          ? [this.àIdOrbite(épingle.idObjet)]
           : [],
       ),
     );
