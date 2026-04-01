@@ -38,6 +38,7 @@ import type {
   InfoColonne,
 } from "@/v2/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
+import { isBrowser, isElectronRenderer } from "wherearewe";
 
 describe.only("Bases de données", function () {
   let fermer: () => Promise<void>;
@@ -2337,34 +2338,51 @@ describe.only("Bases de données", function () {
       });
 
       it("le fichier zip existe", async () => {
-        await constl.bds.exporterÀFichier({
-          idBd,
-          nomFichier,
-          dossier,
-          formatDocu: "ods",
-        });
-
-        const nomZip = join(dossier, nomFichier + ".zip");
-        expect(existsSync(nomZip)).to.be.true();
-        zip = await JSZip.loadAsync(readFileSync(nomZip));
+        if (isBrowser || isElectronRenderer) {
+          await expect(constl.bds.exporterÀFichier({
+            idBd,
+            nomFichier,
+            dossier,
+            formatDocu: "ods",
+          })).to.eventually.be.rejectedWith("showSaveFilePicker")
+        } else {
+          await constl.bds.exporterÀFichier({
+            idBd,
+            nomFichier,
+            dossier,
+            formatDocu: "ods",
+          });
+  
+          const nomZip = join(dossier, nomFichier + ".zip");
+          expect(existsSync(nomZip)).to.be.true();
+          zip = await JSZip.loadAsync(readFileSync(nomZip));
+        }
       });
 
       it("les données sont exportées", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const contenu = zip.files[nomFichier + ".ods"];
         expect(contenu).to.exist();
       });
 
       it("le dossier pour les données SFIP existe", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const contenu = zip.files["médias/"];
         expect(contenu?.dir).to.be.true();
       });
 
       it("les fichiers SFIP existent", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
       });
 
       it("exportable même si fichiers SFIP indisponibles", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const nomFichierTest = "avec fichiers indisponibles";
 
         await constl.bds.tableaux.ajouterÉléments({
