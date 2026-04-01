@@ -732,7 +732,7 @@ export class Nuées extends ObjetConstellation<
         f: async (bd) => {
           try {
             const image = await bd.get("image");
-            info.base = [épingle.idObjet, image];
+            info.base = [this.àIdOrbite(épingle.idObjet), image];
           } catch {
             return; // Si la structure n'est pas valide.
           }
@@ -778,7 +778,7 @@ export class Nuées extends ObjetConstellation<
           else return faisRien;
         },
         f: async (bds: string[]) => {
-          info.bds = bds;
+          info.bds = bds.map(id=>this.service("bds").àIdOrbite(id));
           await fFinale();
         },
       });
