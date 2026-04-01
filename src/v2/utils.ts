@@ -159,7 +159,7 @@ export const idcEtFichierValide = (val: string) => {
 };
 
 export const moyenne = (x: (number | undefined)[]): number => {
-  const définis = x.filter((y): y is number => y !== undefined);
+  const définis = x.filter((y): y is number => y !== undefined && !isNaN(y));
   return définis.reduce((a, b) => a + b, 0) / définis.length;
 };
 
