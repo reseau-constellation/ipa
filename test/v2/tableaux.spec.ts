@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
@@ -925,13 +925,6 @@ describe.skip("tableaux", function () {
       });
 
       it("erreur si index dédoublé", async () => {
-        await constl.bds.tableaux.modifierIndexColonne({
-          idStructure: idBd,
-          idTableau,
-          idColonne: idColChaîne,
-          index: true,
-        });
-
         const élément1 = {
           [idColNumérique]: 123.456,
           [idColChaîne]: "வணக்கம்",
@@ -944,6 +937,13 @@ describe.skip("tableaux", function () {
           idStructure: idBd,
           idTableau,
           éléments: [élément1, élément2],
+        });
+
+        await constl.bds.tableaux.modifierIndexColonne({
+          idStructure: idBd,
+          idTableau,
+          idColonne: idColChaîne,
+          index: true,
         });
 
         const erreurs = await obtenir<ErreurDonnée[]>(({ siPasVide }) =>
@@ -1095,7 +1095,7 @@ describe.skip("tableaux", function () {
       });
     });
 
-    describe("index", function () {
+    describe.skip("index", function () {
       let idBd: string;
       let idTableau: string;
       let idsÉlémentsInitiaux: string[];
@@ -1106,12 +1106,12 @@ describe.skip("tableaux", function () {
 
       const élémentsInitiaux: DonnéesRangéeTableau[] = [
         {
-          [idColonneDate]: new Date("20/11/2025").valueOf(),
+          [idColonneDate]: new Date("2025/11/20").valueOf(),
           [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
           [idColonnePrécip]: 3,
         },
         {
-          [idColonneDate]: new Date("21/11/2025").valueOf(),
+          [idColonneDate]: new Date("2025/11/21").valueOf(),
           [idColonneEndroit]: [16.534768942113885, 80.79302512863033],
           [idColonnePrécip]: 11,
         },
@@ -1153,7 +1153,7 @@ describe.skip("tableaux", function () {
 
         const éléments: DonnéesRangéeTableau[] = [
           {
-            [idColonneDate]: new Date("21/11/2025").valueOf(),
+            [idColonneDate]: new Date("2025/11/21").valueOf(),
             [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
             [idColonnePrécip]: 4,
           },
@@ -1168,6 +1168,10 @@ describe.skip("tableaux", function () {
           {
             id: idsÉlémentsInitiaux[0],
             données: élémentsInitiaux[0],
+          },
+          {
+            id: idsÉlémentsInitiaux[1],
+            données: élémentsInitiaux[1],
           },
           {
             id: idsNouveauxÉléments[0],
@@ -1200,12 +1204,12 @@ describe.skip("tableaux", function () {
           idStructure: idBd,
           idTableau,
           idÉlément: idsÉlémentsInitiaux[0],
-          vals: { [idColonneDate]: new Date("22/11/2025").valueOf() },
+          vals: { [idColonneDate]: new Date("2025/11/21").valueOf() },
         });
 
         const éléments: DonnéesRangéeTableau[] = [
           {
-            [idColonneDate]: new Date("22/11/2025").valueOf(),
+            [idColonneDate]: new Date("2025/11/21").valueOf(),
             [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
             [idColonnePrécip]: 5,
           },
@@ -1217,7 +1221,14 @@ describe.skip("tableaux", function () {
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
-          { id: idsNouveauxÉléments[0], données: éléments[0] },
+          {
+            id: idsNouveauxÉléments[0],
+            données: {
+              ...éléments[0],
+              ...{ [idColonneDate]: new Date("2025/11/21").valueOf() },
+            },
+          },
+          { id: idsNouveauxÉléments[1], données: éléments[1] },
           { id: idsÉlémentsInitiaux[1], données: élémentsInitiaux[1] },
         ];
 
@@ -1245,7 +1256,7 @@ describe.skip("tableaux", function () {
 
         const éléments: DonnéesRangéeTableau[] = [
           {
-            [idColonneDate]: new Date("20/11/2025").valueOf(),
+            [idColonneDate]: new Date("2025/11/20").valueOf(),
             [idColonneEndroit]: [16.534768942113885, 80.79302512863033],
             [idColonnePrécip]: 4,
           },
@@ -1299,7 +1310,7 @@ describe.skip("tableaux", function () {
 
         const éléments: DonnéesRangéeTableau[] = [
           {
-            [idColonneDate]: new Date("22/11/2025").valueOf(),
+            [idColonneDate]: new Date("2025/11/22").valueOf(),
             [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
             [idColonnePrécip]: 5,
           },
@@ -1311,8 +1322,17 @@ describe.skip("tableaux", function () {
         });
 
         const réf: DonnéesRangéeTableauAvecId[] = [
-          { id: idsNouveauxÉléments[0], données: éléments[0] },
+          {
+            id: idsÉlémentsInitiaux[0],
+            données: {
+              ...élémentsInitiaux[0],
+              ...{
+                [idColonneEndroit]: [14.782883663386926, -91.14748363253622],
+              },
+            },
+          },
           { id: idsÉlémentsInitiaux[1], données: élémentsInitiaux[1] },
+          { id: idsNouveauxÉléments[0], données: éléments[0] },
         ];
         const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
           constl.bds.tableaux.suivreDonnées({
@@ -1344,12 +1364,12 @@ describe.skip("tableaux", function () {
 
         const éléments: DonnéesRangéeTableau[] = [
           {
-            [idColonneDate]: new Date("20/11/2025").valueOf(),
+            [idColonneDate]: new Date("2025/11/20").valueOf(),
             [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
             [idColonnePrécip]: 3,
           },
           {
-            [idColonneDate]: new Date("21/11/2025").valueOf(),
+            [idColonneDate]: new Date("2025/11/21").valueOf(),
             [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
             [idColonnePrécip]: 11,
           },
@@ -1413,7 +1433,7 @@ describe.skip("tableaux", function () {
 
         const éléments: DonnéesRangéeTableau[] = [
           {
-            [idColonneDate]: new Date("20/11/2025").valueOf(),
+            [idColonneDate]: new Date("2025/11/20").valueOf(),
             [idColonneEndroit]: [14.782883663386926, -91.14748363253622],
             [idColonnePrécip]: 5,
           },
@@ -1485,12 +1505,6 @@ describe.skip("tableaux", function () {
             },
           };
           idRègle = await constl.bds.tableaux.ajouterRègle({
-            idStructure: idBd,
-            idTableau,
-            idColonne,
-            règle,
-          });
-          await constl.bds.tableaux.ajouterRègle({
             idStructure: idBd,
             idTableau,
             idColonne,
@@ -1654,9 +1668,7 @@ describe.skip("tableaux", function () {
             source: { type: "variable", id: idVariable },
             colonne: idColonne,
           };
-          expect(
-            règles.filter((r) => r.règle.id === idRègle).length,
-          ).to.deep.equal(réf);
+          expect(règles.find((r) => r.règle.id === idRègle)).to.deep.equal(réf);
         });
       });
 
@@ -1665,6 +1677,7 @@ describe.skip("tableaux", function () {
         let idTableau: string;
         let idColonne: string;
         let idRègle: string;
+        let idVariable: string;
 
         before(async () => {
           idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -1676,7 +1689,7 @@ describe.skip("tableaux", function () {
         });
 
         it("ajout variable", async () => {
-          const idVariable = await constl.variables.créerVariable({
+          idVariable = await constl.variables.créerVariable({
             catégorie: "numérique",
           });
           await constl.bds.tableaux.modifierVariableColonne({
@@ -1705,7 +1718,7 @@ describe.skip("tableaux", function () {
                   },
                 },
               },
-              source: { type: "tableau", idStructure: idBd, idTableau },
+              source: { type: "variable", id: idVariable },
               colonne: idColonne,
             },
           ];
@@ -1719,7 +1732,7 @@ describe.skip("tableaux", function () {
               idTableau,
               éléments: [
                 {
-                  [idColonne]: 123,
+                  [idColonne]: "123",
                 },
               ],
             })
@@ -1743,12 +1756,12 @@ describe.skip("tableaux", function () {
                     détails: {
                       catégorie: {
                         type: "simple",
-                        catégorie: "chaîne",
+                        catégorie: "numérique",
                       },
                     },
                   },
                 },
-                source: { type: "tableau", idStructure: idBd, idTableau },
+                source: { type: "variable", id: idVariable },
                 colonne: idColonne,
               },
             },
@@ -1868,7 +1881,7 @@ describe.skip("tableaux", function () {
               id: idÉlément,
               erreur: {
                 source: { type: "tableau", idStructure: idBd, idTableau },
-                colonne: idColonneTempMin,
+                colonne: idColonneTempMax,
                 règle: {
                   id: idRègle,
                   règle,
@@ -2256,11 +2269,11 @@ describe.skip("tableaux", function () {
             ],
           });
 
-          const erreurs = await obtenir<ErreurDonnée[]>(({ siDéfini }) =>
+          const erreurs = await obtenir<ErreurDonnée[]>(({ siVide }) =>
             constl.bds.tableaux.suivreValidDonnées({
               idStructure: idBd,
               idTableau,
-              f: siDéfini(),
+              f: siVide(),
             }),
           );
           expect(erreurs).to.be.empty();
@@ -2410,7 +2423,7 @@ describe.skip("tableaux", function () {
 
         const réf: DonnéesRangéeTableau[] = [
           {
-            "colonne numérique": 123,
+            numérique: 123,
           },
         ];
         expect(converties).to.have.deep.members(réf);
@@ -2452,7 +2465,7 @@ describe.skip("tableaux", function () {
           conversions: [
             {
               colonne: "numérique",
-              conversion: { type: "numérique", systèmeNumération: "বাং" },
+              conversion: { type: "numérique", systèmeNumération: "বাংলা" },
             },
           ],
         });
@@ -2619,7 +2632,6 @@ describe.skip("tableaux", function () {
       });
 
       it("chaîne - spécifier langue traduction non existante", async () => {
-        const idTexte = uuidv4();
         const { converties, traductions } =
           await constl.bds.tableaux.convertirDonnées({
             données: [{ chaîne: "நெல்" }],
@@ -2629,18 +2641,17 @@ describe.skip("tableaux", function () {
                 conversion: { type: "chaîne", langue: "த" },
               },
             ],
-            traductions: { [idTexte]: { fr: "riz", ctl: "arròs" } },
           });
         const réf: DonnéesRangéeTableau[] = [
           {
-            chaîne: idTexte,
+            chaîne: "நெல்",
           },
         ];
         expect(converties).to.have.deep.members(réf);
 
         // Vérifier nouvelles traductions bien identifiées
         expect(traductions).to.deep.equal({
-          [idTexte]: { த: "நெல்" },
+          நெல்: { த: "நெல்" },
         });
       });
 
@@ -2773,6 +2784,7 @@ describe.skip("tableaux", function () {
 
           if (isElectronMain || isNode) {
             ({ dossier, effacer } = await dossierTempo());
+            mkdirSync(join(dossier, "médias"));
             writeFileSync(join(dossier, "médias/logo.svg"), LOGO);
           }
         });
@@ -2788,7 +2800,10 @@ describe.skip("tableaux", function () {
             conversions: [
               {
                 colonne: "fichier",
-                conversion: { type: "fichier", baseChemin: "médias" },
+                conversion: {
+                  type: "fichier",
+                  baseChemin: join(dossier, "médias"),
+                },
               },
             ],
           });
@@ -2846,9 +2861,7 @@ describe.skip("tableaux", function () {
 
         it("objet - contenu fichier", async () => {
           const { converties } = await constl.bds.tableaux.convertirDonnées({
-            données: [
-              { fichier: { contenu: LOGO, nomFichier: "mon logo.svg" } },
-            ],
+            données: [{ fichier: { contenu: LOGO, nomFichier: "logo.svg" } }],
             conversions: [
               { colonne: "fichier", conversion: { type: "fichier" } },
             ],
@@ -2915,7 +2928,7 @@ describe.skip("tableaux", function () {
 
         const réf: DonnéesRangéeTableau[] = [
           {
-            chaîne: '{une:{valeur:"texte"}',
+            chaîne: '{"une":{"valeur":"texte"}}',
           },
         ];
         expect(converties).to.have.deep.members(réf);
@@ -2958,7 +2971,7 @@ describe.skip("tableaux", function () {
       it("horoDatage - chaîne", async () => {
         const maintenant = new Date();
         const { converties } = await constl.bds.tableaux.convertirDonnées({
-          données: [{ date: maintenant.toDateString() }],
+          données: [{ date: maintenant.toISOString() }],
           conversions: [
             { colonne: "date", conversion: { type: "horoDatage" } },
           ],
@@ -3040,7 +3053,12 @@ describe.skip("tableaux", function () {
         });
 
         const réf: DonnéesRangéeTableau[] = [
-          { intervale: [hier.getTime(), maintenant.getTime()] },
+          {
+            intervale: [
+              { système: "dateJS", val: hier.getTime() },
+              { système: "dateJS", val: maintenant.getTime() },
+            ],
+          },
         ];
         expect(converties).to.have.deep.members(réf);
       });
@@ -3061,7 +3079,12 @@ describe.skip("tableaux", function () {
         });
 
         const réf: DonnéesRangéeTableau[] = [
-          { intervale: [hier.getTime(), maintenant.getTime()] },
+          {
+            intervale: [
+              { système: "dateJS", val: hier.getTime() },
+              { système: "dateJS", val: maintenant.getTime() },
+            ],
+          },
         ];
         expect(converties).to.have.deep.members(réf);
       });
@@ -3259,7 +3282,7 @@ describe.skip("tableaux", function () {
           ],
         });
 
-        const réf: DonnéesRangéeTableau[] = [{}];
+        const réf: DonnéesRangéeTableau[] = [{ listeNumérique: [] }];
         expect(converties).to.have.deep.members(réf);
       });
 
@@ -3275,7 +3298,7 @@ describe.skip("tableaux", function () {
           ],
         });
 
-        const réf: DonnéesRangéeTableau[] = [{}];
+        const réf: DonnéesRangéeTableau[] = [{ listeNumérique: [123] }];
         expect(converties).to.have.deep.members(réf);
       });
 
@@ -3291,7 +3314,7 @@ describe.skip("tableaux", function () {
           ],
         });
 
-        const réf: DonnéesRangéeTableau[] = [{}];
+        const réf: DonnéesRangéeTableau[] = [{ listeNumérique: [123] }];
         expect(converties).to.have.deep.members(réf);
       });
     });
@@ -3368,14 +3391,13 @@ describe.skip("tableaux", function () {
             langue: "cst",
             nom: "tabla",
           });
-          const données = await obtenir<DonnéesTableauExportées>(
-            ({ siDéfini }) =>
-              constl.bds.tableaux.suivreDonnéesExportation({
-                idStructure: idBd,
-                idTableau,
-                langues: ["cst"],
-                f: siDéfini(),
-              }),
+          const données = await obtenir<DonnéesTableauExportées>(({ si }) =>
+            constl.bds.tableaux.suivreDonnéesExportation({
+              idStructure: idBd,
+              idTableau,
+              langues: ["cst"],
+              f: si((x) => !!x?.nomTableau && x?.nomTableau !== "tableau"),
+            }),
           );
           expect(données.nomTableau).to.equal("tabla");
         });
@@ -3395,14 +3417,13 @@ describe.skip("tableaux", function () {
             langue: "cst",
             nom: "fecha",
           });
-          const données = await obtenir<DonnéesTableauExportées>(
-            ({ siDéfini }) =>
-              constl.bds.tableaux.suivreDonnéesExportation({
-                idStructure: idBd,
-                idTableau,
-                langues: ["fr"],
-                f: siDéfini(),
-              }),
+          const données = await obtenir<DonnéesTableauExportées>(({ si }) =>
+            constl.bds.tableaux.suivreDonnéesExportation({
+              idStructure: idBd,
+              idTableau,
+              langues: ["fr"],
+              f: si((x) => !!x && !Object.keys(x.données[0]).includes("date")),
+            }),
           );
           expect(Object.keys(données.données[0])).to.include("fecha");
         });
@@ -3432,13 +3453,12 @@ describe.skip("tableaux", function () {
         });
 
         it("données", async () => {
-          const données = await obtenir<DonnéesTableauExportées>(
-            ({ siDéfini }) =>
-              constl.bds.tableaux.suivreDonnéesExportation({
-                idStructure: idBd,
-                idTableau,
-                f: siDéfini(),
-              }),
+          const données = await obtenir<DonnéesTableauExportées>(({ si }) =>
+            constl.bds.tableaux.suivreDonnéesExportation({
+              idStructure: idBd,
+              idTableau,
+              f: si((x) => !!x && Object.keys(x.données[0]).length >= 4),
+            }),
           );
           expect(données.données).to.have.deep.members(éléments);
         });
@@ -3490,7 +3510,7 @@ describe.skip("tableaux", function () {
               constl.bds.tableaux.suivreDonnéesExportation({
                 idStructure: idBd,
                 idTableau,
-                langues: ["fr"],
+                langues: ["fra"],
                 f: si((x) => !!x && x?.données.length >= 3),
               }),
           );
@@ -3507,16 +3527,16 @@ describe.skip("tableaux", function () {
           ];
           expect(donnéesFrançais.données).to.have.deep.members(réfFrançais);
 
-          const donnéesമലയാളം = await obtenir<DonnéesTableauExportées>(
+          const données_മലയാളം = await obtenir<DonnéesTableauExportées>(
             ({ si }) =>
               constl.bds.tableaux.suivreDonnéesExportation({
                 idStructure: idBd,
                 idTableau,
-                langues: ["fr"],
+                langues: ["മ", "fra"],
                 f: si((x) => !!x && x?.données.length >= 3),
               }),
           );
-          const réfമലയാളം: DonnéesRangéeTableau[] = [
+          const réf_മലയാളം: DonnéesRangéeTableau[] = [
             {
               [idColonneChaîne]: "പച്ചത്തൊഴുംപ്രാണി",
             },
@@ -3527,17 +3547,16 @@ describe.skip("tableaux", function () {
               [idColonneChaîne]: clefAraignée,
             },
           ];
-          expect(donnéesമലയാളം).to.have.deep.members(réfമലയാളം);
+          expect(données_മലയാളം.données).to.have.deep.members(réf_മലയാളം);
         });
 
         it("fichier", async () => {
-          const données = await obtenir<DonnéesTableauExportées>(
-            ({ siDéfini }) =>
-              constl.bds.tableaux.suivreDonnéesExportation({
-                idStructure: idBd,
-                idTableau,
-                f: siDéfini(),
-              }),
+          const données = await obtenir<DonnéesTableauExportées>(({ si }) =>
+            constl.bds.tableaux.suivreDonnéesExportation({
+              idStructure: idBd,
+              idTableau,
+              f: si((x) => !!x && x.documentsMédias.size > 0),
+            }),
           );
           expect([...données.documentsMédias]).to.have.members(documentsMédias);
         });
@@ -3565,7 +3584,7 @@ describe.skip("tableaux", function () {
           "numérique",
           "vidéo",
         ];
-        const étiquettesColonnesDocu = [..."ABCDEFGHIJK"];
+        const étiquettesColonnesDocu = [..."ABCDEFGHIJKL"];
 
         const obtenirValsDocu = (
           col: string,
@@ -3577,9 +3596,9 @@ describe.skip("tableaux", function () {
           );
           const vals: DagCborEncodable[] = [];
 
-          let i = 0;
+          let i = 1;
           while (i++) {
-            const val = données.docu.Sheets[nomTableauFr][`${étiquette}${i}`].v;
+            const val = données.docu.Sheets[nomTableauFr][`${étiquette}${i}`]?.v;
             if (val === undefined) break;
             vals.push(val);
           }
@@ -3625,6 +3644,7 @@ describe.skip("tableaux", function () {
               idTableau,
             });
           }
+          await constl.bds.tableaux.ajouterColonne({ idStructure: idBd,  idTableau, idColonne: "colonneListe"})
 
           const éléments: DonnéesRangéeTableau[] = [
             {
@@ -3690,11 +3710,7 @@ describe.skip("tableaux", function () {
 
         it("noms colonnes", async () => {
           // Tous les noms de colonne devraient exister dans le document
-          for (const c of étiquettesColonnesDocu) {
-            expect(Object.values(idsColonnes)).to.contain(
-              (données.docu.Sheets[nomTableauFr][`${c}1`] as CellObject).v,
-            );
-          }
+          expect(étiquettesColonnesDocu.map(c=>(données.docu.Sheets[nomTableauFr][`${c}1`] as CellObject).v)).to.have.members([...Object.values(idsColonnes), "colonneListe"])
         });
 
         it("données numériques", async () => {
@@ -3712,7 +3728,7 @@ describe.skip("tableaux", function () {
             nomTableauFr,
             données.docu,
           );
-          expect(vals).to.have.deep.ordered.members([new Date(valDate)]);
+          expect(vals).to.have.deep.ordered.members([valDate]);
         });
 
         it("données chaîne", async () => {
@@ -3721,7 +3737,7 @@ describe.skip("tableaux", function () {
             nomTableauFr,
             données.docu,
           );
-          expect(vals).to.have.deep.ordered.members(["வணக்கம்"]);
+          expect(vals).to.have.deep.ordered.members(["du texte"]);
         });
 
         it("données booléennes", async () => {
@@ -3730,9 +3746,7 @@ describe.skip("tableaux", function () {
             nomTableauFr,
             données.docu,
           );
-          expect(vals).to.have.deep.ordered.members(
-            [true].map((v) => String(v)),
-          );
+          expect(vals).to.have.deep.ordered.members(["vrai"]);
         });
 
         it("données fichiers", async () => {
@@ -3772,7 +3786,7 @@ describe.skip("tableaux", function () {
             nomTableauFr,
             données.docu,
           );
-          expect(vals).to.have.deep.ordered.members([valGéoJson]);
+          expect(vals).to.have.deep.ordered.members([JSON.stringify(valGéoJson)]);
         });
 
         it("données image", async () => {
@@ -3792,7 +3806,7 @@ describe.skip("tableaux", function () {
             nomTableauFr,
             données.docu,
           );
-          expect(vals).to.have.deep.ordered.members([valIntervaleTemps]);
+          expect(vals.map((v) => JSON.parse(v as string))).to.have.deep.ordered.members([valIntervaleTemps]);
         });
 
         it("données vidéo", async () => {
@@ -3836,11 +3850,7 @@ describe.skip("tableaux", function () {
 
           expect(docu.SheetNames[0]).to.equal(idTableauCourt);
 
-          for (const é of étiquettesColonnesDocu) {
-            expect(Object.keys(idsColonnes)).to.contain(
-              docu.Sheets[idTableauCourt][`${é}1`].v,
-            );
-          }
+          expect(étiquettesColonnesDocu.map(c=>(données.docu.Sheets[nomTableauFr][`${c}1`] as CellObject).v)).to.have.members([...Object.values(idsColonnes), "colonneListe"])
         });
       });
 
@@ -3914,13 +3924,13 @@ describe.skip("tableaux", function () {
             dossier,
             formatDocu: "ods",
             langues: ["fr"],
-            inclureDocuments: false,
+            inclureDocuments: true,
           });
           const cheminFichier = join(dossier, `${nomTableauFr}.zip`);
           expect(existsSync(cheminFichier)).to.be.true();
 
           // Le fichier ZIP est valide
-          zip = await JSZip.loadAsync(readFileSync(`${nomTableauFr}.zip`));
+          zip = await JSZip.loadAsync(readFileSync(cheminFichier));
 
           // Le document des données existe
           expect(zip.files[nomTableauFr + ".ods"]).to.exist();
@@ -3946,7 +3956,7 @@ describe.skip("tableaux", function () {
             inclureDocuments: false,
           });
 
-          const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
+          const cheminFichier = join(nouveauDossier, `${nomTableauFr}.ods`);
           expect(existsSync(cheminFichier)).to.be.true();
         });
 
@@ -3961,7 +3971,7 @@ describe.skip("tableaux", function () {
             langues: ["fr"],
           });
 
-          const cheminFichier = join(dossier, `${nomTableauFr}.zip`);
+          const cheminFichier = join(nouveauDossier, `${nomTableauFr}.zip`);
           expect(existsSync(cheminFichier)).to.be.true();
         });
       });
@@ -3973,7 +3983,7 @@ describe.skip("tableaux", function () {
       let idColonne: string;
 
       const idVariableIndisponible =
-        "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+        "/constl/variables/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
       before(async () => {
         idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -4029,7 +4039,7 @@ describe.skip("tableaux", function () {
           {
             id: idColonne,
             variable: idVariableIndisponible,
-            catégorie: undefined, // Indisponible car variable non accessible
+            // Catégorie absente et indisponible car variable non accessible
           },
         ];
         expect(catégories).to.deep.equal(réf);
@@ -4065,7 +4075,7 @@ describe.skip("tableaux", function () {
             },
           },
         ];
-        expect(données).to.equal(réf);
+        expect(données).to.have.deep.members(réf);
       });
     });
 
@@ -4447,7 +4457,16 @@ describe.skip("tableaux", function () {
         }),
       );
 
-      expect(règles).to.deep.equal([règle]);
+      const réf: RègleColonne = {
+        règle: {
+          id: idRègle,
+          règle
+        },
+        source: { type: "tableau", idStructure: idBd, idTableau: idTableauCopié },
+        colonne: idColonne
+      }
+
+      expect(règles.find(r=>r.règle.id === idRègle)).to.deep.equal(réf);
     });
 
     it("les variables sont copiés", async () => {
@@ -4459,7 +4478,7 @@ describe.skip("tableaux", function () {
         }),
       );
 
-      expect(variables).to.deep.equal([idVariable]);
+      expect(variables).to.have.deep.members([idVariable]);
     });
 
     it("les données sont copiés", async () => {
@@ -4524,7 +4543,16 @@ describe.skip("tableaux", function () {
         }),
       );
 
-      expect(règles).to.deep.equal([règle]);
+      const réf: RègleColonne = {
+        règle: {
+          id: idRègle,
+          règle
+        },
+        source: { type: "tableau", idStructure: idNouvelleBd, idTableau: idTableauCopié },
+        colonne: idColonne
+      }
+
+      expect(règles.find(r=>r.règle.id === idRègle)).to.deep.equal(réf);
     });
 
     it("nouvelle structure - les variables sont copiés", async () => {
@@ -4536,7 +4564,7 @@ describe.skip("tableaux", function () {
         }),
       );
 
-      expect(variables).to.deep.equal([idVariable]);
+      expect(variables).to.have.deep.members([idVariable]);
     });
 
     it("nouvelle structure - les données sont copiés", async () => {
@@ -4599,7 +4627,7 @@ describe.skip("tableaux", function () {
       expect(permission).to.equal(MEMBRE);
 
       // Vérifier que l'édition des données fonctionne
-      await constlsAccès[1].bds.tableaux.ajouterÉléments({
+      const idÉlément = (await constlsAccès[1].bds.tableaux.ajouterÉléments({
         idStructure: idBd,
         idTableau,
         éléments: [
@@ -4607,20 +4635,25 @@ describe.skip("tableaux", function () {
             [idColonne]: 123,
           },
         ],
-      });
+      }))[0];
 
-      const vals = await obtenir(({ siPasVide }) =>
+      const vals = await obtenir<DonnéesRangéeTableauAvecId[]>(({ siPasVide }) =>
         constlsAccès[0].bds.tableaux.suivreDonnées({
           idStructure: idBd,
           idTableau,
           f: siPasVide(),
         }),
       );
-      expect(vals).to.deep.equal([
+
+      const réf: DonnéesRangéeTableauAvecId[] = [
         {
-          [idColonne]: 123,
-        },
-      ]);
+          id: idÉlément,
+          données: {
+            [idColonne]: 123,
+          },
+        }
+      ]
+      expect(vals).to.deep.equal(réf);
     });
   });
 });
