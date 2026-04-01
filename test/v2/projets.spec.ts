@@ -775,7 +775,7 @@ describe.skip("Projets", function () {
         idVariable,
       });
 
-      const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4";
+      const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4";
       await constl.bds.tableaux.ajouterÉléments({
         idStructure: idProjet,
         idTableau,
@@ -984,7 +984,7 @@ describe.skip("Projets", function () {
       expect(statut).to.deep.equal(réfStatut);
     });
 
-    it("l'image est copiée'", async () => {
+    it("l'image est copiée", async () => {
       const image = await obtenir<{
         image: Uint8Array;
         idImage: string;
@@ -1274,7 +1274,7 @@ describe.skip("Projets", function () {
         {
           idCompte: idsComptes[1],
           accepté: true,
-          rôle: MEMBRE,
+          rôle: MODÉRATRICE,
         },
         {
           idCompte: compteHorsLigne,

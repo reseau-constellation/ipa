@@ -12,7 +12,11 @@ import {
   TOUS_DISPOSITIFS,
 } from "@/v2/nébuleuse/services/favoris.js";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
-import { moyenne, type DonnéesFichierBdExportées } from "@/v2/utils.js";
+import {
+  enleverPréfixesEtOrbite,
+  moyenne,
+  type DonnéesFichierBdExportées,
+} from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
@@ -965,7 +969,7 @@ describe("Nuées", function () {
       const nouveauStatut: StatutDonnées = {
         statut: "obsolète",
         // Pour une vraie application, utiliser un identifiant valide, bien entendu.
-        idNouvelle: "/orbitdb/uneAutreBaseDeDonnées",
+        idNouvelle: "/const/nuée/orbitdb/uneAutreBaseDeDonnées",
       };
       await constl.nuées.sauvegarderStatut({
         idNuée,
@@ -1156,7 +1160,7 @@ describe("Nuées", function () {
 
       const idBd = await constl.bds.créerBdDeSchéma({ schéma });
 
-      const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4";
+      const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4";
       await constl.bds.tableaux.ajouterÉléments({
         idStructure: idNuée,
         idTableau,
@@ -1567,7 +1571,7 @@ describe("Nuées", function () {
 
     it("filtres - toujours inclure mes données même avec nuée indisponible", async () => {
       const idNuéeIndisponible =
-        "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+        "/constl/nuée/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
       await constl.nuées.modifierTypeAutorisation({
         idNuée: idNuéeIndisponible,
         type: "par invitation",
@@ -1602,7 +1606,7 @@ describe("Nuées", function () {
     let élémentsNuéesPDDL: DonnéesRangéeNuée[];
 
     const idNuéeIndisponible =
-      "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      "/constl/nuée/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -2018,7 +2022,7 @@ describe("Nuées", function () {
       expect(statut).to.deep.equal(réfStatut);
     });
 
-    it("l'image est copiée'", async () => {
+    it("l'image est copiée", async () => {
       const image = await obtenir<{
         image: Uint8Array;
         idImage: string;
@@ -3590,7 +3594,7 @@ describe("Nuées", function () {
 
       it("données locales même si nuée parent non disponible", async () => {
         const idNuéeIndisponible =
-          "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+          "/constl/nuée/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
         await constl.nuées.préciserParent({
           idNuée: idNuéeParent,
           idNuéeParent: idNuéeIndisponible,
@@ -3913,7 +3917,7 @@ describe("Nuées", function () {
         {
           idCompte: idsComptes[1],
           accepté: true,
-          rôle: MEMBRE,
+          rôle: MODÉRATRICE,
         },
         {
           idCompte: compteHorsLigne,
@@ -4062,7 +4066,7 @@ describe("Nuées", function () {
 
       it("nuée non disponible", async () => {
         const idNuéeIndisponible =
-          "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+          "/constl/nuée/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
         const schémaAvecNuéeIndisponible: SchémaBd = Object.assign({}, schéma, {
           nuées: [...(schéma.nuées || []), idNuéeIndisponible],
         });
@@ -4164,7 +4168,7 @@ describe("Nuées", function () {
       });
 
       it("nom document - non spécifié", async () => {
-        expect(données.nomFichier).to.equal(idNuée.replace("/orbitdb/", ""));
+        expect(données.nomFichier).to.equal(enleverPréfixesEtOrbite(idNuée));
       });
 
       it("données - tableaux créés", async () => {
@@ -4223,7 +4227,7 @@ describe("Nuées", function () {
           idsTableaux: [idTableau2],
         });
         expect(docu.SheetNames).to.have.members([idTableau2]);
-        expect(nomFichier).to.eq(idNuéeNExistePas.slice("/orbitdb/".length));
+        expect(nomFichier).to.eq(enleverPréfixesEtOrbite(idNuéeNExistePas));
       });
     });
 
