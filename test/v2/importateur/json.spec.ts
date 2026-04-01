@@ -7,7 +7,7 @@ import {
 import { obtRessourceTest } from "../ressources/index.js";
 import type { ÉlémentJSON } from "@/v2/importateur/json.js";
 
-describe.only("JSON", function () {
+describe("JSON", function () {
   describe("extraire données", function () {
     it("extraire d'objet", () => {
       const donnéesJSON = { a: 1 };

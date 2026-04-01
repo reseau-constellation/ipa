@@ -6,7 +6,7 @@ import type {
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
 
-describe.only("Appli", function () {
+describe("Appli", function () {
   describe("démarrage", function () {
     it("démarrer sans services", async () => {
       const appli = new Appli({ services: {} });

@@ -246,7 +246,7 @@ describe.only("Mandataire OrbitDB", function () {
   });
 });
 
-describe.only("Service Orbite", function () {
+describe("Service Orbite", function () {
   describe("démarrer", function () {
     let dossier: string;
     let effacer: () => void;

@@ -4,7 +4,7 @@ import { expect } from "aegir/chai";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/xlsx.js";
 import { obtRessourceTest } from "../ressources/index.js";
 
-describe.only("xlsx", function () {
+describe("xlsx", function () {
   describe("Importateur xlsx", function () {
     let importateur: ImportateurFeuilleCalcul;
 
