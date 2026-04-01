@@ -272,7 +272,6 @@ export class RechercheNuées extends RechercheObjets<ServicesNécessairesRecherc
     return await this.service("nuées").suivreAuteurs({ idNuée: idObjet, f });
   }
 
-  @cacheRechercheParN
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
     fObjectif,
