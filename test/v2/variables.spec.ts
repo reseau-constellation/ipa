@@ -21,6 +21,7 @@ import type {
   RègleCatégorie,
   RègleVariableAvecId,
 } from "@/v2/règles.js";
+import { enleverPréfixes } from "@/v2/utils.js";
 
 describe.only("Variables", function () {
   let fermer: () => Promise<void>;
@@ -776,7 +777,7 @@ describe.only("Variables", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolution]).to.have.members([idVariable]);
+      expect([...résolution]).to.have.members([enleverPréfixes(idVariable)]);
     });
   });
 
