@@ -211,7 +211,7 @@ export class ServiceOrbite<
   }
 
   async effacerBd({ id }: { id: string }): Promise<void> {
-    const { bd } = await this.ouvrirBd({ id });
+    const { bd, oublier } = await this.ouvrirBd({ id });
 
     const hélia = await this.service("hélia").hélia();
 
@@ -223,6 +223,7 @@ export class ServiceOrbite<
     for (const idc of àDésépingler) await drain(hélia.pins.rm(idc));
 
     await bd.drop();
+    await oublier();
     await bd.close();
   }
 
