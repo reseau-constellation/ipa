@@ -15,7 +15,7 @@ import {
   schémaSpécificationRègleColonne,
 } from "./règles.js";
 import { schémaTraducsTexte } from "./schémas.js";
-import { définis, enleverPréfixes } from "./utils.js";
+import { définis, enleverPréfixes, idcEtFichierValide } from "./utils.js";
 import type { AccesseurService } from "./recherche/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
@@ -39,6 +39,7 @@ import type {
   ErreurColonneVariableDédoublée,
   SpécificationRègleColonne,
   FonctionValidation,
+  ErreurRègleCatégoriqueTableauInexistant,
 } from "./règles.js";
 import type {
   CatégorieBaseVariables,
@@ -246,7 +247,8 @@ export class Tableaux {
 
     const idNouveauTableau = await this.créerTableau({
       idStructure: idStructureDestinataire,
-      idTableau: uuidv4(),
+      // Si c'est une structure différente, on garde le même identifiant de tableau
+      idTableau: idStructure === idStructureDestinataire ? uuidv4() : idTableau,
     });
 
     const { tableau: nouveauTableau, oublier: oublierNouveauTableau } =
@@ -343,7 +345,7 @@ export class Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    f: Suivi<PartielRécursif<StructureTableau>>;
+    f: Suivi<PartielRécursif<StructureTableau> | undefined>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
 
@@ -351,16 +353,15 @@ export class Tableaux {
       id: enleverPréfixes(idStructure),
       schéma: schémaStructureAvecTableau,
       f: async (tableau) => {
-        let données: PartielRécursif<NestedValue> | null | undefined = tableau;
+        let données: PartielRécursif<NestedValue> | undefined = tableau;
 
         for (const k of asSplitKey(joinKey(["tableaux", idTableau]))) {
           données = données?.[k] as NestedValue | undefined;
           if (données === undefined) {
-            données = null;
             break;
           }
         }
-        await f(données as PartielRécursif<StructureTableau>);
+        await f(données);
       },
     });
   }
@@ -453,7 +454,7 @@ export class Tableaux {
     return await this.suivreTableau({
       idStructure,
       idTableau,
-      f: (tableau) => f(définis(tableau.noms || {})),
+      f: (tableau) => f(définis(tableau?.noms || {})),
     });
   }
 
@@ -619,12 +620,16 @@ export class Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    f: Suivi<InfoColonne[]>;
+    f: Suivi<InfoColonne[] | undefined>;
   }): Promise<Oublier> {
     return await this.suivreTableau({
       idStructure,
       idTableau,
       f: async (tableau) => {
+        if (!tableau) {
+          await f(undefined);
+          return;
+        }
         const colonnes = tableau.colonnes || [];
         await f(
           Object.entries(colonnes).map(([id, info]) => ({
@@ -676,8 +681,12 @@ export class Tableaux {
       fSuivreBranche: Suivi<InfoColonneAvecCatégorie>;
       branche: InfoColonne;
     }): Promise<Oublier> => {
+      await fSuivreBranche(branche);
+
       const idVariable = branche.variable;
-      if (!idVariable) return faisRien;
+      if (!idVariable) {
+        return faisRien;
+      }
 
       return await variables.suivreCatégorie({
         idVariable,
@@ -726,7 +735,7 @@ export class Tableaux {
       idTableau,
       f: async (tableau) => {
         await f(
-          Object.values(tableau.colonnes || [])
+          Object.values(tableau?.colonnes || [])
             .map((c) => c?.variable)
             .filter(
               (v): v is string =>
@@ -825,20 +834,27 @@ export class Tableaux {
     f: Suivi<RègleColonne[]>;
   }): Promise<Oublier> {
     const dicRègles: {
-      tableau?: RègleColonne[];
-      variable?: RègleColonne[];
-      index?: RègleColonne[];
-    } = {};
+      tableau: RègleColonne[];
+      variable: RègleColonne[];
+      index: RègleColonne[];
+    } = {
+      tableau: [],
+      variable: [],
+      index: [],
+    };
     const fFinale = async () => {
-      if (!dicRègles.tableau || !dicRègles.variable) return;
-      return await f([...dicRègles.tableau, ...dicRègles.variable]);
+      return await f([
+        ...dicRègles.tableau,
+        ...dicRègles.variable,
+        ...dicRègles.index,
+      ]);
     };
 
     // Suivre règles index unique
     const oublierColonnes = await this.suivreColonnes({
       idStructure,
       idTableau,
-      f: (colonnes) => {
+      f: async (colonnes) => {
         const colonnesIndex = (colonnes || []).filter((c) => c.index);
         dicRègles.index = colonnesIndex.map((c) => ({
           règle: {
@@ -850,6 +866,7 @@ export class Tableaux {
           source: { type: "tableau", idStructure, idTableau },
           colonne: c.id,
         }));
+        await fFinale();
       },
     });
 
@@ -858,7 +875,7 @@ export class Tableaux {
       idStructure,
       idTableau,
       f: async (tableau) => {
-        const règlesComplètes = Object.entries(tableau.règles || {}).filter(
+        const règlesComplètes = Object.entries(tableau?.règles || {}).filter(
           (items): items is [string, SpécificationRègleColonne] =>
             règleComplète(items[1]),
         );
@@ -1018,15 +1035,23 @@ export class Tableaux {
       }
 
       for (const r of règlesCatégoriquesDynamiques) {
-        const colRéfRègle = r.colsTableauRéf?.find(
-          (c) => c.id === r.règle.règle.règle.détails.colonne,
-        );
-        if (!colRéfRègle) {
-          const erreur: ErreurRègleCatégoriqueColonneInexistante = {
+        if (!r.colsTableauRéf) {
+          const erreur: ErreurRègleCatégoriqueTableauInexistant = {
             règle: r.règle,
-            type: "colonneCatégInexistante",
+            type: "tableauCatégInexistant",
           };
           erreurs.push(erreur);
+        } else {
+          const colRéfRègle = r.colsTableauRéf.find(
+            (c) => c.id === r.règle.règle.règle.détails.colonne,
+          );
+          if (!colRéfRègle) {
+            const erreur: ErreurRègleCatégoriqueColonneInexistante = {
+              règle: r.règle,
+              type: "colonneCatégInexistante",
+            };
+            erreurs.push(erreur);
+          }
         }
       }
       await f(erreurs);
@@ -1149,7 +1174,6 @@ export class Tableaux {
     });
   }
 
-  @cacheSuivi
   async suivreValidateursDonnées({
     idStructure,
     idTableau,
@@ -1299,7 +1323,7 @@ export class Tableaux {
     return await this.suivreTableau({
       idStructure,
       idTableau,
-      f: async (tableau) => await f(définis(tableau.traducs || {})),
+      f: async (tableau) => await f(définis(tableau?.traducs || {})),
     });
   }
 
@@ -1415,13 +1439,13 @@ export class Tableaux {
     traducs?: { [clef: string]: Partial<TraducsTexte> };
   }): Promise<DonnéesRangéeTableau> {
     const élémentFinal: DonnéesRangéeTableau = {};
-
     const formaterValeur = async (
       v: DagCborEncodable,
-      catégorie: CatégorieBaseVariables,
+      catégorie?: CatégorieBaseVariables,
     ): Promise<string | number | undefined> => {
       switch (typeof v) {
         case "object": {
+          if (v instanceof Date) return v.toISOString()
           return JSON.stringify(v);
         }
         case "boolean":
@@ -1429,14 +1453,17 @@ export class Tableaux {
         case "number":
           return v;
         case "string":
-          if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
-            if (idcValide(v)) documentsMédias.add(v);
+          if (
+            catégorie &&
+            ["audio", "image", "vidéo", "fichier"].includes(catégorie)
+          ) {
+            if (idcEtFichierValide(v)) documentsMédias.add(v);
 
             return v;
-          } else if (catégorie === "chaîne") {
+          } else {
+            if (idcEtFichierValide(v)) documentsMédias.add(v);
             return traduire(définis(traducs?.[v] || {}), langues || []) || v;
           }
-          return v;
         default:
           return;
       }
@@ -1460,7 +1487,7 @@ export class Tableaux {
             ),
           );
         }
-      }
+      } else formattée = await formaterValeur(valeur);
       if (formattée !== undefined) élémentFinal[col] = formattée;
     }
 
