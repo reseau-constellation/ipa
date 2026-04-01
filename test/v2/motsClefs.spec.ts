@@ -576,7 +576,7 @@ describe.only("Mots-clefs", function () {
           idMotClef,
           f: si(
             (x) =>
-              x.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+              x?.find((a) => a.idCompte === idsComptes[1])?.rôle ===
                 MODÉRATRICE &&
               compte1Accepté(x) &&
               compte2Accepté(x),
