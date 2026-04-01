@@ -147,10 +147,10 @@ export class ServiceLibp2p<
       "base64",
     );
 
-    await this.service("stockage").sauvegarderItem(
-      "idPairLibp2p",
-      texteNouvelleClefPrivée,
-    );
+    await this.service("stockage").sauvegarderItem({
+      clef: "idPairLibp2p",
+      valeur: texteNouvelleClefPrivée,
+    });
   }
 
   async suivreMesAdresses({ f }: { f: Suivi<string[]> }): Promise<Oublier> {

@@ -439,10 +439,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const bloqués = [...this.bloquésPrivé];
 
-    await stockage.sauvegarderItem(
-      CLEF_COMPTES_BLOQUÉS,
-      JSON.stringify(bloqués),
-    );
+    await stockage.sauvegarderItem({
+      clef: CLEF_COMPTES_BLOQUÉS,
+      valeur: JSON.stringify(bloqués),
+    });
 
     this.événements.emit(ÉVÉNEMENT_BLOQUÉ_PRIVÉ, this.bloquésPrivé);
   }
