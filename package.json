@@ -104,7 +104,7 @@
     "@chriscdn/promise-semaphore": "^4.0.0",
     "@constl/bohr-db": "^2.0.0",
     "@constl/mandataire": "^3.1.2",
-    "@constl/utils-ipa": "^3.0.1",
+    "@constl/utils-ipa": "^3.0.4",
     "@helia/unixfs": "^5.1.0",
     "@ipld/dag-cbor": "^9.2.5",
     "@libp2p/autonat": "^2.0.38",

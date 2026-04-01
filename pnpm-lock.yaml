@@ -53,8 +53,8 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2
       '@constl/utils-ipa':
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: ^3.0.4
+        version: 3.0.4
       '@helia/unixfs':
         specifier: ^5.1.0
         version: 5.1.0
@@ -1010,8 +1010,8 @@ packages:
     resolution: {integrity: sha512-ypThNw7fa47lu5HSRkEL12nqKz1CjCFeY9ticpOaEBMbqXvpTVNw9044+fvgIaI/KsXWrDf8RQZvTwOU1zz5yw==}
     engines: {node: '>=20'}
 
-  '@constl/utils-ipa@3.0.1':
-    resolution: {integrity: sha512-vDosEYguIcHyodk9pXsNOo5f8BFaHthhTfHKCOcEmiMBlRSXMGMR6zsfGs6UBAW6cBaoAfpocd0J/DmEKFvvag==}
+  '@constl/utils-ipa@3.0.4':
+    resolution: {integrity: sha512-idNXBCfVgXgsTB5QPnMRNBpZQpWYkftLEpwAYYx+elFNyyh2b8sKFDiIUTc8ixD3Xo0hObju00dRiYEAVCUf7Q==}
     engines: {node: '>=20'}
 
   '@constl/utils-tests@2.0.7':
@@ -9651,7 +9651,7 @@ snapshots:
       uint8arrays: 5.1.0
       wherearewe: 2.0.1
 
-  '@constl/utils-ipa@3.0.1':
+  '@constl/utils-ipa@3.0.4':
     dependencies:
       browser-fs-access: 0.38.0
       deep-equal: 2.2.3
@@ -12220,9 +12220,9 @@ snapshots:
       strong-log-transformer: 2.1.0
       tempy: 3.1.0
       typedoc: 0.28.14(typescript@5.8.3)
-      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.8.3))
-      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.8.3))
-      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.8.3))
+      typedoc-plugin-mdn-links: 5.0.10(typedoc@0.28.14(typescript@5.9.3))
+      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.14(typescript@5.9.3))
+      typedoc-plugin-missing-exports: 4.1.2(typedoc@0.28.14(typescript@5.9.3))
       typescript: 5.8.3
       typescript-docs-verifier: 3.0.1(typescript@5.8.3)
       wherearewe: 2.0.1
@@ -19325,16 +19325,16 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-mdn-links@5.0.10(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       html-escaper: 3.0.3
       typedoc: 0.28.14(typescript@5.8.3)
 
-  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.8.3)):
+  typedoc-plugin-missing-exports@4.1.2(typedoc@0.28.14(typescript@5.9.3)):
     dependencies:
       typedoc: 0.28.14(typescript@5.8.3)
 
