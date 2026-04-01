@@ -1,7 +1,6 @@
 import {
   attendreStabilité,
   faisRien,
-  idcValide,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
   suivreFonctionImbriquée,
@@ -26,7 +25,9 @@ import { stabiliser } from "../nébuleuse/utils.js";
 import {
   ajouterPréfixes,
   définis,
+  enleverPréfixes,
   enleverPréfixesEtOrbite,
+  idcEtFichierValide,
   moyenne,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
@@ -51,6 +52,7 @@ import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
+  ÉpingleFavorisAvecId,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "../nébuleuse/services/favoris.js";
 import type {
@@ -304,13 +306,11 @@ export class Bds extends ObjetConstellation<
     const { bd, oublier: oublierBd } = await compte.créerObjet({
       type: "nested",
     });
-    const idBd = bd.address;
+    const idBd = this.ajouterProtocole(bd.address);
     await oublierBd();
     const { bd: bdBd, oublier } = await this.ouvrirBd({ idBd });
 
-    await this.ajouterÀMesBds({ idBd });
-
-    if (épingler) await this.épingler({ idBd });
+    await this.ajouterÀMesBds({ idBd, épingler });
 
     await bdBd.insert({
       type: "bd",
@@ -320,7 +320,7 @@ export class Bds extends ObjetConstellation<
     });
 
     await oublier();
-    return this.ajouterProtocole(idBd);
+    return idBd;
   }
 
   async effacerBd({ idBd }: { idBd: string }): Promise<void> {
@@ -348,10 +348,11 @@ export class Bds extends ObjetConstellation<
     );
 
     // enfin, effacer la BD elle-même
-    await orbite.effacerBd({ id: this.enleverProtocole(idBd) });
+    await orbite.effacerBd({ id: this.àIdOrbite(idBd) });
   }
 
-  async ajouterÀMesBds({ idBd }: { idBd: string }): Promise<void> {
+  async ajouterÀMesBds({ idBd, épingler = true }: { idBd: string; épingler?: boolean }): Promise<void> {
+    if (épingler) await this.épingler({ idBd });
     return await this.ajouterÀMesObjets({ idObjet: idBd });
   }
 
@@ -360,13 +361,13 @@ export class Bds extends ObjetConstellation<
   }
 
   async créerSchémaDeBd({ idBd }: { idBd: string }): Promise<SchémaBd> {
-    const licence = (await uneFois<string | undefined>(
+    const licence = (await uneFois<string | null | undefined>(
       (f) => this.suivreLicence({ idBd, f }),
       (x) => !!x,
     )) as string;
-    const licenceContenu = await uneFois<string | undefined>((f) =>
+    const licenceContenu = await uneFois<string | null | undefined>((f) =>
       this.suivreLicenceContenu({ idBd, f }),
-    );
+    ) || undefined;
 
     const métadonnées = await uneFois<Métadonnées>((f) =>
       this.suivreMétadonnées({ idBd, f }),
@@ -379,6 +380,7 @@ export class Bds extends ObjetConstellation<
       (f) => this.suivreStatut({ idBd, f }),
     );
     const nuées = await uneFois<string[]>((f) => this.suivreNuées({ idBd, f }));
+    const clefUnique = await uneFois<string|undefined>((f) => this.suivreClefUnique({ idBd, f }));
 
     const idsTableaux = await uneFois<string[]>((f) =>
       this.suivreTableaux({ idBd, f }),
@@ -411,6 +413,7 @@ export class Bds extends ObjetConstellation<
     );
 
     const schéma: SchémaBd = {
+      clefUnique,
       licence,
       licenceContenu,
       métadonnées,
@@ -434,6 +437,7 @@ export class Bds extends ObjetConstellation<
     épingler?: boolean;
   }): Promise<string> {
     const {
+      métadonnées,
       tableaux,
       motsClefs,
       nuées,
@@ -448,6 +452,10 @@ export class Bds extends ObjetConstellation<
       licenceContenu,
       épingler,
     });
+
+    if (métadonnées) {
+      await this.sauvegarderMétadonnées({ idBd, métadonnées });
+    }
 
     if (motsClefs) {
       await this.ajouterMotsClefs({ idBd, idsMotsClefs: motsClefs });
@@ -631,7 +639,7 @@ export class Bds extends ObjetConstellation<
   async confirmerPermission({ idBd }: { idBd: string }): Promise<void> {
     const compte = this.service("compte");
 
-    if (!(await compte.permission({ idObjet: idBd })))
+    if (!(await compte.permission({ idObjet: this.àIdOrbite(idBd) })))
       throw new Error(
         `Permission de modification refusée pour la base de données ${idBd}.`,
       );
@@ -665,7 +673,7 @@ export class Bds extends ObjetConstellation<
   async désépingler({ idBd }: { idBd: string }): Promise<void> {
     const favoris = this.service("favoris");
 
-    await favoris.désépinglerFavori({ idObjet: this.ajouterProtocole(idBd) });
+    await favoris.désépinglerFavori({ idObjet: idBd });
   }
 
   async suivreÉpingle({
@@ -682,12 +690,11 @@ export class Bds extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleBd = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === this.enleverProtocole(idBd) &&
-            épingle.type === "bd"
+          return idObjet === idBd && épingle.type === "bd"
             ? épingle
             : undefined;
-        }) as ÉpingleBd | undefined;
-        await f(épingleBd);
+        }) as ÉpingleFavorisAvecId<ContenuÉpingleBd> | undefined;
+        await f(épingleBd?.épingle as ÉpingleBd);
       },
     });
   }
@@ -699,8 +706,6 @@ export class Bds extends ObjetConstellation<
     épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleBd>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
-    const orbite = this.service("orbite");
-
     const info: {
       base?: (string | undefined)[];
       données?: (string | undefined)[];
@@ -718,15 +723,12 @@ export class Bds extends ObjetConstellation<
     };
 
     const fsOublier: Oublier[] = [];
-
     if (épingle.épingle.épingle.base) {
-      const oublierBase = await orbite.suivreBdEmboîtéeTypée<StructureBd>({
-        id: épingle.idObjet,
-        schéma: schémaBd,
+      const oublierBase = await this.suivreObjet({
+        idObjet: épingle.idObjet,
         f: async (bd) => {
           try {
-            const image = await bd.get("image");
-            info.base = [épingle.idObjet, image];
+            info.base = [this.àIdOrbite(épingle.idObjet), bd.image];
           } catch {
             return; // Si la structure n'est pas valide.
           }
@@ -799,7 +801,7 @@ export class Bds extends ObjetConstellation<
         f: async (données: DonnéesRangéeTableauAvecId[]) => {
           const idcs = données
             .map((file) =>
-              Object.values(file.données).filter((x) => idcValide(x)),
+              Object.values(file.données).filter((v) => (typeof v === "string" && idcEtFichierValide(v)) || (Array.isArray(v)&& v.every(x=>typeof x === "string" && idcEtFichierValide(x)))).flat(),
             )
             .flat() as string[];
           info.fichiers = idcs;
@@ -1123,11 +1125,11 @@ export class Bds extends ObjetConstellation<
     f,
   }: {
     idBd: string;
-    f: Suivi<string | undefined>;
+    f: Suivi<string | null | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idBd,
-      f: async (bd) => await f(bd.licence),
+      f: async (bd) => await f(bd ? bd.licence || null : undefined),
     });
   }
 
@@ -1137,11 +1139,11 @@ export class Bds extends ObjetConstellation<
     f,
   }: {
     idBd: string;
-    f: Suivi<string | undefined>;
+    f: Suivi<string | null | undefined>;
   }): Promise<Oublier> {
     return await this.suivreObjet({
       idObjet: idBd,
-      f: async (bd) => await f(bd.licenceContenu),
+      f: async (bd) => await f(bd ? bd.licenceContenu || null : undefined),
     });
   }
 
@@ -1355,10 +1357,11 @@ export class Bds extends ObjetConstellation<
     const différences: {
       tableauxManquants?: string[];
       tableauxSupplémentaires?: string[];
+      différencesTableaux?: { id: string; différence: DifférenceTableaux }[],
     } = {};
 
     const fFinale = async (
-      différencesTableaux: { id: string; différence: DifférenceTableaux }[],
+      
     ) => {
       const différencesTableauxManquants: DifférenceBDTableauManquant[] = (
         différences.tableauxManquants || []
@@ -1376,12 +1379,13 @@ export class Bds extends ObjetConstellation<
         }));
 
       const différencesTableauxBds: DifférenceTableauxBds[] =
-        différencesTableaux.map(({ id, différence }) => ({
+        (différences.différencesTableaux || []).map(({ id, différence }) => ({
           type: "tableau",
           idTableau: id,
           différence: différence,
           sévère: différence.sévère,
         }));
+      
       return await f([
         ...différencesTableauxManquants,
         ...différencesTableauxSupplémentaires,
@@ -1397,6 +1401,8 @@ export class Bds extends ObjetConstellation<
           if (!tableaux.base || !tableaux.réf) {
             différences.tableauxManquants = [];
             différences.tableauxSupplémentaires = [];
+            différences.différencesTableaux = [];
+            await fFinale();
             return;
           }
           différences.tableauxManquants = tableaux.réf.filter(
@@ -1405,6 +1411,7 @@ export class Bds extends ObjetConstellation<
           différences.tableauxSupplémentaires = tableaux.base.filter(
             (t) => !tableaux.réf?.includes(t),
           );
+          await fFinale();
 
           const communs = tableaux.réf.filter((t) =>
             tableaux.base?.includes(t),
@@ -1447,7 +1454,10 @@ export class Bds extends ObjetConstellation<
             ),
         });
       },
-      f: fFinale,
+      f: async (différencesTableaux: { id: string; différence: DifférenceTableaux }[],) => {
+        différences.différencesTableaux = différencesTableaux
+        await fFinale()
+      },
     });
   }
 
@@ -1510,6 +1520,7 @@ export class Bds extends ObjetConstellation<
     f: Suivi<string>;
   }): Promise<Oublier> {
     const stockage = this.service("stockage");
+    const orbite = this.service("orbite");
 
     const { clefUnique } = schéma;
     if (!clefUnique)
@@ -1527,14 +1538,24 @@ export class Bds extends ObjetConstellation<
       return async () => {
         let idBd: string;
 
+        // À faire - s'assurer que ceci n'est pas possible
+        if (!stockage.estDémarré) throw new Error("Constellation fermée.");
+
         let idBdLocale = await stockage.obtenirItem(clefStockageLocal);
         if (idBdLocale) {
           const crono = new TimeoutController(1000);
           try {
-            await orbite.ouvrirBd({
-              id: this.enleverProtocole(idBdLocale),
+            // S'assurer que la bd est disponible localement
+            const {oublier: oublierBdOrbite} = await orbite.ouvrirBd({
+              id: this.àIdOrbite(idBdLocale),
               signal: crono.signal,
             });
+            await oublierBdOrbite();
+
+            // S'assurer qu'elle est toujours d'intérêt
+            const {bd, oublier} = await this.ouvrirBd({ idBd: idBdLocale})
+            if ((await bd.get("clefUnique")) !== clefUnique) idBdLocale = null;
+            await oublier();
           } catch (e) {
             if (e.toString().includes("AbortError")) {
               idBdLocale = null;
@@ -1550,14 +1571,14 @@ export class Bds extends ObjetConstellation<
               idBd = idBdLocale;
             } else {
               idBd = await this.créerBdDeSchéma({ schéma });
-              await stockage.sauvegarderItem(clefStockageLocal, idBd);
+              await stockage.sauvegarderItem({clef: clefStockageLocal, valeur: idBd});
             }
             break;
           }
           default: {
             if (idBdLocale) bds = [...new Set([...bds, idBdLocale])];
             idBd = bds.sort()[0];
-            await stockage.sauvegarderItem(clefStockageLocal, idBd);
+            await stockage.sauvegarderItem({clef: clefStockageLocal, valeur: idBd});
 
             for (const bd of bds.slice(1)) {
               if (déjàCombinées.has(bd)) continue;
@@ -1578,8 +1599,6 @@ export class Bds extends ObjetConstellation<
       };
     };
 
-    const orbite = this.service("orbite");
-
     const stabilité = stabiliser();
     const oublier = await suivreDeFonctionListe({
       fListe: ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
@@ -1588,27 +1607,50 @@ export class Bds extends ObjetConstellation<
         return await this.suivreObjet({
           idObjet: id,
           f: async (bd) =>
-            await fSuivreBranche({ id, clefUnique: bd.clefUnique }),
+            await fSuivreBranche(bd.clefUnique === clefUnique ? id: undefined),
         });
       },
-      f: stabilité(async (bds: { id: string; clefUnique?: string }[]) => {
-        queue.add(
-          tâche(
-            bds.filter((bd) => bd.clefUnique === clefUnique).map((bd) => bd.id),
-          ),
-        );
+      f: stabilité(async (bds: string[]) => {
+        queue.add(tâche(bds));
       }),
     });
 
-    return oublier;
+    return async () => {
+      await oublier();
+      await queue.onIdle();
+    };
   }
 
   async obtenirBdUnique({ schéma }: { schéma: SchémaBd }): Promise<string> {
+    const orbite = this.service("orbite");
+
+    const bdUniqueValide = async (idBd: string): Promise<boolean> => {
+      const crono = new TimeoutController(1000);
+      try {
+        // S'assurer que la bd est disponible localement
+        const {oublier: oublierBdOrbite} = await orbite.ouvrirBd({
+          id: this.àIdOrbite(idBd),
+          signal: crono.signal,
+        });
+        await oublierBdOrbite();
+
+        // S'assurer qu'elle est toujours d'intérêt
+        const {bd, oublier} = await this.ouvrirBd({ idBd })
+        if ((await bd.get("clefUnique")) !== schéma.clefUnique){ await oublier(); return false};
+        await oublier();
+      } catch {
+        return false
+      }
+      return true;
+    }
     return await uneFois(async (fSuivi: Suivi<string>) => {
       return await this.suivreBdUnique({
         schéma,
-        f: ignorerNonDéfinis(fSuivi),
+        f: fSuivi,
       });
+    }, async (idBd) => {
+      // Il faut vérifier que la bd est toujours valide en raison de la cache sur `this.suivreBdUnique`
+      return idBd !== undefined && bdUniqueValide(idBd)
     });
   }
 
@@ -1700,7 +1742,7 @@ export class Bds extends ObjetConstellation<
     };
 
     const oublierEmpreinteBd = await orbite.suivreEmpreinteTêteBd({
-      idBd,
+      idBd: this.àIdOrbite(idBd),
       f: async (x) => {
         empreintes.bd = x;
         await fFinale();
@@ -1733,7 +1775,7 @@ export class Bds extends ObjetConstellation<
         await this.suivreVariables({ idBd, f: fSuivreRacine }),
       fBranche: async ({ id: idVariable, fSuivreBranche }) =>
         await orbite.suivreEmpreinteTêteBd({
-          idBd: idVariable,
+          idBd: enleverPréfixes(idVariable),
           f: fSuivreBranche,
         }),
       f: async (x: string[]) => {
@@ -2013,7 +2055,7 @@ export class Bds extends ObjetConstellation<
       const score: ScoreBd = {
         // Score impitoyable de 0 pour les bds sans licence
         total: licence
-          ? ((accès || 0) + (couverture || 0) + (valide || 0)) / 3
+          ? moyenne([accès, couverture, valide, infos])
           : 0,
         accès,
         couverture,
@@ -2094,7 +2136,7 @@ export class Bds extends ObjetConstellation<
       const { nomsBd, données } = info;
       if (!données) return;
 
-      const idCourt = idBd.replace("/orbitdb/", "");
+      const idCourt = enleverPréfixesEtOrbite(idBd);
       const nomBd =
         nomsBd && langues ? traduire(nomsBd, langues) || idCourt : idCourt;
       await f({
