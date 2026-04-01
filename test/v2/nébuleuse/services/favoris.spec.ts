@@ -278,9 +278,9 @@ describe.only("Favoris", function () {
       await nébuleuse.favoris.désépinglerFavori({ idObjet });
 
       const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
-        ({ si }) =>
+        ({ siVide }) =>
           nébuleuse.favoris.suivreFavoris({
-            f: si(fav=>!!fav && !fav?.find(f=>f.idObjet === idObjet)),
+            f: siVide(),
           }),
       );
 
