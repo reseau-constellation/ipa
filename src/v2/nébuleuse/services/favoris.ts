@@ -15,6 +15,7 @@ import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { AccèsUtilisateur } from "./compte/accès/types.js";
 import type { ServiceÉpingles } from "./épingles.js";
+import { enleverPréfixes } from "@/v2/utils.js";
 
 // Types réplications
 export type Réplication<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {
@@ -97,7 +98,7 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
 // Type résolveur
 
 export type Résolveur<T extends ÉpingleFavoris = ÉpingleFavoris> = (args: {
-  épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<T>>;
+  épingle: ÉpingleFavorisBooléenniséeAvecId<T>;
   f: Suivi<Set<string>>;
   signal: AbortSignal;
   ignorer: Set<string>;
@@ -222,13 +223,18 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     const épingles = this.service("épingles");
 
     const fFinale = async (
-      résolutions: { idObjet: string; épingles: string[] }[],
+      résolutions: Set<string>[],
     ) => {
       return await épingles.épingler({
         idRequête: "favoris",
-        épingles: new Set(résolutions.map((r) => r.épingles).flat()),
+        épingles: new Set(résolutions.map((r) => [...r.values()]).flat()),
       });
     };
+
+    const estÉpingleAvecId = (x: unknown): x is ÉpingleFavorisAvecId => {
+      const épingle = x as ÉpingleFavorisAvecId
+      return !!(épingle.idObjet && épingle.épingle.type)
+    }
 
     const fListe = async ({
       fSuivreRacine,
@@ -238,9 +244,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       return await this.suivreBd({
         f: (x) => {
           return fSuivreRacine(
-            Object.values(x || {}).filter(
-              (x): x is { idObjet: string; épingle: ÉpingleFavoris } => !!x,
-            ),
+            Object.values(x || {}).filter(estÉpingleAvecId),
           );
         },
       });
@@ -253,7 +257,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       fSuivreBranche: Suivi<Set<string>>;
       branche: ÉpingleFavorisAvecId;
     }) => {
-      if (branche.idObjet && branche.épingle?.type)
+      if (branche.idObjet && branche.épingle.type)
         return await this.suivreRésolutionÉpingle({
           épingle: branche,
           f: fSuivreBranche,
@@ -304,24 +308,27 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   }): Promise<Oublier> {
     // Éviter boucles infinies entre comptes et favoris
     ignorer = ignorer || new Set<string>();
-    if (ignorer.has(épingle.idObjet)) return faisRien;
-    ignorer.add(épingle.idObjet);
+    if (ignorer.has(enleverPréfixes(épingle.idObjet))) return faisRien;
+    ignorer.add(enleverPréfixes(épingle.idObjet));
 
     const résolveur = this.résolveurs.get(épingle.épingle.type);
     if (!résolveur) {
       const journal = this.service("journal");
       await journal.écrire(
-        `Résolveur pour épingle de type ${épingle.épingle.type} non disponible. Cet objet ne sera pas épinglé.`,
+        `Résolveur pour épingle de type ${épingle.épingle.type} non disponible. Cet objet ne sera probablement pas épinglé.`,
       );
 
       // On épingle la racine de l'objet ; c'est tout ce qu'on peut faire dans ce cas.
-      await f(new Set([épingle.idObjet]));
+      await f(new Set([enleverPréfixes(épingle.idObjet)]));
       return faisRien;
     }
+    const épingleBooléennisée: BooléenniserÉpingle<ÉpingleFavoris> = {
+      type: épingle.épingle.type,
+      épingle: await this.résoudreÉpinglesSurDispositif({
+        épingle: épingle.épingle.épingle || {},
+      }),
+    };
 
-    const épingleBooléennisée = await this.résoudreÉpinglesSurDispositif({
-      épingle: épingle.épingle,
-    });
     return await résolveur({
       f,
       épingle: {
@@ -371,7 +378,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     const fFinale = async (
       favoris?: PartielRécursif<{ [key: string]: ÉpingleFavorisAvecId }> | null,
     ) => {
-      if (!favoris) return await f(undefined);
+      if (!favoris) return await f([]);
 
       const favorisFinaux: ÉpingleFavorisAvecId[] = Object.values(
         favoris,
@@ -536,11 +543,12 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       f: async (favoris) => {
         const favorisObjet = favoris?.[idObjet];
         if (typeÉpinglePrésent(favorisObjet?.épingle))
-          await f(
-            await this.résoudreÉpinglesSurDispositif({
-              épingle: favorisObjet.épingle,
+          await f({
+            type: favorisObjet.épingle.type,
+            épingle:  await this.résoudreÉpinglesSurDispositif({
+              épingle: favorisObjet.épingle.épingle,
               idDispositif,
-            }),
+            })},
           );
         else await f(undefined);
       },
@@ -551,15 +559,12 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     épingle,
     idDispositif,
   }: {
-    épingle: ÉpingleFavoris<T>;
+    épingle: PartielRécursif<T>;
     idDispositif?: string;
-  }): Promise<BooléenniserÉpingle<ÉpingleFavoris<T>>> {
-    const résultat = {
-      type: épingle.type,
-      épingle: Object.fromEntries(
-        (
-          await Promise.all(
-            Object.entries(épingle.épingle || {}).map(async ([clef, val]) => {
+  }): Promise<BooléenniserPropriétés<T>> {
+    const résultat = Object.fromEntries(
+          (await Promise.all(
+            Object.entries(épingle || {}).map(async ([clef, val]) => {
               if (Array.isArray(val) || typeof val === "string") {
                 return [
                   clef,
@@ -569,23 +574,19 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
                   }),
                 ];
               } else {
-                if (typeÉpinglePrésent(val as PartielRécursif<ÉpingleFavoris>))
-                  return [
-                    clef,
-                    await this.résoudreÉpinglesSurDispositif({
-                      épingle: val,
-                      idDispositif,
-                    }),
-                  ];
-                return undefined;
+                return [
+                  clef,
+                  await this.résoudreÉpinglesSurDispositif({
+                    épingle: val,
+                    idDispositif,
+                  }),
+                ];
               }
             }),
-          )
-        ).filter(
-          (x): x is [string, BooléenniserÉpingle<ÉpingleFavoris>] => !!x,
+        )).filter(
+          (x): x is [string, BooléenniserPropriétés<T>] => !!x,
         ),
-      ),
-    } as BooléenniserÉpingle<ÉpingleFavoris<T>>;
+      ) as BooléenniserPropriétés<T>;
     return résultat;
   }
 
