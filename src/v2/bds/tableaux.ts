@@ -16,6 +16,7 @@ import { எண்ணிக்கை as எண்ணிக்கை_வகை } 
 import { isElectronMain, isNode } from "wherearewe";
 import axios from "axios";
 import { typedNested, type TypedNested } from "@constl/bohr-db";
+import gjv from "geojson-validation";
 import { cholqij } from "@/dates.js";
 import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
@@ -108,6 +109,12 @@ export type ConversionDonnéesChaîne = {
   type: "chaîne";
   langue?: string;
 };
+
+export type ConversionDonnéesFichiers =
+  | ConversionDonnéesFichier
+  | ConversionDonnéesAudio
+  | ConversionDonnéesImage
+  | ConversionDonnéesVidéo;
 
 export type ConversionDonnéesFichier = {
   type: "fichier";
@@ -275,7 +282,7 @@ export class TableauxBds extends Tableaux {
     const orbite = this.service("orbite");
 
     // Effacer la bd Orbite avec les données du tableau
-    const idDonnées = await this.obtIdDonnées({ idStructure, idTableau });
+    const idDonnées = await this.obtIdDonnées({ idStructure, idTableau, attendre: false });
 
     if (idDonnées) await orbite.effacerBd({ id: idDonnées });
 
@@ -308,14 +315,32 @@ export class TableauxBds extends Tableaux {
   }
 
   // Données
-
+  async obtIdDonnées(args: {
+    idStructure: string;
+    idTableau: string;
+    attendre: true;
+  }): Promise<string> 
+  async obtIdDonnées(args: {
+    idStructure: string;
+    idTableau: string;
+  }): Promise<string> 
+  async obtIdDonnées(args: {
+    idStructure: string;
+    idTableau: string;
+    attendre: false
+  }): Promise<string|undefined> 
   async obtIdDonnées({
     idStructure,
     idTableau,
+    attendre = true,
   }: {
     idStructure: string;
     idTableau: string;
-  }): Promise<string> {
+    attendre?: boolean
+  }): Promise<string | undefined> {
+    if (attendre) {
+      return await uneFois(f => this.suivreIdDonnées({idStructure, idTableau, f: id => ignorerNonDéfinis(f)(id) }))
+    }
     const { tableau, oublier } = await this.ouvrirTableau({
       idStructure,
       idTableau,
@@ -323,7 +348,6 @@ export class TableauxBds extends Tableaux {
     const idDonnées = await tableau.get("données");
     await oublier();
 
-    if (!idDonnées) throw new Error();
     return idDonnées;
   }
 
@@ -339,7 +363,7 @@ export class TableauxBds extends Tableaux {
     return await this.suivreTableau({
       idStructure,
       idTableau,
-      f: async (tableau) => await f(tableau.données),
+      f: async (tableau) => await f(tableau?.données),
     });
   }
 
@@ -354,26 +378,14 @@ export class TableauxBds extends Tableaux {
   }): Promise<string[]> {
     await this.confirmerPermission({ idStructure });
 
-    // Éviter, autant que possible, de dédoubler des colonnes indexes
-    const colsIndex = (
-      await uneFois((f: Suivi<InfoColonne[]>) =>
-        this.suivreColonnes({
-          idStructure,
-          idTableau,
-          f: ignorerNonDéfinis(f),
-        }),
-      )
-    )
-      .filter((c) => c.index)
-      .map((c) => c.id);
-
     const { données, oublier } = await this.ouvrirDonnéesTableau({
       idStructure,
       idTableau,
     });
+
     const ids = await Promise.all(
       éléments.map(async (val) => {
-        const id = colsIndex.length ? obtIdIndex(val, colsIndex) : uuidv4();
+        const id = uuidv4();
         await données.put(id, val);
         return id;
       }),
@@ -407,12 +419,18 @@ export class TableauxBds extends Tableaux {
 
     const élément = Object.assign({}, précédent, vals);
 
-    Object.keys(vals).map((c: string) => {
-      if (vals[c] === undefined) delete élément[c];
-    });
+    await Promise.all(
+      Object.keys(vals).map(async (c: string) => {
+        if (vals[c] === undefined) {
+          delete élément[c];
+          await données.del(`${idÉlément}/${c}`);
+          delete précédent[c];
+        }
+      }),
+    );
 
     if (!deepEqual(élément, précédent)) {
-      await données.put(idÉlément, élément);
+      await données.insert(idÉlément, élément);
     }
     await oublier();
   }
@@ -447,6 +465,8 @@ export class TableauxBds extends Tableaux {
     f: Suivi<DonnéesRangéeTableauAvecId<T>[]>;
     clefsSelonVariables?: boolean;
   }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
     const info: {
       données?: { [id: string]: T };
       variablesColonnes?: { [key: string]: string | undefined };
@@ -494,14 +514,12 @@ export class TableauxBds extends Tableaux {
     });
 
     const oublierDonnées = await suivreFonctionImbriquée({
-      fRacine: async ({ fSuivreRacine }) =>
-        await this.suivreTableau({
+      fRacine: async ({ fSuivreRacine }) => this.suivreTableau({
           idStructure,
           idTableau,
-          f: async (tableau) => await fSuivreRacine(tableau.données),
+          f: async (tableau) => await fSuivreRacine(tableau?.données),
         }),
-      fSuivre: async ({ id: idDonnées, fSuivre }) =>
-        await this.service("orbite").suivreDonnéesBdEmboîtée({
+      fSuivre: async ({ id: idDonnées, fSuivre }) => orbite.suivreDonnéesBdEmboîtée({
           id: idDonnées,
           schéma: schémaDonnéesTableau,
           f: fSuivre,
@@ -615,7 +633,7 @@ export class TableauxBds extends Tableaux {
       const erreurs: ErreurDonnée[] = [];
       for (const r of info.règles) {
         const nouvellesErreurs = r(info.données);
-        erreurs.push(...nouvellesErreurs.flat());
+        erreurs.push(...nouvellesErreurs);
       }
       await f(erreurs);
     };
@@ -623,8 +641,9 @@ export class TableauxBds extends Tableaux {
     const oublierValidateursDonnées = await this.suivreValidateursDonnées({
       idStructure,
       idTableau,
-      f: (validateurs) => {
+      f: async (validateurs) => {
         info.règles = validateurs;
+        await fFinale();
       },
       résolveurDonnéesCatégorie: this.suivreDonnées.bind(this),
     });
@@ -637,6 +656,7 @@ export class TableauxBds extends Tableaux {
         await fFinale();
       },
     });
+
     const oublier = async () => {
       await oublierValidateursDonnées();
       await oublierDonnées();
@@ -662,7 +682,7 @@ export class TableauxBds extends Tableaux {
         await this.suivreTableau({
           idStructure,
           idTableau,
-          f: async (tableau) => await fSuivreRacine(tableau.données),
+          f: async (tableau) => await fSuivreRacine(tableau?.données),
         }),
       fSuivre: async ({ id: idDonnées, fSuivre }) =>
         await orbite.suivreEmpreinteTêteBd({ idBd: idDonnées, f: fSuivre }),
@@ -786,19 +806,19 @@ export class TableauxBds extends Tableaux {
       for (const op of ops) {
         switch (op.op) {
           case "+":
-            valFinale = val + op.val;
+            valFinale = valFinale + op.val;
             break;
           case "-":
-            valFinale = val - op.val;
+            valFinale = valFinale - op.val;
             break;
           case "*":
-            valFinale = val * op.val;
+            valFinale = valFinale * op.val;
             break;
           case "/":
-            valFinale = val / op.val;
+            valFinale = valFinale / op.val;
             break;
           case "^":
-            valFinale = val ** op.val;
+            valFinale = valFinale ** op.val;
             break;
           default:
             throw new Error(op.op);
@@ -823,7 +843,7 @@ export class TableauxBds extends Tableaux {
       conversion,
     }: {
       chemin: string;
-      conversion?: ConversionDonnéesFichier;
+      conversion?: ConversionDonnéesFichiers;
     }): Promise<string | undefined> => {
       try {
         new URL(chemin);
@@ -936,9 +956,19 @@ export class TableauxBds extends Tableaux {
         case "image":
         case "vidéo":
         case "fichier": {
+          const conversionFichier =
+            conversion.type === "fichier" ||
+            conversion.type === "audio" ||
+            conversion.type === "image" ||
+            conversion.type === "vidéo"
+              ? conversion
+              : undefined;
           if (typeof valeur === "string") {
             if (idcEtFichierValide(valeur)) return valeur;
-            return résoudreFichier({ chemin: valeur });
+            return résoudreFichier({
+              chemin: valeur,
+              conversion: conversionFichier,
+            });
           } else if (estContenuFichier(valeur)) {
             const idc = await hélia.ajouterFichierÀSFIP(valeur);
             return idc;
@@ -960,12 +990,22 @@ export class TableauxBds extends Tableaux {
         }
 
         case "chaîneNonTraductible":
-          return valeur === undefined ? undefined : String(valeur);
+          return valeur === undefined
+            ? undefined
+            : typeof valeur === "object"
+              ? JSON.stringify(valeur)
+              : String(valeur);
 
         case "chaîne": {
           const conversionChaîne =
             conversion.type === "chaîne" ? conversion : undefined;
-          valeur = String(valeur);
+
+          if (valeur === undefined) return undefined;
+          valeur =
+            typeof valeur === "object"
+              ? JSON.stringify(valeur)
+              : String(valeur);
+
           const traductionsÀJour = Object.assign(
             {},
             traductions,
@@ -1068,20 +1108,25 @@ export class TableauxBds extends Tableaux {
         }
 
         case "intervaleTemps": {
-          const valObjet =
-            typeof valeur === "string" ? JSON.parse(valeur) : valeur;
-          if (Array.isArray(valObjet) && valObjet.length === 2) {
-            return justeDéfinis(
-              await Promise.all(
-                valObjet.map(
-                  async (v) =>
-                    await convertirValeurSimple({
-                      valeur: v,
-                      conversion,
-                    }),
+          try {
+            const valObjet =
+              typeof valeur === "string" ? JSON.parse(valeur) : valeur;
+            if (Array.isArray(valObjet) && valObjet.length === 2) {
+              const dates = justeDéfinis(
+                await Promise.all(
+                  valObjet.map(
+                    async (v) =>
+                      await convertirValeurSimple({
+                        valeur: v,
+                        conversion: { type: "horoDatage" },
+                      }),
+                  ),
                 ),
-              ),
-            );
+              );
+              if (dates.length === 2) return dates;
+            }
+          } catch {
+            return undefined;
           }
           return undefined;
         }
@@ -1089,12 +1134,19 @@ export class TableauxBds extends Tableaux {
         case "géojson": {
           if (typeof valeur === "string") {
             try {
-              return JSON.parse(valeur);
+              valeur = JSON.parse(valeur);
             } catch {
               return undefined;
             }
           }
-          return undefined;
+          if (
+            typeof valeur !== "object" ||
+            valeur instanceof Date ||
+            Array.isArray(valeur)
+          )
+            return undefined;
+
+          return gjv.valid(valeur) ? (valeur as DagCborEncodable) : undefined;
         }
 
         default:
@@ -1152,16 +1204,9 @@ export class TableauxBds extends Tableaux {
           Object.keys(d).reduce(
             (acc: DonnéesRangéeTableau, idColonne: string) => {
               const idVar = colonnes.find((c) => c.id === idColonne)?.variable;
-              if (!idVar)
-                throw new Error(
-                  `Colonne avec id ${idColonne} non trouvée parmis les colonnes :\n${JSON.stringify(
-                    colonnes,
-                    undefined,
-                    2,
-                  )}.`,
-                );
+
               const nomVar =
-                langues && nomsVariables?.[idVar]
+                idVar && langues && nomsVariables?.[idVar]
                   ? traduire(nomsVariables[idVar], langues) || idColonne
                   : idColonne;
               acc[nomVar] = d[idColonne];
