@@ -420,12 +420,12 @@ export class Variables extends ObjetConstellation<
     épingle,
     f,
   }: {
-    épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<ÉpingleVariable>>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleVariable>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
     await f(
       new Set(
-        épingle.épingle?.épingle?.base && épingle.idObjet
+        épingle.épingle.épingle.base
           ? [this.àIdOrbite(épingle.idObjet)]
           : [],
       ),

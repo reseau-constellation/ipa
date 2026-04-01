@@ -301,12 +301,12 @@ export class MotsClefs extends ObjetConstellation<
     épingle,
     f,
   }: {
-    épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<ÉpingleMotClef>>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleMotClef>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
     await f(
       new Set(
-        épingle.épingle?.épingle?.base && épingle.idObjet
+        épingle.épingle.épingle.base
           ? [this.àIdOrbite(épingle.idObjet)]
           : [],
       ),
