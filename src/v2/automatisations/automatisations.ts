@@ -375,7 +375,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     const stockage = this.service("stockage");
 
     const clef = "dossier." + uuidv4();
-    await stockage.sauvegarderItem({clef, valeur: fichier});
+    await stockage.sauvegarderItem({ clef, valeur: fichier });
     return clef;
   }
 

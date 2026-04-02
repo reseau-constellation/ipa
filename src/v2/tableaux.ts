@@ -1445,7 +1445,7 @@ export class Tableaux {
     ): Promise<string | number | undefined> => {
       switch (typeof v) {
         case "object": {
-          if (v instanceof Date) return v.toISOString()
+          if (v instanceof Date) return v.toISOString();
           return JSON.stringify(v);
         }
         case "boolean":

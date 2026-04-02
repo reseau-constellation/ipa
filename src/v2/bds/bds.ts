@@ -371,9 +371,10 @@ export class Bds extends ObjetConstellation<
       (f) => this.suivreLicence({ idBd, f }),
       (x) => !!x,
     )) as string;
-    const licenceContenu = await uneFois<string | null | undefined>((f) =>
-      this.suivreLicenceContenu({ idBd, f }),
-    ) || undefined;
+    const licenceContenu =
+      (await uneFois<string | null | undefined>((f) =>
+        this.suivreLicenceContenu({ idBd, f }),
+      )) || undefined;
 
     const métadonnées = await uneFois<Métadonnées>((f) =>
       this.suivreMétadonnées({ idBd, f }),
@@ -386,7 +387,9 @@ export class Bds extends ObjetConstellation<
       (f) => this.suivreStatut({ idBd, f }),
     );
     const nuées = await uneFois<string[]>((f) => this.suivreNuées({ idBd, f }));
-    const clefUnique = await uneFois<string|undefined>((f) => this.suivreClefUnique({ idBd, f }));
+    const clefUnique = await uneFois<string | undefined>((f) =>
+      this.suivreClefUnique({ idBd, f }),
+    );
 
     const idsTableaux = await uneFois<string[]>((f) =>
       this.suivreTableaux({ idBd, f }),
@@ -807,7 +810,16 @@ export class Bds extends ObjetConstellation<
         f: async (données: DonnéesRangéeTableauAvecId[]) => {
           const idcs = données
             .map((file) =>
-              Object.values(file.données).filter((v) => (typeof v === "string" && idcEtFichierValide(v)) || (Array.isArray(v)&& v.every(x=>typeof x === "string" && idcEtFichierValide(x)))).flat(),
+              Object.values(file.données)
+                .filter(
+                  (v) =>
+                    (typeof v === "string" && idcEtFichierValide(v)) ||
+                    (Array.isArray(v) &&
+                      v.every(
+                        (x) => typeof x === "string" && idcEtFichierValide(x),
+                      )),
+                )
+                .flat(),
             )
             .flat() as string[];
           info.fichiers = idcs;
@@ -1363,12 +1375,10 @@ export class Bds extends ObjetConstellation<
     const différences: {
       tableauxManquants?: string[];
       tableauxSupplémentaires?: string[];
-      différencesTableaux?: { id: string; différence: DifférenceTableaux }[],
+      différencesTableaux?: { id: string; différence: DifférenceTableaux }[];
     } = {};
 
-    const fFinale = async (
-      
-    ) => {
+    const fFinale = async () => {
       const différencesTableauxManquants: DifférenceBDTableauManquant[] = (
         différences.tableauxManquants || []
       ).map((t) => ({
@@ -1384,14 +1394,15 @@ export class Bds extends ObjetConstellation<
           clefExtra: t,
         }));
 
-      const différencesTableauxBds: DifférenceTableauxBds[] =
-        (différences.différencesTableaux || []).map(({ id, différence }) => ({
-          type: "tableau",
-          idTableau: id,
-          différence: différence,
-          sévère: différence.sévère,
-        }));
-      
+      const différencesTableauxBds: DifférenceTableauxBds[] = (
+        différences.différencesTableaux || []
+      ).map(({ id, différence }) => ({
+        type: "tableau",
+        idTableau: id,
+        différence: différence,
+        sévère: différence.sévère,
+      }));
+
       return await f([
         ...différencesTableauxManquants,
         ...différencesTableauxSupplémentaires,
@@ -1460,9 +1471,11 @@ export class Bds extends ObjetConstellation<
             ),
         });
       },
-      f: async (différencesTableaux: { id: string; différence: DifférenceTableaux }[],) => {
-        différences.différencesTableaux = différencesTableaux
-        await fFinale()
+      f: async (
+        différencesTableaux: { id: string; différence: DifférenceTableaux }[],
+      ) => {
+        différences.différencesTableaux = différencesTableaux;
+        await fFinale();
       },
     });
   }
@@ -1552,14 +1565,14 @@ export class Bds extends ObjetConstellation<
           const crono = new TimeoutController(1000);
           try {
             // S'assurer que la bd est disponible localement
-            const {oublier: oublierBdOrbite} = await orbite.ouvrirBd({
+            const { oublier: oublierBdOrbite } = await orbite.ouvrirBd({
               id: this.àIdOrbite(idBdLocale),
               signal: crono.signal,
             });
             await oublierBdOrbite();
 
             // S'assurer qu'elle est toujours d'intérêt
-            const {bd, oublier} = await this.ouvrirBd({ idBd: idBdLocale})
+            const { bd, oublier } = await this.ouvrirBd({ idBd: idBdLocale });
             if ((await bd.get("clefUnique")) !== clefUnique) idBdLocale = null;
             await oublier();
           } catch (e) {
@@ -1577,14 +1590,20 @@ export class Bds extends ObjetConstellation<
               idBd = idBdLocale;
             } else {
               idBd = await this.créerBdDeSchéma({ schéma });
-              await stockage.sauvegarderItem({clef: clefStockageLocal, valeur: idBd});
+              await stockage.sauvegarderItem({
+                clef: clefStockageLocal,
+                valeur: idBd,
+              });
             }
             break;
           }
           default: {
             if (idBdLocale) bds = [...new Set([...bds, idBdLocale])];
             idBd = bds.sort()[0];
-            await stockage.sauvegarderItem({clef: clefStockageLocal, valeur: idBd});
+            await stockage.sauvegarderItem({
+              clef: clefStockageLocal,
+              valeur: idBd,
+            });
 
             for (const bd of bds.slice(1)) {
               if (déjàCombinées.has(bd)) continue;
@@ -1613,7 +1632,7 @@ export class Bds extends ObjetConstellation<
         return await this.suivreObjet({
           idObjet: id,
           f: async (bd) =>
-            await fSuivreBranche(bd.clefUnique === clefUnique ? id: undefined),
+            await fSuivreBranche(bd.clefUnique === clefUnique ? id : undefined),
         });
       },
       f: stabilité(async (bds: string[]) => {
@@ -1634,30 +1653,36 @@ export class Bds extends ObjetConstellation<
       const crono = new TimeoutController(1000);
       try {
         // S'assurer que la bd est disponible localement
-        const {oublier: oublierBdOrbite} = await orbite.ouvrirBd({
+        const { oublier: oublierBdOrbite } = await orbite.ouvrirBd({
           id: this.àIdOrbite(idBd),
           signal: crono.signal,
         });
         await oublierBdOrbite();
 
         // S'assurer qu'elle est toujours d'intérêt
-        const {bd, oublier} = await this.ouvrirBd({ idBd })
-        if ((await bd.get("clefUnique")) !== schéma.clefUnique){ await oublier(); return false};
+        const { bd, oublier } = await this.ouvrirBd({ idBd });
+        if ((await bd.get("clefUnique")) !== schéma.clefUnique) {
+          await oublier();
+          return false;
+        }
         await oublier();
       } catch {
-        return false
+        return false;
       }
       return true;
-    }
-    return await uneFois(async (fSuivi: Suivi<string>) => {
-      return await this.suivreBdUnique({
-        schéma,
-        f: fSuivi,
-      });
-    }, async (idBd) => {
-      // Il faut vérifier que la bd est toujours valide en raison de la cache sur `this.suivreBdUnique`
-      return idBd !== undefined && bdUniqueValide(idBd)
-    });
+    };
+    return await uneFois(
+      async (fSuivi: Suivi<string>) => {
+        return await this.suivreBdUnique({
+          schéma,
+          f: fSuivi,
+        });
+      },
+      async (idBd) => {
+        // Il faut vérifier que la bd est toujours valide en raison de la cache sur `this.suivreBdUnique`
+        return idBd !== undefined && bdUniqueValide(idBd);
+      },
+    );
   }
 
   @cacheSuivi
@@ -2060,9 +2085,7 @@ export class Bds extends ObjetConstellation<
       const { accès, couverture, valide, infos, licence } = info;
       const score: ScoreBd = {
         // Score impitoyable de 0 pour les bds sans licence
-        total: licence
-          ? moyenne([accès, couverture, valide, infos])
-          : 0,
+        total: licence ? moyenne([accès, couverture, valide, infos]) : 0,
         accès,
         couverture,
         valide,

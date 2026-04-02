@@ -145,7 +145,10 @@ export class BaseServiceCompte<
     const { bd, oublier } = await orbite.créerBd({ type: "nested" });
     idCompte = ajouterPréfixes(bd.address, "/nébuleuse/compte");
 
-    await this.service("stockage").sauvegarderItem({clef: CLEF_ID_COMPTE, valeur: idCompte});
+    await this.service("stockage").sauvegarderItem({
+      clef: CLEF_ID_COMPTE,
+      valeur: idCompte,
+    });
     return { idCompte, bd, oublier };
   }
 
@@ -257,7 +260,7 @@ export class BaseServiceCompte<
 
     // On sauvegarde le nouvel identifiant de compte
     const stockage = this.service("stockage");
-    stockage.sauvegarderItem({clef: CLEF_ID_COMPTE, valeur: idCompte});
+    stockage.sauvegarderItem({ clef: CLEF_ID_COMPTE, valeur: idCompte });
 
     // Là on peut y aller
     await this.démarrer();
