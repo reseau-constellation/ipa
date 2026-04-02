@@ -349,14 +349,14 @@ describe.only("Validation", function () {
             {
               données: {
                 [idColonneTexte]: "a",
-                [idColonneDate]: new Date("01/01/2025").getTime(),
+                [idColonneDate]: new Date("2025/01/01").getTime(),
               },
               id: uuidv4(),
             },
             {
               données: {
                 [idColonneTexte]: "a",
-                [idColonneDate]: new Date("01/02/2025").getTime(),
+                [idColonneDate]: new Date("2025/02/01").getTime(),
               },
               id: uuidv4(),
             },
@@ -371,21 +371,21 @@ describe.only("Validation", function () {
             {
               données: {
                 [idColonneTexte]: "a",
-                [idColonneDate]: new Date("01/01/2025").getTime(),
+                [idColonneDate]: new Date("2025/01/01").getTime(),
               },
               id: idsÉléments[0],
             },
             {
               données: {
                 [idColonneTexte]: "a",
-                [idColonneDate]: new Date("01/01/2025").getTime(),
+                [idColonneDate]: new Date("2025/01/01").getTime(),
               },
               id: idsÉléments[1],
             },
             {
               données: {
                 [idColonneTexte]: "b",
-                [idColonneDate]: new Date("01/01/2025").getTime(),
+                [idColonneDate]: new Date("2025/01/01").getTime(),
               },
               id: idsÉléments[2],
             },
