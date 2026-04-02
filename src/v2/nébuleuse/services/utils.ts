@@ -60,3 +60,13 @@ export const appelerLorsque = <
     await Promise.allSettled(promesses);
   };
 };
+
+// De https://advancedweb.hu/how-to-use-async-functions-with-array-filter-in-javascript/https://advancedweb.hu/how-to-use-async-functions-with-array-filter-in-javascript/
+export const filtreAsync = async <T>(
+  liste: T[],
+  filtre: (x: T) => Promise<boolean>,
+) => {
+  const results = await Promise.all(liste.map(filtre));
+
+  return liste.filter((_v, index) => results[index]);
+};
