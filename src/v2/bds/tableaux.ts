@@ -282,7 +282,11 @@ export class TableauxBds extends Tableaux {
     const orbite = this.service("orbite");
 
     // Effacer la bd Orbite avec les données du tableau
-    const idDonnées = await this.obtIdDonnées({ idStructure, idTableau, attendre: false });
+    const idDonnées = await this.obtIdDonnées({
+      idStructure,
+      idTableau,
+      attendre: false,
+    });
 
     if (idDonnées) await orbite.effacerBd({ id: idDonnées });
 
@@ -319,16 +323,16 @@ export class TableauxBds extends Tableaux {
     idStructure: string;
     idTableau: string;
     attendre: true;
-  }): Promise<string> 
+  }): Promise<string>;
   async obtIdDonnées(args: {
     idStructure: string;
     idTableau: string;
-  }): Promise<string> 
+  }): Promise<string>;
   async obtIdDonnées(args: {
     idStructure: string;
     idTableau: string;
-    attendre: false
-  }): Promise<string|undefined> 
+    attendre: false;
+  }): Promise<string | undefined>;
   async obtIdDonnées({
     idStructure,
     idTableau,
@@ -336,10 +340,16 @@ export class TableauxBds extends Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    attendre?: boolean
+    attendre?: boolean;
   }): Promise<string | undefined> {
     if (attendre) {
-      return await uneFois(f => this.suivreIdDonnées({idStructure, idTableau, f: id => ignorerNonDéfinis(f)(id) }))
+      return await uneFois((f) =>
+        this.suivreIdDonnées({
+          idStructure,
+          idTableau,
+          f: (id) => ignorerNonDéfinis(f)(id),
+        }),
+      );
     }
     const { tableau, oublier } = await this.ouvrirTableau({
       idStructure,
@@ -514,12 +524,14 @@ export class TableauxBds extends Tableaux {
     });
 
     const oublierDonnées = await suivreFonctionImbriquée({
-      fRacine: async ({ fSuivreRacine }) => this.suivreTableau({
+      fRacine: async ({ fSuivreRacine }) =>
+        this.suivreTableau({
           idStructure,
           idTableau,
           f: async (tableau) => await fSuivreRacine(tableau?.données),
         }),
-      fSuivre: async ({ id: idDonnées, fSuivre }) => orbite.suivreDonnéesBdEmboîtée({
+      fSuivre: async ({ id: idDonnées, fSuivre }) =>
+        orbite.suivreDonnéesBdEmboîtée({
           id: idDonnées,
           schéma: schémaDonnéesTableau,
           f: fSuivre,
