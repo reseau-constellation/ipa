@@ -5,6 +5,7 @@ import PQueue from "p-queue";
 import { isValidAddress, type BaseDatabase } from "@orbitdb/core";
 import { ServiceAppli } from "../appli/services.js";
 import { idcEtFichierValide } from "../../utils.js";
+import { filtreAsync } from "./utils.js";
 import type { OptionsAppli } from "../appli/appli.js";
 import type { Oublier } from "../types.js";
 import type {
@@ -86,36 +87,38 @@ export class ServiceÉpingles extends ServiceAppli<
     const àÉpingler = new Set(
       [...this.requêtes.values()].map((x) => [...x]).flat(),
     );
-    const bdsOrbiteÀÉpingler = [...àÉpingler].filter(
-      (id) => id && isValidAddress(id),
-    );
 
-    const idcsÀÉpingler = [...àÉpingler]
+    // Documents
+    const serviceHélia = this.service("hélia");
+    const hélia = await serviceHélia.hélia();
+
+    const idcs = [...àÉpingler]
       .map((id) => {
         const cidAvecFichier = idcEtFichierValide(id);
         if (cidAvecFichier) return cidAvecFichier.idc;
         else if (idcValide(id)) return id;
         return undefined;
       })
-      .filter((x) => !!x) as string[];
+      .filter((x): x is string => !!x);
 
-    const serviceHélia = this.service("hélia");
-    const hélia = await serviceHélia.hélia();
+    const idcsÀÉpingler = await filtreAsync(
+      idcs.map((idc) => CID.parse(idc)),
+      async (idc) => (await hélia.pins.isPinned(idc)) === false,
+    );
     try {
       for (const idc of idcsÀÉpingler) {
         await drain(
-          hélia.pins.add(CID.parse(idc), {
+          hélia.pins.add(idc, {
             signal: this.signaleurArrêt.signal,
           }),
         );
       }
     } catch (e) {
       if (e.toString().includes("AbortError")) return;
-      throw e;
     }
 
     const idcsÀDésépingler = [...this.idcsÉpinglés].filter(
-      (id) => !idcsÀÉpingler.includes(id),
+      (id) => !idcs.includes(id),
     );
 
     try {
@@ -128,12 +131,16 @@ export class ServiceÉpingles extends ServiceAppli<
       if (e.toString().includes("AbortError")) return;
       throw e;
     }
-    this.idcsÉpinglés = new Set(idcsÀÉpingler);
+    this.idcsÉpinglés = new Set(idcs);
+
+    // Bases de données
+    const bdsOrbiteÀÉpingler = [...àÉpingler].filter(
+      (id) => id && isValidAddress(id),
+    );
 
     const orbite = this.service("orbite");
     await Promise.allSettled(
       bdsOrbiteÀÉpingler.map(async (idBd) => {
-        // Faut pas trop s'en faire si la bd n'est pas accessible.
         try {
           const { bd, oublier } = await orbite.ouvrirBd({
             id: idBd,
@@ -141,6 +148,7 @@ export class ServiceÉpingles extends ServiceAppli<
           });
           this.bdsOuvertes.set(idBd, { bd, oublier });
         } catch {
+          // Faut pas trop s'en faire si la bd n'est pas accessible.
           return;
         }
       }),
