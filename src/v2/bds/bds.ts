@@ -351,7 +351,13 @@ export class Bds extends ObjetConstellation<
     await orbite.effacerBd({ id: this.àIdOrbite(idBd) });
   }
 
-  async ajouterÀMesBds({ idBd, épingler = true }: { idBd: string; épingler?: boolean }): Promise<void> {
+  async ajouterÀMesBds({
+    idBd,
+    épingler = true,
+  }: {
+    idBd: string;
+    épingler?: boolean;
+  }): Promise<void> {
     if (épingler) await this.épingler({ idBd });
     return await this.ajouterÀMesObjets({ idObjet: idBd });
   }

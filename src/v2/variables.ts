@@ -215,9 +215,7 @@ export class Variables extends ObjetConstellation<
     await oublierBd();
     const { variable, oublier } = await this.ouvrirVariable({ idVariable });
 
-    await this.ajouterÀMesVariables({ idVariable });
-
-    if (épingler) await this.épingler({ idVariable });
+    await this.ajouterÀMesVariables({ idVariable, épingler });
 
     await variable.insert({
       type: "variable",
@@ -231,9 +229,12 @@ export class Variables extends ObjetConstellation<
 
   async ajouterÀMesVariables({
     idVariable,
+    épingler = true,
   }: {
     idVariable: string;
+    épingler?: boolean;
   }): Promise<void> {
+    if (épingler) await this.épingler({ idVariable });
     await this.ajouterÀMesObjets({ idObjet: idVariable });
   }
 
@@ -425,9 +426,7 @@ export class Variables extends ObjetConstellation<
   }): Promise<Oublier> {
     await f(
       new Set(
-        épingle.épingle.épingle.base
-          ? [this.àIdOrbite(épingle.idObjet)]
-          : [],
+        épingle.épingle.épingle.base ? [this.àIdOrbite(épingle.idObjet)] : [],
       ),
     );
 

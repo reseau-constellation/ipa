@@ -198,9 +198,7 @@ export class Projets extends ObjetConstellation<
     await oublierBd();
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
 
-    await this.ajouterÀMesProjets({ idProjet });
-
-    if (épingler) await this.épingler({ idProjet });
+    await this.ajouterÀMesProjets({ idProjet, épingler });
 
     await projet.insert({
       type: "projet",
@@ -225,7 +223,14 @@ export class Projets extends ObjetConstellation<
     await orbite.effacerBd({ id: this.àIdOrbite(idProjet) });
   }
 
-  async ajouterÀMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
+  async ajouterÀMesProjets({
+    idProjet,
+    épingler = true,
+  }: {
+    idProjet: string;
+    épingler?: boolean;
+  }): Promise<void> {
+    if (épingler) await this.épingler({ idProjet });
     await this.ajouterÀMesObjets({ idObjet: idProjet });
   }
 

@@ -128,9 +128,7 @@ export class MotsClefs extends ObjetConstellation<
     await oublierBd();
     const { motClef, oublier } = await this.ouvrirMotClef({ idMotClef });
 
-    await this.ajouterÀMesMotsClefs({ idMotClef });
-
-    if (épingler) await this.épingler({ idMotClef });
+    await this.ajouterÀMesMotsClefs({ idMotClef, épingler });
 
     await motClef.insert({
       type: "mot-clef",
@@ -180,9 +178,12 @@ export class MotsClefs extends ObjetConstellation<
 
   async ajouterÀMesMotsClefs({
     idMotClef,
+    épingler = true,
   }: {
     idMotClef: string;
+    épingler?: boolean;
   }): Promise<void> {
+    if (épingler) await this.épingler({ idMotClef });
     return await this.ajouterÀMesObjets({ idObjet: idMotClef });
   }
 
@@ -306,9 +307,7 @@ export class MotsClefs extends ObjetConstellation<
   }): Promise<Oublier> {
     await f(
       new Set(
-        épingle.épingle.épingle.base
-          ? [this.àIdOrbite(épingle.idObjet)]
-          : [],
+        épingle.épingle.épingle.base ? [this.àIdOrbite(épingle.idObjet)] : [],
       ),
     );
 
