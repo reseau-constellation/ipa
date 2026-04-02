@@ -3598,7 +3598,8 @@ describe.skip("tableaux", function () {
 
           let i = 1;
           while (i++) {
-            const val = données.docu.Sheets[nomTableauFr][`${étiquette}${i}`]?.v;
+            const val =
+              données.docu.Sheets[nomTableauFr][`${étiquette}${i}`]?.v;
             if (val === undefined) break;
             vals.push(val);
           }
@@ -3644,7 +3645,11 @@ describe.skip("tableaux", function () {
               idTableau,
             });
           }
-          await constl.bds.tableaux.ajouterColonne({ idStructure: idBd,  idTableau, idColonne: "colonneListe"})
+          await constl.bds.tableaux.ajouterColonne({
+            idStructure: idBd,
+            idTableau,
+            idColonne: "colonneListe",
+          });
 
           const éléments: DonnéesRangéeTableau[] = [
             {
@@ -3710,7 +3715,12 @@ describe.skip("tableaux", function () {
 
         it("noms colonnes", async () => {
           // Tous les noms de colonne devraient exister dans le document
-          expect(étiquettesColonnesDocu.map(c=>(données.docu.Sheets[nomTableauFr][`${c}1`] as CellObject).v)).to.have.members([...Object.values(idsColonnes), "colonneListe"])
+          expect(
+            étiquettesColonnesDocu.map(
+              (c) =>
+                (données.docu.Sheets[nomTableauFr][`${c}1`] as CellObject).v,
+            ),
+          ).to.have.members([...Object.values(idsColonnes), "colonneListe"]);
         });
 
         it("données numériques", async () => {
@@ -3786,7 +3796,9 @@ describe.skip("tableaux", function () {
             nomTableauFr,
             données.docu,
           );
-          expect(vals).to.have.deep.ordered.members([JSON.stringify(valGéoJson)]);
+          expect(vals).to.have.deep.ordered.members([
+            JSON.stringify(valGéoJson),
+          ]);
         });
 
         it("données image", async () => {
@@ -3806,7 +3818,9 @@ describe.skip("tableaux", function () {
             nomTableauFr,
             données.docu,
           );
-          expect(vals.map((v) => JSON.parse(v as string))).to.have.deep.ordered.members([valIntervaleTemps]);
+          expect(
+            vals.map((v) => JSON.parse(v as string)),
+          ).to.have.deep.ordered.members([valIntervaleTemps]);
         });
 
         it("données vidéo", async () => {
@@ -3850,7 +3864,12 @@ describe.skip("tableaux", function () {
 
           expect(docu.SheetNames[0]).to.equal(idTableauCourt);
 
-          expect(étiquettesColonnesDocu.map(c=>(données.docu.Sheets[nomTableauFr][`${c}1`] as CellObject).v)).to.have.members([...Object.values(idsColonnes), "colonneListe"])
+          expect(
+            étiquettesColonnesDocu.map(
+              (c) =>
+                (données.docu.Sheets[nomTableauFr][`${c}1`] as CellObject).v,
+            ),
+          ).to.have.members([...Object.values(idsColonnes), "colonneListe"]);
         });
       });
 
@@ -4460,13 +4479,17 @@ describe.skip("tableaux", function () {
       const réf: RègleColonne = {
         règle: {
           id: idRègle,
-          règle
+          règle,
         },
-        source: { type: "tableau", idStructure: idBd, idTableau: idTableauCopié },
-        colonne: idColonne
-      }
+        source: {
+          type: "tableau",
+          idStructure: idBd,
+          idTableau: idTableauCopié,
+        },
+        colonne: idColonne,
+      };
 
-      expect(règles.find(r=>r.règle.id === idRègle)).to.deep.equal(réf);
+      expect(règles.find((r) => r.règle.id === idRègle)).to.deep.equal(réf);
     });
 
     it("les variables sont copiés", async () => {
@@ -4546,13 +4569,17 @@ describe.skip("tableaux", function () {
       const réf: RègleColonne = {
         règle: {
           id: idRègle,
-          règle
+          règle,
         },
-        source: { type: "tableau", idStructure: idNouvelleBd, idTableau: idTableauCopié },
-        colonne: idColonne
-      }
+        source: {
+          type: "tableau",
+          idStructure: idNouvelleBd,
+          idTableau: idTableauCopié,
+        },
+        colonne: idColonne,
+      };
 
-      expect(règles.find(r=>r.règle.id === idRègle)).to.deep.equal(réf);
+      expect(règles.find((r) => r.règle.id === idRègle)).to.deep.equal(réf);
     });
 
     it("nouvelle structure - les variables sont copiés", async () => {
@@ -4627,22 +4654,25 @@ describe.skip("tableaux", function () {
       expect(permission).to.equal(MEMBRE);
 
       // Vérifier que l'édition des données fonctionne
-      const idÉlément = (await constlsAccès[1].bds.tableaux.ajouterÉléments({
-        idStructure: idBd,
-        idTableau,
-        éléments: [
-          {
-            [idColonne]: 123,
-          },
-        ],
-      }))[0];
-
-      const vals = await obtenir<DonnéesRangéeTableauAvecId[]>(({ siPasVide }) =>
-        constlsAccès[0].bds.tableaux.suivreDonnées({
+      const idÉlément = (
+        await constlsAccès[1].bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
-          f: siPasVide(),
-        }),
+          éléments: [
+            {
+              [idColonne]: 123,
+            },
+          ],
+        })
+      )[0];
+
+      const vals = await obtenir<DonnéesRangéeTableauAvecId[]>(
+        ({ siPasVide }) =>
+          constlsAccès[0].bds.tableaux.suivreDonnées({
+            idStructure: idBd,
+            idTableau,
+            f: siPasVide(),
+          }),
       );
 
       const réf: DonnéesRangéeTableauAvecId[] = [
@@ -4651,8 +4681,8 @@ describe.skip("tableaux", function () {
           données: {
             [idColonne]: 123,
           },
-        }
-      ]
+        },
+      ];
       expect(vals).to.deep.equal(réf);
     });
   });

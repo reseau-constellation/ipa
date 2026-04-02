@@ -143,7 +143,13 @@ export class ServiceStockage extends ServiceAppli<
     return stockageLocal.getItem(clef);
   }
 
-  async sauvegarderItem({clef, valeur}: {clef: string, valeur: string}): Promise<void> {
+  async sauvegarderItem({
+    clef,
+    valeur,
+  }: {
+    clef: string;
+    valeur: string;
+  }): Promise<void> {
     const { stockageLocal } = await this.démarré();
     return stockageLocal.setItem(clef, valeur);
   }

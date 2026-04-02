@@ -4,6 +4,7 @@ import {
   MODÉRATRICE,
 } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { TOUS_DISPOSITIFS } from "@/v2/nébuleuse/services/favoris.js";
+import { enleverPréfixes } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
@@ -21,7 +22,6 @@ import type {
   RègleCatégorie,
   RègleVariableAvecId,
 } from "@/v2/règles.js";
-import { enleverPréfixes } from "@/v2/utils.js";
 
 describe.only("Variables", function () {
   let fermer: () => Promise<void>;

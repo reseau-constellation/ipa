@@ -4,6 +4,7 @@ import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
 import { dossierTempo } from "@constl/utils-tests";
+import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
@@ -13,7 +14,11 @@ import {
   MODÉRATRICE,
 } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { créerConstellation, type Constellation } from "@/v2/index.js";
-import { enleverPréfixes, enleverPréfixesEtOrbite, moyenne } from "@/v2/utils.js";
+import {
+  enleverPréfixes,
+  enleverPréfixesEtOrbite,
+  moyenne,
+} from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { créerConstellationsTest, journalifier, obtenir } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
@@ -38,7 +43,6 @@ import type {
   InfoColonne,
 } from "@/v2/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
-import { isBrowser, isElectronRenderer } from "wherearewe";
 
 describe.only("Bases de données", function () {
   let fermer: () => Promise<void>;
@@ -754,7 +758,10 @@ describe.only("Bases de données", function () {
           f: si((x) => !!x && x.size > 1),
         }),
       );
-      expect([...résolution]).to.have.members([enleverPréfixes(idBd), idDonnéesTableau]);
+      expect([...résolution]).to.have.members([
+        enleverPréfixes(idBd),
+        idDonnéesTableau,
+      ]);
 
       const résolutionSansTableaux = await obtenir<Set<string>>(
         ({ siDéfini }) =>
@@ -771,7 +778,9 @@ describe.only("Bases de données", function () {
             f: siDéfini(),
           }),
       );
-      expect([...résolutionSansTableaux]).to.have.members([enleverPréfixes(idBd)]);
+      expect([...résolutionSansTableaux]).to.have.members([
+        enleverPréfixes(idBd),
+      ]);
     });
 
     it("résoudre épingle - fichiers", async () => {
@@ -816,7 +825,11 @@ describe.only("Bases de données", function () {
           f: si((x) => !!x && x.size > 2),
         }),
       );
-      expect([...résolution]).to.have.members([enleverPréfixes(idBd), idDonnéesTableau, idc]);
+      expect([...résolution]).to.have.members([
+        enleverPréfixes(idBd),
+        idDonnéesTableau,
+        idc,
+      ]);
 
       const résolutionSansFichers = await obtenir<Set<string>>(({ siDéfini }) =>
         constl.bds.suivreRésolutionÉpingle({
@@ -832,7 +845,9 @@ describe.only("Bases de données", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolutionSansFichers]).to.have.members([enleverPréfixes(idBd)]);
+      expect([...résolutionSansFichers]).to.have.members([
+        enleverPréfixes(idBd),
+      ]);
     });
 
     it("résoudre épingle - fichiers variable liste", async () => {
@@ -848,7 +863,8 @@ describe.only("Bases de données", function () {
       });
 
       const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4";
-      const idc2 = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmR/un autre fichier.mp4";
+      const idc2 =
+        "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmR/un autre fichier.mp4";
       await constl.bds.tableaux.ajouterÉléments({
         idStructure: idBd,
         idTableau,
@@ -857,7 +873,7 @@ describe.only("Bases de données", function () {
       const idDonnées = await constl.bds.tableaux.obtIdDonnées({
         idStructure: idBd,
         idTableau,
-      })
+      });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
         constl.bds.suivreRésolutionÉpingle({
@@ -874,10 +890,15 @@ describe.only("Bases de données", function () {
               },
             },
           },
-          f: si(x=>!!x && x.size >= 4),
+          f: si((x) => !!x && x.size >= 4),
         }),
       );
-      expect([...résolution]).to.have.members([enleverPréfixes(idBd), idDonnées, idc, idc2]);
+      expect([...résolution]).to.have.members([
+        enleverPréfixes(idBd),
+        idDonnées,
+        idc,
+        idc2,
+      ]);
     });
   });
 
@@ -937,8 +958,9 @@ describe.only("Bases de données", function () {
     const métadonnées = { clef: true, clef2: [1, 2, 3] };
     const statut: StatutDonnées = { statut: "interne" };
 
-    const idNuée = "/constl/nuées/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
-    
+    const idNuée =
+      "/constl/nuées/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+
     let idVarClef: string;
     let idVarTraduc: string;
     let idVarLangue: string;
@@ -1014,7 +1036,7 @@ describe.only("Bases de données", function () {
       });
 
       it("licence", async () => {
-        const licenceBd = await obtenir<string|null>(({ siDéfini }) =>
+        const licenceBd = await obtenir<string | null>(({ siDéfini }) =>
           constl.bds.suivreLicence({
             idBd,
             f: siDéfini(),
@@ -1024,7 +1046,7 @@ describe.only("Bases de données", function () {
       });
 
       it("licence contenu", async () => {
-        const licenceContenuBd = await obtenir<string|null>(({ siDéfini }) =>
+        const licenceContenuBd = await obtenir<string | null>(({ siDéfini }) =>
           constl.bds.suivreLicenceContenu({
             idBd,
             f: siDéfini(),
@@ -1130,8 +1152,8 @@ describe.only("Bases de données", function () {
         const réf = structuredClone(schéma);
         for (const tableau of Object.values(réf.tableaux)) {
           for (const col of tableau.cols) {
-            if (!(Object.keys(col).includes("index"))) {
-              col.index = undefined
+            if (!Object.keys(col).includes("index")) {
+              col.index = undefined;
             }
           }
         }
@@ -1142,7 +1164,8 @@ describe.only("Bases de données", function () {
 
   describe("nuées", function () {
     let idBd: string;
-    const idNuée = "/constl/nuées/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+    const idNuée =
+      "/constl/nuées/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODBl-1_0" });
@@ -1309,7 +1332,7 @@ describe.only("Bases de données", function () {
         licence: réfLicence,
         licenceContenu: réfLicenceContenu,
       });
-      await constl.bds.sauvegarderStatut({ idBd: idBdOrig, statut: réfStatut })
+      await constl.bds.sauvegarderStatut({ idBd: idBdOrig, statut: réfStatut });
       idMotClef = await constl.motsClefs.créerMotClef();
 
       await constl.bds.sauvegarderNoms({
@@ -1391,14 +1414,14 @@ describe.only("Bases de données", function () {
     });
 
     it("la licence est copiée", async () => {
-      const licence = await obtenir<string|null>(({ siDéfini }) =>
+      const licence = await obtenir<string | null>(({ siDéfini }) =>
         constl.bds.suivreLicence({ idBd: idBdCopie, f: siDéfini() }),
       );
       expect(licence).to.equal(réfLicence);
     });
 
     it("la licence du contenu est copiée", async () => {
-      const licenceContenu = await obtenir<string|null>(({ siDéfini }) =>
+      const licenceContenu = await obtenir<string | null>(({ siDéfini }) =>
         constl.bds.suivreLicenceContenu({ idBd: idBdCopie, f: siDéfini() }),
       );
       expect(licenceContenu).to.equal(réfLicenceContenu);
@@ -1452,7 +1475,7 @@ describe.only("Bases de données", function () {
             f: siPasVide(),
           }),
       );
-      expect(données.map(d=>d.données)).to.have.deep.members(donnéesRéf);
+      expect(données.map((d) => d.données)).to.have.deep.members(donnéesRéf);
     });
 
     it("source copie établie", async () => {
@@ -1528,9 +1551,15 @@ describe.only("Bases de données", function () {
       idBdSource = await constl.bds.créerBdDeSchéma({ schéma });
       idBdDestinataire = await constl.bds.créerBdDeSchéma({ schéma });
 
-      await constl.bds.ajouterTableau({ idBd: idBdDestinataire, idTableau: idTableauSupplémentaire })
-      await constl.bds.ajouterTableau({ idBd: idBdSource, idTableau: idTableauManquant })
-      
+      await constl.bds.ajouterTableau({
+        idBd: idBdDestinataire,
+        idTableau: idTableauSupplémentaire,
+      });
+      await constl.bds.ajouterTableau({
+        idBd: idBdSource,
+        idTableau: idTableauManquant,
+      });
+
       type ÉlémentTrad = {
         [idColonneClef]: string;
         [idColonneTraduc]?: string;
@@ -1590,7 +1619,8 @@ describe.only("Bases de données", function () {
           idStructure: idBdDestinataire,
           idTableau,
           f: si(
-            (x) =>!!x &&
+            (x) =>
+              !!x &&
               x.length >= 5 &&
               x.every((y) => Object.keys(y.données).length > 1),
           ),
@@ -2081,9 +2111,13 @@ describe.only("Bases de données", function () {
 
     it("pas de problème si bd locale non disponible", async () => {
       const clefStockageLocal = "bdUnique : " + clefUnique;
-      const idBdNonExistante = "/constl/bds/orbitdb/zdpuApXcEi9YkhRVTV6S4dE9uUoS9VXQg1qsGyJoPfqvK6FvT"
+      const idBdNonExistante =
+        "/constl/bds/orbitdb/zdpuApXcEi9YkhRVTV6S4dE9uUoS9VXQg1qsGyJoPfqvK6FvT";
 
-      await constl.services["stockage"].sauvegarderItem({clef: clefStockageLocal, valeur: idBdNonExistante})
+      await constl.services["stockage"].sauvegarderItem({
+        clef: clefStockageLocal,
+        valeur: idBdNonExistante,
+      });
       const nouvelIdBdUnique = await constl.bds.obtenirBdUnique({
         schéma,
       });
@@ -2096,13 +2130,17 @@ describe.only("Bases de données", function () {
 
     it("recréée si effacée", async () => {
       await constl.bds.effacerBd({ idBd: idBdUnique });
-      await  obtenir<string[] | undefined>(({si})=>constl.bds.suivreBds({f: si(x=>!!x && !x.includes(idBdUnique))}));
+      await obtenir<string[] | undefined>(({ si }) =>
+        constl.bds.suivreBds({ f: si((x) => !!x && !x.includes(idBdUnique)) }),
+      );
 
       const nouvelIdBdUnique = await constl.bds.obtenirBdUnique({
         schéma,
       });
 
-      expect(await constl.bds.identifiantValide({identifiant: nouvelIdBdUnique})).to.be.true();
+      expect(
+        await constl.bds.identifiantValide({ identifiant: nouvelIdBdUnique }),
+      ).to.be.true();
       expect(nouvelIdBdUnique).to.not.equal(idBdUnique);
     });
 
@@ -2110,9 +2148,10 @@ describe.only("Bases de données", function () {
       const { constls: constlsTestRéouverture, fermer: fermerTestRéouverture } =
         await créerConstellationsTest({ n: 1 });
       const constlTestRéouverture = constlsTestRéouverture[0];
-      const idBdUniqueTestRéouverture = await constlTestRéouverture.bds.obtenirBdUnique({
-        schéma,
-      });
+      const idBdUniqueTestRéouverture =
+        await constlTestRéouverture.bds.obtenirBdUnique({
+          schéma,
+        });
       const éléments: DonnéesRangéeTableau[] = [
         {
           [idColonneLangue]: "తె",
@@ -2231,7 +2270,7 @@ describe.only("Bases de données", function () {
           constl.bds.suivreDonnéesExportation({
             idBd,
             langues: ["fr"],
-            f: si(d=>!!d && d.tableaux.length >= 2),
+            f: si((d) => !!d && d.tableaux.length >= 2),
           }),
         );
       });
@@ -2286,10 +2325,9 @@ describe.only("Bases de données", function () {
 
       it("document données - tableaux créés", async () => {
         expect(Array.isArray(données.docu.SheetNames));
-        expect(données.docu.SheetNames).to.have.members([
-          idTableau1,
-          idTableau2,
-        ].map(id=>id.slice(0, 30)));
+        expect(données.docu.SheetNames).to.have.members(
+          [idTableau1, idTableau2].map((id) => id.slice(0, 30)),
+        );
       });
 
       it("document données - fichiers SFIP", async () => {
@@ -2339,12 +2377,14 @@ describe.only("Bases de données", function () {
 
       it("le fichier zip existe", async () => {
         if (isBrowser || isElectronRenderer) {
-          await expect(constl.bds.exporterÀFichier({
-            idBd,
-            nomFichier,
-            dossier,
-            formatDocu: "ods",
-          })).to.eventually.be.rejectedWith("showSaveFilePicker")
+          await expect(
+            constl.bds.exporterÀFichier({
+              idBd,
+              nomFichier,
+              dossier,
+              formatDocu: "ods",
+            }),
+          ).to.eventually.be.rejectedWith("showSaveFilePicker");
         } else {
           await constl.bds.exporterÀFichier({
             idBd,
@@ -2352,7 +2392,7 @@ describe.only("Bases de données", function () {
             dossier,
             formatDocu: "ods",
           });
-  
+
           const nomZip = join(dossier, nomFichier + ".zip");
           expect(existsSync(nomZip)).to.be.true();
           zip = await JSZip.loadAsync(readFileSync(nomZip));
@@ -2411,7 +2451,7 @@ describe.only("Bases de données", function () {
     });
   });
 
-  describe("auteurs", function () {
+  describe.only("auteurs", function () {
     let idBd: string;
     let idTableau: string;
     let idColonne: string;
@@ -2483,7 +2523,10 @@ describe.only("Bases de données", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.bds.suivreAuteurs({
           idBd,
-          f: si((x) => compte1Accepté(x) && compte2Accepté(x)),
+          f: si((x) => {
+            console.log(x);
+            return compte1Accepté(x) && compte2Accepté(x);
+          }),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -2532,7 +2575,9 @@ describe.only("Bases de données", function () {
             f: siPasVide(),
           }),
       );
-      expect(données.map((d) => d.données)).to.deep.equal([{ [idColonne]: 2.5 }]);
+      expect(données.map((d) => d.données)).to.deep.equal([
+        { [idColonne]: 2.5 },
+      ]);
     });
 
     it("promotion à modératrice", async () => {

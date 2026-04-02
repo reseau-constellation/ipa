@@ -40,20 +40,20 @@ describe.only("Stockage", function () {
   });
 
   it("mettre et obtenir valeur", async () => {
-    await stockage.sauvegarderItem({clef: "a", valeur: "texte"});
+    await stockage.sauvegarderItem({ clef: "a", valeur: "texte" });
     const val = await stockage.obtenirItem("a");
     expect(val).to.equal("texte");
   });
 
   it("effacer valeur", async () => {
-    await stockage.sauvegarderItem({clef: "a", valeur: "texte"});
+    await stockage.sauvegarderItem({ clef: "a", valeur: "texte" });
     await stockage.effacerItem("a");
     const val = await stockage.obtenirItem("a");
     expect(val).to.be.null();
   });
 
   it("persistance", async () => {
-    await stockage.sauvegarderItem({clef: "a", valeur: "texte"});
+    await stockage.sauvegarderItem({ clef: "a", valeur: "texte" });
     await appli.fermer();
 
     // Ouvrir la appli à nouveau
@@ -96,7 +96,7 @@ describe.only("Stockage", function () {
   });
 
   it("exporter", async () => {
-    await stockage.sauvegarderItem({clef: "a", valeur: "texte"});
+    await stockage.sauvegarderItem({ clef: "a", valeur: "texte" });
 
     const exporté = JSON.parse(await stockage.exporter());
 
@@ -119,12 +119,12 @@ describe.only("Stockage", function () {
     });
     await appli2.démarrer();
 
-    await appli2.services["stockage"].sauvegarderItem({clef, valeur: "test"});
+    await appli2.services["stockage"].sauvegarderItem({ clef, valeur: "test" });
     const valDeStockage1 = await stockage.obtenirItem(clef);
 
     expect(valDeStockage1).to.be.null();
 
-    await stockage.sauvegarderItem({clef, valeur: "autre valeur"});
+    await stockage.sauvegarderItem({ clef, valeur: "autre valeur" });
     expect(await stockage.obtenirItem(clef)).to.equal("autre valeur");
 
     expect(await appli2.services["stockage"].obtenirItem(clef)).to.equal(

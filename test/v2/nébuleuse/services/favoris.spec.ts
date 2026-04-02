@@ -108,7 +108,13 @@ describe.only("Favoris", function () {
         épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleTest>;
         f: Suivi<Set<string>>;
       }): Promise<Oublier> => {
-        await f(new Set(épingle.épingle.épingle.base  && épingle.idObjet ? [enleverPréfixes(épingle.idObjet)] : []));
+        await f(
+          new Set(
+            épingle.épingle.épingle.base && épingle.idObjet
+              ? [enleverPréfixes(épingle.idObjet)]
+              : [],
+          ),
+        );
         return faisRien;
       };
 
@@ -191,12 +197,14 @@ describe.only("Favoris", function () {
 
     it("bien épinglé", async () => {
       // `estÉpinglé` ne fonctionne pas si l'objet n'est pas disponible à OrbitDB.
-      const épinglé = [...nébuleuse.services.épingles.requêtes].find(r=>r[1].has(enleverPréfixes(idObjet)));
+      const épinglé = [...nébuleuse.services.épingles.requêtes].find((r) =>
+        r[1].has(enleverPréfixes(idObjet)),
+      );
       expect(épinglé).to.not.be.undefined();
     });
 
     it("détecter sur autre compte", async () => {
-      const idCompte1 = await nébuleuses[0].compte.obtIdCompte()
+      const idCompte1 = await nébuleuses[0].compte.obtIdCompte();
       const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
         ({ siPasVide }) =>
           nébuleuses[1].favoris.suivreFavoris({
