@@ -3,6 +3,7 @@ import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
+import { enleverPréfixes } from "@/v2/utils.js";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
@@ -15,7 +16,6 @@ import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { AccèsUtilisateur } from "./compte/accès/types.js";
 import type { ServiceÉpingles } from "./épingles.js";
-import { enleverPréfixes } from "@/v2/utils.js";
 
 // Types réplications
 export type Réplication<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {
@@ -222,9 +222,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
 
     const épingles = this.service("épingles");
 
-    const fFinale = async (
-      résolutions: Set<string>[],
-    ) => {
+    const fFinale = async (résolutions: Set<string>[]) => {
       return await épingles.épingler({
         idRequête: "favoris",
         épingles: new Set(résolutions.map((r) => [...r.values()]).flat()),
@@ -232,9 +230,9 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     };
 
     const estÉpingleAvecId = (x: unknown): x is ÉpingleFavorisAvecId => {
-      const épingle = x as ÉpingleFavorisAvecId
-      return !!(épingle.idObjet && épingle.épingle.type)
-    }
+      const épingle = x as ÉpingleFavorisAvecId;
+      return !!(épingle.idObjet && épingle.épingle.type);
+    };
 
     const fListe = async ({
       fSuivreRacine,
@@ -243,9 +241,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     }) => {
       return await this.suivreBd({
         f: (x) => {
-          return fSuivreRacine(
-            Object.values(x || {}).filter(estÉpingleAvecId),
-          );
+          return fSuivreRacine(Object.values(x || {}).filter(estÉpingleAvecId));
         },
       });
     };
@@ -545,11 +541,11 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
         if (typeÉpinglePrésent(favorisObjet?.épingle))
           await f({
             type: favorisObjet.épingle.type,
-            épingle:  await this.résoudreÉpinglesSurDispositif({
+            épingle: await this.résoudreÉpinglesSurDispositif({
               épingle: favorisObjet.épingle.épingle,
               idDispositif,
-            })},
-          );
+            }),
+          });
         else await f(undefined);
       },
     });
@@ -563,30 +559,30 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     idDispositif?: string;
   }): Promise<BooléenniserPropriétés<T>> {
     const résultat = Object.fromEntries(
-          (await Promise.all(
-            Object.entries(épingle || {}).map(async ([clef, val]) => {
-              if (Array.isArray(val) || typeof val === "string") {
-                return [
-                  clef,
-                  await this.estÉpingléSurDispositif({
-                    dispositifs: val,
-                    idDispositif,
-                  }),
-                ];
-              } else {
-                return [
-                  clef,
-                  await this.résoudreÉpinglesSurDispositif({
-                    épingle: val,
-                    idDispositif,
-                  }),
-                ];
-              }
-            }),
-        )).filter(
-          (x): x is [string, BooléenniserPropriétés<T>] => !!x,
-        ),
-      ) as BooléenniserPropriétés<T>;
+      (
+        await Promise.all(
+          Object.entries(épingle || {}).map(async ([clef, val]) => {
+            if (Array.isArray(val) || typeof val === "string") {
+              return [
+                clef,
+                await this.estÉpingléSurDispositif({
+                  dispositifs: val,
+                  idDispositif,
+                }),
+              ];
+            } else {
+              return [
+                clef,
+                await this.résoudreÉpinglesSurDispositif({
+                  épingle: val,
+                  idDispositif,
+                }),
+              ];
+            }
+          }),
+        )
+      ).filter((x): x is [string, BooléenniserPropriétés<T>] => !!x),
+    ) as BooléenniserPropriétés<T>;
     return résultat;
   }
 
