@@ -313,9 +313,7 @@ export class Nuées extends ObjetConstellation<
       parent,
     });
 
-    await this.ajouterÀMesNuées({ idNuée });
-
-    if (épingler) await this.épingler({ idNuée });
+    await this.ajouterÀMesNuées({ idNuée, épingler });
 
     await oublier();
 
@@ -336,7 +334,14 @@ export class Nuées extends ObjetConstellation<
     await orbite.effacerBd({ id: this.àIdOrbite(idNuée) });
   }
 
-  async ajouterÀMesNuées({ idNuée }: { idNuée: string }): Promise<void> {
+  async ajouterÀMesNuées({
+    idNuée,
+    épingler = true,
+  }: {
+    idNuée: string;
+    épingler?: boolean;
+  }): Promise<void> {
+    if (épingler) await this.épingler({ idNuée });
     await this.ajouterÀMesObjets({ idObjet: idNuée });
   }
 
@@ -778,7 +783,7 @@ export class Nuées extends ObjetConstellation<
           else return faisRien;
         },
         f: async (bds: string[]) => {
-          info.bds = bds.map(id=>this.service("bds").àIdOrbite(id));
+          info.bds = bds.map((id) => this.service("bds").àIdOrbite(id));
           await fFinale();
         },
       });
