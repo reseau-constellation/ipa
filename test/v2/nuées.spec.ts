@@ -19,6 +19,7 @@ import {
 } from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
+import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
 import type { DonnéesRangéeNuée } from "@/v2/nuées/tableaux.js";
 import type { RègleBornes, RègleColonne } from "@/v2/règles.js";
@@ -132,6 +133,12 @@ describe("Nuées", function () {
     });
 
     it("effacer nuée", async () => {
+      const pÉpinglées = obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        constl.favoris.suivreFavoris({
+          f: si((x) => !!x && !x.find((fav) => fav.idObjet === idNuée)),
+        }),
+      );
+
       await constl.nuées.effacerNuée({ idNuée });
       const mesNuées = await obtenir<string[] | undefined>(({ siVide }) =>
         constl.nuées.suivreNuées({

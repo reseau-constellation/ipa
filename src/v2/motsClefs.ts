@@ -169,8 +169,7 @@ export class MotsClefs extends ObjetConstellation<
     // Effacer l'entrée dans notre liste de mots-clefs
     await this.enleverDeMesMotsClefs({ idMotClef });
 
-    const favoris = this.service("favoris");
-    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idMotClef) });
+    await this.désépingler({ idMotClef });
 
     // Effacer le mot-clef lui-même
     await this.service("orbite").effacerBd({ id: this.àIdOrbite(idMotClef) });

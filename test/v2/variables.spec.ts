@@ -6,6 +6,7 @@ import {
 import { TOUS_DISPOSITIFS } from "@/v2/nébuleuse/services/favoris.js";
 import { enleverPréfixes } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
   InfoAuteur,
@@ -113,6 +114,12 @@ describe.only("Variables", function () {
     });
 
     it("effacer variable", async () => {
+      const pÉpinglées = obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        constl.favoris.suivreFavoris({
+          f: si((x) => !!x && !x.find((fav) => fav.idObjet === idVariable)),
+        }),
+      );
+
       await constl.variables.effacerVariable({ idVariable });
       const mesVariables = await obtenir<string[] | undefined>(({ siVide }) =>
         constl.variables.suivreVariables({
@@ -120,6 +127,9 @@ describe.only("Variables", function () {
         }),
       );
       expect(mesVariables).to.be.empty();
+
+      const épinglées = await pÉpinglées;
+      expect(épinglées.map((é) => é.idObjet)).to.not.include(idVariable);
     });
   });
 

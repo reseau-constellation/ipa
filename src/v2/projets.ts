@@ -28,6 +28,7 @@ import type { BookType, WorkBook } from "xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   BaseÉpingleFavoris,
+  ÉpingleFavorisAvecId,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
@@ -216,8 +217,7 @@ export class Projets extends ObjetConstellation<
     // D'abord effacer l'entrée dans notre liste de Projets
     await this.enleverDeMesProjets({ idProjet });
 
-    const favoris = this.service("favoris");
-    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idProjet) });
+    await this.désépingler({ idProjet });
 
     // enfin, effacer le Projet lui-même
     await orbite.effacerBd({ id: this.àIdOrbite(idProjet) });

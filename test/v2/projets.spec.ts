@@ -11,9 +11,13 @@ import {
   TOUS_DISPOSITIFS,
   DISPOSITIFS_INSTALLÉS,
 } from "@/v2/nébuleuse/services/favoris.js";
-import { enleverPréfixeOrbite, enleverPréfixesEtOrbite } from "@/v2/utils.js";
+import {
+  enleverPréfixes,
+  enleverPréfixesEtOrbite,
+} from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
+import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type {
   InfoAuteur,
   Métadonnées,
@@ -118,6 +122,12 @@ describe.skip("Projets", function () {
     });
 
     it("effacer projet", async () => {
+      const pÉpinglés = obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        constl.favoris.suivreFavoris({
+          f: si((x) => !!x && !x.find((fav) => fav.idObjet === idProjet)),
+        }),
+      );
+
       await constl.projets.effacerProjet({ idProjet });
       const mesProjets = await obtenir<string[] | undefined>(({ siVide }) =>
         constl.projets.suivreProjets({
@@ -125,6 +135,9 @@ describe.skip("Projets", function () {
         }),
       );
       expect(mesProjets).to.be.empty();
+
+      const épinglés = await pÉpinglés;
+      expect(épinglés.map((é) => é.idObjet)).to.not.include(idProjet);
     });
   });
 

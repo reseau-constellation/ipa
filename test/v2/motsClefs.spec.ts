@@ -5,6 +5,7 @@ import {
   MODÉRATRICE,
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type { ÉpingleMotClef } from "@/v2/motsClefs.js";
 import type { Constellation } from "@/v2/index.js";
 import type {
@@ -14,7 +15,7 @@ import type {
   TraducsTexte,
 } from "@/v2/types.js";
 
-describe.only("Mots-clefs", function () {
+describe("Mots-clefs", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
@@ -102,6 +103,12 @@ describe.only("Mots-clefs", function () {
     });
 
     it("effacer mot-clef", async () => {
+      const pÉpinglés = obtenir<ÉpingleFavorisAvecId[] | undefined>(({ si }) =>
+        constl.favoris.suivreFavoris({
+          f: si((x) => !!x && !x.find((fav) => fav.idObjet === idMotClef)),
+        }),
+      );
+
       await constl.motsClefs.effacerMotClef({ idMotClef });
       const mesMotsClefs = await obtenir<string[] | undefined>(({ siVide }) =>
         constl.motsClefs.suivreMotsClefs({
@@ -109,6 +116,9 @@ describe.only("Mots-clefs", function () {
         }),
       );
       expect(mesMotsClefs).to.be.empty();
+
+      const épinglés = await pÉpinglés;
+      expect(épinglés.map((é) => é.idObjet)).to.not.include(idMotClef);
     });
   });
 
