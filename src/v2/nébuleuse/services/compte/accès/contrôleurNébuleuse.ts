@@ -43,6 +43,7 @@ import type {
   LogEntry,
   OrbitDB,
   Storage,
+  Identity,
 } from "@orbitdb/core";
 import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
@@ -208,10 +209,13 @@ const ContrôleurNébuleuse =
     const canAppend = async (
       entry: LogEntry<DagCborEncodable>,
     ): Promise<boolean> => {
-      const identitéÉcrivain = await identities.getIdentity(
-        entry.identity,
-        signal,
-      );
+      let identitéÉcrivain: Identity;
+      try {
+        identitéÉcrivain = await identities.getIdentity(entry.identity, signal);
+      } catch (e) {
+        if (e.toString().includes("AbortError")) return false;
+        throw e;
+      }
       if (!identitéÉcrivain) {
         return false;
       }
