@@ -243,49 +243,12 @@ export class Projets extends ObjetConstellation<
 
     const idNouveauProjet = await this.créerProjet();
 
-    const métadonnées = await projet.get("métadonnées");
-    if (métadonnées) {
-      await this.sauvegarderMétadonnées({
-        idProjet: idNouveauProjet,
-        métadonnées,
-      });
-    }
-
-    const noms = await projet.get("noms");
-    if (noms) {
-      await this.sauvegarderNoms({ idProjet: idNouveauProjet, noms });
-    }
-
-    const descriptions = await projet.get("descriptions");
-    if (descriptions) {
-      await this.sauvegarderDescriptions({
-        idProjet: idNouveauProjet,
-        descriptions,
-      });
-    }
-
-    const motsClefs = await projet.get("motsClefs");
-    if (motsClefs)
-      await this.ajouterMotsClefs({
-        idProjet: idNouveauProjet,
-        idsMotsClefs: Object.keys(motsClefs),
-      });
-
-    const statut = await projet.get("statut");
-    if (statut)
-      await this.sauvegarderStatut({
-        idProjet: idNouveauProjet,
-        statut,
-      });
-
     const { projet: nouveauProjet, oublier: oublierNouveau } =
       await this.ouvrirProjet({
         idProjet: idNouveauProjet,
       });
 
-    const image = await projet.get("image");
-    if (image) await nouveauProjet.set(`image`, image);
-
+    await nouveauProjet.insert(await projet.all());
     await nouveauProjet.set("copiéDe", { id: idProjet });
 
     await Promise.allSettled([oublier(), oublierNouveau()]);
