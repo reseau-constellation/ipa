@@ -118,8 +118,13 @@ export class AccèsParComptes {
             },
           });
 
-          await accèsCompte.démarrer({ signal: this.signal });
           this.oublier.push(oublierUtilisateur);
+          try {
+            await accèsCompte.démarrer({ signal: this.signal });
+          } catch (e) {
+            if (!e.toString().includes("AbortError")) throw e;
+            return;
+          }
         }
         utilisateur.rôles.add(rôle);
       } else {
