@@ -1828,7 +1828,7 @@ export class Nuées extends ObjetConstellation<
       const infoBd: {
         auteurs?: InfoAuteur[];
         autorisée?: boolean;
-        licence?: string;
+        licence?: string | null;
         nuées?: string[];
       } = {};
 
