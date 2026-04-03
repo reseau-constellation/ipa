@@ -711,6 +711,8 @@ export class Projets extends ObjetConstellation<
     const motsClefs = this.service("motsClefs");
 
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
+    const invalides = idsMotsClefs.filter(idMotClef=>!motsClefs.identifiantValide({ identifiant: idMotClef }));
+    if (invalides.length) throw new Error(`Identifiants mots-clefs invalides : ${invalides.join(', ')}.`)
 
     await this.confirmerPermission({ idProjet });
 
