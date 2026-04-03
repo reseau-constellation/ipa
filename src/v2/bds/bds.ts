@@ -318,6 +318,7 @@ export class Bds extends ObjetConstellation<
       statut: { statut: "active" },
     });
 
+    await oublierBd();
     await oublier();
     return idBd;
   }
