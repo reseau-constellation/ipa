@@ -1,10 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import {
-  faisRien,
-  idcValide,
-  suivreDeFonctionListe,
-  traduire,
-} from "@constl/utils-ipa";
+import { faisRien, suivreDeFonctionListe, traduire } from "@constl/utils-ipa";
 import { asSplitKey, joinKey } from "@orbitdb/nested-db";
 import { typedNested, type TypedNested } from "@constl/bohr-db";
 import { cacheSuivi } from "./nébuleuse/cache.js";
