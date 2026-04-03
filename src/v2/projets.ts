@@ -828,6 +828,8 @@ export class Projets extends ObjetConstellation<
     const bds = this.service("bds");
 
     if (!Array.isArray(idsBds)) idsBds = [idsBds];
+    const invalides = idsBds.filter(idBd=>!bds.identifiantValide({ identifiant: idBd }));
+    if (invalides.length) throw new Error(`Identifiants bds invalides : ${invalides.join(', ')}.`)
 
     await this.confirmerPermission({ idProjet });
 
