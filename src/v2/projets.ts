@@ -366,12 +366,11 @@ export class Projets extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleProjet = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === this.àIdOrbite(idProjet) &&
-            épingle.type === "projet"
+          return idObjet === idProjet && épingle.type === "projet"
             ? épingle
             : undefined;
-        }) as ÉpingleProjet | undefined;
-        await f(épingleProjet);
+        }) as ÉpingleFavorisAvecId<ContenuÉpingleProjet> | undefined;
+        await f(épingleProjet?.épingle as ÉpingleProjet);
       },
     });
   }
