@@ -532,6 +532,7 @@ describe("Projets", function () {
 
     it("mots-clefs bd détectés", async () => {
       idMotClefBd = await constl.motsClefs.créerMotClef();
+      await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
       await constl.bds.ajouterMotsClefs({
         idBd,
         idsMotsClefs: idMotClefBd,
@@ -625,7 +626,7 @@ describe("Projets", function () {
       idProjet = await constl.projets.créerProjet();
     });
 
-    it("épinglée par défaut", async () => {
+    it("épinglé par défaut", async () => {
       const épingle = await obtenir<ÉpingleProjet>(({ siDéfini }) =>
         constl.projets.suivreÉpingle({ idProjet, f: siDéfini() }),
       );
@@ -662,9 +663,6 @@ describe("Projets", function () {
     });
 
     it("épingler projet", async () => {
-      const idProjet = await constl.projets.créerProjet({
-        épingler: false,
-      });
       await constl.projets.épingler({ idProjet });
 
       const épingle = await obtenir(({ siDéfini }) =>
@@ -704,7 +702,7 @@ describe("Projets", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolution]).to.have.members([idProjet]);
+      expect([...résolution]).to.have.members([enleverPréfixes(idProjet)]);
     });
 
     it("résoudre épingle - bds", async () => {
@@ -713,8 +711,10 @@ describe("Projets", function () {
       const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       const idTableau = await constl.bds.ajouterTableau({ idBd });
 
+      await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
+
       const idDonnéesTableau = await constl.bds.tableaux.obtIdDonnées({
-        idStructure: idProjet,
+        idStructure: idBd,
         idTableau,
       });
 
@@ -738,59 +738,63 @@ describe("Projets", function () {
               },
             },
           },
-          f: si((x) => !!x && x.size > 1),
+          f: si((x) => !!x && x.size > 2),
         }),
       );
       expect([...résolution]).to.have.members([
-        idProjet,
-        idBd,
-        idDonnéesTableau,
+        enleverPréfixes(idProjet),
+        enleverPréfixes(idBd),
+        enleverPréfixes(idDonnéesTableau),
       ]);
 
-      const résolutionSansTableaux = await obtenir<Set<string>>(
-        ({ siDéfini }) =>
-          constl.projets.suivreRésolutionÉpingle({
+      const résolutionSansTableaux = await obtenir<Set<string>>(({ si }) =>
+        constl.projets.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idProjet,
             épingle: {
-              idObjet: idProjet,
+              type: "projet",
               épingle: {
-                type: "projet",
-                épingle: {
-                  base: true,
-                  bds: {
-                    type: "bd",
-                    épingle: {
-                      base: true,
-                      données: {
-                        tableaux: false,
-                      },
+                base: true,
+                bds: {
+                  type: "bd",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: false,
                     },
                   },
                 },
               },
             },
-            f: siDéfini(),
-          }),
+          },
+          f: si((x) => !!x && x.size > 1),
+        }),
       );
-      expect([...résolutionSansTableaux]).to.have.members([idProjet, idBd]);
+      expect([...résolutionSansTableaux]).to.have.members([
+        enleverPréfixes(idProjet),
+        enleverPréfixes(idBd),
+      ]);
     });
 
     it("résoudre épingle - fichiers", async () => {
       const idProjet = await constl.projets.créerProjet();
 
       const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
+
       const idTableau = await constl.bds.ajouterTableau({ idBd });
       const idVariable = await constl.variables.créerVariable({
         catégorie: "fichier",
       });
       const idColonne = await constl.bds.tableaux.ajouterColonne({
-        idStructure: idProjet,
+        idStructure: idBd,
         idTableau,
         idVariable,
       });
 
       const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4";
       await constl.bds.tableaux.ajouterÉléments({
-        idStructure: idProjet,
+        idStructure: idBd,
         idTableau,
         éléments: [{ [idColonne]: idc }],
       });
@@ -800,7 +804,7 @@ describe("Projets", function () {
         idTableau,
       });
 
-      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+      const résolution = await obtenir<Set<string>>(({ si }) =>
         constl.projets.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idProjet,
@@ -821,17 +825,17 @@ describe("Projets", function () {
               },
             },
           },
-          f: siDéfini(),
+          f: si((x) => !!x && x.size > 3),
         }),
       );
       expect([...résolution]).to.have.members([
-        idProjet,
-        idBd,
-        idDonnéesTableau,
+        enleverPréfixes(idProjet),
+        enleverPréfixes(idBd),
+        enleverPréfixes(idDonnéesTableau),
         idc,
       ]);
 
-      const résolutionSansFichers = await obtenir<Set<string>>(({ siDéfini }) =>
+      const résolutionSansFichers = await obtenir<Set<string>>(({ si }) =>
         constl.projets.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idProjet,
@@ -852,13 +856,16 @@ describe("Projets", function () {
               },
             },
           },
-          f: siDéfini(),
+          f: si((x) => !!x && x.size > 1),
         }),
       );
-      expect([...résolutionSansFichers]).to.have.members([idProjet, idBd]);
+      expect([...résolutionSansFichers]).to.have.members([
+        enleverPréfixes(idProjet),
+        enleverPréfixes(idBd),
+      ]);
 
       const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(
-        ({ siDéfini }) =>
+        ({ si }) =>
           constl.projets.suivreRésolutionÉpingle({
             épingle: {
               idObjet: idProjet,
@@ -875,10 +882,12 @@ describe("Projets", function () {
                 },
               },
             },
-            f: siDéfini(),
+            f: si((x) => !!x && x.size > 0),
           }),
       );
-      expect([...résolutionSansFichersOuTableaux]).to.have.members([idProjet]);
+      expect([...résolutionSansFichersOuTableaux]).to.have.members([
+        enleverPréfixes(idProjet),
+      ]);
     });
   });
 
@@ -932,6 +941,10 @@ describe("Projets", function () {
       idImage = await constl.projets.sauvegarderImage({
         idProjet: idProjetOrig,
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
+      });
+      await constl.projets.sauvegarderStatut({
+        idProjet: idProjetOrig,
+        statut: réfStatut,
       });
 
       await constl.projets.ajouterBds({
@@ -1139,15 +1152,23 @@ describe("Projets", function () {
   describe("auteurs", function () {
     let idProjet: string;
 
+    const accepté = (idCompte: string) => (auteurs?: InfoAuteur[]) =>
+      !!auteurs?.find((a) => a.idCompte === idCompte && a.accepté);
+    let compte1Accepté: (auteurs?: InfoAuteur[]) => boolean;
+    let compte2Accepté: (auteurs?: InfoAuteur[]) => boolean;
+
     before(async () => {
       idProjet = await constl.projets.créerProjet();
+
+      compte1Accepté = accepté(idsComptes[0]);
+      compte2Accepté = accepté(idsComptes[1]);
     });
 
     it("compte créateur autorisé pour commencer", async () => {
-      const auteurs = await obtenir<InfoAuteur[]>(({ siPasVide }) =>
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.projets.suivreAuteurs({
           idProjet,
-          f: siPasVide(),
+          f: si(compte1Accepté),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -1169,7 +1190,7 @@ describe("Projets", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.projets.suivreAuteurs({
           idProjet,
-          f: si((x) => !!x && x.length > 1),
+          f: si((x) => !!x && x.length > 1 && compte1Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -1193,7 +1214,7 @@ describe("Projets", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.projets.suivreAuteurs({
           idProjet,
-          f: si((x) => !!x?.find((a) => a.idCompte === idsComptes[1])?.accepté),
+          f: si((x) => compte1Accepté(x) && compte2Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -1244,7 +1265,10 @@ describe("Projets", function () {
           f: si(
             (x) =>
               !!x &&
-              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+                MODÉRATRICE &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
           ),
         }),
       );
@@ -1275,7 +1299,12 @@ describe("Projets", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.projets.suivreAuteurs({
           idProjet,
-          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne)),
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === compteHorsLigne) &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -1302,9 +1331,9 @@ describe("Projets", function () {
   describe("exportation", function () {
     let idc: string;
 
-    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n";
+    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
     const idBdIndisponible =
-      "/constl/bd/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      "/constl/bds/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
     before(async () => {
       const octets = await obtRessourceTest({
@@ -1405,6 +1434,7 @@ describe("Projets", function () {
 
         idBd1 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idBd2 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        await constl.projets.ajouterBds({ idProjet, idsBds: [idBd1, idBd2] });
 
         idTableau = await constl.bds.ajouterTableau({ idBd: idBd1 });
         idColonneFichier = await constl.bds.tableaux.ajouterColonne({
@@ -1438,12 +1468,30 @@ describe("Projets", function () {
 
       it("bds", async () => {
         expect(données.docus.map((d) => d.nom)).to.have.members(
-          [idBd1, idBd2].map(enleverPréfixeOrbite),
+          [idBd1, idBd2].map(enleverPréfixesEtOrbite),
         );
       });
 
-      it("fichiers sfip de toutes les bds", async () => {
-        expect(données.documentsMédias).to.include([idc]);
+      it("fichiers de toutes les bds", async () => {
+        expect([...données.documentsMédias]).to.have.members([idc]);
+      });
+
+      it("exportable même si fichier indisponible", async () => {
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd1,
+          idTableau,
+          éléments: [
+            {
+              [idColonneFichier]: idcIndisponible,
+            },
+          ],
+        });
+
+        const { documentsMédias } = await constl.projets.exporterDonnées({
+          idProjet,
+          langues: ["fr"],
+        });
+        expect([...documentsMédias]).to.have.members([idc, idcIndisponible]);
       });
 
       it("exportable même si bd indisponible", async () => {
@@ -1452,35 +1500,13 @@ describe("Projets", function () {
           idProjet: idProjetTest,
           idsBds: [idBd1, idBdIndisponible],
         });
-        const { docus, documentsMédias } = await constl.projets.exporterDonnées(
-          {
-            idProjet: idProjetTest,
-            langues: ["fr"],
-          },
-        );
-
-        expect(docus.map((d) => d.nom)).to.have.members([idBd1]);
-        expect(documentsMédias).to.have.members([idc]);
-      });
-
-      it("exportable même si fichier sfip indisponible", async () => {
-        it("exportable même si fichier SFIP indisponible", async () => {
-          await constl.bds.tableaux.ajouterÉléments({
-            idStructure: idBd2,
-            idTableau,
-            éléments: [
-              {
-                [idColonneFichier]: idcIndisponible,
-              },
-            ],
-          });
-
-          const { documentsMédias } = await constl.projets.exporterDonnées({
-            idProjet,
-            langues: ["fr"],
-          });
-          expect(documentsMédias).to.have.members([idc, idcIndisponible]);
+        const { docus, documentsMédias } = await constl.projets.exporterDonnées({
+          idProjet: idProjetTest,
+          langues: ["fr"],
         });
+
+        expect(docus.map((d) => d.nom)).to.have.members([enleverPréfixesEtOrbite(idBd1)]);
+        expect([...documentsMédias]).to.have.members([idc, idcIndisponible]);
       });
     });
 
@@ -1508,6 +1534,7 @@ describe("Projets", function () {
         idBd2 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
         idTableau = await constl.bds.ajouterTableau({ idBd: idBd1 });
+        await constl.bds.ajouterTableau({ idBd: idBd2 });
 
         idColonne = await constl.bds.tableaux.ajouterColonne({
           idStructure: idBd1,
@@ -1535,6 +1562,7 @@ describe("Projets", function () {
           nomFichier,
           dossier,
           formatDocu: "ods",
+          langues: ["fr"]
         });
 
         const nomZip = join(dossier, nomFichier + ".zip");
@@ -1550,17 +1578,17 @@ describe("Projets", function () {
         expect(contenuBd2).to.exist();
       });
 
-      it("le dossier pour les données SFIP existe", async () => {
+      it("le dossier pour les médias existe", async () => {
         const contenu = zip.files["médias/"];
         expect(contenu?.dir).to.be.true();
       });
 
-      it("les fichiers SFIP existent", async () => {
+      it("les fichiers existent", async () => {
         const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
       });
 
-      it("fichier SFIP indisponible", async () => {
+      it("exportable même si fichier indisponible", async () => {
         const nomFichierTest = "projet avec documents indisponibles";
 
         await constl.bds.tableaux.ajouterÉléments({
@@ -1574,6 +1602,7 @@ describe("Projets", function () {
           nomFichier: nomFichierTest,
           dossier,
           formatDocu: "ods",
+          langues: ["fr"]
         });
 
         const nomZip = join(dossier, nomFichierTest + ".zip");
