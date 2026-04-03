@@ -444,8 +444,8 @@ export class Projets extends ObjetConstellation<
             });
           else return faisRien;
         },
-        f: async (bds: string[]) => {
-          info.bds = bds;
+        f: async (bds: Set<string>[]) => {
+          info.bds = bds.map((x) => [...x]).flat();
           await fFinale();
         },
       });
