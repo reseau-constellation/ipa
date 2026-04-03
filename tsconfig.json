@@ -1,7 +1,6 @@
 {
   // "extends": "aegir/src/config/tsconfig.aegir.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
     "incremental": true,
@@ -15,7 +14,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "outDir": "./dist",
     "sourceMap": true,
@@ -27,6 +26,7 @@
 
     "skipLibCheck": true,
     "experimentalDecorators": true,
+    "types": ["mocha"],
     "importsNotUsedAsValues": "remove",
 
     "plugins": [
