@@ -348,7 +348,7 @@ export class Projets extends ObjetConstellation<
   async désépingler({ idProjet }: { idProjet: string }): Promise<void> {
     const favoris = this.service("favoris");
 
-    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idProjet) });
+    await favoris.désépinglerFavori({ idObjet: idProjet });
   }
 
   async suivreÉpingle({
