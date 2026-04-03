@@ -31,12 +31,10 @@ const catégories: {
     invalides: [false, "abc", { a: 2 }],
   },
   chaîne: {
-    valides: ["/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"],
-    invalides: [
-      123,
-      "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX",
-      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e", // orbit-db < v1.0
+    valides: [
+      "abc", "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX", "வணக்கம்"
     ],
+    invalides: [123, true, { je: { ne: { suis: { pas: "une chaîne" } } } }],
   },
   chaîneNonTraductible: {
     valides: ["abc", "வணக்கம்", ""],
@@ -127,7 +125,7 @@ const catégories: {
   },
 } as const;
 
-describe.only("Validation", function () {
+describe("Validation", function () {
   describe("valider catégories", function () {
     Object.keys(catégories).forEach((cat) => {
       describe(cat + " valides", function () {
