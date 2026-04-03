@@ -3942,7 +3942,7 @@ describe.skip("Nuées", function () {
   describe("exportation", function () {
     let idc: string;
 
-    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n";
+    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
 
     before(async () => {
       const octets = await obtRessourceTest({
@@ -4193,7 +4193,7 @@ describe.skip("Nuées", function () {
         expect([...données.documentsMédias]).to.have.members([idc]);
       });
 
-      it("exportable même si fichier SFIP indisponible", async () => {
+      it("exportable même si fichier indisponible", async () => {
         await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau: idTableau1,
