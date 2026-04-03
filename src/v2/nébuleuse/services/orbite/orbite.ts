@@ -16,6 +16,7 @@ import { anySignal } from "any-signal";
 import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { CID } from "multiformats";
+import { faisRien } from "@constl/utils-ipa";
 import { STATUTS } from "@/v2/nébuleuse/appli/consts.js";
 import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../appli/index.js";
@@ -336,20 +337,35 @@ export class ServiceOrbite<
     f: Suivi<TypedNested<T>>;
     signal?: AbortSignal;
   }): Promise<Oublier> {
-    const { bd, oublier } = await this.ouvrirBd({ id, type: "nested", signal });
+    const signaleurOublier = new AbortController();
+    const signalFinal = signal
+      ? anySignal([signaleurOublier.signal, signal]) : signaleurOublier.signal;
 
-    const bdTypée = typedNested({ db: bd, schema: schéma });
+    let fFinale: Suivi<void>
+    let oublier: Oublier = faisRien
 
-    const fFinale = async () => {
-      return await f(bdTypée);
-    };
-
-    bd.events.on("update", fFinale);
-    await fFinale();
+    this.ouvrirBd({ id, type: "nested", signal: signalFinal }).then(async ({bd, oublier: oublierBd }) => {
+      oublier = async () => {
+        await oublierBd();
+        bd.events.off("update", fFinale);
+      };
+      const bdTypée = typedNested({ db: bd, schema: schéma });
+      fFinale = async () => {
+        return await f(bdTypée);
+      };
+  
+      bd.events.on("update", fFinale);
+      await fFinale();
+    }).catch(é=>{
+      if (!é.toString().includes("AbortError")) throw (é);
+    });
 
     return async () => {
-      bd.events.off("update", fFinale);
-      await oublier();
+      if (typeof fFinale === "undefined") {
+        signaleurOublier.abort();
+      } else {
+        await oublier();
+      }
     };
   }
 
