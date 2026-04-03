@@ -2232,7 +2232,7 @@ describe("Bases de données", function () {
   describe("exportation", function () {
     let idc: string;
 
-    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n";
+    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
 
     before(async () => {
       const octets = await obtRessourceTest({
@@ -2415,21 +2415,21 @@ describe("Bases de données", function () {
         expect(contenu).to.exist();
       });
 
-      it("le dossier pour les données SFIP existe", async () => {
+      it("le dossier pour les médias existe", async () => {
         if (isBrowser || isElectronRenderer) return;
 
         const contenu = zip.files["médias/"];
         expect(contenu?.dir).to.be.true();
       });
 
-      it("les fichiers SFIP existent", async () => {
+      it("les fichiers existent", async () => {
         if (isBrowser || isElectronRenderer) return;
 
         const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
       });
 
-      it("exportable même si fichiers SFIP indisponibles", async () => {
+      it("exportable même si fichier indisponible", async () => {
         if (isBrowser || isElectronRenderer) return;
 
         const nomFichierTest = "avec fichiers indisponibles";
