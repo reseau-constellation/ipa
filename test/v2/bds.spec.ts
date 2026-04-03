@@ -20,8 +20,9 @@ import {
   moyenne,
 } from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { créerConstellationsTest, journalifier, obtenir } from "./utils.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
+import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type {
   InfoAuteur,
   Métadonnées,
@@ -2460,7 +2461,7 @@ describe("Bases de données", function () {
     });
   });
 
-  describe.only("auteurs", function () {
+  describe("auteurs", function () {
     let idBd: string;
     let idTableau: string;
     let idColonne: string;
@@ -2532,10 +2533,7 @@ describe("Bases de données", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.bds.suivreAuteurs({
           idBd,
-          f: si((x) => {
-            console.log(x);
-            return compte1Accepté(x) && compte2Accepté(x);
-          }),
+          f: si((x) => compte1Accepté(x) && compte2Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
