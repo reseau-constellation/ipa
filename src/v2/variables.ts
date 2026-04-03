@@ -212,7 +212,6 @@ export class Variables extends ObjetConstellation<
       type: "nested",
     });
     const idVariable = this.ajouterProtocole(bd.address);
-    await oublierBd();
     const { variable, oublier } = await this.ouvrirVariable({ idVariable });
 
     await this.ajouterÀMesVariables({ idVariable, épingler });
@@ -223,7 +222,9 @@ export class Variables extends ObjetConstellation<
       catégorie: standardiserCatégorieVariable(catégorie),
     });
 
+    await oublierBd();
     await oublier();
+
     return idVariable;
   }
 

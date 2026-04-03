@@ -307,7 +307,6 @@ export class Bds extends ObjetConstellation<
       type: "nested",
     });
     const idBd = this.ajouterProtocole(bd.address);
-    await oublierBd();
     const { bd: bdBd, oublier } = await this.ouvrirBd({ idBd });
 
     await this.ajouterÀMesBds({ idBd, épingler });

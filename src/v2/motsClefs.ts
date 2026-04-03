@@ -125,7 +125,7 @@ export class MotsClefs extends ObjetConstellation<
       type: "nested",
     });
     const idMotClef = this.ajouterProtocole(bd.address);
-    await oublierBd();
+
     const { motClef, oublier } = await this.ouvrirMotClef({ idMotClef });
 
     await this.ajouterÀMesMotsClefs({ idMotClef, épingler });
@@ -135,6 +135,7 @@ export class MotsClefs extends ObjetConstellation<
       statut: { statut: "active" },
     });
 
+    await oublierBd();
     await oublier();
     return idMotClef;
   }

@@ -300,8 +300,7 @@ export class Nuées extends ObjetConstellation<
     const { bd, oublier: oublierBd } = await compte.créerObjet({
       type: "nested",
     });
-    const idNuée = bd.address;
-    await oublierBd();
+    const idNuée = this.ajouterProtocole(bd.address);
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
 
     await nuée.insert({
@@ -315,9 +314,10 @@ export class Nuées extends ObjetConstellation<
 
     await this.ajouterÀMesNuées({ idNuée, épingler });
 
+    await oublierBd();
     await oublier();
 
-    return this.ajouterProtocole(idNuée);
+    return idNuée;
   }
 
   async effacerNuée({ idNuée }: { idNuée: string }): Promise<void> {
