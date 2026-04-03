@@ -6,7 +6,7 @@ import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 
-describe.only("Épingles", function () {
+describe("Épingles", function () {
   describe("vérification idc", function () {
     const idc = "bafkreie7ohywtosou76tasm7j63yigtzxe7d5zqus4zu3j6oltvgtibeom";
     it("idc et fichier", async () => {

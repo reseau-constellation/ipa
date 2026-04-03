@@ -18,7 +18,7 @@ import type {
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import type { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 
-describe.only("Accès", function () {
+describe("Accès", function () {
   before(async () => {
     préparerOrbite();
   });

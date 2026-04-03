@@ -13,7 +13,7 @@ import { dossierTempoPropre } from "../../utils.js";
 import type { ServiceStockage } from "@/v2/nébuleuse/index.js";
 import type { ServicesNécessairesStockage } from "@/v2/nébuleuse/services/stockage.js";
 
-describe.only("Stockage", function () {
+describe("Stockage", function () {
   let appli: Appli<ServicesNécessairesStockage & { stockage: ServiceStockage }>;
   let stockage: ServiceStockage;
   let dossier: string;

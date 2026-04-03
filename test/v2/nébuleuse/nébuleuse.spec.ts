@@ -31,7 +31,7 @@ import type { Libp2p } from "libp2p";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "@/v2/types.js";
 
-describe.only("Nébuleuse", function () {
+describe("Nébuleuse", function () {
   describe("options - extraire libp2p et Hélia", function () {
     let orbite: OrbitDB<ServicesLibp2pNébuleuse>;
     let hélia: Helia<Libp2p<ServicesLibp2pNébuleuse>>;

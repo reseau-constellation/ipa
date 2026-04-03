@@ -14,7 +14,7 @@ import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { TraducsTexte } from "@/v2/types.js";
 
-describe.only("Profil", function () {
+describe("Profil", function () {
   let fermer: () => Promise<void>;
   let nébuleuses: NébuleuseTest[];
   let nébuleuse: NébuleuseTest;

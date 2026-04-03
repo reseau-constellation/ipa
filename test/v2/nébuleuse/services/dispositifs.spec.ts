@@ -21,7 +21,7 @@ import type {
   ServiceDispositifs,
 } from "@/v2/nébuleuse/services/dispositifs.js";
 
-describe.only("Dispositifs", function () {
+describe("Dispositifs", function () {
   describe("infos dispositifs", function () {
     let appli: Appli<
       ServicesNécessairesDispositifs & { dispositifs: ServiceDispositifs }

@@ -44,7 +44,7 @@ import type {
 } from "@/v2/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
 
-describe.only("Bases de données", function () {
+describe("Bases de données", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;

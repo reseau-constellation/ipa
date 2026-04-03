@@ -8,7 +8,7 @@ import { attendreQue } from "../appli/utils/fonctions.js";
 import type { RésultatProfondeur } from "@/v2/nébuleuse/cache.js";
 import type { Suivi, Oublier, RetourRecherche } from "@/v2/nébuleuse/types.js";
 
-describe.only("Cache", function () {
+describe("Cache", function () {
   describe("suivi", function () {
     let test: Test;
     let nAppels = 0;

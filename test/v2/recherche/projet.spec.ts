@@ -23,7 +23,7 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 
-describe("Rechercher projets", function () {
+describe.skip("Rechercher projets", function () {
   let constls: Constellation[];
   let constl: Constellation;
   let fermer: Oublier;

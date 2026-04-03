@@ -2,9 +2,9 @@ import { multiaddr } from "@multiformats/multiaddr";
 import { expect } from "aegir/chai";
 import { dépunicodifier } from "@/v2/nébuleuse/utils.js";
 
-describe.only("utils", function () {
-  describe("Dépunycodifier", function () {
-    it("Convertir à Unicode", () => {
+describe("utils", function () {
+  describe("dépunycodifier", function () {
+    it("convertir à Unicode", () => {
       const converti = dépunicodifier(
         multiaddr(
           "/dns4/relai-ws-libp2p.xn--rseau-constellation-bzb.ca/tcp/443/wss/p2p/12D3KooWGVYEgCLYwMSa1hDFW93fiCxhN2V2QUuMGCEfmG5ZuM9m",
@@ -14,7 +14,7 @@ describe.only("utils", function () {
         "/dns4/relai-ws-libp2p.réseau-constellation.ca/tcp/443/wss/p2p/12D3KooWGVYEgCLYwMSa1hDFW93fiCxhN2V2QUuMGCEfmG5ZuM9m",
       );
     });
-    it("Pas de changement si déjà en Unicode", () => {
+    it("pas de changement si déjà en Unicode", () => {
       const converti = dépunicodifier(
         multiaddr(
           "/dns4/relai-ws-libp2p.réseau-constellation.ca/tcp/443/wss/p2p/12D3KooWGVYEgCLYwMSa1hDFW93fiCxhN2V2QUuMGCEfmG5ZuM9m",
@@ -24,7 +24,7 @@ describe.only("utils", function () {
         "/dns4/relai-ws-libp2p.réseau-constellation.ca/tcp/443/wss/p2p/12D3KooWGVYEgCLYwMSa1hDFW93fiCxhN2V2QUuMGCEfmG5ZuM9m",
       );
     });
-    it("Pas de changement si en ascii", () => {
+    it("pas de changement si en ascii", () => {
       const converti = dépunicodifier(
         multiaddr(
           "/dns4/ny5.bootstrap.libp2p.io/tcp/443/wss/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",

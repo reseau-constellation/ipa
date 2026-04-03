@@ -38,7 +38,7 @@ import type { BaseDatabase, KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { ServiceOrbite } from "@/v2/nébuleuse/index.js";
 
-describe.only("Mandataire OrbitDB", function () {
+describe("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pTest>[];
   let fermer: Oublier;
 

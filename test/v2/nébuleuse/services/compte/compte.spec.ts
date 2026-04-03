@@ -101,7 +101,7 @@ const créerApplisTest = async <
   return { applis, fermer };
 };
 
-describe.only("Service Compte", function () {
+describe("Service Compte", function () {
   describe("gestion compte", async () => {
     let appli: Appli<ServicesNécessairesCompte & { compte: ServiceCompte }>;
     let dossier: string;

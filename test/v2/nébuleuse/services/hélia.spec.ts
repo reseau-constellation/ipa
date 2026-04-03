@@ -27,7 +27,7 @@ import type { Libp2p } from "libp2p";
 import type { Helia } from "helia";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 
-describe.only("Service Hélia", function () {
+describe("Service Hélia", function () {
   describe("demarrage", function () {
     let appli: Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>;
     let dossier: string;

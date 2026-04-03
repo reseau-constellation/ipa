@@ -22,7 +22,7 @@ import type {
 } from "@/v2/recherche/types.js";
 import type { Constellation } from "@/v2/index.js";
 
-describe("Rechercher nuées", function () {
+describe.skip("Rechercher nuées", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;

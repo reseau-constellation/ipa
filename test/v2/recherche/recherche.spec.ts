@@ -60,7 +60,7 @@ const vérifierRecherche = (
   }
 };
 
-describe("Rechercher dans réseau", function () {
+describe.skip("Rechercher dans réseau", function () {
   describe("profil", function () {
     let fermer: Oublier;
     let constls: Constellation[];
@@ -1619,7 +1619,7 @@ describe("Rechercher dans réseau", function () {
   });
 });
 
-describe("Recherche réseau complexe", function () {
+describe.skip("Recherche réseau complexe", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;

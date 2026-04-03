@@ -6,7 +6,7 @@ import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { dossierTempoPropre } from "../../utils.js";
 import type { ServiceJournal } from "@/v2/nébuleuse/services/journal.js";
 
-describe.only("Journal", function () {
+describe("Journal", function () {
   if (isNode || isElectronMain)
     describe("écrire à un fichier", function () {
       let appli: Appli<{ journal: ServiceJournal }>;

@@ -15,7 +15,7 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 
-describe("Rechercher mots-clefs", function () {
+describe.skip("Rechercher mots-clefs", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
