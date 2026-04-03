@@ -132,6 +132,12 @@ describe("Bases de données", function () {
     });
 
     it("effacer bd", async () => {
+      const pÉpinglés = obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        constl.favoris.suivreFavoris({
+          f: si((x) => !!x && !x.find((fav) => fav.idObjet === idBd)),
+        }),
+      );
+
       await constl.bds.effacerBd({ idBd });
       const mesBds = await obtenir<string[] | undefined>(({ siVide }) =>
         constl.bds.suivreBds({
@@ -139,6 +145,9 @@ describe("Bases de données", function () {
         }),
       );
       expect(mesBds).to.be.empty();
+
+      const épinglés = await pÉpinglés;
+      expect(épinglés.map((é) => é.idObjet)).to.not.include(idBd);
     });
   });
 
