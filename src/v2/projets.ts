@@ -872,11 +872,7 @@ export class Projets extends ObjetConstellation<
     return await this.suivreObjet({
       idObjet: idProjet,
       f: (projet) =>
-        f(
-          Object.keys(projet.motsClefs || {}).map((id) =>
-            bds.ajouterProtocole(id),
-          ),
-        ),
+        f(Object.keys(projet.bds || {}).map((id) => bds.ajouterProtocole(id))),
     });
   }
 
