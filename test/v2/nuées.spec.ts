@@ -146,6 +146,9 @@ describe.skip("Nuées", function () {
         }),
       );
       expect(mesNuées).to.be.empty();
+
+      const épinglées = await pÉpinglées;
+      expect(épinglées.map((é) => é.idObjet)).to.not.include(idNuée);
     });
   });
 
