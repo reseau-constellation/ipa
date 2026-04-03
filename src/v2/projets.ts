@@ -756,13 +756,16 @@ export class Projets extends ObjetConstellation<
     const motsClefs: { propres?: string[]; bds?: string[] } = {};
 
     const fFinale = async () => {
-      if (motsClefs.propres && motsClefs.bds) {
+      if (motsClefs.propres || motsClefs.bds) {
         const motsClefsFinaux = [
-          ...motsClefs.propres.map((idMotClef) => ({
+          ...(motsClefs.propres || []).map((idMotClef) => ({
             idMotClef,
             source: "projet",
           })),
-          ...motsClefs.bds.map((idMotClef) => ({ idMotClef, source: "bds" })),
+          ...(motsClefs.bds || []).map((idMotClef) => ({
+            idMotClef,
+            source: "bds",
+          })),
         ] as { idMotClef: string; source: "projet" | "bds" }[];
         return await f(motsClefsFinaux);
       }
