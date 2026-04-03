@@ -112,8 +112,7 @@ export class ServiceLibp2p<
       for (const connu of pairsConnus) {
         try {
           await libp2p.dial(connu.id);
-        } catch (e) {
-          console.log(e);
+        } catch {
           // Tant pis...
         }
       }
