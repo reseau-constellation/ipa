@@ -1576,11 +1576,11 @@ describe("Projets", function () {
             formatDocu: "ods",
             langues: ["fr"]
           });
+  
+          const nomZip = join(dossier, nomFichier + ".zip");
+          expect(existsSync(nomZip)).to.be.true();
+          zip = await JSZip.loadAsync(readFileSync(nomZip));
         }
-
-        const nomZip = join(dossier, nomFichier + ".zip");
-        expect(existsSync(nomZip)).to.be.true();
-        zip = await JSZip.loadAsync(readFileSync(nomZip));
       });
 
       it("les bds sont exportées", async () => {

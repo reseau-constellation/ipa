@@ -4307,11 +4307,11 @@ describe.skip("Nuées", function () {
             dossier,
             formatDocu: "ods",
           });
+  
+          const nomZip = join(dossier, nomFichier + ".zip");
+          expect(existsSync(nomZip)).to.be.true();
+          zip = await JSZip.loadAsync(readFileSync(nomZip));
         }
-
-        const nomZip = join(dossier, nomFichier + ".zip");
-        expect(existsSync(nomZip)).to.be.true();
-        zip = await JSZip.loadAsync(readFileSync(nomZip));
       });
 
       it("les données sont exportées", async () => {
