@@ -321,9 +321,7 @@ export class Variables extends ObjetConstellation<
     // Effacer l'entrée dans notre liste de variables
     await this.enleverDeMesVariables({ idVariable });
 
-    await this.service("favoris").désépinglerFavori({
-      idObjet: this.àIdOrbite(idVariable),
-    });
+    await this.désépingler({ idVariable });
 
     // Effacer la variable elle-même
     await this.service("orbite").effacerBd({ id: this.àIdOrbite(idVariable) });
