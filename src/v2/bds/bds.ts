@@ -329,8 +329,7 @@ export class Bds extends ObjetConstellation<
     // D'abord effacer l'entrée dans notre liste de BDs
     await this.enleverDeMesBds({ idBd });
 
-    const favoris = this.service("favoris");
-    await favoris.désépinglerFavori({ idObjet: this.enleverProtocole(idBd) });
+    await this.désépingler({ idBd });
 
     // aussi effacer les tableaux
     const tableaux = await uneFois<string[]>((f) =>
