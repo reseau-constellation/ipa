@@ -434,7 +434,7 @@ export class Projets extends ObjetConstellation<
           if (épingleBds.épingle)
             return await serviceBds.suivreRésolutionÉpingle({
               épingle: {
-                idObjet: serviceBds.àIdOrbite(idBd),
+                idObjet: idBd,
                 épingle: {
                   type: "bd",
                   épingle: épingleBds.épingle,
