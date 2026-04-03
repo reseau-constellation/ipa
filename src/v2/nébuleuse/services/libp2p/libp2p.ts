@@ -42,6 +42,7 @@ export type ServicesNécessairesLibp2p = {
 
 type RetourDémarrageLibp2p<L extends ServicesLibp2pNébuleuse> = {
   libp2p?: Libp2p<L>;
+  oublierReconnecteur?: () => void;
 };
 
 export class ServiceLibp2p<
@@ -105,6 +106,18 @@ export class ServiceLibp2p<
     }
 
     // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
+    const chrono = setInterval(async () => {
+      const pairsConnus = await libp2p.peerStore.all();
+
+      for (const connu of pairsConnus) {
+        try {
+          await libp2p.dial(connu.id);
+        } catch (e) {
+          console.log(e);
+          // Tant pis...
+        }
+      }
+    }, 1000);
     libp2p.addEventListener("peer:discovery", async (x) => {
       try {
         await libp2p.dial(x.detail.id);
@@ -119,6 +132,17 @@ export class ServiceLibp2p<
         // Tant pis...
       }
     });
+    libp2p.addEventListener("peer:disconnect", async ({ detail: idPair }) => {
+      const connexions = libp2p
+        .getConnections()
+        .filter((c) =>
+          c.remoteAddr.toString().includes(`${idPair.toString()}/p2p-circuit/`),
+        );
+      await Promise.all(connexions.map((c) => c.close()));
+    });
+
+    if (this.estDémarré === false) this.estDémarré = {};
+    this.estDémarré.oublierReconnecteur = () => clearInterval(chrono);
 
     return await super.démarrer();
   }
@@ -170,8 +194,9 @@ export class ServiceLibp2p<
   }
 
   async fermer(): Promise<void> {
+    const { libp2p, oublierReconnecteur } = await this.démarré();
+    oublierReconnecteur?.();
     // Uniquement fermer libp2p s'il n'a pas été fourni dans les options
-    const { libp2p } = await this.démarré();
     if (libp2p) await libp2p.stop();
 
     await super.fermer();
