@@ -56,15 +56,11 @@ const avantTest = async (opts) => {
   const fermerServeurLocal = await générerServeurRessourcesTests(opts);
 
   return {
-    // fermerNavigateur,
-    // fermerNode,
     fermerServeurLocal,
   };
 };
 
 const aprèsTest = async (_, avant) => {
-  await avant.fermerNavigateur?.();
-  await avant.fermerNode?.();
   await avant?.fermerServeurLocal();
 };
 
