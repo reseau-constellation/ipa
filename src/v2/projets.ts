@@ -195,8 +195,7 @@ export class Projets extends ObjetConstellation<
     const { bd, oublier: oublierBd } = await compte.créerObjet({
       type: "nested",
     });
-    const idProjet = bd.address;
-    await oublierBd();
+    const idProjet = this.ajouterProtocole(bd.address);
     const { projet, oublier } = await this.ouvrirProjet({ idProjet });
 
     await this.ajouterÀMesProjets({ idProjet, épingler });
@@ -206,9 +205,10 @@ export class Projets extends ObjetConstellation<
       statut: { statut: "active" },
     });
 
+    await oublierBd();
     await oublier();
 
-    return this.ajouterProtocole(idProjet);
+    return idProjet;
   }
 
   async effacerProjet({ idProjet }: { idProjet: string }): Promise<void> {
