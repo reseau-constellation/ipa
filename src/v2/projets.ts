@@ -1243,14 +1243,16 @@ export class Projets extends ObjetConstellation<
 
     const bookType: BookType = conversionsTypes[formatDocu] || formatDocu;
 
-    const fichiersDocus = docus.map((d) => {
+    const adresseFinale = join(dossier, nomFichier)
+
+    const fichiersDocus = docus.filter(d=>d.docu.SheetNames.length > 0).map((d) => {
       return {
         nom: `${d.nom}.${formatDocu}`,
         octets: xlsxWrite(d.docu, { bookType, type: "buffer" }),
       };
     });
     const fichiersMédias = inclureDocuments
-      ? await Promise.all(
+      ? (await Promise.allSettled(
           [...documentsMédias].map(async (fichier) => {
             return {
               nom: fichier.replace("/", "-"),
@@ -1260,14 +1262,27 @@ export class Projets extends ObjetConstellation<
             };
           }),
         )
+        ).filter(
+          // On ignore les fichiers qui n'ont pas pu être trouvés sur le réseau
+          (x): x is PromiseFulfilledResult<{ nom: string; octets: Uint8Array }> =>
+            x.status === "fulfilled" && !!x.value.octets,
+        ).map((x) => x.value)
       : [];
+
+      // Effacer le fichier s'il existe déjà (uniquement nécessaire pour `zipper`)
+      if (!(isBrowser || isWebWorker)) {
+        const fs = await import("fs");
+        if (fs.existsSync(adresseFinale)) {
+          fs.rmSync(adresseFinale);
+        }
+      }
     await zipper({
       fichiersDocus,
       fichiersMédias,
-      nomFichier: join(dossier, nomFichier),
+      nomFichier: adresseFinale,
       dossierMédias,
     });
 
-    return join(dossier, nomFichier);
+    return adresseFinale;
   }
 }
