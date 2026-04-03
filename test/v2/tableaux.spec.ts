@@ -3,7 +3,7 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
 import JSZip from "jszip";
-import { isElectronMain, isNode } from "wherearewe";
+import { isBrowser, isElectronMain, isElectronRenderer, isNode } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
@@ -3924,19 +3924,34 @@ describe.skip("tableaux", function () {
         });
 
         it("exporter document sans fichiers sfip", async () => {
-          await constl.bds.tableaux.exporterDonnéesÀFichier({
-            idStructure: idBd,
-            idTableau,
-            dossier,
-            formatDocu: "ods",
-            langues: ["fr"],
-            inclureDocuments: false,
-          });
-          const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
-          expect(existsSync(cheminFichier)).to.be.true();
+          if (isBrowser || isElectronRenderer) {
+            await expect(
+              constl.bds.tableaux.exporterDonnéesÀFichier({
+                idStructure: idBd,
+                idTableau,
+                dossier,
+                formatDocu: "ods",
+                langues: ["fr"],
+                inclureDocuments: false,
+              }),
+            ).to.eventually.be.rejectedWith("showSaveFilePicker");
+          } else {
+            await constl.bds.tableaux.exporterDonnéesÀFichier({
+              idStructure: idBd,
+              idTableau,
+              dossier,
+              formatDocu: "ods",
+              langues: ["fr"],
+              inclureDocuments: false,
+            });
+            const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
+            expect(existsSync(cheminFichier)).to.be.true();
+          };
         });
 
         it("exporter document zip avec fichiers sfip", async () => {
+          if (isBrowser || isElectronRenderer) return;
+
           await constl.bds.tableaux.exporterDonnéesÀFichier({
             idStructure: idBd,
             idTableau,
@@ -3964,6 +3979,8 @@ describe.skip("tableaux", function () {
         });
 
         it("dossier auparavant inexistant - sans fichiers sfip", async () => {
+          if (isBrowser || isElectronRenderer) return;
+
           const nouveauDossier = join(dossier, "plus", "profond");
 
           await constl.bds.tableaux.exporterDonnéesÀFichier({
@@ -3980,6 +3997,8 @@ describe.skip("tableaux", function () {
         });
 
         it("dossier auparavant inexistant - avec fichiers sfip", async () => {
+          if (isBrowser || isElectronRenderer) return;
+
           const nouveauDossier = join(dossier, "plus", "profond");
 
           await constl.bds.tableaux.exporterDonnéesÀFichier({

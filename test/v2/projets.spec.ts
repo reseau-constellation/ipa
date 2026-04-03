@@ -33,6 +33,7 @@ import type {
   MotClefProjet,
   ÉpingleProjet,
 } from "@/v2/projets.js";
+import { isBrowser, isElectronRenderer } from "wherearewe";
 
 describe("Projets", function () {
   let fermer: Oublier;
@@ -1557,13 +1558,25 @@ describe("Projets", function () {
       });
 
       it("le fichier zip existe", async () => {
-        await constl.projets.exporterÀFichier({
-          idProjet,
-          nomFichier,
-          dossier,
-          formatDocu: "ods",
-          langues: ["fr"]
-        });
+        if (isBrowser || isElectronRenderer) {
+          await expect(
+            constl.projets.exporterÀFichier({
+              idProjet,
+              nomFichier,
+              dossier,
+              formatDocu: "ods",
+              langues: ["fr"]
+            }),
+          ).to.eventually.be.rejectedWith("showSaveFilePicker");
+        } else {
+          await constl.projets.exporterÀFichier({
+            idProjet,
+            nomFichier,
+            dossier,
+            formatDocu: "ods",
+            langues: ["fr"]
+          });
+        }
 
         const nomZip = join(dossier, nomFichier + ".zip");
         expect(existsSync(nomZip)).to.be.true();
@@ -1571,6 +1584,8 @@ describe("Projets", function () {
       });
 
       it("les bds sont exportées", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const contenuBd1 = zip.files[`${nomBd1}.ods`];
         expect(contenuBd1).to.exist();
 
@@ -1579,16 +1594,22 @@ describe("Projets", function () {
       });
 
       it("le dossier pour les médias existe", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const contenu = zip.files["médias/"];
         expect(contenu?.dir).to.be.true();
       });
 
       it("les fichiers existent", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
       });
 
       it("exportable même si fichier indisponible", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const nomFichierTest = "projet avec documents indisponibles";
 
         await constl.bds.tableaux.ajouterÉléments({
