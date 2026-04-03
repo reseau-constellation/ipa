@@ -67,6 +67,7 @@ import type {
 } from "../tableaux.js";
 import type {
   BaseÉpingleFavoris,
+  ÉpingleFavorisAvecId,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "../nébuleuse/services/favoris.js";
 import type {
@@ -327,8 +328,7 @@ export class Nuées extends ObjetConstellation<
     await this.enleverDeMesNuées({ idNuée });
 
     // Enlever la nuée de nos favoris
-    const favoris = this.service("favoris");
-    await favoris.désépinglerFavori({ idObjet: this.àIdOrbite(idNuée) });
+    await this.désépingler({ idNuée });
 
     // enfin, effacer la Nuée elle-même
     await orbite.effacerBd({ id: this.àIdOrbite(idNuée) });
@@ -700,8 +700,8 @@ export class Nuées extends ObjetConstellation<
           return idObjet === idNuée && épingle.type === "nuée"
             ? épingle
             : undefined;
-        }) as ÉpingleNuée | undefined;
-        await f(épingleNuée);
+        }) as ÉpingleFavorisAvecId<ContenuÉpingleNuée> | undefined;
+        await f(épingleNuée?.épingle as ÉpingleNuée);
       },
     });
   }
