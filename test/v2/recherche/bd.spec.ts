@@ -4,6 +4,7 @@ import {
   rechercherBdsSelonIdMotClef,
   rechercherBdsSelonIdVariable,
   rechercherBdsSelonMotClef,
+  rechercherBdsSelonNom,
   rechercherBdsSelonNomMotClef,
   rechercherBdsSelonNomVariable,
   rechercherBdsSelonTexte,
@@ -59,7 +60,7 @@ describe.skip("Rechercher bds", function () {
           f: siNonDéfini(),
         }),
       );
-      expect(résultat).to.be.empty();
+      expect(résultat).to.be.undefined();
     });
 
     it("ajout nom détecté", async () => {
@@ -106,7 +107,7 @@ describe.skip("Rechercher bds", function () {
       recherche = rechercherBdsSelonDescription("Météo");
     });
 
-    it("pas de résultat quand la bd n'a pas de description", async () => {
+    it("pas de résultats quand la bd n'a pas de description", async () => {
       const résultat = await obtenir(({ siNonDéfini }) =>
         recherche({
           services: (clef) => constl.services[clef],
@@ -114,7 +115,7 @@ describe.skip("Rechercher bds", function () {
           f: siNonDéfini(),
         }),
       );
-      expect(résultat).to.be.empty();
+      expect(résultat).to.be.undefined();
     });
 
     it("ajout description détecté", async () => {
@@ -178,7 +179,7 @@ describe.skip("Rechercher bds", function () {
       rechercheMotClef = rechercherBdsSelonMotClef("Météo");
     });
 
-    it("pas de résultat quand la bd n'a pas de mot-clef", async () => {
+    it("pas de résultats quand la bd n'a pas de mot-clef", async () => {
       const résultatNom = await obtenir(({ siNonDéfini }) =>
         rechercheNomMotClef({
           services: (clef) => constl.services[clef],
@@ -206,18 +207,18 @@ describe.skip("Rechercher bds", function () {
     });
 
     it("ajout mot-clef détecté", async () => {
-      const pRésultatId = obtenir(({ siNonDéfini }) =>
+      const pRésultatId = obtenir(({ siDéfini }) =>
         rechercheIdMotClef({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
-      const pRésultatTous = obtenir(({ siNonDéfini }) =>
+      const pRésultatTous = obtenir(({ siDéfini }) =>
         rechercheMotClef({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
 
@@ -333,7 +334,7 @@ describe.skip("Rechercher bds", function () {
       rechercheVariable = rechercherBdsSelonVariable("Précip");
     });
 
-    it("pas de résultat quand la bd n'a pas de variable", async () => {
+    it("pas de résultats quand la bd n'a pas de variable", async () => {
       const résultatNom = await obtenir(({ siNonDéfini }) =>
         rechercheNomVariable({
           services: (clef) => constl.services[clef],
