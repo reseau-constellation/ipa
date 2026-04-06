@@ -218,7 +218,7 @@ export class Tableaux {
     });
 
     // On ajoute un élément vide pour ajouter la clef du tableau à la liste de tableaux
-    await tableau.put("noms", { });
+    await tableau.put("noms", {});
 
     await oublier();
     return idTableau;
