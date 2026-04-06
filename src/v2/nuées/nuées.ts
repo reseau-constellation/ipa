@@ -1189,12 +1189,18 @@ export class Nuées extends ObjetConstellation<
     if (ascendance) {
       return await this.suivreDeParents({
         idNuée,
-        f: async (nuées) =>
-          await f(
-            nuées
-              .map((n) => n.val.map((t) => ({ id: t, source: n.source })))
-              .flat(),
-          ),
+        f: async (nuées) => {
+          const tableaux = nuées
+            .map((n) => n.val.map((t) => ({ id: t, source: n.source })))
+            .flat();
+
+          // Enlever les dupliqués (https://stackoverflow.com/questions/2218999/how-can-i-remove-all-duplicates-from-an-array-of-objects)
+          return await f(
+            tableaux.filter(
+              (t, index) => tableaux.findIndex((x) => x.id === t.id) === index,
+            ),
+          );
+        },
         fParents: suivreTableaux,
       });
     } else {
