@@ -1656,7 +1656,8 @@ export class Nuées extends ObjetConstellation<
     }): Promise<Oublier> => {
       return await this.suivreObjet({
         idObjet: idNuée,
-        f: (nuée) => f(nuée.parent ? this.ajouterProtocole(nuée.parent) : undefined),
+        f: (nuée) =>
+          f(nuée.parent ? this.ajouterProtocole(nuée.parent) : undefined),
       });
     };
 
@@ -1681,8 +1682,8 @@ export class Nuées extends ObjetConstellation<
         fSuivre: async ({ id: idParent, fSuivre }) => {
           return await suivreAscendants({
             idNuée: idParent,
-            f: fSuivre,
-            ascendance: [...ascendance, idParent],
+            f: (ascendants) => fSuivre([idParent, ...ascendants]),
+            ascendance: [idParent, ...ascendance],
           });
         },
         f: async (parents?: string[]) => await f(parents || []),
