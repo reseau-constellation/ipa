@@ -10,6 +10,7 @@ import {
   rechercherNuéesSelonTexte,
   rechercherNuéesSelonDescription,
 } from "@/v2/recherche/fonctions/nuées.js";
+import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
 import type { ServicesNécessairesRechercheNuées } from "@/v2/recherche/fonctions/nuées.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
@@ -20,9 +21,9 @@ import type {
   InfoRésultatVide,
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
-import type { Constellation } from "@/v2/index.js";
+import type { Constellation } from "@/v2/constellation.js";
 
-describe.skip("Rechercher nuées", function () {
+describe("Rechercher nuées", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
@@ -39,7 +40,7 @@ describe.skip("Rechercher nuées", function () {
     if (fermer) await fermer();
   });
 
-  describe("Selon nom", function () {
+  describe("selon nom", function () {
     let idNuée: string;
 
     let recherche: SuivreObjectifRecherche<
@@ -53,7 +54,7 @@ describe.skip("Rechercher nuées", function () {
       recherche = rechercherNuéesSelonNom("Météo");
     });
 
-    it("pas de résultat quand la nuée n'a pas de nom", async () => {
+    it("pas de résultats quand la nuée n'a pas de nom", async () => {
       const résultat = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
@@ -110,50 +111,50 @@ describe.skip("Rechercher nuées", function () {
       idNuée = await constl.nuées.créerNuée();
 
       recherche = rechercherNuéesSelonDescription("Météo");
+    });
 
-      it("pas de résultat quand la nuée n'a pas de description", async () => {
-        const résultat = await obtenir<
-          RésultatObjectifRecherche<InfoRésultatTexte> | undefined
-        >(({ siNonDéfini }) =>
+    it("pas de résultats quand la nuée n'a pas de description", async () => {
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ siNonDéfini }) =>
+        recherche({
+          services: (clef) => constl.services[clef],
+          idObjet: idNuée,
+          f: siNonDéfini(),
+        }),
+      );
+      expect(résultat).to.be.undefined();
+    });
+
+    it("ajout description détecté", async () => {
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
+        ({ siDéfini }) =>
           recherche({
             services: (clef) => constl.services[clef],
             idObjet: idNuée,
-            f: siNonDéfini(),
+            f: siDéfini(),
           }),
-        );
-        expect(résultat).to.be.undefined();
+      );
+
+      await constl.nuées.sauvegarderDescriptions({
+        idNuée,
+        descriptions: {
+          fr: "Météo historique",
+        },
       });
 
-      it("ajout description détecté", async () => {
-        const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
-          ({ siDéfini }) =>
-            recherche({
-              services: (clef) => constl.services[clef],
-              idObjet: idNuée,
-              f: siDéfini(),
-            }),
-        );
-
-        await constl.nuées.sauvegarderDescriptions({
-          idNuée,
-          descriptions: {
-            fr: "Météo historique",
-          },
-        });
-
-        const résultat = await pRésultat;
-        expect(résultat).to.deep.equal({
-          type: "résultat",
-          clef: "fr",
-          de: "descriptions",
-          info: {
-            type: "texte",
-            début: 0,
-            fin: 5,
-            texte: "Météo historique",
-          },
-          score: 1,
-        });
+      const résultat = await pRésultat;
+      expect(résultat).to.deep.equal({
+        type: "résultat",
+        clef: "fr",
+        de: "descriptions",
+        info: {
+          type: "texte",
+          début: 0,
+          fin: 5,
+          texte: "Météo historique",
+        },
+        score: 1,
       });
     });
   });
@@ -181,12 +182,14 @@ describe.skip("Rechercher nuées", function () {
       idNuée = await constl.nuées.créerNuée();
       idMotClef = await constl.motsClefs.créerMotClef();
 
-      rechercheId = rechercherNuéesSelonIdMotClef(idMotClef.slice(0, 15));
+      rechercheId = rechercherNuéesSelonIdMotClef(
+        enleverPréfixesEtOrbite(idMotClef).slice(0, 15),
+      );
       rechercheNom = rechercherNuéesSelonNomMotClef("Météo");
       rechercheTous = rechercherNuéesSelonMotClef("Météo");
     });
 
-    it("pas de résultat quand la nuée n'a pas de mot-clef", async () => {
+    it("pas de résultats quand la nuée n'a pas de mot-clef", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
           rechercheId({
@@ -248,7 +251,7 @@ describe.skip("Rechercher nuées", function () {
             type: "texte",
             début: 0,
             fin: 15,
-            texte: idMotClef,
+            texte: enleverPréfixesEtOrbite(idMotClef),
           },
         },
         score: 1,
@@ -335,12 +338,14 @@ describe.skip("Rechercher nuées", function () {
         catégorie: "numérique",
       });
 
-      rechercheId = rechercherNuéesSelonIdVariable(idVariable.slice(0, 15));
+      rechercheId = rechercherNuéesSelonIdVariable(
+        enleverPréfixesEtOrbite(idVariable).slice(0, 15),
+      );
       rechercheNom = rechercherNuéesSelonNomVariable("Précip");
       rechercheTous = rechercherNuéesSelonVariable("Précip");
     });
 
-    it("pas de résultat quand la nuée n'a pas de variable", async () => {
+    it("pas de résultats quand la nuée n'a pas de variable", async () => {
       const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
         ({ siNonDéfini }) =>
           rechercheId({
@@ -405,7 +410,7 @@ describe.skip("Rechercher nuées", function () {
             type: "texte",
             début: 0,
             fin: 15,
-            texte: idVariable,
+            texte: enleverPréfixesEtOrbite(idVariable),
           },
         },
         score: 1,
@@ -507,7 +512,9 @@ describe.skip("Rechercher nuées", function () {
       idNuée = await constl.nuées.créerNuée();
 
       rechercheNom = rechercherNuéesSelonTexte("Hydrologie");
-      rechercheId = rechercherNuéesSelonTexte(idNuée.slice(0, 15));
+      rechercheId = rechercherNuéesSelonTexte(
+        enleverPréfixesEtOrbite(idNuée).slice(0, 15),
+      );
       rechercheDescription = rechercherNuéesSelonTexte("Montréal");
       rechercheVariable = rechercherNuéesSelonTexte("Température");
       rechercheMotClef = rechercherNuéesSelonTexte("Météo");
@@ -530,7 +537,7 @@ describe.skip("Rechercher nuées", function () {
           type: "texte",
           début: 0,
           fin: 15,
-          texte: idNuée,
+          texte: enleverPréfixesEtOrbite(idNuée),
         },
         score: 1,
       });
