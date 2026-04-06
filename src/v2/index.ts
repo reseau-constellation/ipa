@@ -5,10 +5,10 @@ import {
   générerMandataireProcessus,
   générerMandataireTravailleur,
 } from "./nébuleuse/mandataire/index.js";
+import type { Mandatairifier } from "./types.js";
 import type { OptionsConstellation } from "./constellation.js";
-import type { MandataireConstellation } from "@constl/mandataire";
 
-export type Constellation = MandataireConstellation<ConstructeurConstellation>;
+export type Constellation = Mandatairifier<ConstructeurConstellation>;
 
 export const créerConstellation = (
   opts: OptionsConstellation,

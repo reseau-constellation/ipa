@@ -4,6 +4,7 @@ import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
 } from "@/v2/recherche/fonctions/motsClefs.js";
+import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
 import type { ServicesNécessairesRechercheMotsClefs } from "@/v2/recherche/fonctions/motsClefs.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
@@ -15,7 +16,7 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 
-describe.skip("Rechercher mots-clefs", function () {
+describe.only("Rechercher mots-clefs", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
@@ -45,7 +46,7 @@ describe.skip("Rechercher mots-clefs", function () {
       recherche = rechercherMotsClefsSelonNom("hydrologie");
     });
 
-    it("pas de résultat quand le mot-clef n'a pas de nom", async () => {
+    it("pas de résultats quand le mot-clef n'a pas de nom", async () => {
       const résultat = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
@@ -58,7 +59,7 @@ describe.skip("Rechercher mots-clefs", function () {
       expect(résultat).to.be.undefined();
     });
 
-    it("pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
+    it("pas de résultats si le mot-clef n'a vraiment rien à voir", async () => {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
@@ -172,7 +173,9 @@ describe.skip("Rechercher mots-clefs", function () {
 
       rechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
       rechercheDescription = rechercherMotsClefsSelonTexte("domaine de l'eau");
-      rechercheId = rechercherMotsClefsSelonTexte(idMotClef.slice(0, 15));
+      rechercheId = rechercherMotsClefsSelonTexte(
+        enleverPréfixesEtOrbite(idMotClef).slice(0, 15),
+      );
       rechercheVide = rechercherMotsClefsSelonTexte("");
     });
 
@@ -193,7 +196,7 @@ describe.skip("Rechercher mots-clefs", function () {
           type: "texte",
           début: 0,
           fin: 15,
-          texte: idMotClef,
+          texte: enleverPréfixesEtOrbite(idMotClef),
         },
         score: 1,
       });
@@ -254,12 +257,12 @@ describe.skip("Rechercher mots-clefs", function () {
       expect(résultatDescription).to.deep.equal({
         type: "résultat",
         clef: "fr",
-        de: "description",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 20,
           fin: 36,
-          texte: "domaine de l'eau",
+          texte: "un mot-clef pour le domaine de l'eau",
         },
         score: 1,
       });

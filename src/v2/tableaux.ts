@@ -218,7 +218,7 @@ export class Tableaux {
     });
 
     // On ajoute un élément vide pour ajouter la clef du tableau à la liste de tableaux
-    await tableau.insert({});
+    await tableau.put("noms", { });
 
     await oublier();
     return idTableau;
@@ -320,12 +320,10 @@ export class Tableaux {
       schema: schémaStructureAvecTableau,
     });
 
-    const tableau = brancheBd<StructureTableau, `tableaux/${typeof idTableau}`>(
-      {
-        bd: bdTypée,
-        clef: `tableaux/${idTableau}`,
-      },
-    );
+    const tableau = brancheBd<StructureTableau, `tableaux/${string}`>({
+      bd: bdTypée,
+      clef: `tableaux/${idTableau}`,
+    });
 
     return {
       tableau,

@@ -2,6 +2,7 @@ import correspTexte from "approx-string-match";
 import ssim from "ssim";
 
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
+import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import type { ServicesNécessairesRecherche } from "../recherche.js";
 import type {
   InfoRésultat,
@@ -104,18 +105,18 @@ export const combinerRecherches = async <
   const résultats: { [key: string]: RésultatObjectifRecherche<T> | undefined } =
     Object.fromEntries(Object.keys(fsRecherche).map((x) => [x, undefined]));
 
-  const fSuivreFinale = (): void => {
+  const fSuivreFinale = async (): Promise<void> => {
     const résultat = Object.values(résultats)
       .filter((x) => x)
       .sort((a, b) => (aMieuxQueB(a!, b!) ? -1 : 1))[0];
-    fSuivreRecherche(résultat);
+    await fSuivreRecherche(résultat);
   };
 
   await Promise.allSettled(
     Object.entries(fsRecherche).map(async ([clef, fRecherche]) => {
       const fSuivre = async (résultat?: RésultatObjectifRecherche<T>) => {
         résultats[clef] = résultat;
-        fSuivreFinale();
+        await fSuivreFinale();
       };
       fsOublier.push(await fRecherche({ services, idObjet, f: fSuivre }));
     }),
@@ -151,16 +152,20 @@ export const sousRecherche = async <
     fSuivreBranche,
   }: {
     id: string;
-    fSuivreBranche: (x: {
-      idObjet: string;
-      résultat: RésultatObjectifRecherche<T>;
-    }) => void;
+    fSuivreBranche: (
+      x:
+        | {
+            idObjet: string;
+            résultat: RésultatObjectifRecherche<T>;
+          }
+        | undefined,
+    ) => void;
   }): Promise<Oublier> => {
     return await fRechercher({
       services,
       idObjet,
       f: async (résultat?: RésultatObjectifRecherche<T>) => {
-        if (résultat) fSuivreBranche({ idObjet, résultat });
+        fSuivreBranche(résultat ? { idObjet, résultat } : undefined);
       },
     });
   };
@@ -215,7 +220,10 @@ const aMieuxQueB = <T extends InfoRésultat>(
 
     return iX > iY;
   };
-  const xPlusLongQueY = (x: InfoRésultat, y: InfoRésultat): boolean => {
+  const xPlusLongQueY = (
+    x: InfoRésultat,
+    y: InfoRésultat,
+  ): boolean | undefined => {
     while (x.type === "résultat") x = x.info;
     while (y.type === "résultat") y = y.info;
 
@@ -224,20 +232,33 @@ const aMieuxQueB = <T extends InfoRésultat>(
         if (y.type === "texte") {
           return x.fin - x.début > y.fin - y.début;
         } else {
-          return false;
+          return undefined;
         }
       default:
-        return false;
+        return undefined;
     }
+  };
+  const xMoinsProfondQueY = (x: InfoRésultat, y: InfoRésultat): boolean => {
+    let ix = 0;
+    let iy = 0;
+    while (x.type === "résultat") {
+      x = x.info;
+      ix++;
+    }
+    while (y.type === "résultat") {
+      y = y.info;
+      iy++;
+    }
+    return ix < iy;
   };
 
   return a.score > b.score
     ? true
     : a.score < b.score
       ? false
-      : xPlusLongQueY(a.info, b.info)
-        ? true
-        : xPlusImportantQueY(a.info, b.info);
+      : (xPlusLongQueY(a.info, b.info) ??
+        xPlusImportantQueY(a.info, b.info) ??
+        xMoinsProfondQueY(a.info, b.info));
 };
 
 const meilleurRésultat = <T extends InfoRésultat>(
@@ -259,6 +280,9 @@ export const rechercherSelonId = (
     idObjet: string;
     f: SuiviRecherche<InfoRésultatTexte>;
   }): Promise<Oublier> => {
+    idObjet = enleverPréfixesEtOrbite(idObjet);
+    idRecherché = enleverPréfixesEtOrbite(idRecherché);
+
     const résultat = rechercherDansTexte({
       schéma: idRecherché,
       texte: idObjet,

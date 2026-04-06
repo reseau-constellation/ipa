@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { créerConstellationsTest, rechercher } from "../utils.js";
 import type { ObtRecherche } from "../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
@@ -103,9 +104,9 @@ describe.skip("Rechercher dans réseau", function () {
             de: "id",
             info: {
               type: "texte",
-              texte: idsComptes[1],
+              texte: enleverPréfixesEtOrbite(idsComptes[1]),
               début: 0,
-              fin: idsComptes[1].length,
+              fin: enleverPréfixesEtOrbite(idsComptes[1]).length,
             },
           },
         };
@@ -248,9 +249,9 @@ describe.skip("Rechercher dans réseau", function () {
               de: "id",
               info: {
                 type: "texte",
-                texte: idMotClef,
+                texte: enleverPréfixesEtOrbite(idMotClef),
                 début: 0,
-                fin: idMotClef.length,
+                fin: enleverPréfixesEtOrbite(idMotClef).length,
               },
             },
           },
@@ -384,9 +385,9 @@ describe.skip("Rechercher dans réseau", function () {
             de: "id",
             info: {
               type: "texte",
-              texte: idVariable,
+              texte: enleverPréfixesEtOrbite(idVariable),
               début: 0,
-              fin: idVariable.length,
+              fin: enleverPréfixesEtOrbite(idVariable).length,
             },
           },
         };
@@ -587,9 +588,9 @@ describe.skip("Rechercher dans réseau", function () {
             de: "id",
             info: {
               type: "texte",
-              texte: idBd,
+              texte: enleverPréfixesEtOrbite(idBd),
               début: 0,
-              fin: idBd.length,
+              fin: enleverPréfixesEtOrbite(idBd).length,
             },
           },
         };
@@ -912,9 +913,9 @@ describe.skip("Rechercher dans réseau", function () {
             de: "id",
             info: {
               type: "texte",
-              texte: idNuée,
+              texte: enleverPréfixesEtOrbite(idNuée),
               début: 0,
-              fin: idNuée.length,
+              fin: enleverPréfixesEtOrbite(idNuée).length,
             },
           },
         };
@@ -1239,9 +1240,9 @@ describe.skip("Rechercher dans réseau", function () {
             de: "id",
             info: {
               type: "texte",
-              texte: idProjet,
+              texte: enleverPréfixesEtOrbite(idProjet),
               début: 0,
-              fin: idProjet.length,
+              fin: enleverPréfixesEtOrbite(idProjet).length,
             },
           },
         };

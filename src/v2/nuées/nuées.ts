@@ -14,6 +14,7 @@ import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { schémaTableau } from "../tableaux.js";
 import {
+  ajouterPréfixes,
   définis,
   enleverPréfixesEtOrbite,
   sauvegarderDonnéesExportées,
@@ -86,6 +87,7 @@ import type xlsx from "xlsx";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
 import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.js";
 import type { MotsClefs } from "../motsClefs.js";
+import { journalifier } from "../../../test/v2/utils.js";
 
 // Types épingles
 
@@ -241,7 +243,7 @@ export class Nuées extends ObjetConstellation<
   tableaux: TableauxNuées;
   recherche: RechercheNuées;
 
-  schémaObjet = schémaNuée;
+  schémaObjet: JSONSchemaType<PartielRécursif<StructureNuée>> = schémaNuée;
 
   constructor({
     options,
@@ -253,7 +255,15 @@ export class Nuées extends ObjetConstellation<
     super({
       clef: "nuées",
       services,
-      dépendances: ["variables", "bds", "favoris", "compte", "orbite", "hélia"],
+      dépendances: [
+        "motsClefs",
+        "variables",
+        "bds",
+        "favoris",
+        "compte",
+        "orbite",
+        "hélia",
+      ],
       options,
     });
 
@@ -594,47 +604,7 @@ export class Nuées extends ObjetConstellation<
     idNuée: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    const compte = this.service("compte");
-
-    return await suivreDeFonctionListe({
-      fListe: async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: Suivi<AccèsUtilisateur[]>;
-      }) =>
-        await compte.suivreAutorisations({
-          idObjet: idNuée,
-          f: fSuivreRacine,
-        }),
-      fBranche: async ({
-        id: idCompte,
-        fSuivreBranche,
-        branche,
-      }: {
-        id: string;
-        fSuivreBranche: Suivi<InfoAuteur>;
-        branche: AccèsUtilisateur;
-      }) => {
-        // On doit appeler ça ici pour avancer même si l'autre compte n'est pas disponible.
-        await fSuivreBranche({
-          idCompte,
-          accepté: false,
-          rôle: branche.rôle,
-        });
-        return await this.suivreNuées({
-          idCompte,
-          f: async (nuéesCompte) => {
-            return await fSuivreBranche({
-              idCompte,
-              accepté: (nuéesCompte || []).includes(idNuée),
-              rôle: branche.rôle,
-            });
-          },
-        });
-      },
-      fIdDeBranche: (x) => x.idCompte,
-      f,
-    });
+    return this.suivreAuteursObjet({ idObjet: idNuée, f });
   }
 
   async confirmerPermission({ idNuée }: { idNuée: string }): Promise<void> {
@@ -715,6 +685,7 @@ export class Nuées extends ObjetConstellation<
   }): Promise<Oublier> {
     const info: {
       base?: (string | undefined)[];
+      ascendants?: string[];
       bds?: (string | undefined)[];
     } = {};
 
@@ -729,15 +700,13 @@ export class Nuées extends ObjetConstellation<
     };
 
     const fsOublier: Oublier[] = [];
-    const orbite = this.service("orbite");
+
     if (épingle.épingle.épingle.base) {
-      const oublierBase = await orbite.suivreBdEmboîtéeTypée<StructureNuée>({
-        id: épingle.idObjet,
-        schéma: schémaNuée,
-        f: async (bd) => {
+      const oublierBase = await this.suivreObjet({
+        idObjet: épingle.idObjet,
+        f: async (nuée) => {
           try {
-            const image = await bd.get("image");
-            info.base = [this.àIdOrbite(épingle.idObjet), image];
+            info.base = [this.àIdOrbite(épingle.idObjet), nuée.image];
           } catch {
             return; // Si la structure n'est pas valide.
           }
@@ -745,6 +714,17 @@ export class Nuées extends ObjetConstellation<
         },
       });
       fsOublier.push(oublierBase);
+      
+      const oublierAscendance = await this.suivreAscendants({
+        idNuée: épingle.idObjet,
+        f:  async (ascendants) => {
+          console.log(ascendants)
+          info.ascendants = ascendants.map(id=>this.àIdOrbite(id))
+          await fFinale();
+        }
+      })
+      fsOublier.push(oublierAscendance)
+
     }
 
     // Bds associées
@@ -783,7 +763,7 @@ export class Nuées extends ObjetConstellation<
           else return faisRien;
         },
         f: async (bds: string[]) => {
-          info.bds = bds.map((id) => this.service("bds").àIdOrbite(id));
+          info.bds = bds.map((id) => serviceBds.àIdOrbite(id));
           await fFinale();
         },
       });
@@ -1094,7 +1074,7 @@ export class Nuées extends ObjetConstellation<
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
 
     for (const id of idsMotsClefs) {
-      await nuée.insert(`motsClefs/${id}`, null);
+      await nuée.insert(`motsClefs/${enleverPréfixesEtOrbite(id)}`, null);
     }
     await oublier();
   }
@@ -1110,7 +1090,7 @@ export class Nuées extends ObjetConstellation<
 
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
 
-    await nuée.del(`motsClefs/${idMotClef}`);
+    await nuée.del(`motsClefs/${enleverPréfixesEtOrbite(idMotClef)}`);
 
     await oublier();
   }
@@ -1123,8 +1103,10 @@ export class Nuées extends ObjetConstellation<
     idNuée: string;
     f: Suivi<ValeurAscendance<string>[]>;
   }): Promise<Oublier> {
-    const fFinale = async (motsClefs: ValeurAscendance<string[]>[]) => {
-      const liste = motsClefs
+    const motsClefs = this.service("motsClefs");
+
+    const fFinale = async (idsMotsClefs: ValeurAscendance<string[]>[]) => {
+      const liste = idsMotsClefs
         .map(({ source, val }) => val.map((v) => ({ source, val: v })))
         .flat();
 
@@ -1144,7 +1126,12 @@ export class Nuées extends ObjetConstellation<
       fParents: async ({ idNuée: idParent, f: fParent }) =>
         await this.suivreObjet({
           idObjet: idParent,
-          f: (nuée) => fParent(Object.keys(nuée?.motsClefs || {})),
+          f: (nuée) =>
+            fParent(
+              Object.keys(nuée?.motsClefs || {}).map((id) =>
+                motsClefs.ajouterProtocole(id),
+              ),
+            ),
         }),
     });
   }
@@ -1307,13 +1294,17 @@ export class Nuées extends ObjetConstellation<
       if (type === "ouverte") {
         const autorisationOuverte: AutorisationNuéeOuverte = {
           type: "ouverte",
-          bloqués: Object.keys(autorisation.bloqués || []),
+          bloqués: Object.keys(autorisation.bloqués || []).map((id) =>
+            ajouterPréfixes(id, "/nébuleuse/compte"),
+          ),
         };
         return autorisationOuverte;
       } else {
         const autorisationParInvitation: AutorisationNuéeParInvitation = {
           type: "par invitation",
-          invités: Object.keys(autorisation.invités || []),
+          invités: Object.keys(autorisation.invités || []).map((id) =>
+            ajouterPréfixes(id, "/nébuleuse/compte"),
+          ),
         };
         return autorisationParInvitation;
       }
@@ -1403,7 +1394,7 @@ export class Nuées extends ObjetConstellation<
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
     if ((await nuée.get("autorisation/type")) === "par invitation")
       throw new Error(
-        `La nuée ${idNuée} est à accès par invitation. Désinvitéz les comptes avec \`constl.nuées.désinviterCompte({ idNuée, idCompte })\`.`,
+        `La nuée ${idNuée} est à accès par invitation. Désinvitez les comptes avec \`constl.nuées.désinviterCompte({ idNuée, idCompte })\`.`,
       );
 
     const auteurs = await uneFois<AccèsUtilisateur[]>((f) =>
@@ -1630,7 +1621,7 @@ export class Nuées extends ObjetConstellation<
     idNuéeParent: string;
   }): Promise<void> {
     const { nuée, oublier } = await this.ouvrirNuée({ idNuée });
-    nuée.set("parent", idNuéeParent);
+    nuée.set("parent", this.enleverProtocole(idNuéeParent));
     await oublier();
   }
 
@@ -1657,7 +1648,7 @@ export class Nuées extends ObjetConstellation<
     }): Promise<Oublier> => {
       return await this.suivreObjet({
         idObjet: idNuée,
-        f: (nuée) => f(nuée?.parent),
+        f: (nuée) => f(nuée.parent ? this.ajouterProtocole(nuée.parent) : undefined),
       });
     };
 
@@ -1676,9 +1667,7 @@ export class Nuées extends ObjetConstellation<
             idNuée,
             f: async (parent) => {
               // Briser circulairités éventuelles
-              return parent && ascendance.includes(parent)
-                ? await fSuivreRacine(undefined)
-                : fSuivreRacine(parent);
+              return await fSuivreRacine(parent && !ascendance.includes(parent) ? parent : undefined)
             },
           }),
         fSuivre: async ({ id: idParent, fSuivre }) => {
@@ -2015,24 +2004,31 @@ export class Nuées extends ObjetConstellation<
   }): Promise<Oublier> {
     const bds = this.service("bds");
 
-    const info: { autorisation?: AutorisationNuée; auteurs?: InfoAuteur[] } =
-      {};
+    const info: {
+      autorisation?: AutorisationNuée;
+      auteurs?: InfoAuteur[];
+      auteursNuée?: InfoAuteur[];
+    } = {};
 
     const fFinale = async () => {
       if (info.autorisation?.type === "ouverte") {
         const { bloqués } = info.autorisation;
+
         await f(
-          !info.auteurs?.some(({ idCompte }) =>
-            Object.keys(bloqués).includes(idCompte),
-          ),
+          !info.auteurs?.some(({ idCompte }) => bloqués.includes(idCompte)),
         );
       } else if (info.autorisation?.type === "par invitation") {
         const { invités } = info.autorisation;
+
+        // Ici on ne vérifie pas `accepté` parce que c'est l'auteur de la nuée
+        // qui a décidé qui inviter.
+        const auteursNuée = (info.auteursNuée || []).map((a) => a.idCompte);
+
         await f(
           info.auteurs &&
             info.auteurs.some(
               ({ idCompte, accepté }) =>
-                accepté && Object.keys(invités).includes(idCompte),
+                accepté && [...invités, ...auteursNuée].includes(idCompte),
             ),
         );
       } else {
@@ -2056,9 +2052,18 @@ export class Nuées extends ObjetConstellation<
       },
     });
 
+    const oublierAuteursNuée = await this.suivreAuteurs({
+      idNuée,
+      f: async (auteurs) => {
+        info.auteursNuée = auteurs;
+        await fFinale();
+      },
+    });
+
     return async () => {
       await oublierAutorisation();
       await oublierAuteurs();
+      await oublierAuteursNuée();
     };
   }
 

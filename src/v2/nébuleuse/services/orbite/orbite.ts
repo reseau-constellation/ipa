@@ -339,26 +339,29 @@ export class ServiceOrbite<
   }): Promise<Oublier> {
     const signaleurOublier = new AbortController();
     const signalFinal = signal
-      ? anySignal([signaleurOublier.signal, signal]) : signaleurOublier.signal;
+      ? anySignal([signaleurOublier.signal, signal])
+      : signaleurOublier.signal;
 
-    let fFinale: Suivi<void>
-    let oublier: Oublier = faisRien
+    let fFinale: Suivi<void>;
+    let oublier: Oublier = faisRien;
 
-    this.ouvrirBd({ id, type: "nested", signal: signalFinal }).then(async ({bd, oublier: oublierBd }) => {
-      oublier = async () => {
-        await oublierBd();
-        bd.events.off("update", fFinale);
-      };
-      const bdTypée = typedNested({ db: bd, schema: schéma });
-      fFinale = async () => {
-        return await f(bdTypée);
-      };
-  
-      bd.events.on("update", fFinale);
-      await fFinale();
-    }).catch(é=>{
-      if (!é.toString().includes("AbortError")) throw (é);
-    });
+    this.ouvrirBd({ id, type: "nested", signal: signalFinal })
+      .then(async ({ bd, oublier: oublierBd }) => {
+        oublier = async () => {
+          await oublierBd();
+          bd.events.off("update", fFinale);
+        };
+        const bdTypée = typedNested({ db: bd, schema: schéma });
+        fFinale = async () => {
+          return await f(bdTypée);
+        };
+
+        bd.events.on("update", fFinale);
+        await fFinale();
+      })
+      .catch((é) => {
+        if (!é.toString().includes("AbortError")) throw é;
+      });
 
     return async () => {
       if (typeof fFinale === "undefined") {

@@ -5,6 +5,7 @@ import {
   rechercherProfilsSelonCourriel,
   rechercherProfilsSelonTexte,
 } from "@/v2/recherche/fonctions/profils.js";
+import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { obtenir } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
@@ -18,7 +19,7 @@ import type {
 } from "@/v2/recherche/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 
-describe.skip("Rechercher profil", function () {
+describe("Rechercher profil", function () {
   describe("selon activité", function () {
     let nébuleuses: NébuleuseTest[];
     let nébuleuse: NébuleuseTest;
@@ -330,7 +331,9 @@ describe.skip("Rechercher profil", function () {
       nébuleuse = nébuleuses[0] as NébuleuseTest;
 
       idCompte = await nébuleuse.compte.obtIdCompte();
-      rechercheId = rechercherProfilsSelonTexte(idCompte.slice(0, 15));
+      rechercheId = rechercherProfilsSelonTexte(
+        enleverPréfixesEtOrbite(idCompte).slice(0, 15),
+      );
       rechercheNom = rechercherProfilsSelonTexte("Julien Malard");
       rechercheCourriel = rechercherProfilsSelonTexte("julien.");
       rechercheVide = rechercherProfilsSelonTexte("");
@@ -357,7 +360,7 @@ describe.skip("Rechercher profil", function () {
           type: "texte",
           début: 0,
           fin: 15,
-          texte: idCompte,
+          texte: enleverPréfixesEtOrbite(idCompte),
         },
         score: 1,
       };

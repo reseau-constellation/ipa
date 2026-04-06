@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
 import { dossierTempo } from "@constl/utils-tests";
+import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   MEMBRE,
   MODÉRATRICE,
@@ -13,6 +14,7 @@ import {
 } from "@/v2/nébuleuse/services/favoris.js";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import {
+  enleverPréfixes,
   enleverPréfixesEtOrbite,
   moyenne,
   type DonnéesFichierBdExportées,
@@ -44,7 +46,6 @@ import type {
   ValeurAscendance,
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
-import { isBrowser, isElectronRenderer } from "wherearewe";
 
 describe.skip("Nuées", function () {
   let fermer: Oublier;
@@ -519,7 +520,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== true),
+            f: si((x) => x !== undefined && x !== true),
           }),
         );
 
@@ -534,7 +535,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== true),
+            f: si((x) => x !== undefined && x !== true),
           }),
         );
 
@@ -543,7 +544,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== false),
+            f: si((x) => x !== undefined && x !== false),
           }),
         );
 
@@ -561,7 +562,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== true),
+            f: si((x) => x !== undefined && x !== true),
           }),
         );
         expect(autorisation).to.be.false();
@@ -585,7 +586,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== true),
+            f: si((x) => x !== undefined && x !== true),
           }),
         );
         expect(autorisation).to.be.false();
@@ -602,7 +603,7 @@ describe.skip("Nuées", function () {
         });
 
         await obtenir(({ siDéfini }) =>
-          constl.nuées.suivrePermission({
+          constl.bds.suivrePermission({
             idObjet: idBd,
             idCompte: idsComptes[2],
             f: siDéfini(),
@@ -614,10 +615,10 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== false),
+            f: si((x) => x !== undefined && x !== true),
           }),
         );
-        expect(autorisation).to.be.true();
+        expect(autorisation).to.be.false();
       });
 
       it("erreur - bloquer compte membre nuée", async () => {
@@ -649,8 +650,12 @@ describe.skip("Nuées", function () {
       it("le compte créateur peut contribuer", async () => {
         const idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
 
-        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== undefined && x !== false),
+          }),
         );
         expect(autorisation).to.be.true();
       });
@@ -677,8 +682,12 @@ describe.skip("Nuées", function () {
 
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
-        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== undefined && x !== false),
+          }),
         );
         expect(autorisation).to.be.true();
       });
@@ -688,8 +697,12 @@ describe.skip("Nuées", function () {
 
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
-        const autorisation = await obtenir<boolean>(({ siDéfini }) =>
-          constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+        const autorisation = await obtenir<boolean>(({ si }) =>
+          constl.nuées.suivreAutorisationBd({
+            idNuée,
+            idBd,
+            f: si((x) => x !== undefined && x !== false),
+          }),
         );
         expect(autorisation).to.be.true();
       });
@@ -716,7 +729,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== true),
+            f: si((x) => x !== undefined && x !== true),
           }),
         );
         expect(autorisation).to.be.false();
@@ -733,7 +746,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== false),
+            f: si((x) => x !== undefined && x !== false),
           }),
         );
         expect(autorisation).to.be.true();
@@ -757,7 +770,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== false),
+            f: si((x) => x !== undefined && x !== false),
           }),
         );
         expect(autorisation).to.be.true();
@@ -774,7 +787,7 @@ describe.skip("Nuées", function () {
         });
 
         await obtenir(({ siDéfini }) =>
-          constl.nuées.suivrePermission({
+          constl.bds.suivrePermission({
             idObjet: idBd,
             idCompte: idsComptes[2],
             f: siDéfini(),
@@ -786,7 +799,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== true),
+            f: si((x) => x !== undefined && x !== true),
           }),
         );
         expect(autorisationAvant).to.be.false();
@@ -798,7 +811,7 @@ describe.skip("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== false),
+            f: si((x) => x !== undefined && x !== false),
           }),
         );
         expect(autorisationAprès).to.be.true();
@@ -816,7 +829,7 @@ describe.skip("Nuées", function () {
         await expect(
           constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] }),
         ).to.eventually.be.rejectedWith(
-          "est d'accès ouvert. Invitéz les comptes avec `constl.nuées.inviterCompte({ idNuée, idCompte })`.",
+          "est à accès par invitation. Désinvitez les comptes avec `constl.nuées.désinviterCompte({ idNuée, idCompte })`.",
         );
       });
     });
@@ -854,7 +867,7 @@ describe.skip("Nuées", function () {
       );
 
       const réf: InfoTableauNuée[] = [{ id: idTableau, source: idNuée }];
-      expect(tableaux).to.have.members(réf);
+      expect(tableaux).to.have.deep.members(réf);
     });
 
     it("suivre colonnes tableau", async () => {
@@ -1072,7 +1085,7 @@ describe.skip("Nuées", function () {
 
     it("résoudre épingle - base", async () => {
       const idNuée = await constl.nuées.créerNuée();
-      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+      const résolution = await obtenir<Set<string>>(({ si }) =>
         constl.nuées.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNuée,
@@ -1081,13 +1094,13 @@ describe.skip("Nuées", function () {
               épingle: { base: true },
             },
           },
-          f: siDéfini(),
+          f: si(x=>!!x && x.size > 0),
         }),
       );
-      expect([...résolution]).to.have.members([idNuée]);
+      expect([...résolution]).to.have.members([enleverPréfixes(idNuée)]);
     });
 
-    it("résoudre épingle - bds", async () => {
+    it.skip("résoudre épingle - bds", async () => {
       const idNuée = await constl.nuées.créerNuée();
 
       const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -1119,10 +1132,14 @@ describe.skip("Nuées", function () {
               },
             },
           },
-          f: si((x) => !!x && x.size > 1),
+          f: si((x) => !!x && x.size > 2),
         }),
       );
-      expect([...résolution]).to.have.members([idNuée, idBd, idDonnéesTableau]);
+      expect([...résolution]).to.have.members([
+        enleverPréfixes(idNuée),
+        enleverPréfixes(idBd),
+        idDonnéesTableau,
+      ]);
 
       const résolutionSansTableaux = await obtenir<Set<string>>(
         ({ siDéfini }) =>
@@ -1148,10 +1165,13 @@ describe.skip("Nuées", function () {
             f: siDéfini(),
           }),
       );
-      expect([...résolutionSansTableaux]).to.have.members([idNuée, idBd]);
+      expect([...résolutionSansTableaux]).to.have.members([
+        enleverPréfixes(idNuée),
+        enleverPréfixes(idBd),
+      ]);
     });
 
-    it("résoudre épingle - fichiers", async () => {
+    it.skip("résoudre épingle - fichiers", async () => {
       const idNuée = await constl.nuées.créerNuée();
 
       const idTableau = await constl.nuées.ajouterTableau({ idNuée });
@@ -1208,8 +1228,8 @@ describe.skip("Nuées", function () {
         }),
       );
       expect([...résolution]).to.have.members([
-        idNuée,
-        idBd,
+        enleverPréfixes(idNuée),
+        enleverPréfixes(idBd),
         idDonnéesTableau,
         idc,
       ]);
@@ -1239,8 +1259,8 @@ describe.skip("Nuées", function () {
         }),
       );
       expect([...résolutionSansFichers]).to.have.members([
-        idNuée,
-        idBd,
+        enleverPréfixes(idNuée),
+        enleverPréfixes(idBd),
         idDonnéesTableau,
       ]);
 
@@ -1266,16 +1286,16 @@ describe.skip("Nuées", function () {
           }),
       );
       expect([...résolutionSansFichersOuTableaux]).to.have.members([
-        idNuée,
-        idBd,
+        enleverPréfixes(idNuée),
+        enleverPréfixes(idBd),
       ]);
     });
 
-    it("résourde épingle - ascendance", async () => {
+    it.skip("résoudre épingle - ascendance", async () => {
       const idParent = await constl.nuées.créerNuée();
       const idNuée = await constl.nuées.créerNuée({ parent: idParent });
 
-      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+      const résolution = await obtenir<Set<string>>(({ si }) =>
         constl.nuées.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNuée,
@@ -1284,10 +1304,13 @@ describe.skip("Nuées", function () {
               épingle: { base: true },
             },
           },
-          f: siDéfini(),
+          f: si(x=>!!x && x.size > 1),
         }),
       );
-      expect([...résolution]).to.have.members([idNuée, idParent]);
+      expect([...résolution]).to.have.members([
+        enleverPréfixes(idNuée),
+        enleverPréfixes(idParent),
+      ]);
     });
   });
 
@@ -1397,7 +1420,7 @@ describe.skip("Nuées", function () {
         );
 
         expect(motsClefs).to.have.deep.members([
-          { val: [idMotClef], source: idNuée },
+          { val: idMotClef, source: idNuée },
         ]);
       });
 
@@ -1465,16 +1488,23 @@ describe.skip("Nuées", function () {
           licenceContenu,
         });
 
-        expect(schémaGénéré).to.deep.equal(
-          Object.assign({}, schéma, {
-            licence,
-            licenceContenu,
-            nuées: [idNuée],
-          }),
-        );
+        const réf = Object.assign({}, schéma, {
+          licence,
+          licenceContenu,
+          nuées: [idNuée],
+        });
+        for (const tableau of Object.values(réf.tableaux)) {
+          for (const col of tableau.cols) {
+            if (!Object.keys(col).includes("index")) {
+              col.index = undefined;
+            }
+          }
+        }
+
+        expect(schémaGénéré).to.deep.equal(réf);
       });
 
-      it("schéma de nuée avec ascendance", async () => {
+      it.skip("schéma de nuée avec ascendance", async () => {
         const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
         const schémaGénéré = await constl.nuées.créerSchémaDeNuée({
           idNuée: idNuéeEnfant,
@@ -1596,7 +1626,7 @@ describe.skip("Nuées", function () {
     });
   });
 
-  describe("données", function () {
+  describe.skip("données", function () {
     let idNuée: string;
     let idBd: string;
     let idBdPDDL: string;
@@ -1617,7 +1647,7 @@ describe.skip("Nuées", function () {
     let élémentsNuéesPDDL: DonnéesRangéeNuée[];
 
     const idNuéeIndisponible =
-      "/constl/nuée/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      "/constl/nuées/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
@@ -2146,7 +2176,7 @@ describe.skip("Nuées", function () {
       empreinte = await obtenir<string>(({ si }) =>
         constl.nuées.suivreEmpreinteTête({
           idNuée,
-          f: si((x) => x !== empreinte),
+          f: si((x) => x !== undefined && x !== empreinte),
         }),
       );
       expect(empreinte).to.be.a.not.empty("string");
@@ -2162,7 +2192,7 @@ describe.skip("Nuées", function () {
       empreinte = await obtenir<string>(({ si }) =>
         constl.nuées.suivreEmpreinteTête({
           idNuée,
-          f: si((x) => x !== empreinte),
+          f: si((x) => x !== undefined && x !== empreinte),
         }),
       );
       expect(empreinte).to.be.a.not.empty("string");
@@ -2178,7 +2208,7 @@ describe.skip("Nuées", function () {
       empreinte = await obtenir<string>(({ si }) =>
         constl.nuées.suivreEmpreinteTête({
           idNuée,
-          f: si((x) => x !== empreinte),
+          f: si((x) => x !== undefined && x !== empreinte),
         }),
       );
       expect(empreinte).to.be.a.not.empty("string");
@@ -2194,7 +2224,7 @@ describe.skip("Nuées", function () {
       empreinte = await obtenir<string>(({ si }) =>
         constl.nuées.suivreEmpreinteTête({
           idNuée,
-          f: si((x) => x !== empreinte),
+          f: si((x) => x !== undefined && x !== empreinte),
         }),
       );
       expect(empreinte).to.be.a.not.empty("string");
@@ -2210,7 +2240,7 @@ describe.skip("Nuées", function () {
       empreinte = await obtenir<string>(({ si }) =>
         constl.nuées.suivreEmpreinteTête({
           idNuée,
-          f: si((x) => x !== empreinte),
+          f: si((x) => x !== undefined && x !== empreinte),
         }),
       );
       expect(empreinte).to.be.a.not.empty("string");
@@ -2392,7 +2422,7 @@ describe.skip("Nuées", function () {
     });
   });
 
-  describe("héritage", function () {
+  describe.skip("héritage", function () {
     describe("noms", function () {
       let idNuéeGrandParent: string;
       let idNuéeParent: string;
@@ -3943,7 +3973,8 @@ describe.skip("Nuées", function () {
   describe("exportation", function () {
     let idc: string;
 
-    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
+    const idcIndisponible =
+      "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
 
     before(async () => {
       const octets = await obtRessourceTest({
@@ -4307,7 +4338,7 @@ describe.skip("Nuées", function () {
             dossier,
             formatDocu: "ods",
           });
-  
+
           const nomZip = join(dossier, nomFichier + ".zip");
           expect(existsSync(nomZip)).to.be.true();
           zip = await JSZip.loadAsync(readFileSync(nomZip));

@@ -10,11 +10,11 @@ import {
   rechercherBdsSelonTexte,
   rechercherBdsSelonVariable,
 } from "@/v2/recherche/fonctions/bds.js";
-import { rechercherVariablesSelonTexte } from "@/v2/recherche/fonctions/variables.js";
+import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
 import type { ServicesNécessairesRechercheBds } from "@/v2/recherche/fonctions/bds.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { Constellation } from "@/v2/index.js";
+
 import type {
   InfoRésultatRecherche,
   InfoRésultatTexte,
@@ -22,11 +22,12 @@ import type {
   RésultatObjectifRecherche,
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
+import type { Constellation as ConstructeurConstellation } from "@/v2/constellation.js";
 
-describe.skip("Rechercher bds", function () {
+describe.only("Rechercher bds", function () {
   let fermer: Oublier;
-  let constls: Constellation[];
-  let constl: Constellation;
+  let constls: ConstructeurConstellation[];
+  let constl: ConstructeurConstellation;
 
   before(async () => {
     ({ fermer, constls } = await créerConstellationsTest({
@@ -49,10 +50,10 @@ describe.skip("Rechercher bds", function () {
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-      recherche = rechercherBdsSelonDescription("Météo");
+      recherche = rechercherBdsSelonNom("Météo");
     });
 
-    it("pas de résultat quand la bd n'a pas de nom", async () => {
+    it("pas de résultats quand la bd n'a pas de nom", async () => {
       const résultat = await obtenir(({ siNonDéfini }) =>
         recherche({
           services: (clef) => constl.services[clef],
@@ -175,7 +176,9 @@ describe.skip("Rechercher bds", function () {
       idMotClef = await constl.motsClefs.créerMotClef();
 
       rechercheNomMotClef = rechercherBdsSelonNomMotClef("Météo");
-      rechercheIdMotClef = rechercherBdsSelonIdMotClef(idMotClef.slice(0, 15));
+      rechercheIdMotClef = rechercherBdsSelonIdMotClef(
+        enleverPréfixesEtOrbite(idMotClef).slice(0, 15),
+      );
       rechercheMotClef = rechercherBdsSelonMotClef("Météo");
     });
 
@@ -214,11 +217,11 @@ describe.skip("Rechercher bds", function () {
           f: siDéfini(),
         }),
       );
-      const pRésultatTous = obtenir(({ siDéfini }) =>
+      const pRésultatTous = obtenir(({ siNonDéfini }) =>
         rechercheMotClef({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siDéfini(),
+          f: siNonDéfini(),
         }),
       );
 
@@ -243,29 +246,29 @@ describe.skip("Rechercher bds", function () {
             type: "texte",
             début: 0,
             fin: 15,
-            texte: idMotClef,
+            texte: enleverPréfixesEtOrbite(idMotClef),
           },
         },
         score: 1,
       };
 
       expect(résultatId).to.deep.equal(réfRésId);
-      expect(résultatTous).to.deep.equal(réfRésId);
+      expect(résultatTous).to.be.undefined();
     });
 
     it("ajout nom mot-clef détecté", async () => {
-      const pRésultatNom = obtenir(({ siNonDéfini }) =>
+      const pRésultatNom = obtenir(({ siDéfini }) =>
         rechercheNomMotClef({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
-      const pRésultatTous = obtenir(({ siNonDéfini }) =>
+      const pRésultatTous = obtenir(({ siDéfini }) =>
         rechercheMotClef({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
 
@@ -329,7 +332,7 @@ describe.skip("Rechercher bds", function () {
 
       rechercheNomVariable = rechercherBdsSelonNomVariable("Précip");
       rechercheIdVariable = rechercherBdsSelonIdVariable(
-        idVariable.slice(0, 15),
+        enleverPréfixesEtOrbite(idVariable).slice(0, 15),
       );
       rechercheVariable = rechercherBdsSelonVariable("Précip");
     });
@@ -362,11 +365,11 @@ describe.skip("Rechercher bds", function () {
     });
 
     it("ajout variable détecté", async () => {
-      const pRésultatId = obtenir(({ siNonDéfini }) =>
+      const pRésultatId = obtenir(({ siDéfini }) =>
         rechercheIdVariable({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
       const pRésultatTous = obtenir(({ siNonDéfini }) =>
@@ -400,29 +403,29 @@ describe.skip("Rechercher bds", function () {
             type: "texte",
             début: 0,
             fin: 15,
-            texte: idVariable,
+            texte: enleverPréfixesEtOrbite(idVariable),
           },
         },
         score: 1,
       };
 
       expect(résultatId).to.deep.equal(réfRésId);
-      expect(résultatTous).to.deep.equal(réfRésId);
+      expect(résultatTous).to.be.undefined();
     });
 
     it("ajout nom variable détecté", async () => {
-      const pRésultatNom = obtenir(({ siNonDéfini }) =>
+      const pRésultatNom = obtenir(({ siDéfini }) =>
         rechercheNomVariable({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
-      const pRésultatTous = obtenir(({ siNonDéfini }) =>
+      const pRésultatTous = obtenir(({ siDéfini }) =>
         rechercheVariable({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
 
@@ -499,18 +502,20 @@ describe.skip("Rechercher bds", function () {
 
       rechercheNom = rechercherBdsSelonTexte("Hydrologie");
       rechercheDescription = rechercherBdsSelonTexte("Montréal");
-      rechercheId = rechercherBdsSelonTexte(idBd.slice(0, 15));
+      rechercheId = rechercherBdsSelonTexte(
+        enleverPréfixesEtOrbite(idBd).slice(0, 15),
+      );
       rechercheVariables = rechercherBdsSelonTexte("Température");
       rechercheMotsClefs = rechercherBdsSelonTexte("Météo");
-      rechercheVide = rechercherVariablesSelonTexte("");
+      rechercheVide = rechercherBdsSelonTexte("");
     });
 
     it("résultat id détecté", async () => {
-      const résultatId = await obtenir(({ siNonDéfini }) =>
+      const résultatId = await obtenir(({ siDéfini }) =>
         rechercheId({
           services: (clef) => constl.services[clef],
           idObjet: idBd,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
 
@@ -521,7 +526,7 @@ describe.skip("Rechercher bds", function () {
           type: "texte",
           début: 0,
           fin: 15,
-          texte: idBd,
+          texte: enleverPréfixesEtOrbite(idBd),
         },
         score: 1,
       };

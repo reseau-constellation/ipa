@@ -4,6 +4,7 @@ import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "@/v2/recherche/fonctions/variables.js";
+import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
 import type { ServicesNécessairesRechercheVariables } from "@/v2/recherche/fonctions/variables.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
@@ -15,7 +16,7 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 
-describe.skip("Rechercher variables", function () {
+describe.only("Rechercher variables", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
@@ -47,7 +48,7 @@ describe.skip("Rechercher variables", function () {
       recherche = rechercherVariablesSelonNom("Radiation solaire");
     });
 
-    it("pas de résultat quand la variable n'a pas de nom", async () => {
+    it("pas de résultats quand la variable n'a pas de nom", async () => {
       const résultat = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
@@ -60,7 +61,7 @@ describe.skip("Rechercher variables", function () {
       expect(résultat).to.be.undefined();
     });
 
-    it("pas de résultat si le nom n'a vraiment rien à voir", async () => {
+    it("pas de résultats si le nom n'a vraiment rien à voir", async () => {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
@@ -163,7 +164,7 @@ describe.skip("Rechercher variables", function () {
       recherche = rechercherVariablesSelonDescription("Radiation solaire");
     });
 
-    it("pas de résultat quand la variable n'a pas de description", async () => {
+    it("pas de résultats quand la variable n'a pas de description", async () => {
       const résultat = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
@@ -177,7 +178,7 @@ describe.skip("Rechercher variables", function () {
       expect(résultat).to.be.undefined();
     });
 
-    it("pas de résultat si la description n'a vraiment rien à voir", async () => {
+    it("pas de résultats si la description n'a vraiment rien à voir", async () => {
       await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
@@ -289,7 +290,9 @@ describe.skip("Rechercher variables", function () {
         catégorie: "numérique",
       });
 
-      rechercheId = rechercherVariablesSelonTexte(idVariable.slice(0, 15));
+      rechercheId = rechercherVariablesSelonTexte(
+        enleverPréfixesEtOrbite(idVariable).slice(0, 15),
+      );
       rechercheNom = rechercherVariablesSelonTexte("précipitation");
       rechercheDescription = rechercherVariablesSelonTexte("neige");
       rechercheVide = rechercherVariablesSelonTexte("");
@@ -319,7 +322,7 @@ describe.skip("Rechercher variables", function () {
           type: "texte",
           début: 0,
           fin: 15,
-          texte: idVariable,
+          texte: enleverPréfixesEtOrbite(idVariable),
         },
         score: 1,
       });
@@ -372,12 +375,12 @@ describe.skip("Rechercher variables", function () {
       expect(résultatDescription).to.deep.equal({
         type: "résultat",
         clef: "fr",
-        de: "nom",
+        de: "descriptions",
         info: {
           type: "texte",
           début: 9,
           fin: 14,
-          texte: "neige",
+          texte: "Pluie ou neige",
         },
         score: 1,
       });

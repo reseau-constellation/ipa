@@ -36,3 +36,20 @@ export type InfoAuteur = {
   accepté: boolean;
   rôle: Rôle;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Asynchronifier<T extends (...args: any[]) => any> = (
+  ...args: Parameters<T>
+) => Promise<ReturnType<T>>;
+
+export type Mandatairifier<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [C in keyof T]: T[C] extends (args: any) => Promise<any>
+    ? T[C]
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      T[C] extends (args: any) => any
+      ? Asynchronifier<T[C]>
+      : T[C] extends object
+        ? Mandatairifier<T[C]>
+        : never;
+};

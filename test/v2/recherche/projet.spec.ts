@@ -1,6 +1,7 @@
 import { expect } from "aegir/chai";
 import {
   rechercherProjetsSelonBd,
+  rechercherProjetsSelonDescription,
   rechercherProjetsSelonIdBd,
   rechercherProjetsSelonIdMotClef,
   rechercherProjetsSelonIdVariable,
@@ -11,6 +12,7 @@ import {
   rechercherProjetsSelonTexte,
   rechercherProjetsSelonVariable,
 } from "@/v2/recherche/fonctions/projets.js";
+import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
 import type { ServicesNécessairesRechercheProjets } from "@/v2/recherche/fonctions/projets.js";
 import type { Constellation } from "@/v2/index.js";
@@ -23,7 +25,7 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 
-describe.skip("Rechercher projets", function () {
+describe.only("Rechercher projets", function () {
   let constls: Constellation[];
   let constl: Constellation;
   let fermer: Oublier;
@@ -53,7 +55,7 @@ describe.skip("Rechercher projets", function () {
       recherche = rechercherProjetsSelonNom("Météo");
     });
 
-    it("pas de résultat quand le projet n'a pas de nom", async () => {
+    it("pas de résultats quand le projet n'a pas de nom", async () => {
       const résultat = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
@@ -111,10 +113,10 @@ describe.skip("Rechercher projets", function () {
 
     before(async () => {
       idProjet = await constl.projets.créerProjet();
-      recherche = rechercherProjetsSelonNom("Météo");
+      recherche = rechercherProjetsSelonDescription("Météo");
     });
 
-    it("pas de résultat quand le projet n'a pas de description", async () => {
+    it("pas de résultats quand le projet n'a pas de description", async () => {
       const résultat = await obtenir<
         RésultatObjectifRecherche<InfoRésultatTexte> | undefined
       >(({ siNonDéfini }) =>
@@ -184,12 +186,12 @@ describe.skip("Rechercher projets", function () {
 
       rechercheNomMotClef = rechercherProjetsSelonNomMotClef("Météo");
       rechercheIdMotClef = rechercherProjetsSelonIdMotClef(
-        idMotClef.slice(0, 15),
+        enleverPréfixesEtOrbite(idMotClef).slice(0, 15),
       );
       rechercheMotClef = rechercherProjetsSelonMotClef("Météo");
     });
 
-    it("pas de résultat quand le projet n'a pas de mot-clef", async () => {
+    it("pas de résultats quand le projet n'a pas de mot-clef", async () => {
       const résultatNom = await obtenir(({ siNonDéfini }) =>
         rechercheNomMotClef({
           services: (clef) => constl.services[clef],
@@ -217,11 +219,11 @@ describe.skip("Rechercher projets", function () {
     });
 
     it("ajout mot-clef détecté", async () => {
-      const pRésultatId = obtenir(({ siNonDéfini }) =>
+      const pRésultatId = obtenir(({ siDéfini }) =>
         rechercheIdMotClef({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
       const pRésultatTous = obtenir(({ siNonDéfini }) =>
@@ -252,29 +254,42 @@ describe.skip("Rechercher projets", function () {
             type: "texte",
             début: 0,
             fin: 15,
-            texte: idMotClef,
+            texte: enleverPréfixesEtOrbite(idMotClef),
           },
         },
         score: 1,
       };
 
       expect(résultatId).to.deep.equal(réfRésId);
-      expect(résultatTous).to.deep.equal(réfRésId);
+      expect(résultatTous).to.be.undefined();
     });
 
     it("ajout nom mot-clef détecté", async () => {
-      const pRésultatNom = obtenir(({ siNonDéfini }) =>
+      const bonRésultat = (
+        x?: RésultatObjectifRecherche<
+          InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+        >,
+      ) => x?.info.de === "nom";
+      const pRésultatNom = obtenir<
+        RésultatObjectifRecherche<
+          InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+        >
+      >(({ si }) =>
         rechercheNomMotClef({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siNonDéfini(),
+          f: si(bonRésultat),
         }),
       );
-      const pRésultatTous = obtenir(({ siNonDéfini }) =>
+      const pRésultatTous = obtenir<
+        RésultatObjectifRecherche<
+          InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+        >
+      >(({ si }) =>
         rechercheMotClef({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siNonDéfini(),
+          f: si(bonRésultat),
         }),
       );
 
@@ -338,12 +353,12 @@ describe.skip("Rechercher projets", function () {
 
       rechercheNomVariable = rechercherProjetsSelonNomVariable("Précip");
       rechercheIdVariable = rechercherProjetsSelonIdVariable(
-        idVariable.slice(0, 15),
+        enleverPréfixesEtOrbite(idVariable).slice(0, 15),
       );
       rechercheVariable = rechercherProjetsSelonVariable("Précip");
     });
 
-    it("pas de résultat quand la bd n'a pas de variable", async () => {
+    it("pas de résultats quand la bd n'a pas de variable", async () => {
       const résultatNom = await obtenir(({ siNonDéfini }) =>
         rechercheNomVariable({
           services: (clef) => constl.services[clef],
@@ -371,11 +386,11 @@ describe.skip("Rechercher projets", function () {
     });
 
     it("ajout variable détecté", async () => {
-      const pRésultatId = obtenir(({ siNonDéfini }) =>
+      const pRésultatId = obtenir(({ siDéfini }) =>
         rechercheIdVariable({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
       const pRésultatTous = obtenir(({ siNonDéfini }) =>
@@ -412,29 +427,29 @@ describe.skip("Rechercher projets", function () {
             type: "texte",
             début: 0,
             fin: 15,
-            texte: idVariable,
+            texte: enleverPréfixesEtOrbite(idVariable),
           },
         },
         score: 1,
       };
 
       expect(résultatId).to.deep.equal(réfRésId);
-      expect(résultatTous).to.deep.equal(réfRésId);
+      expect(résultatTous).to.be.undefined();
     });
 
     it("ajout nom variable détecté", async () => {
-      const pRésultatNom = obtenir(({ siNonDéfini }) =>
+      const pRésultatNom = obtenir(({ siDéfini }) =>
         rechercheNomVariable({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
-      const pRésultatTous = obtenir(({ siNonDéfini }) =>
+      const pRésultatTous = obtenir(({ siDéfini }) =>
         rechercheVariable({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
 
@@ -512,7 +527,9 @@ describe.skip("Rechercher projets", function () {
       idProjet = await constl.projets.créerProjet();
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
-      rechercheIdBd = rechercherProjetsSelonIdBd(idBd.slice(0, 15));
+      rechercheIdBd = rechercherProjetsSelonIdBd(
+        enleverPréfixesEtOrbite(idBd).slice(0, 15),
+      );
       rechercheNomBd = rechercherProjetsSelonBd("Hydrologie");
       rechercheDescriptionBd = rechercherProjetsSelonBd("Montréal");
       rechercheVariablesBd = rechercherProjetsSelonBd("Température");
@@ -520,11 +537,11 @@ describe.skip("Rechercher projets", function () {
     });
 
     it("résultat id détecté", async () => {
-      const pRésultatId = obtenir(({ siNonDéfini }) =>
+      const pRésultatId = obtenir(({ siDéfini }) =>
         rechercheIdBd({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
       await constl.projets.ajouterBds({ idProjet, idsBds: [idBd] });
@@ -544,7 +561,7 @@ describe.skip("Rechercher projets", function () {
             type: "texte",
             début: 0,
             fin: 15,
-            texte: idBd,
+            texte: enleverPréfixesEtOrbite(idBd),
           },
         },
         score: 1,
@@ -635,11 +652,11 @@ describe.skip("Rechercher projets", function () {
     it("résultat variable détecté", async () => {
       const pRésultatVariable = obtenir<
         RésultatObjectifRecherche<TypeRésultatBd>
-      >(({ siDéfini }) =>
+      >(({ si }) =>
         rechercheVariablesBd({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siDéfini(),
+          f: si((x) => !!x && x.de === "bd"),
         }),
       );
 
@@ -795,7 +812,9 @@ describe.skip("Rechercher projets", function () {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
 
       rechercheNom = rechercherProjetsSelonTexte("Hydrologie");
-      rechercheId = rechercherProjetsSelonTexte(idProjet.slice(0, 15));
+      rechercheId = rechercherProjetsSelonTexte(
+        enleverPréfixesEtOrbite(idProjet).slice(0, 15),
+      );
       rechercheDescription = rechercherProjetsSelonTexte("Montréal");
       rechercheBds = rechercherProjetsSelonTexte(idBd);
       rechercheVariables = rechercherProjetsSelonTexte("Température");
@@ -804,11 +823,11 @@ describe.skip("Rechercher projets", function () {
     });
 
     it("résultat id détecté", async () => {
-      const résultatId = await obtenir(({ siNonDéfini }) =>
+      const résultatId = await obtenir(({ siDéfini }) =>
         rechercheId({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siNonDéfini(),
+          f: siDéfini(),
         }),
       );
 
@@ -819,7 +838,7 @@ describe.skip("Rechercher projets", function () {
           type: "texte",
           début: 0,
           fin: 15,
-          texte: idProjet,
+          texte: enleverPréfixesEtOrbite(idProjet),
         },
         score: 1,
       };
@@ -918,8 +937,8 @@ describe.skip("Rechercher projets", function () {
           info: {
             type: "texte",
             début: 0,
-            fin: idBd.length,
-            texte: idBd,
+            fin: enleverPréfixesEtOrbite(idBd).length,
+            texte: enleverPréfixesEtOrbite(idBd),
           },
         },
         score: 1,
@@ -930,11 +949,11 @@ describe.skip("Rechercher projets", function () {
     it("résultat variable détecté", async () => {
       const pRésultatVariable = obtenir<
         RésultatObjectifRecherche<TypeRésultatProjet>
-      >(({ siDéfini }) =>
+      >(({ si }) =>
         rechercheVariables({
           services: (clef) => constl.services[clef],
           idObjet: idProjet,
-          f: siDéfini(),
+          f: si((x) => !!x && x.de === "bd"),
         }),
       );
       const idVariable = await constl.variables.créerVariable({

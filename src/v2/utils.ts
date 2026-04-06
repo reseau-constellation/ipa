@@ -188,7 +188,9 @@ export const ajouterPréfixes = (id: string, préfix: string): string => {
 
 export const enleverPréfixes = (id: string): string => {
   const composantes = id.split("/");
-  return "/" + composantes.slice(composantes.indexOf("orbitdb")).join("/");
+  return id.includes("/")
+    ? "/" + composantes.slice(composantes.indexOf("orbitdb")).join("/")
+    : id;
 };
 
 export const enleverPréfixesEtOrbite = (id: string): string => {

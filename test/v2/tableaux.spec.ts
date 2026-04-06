@@ -3,7 +3,12 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
 import JSZip from "jszip";
-import { isBrowser, isElectronMain, isElectronRenderer, isNode } from "wherearewe";
+import {
+  isBrowser,
+  isElectronMain,
+  isElectronRenderer,
+  isNode,
+} from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
@@ -43,7 +48,7 @@ import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import type { CatégorieBaseVariables } from "@/v2/variables.js";
 import type { CellObject, WorkBook } from "xlsx";
 
-describe.skip("tableaux", function () {
+describe("tableaux", function () {
   let fermer: () => Promise<void>;
   let constls: Constellation[];
   let constl: Constellation;
@@ -1098,24 +1103,10 @@ describe.skip("tableaux", function () {
     describe.skip("index", function () {
       let idBd: string;
       let idTableau: string;
-      let idsÉlémentsInitiaux: string[];
 
       const idColonneDate = "date";
       const idColonneEndroit = "endroit";
       const idColonnePrécip = "précip";
-
-      const élémentsInitiaux: DonnéesRangéeTableau[] = [
-        {
-          [idColonneDate]: new Date("2025/11/20").valueOf(),
-          [idColonneEndroit]: [11.010353745293981, 76.93447944133268],
-          [idColonnePrécip]: 3,
-        },
-        {
-          [idColonneDate]: new Date("2025/11/21").valueOf(),
-          [idColonneEndroit]: [16.534768942113885, 80.79302512863033],
-          [idColonnePrécip]: 11,
-        },
-      ];
 
       beforeEach(async () => {
         idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -1134,12 +1125,6 @@ describe.skip("tableaux", function () {
           idStructure: idBd,
           idTableau,
           idColonne: idColonnePrécip,
-        });
-
-        idsÉlémentsInitiaux = await constl.bds.tableaux.ajouterÉléments({
-          idStructure: idBd,
-          idTableau,
-          éléments: élémentsInitiaux,
         });
       });
 
@@ -2285,7 +2270,40 @@ describe.skip("tableaux", function () {
       let idBd: string;
       let idTableau: string;
 
-      before(async () => {
+      let idsÉlémentsInitiaux: string[];
+
+      const idColonneDate = "Date";
+      const idColonneEndroit = "Endroit";
+      const idColonneTempMin = "TempMin";
+
+      const élémentsBase = [
+        {
+          endroit: "ici",
+          date: {
+            système: "dateJS",
+            val: new Date("2021-01-01").valueOf(),
+          },
+          températureMinimale: 25,
+        },
+        {
+          endroit: "ici",
+          date: {
+            système: "dateJS",
+            val: new Date("2021-01-02").valueOf(),
+          },
+          températureMinimale: 25,
+        },
+        {
+          endroit: "là-bas",
+          date: {
+            système: "dateJS",
+            val: new Date("2021-01-01").valueOf(),
+          },
+          températureMinimale: 25,
+        },
+      ];
+
+      beforeEach(async () => {
         idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableau = await constl.bds.ajouterTableau({ idBd });
         await Promise.all(
@@ -2298,37 +2316,8 @@ describe.skip("tableaux", function () {
               }),
           ),
         );
-      });
 
-      it("importation éléments", async () => {
-        const élémentsBase = [
-          {
-            endroit: "ici",
-            date: {
-              système: "dateJS",
-              val: new Date("2021-01-01").valueOf(),
-            },
-            températureMinimale: 25,
-          },
-          {
-            endroit: "ici",
-            date: {
-              système: "dateJS",
-              val: new Date("2021-01-02").valueOf(),
-            },
-            températureMinimale: 25,
-          },
-          {
-            endroit: "là-bas",
-            date: {
-              système: "dateJS",
-              val: new Date("2021-01-01").valueOf(),
-            },
-            températureMinimale: 25,
-          },
-        ];
-
-        await constl.bds.tableaux.ajouterÉléments({
+        idsÉlémentsInitiaux = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
           éléments: élémentsBase,
@@ -2342,7 +2331,9 @@ describe.skip("tableaux", function () {
             f: si((x) => x?.length === 3),
           }),
         );
+      });
 
+      it("importation éléments", async () => {
         const nouvellesDonnées: DonnéesRangéeTableau[] = [
           {
             endroit: "ici",
@@ -3944,9 +3935,10 @@ describe.skip("tableaux", function () {
               langues: ["fr"],
               inclureDocuments: false,
             });
+
             const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
             expect(existsSync(cheminFichier)).to.be.true();
-          };
+          }
         });
 
         it("exporter document zip avec fichiers sfip", async () => {
