@@ -146,7 +146,6 @@ export class RechercheProfils extends Recherche<ServicesNécessairesRecherchePro
 
   // Méthodes internes
 
-  @cacheRechercheParN
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
     fObjectif,

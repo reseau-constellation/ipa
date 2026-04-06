@@ -142,7 +142,6 @@ export class RechercheMotsClefs extends RechercheObjets<ServicesNécessairesRech
     });
   }
 
-  @cacheRechercheParN
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
     fObjectif,

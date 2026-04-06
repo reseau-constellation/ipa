@@ -41,7 +41,6 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
     this.service = service;
   }
 
-  @cacheRechercheParN
   async rechercher<T extends InfoRésultat = InfoRésultat>({
     f,
     n,
@@ -264,7 +263,6 @@ export abstract class RechercheObjets<
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier>;
 
-  @cacheRechercheParN
   async rechercherObjets<T extends InfoRésultat = InfoRésultat>({
     f,
     n,

@@ -278,7 +278,6 @@ export class RechercheBds extends RechercheObjets<ServicesNécessairesRechercheB
     return await this.bds.suivreAuteurs({ idBd: idObjet, f });
   }
 
-  @cacheRechercheParN
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
     fObjectif,
