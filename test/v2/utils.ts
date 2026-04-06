@@ -316,6 +316,7 @@ export const créerConstellationsTest = async ({
       },
       avecMandataire,
     );
+    if (!avecMandataire) await constl.démarrer();
     constls.push(constl);
   }
 
