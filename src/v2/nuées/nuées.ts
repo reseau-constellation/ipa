@@ -839,7 +839,7 @@ export class Nuées extends ObjetConstellation<
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     const fFinale = async (noms: ValeurAscendance<TraducsTexte>[]) => {
-      await f(Object.assign({}, ...noms.map(({ val }) => val)));
+      await f(Object.assign({}, ...noms.toReversed().map(({ val }) => val)));
     };
 
     return await this.suivreDeParents({
@@ -913,7 +913,9 @@ export class Nuées extends ObjetConstellation<
     f: Suivi<TraducsTexte>;
   }): Promise<Oublier> {
     const fFinale = async (descriptions: ValeurAscendance<TraducsTexte>[]) => {
-      await f(Object.assign({}, ...descriptions.map(({ val }) => val)));
+      await f(
+        Object.assign({}, ...descriptions.toReversed().map(({ val }) => val)),
+      );
     };
 
     return await this.suivreDeParents({
