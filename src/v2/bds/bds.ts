@@ -235,7 +235,7 @@ export class Bds extends ObjetConstellation<
   tableaux: TableauxBds;
   recherche: RechercheBds;
 
-  schémaObjet = schémaBd;
+  schémaObjet: JSONSchemaType<PartielRécursif<StructureBd>> = schémaBd;
 
   constructor({
     services,
