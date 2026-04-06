@@ -2233,7 +2233,8 @@ describe("Bases de données", function () {
   describe("exportation", function () {
     let idc: string;
 
-    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
+    const idcIndisponible =
+      "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
 
     before(async () => {
       const octets = await obtRessourceTest({

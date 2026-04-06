@@ -32,7 +32,9 @@ const catégories: {
   },
   chaîne: {
     valides: [
-      "abc", "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX", "வணக்கம்"
+      "abc",
+      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX",
+      "வணக்கம்",
     ],
     invalides: [123, true, { je: { ne: { suis: { pas: "une chaîne" } } } }],
   },

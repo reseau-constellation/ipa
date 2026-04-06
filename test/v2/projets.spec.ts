@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
 import JSZip from "jszip";
+import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   MEMBRE,
   MODÉRATRICE,
@@ -11,10 +12,7 @@ import {
   TOUS_DISPOSITIFS,
   DISPOSITIFS_INSTALLÉS,
 } from "@/v2/nébuleuse/services/favoris.js";
-import {
-  enleverPréfixes,
-  enleverPréfixesEtOrbite,
-} from "@/v2/utils.js";
+import { enleverPréfixes, enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
@@ -33,7 +31,6 @@ import type {
   MotClefProjet,
   ÉpingleProjet,
 } from "@/v2/projets.js";
-import { isBrowser, isElectronRenderer } from "wherearewe";
 
 describe("Projets", function () {
   let fermer: Oublier;
@@ -1332,7 +1329,8 @@ describe("Projets", function () {
   describe("exportation", function () {
     let idc: string;
 
-    const idcIndisponible = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
+    const idcIndisponible =
+      "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
     const idBdIndisponible =
       "/constl/bds/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
@@ -1501,12 +1499,16 @@ describe("Projets", function () {
           idProjet: idProjetTest,
           idsBds: [idBd1, idBdIndisponible],
         });
-        const { docus, documentsMédias } = await constl.projets.exporterDonnées({
-          idProjet: idProjetTest,
-          langues: ["fr"],
-        });
+        const { docus, documentsMédias } = await constl.projets.exporterDonnées(
+          {
+            idProjet: idProjetTest,
+            langues: ["fr"],
+          },
+        );
 
-        expect(docus.map((d) => d.nom)).to.have.members([enleverPréfixesEtOrbite(idBd1)]);
+        expect(docus.map((d) => d.nom)).to.have.members([
+          enleverPréfixesEtOrbite(idBd1),
+        ]);
         expect([...documentsMédias]).to.have.members([idc, idcIndisponible]);
       });
     });
@@ -1565,7 +1567,7 @@ describe("Projets", function () {
               nomFichier,
               dossier,
               formatDocu: "ods",
-              langues: ["fr"]
+              langues: ["fr"],
             }),
           ).to.eventually.be.rejectedWith("showSaveFilePicker");
         } else {
@@ -1574,9 +1576,9 @@ describe("Projets", function () {
             nomFichier,
             dossier,
             formatDocu: "ods",
-            langues: ["fr"]
+            langues: ["fr"],
           });
-  
+
           const nomZip = join(dossier, nomFichier + ".zip");
           expect(existsSync(nomZip)).to.be.true();
           zip = await JSZip.loadAsync(readFileSync(nomZip));
@@ -1623,7 +1625,7 @@ describe("Projets", function () {
           nomFichier: nomFichierTest,
           dossier,
           formatDocu: "ods",
-          langues: ["fr"]
+          langues: ["fr"],
         });
 
         const nomZip = join(dossier, nomFichierTest + ".zip");

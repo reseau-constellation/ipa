@@ -713,8 +713,13 @@ export class Projets extends ObjetConstellation<
     const motsClefs = this.service("motsClefs");
 
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
-    const invalides = idsMotsClefs.filter(idMotClef=>!motsClefs.identifiantValide({ identifiant: idMotClef }));
-    if (invalides.length) throw new Error(`Identifiants mots-clefs invalides : ${invalides.join(', ')}.`)
+    const invalides = idsMotsClefs.filter(
+      (idMotClef) => !motsClefs.identifiantValide({ identifiant: idMotClef }),
+    );
+    if (invalides.length)
+      throw new Error(
+        `Identifiants mots-clefs invalides : ${invalides.join(", ")}.`,
+      );
 
     await this.confirmerPermission({ idProjet });
 
@@ -830,8 +835,11 @@ export class Projets extends ObjetConstellation<
     const bds = this.service("bds");
 
     if (!Array.isArray(idsBds)) idsBds = [idsBds];
-    const invalides = idsBds.filter(idBd=>!bds.identifiantValide({ identifiant: idBd }));
-    if (invalides.length) throw new Error(`Identifiants bds invalides : ${invalides.join(', ')}.`)
+    const invalides = idsBds.filter(
+      (idBd) => !bds.identifiantValide({ identifiant: idBd }),
+    );
+    if (invalides.length)
+      throw new Error(`Identifiants bds invalides : ${invalides.join(", ")}.`);
 
     await this.confirmerPermission({ idProjet });
 
@@ -1245,39 +1253,48 @@ export class Projets extends ObjetConstellation<
 
     const bookType: BookType = conversionsTypes[formatDocu] || formatDocu;
 
-    const adresseFinale = join(dossier, nomFichier)
+    const adresseFinale = join(dossier, nomFichier);
 
-    const fichiersDocus = docus.filter(d=>d.docu.SheetNames.length > 0).map((d) => {
-      return {
-        nom: `${d.nom}.${formatDocu}`,
-        octets: xlsxWrite(d.docu, { bookType, type: "buffer" }),
-      };
-    });
+    const fichiersDocus = docus
+      .filter((d) => d.docu.SheetNames.length > 0)
+      .map((d) => {
+        return {
+          nom: `${d.nom}.${formatDocu}`,
+          octets: xlsxWrite(d.docu, { bookType, type: "buffer" }),
+        };
+      });
     const fichiersMédias = inclureDocuments
-      ? (await Promise.allSettled(
-          [...documentsMédias].map(async (fichier) => {
-            return {
-              nom: fichier.replace("/", "-"),
-              octets: await toBuffer(
-                await hélia.obtItérableAsyncSFIP({ id: fichier }),
-              ),
-            };
-          }),
+      ? (
+          await Promise.allSettled(
+            [...documentsMédias].map(async (fichier) => {
+              return {
+                nom: fichier.replace("/", "-"),
+                octets: await toBuffer(
+                  await hélia.obtItérableAsyncSFIP({ id: fichier }),
+                ),
+              };
+            }),
+          )
         )
-        ).filter(
-          // On ignore les fichiers qui n'ont pas pu être trouvés sur le réseau
-          (x): x is PromiseFulfilledResult<{ nom: string; octets: Uint8Array }> =>
-            x.status === "fulfilled" && !!x.value.octets,
-        ).map((x) => x.value)
+          .filter(
+            // On ignore les fichiers qui n'ont pas pu être trouvés sur le réseau
+            (
+              x,
+            ): x is PromiseFulfilledResult<{
+              nom: string;
+              octets: Uint8Array;
+            }> => x.status === "fulfilled" && !!x.value.octets,
+          )
+          .map((x) => x.value)
       : [];
 
-      // Effacer le fichier s'il existe déjà (uniquement nécessaire pour `zipper`)
-      if (!(isBrowser || isWebWorker)) {
-        const fs = await import("fs");
-        if (fs.existsSync(adresseFinale)) {
-          fs.rmSync(adresseFinale);
-        }
+    // Effacer le fichier s'il existe déjà (uniquement nécessaire pour `zipper`)
+    if (!(isBrowser || isWebWorker)) {
+      const fs = await import("fs");
+      if (fs.existsSync(adresseFinale)) {
+        fs.rmSync(adresseFinale);
       }
+    }
     await zipper({
       fichiersDocus,
       fichiersMédias,
