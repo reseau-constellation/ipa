@@ -1687,7 +1687,9 @@ export class Nuées extends ObjetConstellation<
             idNuée,
             f: async (parent) => {
               // Briser circulairités éventuelles
-              return await fSuivreRacine(parent && !ascendance.includes(parent) ? parent : undefined)
+              return await fSuivreRacine(
+                parent && !ascendance.includes(parent) ? parent : undefined,
+              );
             },
           }),
         fSuivre: async ({ id: idParent, fSuivre }) => {
