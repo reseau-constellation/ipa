@@ -1578,6 +1578,7 @@ export class Nuées extends ObjetConstellation<
           if (!tableaux.bd || !tableaux.nuée) {
             différences.tableauxManquants = [];
             différences.tableauxSupplémentaires = [];
+            await fFinale([]);
             return;
           }
           différences.tableauxManquants = tableaux.nuée.filter(
@@ -1586,6 +1587,7 @@ export class Nuées extends ObjetConstellation<
           différences.tableauxSupplémentaires = tableaux.bd.filter(
             (t) => !tableaux.nuée?.includes(t),
           );
+          await fFinale([]);
 
           const communs = tableaux.nuée.filter((t) => tableaux.bd?.includes(t));
           return await fSuivreRacine(communs);
