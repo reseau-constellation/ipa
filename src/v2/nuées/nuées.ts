@@ -367,29 +367,34 @@ export class Nuées extends ObjetConstellation<
     licence: string;
     licenceContenu?: string;
   }): Promise<SchémaBd> {
-    const métadonnées = await uneFois<Métadonnées>((f) =>
+    const pMétadonnées = uneFois<Métadonnées>((f) =>
       this.suivreMétadonnées({ idNuée, f }),
+      attendreStabilité(100)
     );
 
-    const motsClefs = await uneFois<string[]>((f) =>
+    const pMotsClefs = uneFois<string[]>((f) =>
       this.suivreMotsClefs({
         idNuée,
         f: async (x) => await f(x.map((m) => m.val)),
       }),
+      attendreStabilité(100)
     );
 
-    const statut = await uneFois<StatutDonnées | undefined>((f) =>
+    const pStatut = uneFois<StatutDonnées | undefined>((f) =>
       this.suivreStatut({ idNuée, f }),
+      attendreStabilité(100)
     );
 
     // On inclut tous les tableaux, indépendament de la source
-    const idsTableaux = await uneFois<string[]>((f) =>
+    const pIdsTableaux = uneFois<string[]>((f) =>
       this.suivreTableaux({
         idNuée,
         f: (tblx) => f(tblx.map((t) => t.id)),
-        ascendance: false,
       }),
+      attendreStabilité(100)
     );
+
+    const [métadonnées, motsClefs, statut, idsTableaux] = await Promise.all([pMétadonnées, pMotsClefs, pStatut, pIdsTableaux])
 
     const tableaux: {
       idTableau: string;
