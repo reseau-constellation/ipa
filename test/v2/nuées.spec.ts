@@ -2435,7 +2435,7 @@ describe("Nuées", function () {
     });
   });
 
-  describe.skip("héritage", function () {
+  describe("héritage", function () {
     describe("noms", function () {
       let idNuéeGrandParent: string;
       let idNuéeParent: string;
