@@ -2018,13 +2018,16 @@ describe("tableaux", function () {
             f: si(
               (x) =>
                 x?.length === 2 &&
-                !x.some((d) => (d.données["endroit"] as number[]|undefined)?.[0] === là[0]),
+                !x.some(
+                  (d) =>
+                    (d.données["endroit"] as number[] | undefined)?.[0] ===
+                    là[0],
+                ),
             ),
           }),
         );
         expect(données.map((d) => d.données)).to.deep.equal(nouvellesDonnées);
       });
-
     });
 
     describe("conversions", function () {
@@ -3778,9 +3781,9 @@ describe("tableaux", function () {
       const là = [16.534768942113885, 80.79302512863033];
       const quelquePart = [14.782883663386926, -91.14748363253622];
 
-      const uneDate = new Date("2021-01-01").getTime()
-      const unJour = new Date("2021-01-02").getTime()
-      const uneAutreJournée = new Date("2021-01-03").getTime()
+      const uneDate = new Date("2021-01-01").getTime();
+      const unJour = new Date("2021-01-02").getTime();
+      const uneAutreJournée = new Date("2021-01-03").getTime();
 
       const combinerDonnées = async () => {
         return await constl.bds.tableaux.combinerDonnées({
@@ -3792,55 +3795,60 @@ describe("tableaux", function () {
             idStructure: idBd,
             idTableau: idTableauDestinataire,
           },
-        })
-      }
+        });
+      };
 
       const élémentsDestinataire = [
         {
-          [idColonneEndroit]:  ici,
-          [idColonneDate]:  uneDate,
-          [idColonneTempMin]:   25,
+          [idColonneEndroit]: ici,
+          [idColonneDate]: uneDate,
+          [idColonneTempMin]: 25,
         },
         {
-          [idColonneEndroit]:  ici,
-          [idColonneDate]:  uneAutreJournée,
-          [idColonneTempMin]:   25,
+          [idColonneEndroit]: ici,
+          [idColonneDate]: uneAutreJournée,
+          [idColonneTempMin]: 25,
         },
         {
-          [idColonneEndroit]:  là,
-          [idColonneDate]:  uneDate,
-          [idColonneTempMin]:   25,
+          [idColonneEndroit]: là,
+          [idColonneDate]: uneDate,
+          [idColonneTempMin]: 25,
         },
       ];
 
       const élémentsSource: DonnéesRangéeTableau[] = [
         {
-          [idColonneEndroit]:  ici,
-          [idColonneDate]:  uneDate,
-          [idColonneTempMin]:   27,
-          [idColonneTempMax]:   30,
+          [idColonneEndroit]: ici,
+          [idColonneDate]: uneDate,
+          [idColonneTempMin]: 27,
+          [idColonneTempMax]: 30,
         },
         {
-          [idColonneEndroit]:  ici,
-          [idColonneDate]:  uneAutreJournée,
-          [idColonneTempMin]:   27,
+          [idColonneEndroit]: ici,
+          [idColonneDate]: uneAutreJournée,
+          [idColonneTempMin]: 27,
         },
         {
-          [idColonneEndroit]:  là,
-          [idColonneDate]:  uneAutreJournée,
-          [idColonneTempMin]:   27,
+          [idColonneEndroit]: là,
+          [idColonneDate]: uneAutreJournée,
+          [idColonneTempMin]: 27,
         },
         {
-          [idColonneEndroit]:  quelquePart,
-          [idColonneDate]:  unJour,
-          [idColonneTempMin]:   27,
+          [idColonneEndroit]: quelquePart,
+          [idColonneDate]: unJour,
+          [idColonneTempMin]: 27,
         },
       ];
 
       before(async () => {
         idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
         idTableauSource = await constl.bds.ajouterTableau({ idBd });
-        for (const idColonne of [idColonneDate, idColonneEndroit, idColonneTempMin, idColonneTempMax]) {
+        for (const idColonne of [
+          idColonneDate,
+          idColonneEndroit,
+          idColonneTempMin,
+          idColonneTempMax,
+        ]) {
           await constl.bds.tableaux.ajouterColonne({
             idStructure: idBd,
             idTableau: idTableauSource,
@@ -3853,12 +3861,17 @@ describe("tableaux", function () {
           idTableau: idTableauSource,
           éléments: élémentsSource,
         });
-      })
+      });
 
       beforeEach(async () => {
         idTableauDestinataire = await constl.bds.ajouterTableau({ idBd });
 
-        for (const idColonne of [idColonneDate, idColonneEndroit, idColonneTempMin, idColonneTempMax]) {
+        for (const idColonne of [
+          idColonneDate,
+          idColonneEndroit,
+          idColonneTempMin,
+          idColonneTempMax,
+        ]) {
           await constl.bds.tableaux.ajouterColonne({
             idStructure: idBd,
             idTableau: idTableauDestinataire,
@@ -3871,14 +3884,14 @@ describe("tableaux", function () {
           idTableau: idTableauDestinataire,
           éléments: élémentsDestinataire,
         });
-
       });
 
       it("sans index", async () => {
         await combinerDonnées();
 
         const réf: DonnéesRangéeTableau[] = [
-          ...élémentsSource, ...élémentsDestinataire
+          ...élémentsSource,
+          ...élémentsDestinataire,
         ];
         const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
           constl.bds.tableaux.suivreDonnées({
@@ -3898,30 +3911,30 @@ describe("tableaux", function () {
           idColonne: idColonneDate,
           index: true,
         });
-        
+
         const idsCombinés = await combinerDonnées();
-        
+
         const réf: DonnéesRangéeTableau[] = [
           {
-            [idColonneEndroit]:  ici,
-            [idColonneDate]:  uneDate,
-            [idColonneTempMin]:   25,
-            [idColonneTempMax]:   30,
+            [idColonneEndroit]: ici,
+            [idColonneDate]: uneDate,
+            [idColonneTempMin]: 25,
+            [idColonneTempMax]: 30,
           },
           {
-            [idColonneEndroit]:  ici,
-            [idColonneDate]:  uneAutreJournée,
-            [idColonneTempMin]:   25,
+            [idColonneEndroit]: ici,
+            [idColonneDate]: uneAutreJournée,
+            [idColonneTempMin]: 25,
           },
           {
-            [idColonneEndroit]:  là,
-            [idColonneDate]:  uneDate,
-            [idColonneTempMin]:   25,
+            [idColonneEndroit]: là,
+            [idColonneDate]: uneDate,
+            [idColonneTempMin]: 25,
           },
           {
-            [idColonneEndroit]:  quelquePart,
-            [idColonneDate]:  unJour,
-            [idColonneTempMin]:   27,
+            [idColonneEndroit]: quelquePart,
+            [idColonneDate]: unJour,
+            [idColonneTempMin]: 27,
           },
         ];
 
@@ -3932,10 +3945,11 @@ describe("tableaux", function () {
             f: si(
               (x) =>
                 x?.length === réf.length &&
-                idsCombinés.every(id=>x.find(d=>d.id === id))),
+                idsCombinés.every((id) => x.find((d) => d.id === id)),
+            ),
           }),
         );
-        expect(résultat.map(d=>d.données)).to.have.deep.members(réf);
+        expect(résultat.map((d) => d.données)).to.have.deep.members(réf);
       });
 
       it("index variable liste", async () => {
@@ -3950,72 +3964,78 @@ describe("tableaux", function () {
 
         const réf: DonnéesRangéeTableau[] = [
           {
-            [idColonneEndroit]:  ici,
-            [idColonneDate]:  uneDate,
-            [idColonneTempMin]:   25,
-            [idColonneTempMax]:   30,
+            [idColonneEndroit]: ici,
+            [idColonneDate]: uneDate,
+            [idColonneTempMin]: 25,
+            [idColonneTempMax]: 30,
           },
           {
-            [idColonneEndroit]:  ici,
-            [idColonneDate]:  uneAutreJournée,
-            [idColonneTempMin]:   25,
+            [idColonneEndroit]: ici,
+            [idColonneDate]: uneAutreJournée,
+            [idColonneTempMin]: 25,
           },
           {
-            [idColonneEndroit]:  là,
-            [idColonneDate]:  uneDate,
-            [idColonneTempMin]:   25,
+            [idColonneEndroit]: là,
+            [idColonneDate]: uneDate,
+            [idColonneTempMin]: 25,
           },
           {
-            [idColonneEndroit]:  quelquePart,
-            [idColonneDate]:  unJour,
-            [idColonneTempMin]:   27,
+            [idColonneEndroit]: quelquePart,
+            [idColonneDate]: unJour,
+            [idColonneTempMin]: 27,
           },
-        ]
+        ];
 
         const résultat = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
             idTableau: idTableauDestinataire,
             f: si(
-              (x) => x?.length === réf.length &&
-                idsCombinés.every(id=>x.find(d=>d.id === id)),
+              (x) =>
+                x?.length === réf.length &&
+                idsCombinés.every((id) => x.find((d) => d.id === id)),
             ),
           }),
         );
-        expect(résultat.map(d=>d.données)).to.have.deep.members(réf);
+        expect(résultat.map((d) => d.données)).to.have.deep.members(réf);
       });
 
       it("index multivariable", async () => {
         for (const idColonne of [idColonneDate, idColonneEndroit]) {
-          await constl.bds.tableaux.modifierIndexColonne({idStructure: idBd, idTableau: idTableauDestinataire, idColonne, index: true})
+          await constl.bds.tableaux.modifierIndexColonne({
+            idStructure: idBd,
+            idTableau: idTableauDestinataire,
+            idColonne,
+            index: true,
+          });
         }
 
         const réf: DonnéesRangéeTableau[] = [
           {
-            [idColonneEndroit]:  ici,
-            [idColonneDate]:  uneDate,
-            [idColonneTempMin]:   25,
-            [idColonneTempMax]:   30,
+            [idColonneEndroit]: ici,
+            [idColonneDate]: uneDate,
+            [idColonneTempMin]: 25,
+            [idColonneTempMax]: 30,
           },
           {
-            [idColonneEndroit]:  ici,
+            [idColonneEndroit]: ici,
             [idColonneDate]: uneAutreJournée,
-            [idColonneTempMin]:   25,
+            [idColonneTempMin]: 25,
           },
           {
-            [idColonneEndroit]:  là,
-            [idColonneDate]:  uneDate,
-            [idColonneTempMin]:   25,
+            [idColonneEndroit]: là,
+            [idColonneDate]: uneDate,
+            [idColonneTempMin]: 25,
           },
           {
-            [idColonneEndroit]:  là,
-            [idColonneDate]:  uneAutreJournée,
-            [idColonneTempMin]:   27,
+            [idColonneEndroit]: là,
+            [idColonneDate]: uneAutreJournée,
+            [idColonneTempMin]: 27,
           },
           {
-            [idColonneEndroit]:  quelquePart,
-            [idColonneDate]:  unJour,
-            [idColonneTempMin]:   27,
+            [idColonneEndroit]: quelquePart,
+            [idColonneDate]: unJour,
+            [idColonneTempMin]: 27,
           },
         ];
         const idsCombinés = await combinerDonnées();
@@ -4025,12 +4045,13 @@ describe("tableaux", function () {
             idStructure: idBd,
             idTableau: idTableauDestinataire,
             f: si(
-              (x) =>x?.length === réf.length &&
-              idsCombinés.every(id=>x.find(d=>d.id === id)),
+              (x) =>
+                x?.length === réf.length &&
+                idsCombinés.every((id) => x.find((d) => d.id === id)),
             ),
           }),
         );
-        expect(résultat.map(d=>d.données)).to.have.deep.members(réf);
+        expect(résultat.map((d) => d.données)).to.have.deep.members(réf);
       });
     });
   });
@@ -4093,7 +4114,7 @@ describe("tableaux", function () {
     });
 
     it("index colonne", async () => {
-      console.time("ajout colonne 1")
+      console.time("ajout colonne 1");
       const idColonne = "une colonne";
       await constl.bds.tableaux.ajouterColonne({
         idStructure: idBd,
@@ -4101,17 +4122,17 @@ describe("tableaux", function () {
         idColonne,
         index: true,
       });
-      console.timeEnd("ajout colonne 1")
+      console.timeEnd("ajout colonne 1");
 
-      console.time("ajout colonne 2")
+      console.time("ajout colonne 2");
       await constl.bds.tableaux.ajouterColonne({
         idStructure: idBd,
         idTableau: idTableauRéf,
         idColonne,
       });
-      console.timeEnd("ajout colonne 2")
+      console.timeEnd("ajout colonne 2");
 
-      console.time("attendre différences")
+      console.time("attendre différences");
       const différences = await obtenir<DifférenceTableaux[]>(({ siPasVide }) =>
         constl.bds.tableaux.suivreDifférencesAvecTableau({
           tableau: { idStructure: idBd, idTableau },
@@ -4119,7 +4140,7 @@ describe("tableaux", function () {
           f: siPasVide(),
         }),
       );
-      console.timeEnd("attendre différences")
+      console.timeEnd("attendre différences");
       const réf: DifférenceIndexColonne[] = [
         {
           type: "indexColonne",

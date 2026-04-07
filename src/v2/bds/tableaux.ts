@@ -553,22 +553,30 @@ export class TableauxBds extends Tableaux {
     };
     patience?: number;
   }): Promise<string[]> {
-
-    const pDonnéesTableauSource = uneFois(async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
+    const pDonnéesTableauSource = uneFois(
+      async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
         return await this.suivreDonnées({
           ...de,
           f: fSuivi,
         });
-      }, attendreStabilité(patience));
-    const pDonnéesTableauDestinataire = uneFois(async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
+      },
+      attendreStabilité(patience),
+    );
+    const pDonnéesTableauDestinataire = uneFois(
+      async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
         return await this.suivreDonnées({ ...à, f: fSuivi });
-      }, attendreStabilité(patience));
-    const pColsTableauDestinataire = uneFois(async (fSuivi: Suivi<InfoColonne[]>) => {
+      },
+      attendreStabilité(patience),
+    );
+    const pColsTableauDestinataire = uneFois(
+      async (fSuivi: Suivi<InfoColonne[]>) => {
         return await this.suivreColonnes({
           ...à,
           f: ignorerNonDéfinis(fSuivi),
         });
-      }, attendreStabilité(patience));
+      },
+      attendreStabilité(patience),
+    );
 
     const [
       donnéesTableauSource,
@@ -577,9 +585,8 @@ export class TableauxBds extends Tableaux {
     ] = await Promise.all([
       pDonnéesTableauSource,
       pDonnéesTableauDestinataire,
-      pColsTableauDestinataire
-    ])
-
+      pColsTableauDestinataire,
+    ]);
 
     const colonnes = await uneFois(
       async (fSuivi: Suivi<InfoColonne[]>) =>
@@ -626,7 +633,7 @@ export class TableauxBds extends Tableaux {
         élémentsÀAjouter.push(nouvelÉlément.données);
       }
     }
-   return await this.ajouterÉléments({
+    return await this.ajouterÉléments({
       ...à,
       éléments: élémentsÀAjouter,
     });
@@ -749,7 +756,7 @@ export class TableauxBds extends Tableaux {
     for (const id of àEffacer) {
       await this.effacerÉlément({ idStructure, idTableau, idÉlément: id });
     }
-    console.log(nouveaux, àEffacer)
+    console.log(nouveaux, àEffacer);
     await this.ajouterÉléments({ idStructure, idTableau, éléments: nouveaux });
   }
 

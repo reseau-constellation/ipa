@@ -367,47 +367,55 @@ export class Nuées extends ObjetConstellation<
     licence: string;
     licenceContenu?: string;
   }): Promise<SchémaBd> {
-    const pMétadonnées = uneFois<Métadonnées>((f) =>
-      this.suivreMétadonnées({ idNuée, f }),
-      attendreStabilité(100)
+    const pMétadonnées = uneFois<Métadonnées>(
+      (f) => this.suivreMétadonnées({ idNuée, f }),
+      attendreStabilité(100),
     );
 
-    const pMotsClefs = uneFois<string[]>((f) =>
-      this.suivreMotsClefs({
-        idNuée,
-        f: async (x) => await f(x.map((m) => m.val)),
-      }),
-      attendreStabilité(100)
+    const pMotsClefs = uneFois<string[]>(
+      (f) =>
+        this.suivreMotsClefs({
+          idNuée,
+          f: async (x) => await f(x.map((m) => m.val)),
+        }),
+      attendreStabilité(100),
     );
 
-    const pStatut = uneFois<StatutDonnées | undefined>((f) =>
-      this.suivreStatut({ idNuée, f }),
-      attendreStabilité(100)
+    const pStatut = uneFois<StatutDonnées | undefined>(
+      (f) => this.suivreStatut({ idNuée, f }),
+      attendreStabilité(100),
     );
 
     // On inclut tous les tableaux, indépendament de la source
-    const pIdsTableaux = uneFois<string[]>((f) =>
-      this.suivreTableaux({
-        idNuée,
-        f: (tblx) => f(tblx.map((t) => t.id)),
-      }),
-      attendreStabilité(100)
+    const pIdsTableaux = uneFois<string[]>(
+      (f) =>
+        this.suivreTableaux({
+          idNuée,
+          f: (tblx) => f(tblx.map((t) => t.id)),
+        }),
+      attendreStabilité(100),
     );
 
-    const [métadonnées, motsClefs, statut, idsTableaux] = await Promise.all([pMétadonnées, pMotsClefs, pStatut, pIdsTableaux])
+    const [métadonnées, motsClefs, statut, idsTableaux] = await Promise.all([
+      pMétadonnées,
+      pMotsClefs,
+      pStatut,
+      pIdsTableaux,
+    ]);
 
     const tableaux: {
       idTableau: string;
       tableau: SchémaTableau;
     }[] = await Promise.all(
       idsTableaux.map(async (idTableau) => {
-        const infoCols = await uneFois<InfoColonne[]>((f) =>
-          this.tableaux.suivreColonnes({
-            idStructure: idNuée,
-            idTableau,
-            f: ignorerNonDéfinis(f),
-          }),
-          attendreStabilité(100)
+        const infoCols = await uneFois<InfoColonne[]>(
+          (f) =>
+            this.tableaux.suivreColonnes({
+              idStructure: idNuée,
+              idTableau,
+              f: ignorerNonDéfinis(f),
+            }),
+          attendreStabilité(100),
         );
         const cols = infoCols.map((col) => ({
           idColonne: col.id,
@@ -1285,12 +1293,23 @@ export class Nuées extends ObjetConstellation<
     return await this.suivreDeParents({
       idNuée,
       f: async (statuts) => {
-        return await f(statuts.map((s) => s.val).find((s) => s !== undefined) || { statut: "active" })
+        return await f(
+          statuts.map((s) => s.val).find((s) => s !== undefined) || {
+            statut: "active",
+          },
+        );
       },
-      fParents: async ({ idNuée, f }: { idNuée: string; f: Suivi<StatutDonnées | undefined> }) => await this.suivreObjet({
-        idObjet: idNuée,
-        f: (nuée) => f(statutComplet(nuée?.statut) ? nuée.statut : undefined),
-      })
+      fParents: async ({
+        idNuée,
+        f,
+      }: {
+        idNuée: string;
+        f: Suivi<StatutDonnées | undefined>;
+      }) =>
+        await this.suivreObjet({
+          idObjet: idNuée,
+          f: (nuée) => f(statutComplet(nuée?.statut) ? nuée.statut : undefined),
+        }),
     });
   }
 
