@@ -2649,6 +2649,62 @@ describe.skip("Nuées", function () {
       });
     });
 
+    describe("statut", function () {
+      let idNuéeGrandParent: string;
+      let idNuéeParent: string;
+      let idNuée: string;
+
+      before(async () => {
+        idNuéeGrandParent = await constl.nuées.créerNuée();
+        idNuéeParent = await constl.nuées.créerNuée({
+          parent: idNuéeGrandParent,
+        });
+        idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
+      });
+
+      it("statut ascendance", async () => {
+        await constl.nuées.sauvegarderStatut({
+          idNuée: idNuéeGrandParent,
+          statut: { statut: 'interne' }
+        });
+
+        const statut = await obtenir<StatutDonnées | undefined>(({ si }) =>
+          constl.nuées.suivreStatut({ idNuée, f: si(s=>s?.statut === 'interne' ) }),
+        );
+
+        const réf: StatutDonnées = { statut: 'interne' };
+        expect(statut).to.deep.equal(réf);
+      });
+
+      it("statut ascendance immédiate", async () => {
+        await constl.nuées.sauvegarderStatut({
+          idNuée: idNuéeParent,
+          statut: {  statut: 'obsolète', idNouvelle: idNuéeParent },
+        });
+
+        const statut = await obtenir<StatutDonnées | undefined>(({ si }) =>
+          constl.nuées.suivreStatut({ idNuée, f: si(s=>s?.statut !== 'interne' && s?.statut !== 'active' ) }),
+        );
+
+        const réf: StatutDonnées = { statut: 'obsolète', idNouvelle: idNuéeParent };
+        expect(statut).to.deep.equal(réf);
+      });
+
+      it("statut nuée", async () => {
+        await constl.nuées.sauvegarderStatut({
+          idNuée,
+          statut: {  statut: 'jouet' },
+        });
+
+        const statut = await obtenir<StatutDonnées | undefined>(({ si }) =>
+          constl.nuées.suivreStatut({ idNuée, f: si(s=>s?.statut === 'jouet') }),
+        );
+
+        const réf: StatutDonnées = { statut: 'jouet' };
+        expect(statut).to.deep.equal(réf);
+      });
+    });
+
     describe("tableaux", function () {
       let idNuéeGrandParent: string;
       let idNuéeParent: string;

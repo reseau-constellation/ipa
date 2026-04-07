@@ -320,7 +320,6 @@ export class Nuées extends ObjetConstellation<
       autorisation: {
         type: autorisation,
       },
-      statut: { statut: "active" },
       parent,
     });
 
@@ -1280,9 +1279,15 @@ export class Nuées extends ObjetConstellation<
     idNuée: string;
     f: Suivi<StatutDonnées | undefined>;
   }): Promise<Oublier> {
-    return await this.suivreObjet({
-      idObjet: idNuée,
-      f: (nuée) => f(statutComplet(nuée?.statut) ? nuée.statut : undefined),
+    return await this.suivreDeParents({
+      idNuée,
+      f: async (statuts) => {
+        return await f(statuts.map((s) => s.val).find((s) => s !== undefined) || { statut: "active" })
+      },
+      fParents: async ({ idNuée, f }: { idNuée: string; f: Suivi<StatutDonnées | undefined> }) => await this.suivreObjet({
+        idObjet: idNuée,
+        f: (nuée) => f(statutComplet(nuée?.statut) ? nuée.statut : undefined),
+      })
     });
   }
 
