@@ -2065,8 +2065,8 @@ describe("Nuées", function () {
     });
 
     it("le statut est copié", async () => {
-      const statut = await obtenir<StatutDonnées | null>(({ siDéfini }) =>
-        constl.nuées.suivreStatut({ idNuée: idNuéeCopie, f: siDéfini() }),
+      const statut = await obtenir<StatutDonnées | null>(({ si }) =>
+        constl.nuées.suivreStatut({ idNuée: idNuéeCopie, f: si((x) => x?.statut !== 'active' ) }),
       );
       expect(statut).to.deep.equal(réfStatut);
     });
