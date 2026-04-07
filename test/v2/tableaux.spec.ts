@@ -4114,7 +4114,6 @@ describe("tableaux", function () {
     });
 
     it("index colonne", async () => {
-      console.time("ajout colonne 1");
       const idColonne = "une colonne";
       await constl.bds.tableaux.ajouterColonne({
         idStructure: idBd,
@@ -4122,17 +4121,13 @@ describe("tableaux", function () {
         idColonne,
         index: true,
       });
-      console.timeEnd("ajout colonne 1");
 
-      console.time("ajout colonne 2");
       await constl.bds.tableaux.ajouterColonne({
         idStructure: idBd,
         idTableau: idTableauRéf,
         idColonne,
       });
-      console.timeEnd("ajout colonne 2");
 
-      console.time("attendre différences");
       const différences = await obtenir<DifférenceTableaux[]>(({ siPasVide }) =>
         constl.bds.tableaux.suivreDifférencesAvecTableau({
           tableau: { idStructure: idBd, idTableau },
@@ -4140,7 +4135,6 @@ describe("tableaux", function () {
           f: siPasVide(),
         }),
       );
-      console.timeEnd("attendre différences");
       const réf: DifférenceIndexColonne[] = [
         {
           type: "indexColonne",
