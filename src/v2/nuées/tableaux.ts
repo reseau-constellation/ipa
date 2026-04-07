@@ -124,6 +124,14 @@ export class TableauxNuées extends Tableaux {
     idTableau: string;
     f: Suivi<InfoColonne[] | undefined>;
   }): Promise<Oublier> {
+    const bds = this.service("bds");
+    if (bds.identifiantValide({ identifiant: idStructure }))
+      return await bds.tableaux.suivreColonnes({
+        idStructure,
+        idTableau,
+        f,
+      });
+
     return await this.suivreSourceColonnes({
       idStructure,
       idTableau,
