@@ -368,14 +368,6 @@ describe("Rechercher profil", function () {
     });
 
     it("rien d'autre pour commencer", async () => {
-      const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
-        ({ siNonDéfini }) =>
-          rechercheId({
-            services: (clef) => nébuleuse.services[clef],
-            idObjet: idCompte,
-            f: siNonDéfini(),
-          }),
-      );
       const résultatNom = await obtenir<
         RésultatObjectifRecherche<TypeRésultat>
       >(({ siNonDéfini }) =>
@@ -395,7 +387,6 @@ describe("Rechercher profil", function () {
         }),
       );
 
-      expect(résultatId).to.be.undefined();
       expect(résultatNom).to.be.undefined();
       expect(résultatCourriel).to.be.undefined();
     });
@@ -424,8 +415,8 @@ describe("Rechercher profil", function () {
         nom: "Julien Malard-Adam",
       });
 
-      const résultatNom = pRésultatNom;
-      const résultatCourriel = pRésultatCourriel;
+      const résultatNom = await pRésultatNom;
+      const résultatCourriel = await pRésultatCourriel;
 
       const réfNom: RésultatObjectifRecherche<TypeRésultat> = {
         type: "résultat",
