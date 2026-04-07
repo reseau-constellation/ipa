@@ -2853,7 +2853,9 @@ describe("Nuées", function () {
         ];
         expect(colonnes).to.have.deep.members(réf);
 
-        const colonnesAvecSource = await obtenir<ValeurAscendance<InfoColonne>[]>(({ si }) =>
+        const colonnesAvecSource = await obtenir<
+          ValeurAscendance<InfoColonne>[]
+        >(({ si }) =>
           constl.nuées.tableaux.suivreSourceColonnes({
             idStructure: idNuée,
             idTableau,
@@ -2892,7 +2894,9 @@ describe("Nuées", function () {
         ];
         expect(colonnes).to.have.deep.members(réf);
 
-        const colonnesAvecSource = await obtenir<ValeurAscendance<InfoColonne>[]>(({ si }) =>
+        const colonnesAvecSource = await obtenir<
+          ValeurAscendance<InfoColonne>[]
+        >(({ si }) =>
           constl.nuées.tableaux.suivreSourceColonnes({
             idStructure: idNuée,
             idTableau,
@@ -2923,7 +2927,12 @@ describe("Nuées", function () {
           constl.nuées.tableaux.suivreColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si(x=>!!x && x.length >= 3 && !!x.find(c=>c.id === idColonne1 && c.index)),
+            f: si(
+              (x) =>
+                !!x &&
+                x.length >= 3 &&
+                !!x.find((c) => c.id === idColonne1 && c.index),
+            ),
           }),
         );
 
@@ -2934,11 +2943,13 @@ describe("Nuées", function () {
         ];
         expect(colonnes).to.have.deep.members(réf);
 
-        const colonnesAvecSource = await obtenir<ValeurAscendance<InfoColonne>[]>(({ si }) =>
+        const colonnesAvecSource = await obtenir<
+          ValeurAscendance<InfoColonne>[]
+        >(({ si }) =>
           constl.nuées.tableaux.suivreSourceColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si(x=>!!x && x.length >= 3),
+            f: si((x) => !!x && x.length >= 3),
           }),
         );
 
@@ -2964,7 +2975,12 @@ describe("Nuées", function () {
           constl.nuées.tableaux.suivreColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si(x=>!!x && x.length >= 4 && !!x.find(c=>c.id === idColonne1)?.index),
+            f: si(
+              (x) =>
+                !!x &&
+                x.length >= 4 &&
+                !!x.find((c) => c.id === idColonne1)?.index,
+            ),
           }),
         );
 
@@ -2976,11 +2992,13 @@ describe("Nuées", function () {
         ];
         expect(colonnes).to.have.deep.members(réf);
 
-        const colonnesAvecSource = await obtenir<ValeurAscendance<InfoColonne>[]>(({ si }) =>
+        const colonnesAvecSource = await obtenir<
+          ValeurAscendance<InfoColonne>[]
+        >(({ si }) =>
           constl.nuées.tableaux.suivreSourceColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si(x=>!!x && x.length >= 4),
+            f: si((x) => !!x && x.length >= 4),
           }),
         );
 
@@ -3255,7 +3273,10 @@ describe("Nuées", function () {
             idCompte: idsComptes[1],
           });
           const autorisation = await obtenir<AutorisationNuée>(({ si }) =>
-            constl.nuées.suivreAutorisation({ idNuée, f: si(x=>x?.type === "ouverte" && x.bloqués.length > 0) }),
+            constl.nuées.suivreAutorisation({
+              idNuée,
+              f: si((x) => x?.type === "ouverte" && x.bloqués.length > 0),
+            }),
           );
 
           const réf: AutorisationNuée = {
@@ -3272,7 +3293,11 @@ describe("Nuées", function () {
           });
 
           const autorisée = await obtenir<boolean>(({ si }) =>
-            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== undefined && x !== true) }),
+            constl.nuées.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: si((x) => x !== undefined && x !== true),
+            }),
           );
           expect(autorisée).to.be.false();
         });
@@ -3281,7 +3306,11 @@ describe("Nuées", function () {
           await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
 
           const autorisée = await obtenir<boolean>(({ si }) =>
-            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== undefined && x !== true) }),
+            constl.nuées.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: si((x) => x !== undefined && x !== true),
+            }),
           );
           expect(autorisée).to.be.false();
         });
@@ -3293,20 +3322,23 @@ describe("Nuées", function () {
           });
 
           const autorisée = await obtenir<boolean>(({ si }) =>
-            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== undefined && x !== true) }),
+            constl.nuées.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: si((x) => x !== undefined && x !== true),
+            }),
           );
           expect(autorisée).to.be.false();
 
           // On peut inviter des comptes sur la nuée enfant
           await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
 
-          const autoriséeAprèsInvitation = await obtenir<boolean>(
-            ({ si }) =>
-              constl.nuées.suivreAutorisationBd({
-                idNuée,
-                idBd,
-                f: si(x=>x!==undefined && x !== false),
-              }),
+          const autoriséeAprèsInvitation = await obtenir<boolean>(({ si }) =>
+            constl.nuées.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: si((x) => x !== undefined && x !== false),
+            }),
           );
           expect(autoriséeAprèsInvitation).to.be.true();
         });
@@ -3333,7 +3365,12 @@ describe("Nuées", function () {
             idCompte: idsComptes[1],
           });
           const autorisation = await obtenir<AutorisationNuée>(({ si }) =>
-            constl.nuées.suivreAutorisation({ idNuée, f: si(x=>x?.type === "par invitation" && x.invités.length > 0) }),
+            constl.nuées.suivreAutorisation({
+              idNuée,
+              f: si(
+                (x) => x?.type === "par invitation" && x.invités.length > 0,
+              ),
+            }),
           );
 
           const réf: AutorisationNuée = {
@@ -3359,7 +3396,11 @@ describe("Nuées", function () {
           await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
 
           const autorisée = await obtenir<boolean>(({ si }) =>
-            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== undefined && x !== false) }),
+            constl.nuées.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: si((x) => x !== undefined && x !== false),
+            }),
           );
           expect(autorisée).to.be.true();
         });
@@ -3371,20 +3412,23 @@ describe("Nuées", function () {
           });
 
           const autorisée = await obtenir<boolean>(({ si }) =>
-            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x !== undefined && x !== false) }),
+            constl.nuées.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: si((x) => x !== undefined && x !== false),
+            }),
           );
           expect(autorisée).to.be.true();
 
           // On peut bloquer des comptes sur la nuée enfant
           await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
 
-          const autoriséeAprèsInvitation = await obtenir<boolean>(
-            ({ si }) =>
-              constl.nuées.suivreAutorisationBd({
-                idNuée,
-                idBd,
-                f: si(x=>x !== undefined && x !== true),
-              }),
+          const autoriséeAprèsInvitation = await obtenir<boolean>(({ si }) =>
+            constl.nuées.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: si((x) => x !== undefined && x !== true),
+            }),
           );
           expect(autoriséeAprèsInvitation).to.be.false();
         });
