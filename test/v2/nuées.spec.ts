@@ -47,7 +47,7 @@ import type {
   ÉpingleNuée,
 } from "@/v2/nuées/nuées.js";
 
-describe.skip("Nuées", function () {
+describe("Nuées", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
