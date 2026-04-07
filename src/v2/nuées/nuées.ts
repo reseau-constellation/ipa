@@ -407,6 +407,7 @@ export class Nuées extends ObjetConstellation<
             idTableau,
             f: ignorerNonDéfinis(f),
           }),
+          attendreStabilité(100)
         );
         const cols = infoCols.map((col) => ({
           idColonne: col.id,
