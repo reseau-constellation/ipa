@@ -88,7 +88,6 @@ import type xlsx from "xlsx";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
 import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.js";
 import type { MotsClefs } from "../motsClefs.js";
-import { journalifier } from "../../../test/v2/utils.js";
 
 // Types épingles
 
