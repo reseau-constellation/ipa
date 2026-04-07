@@ -2344,7 +2344,7 @@ describe("Nuées", function () {
       const ascendants = await obtenir<string[]>(({ si }) =>
         constl.nuées.suivreAscendants({
           idNuée,
-          f: si((x) => !!x && x.length >= 2),
+          f: si((x) => !!x && x.length >= 3),
         }),
       );
 
