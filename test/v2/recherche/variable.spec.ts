@@ -16,7 +16,7 @@ import type {
   SuivreObjectifRecherche,
 } from "@/v2/recherche/types.js";
 
-describe.only("Rechercher variables", function () {
+describe("Rechercher variables", function () {
   let fermer: Oublier;
   let constls: Constellation[];
   let constl: Constellation;
