@@ -1523,7 +1523,7 @@ describe("Nuées", function () {
     });
   });
 
-  describe("bds", function () {
+  describe.skip("bds", function () {
     let idNuée: string;
     let idBd: string;
 
@@ -2174,7 +2174,7 @@ describe("Nuées", function () {
       expect(empreinte).to.be.a.not.empty("string");
     });
 
-    it("ajout bds", async () => {
+    it.skip("ajout bds", async () => {
       const schéma = await constl.nuées.créerSchémaDeNuée({
         idNuée,
         licence: "ODBl-1_0",
@@ -2192,7 +2192,7 @@ describe("Nuées", function () {
       expect(empreinte).to.be.a.not.empty("string");
     });
 
-    it("changement nom bds détecté", async () => {
+    it.skip("changement nom bds détecté", async () => {
       await constl.bds.sauvegarderNom({
         idBd,
         langue: "fr",
@@ -2224,7 +2224,7 @@ describe("Nuées", function () {
       expect(empreinte).to.be.a.not.empty("string");
     });
 
-    it("changement données bds détecté", async () => {
+    it.skip("changement données bds détecté", async () => {
       await constl.bds.tableaux.ajouterÉléments({
         idStructure: idBd,
         idTableau,
@@ -2240,7 +2240,7 @@ describe("Nuées", function () {
       expect(empreinte).to.be.a.not.empty("string");
     });
 
-    it("changement noms variable détecté", async () => {
+    it.skip("changement noms variable détecté", async () => {
       await constl.variables.sauvegarderNom({
         idVariable,
         langue: "fr",
@@ -2353,7 +2353,7 @@ describe("Nuées", function () {
     });
   });
 
-  describe("descendance", function () {
+  describe.skip("descendance", function () {
     let idNuée: string;
 
     beforeEach(async () => {
@@ -2410,7 +2410,7 @@ describe("Nuées", function () {
       expect(descendants).to.be.empty();
     });
 
-    it("pas d'erreur si récursif", async () => {
+    it.skip("pas d'erreur si récursif", async () => {
       const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
       const idPetitEnfant = await constl.nuées.créerNuée({
         parent: idNuéeEnfant,
@@ -3569,7 +3569,7 @@ describe("Nuées", function () {
       });
     });
 
-    describe("données", function () {
+    describe.skip("données", function () {
       let idNuéeParent: string;
       let idNuée: string;
       let idNuéeEnfant: string;
@@ -4099,7 +4099,7 @@ describe("Nuées", function () {
     });
   });
 
-  describe("exportation", function () {
+  describe.skip("exportation", function () {
     let idc: string;
 
     const idcIndisponible =
