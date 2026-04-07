@@ -24,7 +24,7 @@ import type {
 } from "@/v2/recherche/types.js";
 import type { Constellation as ConstructeurConstellation } from "@/v2/constellation.js";
 
-describe.only("Rechercher bds", function () {
+describe("Rechercher bds", function () {
   let fermer: Oublier;
   let constls: ConstructeurConstellation[];
   let constl: ConstructeurConstellation;
