@@ -89,11 +89,23 @@ export class TableauxNuées extends Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    f: Suivi<ValeurAscendance<InfoColonne[]>[]>;
+    f: Suivi<ValeurAscendance<InfoColonne>[]>;
   }): Promise<Oublier> {
     return await this.service("nuées").suivreDeParents<InfoColonne[]>({
       idNuée: idStructure,
-      f,
+      f: async (cols) => {
+        const colonnes = cols
+          .map((c) => c.val.map((v) => ({ val: v, source: c.source })))
+          .flat();
+
+        // Enlever les dupliqués (https://stackoverflow.com/questions/2218999/how-can-i-remove-all-duplicates-from-an-array-of-objects)
+        return await f(
+          colonnes.filter(
+            (c, index) =>
+              colonnes.findIndex((x) => x.val.id === c.val.id) === index,
+          ),
+        );
+      },
       fParents: async ({ idNuée, f }) =>
         await super.suivreColonnes({
           idStructure: idNuée,
@@ -115,7 +127,7 @@ export class TableauxNuées extends Tableaux {
     return await this.suivreSourceColonnes({
       idStructure,
       idTableau,
-      f: async (colonnes) => await f(colonnes.map((c) => c.val).flat()),
+      f: async (colonnes) => await f(colonnes.map((c) => c.val)),
     });
   }
 
