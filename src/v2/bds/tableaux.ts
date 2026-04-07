@@ -178,16 +178,6 @@ export const schémaDonnéesTableau: JSONSchemaType<
   required: [],
 };
 
-// Fonctions
-
-export function indexÉlémentsÉgaux(
-  élément1: DonnéesRangéeTableau,
-  élément2: DonnéesRangéeTableau,
-  index: string[],
-): boolean {
-  return index.every((x) => deepEqual(élément1[x], élément2[x]));
-}
-
 // Tableaux
 
 export class TableauxBds extends Tableaux {
@@ -562,36 +552,56 @@ export class TableauxBds extends Tableaux {
       idTableau: string;
     };
     patience?: number;
-  }): Promise<void> {
+  }): Promise<string[]> {
+
+    const pDonnéesTableauSource = uneFois(async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
+        return await this.suivreDonnées({
+          ...de,
+          f: fSuivi,
+        });
+      }, attendreStabilité(patience));
+    const pDonnéesTableauDestinataire = uneFois(async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
+        return await this.suivreDonnées({ ...à, f: fSuivi });
+      }, attendreStabilité(patience));
+    const pColsTableauDestinataire = uneFois(async (fSuivi: Suivi<InfoColonne[]>) => {
+        return await this.suivreColonnes({
+          ...à,
+          f: ignorerNonDéfinis(fSuivi),
+        });
+      }, attendreStabilité(patience));
+
     const [
       donnéesTableauSource,
       donnéesTableauDestinataire,
       colsTableauDestinataire,
     ] = await Promise.all([
-      uneFois(async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
-        return await this.suivreDonnées({
-          ...de,
-          f: fSuivi,
-        });
-      }, attendreStabilité(patience)),
-      uneFois(async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
-        return await this.suivreDonnées({ ...à, f: fSuivi });
-      }, attendreStabilité(patience)),
-      uneFois(async (fSuivi: Suivi<InfoColonne[]>) => {
-        return await this.suivreColonnes({
+      pDonnéesTableauSource,
+      pDonnéesTableauDestinataire,
+      pColsTableauDestinataire
+    ])
+
+
+    const colonnes = await uneFois(
+      async (fSuivi: Suivi<InfoColonne[]>) =>
+        await this.suivreColonnes({
           ...à,
           f: ignorerNonDéfinis(fSuivi),
-        });
-      }, attendreStabilité(patience)),
-    ]);
+        }),
+    );
+    const index = colonnes.filter((c) => c.index).map((c) => c.id);
+    const identiques = (
+      élément1: DonnéesRangéeTableau,
+      élément2: DonnéesRangéeTableau,
+    ) => {
+      if (index.length)
+        return obtIdIndex(élément1, index) === obtIdIndex(élément2, index);
+      return deepEqual(élément1, élément2);
+    };
 
-    const indices = colsTableauDestinataire
-      .filter((c) => c.index)
-      .map((c) => c.id);
     const élémentsÀAjouter = [];
     for (const nouvelÉlément of donnéesTableauSource) {
       const existant = donnéesTableauDestinataire.find((d) =>
-        indexÉlémentsÉgaux(d.données, nouvelÉlément.données, indices),
+        identiques(d.données, nouvelÉlément.données),
       );
 
       if (existant) {
@@ -616,7 +626,7 @@ export class TableauxBds extends Tableaux {
         élémentsÀAjouter.push(nouvelÉlément.données);
       }
     }
-    await this.ajouterÉléments({
+   return await this.ajouterÉléments({
       ...à,
       éléments: élémentsÀAjouter,
     });
@@ -722,34 +732,16 @@ export class TableauxBds extends Tableaux {
       attendreStabilité(patience),
     );
 
-    const colonnes = await uneFois(
-      async (fSuivi: Suivi<InfoColonne[]>) =>
-        await this.suivreColonnes({
-          idStructure,
-          idTableau,
-          f: ignorerNonDéfinis(fSuivi),
-        }),
-    );
-    const index = colonnes.filter((c) => c.index).map((c) => c.id);
-    const identiques = (
-      élément1: DonnéesRangéeTableau,
-      élément2: DonnéesRangéeTableau,
-    ) => {
-      if (index.length)
-        return obtIdIndex(élément1, index) === obtIdIndex(élément2, index);
-      return deepEqual(élément1, élément2);
-    };
-
     const nouveaux: DonnéesRangéeTableau[] = [];
     for (const élément of données) {
-      if (!donnéesTableau.some((x) => identiques(x.données, élément))) {
+      if (!donnéesTableau.some((x) => deepEqual(x.données, élément))) {
         nouveaux.push(élément);
       }
     }
 
     const àEffacer: string[] = [];
     for (const élément of donnéesTableau) {
-      if (!données.some((x) => identiques(x, élément.données))) {
+      if (!données.some((x) => deepEqual(x, élément.données))) {
         àEffacer.push(élément.id);
       }
     }
@@ -757,7 +749,7 @@ export class TableauxBds extends Tableaux {
     for (const id of àEffacer) {
       await this.effacerÉlément({ idStructure, idTableau, idÉlément: id });
     }
-
+    console.log(nouveaux, àEffacer)
     await this.ajouterÉléments({ idStructure, idTableau, éléments: nouveaux });
   }
 
