@@ -719,17 +719,15 @@ export class Nuées extends ObjetConstellation<
         },
       });
       fsOublier.push(oublierBase);
-      
+
       const oublierAscendance = await this.suivreAscendants({
         idNuée: épingle.idObjet,
-        f:  async (ascendants) => {
-          console.log(ascendants)
-          info.ascendants = ascendants.map(id=>this.àIdOrbite(id))
+        f: async (ascendants) => {
+          info.ascendants = ascendants.map((id) => this.àIdOrbite(id));
           await fFinale();
-        }
-      })
-      fsOublier.push(oublierAscendance)
-
+        },
+      });
+      fsOublier.push(oublierAscendance);
     }
 
     // Bds associées
