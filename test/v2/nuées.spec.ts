@@ -3926,15 +3926,23 @@ describe("Nuées", function () {
   describe("auteurs", function () {
     let idNuée: string;
 
+    const accepté = (idCompte: string) => (auteurs?: InfoAuteur[]) =>
+      !!auteurs?.find((a) => a.idCompte === idCompte && a.accepté);
+    let compte1Accepté: (auteurs?: InfoAuteur[]) => boolean;
+    let compte2Accepté: (auteurs?: InfoAuteur[]) => boolean;
+
     before(async () => {
       idNuée = await constl.nuées.créerNuée();
+
+      compte1Accepté = accepté(idsComptes[0]);
+      compte2Accepté = accepté(idsComptes[1]);
     });
 
     it("compte créateur autorisé pour commencer", async () => {
-      const auteurs = await obtenir<InfoAuteur[]>(({ siPasVide }) =>
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.nuées.suivreAuteurs({
           idNuée,
-          f: siPasVide(),
+          f: si(compte1Accepté),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -3956,7 +3964,7 @@ describe("Nuées", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.nuées.suivreAuteurs({
           idNuée,
-          f: si((x) => !!x && x.length > 1),
+          f: si((x) => !!x && x.length > 1 && compte1Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -3980,7 +3988,7 @@ describe("Nuées", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.nuées.suivreAuteurs({
           idNuée,
-          f: si((x) => !!x?.find((a) => a.idCompte === idsComptes[1])?.accepté),
+          f: si((x) => compte1Accepté(x) && compte2Accepté(x)),
         }),
       );
       const réf: InfoAuteur[] = [
@@ -4028,7 +4036,10 @@ describe("Nuées", function () {
           f: si(
             (x) =>
               !!x &&
-              x.find((a) => a.idCompte === idsComptes[1])?.rôle === MODÉRATRICE,
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+                MODÉRATRICE &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
           ),
         }),
       );
@@ -4059,7 +4070,12 @@ describe("Nuées", function () {
       const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
         constl.nuées.suivreAuteurs({
           idNuée,
-          f: si((x) => !!x?.find((a) => a.idCompte === compteHorsLigne)),
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === compteHorsLigne) &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
+          ),
         }),
       );
       const réf: InfoAuteur[] = [
