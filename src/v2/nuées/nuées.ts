@@ -17,6 +17,7 @@ import {
   ajouterPréfixes,
   définis,
   enleverPréfixesEtOrbite,
+  moyenne,
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
@@ -2210,7 +2211,7 @@ export class Nuées extends ObjetConstellation<
     const fFinale = async () => {
       const { accès, couverture, infos } = info;
       const score: ScoreNuée = {
-        total: ((accès || 0) + (couverture || 0) + (infos || 0)) / 3,
+        total: moyenne([accès, couverture, infos]),
         accès,
         couverture,
         infos,
