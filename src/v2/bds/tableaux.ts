@@ -756,7 +756,7 @@ export class TableauxBds extends Tableaux {
     for (const id of àEffacer) {
       await this.effacerÉlément({ idStructure, idTableau, idÉlément: id });
     }
-    console.log(nouveaux, àEffacer);
+
     await this.ajouterÉléments({ idStructure, idTableau, éléments: nouveaux });
   }
 
