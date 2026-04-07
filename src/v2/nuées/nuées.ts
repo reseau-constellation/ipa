@@ -1327,7 +1327,9 @@ export class Nuées extends ObjetConstellation<
       }
     };
 
-    const fFinale = async (autorisations: StructureAutorisationNuée[] = []) => {
+    const fFinale = async (
+      autorisations: PartielRécursif<StructureAutorisationNuée>[] = [],
+    ) => {
       // On choisi le premier type d'autorisation déterminé en remontant l'ascendance ; ouverte par défaut
       const type =
         autorisations.find((a) => a.type !== undefined)?.type || "ouverte";
@@ -1368,10 +1370,10 @@ export class Nuées extends ObjetConstellation<
       f: async (autorisations) =>
         await fFinale(
           autorisations
+            .map((a) => a.val)
             .filter(
-              (a): a is ValeurAscendance<StructureAutorisationNuée> => !!a,
-            )
-            .map((a) => a.val),
+              (a): a is PartielRécursif<StructureAutorisationNuée> => !!a,
+            ),
         ),
       fParents: async ({
         idNuée: idParent,
