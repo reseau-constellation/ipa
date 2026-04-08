@@ -3,6 +3,7 @@ import { CID } from "multiformats";
 import drain from "it-drain";
 import PQueue from "p-queue";
 import { isValidAddress, type BaseDatabase } from "@orbitdb/core";
+import { anySignal } from "any-signal";
 import { ServiceAppli } from "../appli/services.js";
 import { idcEtFichierValide } from "../../utils.js";
 import { filtreAsync } from "./utils.js";
@@ -23,7 +24,7 @@ export class ServiceÉpingles extends ServiceAppli<
 > {
   queue: PQueue;
   requêtes: Map<string, Set<string>>;
-  bdsOuvertes: Map<string, { bd: BaseDatabase; oublier: Oublier }>;
+  bdsOuvertes: Map<string, { oublier: () => void } | { bd: BaseDatabase; oublier: Oublier }>;
   idcsÉpinglés: Set<string>;
   signaleurArrêt: AbortController;
 
@@ -106,13 +107,13 @@ export class ServiceÉpingles extends ServiceAppli<
       async (idc) => (await hélia.pins.isPinned(idc)) === false,
     );
     try {
-      for (const idc of idcsÀÉpingler) {
+      await Promise.allSettled(idcsÀÉpingler.map(async idc=>{
         await drain(
           hélia.pins.add(idc, {
             signal: this.signaleurArrêt.signal,
           }),
         );
-      }
+      }));
     } catch (e) {
       if (e.toString().includes("AbortError")) return;
     }
@@ -122,11 +123,11 @@ export class ServiceÉpingles extends ServiceAppli<
     );
 
     try {
-      for (const idc of idcsÀDésépingler) {
+      await Promise.allSettled(idcsÀDésépingler.map(async idc => {
         await drain(
           hélia.pins.rm(CID.parse(idc), { signal: this.signaleurArrêt.signal }),
         );
-      }
+      }));
     } catch (e) {
       if (e.toString().includes("AbortError")) return;
       throw e;
@@ -139,25 +140,28 @@ export class ServiceÉpingles extends ServiceAppli<
     );
 
     const orbite = this.service("orbite");
-    await Promise.allSettled(
-      bdsOrbiteÀÉpingler.map(async (idBd) => {
-        try {
-          const { bd, oublier } = await orbite.ouvrirBd({
-            id: idBd,
-            signal: this.signaleurArrêt.signal,
-          });
-          this.bdsOuvertes.set(idBd, { bd, oublier });
-        } catch {
+    
+    bdsOrbiteÀÉpingler.forEach(async (idBd) => {
+        const signaleur = new AbortController();
+        orbite.ouvrirBd({
+          id: idBd,
+          signal: anySignal([this.signaleurArrêt.signal, signaleur.signal]),
+        }).then(({bd, oublier}) => this.bdsOuvertes.set(idBd, { bd, oublier })).catch(()=>{
+          console.log(`Ouverture bd ${idBd} annulée.`)
           // Faut pas trop s'en faire si la bd n'est pas accessible.
           return;
-        }
-      }),
+        });
+        this.bdsOuvertes.set(idBd, { oublier: () => signaleur.abort() });
+      }
     );
+
     const bdsOrbiteÀDésépingler = [...this.bdsOuvertes.keys()].filter(
-      (id) => !bdsOrbiteÀÉpingler.includes(id),
+      (id) => !àÉpingler.has(id),
     );
+
     for (const idBd of bdsOrbiteÀDésépingler) {
-      await this.bdsOuvertes.get(idBd)?.oublier();
+      const existante = this.bdsOuvertes.get(idBd);
+      await existante?.oublier();
       this.bdsOuvertes.delete(idBd);
     }
   }
