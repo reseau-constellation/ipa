@@ -135,7 +135,7 @@ export class ServiceÉpingles extends ServiceAppli<
 
     // Bases de données
     const bdsOrbiteÀÉpingler = [...àÉpingler].filter(
-      (id) => id && isValidAddress(id),
+      (id) => id && isValidAddress(id) && !this.bdsOuvertes.has(id),
     );
 
     const orbite = this.service("orbite");
