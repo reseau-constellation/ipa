@@ -15,7 +15,7 @@ import {
 import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { créerConstellationsTest, obtenir } from "../utils.js";
 import type { ServicesNécessairesRechercheProjets } from "@/v2/recherche/fonctions/projets.js";
-import type { Constellation } from "@/v2/index.js";
+import type { Constellation } from "@/v2/constellation.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   RésultatObjectifRecherche,
