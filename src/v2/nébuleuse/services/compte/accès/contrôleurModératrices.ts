@@ -160,10 +160,13 @@ const ContrôleurAccès =
     };
 
     return {
+      // Propriétés nécessaires pour OrbitDB
       type: nomType,
       address,
-      écriture,
       canAppend,
+
+      // Propriétés propres
+      écriture,
     };
   };
 
