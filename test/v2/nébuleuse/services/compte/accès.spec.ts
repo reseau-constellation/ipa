@@ -424,8 +424,9 @@ describe("Accès", function () {
 
       await attendreInvité(bdSurOrbite2, idCompte2);
 
+      // Les modératrices sont aussi des membres
       const membreSurBd2 = await accès2.estUnMembre(idCompte2);
-      expect(membreSurBd2).to.be.false();
+      expect(membreSurBd2).to.be.true();
 
       const modératriceSurBd2 = await accès2.estUneModératrice(idCompte2);
       expect(modératriceSurBd2).to.be.true();
