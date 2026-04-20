@@ -272,6 +272,7 @@ describe("Accès", function () {
       const bd2SurOrbite2 = (await orbite2.open(
         bd2.address,
       )) as KeyValueDatabase;
+
       // On attend que les permissions se propagent
       await attendreInvité(bd2SurOrbite2, orbite2.identity.id);
       await bd2SurOrbite2.set("a", 1);
