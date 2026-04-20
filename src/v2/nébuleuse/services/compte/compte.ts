@@ -342,6 +342,7 @@ export class BaseServiceCompte<
       await oublier();
       return rôle;
     } else {
+      await oublier();
       throw new Error(`Type d'accès ${bd.access.type} non reconnu.`);
     }
   }
