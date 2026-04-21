@@ -436,7 +436,7 @@ describe("Variables", function () {
             const règleBornes = x?.find((r) => r.id === idRègle) as
               | RègleVariableAvecId<RègleBornes>
               | undefined;
-            return !!x && (x.length > 1) && règleBornes?.règle.détails.op !== ">";
+            return !!x && x.length > 1 && règleBornes?.règle.détails.op !== ">";
           }),
         }),
       );
@@ -609,7 +609,7 @@ describe("Variables", function () {
   });
 
   describe("copier variable", function () {
-    let idVariable2: string;
+    let idVariableCopiée: string;
 
     const règle: RègleBornes = {
       type: "bornes",
@@ -644,24 +644,24 @@ describe("Variables", function () {
         idUnité: "mm",
       });
 
-      idVariable2 = await constl.variables.copierVariable({
+      idVariableCopiée = await constl.variables.copierVariable({
         idVariable,
       });
     });
 
     it("la variable est copiée", async () => {
-      const variables = await obtenir(({ siPasVide }) =>
+      const variables = await obtenir<string[]>(({ si }) =>
         constl.variables.suivreVariables({
-          f: siPasVide(),
+          f: si((x) => !!x && x.includes(idVariableCopiée)),
         }),
       );
-      expect(variables).to.include(idVariable2);
+      expect(variables).to.include(idVariableCopiée);
     });
 
     it("les noms sont copiés", async () => {
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.variables.suivreNoms({
-          idVariable: idVariable2,
+          idVariable: idVariableCopiée,
           f: si((x) => !!x && Object.keys(x).length > 1),
         }),
       );
@@ -671,7 +671,7 @@ describe("Variables", function () {
     it("les descriptions sont copiées", async () => {
       const descriptions = await obtenir<TraducsTexte>(({ si }) =>
         constl.variables.suivreDescriptions({
-          idVariable: idVariable2,
+          idVariable: idVariableCopiée,
           f: si((x) => !!x && Object.keys(x).length > 1),
         }),
       );
@@ -684,7 +684,7 @@ describe("Variables", function () {
     it("la catégorie est copiée", async () => {
       const catégorie = await obtenir(({ siDéfini }) =>
         constl.variables.suivreCatégorie({
-          idVariable: idVariable2,
+          idVariable: idVariableCopiée,
           f: siDéfini(),
         }),
       );
@@ -703,7 +703,7 @@ describe("Variables", function () {
       };
       const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
         constl.variables.suivreRègles({
-          idVariable: idVariable2,
+          idVariable: idVariableCopiée,
           f: si((x) => !!x && x.length > 1),
         }),
       );
@@ -716,7 +716,7 @@ describe("Variables", function () {
     it("les unités sont copiés", async () => {
       const val = await obtenir(({ siDéfini }) =>
         constl.variables.suivreUnités({
-          idVariable: idVariable2,
+          idVariable: idVariableCopiée,
           f: siDéfini(),
         }),
       );
