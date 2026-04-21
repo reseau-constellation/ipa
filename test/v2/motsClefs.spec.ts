@@ -302,9 +302,9 @@ describe("Mots-clefs", function () {
     });
   });
 
-  describe("copier mots-clefs", function () {
+  describe("copier", function () {
     let idMotClef: string;
-    let idMotClef2: string;
+    let idMotClefCopie: string;
 
     before(async () => {
       idMotClef = await constl.motsClefs.créerMotClef();
@@ -324,20 +324,20 @@ describe("Mots-clefs", function () {
         },
       });
 
-      idMotClef2 = await constl.motsClefs.copierMotClef({
+      idMotClefCopie = await constl.motsClefs.copierMotClef({
         idMotClef,
       });
     });
 
     it("le mot-clef est copié", async () => {
-      expect(typeof idMotClef2).to.equal("string");
+      expect(typeof idMotClefCopie).to.equal("string");
     });
 
     it("le mot-clef est ajouté à mes mots-clefs", async () => {
-      const motsClefs = await obtenir(({ siPasVide }) =>
-        constl.motsClefs.suivreMotsClefs({ f: siPasVide() }),
+      const motsClefs = await obtenir<string[]>(({ si }) =>
+        constl.motsClefs.suivreMotsClefs({ f: si(x=>!!x?.includes(idMotClefCopie)) }),
       );
-      expect(motsClefs).to.include.members([idMotClef, idMotClef2]);
+      expect(motsClefs).to.include.members([idMotClef, idMotClefCopie]);
     });
 
     it("les noms sont copiés", async () => {
