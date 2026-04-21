@@ -8,7 +8,7 @@ import {
 } from "./nébuleuse/services/favoris.js";
 import { RechercheVariables } from "./recherche/variables.js";
 import { ObjetConstellation } from "./objets.js";
-import { définis } from "./utils.js";
+import { définis, enleverPréfixesEtOrbite } from "./utils.js";
 import type { ServicesNécessairesRechercheVariables } from "./recherche/fonctions/variables.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { ServicesNécessairesObjet } from "./objets.js";
@@ -712,14 +712,12 @@ export class Variables extends ObjetConstellation<
       );
     };
 
-    const idRègleCatégorie = uuidv4();
-
     const oublierCatégorie = await this.suivreCatégorie({
       idVariable,
       f: async (catégorie) => {
         if (catégorie) {
           const règleCat: { [id: string]: RègleCatégorie } = {
-            [idRègleCatégorie]: {
+            [`catégorie - ${enleverPréfixesEtOrbite(idVariable)}`]: {
               type: "catégorie",
               détails: { catégorie },
             },

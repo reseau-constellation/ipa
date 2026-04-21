@@ -852,7 +852,7 @@ export class Tableaux {
         const colonnesIndex = (colonnes || []).filter((c) => c.index);
         dicRègles.index = colonnesIndex.map((c) => ({
           règle: {
-            id: uuidv4(),
+            id: `unique - ${c.id}`,
             règle: {
               type: "indexUnique",
             },

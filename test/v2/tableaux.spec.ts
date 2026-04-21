@@ -960,20 +960,20 @@ describe("tableaux", function () {
         );
 
         const idRègle = (
-          await obtenir<RègleColonne[]>(({ siPasVide }) =>
+          await obtenir<RègleColonne[]>(({ si }) =>
             constl.bds.tableaux.suivreRègles({
               idStructure: idBd,
               idTableau,
-              f: siPasVide(),
+              f: si(x=>!!x?.find(r=>r.règle.règle.type === "indexUnique")),
             }),
           )
-        )[0].règle.id;
+        ).find(r=>r.règle.règle.type === "indexUnique")?.règle.id;
 
         const réf: ErreurDonnée<RègleIndexUnique>[] = idsÉléments.map((id) => ({
           id,
           erreur: {
             règle: {
-              id: idRègle,
+              id: idRègle!,
               règle: {
                 type: "indexUnique",
               },
@@ -1335,14 +1335,14 @@ describe("tableaux", function () {
             idColonne,
             idVariable,
           });
-          const règles = await obtenir<RègleColonne[]>(({ siPasVide }) =>
+          const règles = await obtenir<RègleColonne[]>(({ si }) =>
             constl.bds.tableaux.suivreRègles({
               idStructure: idBd,
               idTableau,
-              f: siPasVide(),
+              f: si(x=>!!x?.find(r=>r.règle.règle.type === "catégorie")),
             }),
           );
-          idRègle = règles[0].règle.id;
+          idRègle = règles.find(r=>r.règle.règle.type === "catégorie")!.règle.id;
 
           const réf: RègleColonne<RègleCatégorie>[] = [
             {
