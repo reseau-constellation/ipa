@@ -1,4 +1,4 @@
-import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
+import { faisRien, ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { typedNested } from "@constl/bohr-db";
 import { isValidAddress } from "@orbitdb/core";
 import { ServiceDonnéesAppli } from "./nébuleuse/services/services.js";
@@ -7,7 +7,7 @@ import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
 import { MEMBRE } from "./nébuleuse/services/compte/accès/consts.js";
 import type { ServiceAppli } from "./nébuleuse/appli/index.js";
-import type { ServiceFavoris } from "./nébuleuse/services/favoris.js";
+import type { ServiceFavoris, ÉpingleFavorisBooléenniséeAvecId } from "./nébuleuse/services/favoris.js";
 import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { NestedValue } from "@orbitdb/nested-db";
@@ -71,7 +71,7 @@ export abstract class ObjetConstellation<
     super({
       clef,
       services,
-      dépendances: [...dépendances, "réseau", "orbite"],
+      dépendances: [...dépendances, "réseau", "orbite", "favoris"],
       options: Object.assign({}, options, {
         schéma: schémaServiceObjet,
       }),
@@ -82,6 +82,34 @@ export abstract class ObjetConstellation<
       clef: this.clef,
       résolution: this.résolutionConfiance.bind(this),
     });
+  }
+
+  async démarrer() {
+    const retour = await super.démarrer();
+
+    const favoris = this.service("favoris");
+    favoris.inscrireRésolution({
+      clef: this.clef,
+      résolution: this.suivreRésolutionÉpingle.bind(this),
+    });
+
+    return retour;
+  }
+
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisBooléenniséeAvecId;
+    f: Suivi<Set<string>>;
+  }): Promise<Oublier> {
+    await f(
+      new Set(
+        épingle.épingle.épingle.base ? [this.àIdOrbite(épingle.idObjet)] : [],
+      ),
+    );
+
+    return faisRien;
   }
 
   private get préfixeProtocole() {
@@ -266,6 +294,7 @@ export abstract class ObjetConstellation<
     idCompte?: string;
   }): Promise<Oublier> {
     const compte = this.service("compte");
+
     if (!this.identifiantValide({ identifiant: idObjet }))
       throw new Error(`Identifiant non valide : ${idObjet}.`);
 
@@ -304,8 +333,7 @@ export abstract class ObjetConstellation<
       f: async (auteurs: InfoAuteur[]) => {
         // On a pas besoin de vérifier l'acceptation des invitations car ça n'affecte que les confiances
         // rapportées pour le compte de la personne qui a invité
-        const idsComptes = [...new Set(auteurs.map((a) => a.idCompte))];
-
+        const idsComptes = [...new Set(auteurs.map((a) => a.idCompte).filter(id=>id !== de))];
         return await f(
           idsComptes.map((idCompte) => {
             const n = auteurs.filter((a) => a.idCompte === idCompte).length;
