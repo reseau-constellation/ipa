@@ -2084,7 +2084,7 @@ export class Bds extends ObjetConstellation<
       const { accès, couverture, valide, infos, licence } = info;
       const score: ScoreBd = {
         // Score impitoyable de 0 pour les bds sans licence
-        total: licence ? moyenne([accès, couverture, valide, infos]) : 0,
+        total: licence ? moyenne([accès, couverture, valide, infos]) || 0 : 0,
         accès,
         couverture,
         valide,
