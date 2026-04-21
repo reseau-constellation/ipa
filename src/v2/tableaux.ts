@@ -11,6 +11,7 @@ import {
 } from "./règles.js";
 import { schémaTraducsTexte } from "./schémas.js";
 import { définis, enleverPréfixes, idcEtFichierValide } from "./utils.js";
+import type { ServiceJournal } from "./nébuleuse/services/journal.js";
 import type { AccesseurService } from "./recherche/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
@@ -192,6 +193,7 @@ export type ServicesNécessairesTableaux = {
   orbite: ServiceOrbite;
   compte: ServiceCompte;
   variables: Variables;
+  journal: ServiceJournal;
 };
 
 export class Tableaux {
