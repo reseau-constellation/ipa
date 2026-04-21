@@ -367,7 +367,7 @@ export class Tableaux {
     idStructure: string;
   }): Promise<void> {
     const compte = this.service("compte");
-    if (!compte.permission({ idObjet: enleverPréfixes(idStructure) }))
+    if (!(await compte.permission({ idObjet: enleverPréfixes(idStructure) })))
       throw new Error(
         `Permission de modification refusée pour un tableau au ${idStructure}.`,
       );
