@@ -2030,6 +2030,13 @@ describe("Nuées", function () {
       expect(idNuéeCopie).to.be.a("string");
     });
 
+    it("la nuée est ajouté à mes nuées", async () => {
+      const nuées = await obtenir<string[]>(({ si }) =>
+        constl.nuées.suivreNuées({ f: si(x=>!!x?.includes(idNuéeCopie)) }),
+      );
+      expect(nuées).to.include.members([idNuéeOrig, idNuéeCopie]);
+    });
+
     it("les noms sont copiés", async () => {
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
         constl.nuées.suivreNoms({ idNuée: idNuéeCopie, f: siPasVide() }),

@@ -960,6 +960,13 @@ describe("Projets", function () {
       ).to.be.true();
     });
 
+    it("le projet est ajouté à mes projets", async () => {
+      const projets = await obtenir<string[]>(({ si }) =>
+        constl.projets.suivreProjets({ f: si(x=>!!x?.includes(idProjetCopie)) }),
+      );
+      expect(projets).to.include.members([idProjetOrig, idProjetCopie]);
+    });
+
     it("les noms sont copiés", async () => {
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
         constl.projets.suivreNoms({ idProjet: idProjetCopie, f: siPasVide() }),

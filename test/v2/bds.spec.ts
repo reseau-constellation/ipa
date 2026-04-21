@@ -1402,6 +1402,13 @@ describe("Bases de données", function () {
       expect(idBdCopie).to.be.a("string");
     });
 
+    it("la bd est ajouté à mes bds", async () => {
+      const bds = await obtenir<string[]>(({ si }) =>
+        constl.bds.suivreBds({ f: si(x=>!!x?.includes(idBdCopie)) }),
+      );
+      expect(bds).to.include.members([idBdOrig, idBdCopie]);
+    });
+
     it("les noms sont copiés", async () => {
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
         constl.bds.suivreNoms({ idBd: idBdCopie, f: siPasVide() }),
