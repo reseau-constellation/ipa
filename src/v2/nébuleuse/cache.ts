@@ -3,7 +3,7 @@ import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { v4 as uuidv4 } from "uuid";
 
-import deepEqual from "deep-equal";
+import deepEqual from "fast-deep-equal";
 import type { Oublier, RetourRecherche, Suivi } from "./types.js";
 
 export class CacheSuivi {

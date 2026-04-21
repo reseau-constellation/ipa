@@ -1,4 +1,4 @@
-import deepEqual from "deep-equal";
+import deepEqual from "fast-deep-equal";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import Base64 from "crypto-js/enc-base64url.js";

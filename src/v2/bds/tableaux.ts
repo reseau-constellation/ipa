@@ -7,7 +7,7 @@ import {
   traduire,
   uneFois,
 } from "@constl/utils-ipa";
-import deepEqual from "deep-equal";
+import deepEqual from "fast-deep-equal";
 import md5 from "crypto-js/md5.js";
 import Base64 from "crypto-js/enc-base64url.js";
 import { v4 as uuidv4 } from "uuid";

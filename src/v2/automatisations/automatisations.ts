@@ -1,7 +1,7 @@
 import PQueue from "p-queue";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Ajv } from "ajv";
-import deepEqual from "deep-equal";
+import deepEqual from "fast-deep-equal";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
