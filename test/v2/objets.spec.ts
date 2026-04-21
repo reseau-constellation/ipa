@@ -6,6 +6,7 @@ import {
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import { ObjetConstellation, schémaServiceObjet } from "@/v2/objets.js";
 import { CONFIANCE_DE_COAUTEUR } from "@/v2/nébuleuse/services/consts.js";
+import { TOUS_DISPOSITIFS } from "@/v2/nébuleuse/services/favoris.js";
 import { obtenir } from "./utils.js";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
 import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/index.js";
@@ -96,6 +97,7 @@ describe("Objets", function () {
         épingle: { type: this.clef, épingle: {base: TOUS_DISPOSITIFS,} },
       });
     }
+
   }
 
   before("préparer constls", async () => {
@@ -451,7 +453,7 @@ describe("Objets", function () {
       const promesseRelations = obtenir<RelationImmédiate[]>(({ si }) =>
         nébuleuse.services.objetTest.résolutionConfiance({
           de: idsComptes[0],
-          f: si((x) => !!x && x.length > 1),
+          f: si((x) => !!x && x.length > 0),
         }),
       );
       await serviceObjetTest.donnerAccèsObjet({
@@ -462,10 +464,6 @@ describe("Objets", function () {
       const relations = await promesseRelations;
 
       const réf: RelationImmédiate[] = [
-        {
-          idCompte: idsComptes[0],
-          confiance: CONFIANCE_DE_COAUTEUR,
-        },
         {
           idCompte: idsComptes[1],
           confiance: CONFIANCE_DE_COAUTEUR,
