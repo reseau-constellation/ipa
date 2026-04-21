@@ -126,7 +126,14 @@ export class ServiceOrbite<
 
     // Générer Orbite si nécessaire
     const hélia = await this.service("hélia").hélia();
-    const orbite = this.options.orbite || (await this.générerOrbite({ hélia }));
+    const orbiteOrig = this.options.orbite || (await this.générerOrbite({ hélia }));
+
+    const journal = this.service("journal");
+
+    const orbite = mandatOrbite(
+      orbiteOrig,
+      (erreur) => journal.écrire(erreur.toString()),
+    );
 
     this.estDémarré = { orbite };
     return await super.démarrer();
@@ -164,20 +171,14 @@ export class ServiceOrbite<
   }): Promise<OrbitDB<L>> {
     préparerOrbite();
 
-    const journal = this.service("journal");
-
     const dossier = await this.service("dossier").dossier();
     const dossierOrbite = join(dossier, "orbite");
-    const orbite = mandatOrbite(
-      await createOrbitDB({
-        ipfs: hélia,
-        id: "nébuleuse",
-        directory: dossierOrbite,
-      }),
-      (erreur) => journal.écrire(erreur.toString()),
-    );
 
-    return orbite;
+    return await createOrbitDB({
+      ipfs: hélia,
+      id: "nébuleuse",
+      directory: dossierOrbite,
+    })
   }
 
   // Bases de données
