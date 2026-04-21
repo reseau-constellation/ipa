@@ -79,10 +79,22 @@ describe("Objets", function () {
       const { bd, oublier: oublierBd } = await compte.créerObjet({
         type: "nested",
       });
-      const idObjet = bd.address;
+      const idObjet = this.ajouterProtocole(bd.address);
+      await this.épingler({ idObjet });
+      await this.ajouterÀMesObjets({ idObjet });
+
       await oublierBd();
 
-      return this.ajouterProtocole(idObjet);
+      return idObjet;
+    }
+
+    async épingler({ idObjet }: { idObjet: string }) {
+      const favoris = this.service("favoris");
+
+      await favoris.épinglerFavori({
+        idObjet,
+        épingle: { type: this.clef, épingle: {base: TOUS_DISPOSITIFS,} },
+      });
     }
   }
 
