@@ -359,7 +359,7 @@ export class Tableaux {
     });
   }
 
-  // Accèss
+  // Accès
 
   async confirmerPermission({
     idStructure,
@@ -374,6 +374,7 @@ export class Tableaux {
   }
 
   // Noms
+
   async sauvegarderNoms({
     idStructure,
     idTableau,
