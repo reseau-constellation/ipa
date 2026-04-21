@@ -436,7 +436,7 @@ describe("Variables", function () {
             const règleBornes = x?.find((r) => r.id === idRègle) as
               | RègleVariableAvecId<RègleBornes>
               | undefined;
-            return règleBornes?.règle.détails.op !== ">";
+            return !!x && (x.length > 1) && règleBornes?.règle.détails.op !== ">";
           }),
         }),
       );
