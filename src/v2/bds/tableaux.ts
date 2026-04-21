@@ -196,8 +196,9 @@ export class TableauxBds extends Tableaux {
     const { bd: bdStructure, oublier: oublierStructure } =
       await orbite.ouvrirBd({ id: enleverPréfixes(idStructure) });
 
-    if (!estContrôleurNébuleuse(bdStructure.access))
-      throw new Error(`Type d'accès ${bdStructure.access.type} non reconnu.`);
+    if (!estContrôleurNébuleuse(bdStructure.access)){
+      await oublierStructure();
+      throw new Error(`Type d'accès ${bdStructure.access.type} non reconnu.`);}
 
     const adresseAccèsStructure = bdStructure.access.address;
     await oublierStructure();
