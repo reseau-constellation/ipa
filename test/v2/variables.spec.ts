@@ -75,9 +75,9 @@ describe("Variables", function () {
     });
 
     it("automatiquement ajoutée à mes variables", async () => {
-      const mesVariables = await obtenir<string[]>(({ siDéfini }) =>
+      const mesVariables = await obtenir<string[]>(({ siPasVide }) =>
         constl.variables.suivreVariables({
-          f: siDéfini(),
+          f: siPasVide(),
         }),
       );
       expect(mesVariables).to.be.an("array").and.to.contain(idVariable);
