@@ -255,6 +255,7 @@ export class Bds extends ObjetConstellation<
         "orbite",
         "hélia",
         "stockage",
+        "journal",
       ],
       options,
     });
