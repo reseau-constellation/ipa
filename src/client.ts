@@ -65,16 +65,6 @@ export const schémaStructureNomsDispositifs: JSONSchemaType<structureNomsDispos
 
 const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 
-const join = async (...args: string[]) => {
-  if (isNode || isElectronMain) {
-    // Utiliser l'application native
-    const { join } = await import("path");
-    return join(...args);
-  } else {
-    return args.join("/");
-  }
-};
-
 export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   épingles: Épingles;
 
