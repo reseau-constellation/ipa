@@ -962,7 +962,9 @@ describe("Projets", function () {
 
     it("le projet est ajouté à mes projets", async () => {
       const projets = await obtenir<string[]>(({ si }) =>
-        constl.projets.suivreProjets({ f: si(x=>!!x?.includes(idProjetCopie)) }),
+        constl.projets.suivreProjets({
+          f: si((x) => !!x?.includes(idProjetCopie)),
+        }),
       );
       expect(projets).to.include.members([idProjetOrig, idProjetCopie]);
     });

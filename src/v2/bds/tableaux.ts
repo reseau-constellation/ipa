@@ -197,9 +197,10 @@ export class TableauxBds extends Tableaux {
     const { bd: bdStructure, oublier: oublierStructure } =
       await orbite.ouvrirBd({ id: enleverPréfixes(idStructure) });
 
-    if (!estContrôleurNébuleuse(bdStructure.access)){
+    if (!estContrôleurNébuleuse(bdStructure.access)) {
       await oublierStructure();
-      throw new Error(`Type d'accès ${bdStructure.access.type} non reconnu.`);}
+      throw new Error(`Type d'accès ${bdStructure.access.type} non reconnu.`);
+    }
 
     const adresseAccèsStructure = bdStructure.access.address;
     await oublierStructure();
@@ -652,7 +653,7 @@ export class TableauxBds extends Tableaux {
     idTableau: string;
   }): Promise<void> {
     const compte = this.service("compte");
-    
+
     await super.confirmerPermission({ idStructure });
 
     const idDonnées = await this.obtIdDonnées({ idStructure, idTableau });

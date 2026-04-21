@@ -149,7 +149,7 @@ export class ServiceÉpingles extends ServiceAppli<
     );
 
     const orbite = this.service("orbite");
-    
+
     bdsOrbiteÀÉpingler.forEach(async (idBd) => {
       const signaleur = new AbortController();
       this.bdsOuvertes.set(idBd, { oublier: () => signaleur.abort() });
@@ -179,7 +179,7 @@ export class ServiceÉpingles extends ServiceAppli<
   async fermer() {
     this.signaleurArrêt.abort();
     await this.queue.onIdle();
-    
+
     await Promise.allSettled(
       [...this.bdsOuvertes.values()].map(
         async ({ oublier }) => await oublier(),

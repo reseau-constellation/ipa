@@ -43,32 +43,31 @@ class AccèsCompte {
 
       if (!estContrôleurNébuleuse(accèsCompte)) {
         await bd.close();
-        throw new Error(accèsCompte.type)
-      };
-  
+        throw new Error(accèsCompte.type);
+      }
+
       const suiviCompte = async () => {
         const tous = await accèsCompte.bd.all();
         // On ne différencie pas entre les membres et les modératrices pour les dispositifs d'un compte
         this.dispositifs = [accèsCompte.écriture, ...tous.map((x) => x.key)];
         this.événements.emit("misÀJour");
       };
-  
+
       const oublierÉvénements = appelerLorsque({
         émetteur: accèsCompte.bd.events,
         événement: "update",
         f: suiviCompte,
       });
       await suiviCompte();
-  
+
       const oublier = async () => {
         await oublierÉvénements();
         await bd.close();
-      }
-  
+      };
+
       this.estDémarré = { oublier };
-  
     } catch {
-      this.estDémarré = { };
+      this.estDémarré = {};
     } finally {
       this.événements.emit("démarré", this.estDémarré as { oublier?: Oublier });
     }
@@ -105,7 +104,9 @@ export class AccèsParComptes {
     this.événements = new TypedEmitter();
     this.oublier = [];
     this.signaleurArrêt = new AbortController();
-    this.signal = signal ? anySignal([signal, this.signaleurArrêt.signal]) : this.signaleurArrêt.signal
+    this.signal = signal
+      ? anySignal([signal, this.signaleurArrêt.signal])
+      : this.signaleurArrêt.signal;
 
     this._comptes = new Map();
     this._dispositifs = new Map();
@@ -133,11 +134,11 @@ export class AccèsParComptes {
               this.événements.emit("misÀJour");
             },
           });
-          
+
           const oublier = async () => {
             await oublierUtilisateur();
             await accèsCompte.fermer();
-          }
+          };
           this.oublier.push(oublier);
           try {
             await accèsCompte.démarrer({ signal: this.signal });

@@ -1404,7 +1404,7 @@ describe("Bases de données", function () {
 
     it("la bd est ajouté à mes bds", async () => {
       const bds = await obtenir<string[]>(({ si }) =>
-        constl.bds.suivreBds({ f: si(x=>!!x?.includes(idBdCopie)) }),
+        constl.bds.suivreBds({ f: si((x) => !!x?.includes(idBdCopie)) }),
       );
       expect(bds).to.include.members([idBdOrig, idBdCopie]);
     });

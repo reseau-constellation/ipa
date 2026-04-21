@@ -2032,7 +2032,7 @@ describe("Nuées", function () {
 
     it("la nuée est ajouté à mes nuées", async () => {
       const nuées = await obtenir<string[]>(({ si }) =>
-        constl.nuées.suivreNuées({ f: si(x=>!!x?.includes(idNuéeCopie)) }),
+        constl.nuées.suivreNuées({ f: si((x) => !!x?.includes(idNuéeCopie)) }),
       );
       expect(nuées).to.include.members([idNuéeOrig, idNuéeCopie]);
     });

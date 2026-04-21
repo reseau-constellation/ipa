@@ -964,10 +964,12 @@ describe("tableaux", function () {
             constl.bds.tableaux.suivreRègles({
               idStructure: idBd,
               idTableau,
-              f: si(x=>!!x?.find(r=>r.règle.règle.type === "indexUnique")),
+              f: si(
+                (x) => !!x?.find((r) => r.règle.règle.type === "indexUnique"),
+              ),
             }),
           )
-        ).find(r=>r.règle.règle.type === "indexUnique")?.règle.id;
+        ).find((r) => r.règle.règle.type === "indexUnique")?.règle.id;
 
         const réf: ErreurDonnée<RègleIndexUnique>[] = idsÉléments.map((id) => ({
           id,
@@ -1339,10 +1341,13 @@ describe("tableaux", function () {
             constl.bds.tableaux.suivreRègles({
               idStructure: idBd,
               idTableau,
-              f: si(x=>!!x?.find(r=>r.règle.règle.type === "catégorie")),
+              f: si(
+                (x) => !!x?.find((r) => r.règle.règle.type === "catégorie"),
+              ),
             }),
           );
-          idRègle = règles.find(r=>r.règle.règle.type === "catégorie")!.règle.id;
+          idRègle = règles.find((r) => r.règle.règle.type === "catégorie")!
+            .règle.id;
 
           const réf: RègleColonne<RègleCatégorie>[] = [
             {

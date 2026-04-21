@@ -126,13 +126,13 @@ export class ServiceOrbite<
 
     // Générer Orbite si nécessaire
     const hélia = await this.service("hélia").hélia();
-    const orbiteOrig = this.options.orbite || (await this.générerOrbite({ hélia }));
+    const orbiteOrig =
+      this.options.orbite || (await this.générerOrbite({ hélia }));
 
     const journal = this.service("journal");
 
-    const orbite = mandatOrbite(
-      orbiteOrig,
-      (erreur) => journal.écrire(erreur.toString()),
+    const orbite = mandatOrbite(orbiteOrig, (erreur) =>
+      journal.écrire(erreur.toString()),
     );
 
     this.estDémarré = { orbite };
@@ -178,7 +178,7 @@ export class ServiceOrbite<
       ipfs: hélia,
       id: "nébuleuse",
       directory: dossierOrbite,
-    })
+    });
   }
 
   // Bases de données

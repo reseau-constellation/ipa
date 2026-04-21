@@ -335,7 +335,9 @@ describe("Mots-clefs", function () {
 
     it("le mot-clef est ajouté à mes mots-clefs", async () => {
       const motsClefs = await obtenir<string[]>(({ si }) =>
-        constl.motsClefs.suivreMotsClefs({ f: si(x=>!!x?.includes(idMotClefCopie)) }),
+        constl.motsClefs.suivreMotsClefs({
+          f: si((x) => !!x?.includes(idMotClefCopie)),
+        }),
       );
       expect(motsClefs).to.include.members([idMotClef, idMotClefCopie]);
     });

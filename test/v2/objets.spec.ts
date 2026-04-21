@@ -94,10 +94,9 @@ describe("Objets", function () {
 
       await favoris.épinglerFavori({
         idObjet,
-        épingle: { type: this.clef, épingle: {base: TOUS_DISPOSITIFS,} },
+        épingle: { type: this.clef, épingle: { base: TOUS_DISPOSITIFS } },
       });
     }
-
   }
 
   before("préparer constls", async () => {

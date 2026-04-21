@@ -1,4 +1,8 @@
-import { faisRien, ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
+import {
+  faisRien,
+  ignorerNonDéfinis,
+  suivreDeFonctionListe,
+} from "@constl/utils-ipa";
 import { typedNested } from "@constl/bohr-db";
 import { isValidAddress } from "@orbitdb/core";
 import { ServiceDonnéesAppli } from "./nébuleuse/services/services.js";
@@ -7,7 +11,10 @@ import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
 import { MEMBRE } from "./nébuleuse/services/compte/accès/consts.js";
 import type { ServiceAppli } from "./nébuleuse/appli/index.js";
-import type { ServiceFavoris, ÉpingleFavorisBooléenniséeAvecId } from "./nébuleuse/services/favoris.js";
+import type {
+  ServiceFavoris,
+  ÉpingleFavorisBooléenniséeAvecId,
+} from "./nébuleuse/services/favoris.js";
 import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { NestedValue } from "@orbitdb/nested-db";
@@ -333,7 +340,9 @@ export abstract class ObjetConstellation<
       f: async (auteurs: InfoAuteur[]) => {
         // On a pas besoin de vérifier l'acceptation des invitations car ça n'affecte que les confiances
         // rapportées pour le compte de la personne qui a invité
-        const idsComptes = [...new Set(auteurs.map((a) => a.idCompte).filter(id=>id !== de))];
+        const idsComptes = [
+          ...new Set(auteurs.map((a) => a.idCompte).filter((id) => id !== de)),
+        ];
         return await f(
           idsComptes.map((idCompte) => {
             const n = auteurs.filter((a) => a.idCompte === idCompte).length;

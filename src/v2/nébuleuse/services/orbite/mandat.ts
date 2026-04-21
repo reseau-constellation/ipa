@@ -47,7 +47,8 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
             if (signal?.aborted) throw new Error("Opération avortée");
             const existante = cacheBdsOrbite.get(nomOuAdresse);
 
-            const bd = (parAdresse && existante) || (await target.open(...args));
+            const bd =
+              (parAdresse && existante) || (await target.open(...args));
             const adresse = bd.address;
 
             if (!parAdresse && existante)
@@ -74,7 +75,7 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
             // S'assurer que le verrou sera bien relâché (en cas de signal avorté) lorsqu'il aura été
             // enfin acquis. **Ne pas utiliser `await` parce que ça pourrait empêcher la fonction
             // de compléter si un autre appel à l'ouverture de la bd est toujours en cours en parallel.**
-            promesseVerrou.then(()=>verrouOrbite.release(nomOuAdresse));
+            promesseVerrou.then(() => verrouOrbite.release(nomOuAdresse));
           }
         };
         return ouvrirAvecVerrou;

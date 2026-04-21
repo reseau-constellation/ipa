@@ -161,7 +161,7 @@ const ContrôleurAccès =
 
     const close = async () => {
       await accès.fermer();
-    }
+    };
 
     return {
       // Propriétés nécessaires pour OrbitDB

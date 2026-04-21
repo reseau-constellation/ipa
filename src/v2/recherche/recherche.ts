@@ -1,7 +1,5 @@
 import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
-import {
-  cacheRechercheParProfondeur,
-} from "../nébuleuse/cache.js";
+import { cacheRechercheParProfondeur } from "../nébuleuse/cache.js";
 import { moyenne } from "../utils.js";
 import { stabiliser } from "../nébuleuse/utils.js";
 import { EstimateurAsymptoteTemps, calculerIntersection } from "./utils.js";
