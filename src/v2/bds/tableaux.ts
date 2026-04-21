@@ -915,7 +915,11 @@ export class TableauxBds extends Tableaux {
         new URL(chemin);
         if (cacheFichiers.has(chemin)) return cacheFichiers.get(chemin);
 
-        const contenuFichier = (await axios.get(chemin)).data;
+        let contenuFichier = (await axios.get(chemin)).data;
+        if (!ArrayBuffer.isView(contenuFichier)) {
+          contenuFichier = new Uint8Array(Object.values(contenuFichier))
+        }
+
         const composantesUrl = chemin.split("/");
         const nomFichier = composantesUrl.pop() || composantesUrl.pop();
         if (!nomFichier) throw new Error("Nom de fichier manquant.");
@@ -927,8 +931,10 @@ export class TableauxBds extends Tableaux {
 
         cacheFichiers.set(chemin, idc);
         return idc;
-      } catch {
-        // Rien à faire;
+      } catch (e) {
+        // Rien à faire
+        const journal = this.service("journal");
+        journal.écrire(e);
       }
 
       if (isNode || isElectronMain) {
