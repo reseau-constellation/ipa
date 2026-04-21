@@ -45,6 +45,7 @@ class AccèsCompte {
         await bd.close();
         throw new Error(accèsCompte.type);
       }
+      accèsCompte.bd.events.setMaxListeners(1000)
 
       const suiviCompte = async () => {
         const tous = await accèsCompte.bd.all();
