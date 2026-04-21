@@ -157,7 +157,7 @@ export class Variables extends ObjetConstellation<
   ServicesNécessairesVariables
 > {
   recherche: RechercheVariables;
-  schémaObjet = schémaVariable;
+  schémaObjet: JSONSchemaType<PartielRécursif<StructureVariable>> = schémaVariable;
 
   constructor({
     services,
