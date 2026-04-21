@@ -17,6 +17,7 @@ import { connecterNébuleuses } from "./nébuleuse/utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import type { InfoRésultat, RésultatRecherche } from "@/v2/recherche/types.js";
 import type { Constellation } from "@/v2/index.js";
+import type { Constellation as ConstructeurConstellation } from "@/v2/constellation.js";
 import type { Oublier, RetourRecherche, Suivi } from "@/v2/nébuleuse/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
@@ -301,16 +302,25 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
   };
 };
 
-export const créerConstellationsTest = async ({
+type CréerConstellationsTest = {
+  (args: { n: number; avecMandataire: false }): Promise<{
+    constls: ConstructeurConstellation[];
+    fermer: Oublier;
+  }>;
+  (args: { n: number; avecMandataire?: true }): Promise<{
+    constls: Constellation[];
+    fermer: Oublier;
+  }>;
+  (args: { n: number; avecMandataire?: boolean }): Promise<{
+    constls: (Constellation | ConstructeurConstellation)[];
+    fermer: Oublier;
+  }>;
+};
+
+export const créerConstellationsTest: CréerConstellationsTest = async ({
   n,
   avecMandataire = true,
-}: {
-  n: number;
-  avecMandataire?: boolean;
-}): Promise<{
-  constls: Constellation[];
-  fermer: Oublier;
-}> => {
+}) => {
   const { dossier, effacer } = await dossierTempoPropre();
 
   const constls: Constellation[] = [];
