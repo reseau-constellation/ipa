@@ -164,10 +164,18 @@ export const obtenir = async <T>(
     return si(() => true);
   };
 
+  let fOublier: Oublier | undefined = undefined;
+
   const promesse = new Promise<T>((résoudre) =>
-    événements.once("résolu", résoudre),
+    événements.once("résolu", async (x) => {
+      if (fOublier) {
+        await fOublier();
+        fOublier = undefined;
+      }
+      résoudre(x);
+    }),
   );
-  const fOublier = await f({
+  fOublier = await f({
     si,
     siDéfini,
     siNonDéfini,
@@ -177,7 +185,10 @@ export const obtenir = async <T>(
     siPasNul,
     tous,
   });
-  after(async () => await fOublier());
+  afterEach(async () => {
+    if (fOublier) await fOublier();
+    fOublier = undefined;
+  });
 
   return promesse;
 };

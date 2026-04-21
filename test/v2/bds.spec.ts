@@ -1873,7 +1873,10 @@ describe("Bases de données", function () {
         let score = await obtenir<ScoreBd>(({ si }) =>
           constl.bds.suivreScoreQualité({
             idBd,
-            f: si((s) => !!s && !!s.couverture && s.couverture > 0),
+            f: si(
+              (s) =>
+                !!s && !!s.couverture && s.couverture > 0 && s.couverture < 1,
+            ),
           }),
         );
         expect(score.couverture).to.equal(0.5);
@@ -1939,7 +1942,7 @@ describe("Bases de données", function () {
         score = await obtenir<ScoreBd>(({ si }) =>
           constl.bds.suivreScoreQualité({
             idBd,
-            f: si((s) => !!s?.valide && s.valide > 0.5),
+            f: si((s) => !!s?.valide && s.valide > 0.5 && s.valide < 1),
           }),
         );
         expect(score.valide).to.equal(2 / 3);
@@ -1964,10 +1967,10 @@ describe("Bases de données", function () {
 
     describe("score infos", function () {
       it("0 pour commencer", async () => {
-        const score = await obtenir<ScoreBd>(({ siDéfini }) =>
+        const score = await obtenir<ScoreBd>(({ si }) =>
           constl.bds.suivreScoreQualité({
             idBd,
-            f: siDéfini(),
+            f: si((x) => x?.infos !== undefined),
           }),
         );
         expect(score.infos).to.equal(0);
@@ -2001,10 +2004,10 @@ describe("Bases de données", function () {
 
     describe("score total", function () {
       it("calcul du score total", async () => {
-        const score = await obtenir<ScoreBd>(({ siDéfini }) =>
+        const score = await obtenir<ScoreBd>(({ si }) =>
           constl.bds.suivreScoreQualité({
             idBd,
-            f: siDéfini(),
+            f: si((x) => !!x && Object.values(x).every((y) => y !== undefined)),
           }),
         );
         const total = moyenne([
