@@ -2567,8 +2567,17 @@ describe("Bases de données", function () {
         constls[0].bds.suivreNoms({ idBd, f: siPasVide() }),
       );
       expect(noms).to.deep.equal({ fr: "Niveaux d'eau" });
+    });
 
-      // Modification des données
+    it("modification des données par le nouvel auteur", async () => {
+      await obtenir(({ siDéfini }) =>
+        constls[1].bds.tableaux.suivrePermission({
+          idBd,
+          idTableau,
+          f: siDéfini(),
+        }),
+      );
+
       await constls[1].bds.tableaux.ajouterÉléments({
         idStructure: idBd,
         idTableau,
