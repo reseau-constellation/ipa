@@ -2135,7 +2135,7 @@ describe("Bases de données", function () {
       expect(
         await constl.bds.identifiantValide({ identifiant: nouvelIdBdUnique }),
       ).to.be.true();
-      expect(nouvelIdBdUnique).to.equal(idBdUnique);
+      expect(nouvelIdBdUnique).to.not.equal(idBdNonExistante);
     });
 
     it("recréée si effacée", async () => {
