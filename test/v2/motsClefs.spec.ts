@@ -103,7 +103,7 @@ describe("Mots-clefs", function () {
     });
 
     it("effacer mot-clef", async () => {
-      const pÉpinglés = obtenir<ÉpingleFavorisAvecId[] | undefined>(({ si }) =>
+      const pÉpinglés = obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
         constl.favoris.suivreFavoris({
           f: si((x) => !!x && !x.find((fav) => fav.idObjet === idMotClef)),
         }),
