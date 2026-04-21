@@ -3579,28 +3579,19 @@ describe("tableaux", function () {
         });
 
         it("exporter document sans fichiers sfip", async () => {
+          const fichier = await constl.bds.tableaux.exporterDonnéesÀFichier({
+            idStructure: idBd,
+            idTableau,
+            dossier,
+            formatDocu: "ods",
+            langues: ["fr"],
+            inclureDocuments: false,
+          });
           if (isBrowser || isElectronRenderer) {
-            await expect(
-              constl.bds.tableaux.exporterDonnéesÀFichier({
-                idStructure: idBd,
-                idTableau,
-                dossier,
-                formatDocu: "ods",
-                langues: ["fr"],
-                inclureDocuments: false,
-              }),
-            ).to.eventually.be.rejectedWith("showSaveFilePicker");
+            expect(fichier).to.equal("voici un tableau.ods")
           } else {
-            await constl.bds.tableaux.exporterDonnéesÀFichier({
-              idStructure: idBd,
-              idTableau,
-              dossier,
-              formatDocu: "ods",
-              langues: ["fr"],
-              inclureDocuments: false,
-            });
-
             const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
+            expect(fichier).to.equal(cheminFichier)
             expect(existsSync(cheminFichier)).to.be.true();
           }
         });
