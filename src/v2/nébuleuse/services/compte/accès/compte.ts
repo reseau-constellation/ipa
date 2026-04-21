@@ -20,11 +20,11 @@ class AccèsCompte {
 
   dispositifs: string[];
   événements: TypedEmitter<{
-    démarré: (args: { oublier: Oublier }) => void;
+    démarré: (args: { oublier?: Oublier }) => void;
     misÀJour: () => void;
   }>;
 
-  estDémarré?: { oublier: Oublier };
+  estDémarré?: { oublier?: Oublier };
   oublier?: Oublier;
 
   constructor(orbite: OrbitDB, idCompte: string) {
@@ -36,31 +36,44 @@ class AccèsCompte {
   }
 
   async démarrer({ signal }: { signal?: AbortSignal } = {}): Promise<void> {
-    const bd = await this.orbite.open(this.idCompte, { signal });
-    const accèsCompte = bd.access;
-    if (!estContrôleurNébuleuse(accèsCompte)) throw new Error(accèsCompte.type);
+    try {
+      const bd = await this.orbite.open(this.idCompte, { signal });
+      const accèsCompte = bd.access;
 
-    const suiviCompte = async () => {
-      const tous = await accèsCompte.bd.all();
-
-      // On ne différencie pas entre les membres et les modératrices pour les dispositifs d'un compte
-      this.dispositifs = [accèsCompte.écriture, ...tous.map((x) => x.key)];
-      this.événements.emit("misÀJour");
-    };
-
-    const oublier = appelerLorsque({
-      émetteur: accèsCompte.bd.events,
-      événement: "update",
-      f: suiviCompte,
-    });
-    await suiviCompte();
-
-    this.estDémarré = { oublier };
-
-    this.événements.emit("démarré", { oublier });
+      if (!estContrôleurNébuleuse(accèsCompte)) {
+        await bd.close();
+        throw new Error(accèsCompte.type)
+      };
+  
+      const suiviCompte = async () => {
+        const tous = await accèsCompte.bd.all();
+        // On ne différencie pas entre les membres et les modératrices pour les dispositifs d'un compte
+        this.dispositifs = [accèsCompte.écriture, ...tous.map((x) => x.key)];
+        this.événements.emit("misÀJour");
+      };
+  
+      const oublierÉvénements = appelerLorsque({
+        émetteur: accèsCompte.bd.events,
+        événement: "update",
+        f: suiviCompte,
+      });
+      await suiviCompte();
+  
+      const oublier = async () => {
+        await oublierÉvénements();
+        await bd.close();
+      }
+  
+      this.estDémarré = { oublier };
+  
+    } catch {
+      this.estDémarré = { };
+    } finally {
+      this.événements.emit("démarré", this.estDémarré as { oublier?: Oublier });
+    }
   }
 
-  démarré(): Promise<{ oublier: Oublier }> {
+  démarré(): Promise<{ oublier?: Oublier }> {
     return new Promise((résoudre) => {
       if (this.estDémarré) résoudre(this.estDémarré);
       this.événements.once("démarré", résoudre);
@@ -69,7 +82,7 @@ class AccèsCompte {
 
   async fermer() {
     const { oublier } = await this.démarré();
-    await oublier();
+    await oublier?.();
   }
 }
 
@@ -78,18 +91,18 @@ export class AccèsParComptes {
   queue: PQueue;
   événements: TypedEmitter<{ misÀJour: () => void }>;
   oublier: Oublier[];
-  signal?: AbortSignal;
+  signaleurArrêt: AbortController;
 
   _comptes: Map<string, { rôles: Set<Rôle>; accès: AccèsCompte }>;
   _dispositifs: Map<string, Set<Rôle>>;
 
-  constructor({ orbite, signal }: { orbite: OrbitDB; signal?: AbortSignal }) {
+  constructor({ orbite }: { orbite: OrbitDB }) {
     this.orbite = orbite;
 
     this.queue = new PQueue({ concurrency: 1 });
     this.événements = new TypedEmitter();
     this.oublier = [];
-    this.signal = signal;
+    this.signaleurArrêt = new AbortController();
 
     this._comptes = new Map();
     this._dispositifs = new Map();
@@ -111,16 +124,20 @@ export class AccèsParComptes {
           this.événements.emit("misÀJour");
 
           const oublierUtilisateur = appelerLorsque({
-            émetteur: utilisateur.accès.événements,
+            émetteur: accèsCompte.événements,
             événement: "misÀJour",
             f: () => {
               this.événements.emit("misÀJour");
             },
           });
-
-          this.oublier.push(oublierUtilisateur);
+          
+          const oublier = async () => {
+            await oublierUtilisateur();
+            await accèsCompte.fermer();
+          }
+          this.oublier.push(oublier);
           try {
-            await accèsCompte.démarrer({ signal: this.signal });
+            await accèsCompte.démarrer({ signal: this.signaleurArrêt.signal });
           } catch (e) {
             if (!e.toString().includes("AbortError")) throw e;
             return;
@@ -177,7 +194,10 @@ export class AccèsParComptes {
 
     // Les modératrices sont aussi des membres
     if (isValidAddress(id)) {
-      return !!this._comptes.get(id)?.rôles.has(MEMBRE);
+      return !!(
+        this._comptes.get(id)?.rôles.has(MEMBRE) ||
+        this._comptes.get(id)?.rôles.has(MODÉRATRICE)
+      );
     } else {
       return !!this.dispositifs.find((d) => d.idDispositif === id);
     }
@@ -210,6 +230,7 @@ export class AccèsParComptes {
   }
 
   async fermer(): Promise<void> {
+    this.signaleurArrêt.abort();
     await Promise.allSettled(this.oublier.map((f) => f()));
   }
 }

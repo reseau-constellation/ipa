@@ -246,10 +246,12 @@ export class BaseServiceCompte<
     ).ouvrirBd({ id: enleverPréfixes(idCompte), type: "nested", signal });
 
     const accès = bdNouveauCompte.access;
-    if (!estContrôleurNébuleuse(accès))
+    if (!estContrôleurNébuleuse(accès)) {
+      await oublier();
       throw new Error(
         `Gestionnaire d'accès OrbitDB ${bdNouveauCompte.access.type} non reconnu.`,
       );
+    }
 
     const moi = await this.obtIdDispositif();
 
@@ -396,8 +398,9 @@ export class BaseServiceCompte<
       id: enleverPréfixes(idObjet),
     });
     const accès = bd.access;
-    if (!estContrôleurNébuleuse(accès))
-      throw new Error(`Type d'accès ${bd.access.type} non reconnu.`);
+    if (!estContrôleurNébuleuse(accès)){
+      await oublierBd();
+      throw new Error(`Type d'accès ${bd.access.type} non reconnu.`);}
 
     const oublierAccès = await accès.suivreUtilisateursAutorisés((autorisés) =>
       f(
@@ -455,8 +458,10 @@ export class BaseServiceCompte<
     const { bd, oublier } = await orbite.ouvrirBd({ id: idObjet });
     const accès = bd.access;
 
-    if (!estContrôleurNébuleuse(accès))
+    if (!estContrôleurNébuleuse(accès)){
+      await oublier();
       throw new Error(`Contrôleur d'accès non reconnu : ${accès.type}`);
+    }
     await accès.autoriser(rôle, identité);
 
     await oublier();
