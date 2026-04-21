@@ -121,6 +121,10 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
       );
 
     await Promise.all(prêtsÀDémarrer.map((s) => s.démarrer()));
+    
+    const malDémarré = prêtsÀDémarrer.find((s) => !s.estDémarré);
+    if (malDémarré)
+      throw new Error(`Service ${malDémarré.clef} n'a pas été bien démarré.`);
 
     await this.démarrerServices();
   }
