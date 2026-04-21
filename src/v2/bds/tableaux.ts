@@ -28,6 +28,7 @@ import {
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { estContrôleurNébuleuse } from "../nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
+import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
 import type { CatégorieBaseVariables } from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
@@ -310,6 +311,7 @@ export class TableauxBds extends Tableaux {
   }
 
   // Données
+
   async obtIdDonnées(args: {
     idStructure: string;
     idTableau: string;
@@ -377,7 +379,7 @@ export class TableauxBds extends Tableaux {
     idTableau: string;
     éléments: ÉlémentDonnéesTableau[];
   }): Promise<string[]> {
-    await this.confirmerPermission({ idStructure });
+    await this.confirmerPermissionDonnées({ idStructure, idTableau });
 
     const { données, oublier } = await this.ouvrirDonnéesTableau({
       idStructure,
@@ -408,7 +410,7 @@ export class TableauxBds extends Tableaux {
     vals: Partial<ÉlémentDonnéesTableau>;
     idÉlément: string;
   }): Promise<void> {
-    await this.confirmerPermission({ idStructure });
+    await this.confirmerPermissionDonnées({ idStructure, idTableau });
 
     const { données, oublier } = await this.ouvrirDonnéesTableau({
       idStructure,
@@ -637,6 +639,57 @@ export class TableauxBds extends Tableaux {
     return await this.ajouterÉléments({
       ...à,
       éléments: élémentsÀAjouter,
+    });
+  }
+
+  // Permissions
+
+  async confirmerPermissionDonnées({
+    idStructure,
+    idTableau,
+  }: {
+    idStructure: string;
+    idTableau: string;
+  }): Promise<void> {
+    const compte = this.service("compte");
+    
+    await super.confirmerPermission({ idStructure });
+
+    const idDonnées = await this.obtIdDonnées({ idStructure, idTableau });
+
+    if (!(await compte.permission({ idObjet: idDonnées })))
+      throw new Error(
+        `Permission de modification refusée pour un tableau au ${idStructure}.`,
+      );
+  }
+
+  async suivrePermission({
+    idBd,
+    idTableau,
+    f,
+    idCompte,
+  }: {
+    idBd: string;
+    idTableau: string;
+    f: Suivi<Rôle | undefined>;
+    idCompte?: string;
+  }): Promise<Oublier> {
+    const compte = this.service("compte");
+
+    return await suivreFonctionImbriquée({
+      fRacine: async ({ fSuivreRacine }) =>
+        await this.suivreIdDonnées({
+          idStructure: idBd,
+          idTableau,
+          f: fSuivreRacine,
+        }),
+      fSuivre: async ({ id: idDonnéesTableau, fSuivre }) =>
+        await compte.suivrePermission({
+          idObjet: idDonnéesTableau,
+          f: fSuivre,
+          idCompte,
+        }),
+      f,
     });
   }
 
