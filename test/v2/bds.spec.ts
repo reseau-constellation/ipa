@@ -2605,6 +2605,7 @@ describe("Bases de données", function () {
             f: siPasVide(),
           }),
       );
+
       expect(données.map((d) => d.données)).to.deep.equal([
         { [idColonne]: 2.5 },
       ]);

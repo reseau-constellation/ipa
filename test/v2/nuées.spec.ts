@@ -2452,7 +2452,7 @@ describe("Nuées", function () {
         idNuée = await constl.nuées.créerNuée({ parent: idNuéeParent });
       });
 
-      it("descriptions ascendance", async () => {
+      it("noms ascendance", async () => {
         await constl.nuées.sauvegarderNoms({
           idNuée: idNuéeGrandParent,
           noms: { fr: "Science citoyenne", ctl: "Ciència ciutadana" },
@@ -2467,7 +2467,7 @@ describe("Nuées", function () {
         });
       });
 
-      it("priorité descriptions ascendance immédiate", async () => {
+      it("priorité noms ascendance immédiate", async () => {
         await constl.nuées.sauvegarderNoms({
           idNuée: idNuéeParent,
           noms: { ctl: "Projete de ciència ciutadana" },
@@ -2475,7 +2475,12 @@ describe("Nuées", function () {
         const noms = await obtenir<TraducsTexte>(({ si }) =>
           constl.nuées.suivreNoms({
             idNuée,
-            f: si((x) => !!x && !x.ctl?.startsWith("Ciència")),
+            f: si(
+              (x) =>
+                !!x &&
+                Object.keys(x).length === 2 &&
+                !x.ctl.startsWith("Ciència"),
+            ),
           }),
         );
 
@@ -2493,7 +2498,12 @@ describe("Nuées", function () {
         const noms = await obtenir<TraducsTexte>(({ si }) =>
           constl.nuées.suivreNoms({
             idNuée,
-            f: si((x) => !!x && !x.ctl?.endsWith("ciutadana")),
+            f: si(
+              (x) =>
+                !!x &&
+                Object.keys(x).length === 2 &&
+                !x.ctl.endsWith("ciutadana"),
+            ),
           }),
         );
 
@@ -2540,7 +2550,12 @@ describe("Nuées", function () {
         const descriptions = await obtenir<TraducsTexte>(({ si }) =>
           constl.nuées.suivreDescriptions({
             idNuée,
-            f: si((x) => !!x && !x.ctl?.startsWith("Ciència")),
+            f: si(
+              (x) =>
+                !!x &&
+                Object.keys(x).length === 2 &&
+                !x.ctl.startsWith("Ciència"),
+            ),
           }),
         );
 
@@ -2558,7 +2573,12 @@ describe("Nuées", function () {
         const descriptions = await obtenir<TraducsTexte>(({ si }) =>
           constl.nuées.suivreDescriptions({
             idNuée,
-            f: si((x) => !!x && !x.ctl?.endsWith("ciutadana")),
+            f: si(
+              (x) =>
+                !!x &&
+                Object.keys(x).length === 2 &&
+                !x.ctl.endsWith("ciutadana"),
+            ),
           }),
         );
 
@@ -2780,7 +2800,12 @@ describe("Nuées", function () {
         const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
           constl.nuées.suivreTableaux({
             idNuée,
-            f: si((x) => !!x?.every((x) => x.source === idNuéeParent)),
+            f: si(
+              (x) =>
+                !!x &&
+                x.length >= 2 &&
+                !!x.every((x) => x.source === idNuéeParent),
+            ),
           }),
         );
 
@@ -3863,7 +3888,10 @@ describe("Nuées", function () {
         let score = await obtenir<ScoreNuée>(({ si }) =>
           constl.nuées.suivreScoreQualité({
             idNuée,
-            f: si((s) => !!s && !!s.couverture && s.couverture > 0),
+            f: si(
+              (s) =>
+                !!s && !!s.couverture && s.couverture > 0 && s.couverture < 1,
+            ),
           }),
         );
         expect(score.couverture).to.equal(0.5);
@@ -3886,10 +3914,10 @@ describe("Nuées", function () {
 
     describe("score infos", function () {
       it("0 pour commencer", async () => {
-        const score = await obtenir<ScoreNuée>(({ siDéfini }) =>
+        const score = await obtenir<ScoreNuée>(({ si }) =>
           constl.nuées.suivreScoreQualité({
             idNuée,
-            f: siDéfini(),
+            f: si((x) => x?.infos !== undefined),
           }),
         );
         expect(score.infos).to.equal(0);
@@ -3926,10 +3954,10 @@ describe("Nuées", function () {
 
     describe("score total", function () {
       it("calcul du score total", async () => {
-        const score = await obtenir<ScoreNuée>(({ siDéfini }) =>
+        const score = await obtenir<ScoreNuée>(({ si }) =>
           constl.nuées.suivreScoreQualité({
             idNuée,
-            f: siDéfini(),
+            f: si((x) => x !== undefined && !isNaN(x.total)),
           }),
         );
         const total = moyenne([score.accès, score.couverture, score.infos]);
