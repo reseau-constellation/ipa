@@ -96,9 +96,9 @@ describe("Nuées", function () {
     });
 
     it("automatiquement ajoutée à mes nuées", async () => {
-      const mesNuées = await obtenir<string[]>(({ siDéfini }) =>
+      const mesNuées = await obtenir<string[]>(({ siPasVide }) =>
         constl.nuées.suivreNuées({
-          f: siDéfini(),
+          f: siPasVide(),
         }),
       );
       expect(mesNuées).to.be.an("array").and.to.contain(idNuée);
@@ -2413,7 +2413,7 @@ describe("Nuées", function () {
       expect(descendants).to.be.empty();
     });
 
-    it.skip("pas d'erreur si récursif", async () => {
+    it("pas d'erreur si récursif", async () => {
       const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
       const idPetitEnfant = await constl.nuées.créerNuée({
         parent: idNuéeEnfant,
