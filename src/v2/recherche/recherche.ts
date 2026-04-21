@@ -1,6 +1,5 @@
 import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import {
-  cacheRechercheParN,
   cacheRechercheParProfondeur,
 } from "../nébuleuse/cache.js";
 import { moyenne } from "../utils.js";
