@@ -1,6 +1,7 @@
 import { isValidAddress } from "@orbitdb/core";
 import PQueue from "p-queue";
 import { TypedEmitter } from "tiny-typed-emitter";
+import { anySignal } from "any-signal";
 import { appelerLorsque } from "../../utils.js";
 import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
 import { MEMBRE, MODÉRATRICE } from "./consts.js";
@@ -92,17 +93,19 @@ export class AccèsParComptes {
   événements: TypedEmitter<{ misÀJour: () => void }>;
   oublier: Oublier[];
   signaleurArrêt: AbortController;
+  signal: AbortSignal;
 
   _comptes: Map<string, { rôles: Set<Rôle>; accès: AccèsCompte }>;
   _dispositifs: Map<string, Set<Rôle>>;
 
-  constructor({ orbite }: { orbite: OrbitDB }) {
+  constructor({ orbite, signal }: { orbite: OrbitDB; signal?: AbortSignal }) {
     this.orbite = orbite;
 
     this.queue = new PQueue({ concurrency: 1 });
     this.événements = new TypedEmitter();
     this.oublier = [];
     this.signaleurArrêt = new AbortController();
+    this.signal = signal ? anySignal([signal, this.signaleurArrêt.signal]) : this.signaleurArrêt.signal
 
     this._comptes = new Map();
     this._dispositifs = new Map();
@@ -137,7 +140,7 @@ export class AccèsParComptes {
           }
           this.oublier.push(oublier);
           try {
-            await accèsCompte.démarrer({ signal: this.signaleurArrêt.signal });
+            await accèsCompte.démarrer({ signal: this.signal });
           } catch (e) {
             if (!e.toString().includes("AbortError")) throw e;
             return;

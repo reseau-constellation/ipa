@@ -70,7 +70,7 @@ const ContrôleurAccès =
       ));
     écriture = écriture ?? orbitdb.identity.id;
 
-    const accès = new AccèsParComptes({ orbite: orbitdb });
+    const accès = new AccèsParComptes({ orbite: orbitdb, signal });
 
     if (address) {
       const octetsManifest = await stockageFinal.get(
