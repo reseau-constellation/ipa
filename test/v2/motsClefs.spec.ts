@@ -64,9 +64,9 @@ describe("Mots-clefs", function () {
     });
 
     it("automatiquement ajouté à mes mots-clefs", async () => {
-      const mesMotsClefs = await obtenir<string[]>(({ siDéfini }) =>
+      const mesMotsClefs = await obtenir<string[]>(({ siPasVide }) =>
         constl.motsClefs.suivreMotsClefs({
-          f: siDéfini(),
+          f: siPasVide(),
         }),
       );
       expect(mesMotsClefs).to.be.an("array").and.to.contain(idMotClef);
