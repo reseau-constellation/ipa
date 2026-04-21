@@ -1623,7 +1623,7 @@ export class Bds extends ObjetConstellation<
       };
     };
 
-    const stabilité = stabiliser();
+    const stabilité = stabiliser(200);
     const oublier = await suivreDeFonctionListe({
       fListe: ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
         this.suivreBds({ f: ignorerNonDéfinis(fSuivreRacine) }),
