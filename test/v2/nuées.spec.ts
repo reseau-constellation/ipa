@@ -3970,6 +3970,16 @@ describe("Nuées", function () {
       expect(auteurs).to.deep.equal(réf);
     });
 
+    it("confirmer permission", async () => {
+      await constl.nuées.confirmerPermission({ idNuée });
+    });
+
+    it("confirmer permission - compte non autorisé", async () => {
+      await expect(
+        constls[1].nuées.confirmerPermission({ idNuée }),
+      ).to.eventually.be.rejectedWith("Permission de modification refusée");
+    });
+
     it("inviter compte", async () => {
       await constl.nuées.inviterAuteur({
         idNuée,

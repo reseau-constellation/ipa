@@ -824,6 +824,16 @@ describe("Variables", function () {
       expect(auteurs).to.deep.equal(réf);
     });
 
+    it("confirmer permission", async () => {
+      await constl.variables.confirmerPermission({ idVariable });
+    });
+
+    it("confirmer permission - compte non autorisé", async () => {
+      await expect(
+        constls[1].variables.confirmerPermission({ idVariable }),
+      ).to.eventually.be.rejectedWith("Permission de modification refusée");
+    });
+
     it("inviter compte", async () => {
       await constl.variables.inviterAuteur({
         idVariable,

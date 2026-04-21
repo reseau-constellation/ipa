@@ -1179,6 +1179,16 @@ describe("Projets", function () {
       expect(auteurs).to.deep.equal(réf);
     });
 
+    it("confirmer permission", async () => {
+      await constl.projets.confirmerPermission({ idProjet });
+    });
+
+    it("confirmer permission - compte non autorisé", async () => {
+      await expect(
+        constls[1].projets.confirmerPermission({ idProjet }),
+      ).to.eventually.be.rejectedWith("Permission de modification refusée");
+    });
+
     it("inviter compte", async () => {
       await constl.projets.inviterAuteur({
         idProjet,
