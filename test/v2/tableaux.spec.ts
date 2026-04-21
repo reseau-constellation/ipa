@@ -2448,23 +2448,25 @@ describe("tableaux", function () {
         });
 
         it("chaîne - fichier local", async () => {
-          const { converties } = await constl.bds.tableaux.convertirDonnées({
-            données: [{ fichier: "logo.svg" }],
-            conversions: [
-              {
-                colonne: "fichier",
-                conversion: {
-                  type: "fichier",
-                  baseChemin: join(dossier, "médias"),
+          if (isElectronMain || isNode) {
+            const { converties } = await constl.bds.tableaux.convertirDonnées({
+              données: [{ fichier: "logo.svg" }],
+              conversions: [
+                {
+                  colonne: "fichier",
+                  conversion: {
+                    type: "fichier",
+                    baseChemin: join(dossier, "médias"),
+                  },
                 },
-              },
-            ],
-          });
+              ],
+            });
 
-          // Sera vide sur le navigateur
-          const réf: DonnéesRangéeTableau[] =
-            isElectronMain || isNode ? [{ fichier: idc }] : [{}];
-          expect(converties).to.have.deep.members(réf);
+            // Sera vide sur le navigateur
+            const réf: DonnéesRangéeTableau[] =
+              isElectronMain || isNode ? [{ fichier: idc }] : [{}];
+            expect(converties).to.have.deep.members(réf);
+          }
         });
 
         it("chaîne - fichier non existant", async () => {

@@ -131,11 +131,7 @@ export class CacheSuivi {
         const fFinale = async (x: unknown) => {
           const suivi = this.suivis.get(codeCache);
           if (!suivi) return; // Si on a déjà annulé la requête
-          if (
-            Object.keys(suivi).includes("val") &&
-            deepEqual(suivi.val, x, { strict: true })
-          )
-            return; // Ignorer si c'est la même valeur qu'avant
+
           suivi.val = x;
           const fsSuivis = Object.values(suivi.requêtes);
           await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
