@@ -102,15 +102,11 @@ const ContrôleurNébuleuse =
     address?: string;
     signal?: AbortSignal;
   }) => {
-    écriture ??= orbitdb.identity.id;
-
     nom = nom || uuidv4();
-    stockage =
-      stockage ||
-      (await ComposedStorage(
-        await LRUStorage({ size: 1000 }),
-        await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true }),
-      ));
+    stockage ??= await ComposedStorage(
+      await LRUStorage({ size: 1000 }),
+      await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true }),
+    );
 
     orbitdb = mandatOrbite(orbitdb);
 
@@ -143,6 +139,7 @@ const ContrôleurNébuleuse =
         signal,
       })) as KeyValueDatabase;
     } else {
+      écriture ??= orbitdb.identity.id;
       bdAccès = (await orbitdb.open(
         nom, // Je pense qu'on peut faire ça, tant que le nom reste unique...
         {
@@ -161,7 +158,7 @@ const ContrôleurNébuleuse =
       address = `/${nomType}/${address}`;
     }
 
-    const accès = new AccèsParComptes({ orbite: orbitdb, signal });
+    const accès = new AccèsParComptes({ orbite: orbitdb });
     const queue = new PQueue({ concurrency: 1 });
 
     const mettreAccèsÀJour = async () => {
@@ -266,10 +263,8 @@ const ContrôleurNébuleuse =
     const close = async () => {
       await oublierBdAccès();
 
-      // Désactivée pour l'instant. Si nous avons plus qu'une bd qui partage le même contrôleur,
-      // la fermeture de la bd du contrôleur pourrait nous causer des ennuis.
-      // À faire : peut-être contourner avec le mandataire orbite ?
-      // await bdAccès.close();
+      // Le mandataire s'assure que la base de données d'accès n'est pas fermée si elle est partagée avec d'autres bds.
+      await bdAccès.close();
 
       await accès.fermer();
     };

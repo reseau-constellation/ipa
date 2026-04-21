@@ -34,33 +34,32 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
       if (prop === "open") {
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
           const nomOuAdresse = args[0];
+          const parAdresse = isValidAddress(nomOuAdresse);
 
           const signal = args[1]?.signal;
 
-          if (signal)
-            await Promise.race([
-              verrouOrbite.acquire(nomOuAdresse),
-              pSignal(signal),
-            ]);
-          else await verrouOrbite.acquire(nomOuAdresse);
-          if (signal?.aborted) throw new Error("Opération avortée");
+          const promesseVerrou = verrouOrbite.acquire(nomOuAdresse);
 
           try {
-            let bd =
-              (isValidAddress(nomOuAdresse) &&
-                cacheBdsOrbite.get(nomOuAdresse)) ||
-              (await target.open(...args));
+            if (signal) await Promise.race([promesseVerrou, pSignal(signal)]);
+            else await promesseVerrou;
+
+            if (signal?.aborted) throw new Error("Opération avortée");
+            const existante = cacheBdsOrbite.get(nomOuAdresse);
+
+            const bd = (parAdresse && existante) || (await target.open(...args));
             const adresse = bd.address;
 
-            // S'il s'agissait d'un nom, on essaie de prendre la version en cache pour réutiliser le mandataire bd
-            if (!isValidAddress(nomOuAdresse)) {
-              bd = cacheBdsOrbite.get(adresse) || bd;
-            }
+            if (!parAdresse && existante)
+              throw new Error(
+                "Ouvrir les bds existantes selon leur adresse et non leur nom.",
+              );
+            if (!existante) cacheBdsOrbite.set(adresse, bd);
 
             if (!requêtesOrbite.has(adresse))
               requêtesOrbite.set(adresse, new Set());
 
-            if (!cacheBdsOrbite.has(adresse) && lorsquErreur) {
+            if (!existante && lorsquErreur) {
               bd.events.on("error", lorsquErreur);
             }
             const résultat = mandatBd(
@@ -69,12 +68,13 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
               cacheBdsOrbite,
               verrouOrbite,
             );
-            cacheBdsOrbite.set(adresse, bd);
 
             return résultat;
           } finally {
-            // Sera exécuté avant le `return` ci-dessus
-            verrouOrbite.release(nomOuAdresse);
+            // S'assurer que le verrou sera bien relâché (en cas de signal avorté) lorsqu'il aura été
+            // enfin acquis. **Ne pas utiliser `await` parce que ça pourrait empêcher la fonction
+            // de compléter si un autre appel à l'ouverture de la bd est toujours en cours en parallel.**
+            promesseVerrou.then(()=>verrouOrbite.release(nomOuAdresse));
           }
         };
         return ouvrirAvecVerrou;
@@ -115,8 +115,8 @@ const mandatBd = (
             requêtes.delete(id);
 
             if (!requêtes.size) {
-              cache.delete(target.address);
               await target.close();
+              cache.delete(target.address);
             }
           } finally {
             verrou.release(bd.address);

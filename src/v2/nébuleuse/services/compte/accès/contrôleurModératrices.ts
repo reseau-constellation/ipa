@@ -70,7 +70,7 @@ const ContrôleurAccès =
       ));
     écriture = écriture ?? orbitdb.identity.id;
 
-    const accès = new AccèsParComptes({ orbite: orbitdb, signal });
+    const accès = new AccèsParComptes({ orbite: orbitdb });
 
     if (address) {
       const octetsManifest = await stockageFinal.get(
@@ -159,11 +159,16 @@ const ContrôleurAccès =
       return false;
     };
 
+    const close = async () => {
+      await accès.fermer();
+    }
+
     return {
       // Propriétés nécessaires pour OrbitDB
       type: nomType,
       address,
       canAppend,
+      close,
 
       // Propriétés propres
       écriture,
