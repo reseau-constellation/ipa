@@ -24,11 +24,11 @@ const erreurAvortée = (e?: Error): boolean => {
 };
 
 export const pSignal = async (signal: AbortSignal): Promise<never> => {
-  if (signal.aborted) throw new AbortError(Error("Signal avorté"));
+  if (signal.aborted) throw new AbortError(Error("Signal déjà avorté"));
   return new Promise<never>((_résoudre, rejeter) => {
     const lorsquAvorté = () => {
       signal.removeEventListener("abort", lorsquAvorté);
-      rejeter();
+      rejeter("Signal avorté");
     };
     signal.addEventListener("abort", lorsquAvorté);
   });
