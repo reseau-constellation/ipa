@@ -81,9 +81,9 @@ describe("Projets", function () {
     });
 
     it("automatiquement ajoutée à mes projets", async () => {
-      const mesProjets = await obtenir<string[]>(({ siDéfini }) =>
+      const mesProjets = await obtenir<string[]>(({ siPasVide }) =>
         constl.projets.suivreProjets({
-          f: siDéfini(),
+          f: siPasVide(),
         }),
       );
       expect(mesProjets).to.be.an("array").and.to.contain(idProjet);
@@ -539,7 +539,7 @@ describe("Projets", function () {
       const motsClefs = await obtenir<MotClefProjet[]>(({ si }) =>
         constl.projets.suivreMotsClefs({
           idProjet,
-          f: si((x) => !!x?.find((m) => m.source === "bds")),
+          f: si((x) => !!x && x.length > 1),
         }),
       );
 
