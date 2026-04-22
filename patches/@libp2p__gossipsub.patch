@@ -1,8 +1,8 @@
-diff --git a/dist/src/index.js b/dist/src/index.js
-index ef02fd0564234b67f3e193acd59ba58f7e251f93..0bd66c2a59add7fdc0ed7ec23ac7b73964028105 100644
---- a/dist/src/index.js
-+++ b/dist/src/index.js
-@@ -475,7 +475,7 @@ export class GossipSub extends TypedEventEmitter {
+diff --git a/dist/src/gossipsub.js b/dist/src/gossipsub.js
+index eecaa1f10d492630d5cab1c8bedc0aaa7ec18635..3ac7f14e5982651315e94951ee176855f55f7b06 100644
+--- a/dist/src/gossipsub.js
++++ b/dist/src/gossipsub.js
+@@ -477,7 +477,7 @@ export class GossipSub extends TypedEventEmitter {
          // TODO make this behavior more robust
          // This behavior is different than for inbound streams
          // If an outbound stream already exists, don't create a new stream
@@ -11,7 +11,7 @@ index ef02fd0564234b67f3e193acd59ba58f7e251f93..0bd66c2a59add7fdc0ed7ec23ac7b739
              return;
          }
          try {
-@@ -1320,7 +1320,7 @@ export class GossipSub extends TypedEventEmitter {
+@@ -1329,7 +1329,7 @@ export class GossipSub extends TypedEventEmitter {
      async directConnect() {
          const toconnect = [];
          this.direct.forEach((id) => {
