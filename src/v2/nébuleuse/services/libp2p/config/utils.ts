@@ -1,6 +1,6 @@
 import { peerIdFromString } from "@libp2p/peer-id";
 import { multiaddr } from "@multiformats/multiaddr";
-import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { gossipsub } from "@libp2p/gossipsub";
 import { autoNAT } from "@libp2p/autonat";
 import { dcutr } from "@libp2p/dcutr";
 import { identify, identifyPush } from "@libp2p/identify";
@@ -14,12 +14,12 @@ import type { IdentifyPush } from "@libp2p/identify";
 import type {
   GossipSub,
   GossipSubComponents,
-} from "@chainsafe/libp2p-gossipsub";
+} from "@libp2p/gossipsub";
 import type { ServiceFactoryMap } from "libp2p";
 import type { Multiaddr } from "@multiformats/multiaddr";
 import type { ServicesLibp2pNébuleuse } from "../libp2p.js";
 import type { PrivateKey } from "@libp2p/interface";
-import type { AddrInfo } from "@chainsafe/libp2p-gossipsub/types";
+import type { AddrInfo } from "@libp2p/gossipsub/types";
 
 export interface ConfigOptionsLibp2p {
   dossier: string;
