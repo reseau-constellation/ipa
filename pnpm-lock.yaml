@@ -12,15 +12,6 @@ patchedDependencies:
   '@libp2p/gossipsub':
     hash: c3e687d64e6852846c0d81a15ff3e8e1686171cf166071581d7a3609e15009a4
     path: patches/@libp2p__gossipsub.patch
-  '@orbitdb/feed-db':
-    hash: 910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87
-    path: patches/@orbitdb__feed-db.patch
-  '@orbitdb/ordered-keyvalue-db':
-    hash: 893e8270d0b561f8bb20ca3501aa330542ab5a6522b3c32156d1cae481362c13
-    path: patches/@orbitdb__ordered-keyvalue-db.patch
-  '@orbitdb/set-db':
-    hash: 8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43
-    path: patches/@orbitdb__set-db.patch
 
 importers:
 
@@ -121,16 +112,16 @@ importers:
         version: 4.0.0-3e1d628.0
       '@orbitdb/feed-db':
         specifier: ^1.4.0
-        version: 1.4.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
+        version: 1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       '@orbitdb/nested-db':
         specifier: ^2.1.4
         version: 2.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       '@orbitdb/ordered-keyvalue-db':
         specifier: ^1.4.0
-        version: 1.4.0(patch_hash=893e8270d0b561f8bb20ca3501aa330542ab5a6522b3c32156d1cae481362c13)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
+        version: 1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       '@orbitdb/set-db':
         specifier: ^2.1.1
-        version: 2.1.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
+        version: 2.1.1(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       ajv:
         specifier: ^8.18.0
         version: 8.18.0
@@ -9411,10 +9402,10 @@ snapshots:
     dependencies:
       '@orbitdb/core': 4.0.0-3e1d628.0
       '@orbitdb/core-types': 1.2.4
-      '@orbitdb/feed-db': 1.4.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
+      '@orbitdb/feed-db': 1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       '@orbitdb/nested-db': 2.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
-      '@orbitdb/ordered-keyvalue-db': 1.4.0(patch_hash=893e8270d0b561f8bb20ca3501aa330542ab5a6522b3c32156d1cae481362c13)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
-      '@orbitdb/set-db': 2.1.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
+      '@orbitdb/ordered-keyvalue-db': 1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
+      '@orbitdb/set-db': 2.1.1(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       ajv: 8.18.0
       events: 3.3.0
       helia: 6.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
@@ -11006,7 +10997,7 @@ snapshots:
       timeout-abort-controller: 3.0.0
       uint8arrays: 5.1.1
 
-  '@orbitdb/feed-db@1.4.0(patch_hash=910075a2b2ff6ea7571274daa69a46bfb39cef5ddc2c30b92746920c7845ea87)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
+  '@orbitdb/feed-db@1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
       '@orbitdb/core': 4.0.0-3e1d628.0
       helia: 6.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
@@ -11028,7 +11019,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@orbitdb/ordered-keyvalue-db@1.4.0(patch_hash=893e8270d0b561f8bb20ca3501aa330542ab5a6522b3c32156d1cae481362c13)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
+  '@orbitdb/ordered-keyvalue-db@1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
       '@orbitdb/core': 4.0.0-3e1d628.0
       helia: 6.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
@@ -11039,7 +11030,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@orbitdb/set-db@2.1.1(patch_hash=8c17b1201395cebd2bdd65f6168de736fe3edecdae034136155bbb14375a2f43)(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
+  '@orbitdb/set-db@2.1.1(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
       '@orbitdb/core': 4.0.0-3e1d628.0
       helia: 6.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))

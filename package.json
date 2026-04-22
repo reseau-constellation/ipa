@@ -197,10 +197,8 @@
       "@orbitdb/core": "4.0.0-3e1d628.0"
     },
     "patchedDependencies": {
-      "@orbitdb/set-db": "patches/@orbitdb__set-db.patch",
-      "@orbitdb/feed-db": "patches/@orbitdb__feed-db.patch",
-      "@orbitdb/ordered-keyvalue-db": "patches/@orbitdb__ordered-keyvalue-db.patch",
-      "@libp2p/gossipsub": "patches/@libp2p__gossipsub.patch"
+      "@libp2p/gossipsub": "patches/@libp2p__gossipsub.patch",
+      "@orbitdb/core": "patches/@orbitdb__core.patch"
     }
   }
 }
