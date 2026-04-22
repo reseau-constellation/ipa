@@ -197,10 +197,18 @@ index d51a677b5d39e3e76dd930ddeaa988f8bc0e1ef7..aa64b8e631c46f09792d95be5bb23894
      for (const hash of headHashes) {
        yield hash
 diff --git a/src/oplog/log.js b/src/oplog/log.js
-index cbfa5357725f35dab1afaabdeb60ac80e81c84da..4796a379f0d69819b0426699ab2403ebbb5a5b8d 100644
+index cbfa5357725f35dab1afaabdeb60ac80e81c84da..1a7d08f77fc1383fdf7b3401697d42b29bf976e6 100644
 --- a/src/oplog/log.js
 +++ b/src/oplog/log.js
-@@ -52,7 +52,7 @@ const DefaultAccessController = async () => {
+@@ -12,6 +12,7 @@ import Entry from './entry.js'
+ import Clock, { tickClock } from './clock.js'
+ import ConflictResolution from './conflict-resolution.js'
+ import OplogStore from './oplog-store.js'
++import { isAbortError } from '../utils/abort-error.js'
+ 
+ const { LastWriteWins, NoZeroes } = ConflictResolution
+ 
+@@ -52,7 +53,7 @@ const DefaultAccessController = async () => {
   * @memberof module:Log
   * @instance
   */
@@ -209,7 +217,7 @@ index cbfa5357725f35dab1afaabdeb60ac80e81c84da..4796a379f0d69819b0426699ab2403eb
    /**
     * @namespace Log
     * @description The instance returned by {@link module:Log}
-@@ -76,7 +76,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+@@ -76,7 +77,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
    access = access || await DefaultAccessController()
  
    // Index and storage of entries for this Log
@@ -218,20 +226,23 @@ index cbfa5357725f35dab1afaabdeb60ac80e81c84da..4796a379f0d69819b0426699ab2403eb
  
    // Conflict-resolution sorting function
    sortFn = NoZeroes(sortFn || LastWriteWins)
-@@ -296,7 +296,12 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
-         }
-       }
+@@ -308,7 +309,15 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+       return true
+     }
  
--      await traverseAndVerify()
+-    return joinQueue.add(task)
++    const taskIgnoringAbort = async () => {
 +      try {
-+        await traverseAndVerify()
-+      } catch(e) {
-+        if (!e.toString().includes("AbortError")) throw e
-+        else return;
++        return await task()
++      } catch (e) {
++        if (!isAbortError(e)) throw e
 +      }
++    }
++
++    return joinQueue.add(taskIgnoringAbort)
+   }
  
-       /* 4. Add the new entry to heads (=union with current heads) */
-       await oplogStore.addHead(entry)
+   /**
 diff --git a/src/oplog/oplog-store.js b/src/oplog/oplog-store.js
 index 1b56421626f15271762182adb78b6cafc0eee341..e5aa23fd614e90db90d1a0f4dc41c2a5f06f1dd8 100644
 --- a/src/oplog/oplog-store.js
@@ -369,3 +380,15 @@ index e256cd350ce8f4e2d23911eed80f95013ffea5f9..2af71c61bd94a655a0cf337529e08248
        await pubsub.publish(address, bytes)
      }
    }
+diff --git a/src/utils/abort-error.js b/src/utils/abort-error.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a8f394045c50f572f74cf51d73a6ac7deee9f91
+--- /dev/null
++++ b/src/utils/abort-error.js
+@@ -0,0 +1,6 @@
++export const isAbortError = (error) => {
++  if (error instanceof AggregateError) {
++    return error.errors.some(e => isAbortError(e))
++  }
++  return error.toString().includes("AbortError")
++}
