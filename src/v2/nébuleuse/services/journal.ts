@@ -28,7 +28,7 @@ export class ServiceJournal extends ServiceAppli<
     super({
       clef: "journal",
       services: {},
-      options: Object.assign({ f: console.log }, options),
+      options: Object.assign({ f: (m: string) => console.log(`Journal : ${m}`) }, options),
     });
 
     this.queue = new PQueue({ concurrency: 1 });
