@@ -11,7 +11,7 @@ import type { ServiceDossier } from "../dossier.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type { Libp2p, Libp2pOptions } from "libp2p";
 import type { Identify } from "@libp2p/identify";
-import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
+import type { GossipSub } from "@libp2p/gossipsub";
 import type { PeerUpdate, PrivateKey, ServiceMap } from "@libp2p/interface";
 import type { ServiceStockage } from "../stockage.js";
 
