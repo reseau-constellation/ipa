@@ -13,6 +13,7 @@ import {
   MAX_TAILLE_IMAGE_VISUALISER,
 } from "../consts.js";
 import { appelerLorsque } from "../utils.js";
+import { estErreurAvortée } from "../../utils.js";
 import {
   ContrôleurNébuleuse,
   MEMBRE,
@@ -320,8 +321,9 @@ export class BaseServiceCompte<
             f: fSuivre,
             signal,
           }),
-        journal: async (m) =>
-          await this.service("journal").écrire(m.toString()),
+        journal: async (m) => {
+          if (!estErreurAvortée(m)) await this.service("journal").écrire(m.toString())
+        },
       });
     }
   }

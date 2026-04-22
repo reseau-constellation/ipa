@@ -28,6 +28,7 @@ import {
   sauvegarderDonnéesExportées,
 } from "../utils.js";
 import { estContrôleurNébuleuse } from "../nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
+import { estErreurAvortée } from "../nébuleuse/utils.js";
 import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
 import type { CatégorieBaseVariables } from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
@@ -934,7 +935,7 @@ export class TableauxBds extends Tableaux {
       } catch (e) {
         // Rien à faire
         const journal = this.service("journal");
-        journal.écrire(e);
+        if (!estErreurAvortée(e)) journal.écrire(e);
       }
 
       if (isNode || isElectronMain) {

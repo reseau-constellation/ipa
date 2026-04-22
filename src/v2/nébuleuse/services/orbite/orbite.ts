@@ -20,7 +20,7 @@ import { faisRien } from "@constl/utils-ipa";
 import { STATUTS } from "@/v2/nébuleuse/appli/consts.js";
 import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../appli/index.js";
-import { réessayer } from "../../utils.js";
+import { estErreurAvortée, réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
 import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
 import { mandatOrbite } from "./mandat.js";
@@ -132,7 +132,7 @@ export class ServiceOrbite<
     const journal = this.service("journal");
 
     const orbite = mandatOrbite(orbiteOrig, (erreur) =>
-      journal.écrire(erreur.toString()),
+      {if (!estErreurAvortée(erreur)) journal.écrire(erreur.toString())},
     );
 
     this.estDémarré = { orbite };
