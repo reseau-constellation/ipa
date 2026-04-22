@@ -13,7 +13,7 @@ patchedDependencies:
     hash: c3e687d64e6852846c0d81a15ff3e8e1686171cf166071581d7a3609e15009a4
     path: patches/@libp2p__gossipsub.patch
   '@orbitdb/core':
-    hash: 05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86
+    hash: a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4
     path: patches/@orbitdb__core.patch
 
 importers:
@@ -112,7 +112,7 @@ importers:
         version: 2.2.0
       '@orbitdb/core':
         specifier: 4.0.0-3e1d628.0
-        version: 4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)
+        version: 4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)
       '@orbitdb/feed-db':
         specifier: ^1.4.0
         version: 1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
@@ -9403,7 +9403,7 @@ snapshots:
 
   '@constl/bohr-db@2.2.2(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)
       '@orbitdb/core-types': 1.2.4
       '@orbitdb/feed-db': 1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       '@orbitdb/nested-db': 2.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
@@ -9467,7 +9467,7 @@ snapshots:
       '@libp2p/gossipsub': 15.0.19(patch_hash=c3e687d64e6852846c0d81a15ff3e8e1686171cf166071581d7a3609e15009a4)
       '@libp2p/peer-id': 6.0.8
       '@libp2p/webrtc': 6.0.19(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)
       blockstore-core: 6.1.3
       blockstore-fs: 3.0.3
       blockstore-idb: 3.0.2
@@ -10319,7 +10319,7 @@ snapshots:
   '@lassi-js/kili@0.4.5':
     dependencies:
       '@constl/utils-ipa': 2.0.10
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)
       deepcopy: 2.1.0
 
   '@leichtgewicht/ip-codec@2.0.5': {}
@@ -10987,7 +10987,7 @@ snapshots:
 
   '@orbitdb/core-types@1.2.4': {}
 
-  '@orbitdb/core@4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)':
+  '@orbitdb/core@4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)':
     dependencies:
       '@ipld/dag-cbor': 9.2.6
       '@libp2p/crypto': 5.1.17
@@ -11002,7 +11002,7 @@ snapshots:
 
   '@orbitdb/feed-db@1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)
       helia: 6.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
     transitivePeerDependencies:
       - bufferutil
@@ -11012,7 +11012,7 @@ snapshots:
 
   '@orbitdb/nested-db@2.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)
       helia: 6.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       it-all: 3.0.11
       ts-deepmerge: 7.0.3
@@ -11024,7 +11024,7 @@ snapshots:
 
   '@orbitdb/ordered-keyvalue-db@1.4.0(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)
       helia: 6.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       it-all: 3.0.11
     transitivePeerDependencies:
@@ -11035,7 +11035,7 @@ snapshots:
 
   '@orbitdb/set-db@2.1.1(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=05ae3e0b2c46b2dee1dc786642625090145e1ac96590c544a1bda29a31c9bb86)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a749f4e3322fc28a54be4b3c6fce9a6cb324b45fa16763d2edda0a43fc9136b4)
       helia: 6.1.4(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
     transitivePeerDependencies:
       - bufferutil
@@ -11973,9 +11973,9 @@ snapshots:
       strong-log-transformer: 2.1.0
       tempy: 3.2.0
       typedoc: 0.28.19(typescript@5.8.3)
-      typedoc-plugin-mdn-links: 5.1.1(typedoc@0.28.19(typescript@6.0.3))
-      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.19(typescript@6.0.3))
-      typedoc-plugin-missing-exports: 4.1.3(typedoc@0.28.19(typescript@6.0.3))
+      typedoc-plugin-mdn-links: 5.1.1(typedoc@0.28.19(typescript@5.8.3))
+      typedoc-plugin-mermaid: 1.12.0(typedoc@0.28.19(typescript@5.8.3))
+      typedoc-plugin-missing-exports: 4.1.3(typedoc@0.28.19(typescript@5.8.3))
       typescript: 5.8.3
       typescript-docs-verifier: 3.0.2(typescript@5.8.3)
       wherearewe: 2.0.1
@@ -18974,16 +18974,16 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typedoc-plugin-mdn-links@5.1.1(typedoc@0.28.19(typescript@6.0.3)):
+  typedoc-plugin-mdn-links@5.1.1(typedoc@0.28.19(typescript@5.8.3)):
     dependencies:
       typedoc: 0.28.19(typescript@5.8.3)
 
-  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.19(typescript@6.0.3)):
+  typedoc-plugin-mermaid@1.12.0(typedoc@0.28.19(typescript@5.8.3)):
     dependencies:
       html-escaper: 3.0.3
       typedoc: 0.28.19(typescript@5.8.3)
 
-  typedoc-plugin-missing-exports@4.1.3(typedoc@0.28.19(typescript@6.0.3)):
+  typedoc-plugin-missing-exports@4.1.3(typedoc@0.28.19(typescript@5.8.3)):
     dependencies:
       typedoc: 0.28.19(typescript@5.8.3)
 

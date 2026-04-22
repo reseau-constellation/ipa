@@ -197,7 +197,7 @@ index d51a677b5d39e3e76dd930ddeaa988f8bc0e1ef7..aa64b8e631c46f09792d95be5bb23894
      for (const hash of headHashes) {
        yield hash
 diff --git a/src/oplog/log.js b/src/oplog/log.js
-index cbfa5357725f35dab1afaabdeb60ac80e81c84da..3704fec3d93f6e00f7bb0a9f1fd96ce6784d68c1 100644
+index cbfa5357725f35dab1afaabdeb60ac80e81c84da..4796a379f0d69819b0426699ab2403ebbb5a5b8d 100644
 --- a/src/oplog/log.js
 +++ b/src/oplog/log.js
 @@ -52,7 +52,7 @@ const DefaultAccessController = async () => {
@@ -218,6 +218,20 @@ index cbfa5357725f35dab1afaabdeb60ac80e81c84da..3704fec3d93f6e00f7bb0a9f1fd96ce6
  
    // Conflict-resolution sorting function
    sortFn = NoZeroes(sortFn || LastWriteWins)
+@@ -296,7 +296,12 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+         }
+       }
+ 
+-      await traverseAndVerify()
++      try {
++        await traverseAndVerify()
++      } catch(e) {
++        if (!e.toString().includes("AbortError")) throw e
++        else return;
++      }
+ 
+       /* 4. Add the new entry to heads (=union with current heads) */
+       await oplogStore.addHead(entry)
 diff --git a/src/oplog/oplog-store.js b/src/oplog/oplog-store.js
 index 1b56421626f15271762182adb78b6cafc0eee341..e5aa23fd614e90db90d1a0f4dc41c2a5f06f1dd8 100644
 --- a/src/oplog/oplog-store.js
