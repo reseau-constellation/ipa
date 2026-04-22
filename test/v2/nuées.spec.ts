@@ -20,7 +20,7 @@ import {
   type DonnéesFichierBdExportées,
 } from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir, créerConstellationsTest } from "./utils.js";
+import { obtenir, créerConstellationsTest, journalifier } from "./utils.js";
 import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
 import type { DonnéesRangéeNuée } from "@/v2/nuées/tableaux.js";
@@ -674,19 +674,20 @@ describe("Nuées", function () {
       });
 
       it("un compte membre peut écrire", async () => {
+        console.log("auteur sera invité")
         await constl.nuées.inviterAuteur({
           idNuée,
           idCompte: idsComptes[1],
           rôle: MEMBRE,
         });
-
+        console.log("auteur invité")
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
-
+        console.log("bd créée")
         const autorisation = await obtenir<boolean>(({ si }) =>
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: si((x) => x !== undefined && x !== false),
+            f: journalifier(si((x) => x !== undefined && x !== false), "autorisations"),
           }),
         );
         expect(autorisation).to.be.true();
