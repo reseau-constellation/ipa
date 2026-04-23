@@ -31,6 +31,7 @@ import { ComposedStorage, IPFSBlockStorage, LRUStorage } from "@orbitdb/core";
 
 import { v4 as uuidv4 } from "uuid";
 import PQueue from "p-queue";
+import { estErreurAvortée } from "@/v2/nébuleuse/utils.js";
 import { mandatOrbite } from "../../orbite/mandat.js";
 import { appelerLorsque } from "../../utils.js";
 import { MODÉRATRICE, rôles } from "./consts.js";
@@ -210,7 +211,7 @@ const ContrôleurNébuleuse =
       try {
         identitéÉcrivain = await identities.getIdentity(entry.identity, signal);
       } catch (e) {
-        if (e.toString().includes("AbortError")) return false;
+        if (estErreurAvortée(e)) return false;
         throw e;
       }
       if (!identitéÉcrivain) {
