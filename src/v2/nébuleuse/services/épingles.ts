@@ -153,11 +153,12 @@ export class ServiceÉpingles extends ServiceAppli<
 
     bdsOrbiteÀÉpingler.forEach(async (idBd) => {
       const signaleur = new AbortController();
+      const signal = anySignal([this.signaleurArrêt.signal, signaleur.signal])
       this.bdsOuvertes.set(idBd, { oublier: () => signaleur.abort() });
       orbite
         .ouvrirBd({
           id: idBd,
-          signal: anySignal([this.signaleurArrêt.signal, signaleur.signal]),
+          signal,
         })
         .then(({ bd, oublier }) => this.bdsOuvertes.set(idBd, { bd, oublier }))
         .catch(() => {
