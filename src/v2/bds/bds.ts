@@ -21,7 +21,7 @@ import {
 } from "../nébuleuse/services/favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import { schémaTableau } from "../tableaux.js";
-import { stabiliser } from "../nébuleuse/utils.js";
+import { estErreurAvortée, stabiliser } from "../nébuleuse/utils.js";
 import {
   ajouterPréfixes,
   définis,
@@ -1576,7 +1576,7 @@ export class Bds extends ObjetConstellation<
             if ((await bd.get("clefUnique")) !== clefUnique) idBdLocale = null;
             await oublier();
           } catch (e) {
-            if (e.toString().includes("AbortError")) {
+            if (estErreurAvortée(e)) {
               idBdLocale = null;
             } else {
               throw e;

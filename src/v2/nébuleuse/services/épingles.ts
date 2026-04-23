@@ -6,6 +6,7 @@ import { isValidAddress, type BaseDatabase } from "@orbitdb/core";
 import { anySignal } from "any-signal";
 import { ServiceAppli } from "../appli/services.js";
 import { idcEtFichierValide } from "../../utils.js";
+import { estErreurAvortée } from "../utils.js";
 import { filtreAsync } from "./utils.js";
 import type { OptionsAppli } from "../appli/appli.js";
 import type { Oublier } from "../types.js";
@@ -120,7 +121,7 @@ export class ServiceÉpingles extends ServiceAppli<
         }),
       );
     } catch (e) {
-      if (e.toString().includes("AbortError")) return;
+      if (estErreurAvortée(e)) return;
     }
 
     const idcsÀDésépingler = [...this.idcsÉpinglés].filter(
@@ -138,7 +139,7 @@ export class ServiceÉpingles extends ServiceAppli<
         }),
       );
     } catch (e) {
-      if (e.toString().includes("AbortError")) return;
+      if (estErreurAvortée(e)) return;
       throw e;
     }
     this.idcsÉpinglés = new Set(idcs);
