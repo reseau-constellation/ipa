@@ -2,6 +2,7 @@ import { isValidAddress } from "@orbitdb/core";
 import PQueue from "p-queue";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { anySignal } from "any-signal";
+import { estErreurAvortée } from "@/v2/nébuleuse/utils.js";
 import { appelerLorsque } from "../../utils.js";
 import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
 import { MEMBRE, MODÉRATRICE } from "./consts.js";
@@ -144,7 +145,7 @@ export class AccèsParComptes {
           try {
             await accèsCompte.démarrer({ signal: this.signal });
           } catch (e) {
-            if (!e.toString().includes("AbortError")) throw e;
+            if (!estErreurAvortée(e)) throw e;
             return;
           }
         }
