@@ -1,6 +1,7 @@
 import { toUnicode } from "punycode";
 import { AbortError } from "p-retry";
 import { multiaddr } from "@multiformats/multiaddr";
+import deepEqual from "fast-deep-equal";
 import type { Suivi } from "./types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
 
@@ -73,16 +74,16 @@ export const stabiliser =
   (n = 100) =>
   <T>(f: Suivi<T>): Suivi<T> => {
     let déjàAppellée = false;
-    let val: string | undefined = undefined;
+    let val: T | undefined = undefined;
     let dernierT = 0;
     let annulerRebours: () => void = () => {};
 
     return async (v: T) => {
-      if (déjàAppellée && JSON.stringify(v) === val) return;
+      if (déjàAppellée && deepEqual(v, val)) return;
 
       annulerRebours();
       déjàAppellée = true;
-      val = JSON.stringify(v);
+      val = v;
       dernierT = Date.now();
 
       const crono = setTimeout(async () => await f(v), n);
