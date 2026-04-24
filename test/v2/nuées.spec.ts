@@ -19,8 +19,20 @@ import {
   moyenne,
   type DonnéesFichierBdExportées,
 } from "@/v2/utils.js";
+import {
+  CONFIANCE_INVITÉ,
+  PÉNALITÉ_CONFIANCE_BLOQUÉ,
+} from "@/v2/nuées/nuées.js";
+import { CONFIANCE_DE_COAUTEUR } from "@/v2/nébuleuse/services/consts.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { obtenir, créerConstellationsTest, journalifier } from "./utils.js";
+import type {
+  AutorisationNuée,
+  InfoTableauNuée,
+  ScoreNuée,
+  ValeurAscendance,
+  ÉpingleNuée,
+} from "@/v2/nuées/nuées.js";
 import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
 import type { DonnéesRangéeNuée } from "@/v2/nuées/tableaux.js";
@@ -39,13 +51,7 @@ import type {
   SchémaBd,
 } from "@/v2/bds/bds.js";
 import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
-import type {
-  AutorisationNuée,
-  InfoTableauNuée,
-  ScoreNuée,
-  ValeurAscendance,
-  ÉpingleNuée,
-} from "@/v2/nuées/nuées.js";
+import type { RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -484,6 +490,91 @@ describe("Nuées", function () {
       expect(image).to.be.null();
     });
   });
+
+  describe("confiance", function () {
+    let idNuée: string;
+
+    before(async () => {
+      idNuée = await constl.nuées.créerNuée({ autorisation: "par invitation" });
+    })
+
+    it("compte invité", async () => { 
+      await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
+      
+      const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
+        constl.nuées.résolutionConfiance({
+          de: idsComptes[0],
+          f: si((x) => !!x && x.length > 0),
+        }),
+      );
+
+      const réf: RelationImmédiate = {
+        idCompte: idsComptes[1],
+        confiance: CONFIANCE_INVITÉ,
+      }
+      expect(confiances).to.deep.equal([réf])
+    });
+
+    it("compte bloqué", async () => {
+      await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" })
+      await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
+      
+      const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
+        constl.nuées.résolutionConfiance({
+          de: idsComptes[0],
+          f: si((x) => !!x?.find(a=>a.idCompte === idsComptes[1] && a.confiance < 0)),
+        }),
+      );
+
+      const réf: RelationImmédiate = {
+        idCompte: idsComptes[1],
+        confiance: -PÉNALITÉ_CONFIANCE_BLOQUÉ,
+      }
+      expect(confiances).to.deep.equal([réf])
+    });
+
+    it("compte bloqué et invité", async () => {
+      const idNuée2 = await constl.nuées.créerNuée({ autorisation: "par invitation" });
+      await constl.nuées.inviterCompte({ idNuée: idNuée2, idCompte: idsComptes[1] });
+
+      const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
+        constl.nuées.résolutionConfiance({
+          de: idsComptes[0],
+          f: si((x) => !!x?.find(a=>a.idCompte === idsComptes[1] && a.confiance === 0)),
+        }),
+      );
+
+      const réf: RelationImmédiate = {
+        idCompte: idsComptes[1],
+        confiance: 0,
+      }
+      expect(confiances).to.deep.equal([réf])
+    });
+
+    it("de coauteurs", async () => {
+      await constl.nuées.inviterAuteur({
+        idNuée,
+        idCompte: idsComptes[1],
+        rôle: MEMBRE,
+      });
+
+      const relations = await obtenir<RelationImmédiate[]>(({ si }) =>
+        constl.nuées.résolutionConfiance({
+          de: idsComptes[0],
+          f: si((x) => !!x?.find(a=>a.idCompte === idsComptes[1] && a.confiance > 0)),
+        }),
+      );;
+
+      const réf: RelationImmédiate[] = [
+        {
+          idCompte: idsComptes[1],
+          confiance: CONFIANCE_DE_COAUTEUR,
+        },
+      ];
+      expect(relations).to.deep.equal(réf);
+    });
+    
+  })
 
   describe("autorisations", function () {
     describe("nuée ouverte", function () {

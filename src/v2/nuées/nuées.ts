@@ -28,7 +28,7 @@ import {
 } from "../nébuleuse/services/favoris.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import { RechercheNuées } from "../recherche/nuées.js";
-import { appelerLorsque } from "../nébuleuse/services/utils.js";
+import { appelerLorsque, combinerConfiances } from "../nébuleuse/services/utils.js";
 import { ObjetConstellation } from "../objets.js";
 import {
   statutComplet,
@@ -39,6 +39,7 @@ import {
   type TraducsTexte,
 } from "../types.js";
 import { TableauxNuées } from "./tableaux.js";
+import type { RelationImmédiate } from "../nébuleuse/services/réseau/réseau.js";
 import type { Variables } from "../variables.js";
 import type { ServicesNécessairesObjet } from "../objets.js";
 import type {
@@ -145,6 +146,11 @@ export type ScoreNuée = {
   couverture?: number;
   total: number;
 };
+
+// Confiance réseau
+
+export const CONFIANCE_INVITÉ = 0.5;
+export const PÉNALITÉ_CONFIANCE_BLOQUÉ = 0.5;
 
 // Types structure
 
@@ -284,6 +290,71 @@ export class Nuées extends ObjetConstellation<
       clef: "nuée",
       résolution: this.suivreRésolutionÉpingle.bind(this),
     });
+  }
+
+  async résolutionConfiance({
+    de,
+    f,
+  }: {
+    de: string;
+    f: Suivi<RelationImmédiate[]>;
+  }): Promise<Oublier> {
+    const confiances: { autorat?: RelationImmédiate[]; autorisations?: RelationImmédiate[] } = {};
+
+    const fFinale = async () => {
+      const relations = Object.values(confiances).flat();
+      const idsComptes = [...new Set(relations.map(({idCompte})=>idCompte))]
+
+      await f(idsComptes.map(idCompte => ({
+        idCompte,
+        confiance: combinerConfiances(relations.filter(r=>r.idCompte === idCompte).map(r=>r.confiance))
+      })))
+    }
+
+    const oublierConfianceAutorisations = await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
+        return await this.suivreNuées({
+          idCompte: de,
+          f: ignorerNonDéfinis(fSuivreRacine),
+        });
+      },
+      fBranche: async ({
+        id: idNuée,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: Suivi<AutorisationNuée>;
+      }) => {
+        return await this.suivreAutorisation({ idNuée, f: fSuivreBranche });
+      },
+      f: async (autorisations: AutorisationNuée[]) => {
+        const invités = autorisations.map(a=>a.type === "par invitation" ? a.invités : []).flat()
+        const bloqués = autorisations.map(a=>a.type === "ouverte" ? a.bloqués : []).flat()
+        const idsComptes = [
+          ...new Set([...invités, ...bloqués]),
+        ];
+        confiances.autorisations = idsComptes.map((idCompte) => {
+          const nInvité = invités.filter((idCompte) => idCompte === idCompte).length;
+          const nBloqué = bloqués.filter((idCompte) => idCompte === idCompte).length;
+          const confiance = (1 - (1 - CONFIANCE_INVITÉ) ** nInvité) - (1 - (1 - PÉNALITÉ_CONFIANCE_BLOQUÉ) ** nBloqué);
+          return { idCompte, confiance };
+        });
+        await fFinale();
+      },
+    });
+
+    const oublierConfianceAutorat = await super.résolutionConfiance({
+      de,
+      f: async (confiance) => {
+        confiances.autorat = confiance
+        await fFinale();
+      }
+    });
+
+    return async () => {
+      await oublierConfianceAutorat();
+      await oublierConfianceAutorisations();
+    }
   }
 
   @cacheSuivi
