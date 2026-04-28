@@ -92,6 +92,11 @@ type RetourDémarrageOrbite<L extends ServicesLibp2pNébuleuse> = {
   orbite?: OrbitDB<L>;
 };
 
+type FermetureBd = {
+  fermerToutDeSuite: () => Promise<void>;
+  annulerFermeture: () => void;
+}
+
 export class ServiceOrbite<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends ServiceAppli<
@@ -101,6 +106,7 @@ export class ServiceOrbite<
   OptionsServiceOrbite<L>
 > {
   signaleurArrêt: AbortController;
+  fermetures: Map<string, FermetureBd>
 
   constructor({
     services,
@@ -117,7 +123,7 @@ export class ServiceOrbite<
     });
 
     this.signaleurArrêt = new AbortController();
-    this.caches = {}
+    this.fermetures = new Map()
   }
 
   async démarrer() {
@@ -159,7 +165,7 @@ export class ServiceOrbite<
 
     this.signaleurArrêt.abort();
     
-    await Promise.allSettled(Object.values(this.caches).map(({fermerToutDeSuite})=>fermerToutDeSuite()));
+    await Promise.allSettled(this.fermetures.values().map(({fermerToutDeSuite})=>fermerToutDeSuite()));
     if (orbite) await orbite.stop();
 
     await super.fermer();
@@ -270,7 +276,7 @@ export class ServiceOrbite<
     const orbite = await this.orbite();
     
     // À faire : risque de condition course avec `fermer()` ?
-    this.caches[id]?.annulerFermeture();
+    this.fermetures.get(id)?.annulerFermeture();
     const signalFinal = signal
       ? anySignal([this.signaleurArrêt.signal, signal])
       : this.signaleurArrêt.signal;
@@ -288,15 +294,15 @@ export class ServiceOrbite<
     return {
       bd,
       oublier: async () => {
-        const chronoOublier = setTimeout(async () => await bd.close(), 1000);
-        const annulerFermeture = () => {delete this.caches[bd.address]; clearTimeout(chronoOublier)}
-        this.caches[id] = {
+        const chronoOublier = setTimeout(async () => await bd.close(), 1000 * 60);
+        const annulerFermeture = () => {this.fermetures.delete(id); clearTimeout(chronoOublier)}
+        this.fermetures.set(id, {
           fermerToutDeSuite: async () => {
             annulerFermeture();
             await bd.close();
           },
           annulerFermeture,
-        }
+        })
         
       },
     };
