@@ -1,7 +1,7 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 import { isValidAddress, type BaseDatabase, type OrbitDB } from "@orbitdb/core";
-import { pSignal } from "../../utils.js";
+import { estErreurAvortée, pSignal } from "../../utils.js";
 import type { ServiceMap } from "@libp2p/interface";
 
 // Un mandataire pour orbite qui évite les conditions de concurrence pour `open`
@@ -15,8 +15,12 @@ export const ORIGINALE = Symbol("orbite originale");
 
 export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   orbite: OrbitDB<L>,
-  lorsquErreur: (e: Error) => void = console.log,
+  lorsquErreur?: (e: Error) => void,
 ) => {
+  lorsquErreur ??= (erreur) => {
+    if(!estErreurAvortée(erreur)) console.log("Erreur OrbitDB", erreur)
+  }
+
   if (!verrous.has(orbite.identity.id))
     verrous.set(orbite.identity.id, new Semaphore());
   const verrouOrbite = verrous.get(orbite.identity.id)!;
