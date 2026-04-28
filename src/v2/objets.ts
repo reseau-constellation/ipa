@@ -223,6 +223,7 @@ export abstract class ObjetConstellation<
 
   // Auteurs
 
+  @cacheSuivi
   async suivreAuteursObjet({
     idObjet,
     f,
