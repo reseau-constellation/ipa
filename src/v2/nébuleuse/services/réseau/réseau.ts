@@ -18,7 +18,7 @@ import {
 } from "../consts.js";
 import { ServiceDonnéesAppli } from "../services.js";
 import { MODÉRATRICE, estContrôleurNébuleuse } from "../compte/accès/index.js";
-import { appelerLorsque } from "../utils.js";
+import { appelerLorsque, combinerConfiances } from "../utils.js";
 import type { ServicesNécessairesDonnées } from "../services.js";
 import type { Libp2pEvents } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
@@ -572,16 +572,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }): Promise<RetourRechercheProfondeur> {
     const résoudreConfiances = (confiances: number[]): number => {
       // Priorité au niveau de confiance spécifié explicitement
-      if (confiances[0] === 1 || confiances[1] === -1) return confiances[0];
-
-      const positives = confiances.filter((c) => c >= 0);
-      const négatives = confiances.filter((c) => c < 0);
-      const négatif =
-        1 - négatives.map((x) => 1 + x).reduce((total, c) => c * total, 1);
-      const positif =
-        1 - positives.map((x) => 1 - x).reduce((total, c) => c * total, 1);
-
-      return positif - négatif;
+      if (confiances.includes(1)) return 1;
+      if (confiances.includes(-1)) return -1;
+      
+      return combinerConfiances(confiances);
     };
 
     return await this.suivreRelationsRéseau({
