@@ -117,6 +117,7 @@ export class ServiceOrbite<
     });
 
     this.signaleurArrêt = new AbortController();
+    this.caches = {}
   }
 
   async démarrer() {
@@ -157,6 +158,8 @@ export class ServiceOrbite<
     const { orbite } = await this.démarré();
 
     this.signaleurArrêt.abort();
+    
+    await Promise.allSettled(Object.values(this.caches).map(({fermerToutDeSuite})=>fermerToutDeSuite()));
     if (orbite) await orbite.stop();
 
     await super.fermer();
@@ -263,8 +266,11 @@ export class ServiceOrbite<
     signal?: AbortSignal;
     type?: T | undefined;
   }): Promise<{ bd: BdsOrbite[T] | BaseDatabase; oublier: Oublier }> {
+    
     const orbite = await this.orbite();
-
+    
+    // À faire : risque de condition course avec `fermer()` ?
+    this.caches[id]?.annulerFermeture();
     const signalFinal = signal
       ? anySignal([this.signaleurArrêt.signal, signal])
       : this.signaleurArrêt.signal;
@@ -282,7 +288,16 @@ export class ServiceOrbite<
     return {
       bd,
       oublier: async () => {
-        await bd.close();
+        const chronoOublier = setTimeout(async () => await bd.close(), 1000);
+        const annulerFermeture = () => {delete this.caches[bd.address]; clearTimeout(chronoOublier)}
+        this.caches[id] = {
+          fermerToutDeSuite: async () => {
+            annulerFermeture();
+            await bd.close();
+          },
+          annulerFermeture,
+        }
+        
       },
     };
   }

@@ -162,7 +162,9 @@ describe("Épingles", function () {
       await oublier();
       expect(fermée).to.be.false();
 
-      await nébuleuse.services["épingles"].fermer();
+      // Les bases de données ne sont pas immédiatement fermées ;
+      // il faut donc attendre `nébuleuse.fermer()` et non `nébuleuse.services["épingles"].fermer()`
+      await nébuleuse.fermer();
 
       bd.events.off("close", lorsqueFermée);
       expect(fermée).to.be.true();
