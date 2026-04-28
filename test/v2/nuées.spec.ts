@@ -25,7 +25,7 @@ import {
 } from "@/v2/nuées/nuées.js";
 import { CONFIANCE_DE_COAUTEUR } from "@/v2/nébuleuse/services/consts.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir, créerConstellationsTest, journalifier } from "./utils.js";
+import { obtenir, créerConstellationsTest } from "./utils.js";
 import type {
   AutorisationNuée,
   InfoTableauNuée,
@@ -778,7 +778,7 @@ describe("Nuées", function () {
           constl.nuées.suivreAutorisationBd({
             idNuée,
             idBd,
-            f: journalifier(si((x) => x !== undefined && x !== false), "autorisations"),
+            f: si((x) => x !== undefined && x !== false),
           }),
         );
         expect(autorisation).to.be.true();
