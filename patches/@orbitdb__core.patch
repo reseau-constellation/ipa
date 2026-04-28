@@ -293,7 +293,7 @@ index 1b56421626f15271762182adb78b6cafc0eee341..e5aa23fd614e90db90d1a0f4dc41c2a5
    }
  
 diff --git a/src/orbitdb.js b/src/orbitdb.js
-index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..d84cd4a2bc9f92ddbbd822e69af8540a671deb1a 100644
+index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..4576823accf6ad0f5366ad1cd470257e667f703c 100644
 --- a/src/orbitdb.js
 +++ b/src/orbitdb.js
 @@ -128,7 +128,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
@@ -305,28 +305,52 @@ index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..d84cd4a2bc9f92ddbbd822e69af8540a
        name = manifest.name
        type = type || manifest.type
        meta = manifest.meta
-@@ -136,8 +136,8 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+@@ -136,10 +136,15 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
        // If the address given was not valid, eg. just the name of the database
        type = type || DefaultDatabaseType
        AccessController = AccessController || DefaultAccessController()
 -      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, name: address })
 -      const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta })
+-      manifest = m.manifest
+-      address = OrbitDBAddress(m.hash)
 +      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, name: address, signal })
-+      const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta, signal })
-       manifest = m.manifest
-       address = OrbitDBAddress(m.hash)
++      try {
++        const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta, signal })
++        manifest = m.manifest
++        address = OrbitDBAddress(m.hash)
++      } catch (e) {
++        await accessController.close();
++        throw (e)
++      }
        name = manifest.name
-@@ -156,7 +156,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+       meta = manifest.meta
+       // Check if we already have the database open and return if it is
+@@ -155,14 +160,18 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+     }
  
      address = address.toString()
++    try {
++      const db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption, signal })
  
 -    const db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption })
-+    const db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption, signal })
+-
+-    db.events.on('close', onDatabaseClosed(address))
++      db.events.on('close', onDatabaseClosed(address))
  
-     db.events.on('close', onDatabaseClosed(address))
+-    databases[address] = db
++      databases[address] = db
  
+-    return db
++      return db
++    } catch (e) {
++      await accessController.close();
++      throw (e)
++    }
+   }
+ 
+   const onDatabaseClosed = (address) => () => {
 diff --git a/src/sync.js b/src/sync.js
-index e256cd350ce8f4e2d23911eed80f95013ffea5f9..dfaf5421c6fbe9ee2f91f9df91759c5148755ed5 100644
+index e256cd350ce8f4e2d23911eed80f95013ffea5f9..2af71c61bd94a655a0cf337529e082481285bc8a 100644
 --- a/src/sync.js
 +++ b/src/sync.js
 @@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
@@ -355,7 +379,7 @@ index e256cd350ce8f4e2d23911eed80f95013ffea5f9..dfaf5421c6fbe9ee2f91f9df91759c51
        if (bytes) {
          stream.send(bytes)
        }
-@@ -193,13 +194,19 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+@@ -193,10 +194,14 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
            return
          }
          const timeoutController = new TimeoutController(timeout)
@@ -368,18 +392,11 @@ index e256cd350ce8f4e2d23911eed80f95013ffea5f9..dfaf5421c6fbe9ee2f91f9df91759c51
          try {
            peers.add(peerId)
 -          const stream = await libp2p.dialProtocol(remotePeer, headsSyncAddress, { signal })
-+          console.log("on va connecter au pair", peerId, "pour", address)
 +          const stream = await libp2p.dialProtocol(remotePeer, headsSyncAddress, { signal: combinedSignal })
-+          console.log("on a connecté au pair", peerId, "pour", address)
            await Promise.all([
--            receiveHeads(peerId, stream),
--            sendHeads(stream).then(() => stream.close())
-+            receiveHeads(peerId, stream).then(()=>{console.log("on a reçu les têtes de", peerId, "pour", address)}),
-+            sendHeads(stream).then(() => {console.log("on ferme le flux de", peerId, "pour", address); stream.close()})
-           ])
-         } catch (e) {
-           peers.delete(peerId)
-@@ -215,6 +222,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+             receiveHeads(peerId, stream),
+             sendHeads(stream).then(() => stream.close())
+@@ -215,6 +220,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
            if (timeoutController) {
              timeoutController.clear()
            }
@@ -387,7 +404,7 @@ index e256cd350ce8f4e2d23911eed80f95013ffea5f9..dfaf5421c6fbe9ee2f91f9df91759c51
          }
        } else {
          peers.delete(peerId)
-@@ -256,7 +264,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+@@ -256,7 +262,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
     */
    const add = async (entry) => {
      if (started && entry && entry.hash) {
