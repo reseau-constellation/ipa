@@ -1,5 +1,6 @@
 import path from "path";
 import url from "url";
+import { realpathSync } from "fs";
 import { générerConfigÆgir } from "@constl/utils-tests";
 import cors from "cors";
 import express from "express";
@@ -34,15 +35,19 @@ const générerServeurRessourcesTests = async (opts) => {
     );
     appliExpress.get("/fichier/:nomFichier", function (req, res) {
       const { nomFichier } = req.params;
-
-      const cheminFichier = path.join(
+      const racine = path.join(
         url.fileURLToPath(new URL(".", import.meta.url)),
         "test",
         "v2",
         "ressources",
-        decodeURIComponent(nomFichier),
-      );
-
+      )
+      
+      const cheminFichier = realpathSync(path.resolve(racine, decodeURIComponent(nomFichier)));
+      if (!cheminFichier.startsWith(racine)) {
+        res.statusCode = 403;
+        res.end();
+        return;
+      }
       res.sendFile(cheminFichier);
     });
 
