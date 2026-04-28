@@ -211,7 +211,7 @@ const ContrôleurNébuleuse =
       try {
         identitéÉcrivain = await identities.getIdentity(entry.identity, signal);
       } catch (e) {
-        if (estErreurAvortée(e)) return false;
+        if (e.toString().includes("AbortError")) return false;
         throw e;
       }
       if (!identitéÉcrivain) {
