@@ -11,7 +11,15 @@ const verrous = new Map<string, Semaphore>();
 const requêtes = new Map<string, Map<string, Set<string>>>();
 const cacheBds = new Map<string, Map<string, BaseDatabase>>();
 
-export const ORIGINALE = Symbol("orbite originale");
+export const ORBITE_ORIGINALE = Symbol("orbite originale");
+
+type MandataireOrbite<L extends ServiceMap = ServiceMap> = OrbitDB<L> & { [ORBITE_ORIGINALE]: OrbitDB<L> };
+
+export const estOrbiteMandatairifié = <L extends ServiceMap = ServiceMap>(
+  x: OrbitDB<L> | MandataireOrbite<L>,
+): x is MandataireOrbite<L> => {
+  return !!(x as MandataireOrbite<L>)[ORBITE_ORIGINALE];
+};
 
 export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   orbite: OrbitDB<L>,
@@ -35,6 +43,8 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 
   return new Proxy(orbite, {
     get(target, prop) {
+      if (prop === ORBITE_ORIGINALE) return target;
+
       if (prop === "open") {
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
           const nomOuAdresse = args[0];
@@ -90,12 +100,14 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   });
 };
 
-type MandataireBd = BaseDatabase & { [ORIGINALE]: BaseDatabase };
+export const BD_ORIGINALE = Symbol("bd originale");
+
+type MandataireBd = BaseDatabase & { [BD_ORIGINALE]: BaseDatabase };
 
 export const estMandatairifié = (
   x: BaseDatabase | MandataireBd,
 ): x is MandataireBd => {
-  return !!(x as MandataireBd)[ORIGINALE];
+  return !!(x as MandataireBd)[BD_ORIGINALE];
 };
 
 // Ce mandataire-ci s'assure que la base de données n'est fermée que lorsque la dernière copie est fermée
@@ -110,7 +122,7 @@ const mandatBd = (
 
   return new Proxy(bd, {
     get(target, prop) {
-      if (prop === ORIGINALE) return target;
+      if (prop === BD_ORIGINALE) return target;
 
       if (prop === "close") {
         const fermer: BaseDatabase["close"] = async () => {
@@ -120,8 +132,9 @@ const mandatBd = (
             requêtes.delete(id);
 
             if (!requêtes.size) {
-              await target.close();
+              // On met ça avant au cas où on aurait une erreur dans `target.close()`
               cache.delete(target.address);
+              await target.close();
             }
           } finally {
             verrou.release(bd.address);

@@ -16,7 +16,7 @@ import { isBrowser } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import {
-  ORIGINALE,
+  BD_ORIGINALE,
   mandatOrbite,
 } from "@/v2/nébuleuse/services/orbite/mandat.js";
 import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
@@ -43,8 +43,8 @@ describe("Mandataire OrbitDB", function () {
   let fermer: Oublier;
 
   const mêmeBd = (bd1: BaseDatabase, bd2: BaseDatabase): boolean => {
-    // @ts-expect-error Les mandataires des bds orbite ont la propriété `ORIGINALE`
-    return bd1[ORIGINALE] === bd2[ORIGINALE];
+    // @ts-expect-error Les mandataires des bds orbite ont la propriété `BD_ORIGINALE`
+    return bd1[BD_ORIGINALE] === bd2[BD_ORIGINALE];
   };
 
   before(async () => {
