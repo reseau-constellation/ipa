@@ -780,6 +780,9 @@ const schéduler = (): {
         suivant();
       }
     },
-    vide: () => new Promise((résoudre) => événements.once("vide", résoudre)),
+    vide: () => new Promise((résoudre) =>{ 
+      if (!enCours && !prochain) résoudre()
+      événements.once("vide", résoudre)
+    }),
   };
 };
