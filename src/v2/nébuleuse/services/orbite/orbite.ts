@@ -375,8 +375,8 @@ export class ServiceOrbite<
         bd.events.on("update", fFinale);
         await fFinale();
       })
-      .catch((é) => {
-        if (!é.toString().includes("AbortError")) throw é;
+      .catch((e) => {
+        if (!estErreurAvortée(e)) throw e;
       });
 
     return async () => {
