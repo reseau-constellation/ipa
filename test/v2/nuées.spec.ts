@@ -765,15 +765,12 @@ describe("Nuées", function () {
       });
 
       it("un compte membre peut écrire", async () => {
-        console.log("auteur sera invité")
         await constl.nuées.inviterAuteur({
           idNuée,
           idCompte: idsComptes[1],
           rôle: MEMBRE,
         });
-        console.log("auteur invité")
         const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
-        console.log("bd créée")
         const autorisation = await obtenir<boolean>(({ si }) =>
           constl.nuées.suivreAutorisationBd({
             idNuée,
