@@ -2063,9 +2063,9 @@ describe("tableaux", function () {
         ],
       };
 
-      it("colonnes non spécifiée est ignorée", async () => {
+      it("colonne non spécifiée n'est pas ignorée", async () => {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
-          données: [{ numérique: 123, chaîne: "নমস্কার" }],
+          données: [{ numérique: "123", chaîne: "নমস্কার" }],
           conversions: [
             {
               colonne: "numérique",
@@ -2077,6 +2077,7 @@ describe("tableaux", function () {
         const réf: DonnéesRangéeTableau[] = [
           {
             numérique: 123,
+            chaîne: "নমস্কার"
           },
         ];
         expect(converties).to.have.deep.members(réf);
