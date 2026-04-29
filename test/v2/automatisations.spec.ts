@@ -1,8 +1,9 @@
 import { mkdirSync, writeFileSync } from "fs";
-import { join } from "path";
+import { basename, join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
 import { isBrowser, isElectronMain, isElectronRenderer, isNode } from "wherearewe";
+import { TypedEmitter } from "tiny-typed-emitter";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/v2/automatisations/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
@@ -36,21 +37,38 @@ const écrireDonnées = (données: DonnéesRangéeTableau[], fichier: string) =>
   writeFileSync(fichier, texte);
 };
 
-const suiviÉtats = async ({idAuto, constl}: {idAuto: string; constl: Constellation}) => {
+const suiviÉtats = async ({idAuto, constl, dédupliquer = true}: {idAuto: string; constl: Constellation; dédupliquer?: boolean}) => {
   const historique: ÉtatAutomatisation[] = []
+
+  const événements = new TypedEmitter<{modifié: ()=>void }>();
   const oublier = await constl.automatisations.suivreÉtatAutomatisations({
     f: états => {
-      console.log({états})
       const nouvelÉtat = états[idAuto];
-      if (nouvelÉtat && nouvelÉtat.type !== historique[0]?.type) historique.unshift(nouvelÉtat)
-      console.log({historique})
+      if (nouvelÉtat && (!dédupliquer || nouvelÉtat.type !== historique[0]?.type)) {
+        historique.unshift(nouvelÉtat)
+        événements.emit("modifié")
+      }
     }
   })
 
   return {
-    terminer: async (): Promise<ÉtatAutomatisation[]> => {
-      await oublier()
-      return historique.toReversed()
+    terminer: async ({min = 1}: {min?: number}= {}): Promise<ÉtatAutomatisation[]> => {
+      const conditions = () => {
+        if (min !== undefined && historique.length < min) return false;
+        return true;
+      };
+      if (conditions()) {
+        await oublier()
+        return historique.toReversed()
+      }
+      else return new Promise(résoudre => {
+        événements.on("modifié", async () => {
+          if (conditions()) {
+            await oublier()
+            résoudre(historique.toReversed())
+          }
+        })
+      })
     }
   }
 }
@@ -223,7 +241,7 @@ describe.only("Automatisations", function () {
             info: { formatDonnées: "feuilleCalcul", nomTableau: "", cols: {} },
           },
         });
-        console.log({idAuto})
+
         const automatisations = await obtenir<
           PartielRécursif<SpécificationAutomatisation>[]
         >(({ siPasVide }) =>
@@ -297,7 +315,7 @@ describe.only("Automatisations", function () {
 
         // S'il s'agit du navigateur, on devrait avoir une erreur 
         if (isBrowser || isElectronRenderer) {
-          const états = await sÉtats.terminer();
+          const états = await sÉtats.terminer({min: 1});
           const réf: ÉtatAutomatisationErreur = {
             type: "erreur",
             erreur: MESSAGE_NON_DISPO_NAVIGATEUR,
@@ -325,6 +343,8 @@ describe.only("Automatisations", function () {
       });
 
       it("importation fichiers", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const adresseFichier = join(dossier, "données.csv");
 
         const colNom = await constl.bds.tableaux.ajouterColonne({
@@ -342,29 +362,37 @@ describe.only("Automatisations", function () {
             nom: "mon fichier1",
             chemin: "fichier1.png",
             données: new TextEncoder().encode("abcd"),
+            idc: "bafybeigpcvasv4p6z2rsyknsddapiu457sgfy73fbrvi5gs2wigczf4pui"
           },
           {
             nom: "mon fichier2",
             chemin: "./fichier2.png",
             données: new TextEncoder().encode("efgh"),
+            idc: "bafybeicktzgg5fjm2v5wsqzvo6sqau35ffq5gerllu3lxalfdxjjmv63em"
           },
           {
             nom: "mon fichier3",
             chemin: join("sousdossier", "fichier3.png"),
             données: new TextEncoder().encode("ijkl"),
+            idc: "bafybeihz4x2k5xikmn4n23oqc3vv2m5lasxni2odxohzfjaaiiit65564y"
           },
         ];
+
+        const réfDonnées = fichiers.map(({ nom, chemin, idc }) => ({
+          [colNom]: nom,
+          [colFichier]: join(idc, basename(chemin)),
+        }));
+        const conversionColonnes = { [colNom]: "Nom document", [colFichier]: "Fichier" }
+        const donnéesFichier = fichiers.map(({ nom, chemin }) => ({
+          [conversionColonnes[colNom]]: nom,
+          [conversionColonnes[colFichier]]: chemin,
+        }));
+
         mkdirSync(join(dossier, "sousdossier"));
         for (const { chemin, données } of fichiers) {
           writeFileSync(join(dossier, chemin), données);
         }
-        écrireDonnées(
-          fichiers.map(({ nom, chemin }) => ({
-            "Nom document": nom,
-            Fichier: chemin,
-          })),
-          adresseFichier,
-        );
+        écrireDonnées(donnéesFichier, adresseFichier)
 
         // Tester l'automatisation
         await constl.automatisations.ajouterAutomatisationImporter({
@@ -377,9 +405,12 @@ describe.only("Automatisations", function () {
             info: {
               formatDonnées: "feuilleCalcul",
               nomTableau: "",
-              cols: { "Nom document": colNom, Fichier: colFichier },
+              cols: conversionColonnes,
             },
           },
+          conversions: [
+            { colonne: colFichier, conversion: { type: "fichier" }}
+          ]
         });
 
         const donnéesTableau = await obtenir<
@@ -388,18 +419,17 @@ describe.only("Automatisations", function () {
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
             idTableau,
-            f: si((x) => !!x && x.length >= 3),
+            f: stabiliser()(si((x) => !!x && x.length >= 3)),
           }),
         );
 
-        const réfDonnées: DonnéesRangéeTableau[] = [];
         expect(donnéesTableau.map((d) => d.données)).to.deep.equal(réfDonnées);
-
         // Vérifier fichiers importés dans SFIP
         const hélia = constl.services["hélia"];
         for (const { nom, données } of fichiers) {
           const idSfip = donnéesTableau.find((d) => d.données[colNom] === nom)!
             .données[colFichier] as string;
+
           expect(
             await hélia.obtFichierDeSFIP({
               id: idSfip,
@@ -409,6 +439,8 @@ describe.only("Automatisations", function () {
       });
 
       it("erreur si fichier non disponible", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         const adresseFichier = join(dossier, "je n'existe pas encore.csv");
         idAuto = await constl.automatisations.ajouterAutomatisationImporter({
           idBd,
@@ -450,6 +482,8 @@ describe.only("Automatisations", function () {
       });
 
       it("erreur si fichier corrompu", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
         writeFileSync(
           join(dossier, "fichier corrompu.csv"),
           "Ceci ne sont pas des données csv.",
