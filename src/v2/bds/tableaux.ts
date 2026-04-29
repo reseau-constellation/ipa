@@ -938,7 +938,7 @@ export class TableauxBds extends Tableaux {
       } catch (e) {
         // Rien à faire
         const journal = this.service("journal");
-        if (!estErreurAvortée(e)) journal.écrire(e);
+        if (!estErreurAvortée(e) && !e.toString().includes("Invalid URL")) journal.écrire(e);
       }
 
       if (isNode || isElectronMain) {
