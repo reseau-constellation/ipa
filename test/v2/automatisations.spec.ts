@@ -2,7 +2,9 @@ import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
+import { isBrowser, isElectronMain, isElectronRenderer, isNode } from "wherearewe";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
+import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/v2/automatisations/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type {
   DonnéesRangéeTableau,
@@ -44,7 +46,7 @@ const suiviÉtats = async ({idAuto, constl}: {idAuto: string; constl: Constellat
       console.log({historique})
     }
   })
-  console.log("suiviÉtats", idAuto)
+
   return {
     terminer: async (): Promise<ÉtatAutomatisation[]> => {
       await oublier()
@@ -272,8 +274,10 @@ describe.only("Automatisations", function () {
           { [colDate]: new Date(1, 2, 2026).getTime(), [colPrécip]: 5 },
         ];
         const donnéesFichier = réfDonnées.map(d=>Object.fromEntries(Object.entries(d).map(([col, val])=>[conversionColonnes[col], val])))
-        écrireDonnées(donnéesFichier, adresseFichier);
-
+        if (isNode || isElectronMain) {
+          écrireDonnées(donnéesFichier, adresseFichier);
+        }
+        
         idAuto = await constl.automatisations.ajouterAutomatisationImporter({
           idBd,
           idTableau,
@@ -289,8 +293,20 @@ describe.only("Automatisations", function () {
           },
         });
 
-        const sÉtats = await suiviÉtats({ idAuto, constl })
-        console.log("ici")
+        const sÉtats = await suiviÉtats({ idAuto, constl });
+
+        // S'il s'agit du navigateur, on devrait avoir une erreur 
+        if (isBrowser || isElectronRenderer) {
+          const états = await sÉtats.terminer();
+          const réf: ÉtatAutomatisationErreur = {
+            type: "erreur",
+            erreur: MESSAGE_NON_DISPO_NAVIGATEUR,
+            prochaineProgramméeÀ: undefined,
+          };
+          expect(états).to.have.deep.members([réf])
+          return;
+        }
+
         const données = await obtenir<
           DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
         >(({ si }) =>
