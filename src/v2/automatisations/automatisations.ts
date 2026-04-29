@@ -426,7 +426,7 @@ export class Automatisations extends ServiceDonnéesAppli<
         clef: auto.dossier,
       });
     }
-    console.log("auto")
+
     return auto;
   }
 }
