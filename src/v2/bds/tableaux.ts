@@ -848,7 +848,10 @@ export class TableauxBds extends Tableaux {
         const conversionColonne = conversions.find(
           (c) => c.colonne === colonne,
         );
-        if (!conversionColonne) continue;
+        if (!conversionColonne) {
+          if (valeur !== undefined) convertie[colonne] = valeur
+          continue
+        };
 
         const valeurColonne = await convertirValeur({
           valeur,
