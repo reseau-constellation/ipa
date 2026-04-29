@@ -23,9 +23,11 @@ export class ImportateurFeuilleCalcul {
     cols: { [key: string]: string } | string[],
   ): { [key: string]: string | number }[] {
     const feuille = this.doc.Sheets[nomTableau];
+
     const données = utils.sheet_to_json(feuille) as {
       [key: string]: string | number;
     }[];
+
     if (Array.isArray(cols)) {
       return données.map((d) =>
         Object.fromEntries(
@@ -38,6 +40,7 @@ export class ImportateurFeuilleCalcul {
       const colsInversées = Object.fromEntries(
         Object.entries(cols).map(([c, v]) => [v, c]),
       );
+
       return données.map((d) =>
         Object.fromEntries(
           Object.keys(d)
