@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
 import { faisRien, uneFois } from "@constl/utils-ipa";
@@ -28,14 +29,13 @@ import type {
   Fréquence,
 } from "./types.js";
 import type { AccesseurService } from "../recherche/types.js";
-import { readFileSync } from "fs";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
   import("stream").then((stream) => XLSX.stream.set_readable(stream.Readable));
 }
 
-const MESSAGE_NON_DISPO_NAVIGATEUR =
+export const MESSAGE_NON_DISPO_NAVIGATEUR =
   "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version appli internet de Constellation.";
 
 export const fAutoAvecÉtats = (
@@ -526,7 +526,14 @@ export const chronoDynamiqueImportation = async ({
   switch (auto.source.type) {
     case "fichier": {
       if (!isNode && !isElectronMain) {
-        throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
+        const étatErreur: ÉtatAutomatisationErreur = {
+          type: "erreur",
+          erreur:
+          MESSAGE_NON_DISPO_NAVIGATEUR,
+          prochaineProgramméeÀ: undefined,
+        };
+        suiviÉtat(étatErreur);
+        return { fermer: async () => await queue.vide(), relancer: faisRien }
       }
       const chokidar = await import("chokidar");
       const fs = await import("fs");
