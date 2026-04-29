@@ -451,10 +451,8 @@ export const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationA
             required: ["info", "type"],
           },
           conversions: {
-            type: "object",
+            type: "array",
             nullable: true,
-            additionalProperties: true,
-            required: [],
           },
         },
         required: ["id", "idTableau", "dispositif", "source"],
