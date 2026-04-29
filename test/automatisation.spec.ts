@@ -17,7 +17,7 @@ import {
 
 import { uneFois, obtenir } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
-import { ImportateurFeuilleCalcul } from "@/v2/importateur/xlsx.js";
+import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
 
 import { obtRessourceTest } from "./v2/ressources/index.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";

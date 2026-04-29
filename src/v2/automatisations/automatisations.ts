@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import { schémaSpécificationAutomatisation } from "./types.js";
-import { chronomètre, générerFAuto } from "./utils.js";
+import { chronomètre, fAutoAvecÉtats, générerFAuto } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
@@ -100,7 +100,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     super({
       clef: "automatisations",
       services,
-      dépendances: ["compte", "stockage"],
+      dépendances: ["bds", "compte", "stockage", "journal"],
       options,
     });
 
@@ -143,6 +143,7 @@ export class Automatisations extends ServiceDonnéesAppli<
   ) {
     autos = autos || {};
     const compte = this.service("compte");
+    const journal = this.service("journal");
     const ceDispositif = await compte.obtIdDispositif();
 
     const àFermer = [...this.automatisations.keys()].filter(
@@ -152,6 +153,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     for (const [id, auto] of Object.entries(autos)) {
       if (!valide(auto)) {
         if (this.automatisations.has(id)) àFermer.push(id);
+        journal.écrire(`Automatisation non valide : ${auto}\n${valide.errors}`)
         continue;
       }
 
@@ -171,9 +173,6 @@ export class Automatisations extends ServiceDonnéesAppli<
           id,
           await this.lancerAutomatisation({
             auto,
-            suiviÉtat: () => {
-              this.événements.emit("autos");
-            },
           }),
         );
       }
@@ -381,10 +380,8 @@ export class Automatisations extends ServiceDonnéesAppli<
 
   async lancerAutomatisation({
     auto,
-    suiviÉtat,
   }: {
     auto: SpécificationAutomatisation;
-    suiviÉtat: Suivi<ÉtatAutomatisation>;
   }): Promise<AutomatisationActive> {
     let étatAuto: ÉtatAutomatisation;
 
@@ -395,17 +392,20 @@ export class Automatisations extends ServiceDonnéesAppli<
     });
 
     const chrono = await chronomètre({
-      auto,
+      auto: spéc,
       suiviÉtat: async (état) => {
         étatAuto = état;
-        suiviÉtat(état);
+        this.événements.emit("autos");
       },
-      f: fAuto,
+      f: fAutoAvecÉtats(fAuto, async (état) => {
+        étatAuto = état;
+        this.événements.emit("autos");
+      }),
       service: (clef) => this.service(clef),
     });
 
     return {
-      spécification: auto,
+      spécification: spéc,
       état: () => étatAuto,
       ...chrono,
     };
@@ -426,7 +426,7 @@ export class Automatisations extends ServiceDonnéesAppli<
         clef: auto.dossier,
       });
     }
-
+    console.log("auto")
     return auto;
   }
 }

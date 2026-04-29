@@ -2,7 +2,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
 import { faisRien, uneFois } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { ImportateurFeuilleCalcul } from "@/v2/importateur/xlsx.js";
+import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import { sauvegarderDonnéesExportées } from "../utils.js";
 import { ImportateurDonnéesJSON } from "../importateur/json.js";
@@ -28,6 +28,7 @@ import type {
   Fréquence,
 } from "./types.js";
 import type { AccesseurService } from "../recherche/types.js";
+import { readFileSync } from "fs";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
@@ -514,12 +515,12 @@ export const chronoDynamiqueImportation = async ({
   await suiviÉtat(nouvelÉtat);
 
   const fAvecStockage = async () => {
+    await f();
     const maintenant = new Date().getTime().toString();
     await service("stockage").sauvegarderItem({
       clef: clefDernièreFois,
       valeur: maintenant,
     });
-    await f();
   };
 
   switch (auto.source.type) {
@@ -531,8 +532,17 @@ export const chronoDynamiqueImportation = async ({
       const fs = await import("fs");
       const { adresseFichier } = auto.source;
 
-      if (!adresseFichier || !fs.existsSync(adresseFichier))
-        throw new Error(`Fichier ${adresseFichier} introuvable.`);
+      if (!adresseFichier) {
+        const étatErreur: ÉtatAutomatisationErreur = {
+          type: "erreur",
+          erreur:
+          `Fichier non défini.`,
+          prochaineProgramméeÀ: undefined,
+        };
+        suiviÉtat(étatErreur);
+        return { fermer: async () => await queue.vide(), relancer: faisRien }
+      }
+
 
       const écouteur = chokidar.watch(adresseFichier);
 
@@ -546,11 +556,20 @@ export const chronoDynamiqueImportation = async ({
         f: () => queue.ajouter(fAvecStockage),
       });
 
-      const dernièreModif = fs.statSync(adresseFichier).mtime.getTime();
+      if (!fs.existsSync(adresseFichier)){
+        const étatErreur: ÉtatAutomatisationErreur = {
+          type: "erreur",
+          erreur:
+          `Fichier ${adresseFichier} introuvable.`,
+          prochaineProgramméeÀ: undefined,
+        };
+        suiviÉtat(étatErreur);
+      };
+      const dernièreModif = fs.existsSync(adresseFichier) ? fs.statSync(adresseFichier).mtime.getTime() : undefined;
 
       const dernièreImportation =
         await service("stockage").obtenirItem(clefDernièreFois);
-      const fichierModifié = dernièreImportation
+      const fichierModifié = dernièreModif && dernièreImportation
         ? dernièreModif > parseInt(dernièreImportation)
         : true;
       if (fichierModifié) {
@@ -738,9 +757,13 @@ export const obtDonnéesImportation = async <
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source.info;
 
-          const docXLSX = XLSX.readFile(adresseFichierRésolue);
+          const contenu = readFileSync(adresseFichierRésolue)
+
+          const docXLSX = XLSX.read(new TextDecoder().decode(contenu), { type: 'string' });
+
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
-          return importateur.obtDonnées(nomTableau, cols);
+
+          return importateur.obtDonnées(nomTableau || "Sheet1", cols);
         }
 
         default:

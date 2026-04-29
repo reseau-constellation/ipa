@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
+import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type {
   DonnéesRangéeTableau,
@@ -28,12 +29,31 @@ const écrireDonnées = (données: DonnéesRangéeTableau[], fichier: string) =>
       (d) =>
         colonnes.map((c) =>
           d[c] === undefined || d[c] === null ? "" : d[c]?.toString(),
-        ) + "\n",
-    );
+        ).join(",") + "\n",
+    ).join("");
   writeFileSync(fichier, texte);
 };
 
-describe.skip("Automatisations", function () {
+const suiviÉtats = async ({idAuto, constl}: {idAuto: string; constl: Constellation}) => {
+  const historique: ÉtatAutomatisation[] = []
+  const oublier = await constl.automatisations.suivreÉtatAutomatisations({
+    f: états => {
+      console.log({états})
+      const nouvelÉtat = états[idAuto];
+      if (nouvelÉtat && nouvelÉtat.type !== historique[0]?.type) historique.unshift(nouvelÉtat)
+      console.log({historique})
+    }
+  })
+  console.log("suiviÉtats", idAuto)
+  return {
+    terminer: async (): Promise<ÉtatAutomatisation[]> => {
+      await oublier()
+      return historique.toReversed()
+    }
+  }
+}
+
+describe.only("Automatisations", function () {
   describe("gestion automatisations", function () {
     let fermer: () => Promise<void>;
     let constls: Constellation[];
@@ -63,7 +83,7 @@ describe.skip("Automatisations", function () {
       id = await constl.automatisations.ajouterAutomatisationExporter({
         fréquence: { type: "manuelle" },
         idObjet: idBd,
-        formatDoc: "ods",
+        formatDoc: "xlsx",
         typeObjet: "bd",
         inclureDocuments: false,
       });
@@ -201,7 +221,7 @@ describe.skip("Automatisations", function () {
             info: { formatDonnées: "feuilleCalcul", nomTableau: "", cols: {} },
           },
         });
-
+        console.log({idAuto})
         const automatisations = await obtenir<
           PartielRécursif<SpécificationAutomatisation>[]
         >(({ siPasVide }) =>
@@ -245,14 +265,16 @@ describe.skip("Automatisations", function () {
           idStructure: idBd,
           idTableau,
         });
-
+        
+        const conversionColonnes = { [colDate]: "தேதி", [colPrécip]: "Précipitation" }
         const réfDonnées: DonnéesRangéeTableau[] = [
           { [colDate]: new Date(1, 1, 2026).getTime(), [colPrécip]: 10 },
           { [colDate]: new Date(1, 2, 2026).getTime(), [colPrécip]: 5 },
         ];
-        écrireDonnées(réfDonnées, adresseFichier);
+        const donnéesFichier = réfDonnées.map(d=>Object.fromEntries(Object.entries(d).map(([col, val])=>[conversionColonnes[col], val])))
+        écrireDonnées(donnéesFichier, adresseFichier);
 
-        await constl.automatisations.ajouterAutomatisationImporter({
+        idAuto = await constl.automatisations.ajouterAutomatisationImporter({
           idBd,
           idTableau,
           fréquence: { type: "dynamique" },
@@ -262,23 +284,28 @@ describe.skip("Automatisations", function () {
             info: {
               formatDonnées: "feuilleCalcul",
               nomTableau: "",
-              cols: { [colDate]: "Date", [colPrécip]: "Précipitation" },
+              cols: conversionColonnes,
             },
           },
         });
-        expect(état).to.deep.equal(réfÉtat);
 
+        const sÉtats = await suiviÉtats({ idAuto, constl })
+        console.log("ici")
         const données = await obtenir<
           DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
         >(({ si }) =>
           constl.bds.tableaux.suivreDonnées({
             idStructure: idBd,
             idTableau,
-            f: si((x) => !!x && x?.length >= 2),
+            f: stabiliser()(si((x) => !!x && x?.length >= 2)),
           }),
         );
 
         expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
+
+        const états = await sÉtats.terminer();
+        const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "écoute"];
+        expect(états.map(é=>é.type)).to.deep.equal(réfÉtats);
       });
 
       it("importation fichiers", async () => {
