@@ -528,12 +528,11 @@ export const chronoDynamiqueImportation = async ({
       if (!isNode && !isElectronMain) {
         const étatErreur: ÉtatAutomatisationErreur = {
           type: "erreur",
-          erreur:
-          MESSAGE_NON_DISPO_NAVIGATEUR,
+          erreur: MESSAGE_NON_DISPO_NAVIGATEUR,
           prochaineProgramméeÀ: undefined,
         };
         suiviÉtat(étatErreur);
-        return { fermer: async () => await queue.vide(), relancer: faisRien }
+        return { fermer: async () => await queue.vide(), relancer: faisRien };
       }
       const chokidar = await import("chokidar");
       const fs = await import("fs");
@@ -542,14 +541,12 @@ export const chronoDynamiqueImportation = async ({
       if (!adresseFichier) {
         const étatErreur: ÉtatAutomatisationErreur = {
           type: "erreur",
-          erreur:
-          `Fichier non défini.`,
+          erreur: `Fichier non défini.`,
           prochaineProgramméeÀ: undefined,
         };
         suiviÉtat(étatErreur);
-        return { fermer: async () => await queue.vide(), relancer: faisRien }
+        return { fermer: async () => await queue.vide(), relancer: faisRien };
       }
-
 
       const écouteur = chokidar.watch(adresseFichier);
 
@@ -563,22 +560,24 @@ export const chronoDynamiqueImportation = async ({
         f: () => queue.ajouter(fAvecStockage),
       });
 
-      if (!fs.existsSync(adresseFichier)){
+      if (!fs.existsSync(adresseFichier)) {
         const étatErreur: ÉtatAutomatisationErreur = {
           type: "erreur",
-          erreur:
-          `Fichier ${adresseFichier} introuvable.`,
+          erreur: `Fichier ${adresseFichier} introuvable.`,
           prochaineProgramméeÀ: undefined,
         };
         suiviÉtat(étatErreur);
-      };
-      const dernièreModif = fs.existsSync(adresseFichier) ? fs.statSync(adresseFichier).mtime.getTime() : undefined;
+      }
+      const dernièreModif = fs.existsSync(adresseFichier)
+        ? fs.statSync(adresseFichier).mtime.getTime()
+        : undefined;
 
       const dernièreImportation =
         await service("stockage").obtenirItem(clefDernièreFois);
-      const fichierModifié = dernièreModif && dernièreImportation
-        ? dernièreModif > parseInt(dernièreImportation)
-        : true;
+      const fichierModifié =
+        dernièreModif && dernièreImportation
+          ? dernièreModif > parseInt(dernièreImportation)
+          : true;
       if (fichierModifié) {
         queue.ajouter(fAvecStockage);
       }
@@ -764,9 +763,11 @@ export const obtDonnéesImportation = async <
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source.info;
 
-          const contenu = readFileSync(adresseFichierRésolue)
+          const contenu = readFileSync(adresseFichierRésolue);
 
-          const docXLSX = XLSX.read(new TextDecoder().decode(contenu), { type: 'string' });
+          const docXLSX = XLSX.read(new TextDecoder().decode(contenu), {
+            type: "string",
+          });
 
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
 
@@ -810,9 +811,10 @@ const schéduler = (): {
         suivant();
       }
     },
-    vide: () => new Promise((résoudre) =>{ 
-      if (!enCours && !prochain) résoudre()
-      événements.once("vide", résoudre)
-    }),
+    vide: () =>
+      new Promise((résoudre) => {
+        if (!enCours && !prochain) résoudre();
+        événements.once("vide", résoudre);
+      }),
   };
 };

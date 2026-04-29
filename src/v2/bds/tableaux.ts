@@ -849,9 +849,9 @@ export class TableauxBds extends Tableaux {
           (c) => c.colonne === colonne,
         );
         if (!conversionColonne) {
-          if (valeur !== undefined) convertie[colonne] = valeur
-          continue
-        };
+          if (valeur !== undefined) convertie[colonne] = valeur;
+          continue;
+        }
 
         const valeurColonne = await convertirValeur({
           valeur,
@@ -921,7 +921,7 @@ export class TableauxBds extends Tableaux {
 
         let contenuFichier = (await axios.get(chemin)).data;
         if (!ArrayBuffer.isView(contenuFichier)) {
-          contenuFichier = new Uint8Array(Object.values(contenuFichier))
+          contenuFichier = new Uint8Array(Object.values(contenuFichier));
         }
 
         const composantesUrl = chemin.split("/");
@@ -938,7 +938,8 @@ export class TableauxBds extends Tableaux {
       } catch (e) {
         // Rien à faire
         const journal = this.service("journal");
-        if (!estErreurAvortée(e) && !e.toString().includes("Invalid URL")) journal.écrire(e);
+        if (!estErreurAvortée(e) && !e.toString().includes("Invalid URL"))
+          journal.écrire(e);
       }
 
       if (isNode || isElectronMain) {

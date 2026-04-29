@@ -97,10 +97,9 @@ export const stabiliser =
     };
   };
 
-
 export const estErreurAvortée = (erreur?: Error): boolean => {
   if (erreur instanceof AggregateError) {
-    return erreur.errors.some(e => estErreurAvortée(e))
+    return erreur.errors.some((e) => estErreurAvortée(e));
   }
   return erreur?.toString()?.includes("AbortError") ?? false;
-}
+};

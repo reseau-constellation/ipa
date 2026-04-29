@@ -153,7 +153,9 @@ export class Automatisations extends ServiceDonnéesAppli<
     for (const [id, auto] of Object.entries(autos)) {
       if (!valide(auto)) {
         if (this.automatisations.has(id)) àFermer.push(id);
-        journal.écrire(`Automatisation non valide : ${JSON.stringify(auto, undefined, 2)}\n${valide.errors?.map(e=>JSON.stringify(e, undefined, 2)).join(", ")}`)
+        journal.écrire(
+          `Automatisation non valide : ${JSON.stringify(auto, undefined, 2)}\n${valide.errors?.map((e) => JSON.stringify(e, undefined, 2)).join(", ")}`,
+        );
         continue;
       }
 

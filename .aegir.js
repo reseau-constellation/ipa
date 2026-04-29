@@ -40,9 +40,11 @@ const générerServeurRessourcesTests = async (opts) => {
         "test",
         "v2",
         "ressources",
-      )
-      
-      const cheminFichier = realpathSync(path.resolve(racine, decodeURIComponent(nomFichier)));
+      );
+
+      const cheminFichier = realpathSync(
+        path.resolve(racine, decodeURIComponent(nomFichier)),
+      );
       if (!cheminFichier.startsWith(racine)) {
         res.statusCode = 403;
         res.end();

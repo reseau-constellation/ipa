@@ -496,11 +496,11 @@ describe("Nuées", function () {
 
     before(async () => {
       idNuée = await constl.nuées.créerNuée({ autorisation: "par invitation" });
-    })
+    });
 
-    it("compte invité", async () => { 
+    it("compte invité", async () => {
       await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
-      
+
       const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
         constl.nuées.résolutionConfiance({
           de: idsComptes[0],
@@ -511,44 +511,57 @@ describe("Nuées", function () {
       const réf: RelationImmédiate = {
         idCompte: idsComptes[1],
         confiance: CONFIANCE_INVITÉ,
-      }
-      expect(confiances).to.deep.equal([réf])
+      };
+      expect(confiances).to.deep.equal([réf]);
     });
 
     it("compte bloqué", async () => {
-      await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" })
+      await constl.nuées.modifierTypeAutorisation({ idNuée, type: "ouverte" });
       await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
-      
+
       const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
         constl.nuées.résolutionConfiance({
           de: idsComptes[0],
-          f: si((x) => !!x?.find(a=>a.idCompte === idsComptes[1] && a.confiance < 0)),
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === idsComptes[1] && a.confiance < 0),
+          ),
         }),
       );
 
       const réf: RelationImmédiate = {
         idCompte: idsComptes[1],
         confiance: -PÉNALITÉ_CONFIANCE_BLOQUÉ,
-      }
-      expect(confiances).to.deep.equal([réf])
+      };
+      expect(confiances).to.deep.equal([réf]);
     });
 
     it("compte bloqué et invité", async () => {
-      const idNuée2 = await constl.nuées.créerNuée({ autorisation: "par invitation" });
-      await constl.nuées.inviterCompte({ idNuée: idNuée2, idCompte: idsComptes[1] });
+      const idNuée2 = await constl.nuées.créerNuée({
+        autorisation: "par invitation",
+      });
+      await constl.nuées.inviterCompte({
+        idNuée: idNuée2,
+        idCompte: idsComptes[1],
+      });
 
       const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
         constl.nuées.résolutionConfiance({
           de: idsComptes[0],
-          f: si((x) => !!x?.find(a=>a.idCompte === idsComptes[1] && a.confiance === 0)),
+          f: si(
+            (x) =>
+              !!x?.find(
+                (a) => a.idCompte === idsComptes[1] && a.confiance === 0,
+              ),
+          ),
         }),
       );
 
       const réf: RelationImmédiate = {
         idCompte: idsComptes[1],
         confiance: 0,
-      }
-      expect(confiances).to.deep.equal([réf])
+      };
+      expect(confiances).to.deep.equal([réf]);
     });
 
     it("de coauteurs", async () => {
@@ -561,9 +574,12 @@ describe("Nuées", function () {
       const relations = await obtenir<RelationImmédiate[]>(({ si }) =>
         constl.nuées.résolutionConfiance({
           de: idsComptes[0],
-          f: si((x) => !!x?.find(a=>a.idCompte === idsComptes[1] && a.confiance > 0)),
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === idsComptes[1] && a.confiance > 0),
+          ),
         }),
-      );;
+      );
 
       const réf: RelationImmédiate[] = [
         {
@@ -573,8 +589,7 @@ describe("Nuées", function () {
       ];
       expect(relations).to.deep.equal(réf);
     });
-    
-  })
+  });
 
   describe("autorisations", function () {
     describe("nuée ouverte", function () {

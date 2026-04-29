@@ -229,8 +229,8 @@ type SpécificationAjoutExportationTableau = {
 };
 
 export type SpécificationImporter<
-  T extends
-    SourceDonnéesImportationAdresseOptionel = SourceDonnéesImportationAdresseOptionel,
+  T extends SourceDonnéesImportationAdresseOptionel =
+    SourceDonnéesImportationAdresseOptionel,
 > = BaseSpécificationAutomatisation & {
   type: "importation";
   idBd: string;

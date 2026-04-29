@@ -13,7 +13,9 @@ const cacheBds = new Map<string, Map<string, BaseDatabase>>();
 
 export const ORBITE_ORIGINALE = Symbol("orbite originale");
 
-type MandataireOrbite<L extends ServiceMap = ServiceMap> = OrbitDB<L> & { [ORBITE_ORIGINALE]: OrbitDB<L> };
+type MandataireOrbite<L extends ServiceMap = ServiceMap> = OrbitDB<L> & {
+  [ORBITE_ORIGINALE]: OrbitDB<L>;
+};
 
 export const estOrbiteMandatairifié = <L extends ServiceMap = ServiceMap>(
   x: OrbitDB<L> | MandataireOrbite<L>,
@@ -26,8 +28,8 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   lorsquErreur?: (e: Error) => void,
 ) => {
   lorsquErreur ??= (erreur) => {
-    if(!estErreurAvortée(erreur)) console.log("Erreur OrbitDB", erreur)
-  }
+    if (!estErreurAvortée(erreur)) console.log("Erreur OrbitDB", erreur);
+  };
 
   if (!verrous.has(orbite.identity.id))
     verrous.set(orbite.identity.id, new Semaphore());

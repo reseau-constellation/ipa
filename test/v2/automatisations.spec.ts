@@ -2,7 +2,12 @@ import { mkdirSync, writeFileSync } from "fs";
 import { basename, join } from "path";
 import { expect } from "aegir/chai";
 import { dossierTempo } from "@constl/utils-tests";
-import { isBrowser, isElectronMain, isElectronRenderer, isNode } from "wherearewe";
+import {
+  isBrowser,
+  isElectronMain,
+  isElectronRenderer,
+  isNode,
+} from "wherearewe";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/v2/automatisations/utils.js";
@@ -28,50 +33,67 @@ const écrireDonnées = (données: DonnéesRangéeTableau[], fichier: string) =>
   const texte =
     colonnes.join(",") +
     "\n" +
-    données.map(
-      (d) =>
-        colonnes.map((c) =>
-          d[c] === undefined || d[c] === null ? "" : d[c]?.toString(),
-        ).join(",") + "\n",
-    ).join("");
+    données
+      .map(
+        (d) =>
+          colonnes
+            .map((c) =>
+              d[c] === undefined || d[c] === null ? "" : d[c]?.toString(),
+            )
+            .join(",") + "\n",
+      )
+      .join("");
   writeFileSync(fichier, texte);
 };
 
-const suiviÉtats = async ({idAuto, constl, dédupliquer = true}: {idAuto: string; constl: Constellation; dédupliquer?: boolean}) => {
-  const historique: ÉtatAutomatisation[] = []
+const suiviÉtats = async ({
+  idAuto,
+  constl,
+  dédupliquer = true,
+}: {
+  idAuto: string;
+  constl: Constellation;
+  dédupliquer?: boolean;
+}) => {
+  const historique: ÉtatAutomatisation[] = [];
 
-  const événements = new TypedEmitter<{modifié: ()=>void }>();
+  const événements = new TypedEmitter<{ modifié: () => void }>();
   const oublier = await constl.automatisations.suivreÉtatAutomatisations({
-    f: états => {
+    f: (états) => {
       const nouvelÉtat = états[idAuto];
-      if (nouvelÉtat && (!dédupliquer || nouvelÉtat.type !== historique[0]?.type)) {
-        historique.unshift(nouvelÉtat)
-        événements.emit("modifié")
+      if (
+        nouvelÉtat &&
+        (!dédupliquer || nouvelÉtat.type !== historique[0]?.type)
+      ) {
+        historique.unshift(nouvelÉtat);
+        événements.emit("modifié");
       }
-    }
-  })
+    },
+  });
 
   return {
-    terminer: async ({min = 1}: {min?: number}= {}): Promise<ÉtatAutomatisation[]> => {
+    terminer: async ({ min = 1 }: { min?: number } = {}): Promise<
+      ÉtatAutomatisation[]
+    > => {
       const conditions = () => {
         if (min !== undefined && historique.length < min) return false;
         return true;
       };
       if (conditions()) {
-        await oublier()
-        return historique.toReversed()
-      }
-      else return new Promise(résoudre => {
-        événements.on("modifié", async () => {
-          if (conditions()) {
-            await oublier()
-            résoudre(historique.toReversed())
-          }
-        })
-      })
-    }
-  }
-}
+        await oublier();
+        return historique.toReversed();
+      } else
+        return new Promise((résoudre) => {
+          événements.on("modifié", async () => {
+            if (conditions()) {
+              await oublier();
+              résoudre(historique.toReversed());
+            }
+          });
+        });
+    },
+  };
+};
 
 describe.only("Automatisations", function () {
   describe("gestion automatisations", function () {
@@ -285,17 +307,27 @@ describe.only("Automatisations", function () {
           idStructure: idBd,
           idTableau,
         });
-        
-        const conversionColonnes = { [colDate]: "தேதி", [colPrécip]: "Précipitation" }
+
+        const conversionColonnes = {
+          [colDate]: "தேதி",
+          [colPrécip]: "Précipitation",
+        };
         const réfDonnées: DonnéesRangéeTableau[] = [
           { [colDate]: new Date(1, 1, 2026).getTime(), [colPrécip]: 10 },
           { [colDate]: new Date(1, 2, 2026).getTime(), [colPrécip]: 5 },
         ];
-        const donnéesFichier = réfDonnées.map(d=>Object.fromEntries(Object.entries(d).map(([col, val])=>[conversionColonnes[col], val])))
+        const donnéesFichier = réfDonnées.map((d) =>
+          Object.fromEntries(
+            Object.entries(d).map(([col, val]) => [
+              conversionColonnes[col],
+              val,
+            ]),
+          ),
+        );
         if (isNode || isElectronMain) {
           écrireDonnées(donnéesFichier, adresseFichier);
         }
-        
+
         idAuto = await constl.automatisations.ajouterAutomatisationImporter({
           idBd,
           idTableau,
@@ -313,15 +345,15 @@ describe.only("Automatisations", function () {
 
         const sÉtats = await suiviÉtats({ idAuto, constl });
 
-        // S'il s'agit du navigateur, on devrait avoir une erreur 
+        // S'il s'agit du navigateur, on devrait avoir une erreur
         if (isBrowser || isElectronRenderer) {
-          const états = await sÉtats.terminer({min: 1});
+          const états = await sÉtats.terminer({ min: 1 });
           const réf: ÉtatAutomatisationErreur = {
             type: "erreur",
             erreur: MESSAGE_NON_DISPO_NAVIGATEUR,
             prochaineProgramméeÀ: undefined,
           };
-          expect(états).to.have.deep.members([réf])
+          expect(états).to.have.deep.members([réf]);
           return;
         }
 
@@ -339,7 +371,7 @@ describe.only("Automatisations", function () {
 
         const états = await sÉtats.terminer();
         const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "écoute"];
-        expect(états.map(é=>é.type)).to.deep.equal(réfÉtats);
+        expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
       });
 
       it("importation fichiers", async () => {
@@ -362,19 +394,19 @@ describe.only("Automatisations", function () {
             nom: "mon fichier1",
             chemin: "fichier1.png",
             données: new TextEncoder().encode("abcd"),
-            idc: "bafybeigpcvasv4p6z2rsyknsddapiu457sgfy73fbrvi5gs2wigczf4pui"
+            idc: "bafybeigpcvasv4p6z2rsyknsddapiu457sgfy73fbrvi5gs2wigczf4pui",
           },
           {
             nom: "mon fichier2",
             chemin: "./fichier2.png",
             données: new TextEncoder().encode("efgh"),
-            idc: "bafybeicktzgg5fjm2v5wsqzvo6sqau35ffq5gerllu3lxalfdxjjmv63em"
+            idc: "bafybeicktzgg5fjm2v5wsqzvo6sqau35ffq5gerllu3lxalfdxjjmv63em",
           },
           {
             nom: "mon fichier3",
             chemin: join("sousdossier", "fichier3.png"),
             données: new TextEncoder().encode("ijkl"),
-            idc: "bafybeihz4x2k5xikmn4n23oqc3vv2m5lasxni2odxohzfjaaiiit65564y"
+            idc: "bafybeihz4x2k5xikmn4n23oqc3vv2m5lasxni2odxohzfjaaiiit65564y",
           },
         ];
 
@@ -382,7 +414,10 @@ describe.only("Automatisations", function () {
           [colNom]: nom,
           [colFichier]: join(idc, basename(chemin)),
         }));
-        const conversionColonnes = { [colNom]: "Nom document", [colFichier]: "Fichier" }
+        const conversionColonnes = {
+          [colNom]: "Nom document",
+          [colFichier]: "Fichier",
+        };
         const donnéesFichier = fichiers.map(({ nom, chemin }) => ({
           [conversionColonnes[colNom]]: nom,
           [conversionColonnes[colFichier]]: chemin,
@@ -392,7 +427,7 @@ describe.only("Automatisations", function () {
         for (const { chemin, données } of fichiers) {
           writeFileSync(join(dossier, chemin), données);
         }
-        écrireDonnées(donnéesFichier, adresseFichier)
+        écrireDonnées(donnéesFichier, adresseFichier);
 
         // Tester l'automatisation
         await constl.automatisations.ajouterAutomatisationImporter({
@@ -409,8 +444,8 @@ describe.only("Automatisations", function () {
             },
           },
           conversions: [
-            { colonne: colFichier, conversion: { type: "fichier" }}
-          ]
+            { colonne: colFichier, conversion: { type: "fichier" } },
+          ],
         });
 
         const donnéesTableau = await obtenir<

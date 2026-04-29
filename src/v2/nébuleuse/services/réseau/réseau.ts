@@ -574,7 +574,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       // Priorité au niveau de confiance spécifié explicitement
       if (confiances.includes(1)) return 1;
       if (confiances.includes(-1)) return -1;
-      
+
       return combinerConfiances(confiances);
     };
 

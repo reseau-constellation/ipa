@@ -11,10 +11,7 @@ import { reconnecteur } from "../services/reconnecteur.js";
 import type { Reconnecteur } from "../services/reconnecteur.js";
 import type { Ping } from "@libp2p/ping";
 import type { IdentifyPush } from "@libp2p/identify";
-import type {
-  GossipSub,
-  GossipSubComponents,
-} from "@libp2p/gossipsub";
+import type { GossipSub, GossipSubComponents } from "@libp2p/gossipsub";
 import type { ServiceFactoryMap } from "libp2p";
 import type { Multiaddr } from "@multiformats/multiaddr";
 import type { ServicesLibp2pNébuleuse } from "../libp2p.js";

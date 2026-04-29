@@ -3588,10 +3588,10 @@ describe("tableaux", function () {
             inclureDocuments: false,
           });
           if (isBrowser || isElectronRenderer) {
-            expect(fichier).to.equal("voici un tableau.ods")
+            expect(fichier).to.equal("voici un tableau.ods");
           } else {
             const cheminFichier = join(dossier, `${nomTableauFr}.ods`);
-            expect(fichier).to.equal(cheminFichier)
+            expect(fichier).to.equal(cheminFichier);
             expect(existsSync(cheminFichier)).to.be.true();
           }
         });

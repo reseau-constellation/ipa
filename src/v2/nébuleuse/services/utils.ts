@@ -71,7 +71,6 @@ export const filtreAsync = async <T>(
   return liste.filter((_v, index) => results[index]);
 };
 
-
 export const combinerConfiances = (scores: number[]): number => {
   const positives = scores.filter((c) => c >= 0);
   const négatives = scores.filter((c) => c < 0);
@@ -82,4 +81,4 @@ export const combinerConfiances = (scores: number[]): number => {
     1 - positives.map((x) => 1 - x).reduce((total, c) => c * total, 1);
 
   return positif - négatif;
-}
+};

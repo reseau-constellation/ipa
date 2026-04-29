@@ -322,7 +322,8 @@ export class BaseServiceCompte<
             signal,
           }),
         journal: async (m) => {
-          if (!estErreurAvortée(m)) await this.service("journal").écrire(m.toString())
+          if (!estErreurAvortée(m))
+            await this.service("journal").écrire(m.toString());
         },
       });
     }

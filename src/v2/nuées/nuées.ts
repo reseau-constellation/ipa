@@ -28,7 +28,10 @@ import {
 } from "../nébuleuse/services/favoris.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import { RechercheNuées } from "../recherche/nuées.js";
-import { appelerLorsque, combinerConfiances } from "../nébuleuse/services/utils.js";
+import {
+  appelerLorsque,
+  combinerConfiances,
+} from "../nébuleuse/services/utils.js";
 import { ObjetConstellation } from "../objets.js";
 import {
   statutComplet,
@@ -299,17 +302,28 @@ export class Nuées extends ObjetConstellation<
     de: string;
     f: Suivi<RelationImmédiate[]>;
   }): Promise<Oublier> {
-    const confiances: { autorat?: RelationImmédiate[]; autorisations?: RelationImmédiate[] } = {};
+    const confiances: {
+      autorat?: RelationImmédiate[];
+      autorisations?: RelationImmédiate[];
+    } = {};
 
     const fFinale = async () => {
       const relations = Object.values(confiances).flat();
-      const idsComptes = [...new Set(relations.map(({idCompte})=>idCompte))]
+      const idsComptes = [
+        ...new Set(relations.map(({ idCompte }) => idCompte)),
+      ];
 
-      await f(idsComptes.map(idCompte => ({
-        idCompte,
-        confiance: combinerConfiances(relations.filter(r=>r.idCompte === idCompte).map(r=>r.confiance))
-      })))
-    }
+      await f(
+        idsComptes.map((idCompte) => ({
+          idCompte,
+          confiance: combinerConfiances(
+            relations
+              .filter((r) => r.idCompte === idCompte)
+              .map((r) => r.confiance),
+          ),
+        })),
+      );
+    };
 
     const oublierConfianceAutorisations = await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) => {
@@ -328,15 +342,24 @@ export class Nuées extends ObjetConstellation<
         return await this.suivreAutorisation({ idNuée, f: fSuivreBranche });
       },
       f: async (autorisations: AutorisationNuée[]) => {
-        const invités = autorisations.map(a=>a.type === "par invitation" ? a.invités : []).flat()
-        const bloqués = autorisations.map(a=>a.type === "ouverte" ? a.bloqués : []).flat()
-        const idsComptes = [
-          ...new Set([...invités, ...bloqués]),
-        ];
+        const invités = autorisations
+          .map((a) => (a.type === "par invitation" ? a.invités : []))
+          .flat();
+        const bloqués = autorisations
+          .map((a) => (a.type === "ouverte" ? a.bloqués : []))
+          .flat();
+        const idsComptes = [...new Set([...invités, ...bloqués])];
         confiances.autorisations = idsComptes.map((idCompte) => {
-          const nInvité = invités.filter((idCompte) => idCompte === idCompte).length;
-          const nBloqué = bloqués.filter((idCompte) => idCompte === idCompte).length;
-          const confiance = (1 - (1 - CONFIANCE_INVITÉ) ** nInvité) - (1 - (1 - PÉNALITÉ_CONFIANCE_BLOQUÉ) ** nBloqué);
+          const nInvité = invités.filter(
+            (idCompte) => idCompte === idCompte,
+          ).length;
+          const nBloqué = bloqués.filter(
+            (idCompte) => idCompte === idCompte,
+          ).length;
+          const confiance =
+            1 -
+            (1 - CONFIANCE_INVITÉ) ** nInvité -
+            (1 - (1 - PÉNALITÉ_CONFIANCE_BLOQUÉ) ** nBloqué);
           return { idCompte, confiance };
         });
         await fFinale();
@@ -346,15 +369,15 @@ export class Nuées extends ObjetConstellation<
     const oublierConfianceAutorat = await super.résolutionConfiance({
       de,
       f: async (confiance) => {
-        confiances.autorat = confiance
+        confiances.autorat = confiance;
         await fFinale();
-      }
+      },
     });
 
     return async () => {
       await oublierConfianceAutorat();
       await oublierConfianceAutorisations();
-    }
+    };
   }
 
   @cacheSuivi

@@ -111,8 +111,11 @@ export const sauvegarderDonnéesExportées = async ({
     });
     return adresseFinale;
   } else {
-    const nomFichierAvecExt = `${nomFichier}.${formatDocu}`
-    const adresseFinale = isNode || isElectronMain ? path.join(dossier, nomFichierAvecExt) : nomFichierAvecExt;
+    const nomFichierAvecExt = `${nomFichier}.${formatDocu}`;
+    const adresseFinale =
+      isNode || isElectronMain
+        ? path.join(dossier, nomFichierAvecExt)
+        : nomFichierAvecExt;
     if (isNode || isElectronMain) {
       xlsxWriteFile(doc, adresseFinale, {
         bookType,
@@ -122,10 +125,7 @@ export const sauvegarderDonnéesExportées = async ({
         bookType,
         type: "buffer",
       }) as ArrayBuffer;
-      saveAs(
-        new Blob([new Uint8Array(document)]),
-        nomFichierAvecExt,
-      );
+      saveAs(new Blob([new Uint8Array(document)]), nomFichierAvecExt);
     }
     return adresseFinale;
   }

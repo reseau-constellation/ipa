@@ -95,7 +95,7 @@ type RetourDémarrageOrbite<L extends ServicesLibp2pNébuleuse> = {
 type FermetureBd = {
   fermerToutDeSuite: () => Promise<void>;
   annulerFermeture: () => void;
-}
+};
 
 export class ServiceOrbite<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
@@ -106,7 +106,7 @@ export class ServiceOrbite<
   OptionsServiceOrbite<L>
 > {
   signaleurArrêt: AbortController;
-  fermetures: Map<string, FermetureBd>
+  fermetures: Map<string, FermetureBd>;
 
   constructor({
     services,
@@ -123,7 +123,7 @@ export class ServiceOrbite<
     });
 
     this.signaleurArrêt = new AbortController();
-    this.fermetures = new Map()
+    this.fermetures = new Map();
   }
 
   async démarrer() {
@@ -138,9 +138,9 @@ export class ServiceOrbite<
 
     const journal = this.service("journal");
 
-    const orbite = mandatOrbite(orbiteOrig, (erreur) =>
-      {if (!estErreurAvortée(erreur)) journal.écrire(erreur.toString())},
-    );
+    const orbite = mandatOrbite(orbiteOrig, (erreur) => {
+      if (!estErreurAvortée(erreur)) journal.écrire(erreur.toString());
+    });
 
     this.estDémarré = { orbite };
     return await super.démarrer();
@@ -164,8 +164,12 @@ export class ServiceOrbite<
     const { orbite } = await this.démarré();
 
     this.signaleurArrêt.abort();
-    
-    await Promise.allSettled(this.fermetures.values().map(({fermerToutDeSuite})=>fermerToutDeSuite()));
+
+    await Promise.allSettled(
+      this.fermetures
+        .values()
+        .map(({ fermerToutDeSuite }) => fermerToutDeSuite()),
+    );
     if (orbite) await orbite.stop();
 
     await super.fermer();
@@ -272,9 +276,8 @@ export class ServiceOrbite<
     signal?: AbortSignal;
     type?: T | undefined;
   }): Promise<{ bd: BdsOrbite[T] | BaseDatabase; oublier: Oublier }> {
-    
     const orbite = await this.orbite();
-    
+
     // À faire : risque de condition course avec `fermer()` ?
     this.fermetures.get(id)?.annulerFermeture();
     const signalFinal = signal
@@ -294,16 +297,21 @@ export class ServiceOrbite<
     return {
       bd,
       oublier: async () => {
-        const chronoOublier = setTimeout(async () => await bd.close(), 1000 * 60);
-        const annulerFermeture = () => {this.fermetures.delete(id); clearTimeout(chronoOublier)}
+        const chronoOublier = setTimeout(
+          async () => await bd.close(),
+          1000 * 60,
+        );
+        const annulerFermeture = () => {
+          this.fermetures.delete(id);
+          clearTimeout(chronoOublier);
+        };
         this.fermetures.set(id, {
           fermerToutDeSuite: async () => {
             annulerFermeture();
             await bd.close();
           },
           annulerFermeture,
-        })
-        
+        });
       },
     };
   }
