@@ -246,7 +246,7 @@ describe.only("Automatisations", function () {
       let dossier: string;
       let effacer: () => void;
 
-      let idAuto: string | undefined = undefined;
+      let idAuto: string;
 
       beforeEach(async () => {
         ({ dossier, effacer } = await dossierTempo());
@@ -257,7 +257,6 @@ describe.only("Automatisations", function () {
       afterEach(async () => {
         if (idAuto)
           await constl.automatisations.annulerAutomatisation({ id: idAuto });
-        idAuto = undefined;
 
         effacer?.();
       });
@@ -670,7 +669,7 @@ describe.only("Automatisations", function () {
 
       let idBd: string;
 
-      let idAuto: string | undefined;
+      let idAuto: string;
 
       before(async () => {
         ({ dossier, effacer } = await dossierTempo());
@@ -687,7 +686,6 @@ describe.only("Automatisations", function () {
 
         if (idAuto)
           await constl.automatisations.annulerAutomatisation({ id: idAuto });
-        idAuto = undefined;
       });
 
       it("dossier masqué sur autre dispositif", async () => {  
@@ -749,7 +747,7 @@ describe.only("Automatisations", function () {
       let idColPrécip: string;
       let idColDate: string;
 
-      let idAuto: string | undefined;
+      let idAuto: string;
       let fichier: string;
 
       let horloge: SinonFakeTimers;
@@ -791,7 +789,6 @@ describe.only("Automatisations", function () {
                 
         if (idAuto)
           await constl.automatisations.annulerAutomatisation({ id: idAuto });
-        idAuto = undefined;
       });
 
       it("réexporté selon fréquence", async () => {
@@ -873,7 +870,7 @@ describe.only("Automatisations", function () {
       let idColPrécip: string;
       let idColDate: string;
 
-      let idAuto: string | undefined;
+      let idAuto: string;
       let fichier: string;
 
       before(async () => {
@@ -905,7 +902,6 @@ describe.only("Automatisations", function () {
                 
         if (idAuto)
           await constl.automatisations.annulerAutomatisation({ id: idAuto });
-        idAuto = undefined;
       });
 
       it("réexportée lors de changements", async () => {
@@ -962,7 +958,7 @@ describe.only("Automatisations", function () {
       let idColPrécip: string;
       let idColDate: string;
 
-      let idAuto: string | undefined;
+      let idAuto: string;
       let fichier: string;
 
       before(async () => {
@@ -994,7 +990,6 @@ describe.only("Automatisations", function () {
                 
         if (idAuto)
           await constl.automatisations.annulerAutomatisation({ id: idAuto });
-        idAuto = undefined;
       });
 
       it("pas exportée pour commencer", async () => {
@@ -1050,7 +1045,7 @@ describe.only("Automatisations", function () {
       let idColPhoto: string;
       let idc: string;
 
-      let idAuto: string | undefined;
+      let idAuto: string;
       
       const nomTableauFra = "Météo"
       const nomBdத = "வானிலை தகவல்கள்"
@@ -1090,7 +1085,6 @@ describe.only("Automatisations", function () {
       afterEach(async () => {  
         if (idAuto)
           await constl.automatisations.annulerAutomatisation({ id: idAuto });
-        idAuto = undefined;
       })
 
       describe("exporter tableaux", function () {
@@ -1345,9 +1339,17 @@ describe.only("Automatisations", function () {
       
     });
 
-    // Exportation - copies
-    /** Copies selon nombre */
-    /** Copies selon temps */
-
+    describe("copies", function () {
+      describe("selon nombre", function () {
+        it("création multiples copies")
+        it("effacer automatiquement lorsque trop")
+        it("effacer automatiquement si n modifié")
+      })
+      describe("selon temps", function () {
+        it("création multiples copies")
+        it("effacer automatiquement lorsque trop")
+        it("effacer automatiquement si n modifié")
+      })
+    })
   });
 });
