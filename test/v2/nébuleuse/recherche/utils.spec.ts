@@ -88,7 +88,7 @@ describe("Utils recherche", function () {
   describe("simil texte", function () {
     it("exacte", () => {
       const textes = {
-        fr: "hydrologie",
+        fra: "hydrologie",
         cst: "hidrología",
         த: "நீரியல்",
       };
@@ -99,7 +99,7 @@ describe("Utils recherche", function () {
       });
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         info: {
           type: "texte",
           début: 0,
@@ -135,7 +135,7 @@ describe("Utils recherche", function () {
 
     it("meilleure", () => {
       const textes = {
-        fr: "hydrologie",
+        fra: "hydrologie",
         cst: "hidrología",
         த: "நீரியல்",
       };
@@ -143,7 +143,7 @@ describe("Utils recherche", function () {
       const résultat = similTexte({ texte: "hydro", possibilités: textes });
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         info: {
           type: "texte",
           début: 0,
@@ -156,7 +156,7 @@ describe("Utils recherche", function () {
 
     it("aucune", () => {
       const textes = {
-        fr: "hydrologie",
+        fra: "hydrologie",
         cst: "hidrología",
         த: "நீரியல்",
       };

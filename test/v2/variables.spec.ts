@@ -155,7 +155,7 @@ describe("Variables", function () {
     it("ajouter un nom", async () => {
       await constl.variables.sauvegarderNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         nom: "Précipitation",
       });
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
@@ -164,7 +164,7 @@ describe("Variables", function () {
           f: siPasVide(),
         }),
       );
-      expect(noms.fr).to.equal("Précipitation");
+      expect(noms.fra).to.equal("Précipitation");
     });
 
     it("ajouter des noms", async () => {
@@ -184,34 +184,34 @@ describe("Variables", function () {
       expect(noms).to.deep.equal({
         த: "மழை",
         हिं: "बारिश",
-        fr: "Précipitation",
+        fra: "Précipitation",
       });
     });
 
     it("changer un nom", async () => {
       await constl.variables.sauvegarderNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         nom: "précipitation",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.variables.suivreNoms({
           idVariable,
-          f: si((x) => !!x?.fr && !x.fr.startsWith("P")),
+          f: si((x) => !!x?.fra && !x.fra.startsWith("P")),
         }),
       );
-      expect(noms.fr).to.equal("précipitation");
+      expect(noms.fra).to.equal("précipitation");
     });
 
     it("effacer un nom", async () => {
       await constl.variables.effacerNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.variables.suivreNoms({
           idVariable,
-          f: si((x) => !x?.["fr"]),
+          f: si((x) => !x?.["fra"]),
         }),
       );
       expect(noms).to.deep.equal({ த: "மழை", हिं: "बारिश" });
@@ -240,16 +240,16 @@ describe("Variables", function () {
     it("ajouter une description", async () => {
       await constl.variables.sauvegarderDescription({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         description: "la quantité de précipitation quotidienne",
       });
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.variables.suivreDescriptions({
           idVariable,
-          f: si((x) => !!x?.["fr"]),
+          f: si((x) => !!x?.["fra"]),
         }),
       );
-      expect(descrs.fr).to.equal("la quantité de précipitation quotidienne");
+      expect(descrs.fra).to.equal("la quantité de précipitation quotidienne");
     });
 
     it("ajouter des descriptions", async () => {
@@ -269,34 +269,34 @@ describe("Variables", function () {
       expect(descrs).to.deep.equal({
         த: "தினசரி மழை",
         हिं: "दैनिक बारिश",
-        fr: "la quantité de précipitation quotidienne",
+        fra: "la quantité de précipitation quotidienne",
       });
     });
 
     it("changer une description", async () => {
       await constl.variables.sauvegarderDescription({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         description: "La quantité de précipitation quotidienne",
       });
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.variables.suivreDescriptions({
           idVariable,
-          f: si((x) => !!x?.fr && x["fr"].startsWith("L")),
+          f: si((x) => !!x?.fra && x["fra"].startsWith("L")),
         }),
       );
-      expect(descrs.fr).to.equal("La quantité de précipitation quotidienne");
+      expect(descrs.fra).to.equal("La quantité de précipitation quotidienne");
     });
 
     it("effacer une description", async () => {
       await constl.variables.effacerDescription({
         idVariable,
-        langue: "fr",
+        langue: "fra",
       });
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.variables.suivreDescriptions({
           idVariable,
-          f: si((x) => !x?.["fr"]),
+          f: si((x) => !x?.["fra"]),
         }),
       );
 
@@ -896,13 +896,13 @@ describe("Variables", function () {
       // Modification de la variable
       await constls[1].variables.sauvegarderNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         nom: "Pédologie",
       });
       const noms = await obtenir(({ siPasVide }) =>
         constls[0].variables.suivreNoms({ idVariable, f: siPasVide() }),
       );
-      expect(noms).to.deep.equal({ fr: "Pédologie" });
+      expect(noms).to.deep.equal({ fra: "Pédologie" });
     });
 
     it("promotion à modératrice", async () => {

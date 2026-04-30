@@ -156,7 +156,7 @@ describe("Projets", function () {
     it("ajouter un nom", async () => {
       await constl.projets.sauvegarderNom({
         idProjet,
-        langue: "fr",
+        langue: "fra",
         nom: "Alphabets",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
@@ -165,7 +165,7 @@ describe("Projets", function () {
           f: si((n) => !!n && Object.keys(n).length > 0),
         }),
       );
-      expect(noms.fr).to.equal("Alphabets");
+      expect(noms.fra).to.equal("Alphabets");
     });
 
     it("ajouter des noms", async () => {
@@ -183,7 +183,7 @@ describe("Projets", function () {
         }),
       );
       expect(noms).to.deep.equal({
-        fr: "Alphabets",
+        fra: "Alphabets",
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
       });
@@ -192,23 +192,23 @@ describe("Projets", function () {
     it("changer un nom", async () => {
       await constl.projets.sauvegarderNom({
         idProjet,
-        langue: "fr",
+        langue: "fra",
         nom: "Systèmes d'écriture",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.projets.suivreNoms({
           idProjet,
-          f: si((n) => n?.["fr"] !== "Alphabets"),
+          f: si((n) => n?.["fra"] !== "Alphabets"),
         }),
       );
 
-      expect(noms?.fr).to.equal("Systèmes d'écriture");
+      expect(noms?.fra).to.equal("Systèmes d'écriture");
     });
 
     it("effacer un nom", async () => {
-      await constl.projets.effacerNom({ idProjet, langue: "fr" });
+      await constl.projets.effacerNom({ idProjet, langue: "fra" });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.projets.suivreNoms({ idProjet, f: si((n) => !!n && !n["fr"]) }),
+        constl.projets.suivreNoms({ idProjet, f: si((n) => !!n && !n["fra"]) }),
       );
       expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
@@ -231,17 +231,17 @@ describe("Projets", function () {
     it("ajouter une description", async () => {
       await constl.projets.sauvegarderDescription({
         idProjet,
-        langue: "fr",
+        langue: "fra",
         description: "Alphabets",
       });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.projets.suivreDescriptions({
           idProjet,
-          f: si((x) => !!x?.["fr"]),
+          f: si((x) => !!x?.["fra"]),
         }),
       );
-      expect(descrs.fr).to.equal("Alphabets");
+      expect(descrs.fra).to.equal("Alphabets");
     });
 
     it("ajouter des descriptions", async () => {
@@ -260,7 +260,7 @@ describe("Projets", function () {
         }),
       );
       expect(descrs).to.deep.equal({
-        fr: "Alphabets",
+        fra: "Alphabets",
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
       });
@@ -269,26 +269,26 @@ describe("Projets", function () {
     it("changer une description", async () => {
       await constl.projets.sauvegarderDescription({
         idProjet,
-        langue: "fr",
+        langue: "fra",
         description: "Systèmes d'écriture",
       });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.projets.suivreDescriptions({
           idProjet,
-          f: si((x) => x?.["fr"] !== "Alphabets"),
+          f: si((x) => x?.["fra"] !== "Alphabets"),
         }),
       );
-      expect(descrs?.fr).to.equal("Systèmes d'écriture");
+      expect(descrs?.fra).to.equal("Systèmes d'écriture");
     });
 
     it("effacer une description", async () => {
-      await constl.projets.effacerDescription({ idProjet, langue: "fr" });
+      await constl.projets.effacerDescription({ idProjet, langue: "fra" });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.projets.suivreDescriptions({
           idProjet,
-          f: si((x) => !!x && !x["fr"]),
+          f: si((x) => !!x && !x["fra"]),
         }),
       );
       expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
@@ -1094,7 +1094,7 @@ describe("Projets", function () {
     it("changement nom bds détecté", async () => {
       await constl.bds.sauvegarderNom({
         idBd,
-        langue: "fr",
+        langue: "fra",
         nom: "Insectes de Montréal",
       });
 
@@ -1110,7 +1110,7 @@ describe("Projets", function () {
     it("changement nom projet détecté", async () => {
       await constl.projets.sauvegarderNom({
         idProjet,
-        langue: "fr",
+        langue: "fra",
         nom: "Science citoyenne",
       });
 
@@ -1142,7 +1142,7 @@ describe("Projets", function () {
     it("changement noms variable détecté", async () => {
       await constl.variables.sauvegarderNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         nom: "Population observée",
       });
 
@@ -1260,13 +1260,13 @@ describe("Projets", function () {
       // Modification du projet
       await constls[1].projets.sauvegarderNom({
         idProjet,
-        langue: "fr",
+        langue: "fra",
         nom: "Pédologie",
       });
       const noms = await obtenir(({ siPasVide }) =>
         constls[0].projets.suivreNoms({ idProjet, f: siPasVide() }),
       );
-      expect(noms).to.deep.equal({ fr: "Pédologie" });
+      expect(noms).to.deep.equal({ fra: "Pédologie" });
     });
 
     it("promotion à modératrice", async () => {
@@ -1381,14 +1381,14 @@ describe("Projets", function () {
         const pDonnées = obtenir<DonnéesProjetExportées>(({ si }) =>
           constl.projets.suivreDonnéesExportation({
             idProjet,
-            langues: ["fr"],
+            langues: ["fra"],
             f: si((x) => !!x && !idProjet.includes(x.nomProjet)),
           }),
         );
 
         await constl.projets.sauvegarderNom({
           idProjet,
-          langue: "fr",
+          langue: "fra",
           nom: nomProjetFr,
         });
 
@@ -1400,7 +1400,7 @@ describe("Projets", function () {
         const pDonnées = obtenir<DonnéesProjetExportées>(({ si }) =>
           constl.projets.suivreDonnéesExportation({
             idProjet,
-            langues: ["fr"],
+            langues: ["fra"],
             f: si((x) => !!x && x.bds.length >= 2),
           }),
         );
@@ -1425,7 +1425,7 @@ describe("Projets", function () {
         const données = await obtenir<DonnéesProjetExportées>(({ si }) =>
           constl.projets.suivreDonnéesExportation({
             idProjet,
-            langues: ["fr"],
+            langues: ["fra"],
             f: si((x) => !!x && x.bds.length >= 2),
           }),
         );
@@ -1468,7 +1468,7 @@ describe("Projets", function () {
 
         données = await constl.projets.exporterDonnées({
           idProjet,
-          langues: ["fr"],
+          langues: ["fra"],
         });
       });
 
@@ -1507,7 +1507,7 @@ describe("Projets", function () {
 
         const { documentsMédias } = await constl.projets.exporterDonnées({
           idProjet,
-          langues: ["fr"],
+          langues: ["fra"],
         });
         expect([...documentsMédias]).to.have.members([idc, idcIndisponible]);
       });
@@ -1521,7 +1521,7 @@ describe("Projets", function () {
         const { docus, documentsMédias } = await constl.projets.exporterDonnées(
           {
             idProjet: idProjetTest,
-            langues: ["fr"],
+            langues: ["fra"],
           },
         );
 
@@ -1569,7 +1569,7 @@ describe("Projets", function () {
           éléments: [{ [idColonne]: idc }],
         });
 
-        await constl.bds.sauvegarderNoms({ idBd: idBd1, noms: { fr: nomBd1 } });
+        await constl.bds.sauvegarderNoms({ idBd: idBd1, noms: { fra: nomBd1 } });
 
         await constl.projets.ajouterBds({ idProjet, idsBds: [idBd1, idBd2] });
       });
@@ -1586,7 +1586,7 @@ describe("Projets", function () {
               nomFichier,
               dossier,
               formatDocu: "ods",
-              langues: ["fr"],
+              langues: ["fra"],
             }),
           ).to.eventually.be.rejectedWith("showSaveFilePicker");
         } else {
@@ -1595,7 +1595,7 @@ describe("Projets", function () {
             nomFichier,
             dossier,
             formatDocu: "ods",
-            langues: ["fr"],
+            langues: ["fra"],
           });
 
           const nomZip = join(dossier, nomFichier + ".zip");
@@ -1644,7 +1644,7 @@ describe("Projets", function () {
           nomFichier: nomFichierTest,
           dossier,
           formatDocu: "ods",
-          langues: ["fr"],
+          langues: ["fra"],
         });
 
         const nomZip = join(dossier, nomFichierTest + ".zip");

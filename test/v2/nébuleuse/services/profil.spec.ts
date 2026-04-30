@@ -111,7 +111,7 @@ describe("Profil", function () {
 
     it("ajouter un nom", async () => {
       await nébuleuse.profil.sauvegarderNom({
-        langue: "fr",
+        langue: "fra",
         nom: "Julien Malard-Adam",
       });
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
@@ -119,7 +119,7 @@ describe("Profil", function () {
           f: siPasVide(),
         }),
       );
-      expect(noms.fr).to.equal("Julien Malard-Adam");
+      expect(noms.fra).to.equal("Julien Malard-Adam");
 
       await nébuleuse.profil.sauvegarderNom({
         langue: "த",
@@ -147,7 +147,7 @@ describe("Profil", function () {
     });
 
     it("effacer un nom", async () => {
-      await nébuleuse.profil.effacerNom({ langue: "fr" });
+      await nébuleuse.profil.effacerNom({ langue: "fra" });
 
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         nébuleuse.profil.suivreNoms({
@@ -170,7 +170,7 @@ describe("Profil", function () {
 
     it("ajouter une bio", async () => {
       await nébuleuse.profil.sauvegarderBio({
-        langue: "fr",
+        langue: "fra",
         bio: "Julien Malard-Adam",
       });
       const bios: TraducsTexte = await obtenir(({ siPasVide }) =>
@@ -178,7 +178,7 @@ describe("Profil", function () {
           f: siPasVide(),
         }),
       );
-      expect(bios.fr).to.equal("Julien Malard-Adam");
+      expect(bios.fra).to.equal("Julien Malard-Adam");
 
       await nébuleuse.profil.sauvegarderBio({
         langue: "मै",
@@ -206,7 +206,7 @@ describe("Profil", function () {
     });
 
     it("effacer une bio", async () => {
-      await nébuleuse.profil.effacerBio({ langue: "fr" });
+      await nébuleuse.profil.effacerBio({ langue: "fra" });
       const bios = await obtenir<TraducsTexte>(({ si }) =>
         nébuleuse.profil.suivreBios({
           f: si((x) => !!x && Object.keys(x).length <= 1),
@@ -427,7 +427,7 @@ describe("Profil", function () {
 
       await nébuleuses[0].profil.sauvegarderNom({
         nom: "Julien Malard-Adam",
-        langue: "fr",
+        langue: "fra",
       });
 
       await comptes[0].ajouterDispositif({
@@ -445,11 +445,11 @@ describe("Profil", function () {
     it("le nouveau dispositif suit le profil", async () => {
       const noms = await obtenir<TraducsTexte | undefined>(({ si }) =>
         nébuleuses[1].profil.suivreNoms({
-          f: si((x) => !!x && Object.keys(x).includes("fr")),
+          f: si((x) => !!x && Object.keys(x).includes("fra")),
         }),
       );
 
-      expect(noms?.fr).to.equal("Julien Malard-Adam");
+      expect(noms?.fra).to.equal("Julien Malard-Adam");
     });
 
     it("le nouveau dispositif peut modifier le compte", async () => {
@@ -466,7 +466,7 @@ describe("Profil", function () {
       );
 
       expect(nomsSurDispositif2).to.deep.equal({
-        fr: "Julien Malard-Adam",
+        fra: "Julien Malard-Adam",
         த: "ம.-அதான் ஜூலீஎன்",
       });
 
@@ -477,7 +477,7 @@ describe("Profil", function () {
       );
 
       expect(noms).to.deep.equal({
-        fr: "Julien Malard-Adam",
+        fra: "Julien Malard-Adam",
         த: "ம.-அதான் ஜூலீஎன்",
       });
     });

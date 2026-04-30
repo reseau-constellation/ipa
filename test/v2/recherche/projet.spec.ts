@@ -82,7 +82,7 @@ describe("Rechercher projets", function () {
       await constl.projets.sauvegarderNoms({
         idProjet,
         noms: {
-          fr: "Météorologie",
+          fra: "Météorologie",
         },
       });
 
@@ -90,7 +90,7 @@ describe("Rechercher projets", function () {
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -143,14 +143,14 @@ describe("Rechercher projets", function () {
       await constl.projets.sauvegarderDescriptions({
         idProjet,
         descriptions: {
-          fr: "Météo historique",
+          fra: "Météo historique",
         },
       });
       const résultat = await pRésultat;
 
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",
@@ -296,7 +296,7 @@ describe("Rechercher projets", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Météo historique pour la région de Montréal",
+          fra: "Météo historique pour la région de Montréal",
         },
       });
 
@@ -312,7 +312,7 @@ describe("Rechercher projets", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -456,7 +456,7 @@ describe("Rechercher projets", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "Précipitation mensuelle",
+          fra: "Précipitation mensuelle",
         },
       });
 
@@ -472,7 +472,7 @@ describe("Rechercher projets", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -581,7 +581,7 @@ describe("Rechercher projets", function () {
 
       await constl.bds.sauvegarderNoms({
         idBd,
-        noms: { fr: "Hydrologie" },
+        noms: { fra: "Hydrologie" },
       });
 
       const résulatNom = await pRésultatNom;
@@ -594,7 +594,7 @@ describe("Rechercher projets", function () {
         clef: idBd,
         info: {
           type: "résultat",
-          clef: "fr",
+          clef: "fra",
           de: "nom",
           info: {
             type: "texte",
@@ -622,7 +622,7 @@ describe("Rechercher projets", function () {
       await constl.bds.sauvegarderDescriptions({
         idBd,
         descriptions: {
-          fr: "Hydrologie de Montréal",
+          fra: "Hydrologie de Montréal",
         },
       });
       const résulatDescription = await pRésultatDescription;
@@ -635,7 +635,7 @@ describe("Rechercher projets", function () {
         clef: idBd,
         info: {
           type: "résultat",
-          clef: "fr",
+          clef: "fra",
           de: "descriptions",
           info: {
             type: "texte",
@@ -672,7 +672,7 @@ describe("Rechercher projets", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "Température maximale",
+          fra: "Température maximale",
         },
       });
 
@@ -691,7 +691,7 @@ describe("Rechercher projets", function () {
           info: {
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               début: 0,
@@ -731,7 +731,7 @@ describe("Rechercher projets", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Météorologie",
+          fra: "Météorologie",
         },
       });
 
@@ -750,7 +750,7 @@ describe("Rechercher projets", function () {
           info: {
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               début: 0,
@@ -858,14 +858,14 @@ describe("Rechercher projets", function () {
       await constl.projets.sauvegarderNoms({
         idProjet,
         noms: {
-          fr: "Hydrologie",
+          fra: "Hydrologie",
         },
       });
       const résulatNoms = await pRésultatNom;
 
       const réf: RésultatObjectifRecherche<TypeRésultatProjet> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -892,7 +892,7 @@ describe("Rechercher projets", function () {
       await constl.projets.sauvegarderDescriptions({
         idProjet,
         descriptions: {
-          fr: "Hydrologie de Montréal",
+          fra: "Hydrologie de Montréal",
         },
       });
 
@@ -900,7 +900,7 @@ describe("Rechercher projets", function () {
 
       const réf: RésultatObjectifRecherche<TypeRésultatProjet> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",
@@ -968,7 +968,7 @@ describe("Rechercher projets", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "Température maximale",
+          fra: "Température maximale",
         },
       });
       const résulatVariable = await pRésultatVariable;
@@ -986,7 +986,7 @@ describe("Rechercher projets", function () {
           info: {
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               début: 0,
@@ -1020,7 +1020,7 @@ describe("Rechercher projets", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Météorologie",
+          fra: "Météorologie",
         },
       });
       await constl.projets.ajouterMotsClefs({
@@ -1039,7 +1039,7 @@ describe("Rechercher projets", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -1063,7 +1063,7 @@ describe("Rechercher projets", function () {
           info: {
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               début: 0,

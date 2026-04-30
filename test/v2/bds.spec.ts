@@ -169,7 +169,7 @@ describe("Bases de données", function () {
     it("ajouter un nom", async () => {
       await constl.bds.sauvegarderNom({
         idBd,
-        langue: "fr",
+        langue: "fra",
         nom: "Alphabets",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
@@ -178,7 +178,7 @@ describe("Bases de données", function () {
           f: si((n) => !!n && Object.keys(n).length > 0),
         }),
       );
-      expect(noms.fr).to.equal("Alphabets");
+      expect(noms.fra).to.equal("Alphabets");
     });
 
     it("ajouter des noms", async () => {
@@ -196,7 +196,7 @@ describe("Bases de données", function () {
         }),
       );
       expect(noms).to.deep.equal({
-        fr: "Alphabets",
+        fra: "Alphabets",
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
       });
@@ -205,23 +205,23 @@ describe("Bases de données", function () {
     it("changer un nom", async () => {
       await constl.bds.sauvegarderNom({
         idBd,
-        langue: "fr",
+        langue: "fra",
         nom: "Systèmes d'écriture",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreNoms({
           idBd,
-          f: si((n) => n?.["fr"] !== "Alphabets"),
+          f: si((n) => n?.["fra"] !== "Alphabets"),
         }),
       );
 
-      expect(noms?.fr).to.equal("Systèmes d'écriture");
+      expect(noms?.fra).to.equal("Systèmes d'écriture");
     });
 
     it("effacer un nom", async () => {
-      await constl.bds.effacerNom({ idBd, langue: "fr" });
+      await constl.bds.effacerNom({ idBd, langue: "fra" });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.bds.suivreNoms({ idBd, f: si((n) => !!n && !n["fr"]) }),
+        constl.bds.suivreNoms({ idBd, f: si((n) => !!n && !n["fra"]) }),
       );
       expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
@@ -244,14 +244,14 @@ describe("Bases de données", function () {
     it("ajouter une description", async () => {
       await constl.bds.sauvegarderDescription({
         idBd,
-        langue: "fr",
+        langue: "fra",
         description: "Alphabets",
       });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.bds.suivreDescriptions({ idBd, f: si((x) => !!x?.["fr"]) }),
+        constl.bds.suivreDescriptions({ idBd, f: si((x) => !!x?.["fra"]) }),
       );
-      expect(descrs.fr).to.equal("Alphabets");
+      expect(descrs.fra).to.equal("Alphabets");
     });
 
     it("ajouter des descriptions", async () => {
@@ -270,7 +270,7 @@ describe("Bases de données", function () {
         }),
       );
       expect(descrs).to.deep.equal({
-        fr: "Alphabets",
+        fra: "Alphabets",
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
       });
@@ -279,24 +279,24 @@ describe("Bases de données", function () {
     it("changer une description", async () => {
       await constl.bds.sauvegarderDescription({
         idBd,
-        langue: "fr",
+        langue: "fra",
         description: "Systèmes d'écriture",
       });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.suivreDescriptions({
           idBd,
-          f: si((x) => x?.["fr"] !== "Alphabets"),
+          f: si((x) => x?.["fra"] !== "Alphabets"),
         }),
       );
-      expect(descrs?.fr).to.equal("Systèmes d'écriture");
+      expect(descrs?.fra).to.equal("Systèmes d'écriture");
     });
 
     it("effacer une description", async () => {
-      await constl.bds.effacerDescription({ idBd, langue: "fr" });
+      await constl.bds.effacerDescription({ idBd, langue: "fra" });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.bds.suivreDescriptions({ idBd, f: si((x) => !!x && !x["fr"]) }),
+        constl.bds.suivreDescriptions({ idBd, f: si((x) => !!x && !x["fra"]) }),
       );
       expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
@@ -1584,7 +1584,7 @@ describe("Bases de données", function () {
 
       const élémentsSource: ÉlémentTrad[] = [
         {
-          [idColonneClef]: "fr",
+          [idColonneClef]: "fra",
           [idColonneTraduc]: "Constellation",
         },
         {
@@ -1604,7 +1604,7 @@ describe("Bases de données", function () {
 
       const élémentsDestinataire: ÉlémentTrad[] = [
         {
-          [idColonneClef]: "fr",
+          [idColonneClef]: "fra",
           [idColonneTraduc]: "Constellation", // Une erreur ici, disons
         },
         {
@@ -1646,7 +1646,7 @@ describe("Bases de données", function () {
 
       const donnéesSansId = données.map((d) => d.données);
       expect(donnéesSansId).to.have.deep.members([
-        { [idColonneClef]: "fr", [idColonneTraduc]: "Constellation" },
+        { [idColonneClef]: "fra", [idColonneTraduc]: "Constellation" },
         { [idColonneClef]: "kaq", [idColonneTraduc]: "Ch'umil" },
         { [idColonneClef]: "हिं", [idColonneTraduc]: "तारामंडल" },
         { [idColonneClef]: "த", [idColonneTraduc]: "விண்மீன்" },
@@ -1738,7 +1738,7 @@ describe("Bases de données", function () {
       await constl.bds.tableaux.sauvegarderNom({
         idStructure: idBd,
         idTableau,
-        langue: "fr",
+        langue: "fra",
         nom: "Insectes de Montréal",
       });
 
@@ -1756,7 +1756,7 @@ describe("Bases de données", function () {
 
       await constl.bds.sauvegarderNom({
         idBd,
-        langue: "fr",
+        langue: "fra",
         nom: "Science citoyenne",
       });
 
@@ -1792,7 +1792,7 @@ describe("Bases de données", function () {
 
       await constl.variables.sauvegarderNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         nom: "Population observée",
       });
 
@@ -1984,7 +1984,7 @@ describe("Bases de données", function () {
       });
 
       it("ajout noms", async () => {
-        await constl.bds.sauvegarderNoms({ idBd, noms: { fr: "Ma BD" } });
+        await constl.bds.sauvegarderNoms({ idBd, noms: { fra: "Ma BD" } });
         const score = await obtenir<ScoreBd>(({ si }) =>
           constl.bds.suivreScoreQualité({
             idBd,
@@ -1997,7 +1997,7 @@ describe("Bases de données", function () {
       it("ajout descriptions", async () => {
         await constl.bds.sauvegarderDescriptions({
           idBd,
-          descriptions: { fr: "Ma BD" },
+          descriptions: { fra: "Ma BD" },
         });
         const score = await obtenir<ScoreBd>(({ si }) =>
           constl.bds.suivreScoreQualité({
@@ -2285,12 +2285,12 @@ describe("Bases de données", function () {
           ],
         });
 
-        await constl.bds.sauvegarderNom({ idBd, langue: "fr", nom: nomBdFr });
+        await constl.bds.sauvegarderNom({ idBd, langue: "fra", nom: nomBdFr });
 
         données = await obtenir<DonnéesBdExportées>(({ si }) =>
           constl.bds.suivreDonnéesExportation({
             idBd,
-            langues: ["fr"],
+            langues: ["fra"],
             f: si((d) => !!d && d.tableaux.length >= 2),
           }),
         );
@@ -2377,7 +2377,7 @@ describe("Bases de données", function () {
         await constl.bds.tableaux.sauvegarderNom({
           idStructure: idBd,
           idTableau,
-          langue: "fr",
+          langue: "fra",
           nom: nomTableauFr,
         });
 
@@ -2580,13 +2580,13 @@ describe("Bases de données", function () {
       // Modification de la base de données
       await constls[1].bds.sauvegarderNom({
         idBd,
-        langue: "fr",
+        langue: "fra",
         nom: "Niveaux d'eau",
       });
       const noms = await obtenir(({ siPasVide }) =>
         constls[0].bds.suivreNoms({ idBd, f: siPasVide() }),
       );
-      expect(noms).to.deep.equal({ fr: "Niveaux d'eau" });
+      expect(noms).to.deep.equal({ fra: "Niveaux d'eau" });
     });
 
     it("modification des données par le nouvel auteur", async () => {

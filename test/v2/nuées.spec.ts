@@ -177,7 +177,7 @@ describe("Nuées", function () {
     it("ajouter un nom", async () => {
       await constl.nuées.sauvegarderNom({
         idNuée,
-        langue: "fr",
+        langue: "fra",
         nom: "Alphabets",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
@@ -186,7 +186,7 @@ describe("Nuées", function () {
           f: si((n) => !!n && Object.keys(n).length > 0),
         }),
       );
-      expect(noms.fr).to.equal("Alphabets");
+      expect(noms.fra).to.equal("Alphabets");
     });
 
     it("ajouter des noms", async () => {
@@ -204,7 +204,7 @@ describe("Nuées", function () {
         }),
       );
       expect(noms).to.deep.equal({
-        fr: "Alphabets",
+        fra: "Alphabets",
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
       });
@@ -213,23 +213,23 @@ describe("Nuées", function () {
     it("changer un nom", async () => {
       await constl.nuées.sauvegarderNom({
         idNuée,
-        langue: "fr",
+        langue: "fra",
         nom: "Systèmes d'écriture",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.nuées.suivreNoms({
           idNuée,
-          f: si((n) => n?.["fr"] !== "Alphabets"),
+          f: si((n) => n?.["fra"] !== "Alphabets"),
         }),
       );
 
-      expect(noms?.fr).to.equal("Systèmes d'écriture");
+      expect(noms?.fra).to.equal("Systèmes d'écriture");
     });
 
     it("effacer un nom", async () => {
-      await constl.nuées.effacerNom({ idNuée, langue: "fr" });
+      await constl.nuées.effacerNom({ idNuée, langue: "fra" });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
-        constl.nuées.suivreNoms({ idNuée, f: si((n) => !!n && !n["fr"]) }),
+        constl.nuées.suivreNoms({ idNuée, f: si((n) => !!n && !n["fra"]) }),
       );
       expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
@@ -252,14 +252,14 @@ describe("Nuées", function () {
     it("ajouter une description", async () => {
       await constl.nuées.sauvegarderDescription({
         idNuée,
-        langue: "fr",
+        langue: "fra",
         description: "Alphabets",
       });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
-        constl.nuées.suivreDescriptions({ idNuée, f: si((x) => !!x?.["fr"]) }),
+        constl.nuées.suivreDescriptions({ idNuée, f: si((x) => !!x?.["fra"]) }),
       );
-      expect(descrs.fr).to.equal("Alphabets");
+      expect(descrs.fra).to.equal("Alphabets");
     });
 
     it("ajouter des descriptions", async () => {
@@ -278,7 +278,7 @@ describe("Nuées", function () {
         }),
       );
       expect(descrs).to.deep.equal({
-        fr: "Alphabets",
+        fra: "Alphabets",
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
       });
@@ -287,26 +287,26 @@ describe("Nuées", function () {
     it("changer une description", async () => {
       await constl.nuées.sauvegarderDescription({
         idNuée,
-        langue: "fr",
+        langue: "fra",
         description: "Systèmes d'écriture",
       });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.nuées.suivreDescriptions({
           idNuée,
-          f: si((x) => x?.["fr"] !== "Alphabets"),
+          f: si((x) => x?.["fra"] !== "Alphabets"),
         }),
       );
-      expect(descrs?.fr).to.equal("Systèmes d'écriture");
+      expect(descrs?.fra).to.equal("Systèmes d'écriture");
     });
 
     it("effacer une description", async () => {
-      await constl.nuées.effacerDescription({ idNuée, langue: "fr" });
+      await constl.nuées.effacerDescription({ idNuée, langue: "fra" });
 
       const descrs = await obtenir<TraducsTexte>(({ si }) =>
         constl.nuées.suivreDescriptions({
           idNuée,
-          f: si((x) => !!x && !x["fr"]),
+          f: si((x) => !!x && !x["fra"]),
         }),
       );
       expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
@@ -2309,7 +2309,7 @@ describe("Nuées", function () {
     it.skip("changement nom bds détecté", async () => {
       await constl.bds.sauvegarderNom({
         idBd,
-        langue: "fr",
+        langue: "fra",
         nom: "Insectes de Montréal",
       });
 
@@ -2325,7 +2325,7 @@ describe("Nuées", function () {
     it("changement nom nuée détecté", async () => {
       await constl.nuées.sauvegarderNom({
         idNuée,
-        langue: "fr",
+        langue: "fra",
         nom: "Science citoyenne",
       });
 
@@ -2357,7 +2357,7 @@ describe("Nuées", function () {
     it.skip("changement noms variable détecté", async () => {
       await constl.variables.sauvegarderNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         nom: "Population observée",
       });
 
@@ -2566,14 +2566,14 @@ describe("Nuées", function () {
       it("noms ascendance", async () => {
         await constl.nuées.sauvegarderNoms({
           idNuée: idNuéeGrandParent,
-          noms: { fr: "Science citoyenne", ctl: "Ciència ciutadana" },
+          noms: { fra: "Science citoyenne", ctl: "Ciència ciutadana" },
         });
         const noms = await obtenir(({ siPasVide }) =>
           constl.nuées.suivreNoms({ idNuée, f: siPasVide() }),
         );
 
         expect(noms).to.deep.equal({
-          fr: "Science citoyenne",
+          fra: "Science citoyenne",
           ctl: "Ciència ciutadana",
         });
       });
@@ -2596,7 +2596,7 @@ describe("Nuées", function () {
         );
 
         expect(noms).to.deep.equal({
-          fr: "Science citoyenne",
+          fra: "Science citoyenne",
           ctl: "Projete de ciència ciutadana",
         });
       });
@@ -2619,7 +2619,7 @@ describe("Nuées", function () {
         );
 
         expect(noms).to.deep.equal({
-          fr: "Science citoyenne",
+          fra: "Science citoyenne",
           ctl: "Projete de ciència ciutadana hidrològica",
         });
       });
@@ -2641,14 +2641,14 @@ describe("Nuées", function () {
       it("descriptions ascendance", async () => {
         await constl.nuées.sauvegarderDescriptions({
           idNuée: idNuéeGrandParent,
-          descriptions: { fr: "Science citoyenne", ctl: "Ciència ciutadana" },
+          descriptions: { fra: "Science citoyenne", ctl: "Ciència ciutadana" },
         });
         const descriptions = await obtenir(({ siPasVide }) =>
           constl.nuées.suivreDescriptions({ idNuée, f: siPasVide() }),
         );
 
         expect(descriptions).to.deep.equal({
-          fr: "Science citoyenne",
+          fra: "Science citoyenne",
           ctl: "Ciència ciutadana",
         });
       });
@@ -2671,7 +2671,7 @@ describe("Nuées", function () {
         );
 
         expect(descriptions).to.deep.equal({
-          fr: "Science citoyenne",
+          fra: "Science citoyenne",
           ctl: "Projete de ciència ciutadana",
         });
       });
@@ -2694,7 +2694,7 @@ describe("Nuées", function () {
         );
 
         expect(descriptions).to.deep.equal({
-          fr: "Science citoyenne",
+          fra: "Science citoyenne",
           ctl: "Projete de ciència ciutadana hidrològica",
         });
       });
@@ -4037,7 +4037,7 @@ describe("Nuées", function () {
       it("ajout noms", async () => {
         await constl.nuées.sauvegarderNoms({
           idNuée,
-          noms: { fr: "Science citoyenne" },
+          noms: { fra: "Science citoyenne" },
         });
         const score = await obtenir<ScoreNuée>(({ si }) =>
           constl.nuées.suivreScoreQualité({
@@ -4051,7 +4051,7 @@ describe("Nuées", function () {
       it("ajout descriptions", async () => {
         await constl.nuées.sauvegarderDescriptions({
           idNuée,
-          descriptions: { fr: "Science citoyenne" },
+          descriptions: { fra: "Science citoyenne" },
         });
         const score = await obtenir<ScoreNuée>(({ si }) =>
           constl.nuées.suivreScoreQualité({
@@ -4178,13 +4178,13 @@ describe("Nuées", function () {
       // Modification de la nuée
       await constls[1].nuées.sauvegarderNom({
         idNuée,
-        langue: "fr",
+        langue: "fra",
         nom: "Pédologie",
       });
       const noms = await obtenir(({ siPasVide }) =>
         constls[0].nuées.suivreNoms({ idNuée, f: siPasVide() }),
       );
-      expect(noms).to.deep.equal({ fr: "Pédologie" });
+      expect(noms).to.deep.equal({ fra: "Pédologie" });
     });
 
     it("promotion à modératrice", async () => {
@@ -4312,14 +4312,14 @@ describe("Nuées", function () {
         const pDonnées = obtenir<DonnéesBdExportées>(({ si }) =>
           constl.nuées.suivreDonnéesExportation({
             idNuée,
-            langues: ["fr"],
+            langues: ["fra"],
             f: si((x) => !!x && !idNuée.includes(x.nomBd)),
           }),
         );
 
         await constl.nuées.sauvegarderNom({
           idNuée,
-          langue: "fr",
+          langue: "fra",
           nom: nomNuéeFr,
         });
 
@@ -4331,7 +4331,7 @@ describe("Nuées", function () {
         const données = await obtenir<DonnéesBdExportées>(({ si }) =>
           constl.nuées.suivreDonnéesExportation({
             idNuée,
-            langues: ["fr"],
+            langues: ["fra"],
             f: si((x) => !!x && x.tableaux.length >= 2),
           }),
         );
@@ -4345,7 +4345,7 @@ describe("Nuées", function () {
         const pDonnées = obtenir<DonnéesBdExportées>(({ si }) =>
           constl.nuées.suivreDonnéesExportation({
             idNuée,
-            langues: ["fr"],
+            langues: ["fra"],
             f: si(
               (x) =>
                 !!x?.tableaux.map((t) => t.nomTableau).includes(nomTableau1),
@@ -4357,7 +4357,7 @@ describe("Nuées", function () {
           idStructure: idNuée,
           idTableau: idTableau1,
           noms: {
-            fr: nomTableau1,
+            fra: nomTableau1,
           },
         });
 
@@ -4371,7 +4371,7 @@ describe("Nuées", function () {
         const pDonnées = obtenir<DonnéesBdExportées>(({ si }) =>
           constl.nuées.suivreDonnéesExportation({
             idNuée,
-            langues: ["fr"],
+            langues: ["fra"],
             f: si(
               (x) =>
                 !!x?.tableaux.map((t) => t.nomTableau).includes(nomTableau1),
@@ -4423,7 +4423,7 @@ describe("Nuées", function () {
           ({ siDéfini }) =>
             constl.nuées.suivreDonnéesExportation({
               idNuée: idNuéeIndisponible,
-              langues: ["fr"],
+              langues: ["fra"],
               f: siDéfini(),
               idsTableaux: [idTableau1, idTableau2], // Nécessaire si la nuée n'est pas disponible
             }),
@@ -4465,7 +4465,7 @@ describe("Nuées", function () {
           idStructure: idNuée,
           idTableau: idTableau1,
           noms: {
-            fr: nomTableau1,
+            fra: nomTableau1,
           },
         });
 
@@ -4531,7 +4531,7 @@ describe("Nuées", function () {
 
         const { documentsMédias } = await constl.nuées.exporterDonnées({
           idNuée,
-          langues: ["fr"],
+          langues: ["fra"],
         });
         expect(documentsMédias).to.have.members([idc, idcIndisponible]);
       });
@@ -4558,7 +4558,7 @@ describe("Nuées", function () {
 
         const { docu, nomFichier } = await constl.nuées.exporterDonnées({
           idNuée: idNuéeNExistePas,
-          langues: ["fr"],
+          langues: ["fra"],
           idsTableaux: [idTableau2],
         });
         expect(docu.SheetNames).to.have.members([idTableau2]);
@@ -4589,7 +4589,7 @@ describe("Nuées", function () {
         await constl.nuées.tableaux.sauvegarderNom({
           idStructure: idNuée,
           idTableau,
-          langue: "fr",
+          langue: "fra",
           nom: nomTableauFr,
         });
 

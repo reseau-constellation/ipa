@@ -75,14 +75,14 @@ describe("Rechercher bds", function () {
       await constl.bds.sauvegarderNoms({
         idBd,
         noms: {
-          fr: "Météorologie",
+          fra: "Météorologie",
         },
       });
       const résultat = await pRésultat;
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -130,7 +130,7 @@ describe("Rechercher bds", function () {
       await constl.bds.sauvegarderDescriptions({
         idBd,
         descriptions: {
-          fr: "Météo historique pour la région de Montréal",
+          fra: "Météo historique pour la région de Montréal",
         },
       });
 
@@ -138,7 +138,7 @@ describe("Rechercher bds", function () {
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",
@@ -275,7 +275,7 @@ describe("Rechercher bds", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Météo historique pour la région de Montréal",
+          fra: "Météo historique pour la région de Montréal",
         },
       });
 
@@ -291,7 +291,7 @@ describe("Rechercher bds", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -432,7 +432,7 @@ describe("Rechercher bds", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "Précipitation mensuelle",
+          fra: "Précipitation mensuelle",
         },
       });
 
@@ -448,7 +448,7 @@ describe("Rechercher bds", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -544,14 +544,14 @@ describe("Rechercher bds", function () {
       );
       await constl.bds.sauvegarderNoms({
         idBd,
-        noms: { fr: "Hydrologie" },
+        noms: { fra: "Hydrologie" },
       });
 
       const résulatNoms = await pRésultatNom;
 
       const réf: RésultatObjectifRecherche<TypeRésultatBd> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -578,7 +578,7 @@ describe("Rechercher bds", function () {
       await constl.bds.sauvegarderDescriptions({
         idBd,
         descriptions: {
-          fr: "Hydrologie de Montréal",
+          fra: "Hydrologie de Montréal",
         },
       });
 
@@ -586,7 +586,7 @@ describe("Rechercher bds", function () {
 
       const réf: RésultatObjectifRecherche<TypeRésultatBd> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",
@@ -629,7 +629,7 @@ describe("Rechercher bds", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "Température maximale",
+          fra: "Température maximale",
         },
       });
 
@@ -642,7 +642,7 @@ describe("Rechercher bds", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -680,7 +680,7 @@ describe("Rechercher bds", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Météorologie",
+          fra: "Météorologie",
         },
       });
 
@@ -693,7 +693,7 @@ describe("Rechercher bds", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,

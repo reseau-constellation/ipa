@@ -213,13 +213,13 @@ describe("Rechercher profil", function () {
             f: si((r) => !!r && r.score > 0.5),
           }),
       );
-      await nébuleuse.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
+      await nébuleuse.profil.sauvegarderNom({ langue: "fra", nom: "Julien" });
 
       const résultat = await pRésultat;
 
       const réf: RésultatObjectifRecherche<InfoRésultatTexte> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         score: 1,
         de: "nom",
         info: { type: "texte", texte: "Julien", début: 0, fin: 6 },
@@ -411,7 +411,7 @@ describe("Rechercher profil", function () {
       );
 
       await nébuleuse.profil.sauvegarderNom({
-        langue: "fr",
+        langue: "fra",
         nom: "Julien Malard-Adam",
       });
 
@@ -420,7 +420,7 @@ describe("Rechercher profil", function () {
 
       const réfNom: RésultatObjectifRecherche<TypeRésultat> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -434,7 +434,7 @@ describe("Rechercher profil", function () {
 
       const réfCourriel: RésultatObjectifRecherche<TypeRésultat> = {
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",

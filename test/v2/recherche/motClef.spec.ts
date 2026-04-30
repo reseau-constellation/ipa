@@ -92,7 +92,7 @@ describe("Rechercher mots-clefs", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Sciences hydrologiques",
+          fra: "Sciences hydrologiques",
         },
       });
 
@@ -100,7 +100,7 @@ describe("Rechercher mots-clefs", function () {
 
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -126,7 +126,7 @@ describe("Rechercher mots-clefs", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "hydrologie",
+          fra: "hydrologie",
         },
       });
 
@@ -134,7 +134,7 @@ describe("Rechercher mots-clefs", function () {
 
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -215,14 +215,14 @@ describe("Rechercher mots-clefs", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "hydrologie",
+          fra: "hydrologie",
         },
       });
       const résultatNom = await pRésultatNom;
 
       expect(résultatNom).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -248,7 +248,7 @@ describe("Rechercher mots-clefs", function () {
       await constl.motsClefs.sauvegarderDescriptions({
         idMotClef,
         descriptions: {
-          fr: "un mot-clef pour le domaine de l'eau",
+          fra: "un mot-clef pour le domaine de l'eau",
         },
       });
 
@@ -256,7 +256,7 @@ describe("Rechercher mots-clefs", function () {
 
       expect(résultatDescription).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",

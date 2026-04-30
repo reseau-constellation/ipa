@@ -190,7 +190,7 @@ describe("Constellation", function () {
       // Vérifier que l'édition des données fonctionne
       await constls[1].bds.sauvegarderNom({
         idBd,
-        langue: "fr",
+        langue: "fra",
         nom: "mon tableau",
       });
 
@@ -198,7 +198,7 @@ describe("Constellation", function () {
         constls[0].bds.suivreNoms({ idBd, f: siPasVide() }),
       );
       expect(noms).to.deep.equal({
-        fr: "mon tableau",
+        fra: "mon tableau",
       });
     });
   });

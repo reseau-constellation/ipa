@@ -89,7 +89,7 @@ describe("tableaux", function () {
       await constl.bds.tableaux.sauvegarderNom({
         idStructure: idBd,
         idTableau,
-        langue: "fr",
+        langue: "fra",
         nom: "Alphabets",
       });
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
@@ -99,7 +99,7 @@ describe("tableaux", function () {
           f: siPasVide(),
         }),
       );
-      expect(noms.fr).to.equal("Alphabets");
+      expect(noms.fra).to.equal("Alphabets");
     });
 
     it("ajouter des noms", async () => {
@@ -122,7 +122,7 @@ describe("tableaux", function () {
       expect(noms).to.deep.equal({
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
-        fr: "Alphabets",
+        fra: "Alphabets",
       });
     });
 
@@ -130,31 +130,31 @@ describe("tableaux", function () {
       await constl.bds.tableaux.sauvegarderNom({
         idStructure: idBd,
         idTableau,
-        langue: "fr",
+        langue: "fra",
         nom: "Systèmes d'écriture",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.tableaux.suivreNoms({
           idStructure: idBd,
           idTableau,
-          f: si((x) => x?.["fr"] !== "Alphabets"),
+          f: si((x) => x?.["fra"] !== "Alphabets"),
         }),
       );
 
-      expect(noms.fr).to.equal("Systèmes d'écriture");
+      expect(noms.fra).to.equal("Systèmes d'écriture");
     });
 
     it("effacer un nom", async () => {
       await constl.bds.tableaux.effacerNom({
         idStructure: idBd,
         idTableau,
-        langue: "fr",
+        langue: "fra",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.bds.tableaux.suivreNoms({
           idStructure: idBd,
           idTableau,
-          f: si((x) => !!x && !Object.keys(x).includes("fr")),
+          f: si((x) => !!x && !Object.keys(x).includes("fra")),
         }),
       );
 
@@ -2226,7 +2226,7 @@ describe("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: idTexte }],
           conversions: [{ colonne: "chaîne", conversion: { type: "chaîne" } }],
-          traductions: { [idTexte]: { fr: "riz" } },
+          traductions: { [idTexte]: { fra: "riz" } },
         });
         const réf: DonnéesRangéeTableau[] = [
           {
@@ -2255,7 +2255,7 @@ describe("tableaux", function () {
         const { converties } = await constl.bds.tableaux.convertirDonnées({
           données: [{ chaîne: "riz" }],
           conversions: [{ colonne: "chaîne", conversion: { type: "chaîne" } }],
-          traductions: { [idTexte]: { fr: "riz" } },
+          traductions: { [idTexte]: { fra: "riz" } },
         });
         const réf: DonnéesRangéeTableau[] = [
           {
@@ -2275,7 +2275,7 @@ describe("tableaux", function () {
               conversion: { type: "chaîne", langue: "ctl" },
             },
           ],
-          traductions: { [idTexte]: { fr: "riz", ctl: "arròs" } },
+          traductions: { [idTexte]: { fra: "riz", ctl: "arròs" } },
         });
         const réf: DonnéesRangéeTableau[] = [
           {
@@ -3025,7 +3025,7 @@ describe("tableaux", function () {
           await constl.bds.tableaux.sauvegarderNom({
             idStructure: idBd,
             idTableau,
-            langue: "fr",
+            langue: "fra",
             nom: "tableau",
           });
           const données = await obtenir<DonnéesTableauExportées>(
@@ -3077,7 +3077,7 @@ describe("tableaux", function () {
             constl.bds.tableaux.suivreDonnéesExportation({
               idStructure: idBd,
               idTableau,
-              langues: ["fr"],
+              langues: ["fra"],
               f: si((x) => !!x && !Object.keys(x.données[0]).includes("date")),
             }),
           );
@@ -3340,14 +3340,14 @@ describe("tableaux", function () {
             idStructure: idBd,
             idTableau,
             noms: {
-              fr: nomTableauFr,
+              fra: nomTableauFr,
             },
           });
 
           données = await constl.bds.tableaux.exporterDonnées({
             idStructure: idBd,
             idTableau,
-            langues: ["த", "fr"],
+            langues: ["த", "fra"],
           });
         });
 
@@ -3546,7 +3546,7 @@ describe("tableaux", function () {
           await constl.bds.tableaux.sauvegarderNom({
             idStructure: idBd,
             idTableau,
-            langue: "fr",
+            langue: "fra",
             nom: nomTableauFr,
           });
 
@@ -3583,7 +3583,7 @@ describe("tableaux", function () {
             idTableau,
             dossier,
             formatDocu: "ods",
-            langues: ["fr"],
+            langues: ["fra"],
             inclureDocuments: false,
           });
           if (isBrowser || isElectronRenderer) {
@@ -3603,7 +3603,7 @@ describe("tableaux", function () {
             idTableau,
             dossier,
             formatDocu: "ods",
-            langues: ["fr"],
+            langues: ["fra"],
             inclureDocuments: true,
           });
           const cheminFichier = join(dossier, `${nomTableauFr}.zip`);
@@ -3634,7 +3634,7 @@ describe("tableaux", function () {
             idTableau,
             dossier: nouveauDossier,
             formatDocu: "ods",
-            langues: ["fr"],
+            langues: ["fra"],
             inclureDocuments: false,
           });
 
@@ -3652,7 +3652,7 @@ describe("tableaux", function () {
             idTableau,
             dossier: nouveauDossier,
             formatDocu: "ods",
-            langues: ["fr"],
+            langues: ["fra"],
           });
 
           const cheminFichier = join(nouveauDossier, `${nomTableauFr}.zip`);

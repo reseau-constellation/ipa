@@ -128,7 +128,7 @@ describe("Rechercher variables", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "Radiation solaire",
+          fra: "Radiation solaire",
         },
       });
 
@@ -136,7 +136,7 @@ describe("Rechercher variables", function () {
 
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -234,7 +234,7 @@ describe("Rechercher variables", function () {
       await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
-          fr: "Radiation solaire",
+          fra: "Radiation solaire",
         },
       });
 
@@ -250,7 +250,7 @@ describe("Rechercher variables", function () {
 
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",
@@ -300,7 +300,7 @@ describe("Rechercher variables", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "précipitation",
+          fra: "précipitation",
         },
       });
     });
@@ -340,7 +340,7 @@ describe("Rechercher variables", function () {
       );
       expect(résultatNom).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -366,7 +366,7 @@ describe("Rechercher variables", function () {
       await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
-          fr: "Pluie ou neige",
+          fra: "Pluie ou neige",
         },
       });
 
@@ -374,7 +374,7 @@ describe("Rechercher variables", function () {
 
       expect(résultatDescription).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",

@@ -142,7 +142,7 @@ describe("Mots-clefs", function () {
     it("ajouter un nom", async () => {
       await constl.motsClefs.sauvegarderNom({
         idMotClef,
-        langue: "fr",
+        langue: "fra",
         nom: "Hydrologie",
       });
       const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
@@ -151,7 +151,7 @@ describe("Mots-clefs", function () {
           f: siPasVide(),
         }),
       );
-      expect(noms.fr).to.equal("Hydrologie");
+      expect(noms.fra).to.equal("Hydrologie");
     });
 
     it("ajouter des noms", async () => {
@@ -172,35 +172,35 @@ describe("Mots-clefs", function () {
       expect(noms).to.deep.equal({
         த: "நீரியல்",
         हिं: "जल विज्ञान",
-        fr: "Hydrologie",
+        fra: "Hydrologie",
       });
     });
 
     it("changer un nom", async () => {
       await constl.motsClefs.sauvegarderNom({
         idMotClef,
-        langue: "fr",
+        langue: "fra",
         nom: "hydrologie",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.motsClefs.suivreNoms({
           idMotClef,
-          f: si((x) => x?.["fr"] === "hydrologie"),
+          f: si((x) => x?.["fra"] === "hydrologie"),
         }),
       );
 
-      expect(noms.fr).to.equal("hydrologie");
+      expect(noms.fra).to.equal("hydrologie");
     });
 
     it("effacer un nom", async () => {
       await constl.motsClefs.effacerNom({
         idMotClef,
-        langue: "fr",
+        langue: "fra",
       });
       const noms = await obtenir<TraducsTexte>(({ si }) =>
         constl.motsClefs.suivreNoms({
           idMotClef,
-          f: si((x) => !!x && !Object.keys(x).includes("fr")),
+          f: si((x) => !!x && !Object.keys(x).includes("fra")),
         }),
       );
 
@@ -231,7 +231,7 @@ describe("Mots-clefs", function () {
     it("ajouter une description", async () => {
       await constl.motsClefs.sauvegarderDescription({
         idMotClef,
-        langue: "fr",
+        langue: "fra",
         description: "Données liées au domaine de l'hydrologie",
       });
       const descriptions = await obtenir<TraducsTexte>(({ siPasVide }) =>
@@ -240,7 +240,7 @@ describe("Mots-clefs", function () {
           f: siPasVide(),
         }),
       );
-      expect(descriptions.fr).to.equal(
+      expect(descriptions.fra).to.equal(
         "Données liées au domaine de l'hydrologie",
       );
     });
@@ -263,35 +263,35 @@ describe("Mots-clefs", function () {
       expect(descriptions).to.deep.equal({
         த: "நீரியல் சம்பந்தமான தரவுகளுக்காக",
         हिं: "जल विज्ञान से संबंधित आँकड़ों के लिये",
-        fr: "Données liées au domaine de l'hydrologie",
+        fra: "Données liées au domaine de l'hydrologie",
       });
     });
 
     it("changer une description", async () => {
       await constl.motsClefs.sauvegarderDescription({
         idMotClef,
-        langue: "fr",
+        langue: "fra",
         description: "Données liées à l'hydrologie",
       });
       const descriptions = await obtenir<TraducsTexte>(({ si }) =>
         constl.motsClefs.suivreDescriptions({
           idMotClef,
-          f: si((x) => !x?.fr?.includes("domaine")),
+          f: si((x) => !x?.fra?.includes("domaine")),
         }),
       );
 
-      expect(descriptions.fr).to.equal("Données liées à l'hydrologie");
+      expect(descriptions.fra).to.equal("Données liées à l'hydrologie");
     });
 
     it("effacer une description", async () => {
       await constl.motsClefs.effacerDescription({
         idMotClef,
-        langue: "fr",
+        langue: "fra",
       });
       const descriptions = await obtenir<TraducsTexte>(({ si }) =>
         constl.motsClefs.suivreDescriptions({
           idMotClef,
-          f: si((x) => !!x && !Object.keys(x).includes("fr")),
+          f: si((x) => !!x && !Object.keys(x).includes("fra")),
         }),
       );
 
@@ -577,13 +577,13 @@ describe("Mots-clefs", function () {
       // Modification du mot-clef
       await constls[1].motsClefs.sauvegarderNom({
         idMotClef,
-        langue: "fr",
+        langue: "fra",
         nom: "Pédologie",
       });
       const noms = await obtenir(({ siPasVide }) =>
         constls[0].motsClefs.suivreNoms({ idMotClef, f: siPasVide() }),
       );
-      expect(noms).to.deep.equal({ fr: "Pédologie" });
+      expect(noms).to.deep.equal({ fra: "Pédologie" });
     });
 
     it("promotion à modératrice", async () => {

@@ -132,7 +132,7 @@ describe.skip("Rechercher dans réseau", function () {
         const pRésultat = recherche.siPasVide();
 
         await constls[0].profil.sauvegarderNom({
-          langue: "fr",
+          langue: "fra",
           nom: "Julien",
         });
 
@@ -144,7 +144,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 4 / 9,
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "Julien",
@@ -288,7 +288,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].motsClefs.sauvegarderNoms({
           idMotClef,
           noms: {
-            fr: "hydrologie",
+            fra: "hydrologie",
           },
         });
 
@@ -300,7 +300,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0.5,
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "hydrologie",
@@ -429,7 +429,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].variables.sauvegarderNoms({
           idVariable,
           noms: {
-            fr: "précipitation",
+            fra: "précipitation",
           },
         });
 
@@ -441,7 +441,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0.5,
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "précipitation",
@@ -492,7 +492,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].variables.sauvegarderDescriptions({
           idVariable,
           descriptions: {
-            fr: "précipitation",
+            fra: "précipitation",
           },
         });
 
@@ -504,7 +504,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0.5,
             type: "résultat",
             de: "descriptions",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "précipitation",
@@ -627,7 +627,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].bds.sauvegarderNoms({
           idBd,
           noms: {
-            fr: "météorologie",
+            fra: "météorologie",
           },
         });
 
@@ -639,7 +639,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0,
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "météorologie",
@@ -684,7 +684,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[1].bds.sauvegarderDescriptions({
           idBd,
           descriptions: {
-            fr: "Météorologie de la région de Montpellier.",
+            fra: "Météorologie de la région de Montpellier.",
           },
         });
 
@@ -696,7 +696,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0,
             type: "résultat",
             de: "description",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "Météorologie de la région de Montpellier.",
@@ -747,7 +747,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].variables.sauvegarderNoms({
           idVariable,
           noms: {
-            fr: "Précipitation",
+            fra: "Précipitation",
           },
         });
 
@@ -764,7 +764,7 @@ describe.skip("Rechercher dans réseau", function () {
               info: {
                 type: "résultat",
                 de: "nom",
-                clef: "fr",
+                clef: "fra",
                 info: {
                   type: "texte",
                   texte: "Précipitation",
@@ -952,7 +952,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].nuées.sauvegarderNoms({
           idNuée,
           noms: {
-            fr: "météorologie",
+            fra: "météorologie",
           },
         });
 
@@ -964,7 +964,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0,
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "météorologie",
@@ -1009,7 +1009,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].nuées.sauvegarderDescriptions({
           idNuée,
           descriptions: {
-            fr: "Météorologie de la région de Montpellier.",
+            fra: "Météorologie de la région de Montpellier.",
           },
         });
 
@@ -1021,7 +1021,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0,
             type: "résultat",
             de: "description",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "Météorologie de la région de Montpellier.",
@@ -1072,7 +1072,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].variables.sauvegarderNoms({
           idVariable,
           noms: {
-            fr: "Précipitation",
+            fra: "Précipitation",
           },
         });
         const résultat = await pRésultat;
@@ -1088,7 +1088,7 @@ describe.skip("Rechercher dans réseau", function () {
               info: {
                 type: "résultat",
                 de: "nom",
-                clef: "fr",
+                clef: "fra",
                 info: {
                   type: "texte",
                   texte: "Précipitation",
@@ -1279,7 +1279,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].projets.sauvegarderNoms({
           idProjet,
           noms: {
-            fr: "météorologie",
+            fra: "météorologie",
           },
         });
 
@@ -1291,7 +1291,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0,
             type: "résultat",
             de: "nom",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "météorologie",
@@ -1336,7 +1336,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].projets.sauvegarderDescriptions({
           idProjet,
           descriptions: {
-            fr: "météorologie",
+            fra: "météorologie",
           },
         });
 
@@ -1348,7 +1348,7 @@ describe.skip("Rechercher dans réseau", function () {
             score: 0,
             type: "résultat",
             de: "descriptions",
-            clef: "fr",
+            clef: "fra",
             info: {
               type: "texte",
               texte: "météorologie",
@@ -1405,7 +1405,7 @@ describe.skip("Rechercher dans réseau", function () {
         await constls[0].variables.sauvegarderNoms({
           idVariable,
           noms: {
-            fr: "Précipitation",
+            fra: "Précipitation",
           },
         });
 
@@ -1422,7 +1422,7 @@ describe.skip("Rechercher dans réseau", function () {
               info: {
                 type: "résultat",
                 de: "nom",
-                clef: "fr",
+                clef: "fra",
                 info: {
                   type: "texte",
                   texte: "Précipitation",

@@ -79,14 +79,14 @@ describe("Rechercher nuées", function () {
       await constl.nuées.sauvegarderNoms({
         idNuée,
         noms: {
-          fr: "Météorologie",
+          fra: "Météorologie",
         },
       });
 
       const résultat = await pRésultat;
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -139,14 +139,14 @@ describe("Rechercher nuées", function () {
       await constl.nuées.sauvegarderDescriptions({
         idNuée,
         descriptions: {
-          fr: "Météo historique",
+          fra: "Météo historique",
         },
       });
 
       const résultat = await pRésultat;
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",
@@ -281,7 +281,7 @@ describe("Rechercher nuées", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Météo historique pour la région de Montréal",
+          fra: "Météo historique pour la région de Montréal",
         },
       });
 
@@ -297,7 +297,7 @@ describe("Rechercher nuées", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -440,7 +440,7 @@ describe("Rechercher nuées", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "Précipitation mensuelle",
+          fra: "Précipitation mensuelle",
         },
       });
 
@@ -456,7 +456,7 @@ describe("Rechercher nuées", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -556,7 +556,7 @@ describe("Rechercher nuées", function () {
       await constl.nuées.sauvegarderNoms({
         idNuée,
         noms: {
-          fr: "Hydrologie",
+          fra: "Hydrologie",
         },
       });
 
@@ -564,7 +564,7 @@ describe("Rechercher nuées", function () {
 
       expect(résultatNom).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -590,7 +590,7 @@ describe("Rechercher nuées", function () {
       await constl.nuées.sauvegarderDescriptions({
         idNuée,
         descriptions: {
-          fr: "Hydrologie de Montréal",
+          fra: "Hydrologie de Montréal",
         },
       });
 
@@ -598,7 +598,7 @@ describe("Rechercher nuées", function () {
 
       expect(résultatDescription).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "descriptions",
         info: {
           type: "texte",
@@ -639,7 +639,7 @@ describe("Rechercher nuées", function () {
       await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
-          fr: "Température maximale",
+          fra: "Température maximale",
         },
       });
 
@@ -654,7 +654,7 @@ describe("Rechercher nuées", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
@@ -688,7 +688,7 @@ describe("Rechercher nuées", function () {
       await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Météorologie",
+          fra: "Météorologie",
         },
       });
       await constl.nuées.ajouterMotsClefs({
@@ -706,7 +706,7 @@ describe("Rechercher nuées", function () {
         info: {
           type: "résultat",
           de: "nom",
-          clef: "fr",
+          clef: "fra",
           info: {
             type: "texte",
             début: 0,
