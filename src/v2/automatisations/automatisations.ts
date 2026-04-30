@@ -271,7 +271,7 @@ export class Automatisations extends ServiceDonnéesAppli<
   }
 
   async lancerManuellement({ id }: { id: string }) {
-    await this.automatisations.get(id)?.relancer();
+    this.automatisations.get(id)?.relancer();
   }
 
   async suivreAutomatisations({
