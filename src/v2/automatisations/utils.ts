@@ -131,6 +131,12 @@ export const générerFImportation = ({
       idTableau: spéc.idTableau,
       données: donnéesConverties.converties,
     });
+    if (donnéesConverties.erreurs.length)
+      throw new AggregateError(
+        donnéesConverties.erreurs.map((e) =>
+          typeof e === "string" ? new Error(e) : e,
+        ),
+      );
   };
 };
 
