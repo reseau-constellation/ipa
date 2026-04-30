@@ -1629,6 +1629,10 @@ describe("Projets", function () {
 
         const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
+
+        const contenuFichier =
+          zip.files[["médias", idc.replace("/", "-")].join("/")];
+        expect(contenuFichier).to.exist();
       });
 
       it("exportable même si fichier indisponible", async () => {
