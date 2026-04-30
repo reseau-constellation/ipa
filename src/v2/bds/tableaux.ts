@@ -827,12 +827,15 @@ export class TableauxBds extends Tableaux {
   }): Promise<{
     converties: DonnéesRangéeTableau[];
     traductions: { [clef: string]: TraducsTexte };
+    erreurs: (string | Error)[];
   }> {
+    const erreurs: string[] = [];
     if (!conversions.length)
       return {
         // @ts-expect-error Le type de `effacerPropriétésNonDéfinies` exclut `null`
         converties: données.map(effacerPropriétésNonDéfinies),
         traductions: {},
+        erreurs,
       };
 
     const hélia = this.service("hélia");
@@ -937,9 +940,8 @@ export class TableauxBds extends Tableaux {
         return idc;
       } catch (e) {
         // Rien à faire
-        const journal = this.service("journal");
         if (!estErreurAvortée(e) && !e.toString().includes("Invalid URL"))
-          journal.écrire(e);
+          erreurs.push(e);
       }
 
       if (isNode || isElectronMain) {
@@ -1232,7 +1234,7 @@ export class TableauxBds extends Tableaux {
     };
 
     const converties = await Promise.all(données.map(convertirRangée));
-    return { converties, traductions: nouvellesTraductions };
+    return { converties, traductions: nouvellesTraductions, erreurs };
   }
 
   // Exportation
