@@ -4650,13 +4650,17 @@ describe("Nuées", function () {
         expect(contenu?.dir).to.be.true();
       });
 
-      it("les fichiers SFIP existent", async () => {
+      it("les fichiers des médias existent", async () => {
         if (isBrowser || isElectronRenderer) return;
         const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
         expect(contenu).to.exist();
+
+        const contenuFichier =
+          zip.files[["médias", idc.replace("/", "-")].join("/")];
+        expect(contenuFichier).to.exist();
       });
 
-      it("fichier SFIP non disponible", async () => {
+      it("fichier des médias non disponible", async () => {
         if (isBrowser || isElectronRenderer) return;
         const nomFichierTest = "nuée avec documents indisponibles";
 
