@@ -3535,8 +3535,6 @@ describe("tableaux", function () {
 
         let idc: string;
 
-        let zip: JSZip;
-
         let dossier: string;
         let effacer: () => void;
 
@@ -3612,7 +3610,7 @@ describe("tableaux", function () {
           expect(existsSync(cheminFichier)).to.be.true();
 
           // Le fichier ZIP est valide
-          zip = await JSZip.loadAsync(readFileSync(cheminFichier));
+          const zip = await JSZip.loadAsync(readFileSync(cheminFichier));
 
           // Le document des données existe
           expect(zip.files[nomTableauFr + ".ods"]).to.exist();
