@@ -1569,7 +1569,10 @@ describe("Projets", function () {
           éléments: [{ [idColonne]: idc }],
         });
 
-        await constl.bds.sauvegarderNoms({ idBd: idBd1, noms: { fra: nomBd1 } });
+        await constl.bds.sauvegarderNoms({
+          idBd: idBd1,
+          noms: { fra: nomBd1 },
+        });
 
         await constl.projets.ajouterBds({ idProjet, idsBds: [idBd1, idBd2] });
       });
