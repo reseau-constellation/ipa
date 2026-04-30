@@ -2077,7 +2077,7 @@ describe("tableaux", function () {
         const réf: DonnéesRangéeTableau[] = [
           {
             numérique: 123,
-            chaîne: "নমস্কার"
+            chaîne: "নমস্কার",
           },
         ];
         expect(converties).to.have.deep.members(réf);
