@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "fs";
 import path, { basename, join } from "path";
 import { expect } from "aegir/chai";
 import {
@@ -37,6 +37,8 @@ import type {
 } from "@/v2/automatisations/types.js";
 import type { Constellation } from "@/v2/index.js";
 import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
+import JSZip from "jszip";
+import { obtRessourceTest } from "./ressources/index.js";
 
 const dernièreModif = (fichier: string): number | undefined => {
   return existsSync(fichier)
@@ -668,7 +670,7 @@ describe.only("Automatisations", function () {
 
       let idBd: string;
 
-      let idAuto: string;
+      let idAuto: string | undefined;
 
       before(async () => {
         ({ dossier, effacer } = await dossierTempo());
@@ -747,7 +749,7 @@ describe.only("Automatisations", function () {
       let idColPrécip: string;
       let idColDate: string;
 
-      let idAuto: string;
+      let idAuto: string | undefined;
       let fichier: string;
 
       let horloge: SinonFakeTimers;
@@ -871,7 +873,7 @@ describe.only("Automatisations", function () {
       let idColPrécip: string;
       let idColDate: string;
 
-      let idAuto: string;
+      let idAuto: string | undefined;
       let fichier: string;
 
       before(async () => {
@@ -960,7 +962,7 @@ describe.only("Automatisations", function () {
       let idColPrécip: string;
       let idColDate: string;
 
-      let idAuto: string;
+      let idAuto: string | undefined;
       let fichier: string;
 
       before(async () => {
@@ -1038,33 +1040,51 @@ describe.only("Automatisations", function () {
       });
     });
 
-    describe("exporter tableaux", function () {
+    describe("exporter données", function () {
       let dossier: string;
       let effacer: () => void;
 
       let idBd: string;
       let idTableau: string;
       let idColPrécip: string;
-      let idColDate: string;
+      let idColPhoto: string;
+      let idc: string;
 
-      let idAuto: string;
-      let fichier: string;
+      let idAuto: string | undefined;
+      
+      const nomTableauFra = "Météo"
+      const nomBdத = "வானிலை தகவல்கள்"
 
       before(async () => {
         ({ dossier, effacer } = await dossierTempo());
         
         // Créer bd
         idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        await constl.bds.sauvegarderNom({ idBd, langue: "த", nom: nomBdத})
+
         idTableau = await constl.bds.ajouterTableau({ idBd });
         idColPrécip = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau });
-        idColDate = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau });
+        idColPhoto = await constl.bds.tableaux.ajouterColonne({ idStructure: idBd, idTableau });
 
-        fichier = path.join(dossier, enleverPréfixesEtOrbite(idBd));
+        await constl.bds.tableaux.sauvegarderNoms({ idStructure: idBd, idTableau, noms: { fra: nomTableauFra }})
+
+        const octets = await obtRessourceTest({
+          nomFichier: "logo.svg",
+        });
+        idc = await constl.services["hélia"].ajouterFichierÀSFIP({
+          contenu: octets,
+          nomFichier: "logo.svg",
+        });
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments: [{ [idColPhoto]: idc, [idColPrécip]: 12 }, { [idColPrécip]: 2 }],
+        });
       });
 
       after(async () => {
         effacer?.();
-
       });
 
       afterEach(async () => {  
@@ -1073,79 +1093,257 @@ describe.only("Automatisations", function () {
         idAuto = undefined;
       })
 
-      it("données exportées", async () => {
-        const fichier = join(dossier, nomBd + ".ods");
+      describe("exporter tableaux", function () {
+        it("données exportées", async () => {
+          const fichier = join(dossier, nomTableauFra + ".ods");
+  
+          // Établir automatisation exportation
+          idAuto = await constl.automatisations.ajouterAutomatisationExporter({
+            typeObjet: "tableau",
+            idObjet: idBd,
+            idTableau,
+            formatDoc: "ods",
+            inclureDocuments: false,
+            fréquence: {
+              type: "dynamique"
+            },
+            dossier,
+          });
+  
+          // Attendre fichier créé
+          await attendreFichierExiste({ fichier });
+        });
+  
+        it("fichiers exportées", async () => {
+          const fichierZip = join(dossier, nomTableauFra + ".zip");
+  
+          // Établir automatisation exportation
+          idAuto = await constl.automatisations.ajouterAutomatisationExporter({
+            typeObjet: "tableau",
+            idObjet: idBd,
+            idTableau,
+            formatDoc: "ods",
+            inclureDocuments: true,
+            langues: ["fra"],
+            fréquence: {
+              type: "dynamique"
+            },
+            dossier,
+          });
+  
+          // Attendre fichier créé
+          await attendreFichierExiste({ fichier: fichierZip });
+  
+          // Le fichier ZIP est valide
+          const zip = await JSZip.loadAsync(readFileSync(fichierZip));
+  
+          // Le document des données existe
+          expect(zip.files[nomTableauFra + ".ods"]).to.exist();
+  
+          // Le dossier pour les données SFIP existe
+          expect(zip.files["médias/"]?.dir).to.be.true();
+  
+          // Les fichiers SFIP existent
+          expect(
+            zip.files[["médias", idc.replace("/", "-")].join("/")],
+          ).to.exist();
+        });
+      })
 
-        // Établir automatisation exportation
-        idAuto = await constl.automatisations.ajouterAutomatisationExporter({
-          typeObjet: "tableau",
-          idObjet: idBd,
-          idTableau,
-          formatDoc: "ods",
-          inclureDocuments: false,
-          fréquence: {
-            type: "dynamique"
-          },
-          dossier,
+      describe("exporter bds", function () {
+        it("données exportées", async () => {
+          const fichier = join(dossier, nomBdத + ".ods");
+  
+          // Établir automatisation exportation
+          idAuto = await constl.automatisations.ajouterAutomatisationExporter({
+            typeObjet: "bd",
+            idObjet: idBd,
+            formatDoc: "ods",
+            langues: ["fra"],
+            inclureDocuments: false,
+            fréquence: {
+              type: "dynamique"
+            },
+            dossier,
+          });
+  
+          // Attendre fichier créé
+          await attendreFichierExiste({ fichier });
+        });
+  
+        it("fichiers exportées", async () => {
+          const fichierZip = join(dossier, nomBdத + ".zip");
+  
+          // Établir automatisation exportation
+          idAuto = await constl.automatisations.ajouterAutomatisationExporter({
+            typeObjet: "bd",
+            idObjet: idBd,
+            formatDoc: "ods",
+            inclureDocuments: true,
+            langues: ["fra"],
+            fréquence: {
+              type: "dynamique"
+            },
+            dossier,
+          });
+  
+          // Attendre fichier créé
+          await attendreFichierExiste({ fichier: fichierZip });
+  
+          // Le fichier ZIP est valide
+          const zip = await JSZip.loadAsync(readFileSync(fichierZip));
+  
+          // Le document des données existe
+          expect(zip.files[nomTableauFra + ".ods"]).to.exist();
+  
+          // Le dossier pour les données SFIP existe
+          expect(zip.files["médias/"]?.dir).to.be.true();
+  
+          // Les fichiers SFIP existent
+          expect(
+            zip.files[["médias", idc.replace("/", "-")].join("/")],
+          ).to.exist();
+        });
+      })
+
+      describe.skip("exporter nuées", function () {
+        let idNuée: string;
+
+        before(async () => {
+          const schéma = await constl.bds.créerSchémaDeBd({ idBd });
+          idNuée = await constl.nuées.créerNuéeDeSchéma({ schéma });
+
+          await constl.bds.rejoindreNuée({ idBd, idNuée });
         });
 
-        // Attendre fichier créé
-        await attendreFichierExiste({ fichier });
+        it("données exportées", async () => {
+          const fichier = join(dossier, nomNuée + ".ods");
+  
+          // Établir automatisation exportation
+          idAuto = await constl.automatisations.ajouterAutomatisationExporter({
+            typeObjet: "nuée",
+            idObjet: idNuée,
+            formatDoc: "ods",
+            langues: ["fra"],
+            inclureDocuments: false,
+            fréquence: {
+              type: "dynamique"
+            },
+            dossier,
+          });
+  
+          // Attendre fichier créé
+          await attendreFichierExiste({ fichier });
+        });
+  
+        it("fichiers exportées", async () => {
+          const fichierZip = join(dossier, nomNuée + ".zip");
+  
+          // Établir automatisation exportation
+          idAuto = await constl.automatisations.ajouterAutomatisationExporter({
+            typeObjet: "nuée",
+            idObjet: idNuée,
+            formatDoc: "ods",
+            inclureDocuments: true,
+            langues: ["fra"],
+            fréquence: {
+              type: "dynamique"
+            },
+            dossier,
+          });
+  
+          // Attendre fichier créé
+          await attendreFichierExiste({ fichier: fichierZip });
+  
+          // Le fichier ZIP est valide
+          const zip = await JSZip.loadAsync(readFileSync(fichierZip));
+  
+          // Le document des données existe
+          expect(zip.files[nomNuée + ".ods"]).to.exist();
+  
+          // Le dossier pour les données SFIP existe
+          expect(zip.files["médias/"]?.dir).to.be.true();
+  
+          // Les fichiers SFIP existent
+          expect(
+            zip.files[["médias", idc.replace("/", "-")].join("/")],
+          ).to.exist();
+        });
+      })
 
-        // Vérifier données écrites
+      describe("exporter projets", function () {
+        let idProjet: string;
 
-      });
-
-      it("fichiers exportées", async () => {
-        const fichierZip = join(dossier, nomBd + ".zip");
-
-        // Établir automatisation exportation
-        idAuto = await constl.automatisations.ajouterAutomatisationExporter({
-          typeObjet: "tableau",
-          idObjet: idBd,
-          idTableau,
-          formatDoc: "ods",
-          inclureDocuments: true,
-          fréquence: {
-            type: "dynamique"
-          },
-          dossier,
+        before(async () => {
+          idProjet = await constl.projets.créerProjet();
+          await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
         });
 
-        // Ajouter fichiers
-        await constl.bds.tableaux.ajouterÉléments({
-          idStructure: idBd,
-          idTableau,
-          éléments: [
-            
-          ]
-        })
-
-        // Attendre fichier créé
-        await attendreFichierExiste({ fichier: fichierZip });
-
-        // Vérifier données écrites
-
-      });
+        it("données exportées", async () => {
+          const fichier = join(dossier, nomProjet + ".zip");
+  
+          // Établir automatisation exportation
+          idAuto = await constl.automatisations.ajouterAutomatisationExporter({
+            typeObjet: "projet",
+            idObjet: idProjet,
+            formatDoc: "ods",
+            langues: ["fra"],
+            inclureDocuments: false,
+            fréquence: {
+              type: "dynamique"
+            },
+            dossier,
+          });
+  
+          // Attendre fichier créé
+          await attendreFichierExiste({ fichier: fichierZip });
+  
+          // Le fichier ZIP est valide
+          const zip = await JSZip.loadAsync(readFileSync(fichierZip));
+  
+          // Les documents des bds existent
+          expect(zip.files[nomBdத + ".ods"]).to.exist();
+  
+          // Le dossier pour les données SFIP n'existe pas
+          expect(zip.files["médias/"]?.dir).to.be.false();
+        });
+  
+        it("fichiers exportées", async () => {
+          const fichierZip = join(dossier, nomProjet + ".zip");
+  
+          // Établir automatisation exportation
+          idAuto = await constl.automatisations.ajouterAutomatisationExporter({
+            typeObjet: "nuée",
+            idObjet: idNuée,
+            formatDoc: "ods",
+            inclureDocuments: true,
+            langues: ["fra"],
+            fréquence: {
+              type: "dynamique"
+            },
+            dossier,
+          });
+  
+          // Attendre fichier créé
+          await attendreFichierExiste({ fichier: fichierZip });
+  
+          // Le fichier ZIP est valide
+          const zip = await JSZip.loadAsync(readFileSync(fichierZip));
+  
+          // Le document des données existe
+          expect(zip.files[nomBdத + ".ods"]).to.exist();
+  
+          // Le dossier pour les données SFIP existe
+          expect(zip.files["médias/"]?.dir).to.be.true();
+  
+          // Les fichiers SFIP existent
+          expect(
+            zip.files[["médias", idc.replace("/", "-")].join("/")],
+          ).to.exist();
+        });
+      })
       
-
     });
-
-        // Exportation - 
-    /** Exporter données */
-    /** Exporter fichiers */
-
-    // Exportation - bds
-    /** Exporter données */
-    /** Exporter fichiers */
-
-    // Exportation - nuées
-    /** Exporter données */
-    /** Exporter fichiers */
-
-    // Exportation - projets
-    /** Exporter données */
-    /** Exporter fichiers */
 
     // Exportation - copies
     /** Copies selon nombre */
