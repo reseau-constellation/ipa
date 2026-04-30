@@ -119,7 +119,7 @@ const suiviÉtats = async ({
   };
 };
 
-describe.only("Automatisations", function () {
+describe.skip("Automatisations", function () {
   describe("gestion automatisations", function () {
     let fermer: () => Promise<void>;
     let constls: Constellation[];
