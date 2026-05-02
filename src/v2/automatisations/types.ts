@@ -161,7 +161,7 @@ export type CopiesExportationN = {
 
 export type CopiesExportationTemps = {
   type: "temps";
-  temps: FréquenceFixe;
+  temps: FréquenceFixe["détails"];
 };
 
 export type BaseSpécificationAutomatisation = {
@@ -174,7 +174,7 @@ export type BaseSpécificationExporter = BaseSpécificationAutomatisation & {
   type: "exportation";
   idObjet: string;
   formatDoc: FormatTélécharger;
-  dossier?: string;
+  dossier: string;
   langues?: string[];
   dispositifs: string[];
   inclureDocuments: boolean;
@@ -209,7 +209,7 @@ type BaseSpécificationAjoutExportation = {
   idObjet: string;
   formatDoc: FormatTélécharger;
   inclureDocuments: boolean;
-  dossier?: string;
+  dossier: string;
   langues?: string[];
   dispositifs?: string[];
   copies?: CopiesExportation;
