@@ -57,13 +57,6 @@ const valide = new Ajv({ allowUnionTypes: true }).compile(
   schémaSpécificationAutomatisation,
 );
 
-const différente = (
-  spéc1: SpécificationAutomatisation,
-  spéc2: SpécificationAutomatisation,
-) => {
-  return deepEqual(spéc1, spéc2);
-};
-
 export type ServicesNécessairesAutomatisations = ServicesNécessairesCompte & {
   bds: Bds;
   projets: Projets;
@@ -100,7 +93,15 @@ export class Automatisations extends ServiceDonnéesAppli<
     super({
       clef: "automatisations",
       services,
-      dépendances: ["bds", "compte", "stockage", "journal"],
+      dépendances: [
+        "bds",
+        "nuées",
+        "projets",
+        "compte",
+        "hélia",
+        "stockage",
+        "journal",
+      ],
       options,
     });
 
@@ -163,7 +164,7 @@ export class Automatisations extends ServiceDonnéesAppli<
       const existante = this.automatisations.get(id);
       if (existante) {
         // Si identique, on arrête ici
-        if (!différente(existante.spécification, auto)) continue;
+        if (deepEqual(existante.spécification, auto)) continue;
 
         // Sinon, on ferme la précédente
         await this.fermerAutomatisation(id);
@@ -202,21 +203,13 @@ export class Automatisations extends ServiceDonnéesAppli<
 
     const idAuto = uuidv4();
 
-    // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier directement
-    const idDossier = args.dossier
-      ? await this.sauvegarderAdressePrivéeFichier({
-          fichier: args.dossier,
-        })
-      : undefined;
-
-    const élément: SpécificationExporter = {
+    const élément: SpécificationExporter = await this.obfusquerAdressesLocales({
       type: "exportation",
       id: idAuto,
       ...args,
       dispositifs: args.dispositifs ?? [await compte.obtIdDispositif()],
       fréquence: args.fréquence ?? { type: "dynamique" },
-      dossier: idDossier,
-    };
+    });
 
     const bd = await this.bd();
 
@@ -233,11 +226,7 @@ export class Automatisations extends ServiceDonnéesAppli<
 
     const id = uuidv4();
 
-    if (args.source.type === "fichier") {
-      args.source.adresseFichier = await this.sauvegarderAdressePrivéeFichier({
-        fichier: args.source.adresseFichier,
-      });
-    }
+    args = await this.obfusquerAdressesLocales(args)
 
     const élément: SpécificationImporter<
       SourceDonnéesImportationAdresseOptionel<T>
@@ -264,10 +253,11 @@ export class Automatisations extends ServiceDonnéesAppli<
     automatisation,
   }: {
     id: string;
-    automatisation: Partial<SpécificationAutomatisation>;
+    automatisation: PartielRécursif<SpécificationAutomatisation>;
   }): Promise<void> {
     const bd = await this.bd();
-    bd.insert(id, automatisation);
+    const élément = await this.obfusquerAdressesLocales(automatisation)
+    bd.insert(id, élément);
   }
 
   async lancerManuellement({ id }: { id: string }) {
@@ -288,37 +278,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     ) => {
       const autosFinales = await Promise.all(
         Object.values(autos).map(async (a) => {
-          if (!a) return;
-          const autoFinale = structuredClone(a);
-          if (
-            autoFinale.type === "importation" &&
-            autoFinale.source?.type === "fichier"
-          ) {
-            const { adresseFichier } = autoFinale.source;
-            if (adresseFichier) {
-              const adresseRésolue = await this.résoudreAdressePrivéeFichier({
-                clef: adresseFichier,
-              });
-              if (adresseRésolue) {
-                autoFinale.source.adresseFichier = adresseRésolue;
-              } else {
-                delete autoFinale.source.adresseFichier;
-              }
-            }
-          } else if (autoFinale.type === "exportation") {
-            const { dossier } = autoFinale;
-            if (dossier) {
-              const dossierRésolu = await this.résoudreAdressePrivéeFichier({
-                clef: dossier,
-              });
-              if (dossierRésolu) {
-                autoFinale.dossier = dossierRésolu;
-              } else {
-                delete autoFinale.dossier;
-              }
-            }
-          }
-          return autoFinale;
+          return a ? this.résoudreAdressesLocales(a) : undefined;
         }),
       );
       await f(
@@ -359,6 +319,20 @@ export class Automatisations extends ServiceDonnéesAppli<
 
   // Fonctions utilitaires
 
+  async obfusquerAdressesLocales<T extends PartielRécursif<SpécificationAutomatisation>>(auto: T): Promise<T>  {
+    // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier ou du fichier directement
+    if (auto.type === "importation" && auto.source?.type === "fichier" && auto.source?.adresseFichier) {
+      auto.source.adresseFichier = await this.sauvegarderAdressePrivéeFichier({
+        fichier: auto.source.adresseFichier,
+      });
+    } else if (auto.type === "exportation" && auto.dossier) {
+      auto.dossier = await this.sauvegarderAdressePrivéeFichier({
+        fichier: auto.dossier,
+      });
+    }
+    return auto
+  }
+
   async résoudreAdressePrivéeFichier({
     clef,
   }: {
@@ -387,7 +361,7 @@ export class Automatisations extends ServiceDonnéesAppli<
   }): Promise<AutomatisationActive> {
     let étatAuto: ÉtatAutomatisation;
 
-    const spéc = await this.résoudreFichierAuto(auto);
+    const spéc = await this.résoudreAdressesLocales(auto);
     const fAuto = générerFAuto({
       spéc,
       service: (clef) => this.service(clef),
@@ -413,17 +387,17 @@ export class Automatisations extends ServiceDonnéesAppli<
     };
   }
 
-  async résoudreFichierAuto<T extends SpécificationAutomatisation>(
+  async résoudreAdressesLocales<T extends PartielRécursif<SpécificationAutomatisation>>(
     auto: T,
   ): Promise<T> {
     auto = structuredClone(auto);
     if (auto.type === "importation") {
-      if (auto.source.type === "fichier") {
+      if (auto.source?.type === "fichier") {
         auto.source.adresseFichier = await this.résoudreAdressePrivéeFichier({
           clef: auto.source.adresseFichier,
         });
       }
-    } else {
+    } else if (auto.type === "exportation") {
       auto.dossier = await this.résoudreAdressePrivéeFichier({
         clef: auto.dossier,
       });
