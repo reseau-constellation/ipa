@@ -116,6 +116,7 @@ export const sauvegarderDonnéesExportées = async ({
       isNode || isElectronMain
         ? path.join(dossier, nomFichierAvecExt)
         : nomFichierAvecExt;
+
     if (isNode || isElectronMain) {
       xlsxWriteFile(doc, adresseFinale, {
         bookType,
