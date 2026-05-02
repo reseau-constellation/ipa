@@ -1,16 +1,17 @@
-import { readFileSync } from "fs";
+import { mkdirSync, readFileSync } from "fs";
 import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
 import { faisRien, uneFois } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
-import { sauvegarderDonnéesExportées } from "../utils.js";
+import { enleverPréfixesEtOrbite, sauvegarderDonnéesExportées } from "../utils.js";
 import { ImportateurDonnéesJSON } from "../importateur/json.js";
 import {
   importerFeuilleCalculDURL,
   importerJSONdURL,
 } from "../importateur/urls.js";
+import { stabiliser } from "../nébuleuse/utils.js";
 import type { ServicesNécessairesAutomatisations } from "./automatisations.js";
 import type { FSWatcherEventMap } from "chokidar";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
@@ -148,50 +149,51 @@ export const générerFExportation = ({
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): (() => Promise<void>) => {
   return async () => {
-    const os = await import("os");
-    const path = await import("path");
     const fs = await import("fs");
-    const dossier = spéc.dossier ?? path.join(os.homedir(), "constellation");
-    if (!dossier) throw new Error("Dossier introuvable");
 
-    let nomFichier: string;
-    const ajouterÉtiquetteÀNomFichier = (nom: string): string => {
-      const composantes = nom.split(".");
-      return `${composantes[0]}-${Date.now()}.${composantes[1]}`;
+    const { dossier } = spéc;
+    if (!fs.existsSync(dossier)) {
+      mkdirSync(dossier, { recursive: true });
+    }
+
+    const ajouterÉtiquetteÀNomFichier = (nom: string, idObjet: string): string => {
+      const id = enleverPréfixesEtOrbite(idObjet)
+      return `${nom === id ? nom : nom + '-' + id}-${Date.now()}`;
     };
+
     const hélia = service("hélia");
-    const obtItérableAsyncSFIP = hélia.obtItérableAsyncSFIP.bind("hélia");
+    const obtItérableAsyncSFIP = hélia.obtItérableAsyncSFIP.bind(hélia);
 
     switch (spéc.typeObjet) {
       case "tableau": {
-        const donnéesExp = await service("bds").tableaux.exporterDonnées({
+        const donnéesTableau = await service("bds").tableaux.exporterDonnées({
           idStructure: spéc.idObjet,
           idTableau: spéc.idTableau,
           langues: spéc.langues,
         });
-        nomFichier = donnéesExp.nomFichier;
-        if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
+        if (spéc.copies) donnéesTableau.nomFichier = ajouterÉtiquetteÀNomFichier(donnéesTableau.nomFichier, spéc.idObjet);
 
         await sauvegarderDonnéesExportées({
-          données: donnéesExp,
+          données: donnéesTableau,
           formatDocu: spéc.formatDoc,
           dossier,
           obtItérableAsyncSFIP,
           inclureDocuments: spéc.inclureDocuments,
         });
+
         break;
       }
 
       case "bd": {
-        const donnéesExp = await service("bds").exporterDonnées({
+        const donnéesBd = await service("bds").exporterDonnées({
           idBd: spéc.idObjet,
           langues: spéc.langues,
         });
-        nomFichier = donnéesExp.nomFichier;
-        if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await sauvegarderDonnéesExportées({
-          données: donnéesExp,
+        if (spéc.copies) donnéesBd.nomFichier = ajouterÉtiquetteÀNomFichier(donnéesBd.nomFichier, spéc.idObjet);
+
+        const fichierFinal = await sauvegarderDonnéesExportées({
+          données: donnéesBd,
           formatDocu: spéc.formatDoc,
           dossier,
           obtItérableAsyncSFIP,
@@ -205,8 +207,8 @@ export const générerFExportation = ({
           idProjet: spéc.idObjet,
           langues: spéc.langues,
         });
-        nomFichier = donnéesProjet.nomFichier;
-        if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
+
+        if (spéc.copies) donnéesProjet.nomFichier = ajouterÉtiquetteÀNomFichier(donnéesProjet.nomFichier, spéc.idObjet);
 
         await service("projets").documentDonnéesÀFichier({
           données: donnéesProjet,
@@ -223,8 +225,8 @@ export const générerFExportation = ({
           langues: spéc.langues,
           héritage: spéc.héritage,
         });
-        nomFichier = donnéesNuée.nomFichier;
-        if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
+
+        if (spéc.copies) donnéesNuée.nomFichier = ajouterÉtiquetteÀNomFichier(donnéesNuée.nomFichier, spéc.idObjet);
 
         await sauvegarderDonnéesExportées({
           données: donnéesNuée,
@@ -241,59 +243,68 @@ export const générerFExportation = ({
     }
 
     // Effacer les sauvegardes plus vieilles si nécessaire
-    const correspondants = fs.readdirSync(dossier).filter((x) => {
-      try {
-        return (
-          fs.statSync(x).isFile() &&
-          nomsCorrespondent(path.basename(x), nomFichier)
-        );
-      } catch {
-        return false;
-      }
-    });
-    const nomsCorrespondent = (nom: string, réf: string): boolean => {
-      const ext = nom.split(".").pop() || "";
-      const nomBase = nom
-        .slice(0, -(ext?.length + 1))
-        .split("-")
-        .slice(0, -1)
-        .join("");
-      return `${nomBase}.${ext}` === réf;
-    };
-
-    if (spéc.copies) {
-      if (spéc.copies.type === "n") {
-        const enTrop = spéc.copies.n - correspondants.length;
-        if (enTrop > 0) {
-          const fichiersAvecTempsModif = correspondants.map((fichier) => ({
-            temps: new Date(fs.statSync(fichier).mtime).valueOf(),
-            fichier,
-          }));
-          const fichiersOrdreModif = fichiersAvecTempsModif.sort((a, b) =>
-            a.temps > b.temps ? 1 : -1,
-          );
-          const àEffacer = fichiersOrdreModif
-            .slice(enTrop)
-            .map((x) => x.fichier);
-          àEffacer.forEach((fichier) => fs.rmSync(fichier));
-        }
-      } else if (spéc.copies.type === "temps") {
-        const maintenant = Date.now();
-        const { temps } = spéc.copies;
-        const àEffacer = correspondants.filter((fichier) => {
-          const dateModifFichier = new Date(
-            fs.statSync(fichier).mtime,
-          ).valueOf();
-          return maintenant - dateModifFichier < obtTempsInterval(temps);
-        });
-        àEffacer.forEach((fichier) => fs.rmSync(fichier));
-      }
-    }
+    await nettoyerCopies(spéc)
   };
 };
 
-export const obtTempsInterval = (fréq: FréquenceFixe): number => {
-  const { n, unités } = fréq.détails;
+export const nettoyerCopies = async (auto: SpécificationExporter) => {
+  const fs = await import("fs");
+  const path = await import("path");
+  
+  const { dossier } = auto
+  if (!dossier || !fs.existsSync(dossier)) return;
+
+  const nomsCorrespondent = (nom: string, réf: string): boolean => {
+    return nom.startsWith(réf) || nom.includes(`-${réf}-`)
+  };
+
+  const correspondants = fs.readdirSync(dossier).map(x=>path.join(dossier, x)).filter((x) => {
+    try {
+      return (
+        fs.statSync(x).isFile() &&
+        nomsCorrespondent(path.basename(x), enleverPréfixesEtOrbite(auto.idObjet))
+      );
+    } catch {
+      return false;
+    }
+  });
+
+  if (auto.copies) {
+    if (auto.copies.type === "n") {
+      const enTrop = correspondants.length - auto.copies.n;
+      if (enTrop > 0) {
+        const fichiersAvecTempsModif = correspondants.map((fichier) => ({
+          temps: new Date(fs.statSync(fichier).mtime).valueOf(),
+          fichier,
+        }));
+        const fichiersOrdreModif = fichiersAvecTempsModif.sort((a, b) =>
+          a.temps > b.temps ? 1 : -1,
+        );
+        const àEffacer = fichiersOrdreModif
+          .slice(0, enTrop)
+          .map((x) => x.fichier);
+        àEffacer.forEach((fichier) => fs.rmSync(fichier));
+      }
+    } else if (auto.copies.type === "temps") {
+      const { temps } = auto.copies;
+      
+      const maintenant = Date.now();
+      const àEffacer = correspondants.filter((fichier) => {
+        const dateModifFichier = new Date(
+          fs.statSync(fichier).mtime,
+        ).valueOf();
+        return maintenant - dateModifFichier > obtTempsInterval(temps);
+      });
+
+      àEffacer.forEach((fichier) => fs.rmSync(fichier));
+    }
+  }
+}
+
+// Chronomètres
+
+export const obtTempsInterval = (fréq: FréquenceFixe["détails"]): number => {
+  const { n, unités } = fréq;
   switch (unités) {
     case "années":
       return n * 365.25 * 24 * 60 * 60 * 1000;
@@ -340,6 +351,10 @@ export const chronomètre = async ({
   f: () => Promise<void>;
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
+  if (auto.type === "exportation" && auto.copies) {
+    await nettoyerCopies(auto)
+  }
+
   if (auto.fréquence.type === "manuelle") {
     return await chronoManuel({ f, suiviÉtat });
   } else if (auto.fréquence.type === "fixe") {
@@ -434,7 +449,7 @@ export const chronoFixe = async ({
   const queue = schéduler();
   const annuler = new AbortController();
 
-  const fréquenceEnMS = obtTempsInterval(fréquence);
+  const fréquenceEnMS = obtTempsInterval(fréquence.détails);
   const dernièreFois = obtTempsDernièreFois(
     (await service("stockage").obtenirItem(obtClefStockage(id))) || undefined,
   );
@@ -635,13 +650,19 @@ export const chronoDynamiqueExportation = async ({
 
   const clefDernièreFois = obtClefStockage(auto.id);
 
-  const génFAvecStockage = (empreinte: string) => async () => {
-    await stockage.sauvegarderItem({
-      clef: clefDernièreFois,
-      valeur: empreinte,
-    });
-    await f();
-  };
+  const génFAvecStockage =
+    (empreinte: string) =>
+    async ({ forcer }: { forcer?: boolean } = {}) => {
+      const dernièreEmpreinte = await stockage.obtenirItem(clefDernièreFois);
+
+      if (forcer || dernièreEmpreinte !== empreinte) {
+        await f();
+        await stockage.sauvegarderItem({
+          clef: clefDernièreFois,
+          valeur: empreinte,
+        });
+      }
+    };
 
   const nouvelÉtat: ÉtatAutomatisationÉcoute = {
     type: "écoute",
@@ -685,8 +706,10 @@ export const chronoDynamiqueExportation = async ({
       }
     }
   };
-  const oublierChangements = await suivreEmpreinteTête((empreinte) =>
-    queue.ajouter(génFAvecStockage(empreinte)),
+  const oublierChangements = await suivreEmpreinteTête(
+    stabiliser()((empreinte) => {
+      queue.ajouter(génFAvecStockage(empreinte));
+    }),
   );
 
   const fermer = async () => {
@@ -699,7 +722,7 @@ export const chronoDynamiqueExportation = async ({
       const empreinteTête = await uneFois<string>((fEmpreinte) =>
         suivreEmpreinteTête(fEmpreinte),
       );
-      await génFAvecStockage(empreinteTête)();
+      await génFAvecStockage(empreinteTête)({ forcer: true });
     });
   };
 
