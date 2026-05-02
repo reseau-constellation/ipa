@@ -1,0 +1,20 @@
+diff --git a/dist/fonctions.js b/dist/fonctions.js
+index b4b2f91eb4344eb1098866928631f8fc69e70b52..b868e92bf3f64d50454d6fdc81a11e005dd884ce 100644
+--- a/dist/fonctions.js
++++ b/dist/fonctions.js
+@@ -185,13 +185,13 @@ export const attendreStabilité = (n) => {
+     let val = undefined;
+     let annulerRebours = faisRien;
+     return (v) => new Promise((résoudre) => {
+-        if (déjàAppellé && JSON.stringify(v) === val) {
++        if (déjàAppellé && deepEqual(v, val)) {
+             résoudre(false);
+             return;
+         }
+         déjàAppellé = true;
+         annulerRebours();
+-        val = JSON.stringify(v);
++        val = v;
+         dernierT = Date.now();
+         const crono = setTimeout(() => résoudre(true), n);
+         annulerRebours = () => {

@@ -198,7 +198,8 @@
     },
     "patchedDependencies": {
       "@libp2p/gossipsub": "patches/@libp2p__gossipsub.patch",
-      "@orbitdb/core": "patches/@orbitdb__core.patch"
+      "@orbitdb/core": "patches/@orbitdb__core.patch",
+      "@constl/utils-ipa@3.0.5": "patches/@constl__utils-ipa@3.0.5.patch"
     }
   }
 }
