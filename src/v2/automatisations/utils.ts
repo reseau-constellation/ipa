@@ -5,7 +5,10 @@ import { faisRien, uneFois } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
-import { enleverPréfixesEtOrbite, sauvegarderDonnéesExportées } from "../utils.js";
+import {
+  enleverPréfixesEtOrbite,
+  sauvegarderDonnéesExportées,
+} from "../utils.js";
 import { ImportateurDonnéesJSON } from "../importateur/json.js";
 import {
   importerFeuilleCalculDURL,
@@ -26,7 +29,7 @@ import type {
   ÉtatAutomatisationErreur,
   ÉtatAutomatisationProgrammée,
   ÉtatAutomatisationÉcoute,
-  SourceDonnéesImportationAdresseOptionel,
+  SourceDonnéesImportationAdresseOptionelle,
   Fréquence,
 } from "./types.js";
 import type { AccesseurService } from "../recherche/types.js";
@@ -121,7 +124,7 @@ export const générerFImportation = ({
         }
       });
     }
-
+    console.log(données, conversions)
     const donnéesConverties = await tableaux.convertirDonnées({
       données,
       conversions,
@@ -156,9 +159,12 @@ export const générerFExportation = ({
       mkdirSync(dossier, { recursive: true });
     }
 
-    const ajouterÉtiquetteÀNomFichier = (nom: string, idObjet: string): string => {
-      const id = enleverPréfixesEtOrbite(idObjet)
-      return `${nom === id ? nom : nom + '-' + id}-${Date.now()}`;
+    const ajouterÉtiquetteÀNomFichier = (
+      nom: string,
+      idObjet: string,
+    ): string => {
+      const id = enleverPréfixesEtOrbite(idObjet);
+      return `${nom === id ? nom : nom + "-" + id}-${Date.now()}`;
     };
 
     const hélia = service("hélia");
@@ -171,7 +177,11 @@ export const générerFExportation = ({
           idTableau: spéc.idTableau,
           langues: spéc.langues,
         });
-        if (spéc.copies) donnéesTableau.nomFichier = ajouterÉtiquetteÀNomFichier(donnéesTableau.nomFichier, spéc.idObjet);
+        if (spéc.copies)
+          donnéesTableau.nomFichier = ajouterÉtiquetteÀNomFichier(
+            donnéesTableau.nomFichier,
+            spéc.idObjet,
+          );
 
         await sauvegarderDonnéesExportées({
           données: donnéesTableau,
@@ -190,9 +200,13 @@ export const générerFExportation = ({
           langues: spéc.langues,
         });
 
-        if (spéc.copies) donnéesBd.nomFichier = ajouterÉtiquetteÀNomFichier(donnéesBd.nomFichier, spéc.idObjet);
+        if (spéc.copies)
+          donnéesBd.nomFichier = ajouterÉtiquetteÀNomFichier(
+            donnéesBd.nomFichier,
+            spéc.idObjet,
+          );
 
-        const fichierFinal = await sauvegarderDonnéesExportées({
+        await sauvegarderDonnéesExportées({
           données: donnéesBd,
           formatDocu: spéc.formatDoc,
           dossier,
@@ -208,7 +222,11 @@ export const générerFExportation = ({
           langues: spéc.langues,
         });
 
-        if (spéc.copies) donnéesProjet.nomFichier = ajouterÉtiquetteÀNomFichier(donnéesProjet.nomFichier, spéc.idObjet);
+        if (spéc.copies)
+          donnéesProjet.nomFichier = ajouterÉtiquetteÀNomFichier(
+            donnéesProjet.nomFichier,
+            spéc.idObjet,
+          );
 
         await service("projets").documentDonnéesÀFichier({
           données: donnéesProjet,
@@ -226,7 +244,11 @@ export const générerFExportation = ({
           héritage: spéc.héritage,
         });
 
-        if (spéc.copies) donnéesNuée.nomFichier = ajouterÉtiquetteÀNomFichier(donnéesNuée.nomFichier, spéc.idObjet);
+        if (spéc.copies)
+          donnéesNuée.nomFichier = ajouterÉtiquetteÀNomFichier(
+            donnéesNuée.nomFichier,
+            spéc.idObjet,
+          );
 
         await sauvegarderDonnéesExportées({
           données: donnéesNuée,
@@ -243,31 +265,37 @@ export const générerFExportation = ({
     }
 
     // Effacer les sauvegardes plus vieilles si nécessaire
-    await nettoyerCopies(spéc)
+    await nettoyerCopies(spéc);
   };
 };
 
 export const nettoyerCopies = async (auto: SpécificationExporter) => {
   const fs = await import("fs");
   const path = await import("path");
-  
-  const { dossier } = auto
+
+  const { dossier } = auto;
   if (!dossier || !fs.existsSync(dossier)) return;
 
   const nomsCorrespondent = (nom: string, réf: string): boolean => {
-    return nom.startsWith(réf) || nom.includes(`-${réf}-`)
+    return nom.startsWith(réf) || nom.includes(`-${réf}-`);
   };
 
-  const correspondants = fs.readdirSync(dossier).map(x=>path.join(dossier, x)).filter((x) => {
-    try {
-      return (
-        fs.statSync(x).isFile() &&
-        nomsCorrespondent(path.basename(x), enleverPréfixesEtOrbite(auto.idObjet))
-      );
-    } catch {
-      return false;
-    }
-  });
+  const correspondants = fs
+    .readdirSync(dossier)
+    .map((x) => path.join(dossier, x))
+    .filter((x) => {
+      try {
+        return (
+          fs.statSync(x).isFile() &&
+          nomsCorrespondent(
+            path.basename(x),
+            enleverPréfixesEtOrbite(auto.idObjet),
+          )
+        );
+      } catch {
+        return false;
+      }
+    });
 
   if (auto.copies) {
     if (auto.copies.type === "n") {
@@ -287,19 +315,17 @@ export const nettoyerCopies = async (auto: SpécificationExporter) => {
       }
     } else if (auto.copies.type === "temps") {
       const { temps } = auto.copies;
-      
+
       const maintenant = Date.now();
       const àEffacer = correspondants.filter((fichier) => {
-        const dateModifFichier = new Date(
-          fs.statSync(fichier).mtime,
-        ).valueOf();
+        const dateModifFichier = new Date(fs.statSync(fichier).mtime).valueOf();
         return maintenant - dateModifFichier > obtTempsInterval(temps);
       });
 
       àEffacer.forEach((fichier) => fs.rmSync(fichier));
     }
   }
-}
+};
 
 // Chronomètres
 
@@ -352,7 +378,7 @@ export const chronomètre = async ({
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
   if (auto.type === "exportation" && auto.copies) {
-    await nettoyerCopies(auto)
+    await nettoyerCopies(auto);
   }
 
   if (auto.fréquence.type === "manuelle") {
@@ -733,7 +759,7 @@ export const chronoDynamiqueExportation = async ({
 };
 
 export const obtDonnéesImportation = async <
-  T extends SourceDonnéesImportationAdresseOptionel,
+  T extends SourceDonnéesImportationAdresseOptionelle,
 >(
   spéc: SpécificationImporter<T>,
   résoudreAdresse: (x?: string) => Promise<string | undefined> = async (x) => x,

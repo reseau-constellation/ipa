@@ -229,8 +229,8 @@ type SpécificationAjoutExportationTableau = {
 };
 
 export type SpécificationImporter<
-  T extends SourceDonnéesImportationAdresseOptionel =
-    SourceDonnéesImportationAdresseOptionel,
+  T extends SourceDonnéesImportationAdresseOptionelle =
+    SourceDonnéesImportationAdresseOptionelle,
 > = BaseSpécificationAutomatisation & {
   type: "importation";
   idBd: string;
@@ -260,11 +260,11 @@ export type SourceDonnéesImportation<T extends InfoImporter> =
   | SourceDonnéesImportationURL<T>
   | SourceDonnéesImportationFichier<T>;
 
-export type SourceDonnéesImportationAdresseOptionel<
+export type SourceDonnéesImportationAdresseOptionelle<
   T extends InfoImporter = InfoImporter,
 > =
   | SourceDonnéesImportationURL<T>
-  | SourceDonnéesImportationFichierAdresseOptionel<T>;
+  | SourceDonnéesImportationFichierAdresseOptionelle<T>;
 
 export type SourceDonnéesImportationURL<T extends InfoImporter> = {
   type: "url";
@@ -272,7 +272,7 @@ export type SourceDonnéesImportationURL<T extends InfoImporter> = {
   info: T;
 };
 
-export type SourceDonnéesImportationFichierAdresseOptionel<
+export type SourceDonnéesImportationFichierAdresseOptionelle<
   T extends InfoImporter,
 > = {
   type: "fichier";
@@ -282,7 +282,7 @@ export type SourceDonnéesImportationFichierAdresseOptionel<
 
 export type SourceDonnéesImportationFichier<
   T extends InfoImporter = InfoImporter,
-> = SourceDonnéesImportationFichierAdresseOptionel<T> & {
+> = SourceDonnéesImportationFichierAdresseOptionelle<T> & {
   adresseFichier: string;
 };
 

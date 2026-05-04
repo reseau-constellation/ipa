@@ -21,7 +21,7 @@ import type {
   SpécificationAjoutImportation,
   StructureServiceAutomatisations,
   ÉtatAutomatisation,
-  SourceDonnéesImportationAdresseOptionel,
+  SourceDonnéesImportationAdresseOptionelle,
   SpécificationAjoutExportation,
 } from "./types.js";
 import type { Bds } from "../bds/bds.js";
@@ -220,22 +220,22 @@ export class Automatisations extends ServiceDonnéesAppli<
 
   async ajouterAutomatisationImporter<
     T extends InfoImporterJSON | InfoImporterFeuilleCalcul,
-  >(args: SpécificationAjoutImportation<T>): Promise<string> {
+  >(auto: SpécificationAjoutImportation<T>): Promise<string> {
     const compte = this.service("compte");
     const bd = await this.bd();
 
     const id = uuidv4();
 
-    args = await this.obfusquerAdressesLocales(args)
+    auto = await this.obfusquerAdressesLocales(auto);
 
     const élément: SpécificationImporter<
-      SourceDonnéesImportationAdresseOptionel<T>
+      SourceDonnéesImportationAdresseOptionelle<T>
     > = {
       type: "importation",
       id,
-      ...args,
-      dispositif: args.dispositif || (await compte.obtIdDispositif()),
-      fréquence: args.fréquence || { type: "dynamique" },
+      ...auto,
+      dispositif: auto.dispositif || (await compte.obtIdDispositif()),
+      fréquence: auto.fréquence || { type: "dynamique" },
     };
 
     await bd.put(id, élément);
@@ -256,7 +256,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     automatisation: PartielRécursif<SpécificationAutomatisation>;
   }): Promise<void> {
     const bd = await this.bd();
-    const élément = await this.obfusquerAdressesLocales(automatisation)
+    const élément = await this.obfusquerAdressesLocales(automatisation);
     bd.insert(id, élément);
   }
 
@@ -319,20 +319,6 @@ export class Automatisations extends ServiceDonnéesAppli<
 
   // Fonctions utilitaires
 
-  async obfusquerAdressesLocales<T extends PartielRécursif<SpécificationAutomatisation>>(auto: T): Promise<T>  {
-    // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier ou du fichier directement
-    if (auto.type === "importation" && auto.source?.type === "fichier" && auto.source?.adresseFichier) {
-      auto.source.adresseFichier = await this.sauvegarderAdressePrivéeFichier({
-        fichier: auto.source.adresseFichier,
-      });
-    } else if (auto.type === "exportation" && auto.dossier) {
-      auto.dossier = await this.sauvegarderAdressePrivéeFichier({
-        fichier: auto.dossier,
-      });
-    }
-    return auto
-  }
-
   async résoudreAdressePrivéeFichier({
     clef,
   }: {
@@ -352,6 +338,50 @@ export class Automatisations extends ServiceDonnéesAppli<
     const clef = "dossier." + uuidv4();
     await stockage.sauvegarderItem({ clef, valeur: fichier });
     return clef;
+  }
+
+  async obfusquerAdressesLocales<
+    T extends PartielRécursif<SpécificationAutomatisation>,
+  >(auto: T): Promise<T> {
+    // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier ou du fichier directement
+    auto = structuredClone(auto);
+    const autoImportation = auto as PartielRécursif<SpécificationImporter>;
+    const autoExportation = auto as PartielRécursif<SpécificationExporter>;
+
+    if (
+      autoImportation.source?.type === "fichier" &&
+      autoImportation.source?.adresseFichier
+    ) {
+      autoImportation.source.adresseFichier =
+        await this.sauvegarderAdressePrivéeFichier({
+          fichier: autoImportation.source.adresseFichier,
+        });
+    } else if (autoExportation.dossier) {
+      autoExportation.dossier = await this.sauvegarderAdressePrivéeFichier({
+        fichier: autoExportation.dossier,
+      });
+    }
+
+    return auto;
+  }
+
+  async résoudreAdressesLocales<
+    T extends PartielRécursif<SpécificationAutomatisation>,
+  >(auto: T): Promise<T> {
+    auto = structuredClone(auto);
+    if (auto.type === "importation") {
+      if (auto.source?.type === "fichier") {
+        auto.source.adresseFichier = await this.résoudreAdressePrivéeFichier({
+          clef: auto.source.adresseFichier,
+        });
+      }
+    } else if (auto.type === "exportation") {
+      auto.dossier = await this.résoudreAdressePrivéeFichier({
+        clef: auto.dossier,
+      });
+    }
+
+    return auto;
   }
 
   async lancerAutomatisation({
@@ -385,24 +415,5 @@ export class Automatisations extends ServiceDonnéesAppli<
       état: () => étatAuto,
       ...chrono,
     };
-  }
-
-  async résoudreAdressesLocales<T extends PartielRécursif<SpécificationAutomatisation>>(
-    auto: T,
-  ): Promise<T> {
-    auto = structuredClone(auto);
-    if (auto.type === "importation") {
-      if (auto.source?.type === "fichier") {
-        auto.source.adresseFichier = await this.résoudreAdressePrivéeFichier({
-          clef: auto.source.adresseFichier,
-        });
-      }
-    } else if (auto.type === "exportation") {
-      auto.dossier = await this.résoudreAdressePrivéeFichier({
-        clef: auto.dossier,
-      });
-    }
-
-    return auto;
   }
 }
