@@ -510,7 +510,7 @@ describe("Automatisations", function () {
 
           const réfDonnées = fichiers.map(({ nom, chemin, idc }) => ({
             [colNom]: nom,
-            [colFichier]: join(idc, basename(chemin)),
+            [colFichier]: `${idc}/${basename(chemin)}`,
           }));
           const conversionColonnes = {
             [colNom]: "Nom document",
