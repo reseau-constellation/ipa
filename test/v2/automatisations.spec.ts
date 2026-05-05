@@ -32,7 +32,6 @@ import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/v2/automatisations/utils.js";
 import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import {
   créerConstellationsTest,
-  journalifier,
   obtenir,
   utiliserFauxChronomètres,
 } from "./utils.js";
@@ -105,7 +104,7 @@ const écrireDonnées = (
             .join(",") + "\n",
       )
       .join("");
-  console.log(texte);
+
   writeFileSync(fichier, texte);
 };
 
@@ -129,7 +128,6 @@ const suiviÉtats = async ({
         (!dédupliquer || nouvelÉtat.type !== historique[0]?.type)
       ) {
         historique.unshift(nouvelÉtat);
-        console.log(nouvelÉtat);
         événements.emit("modifié");
       }
     },
@@ -172,7 +170,7 @@ const obtEmpreinte = async ({
   );
 };
 
-describe.only("Automatisations", function () {
+describe("Automatisations", function () {
   describe("gestion automatisations", function () {
     let dossier: string;
     let effacer: () => void;
@@ -286,7 +284,7 @@ describe.only("Automatisations", function () {
     });
   });
 
-  describe.only("importations", function () {
+  describe("importations", function () {
     let fermer: () => Promise<void>;
     let constls: Constellation[];
     let constl: Constellation;
@@ -644,10 +642,11 @@ describe.only("Automatisations", function () {
           expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
         });
 
-        it.skip("erreur si fichier non disponible", async () => {
+        it("erreur si fichier non disponible", async () => {
           if (isBrowser || isElectronRenderer) return;
 
           const adresseFichier = join(dossier, "je n'existe pas encore.csv");
+
           idAuto = await constl.automatisations.ajouterAutomatisationImporter({
             idBd,
             idTableau,
@@ -678,8 +677,8 @@ describe.only("Automatisations", function () {
           expect(états[idAuto]).to.deep.equal(réf);
 
           const sÉtats = await suiviÉtats({ idAuto, constl });
+          
           écrireDonnées([{ col1: 1, col2: 2 }], adresseFichier);
-          console.log("données écrites", adresseFichier);
 
           const étatsAprèsÉcriture = await sÉtats.terminer({ min: 3 });
 
@@ -690,7 +689,7 @@ describe.only("Automatisations", function () {
           ]);
         });
 
-        it.skip("erreur si fichier corrompu", async () => {
+        it("erreur si fichier corrompu", async () => {
           if (isBrowser || isElectronRenderer) return;
 
           writeFileSync(
@@ -965,7 +964,6 @@ describe.only("Automatisations", function () {
             },
           });
 
-          await constl.automatisations.suivreÉtatAutomatisations({ f: x=>console.log(x[idAutos])})
         });
 
         after(async () => {
@@ -982,7 +980,6 @@ describe.only("Automatisations", function () {
             { [idColDate]: new Date(1, 2, 2026).getTime(), [idColPrécip]: 5 },
           ];
           écrireDonnées(réfDonnées, fichier, conversionColonnes);
-          // écrireDonnées(réfDonnées, fichier, conversionColonnes);
 
           // Vérifier données importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
@@ -1348,7 +1345,7 @@ describe.only("Automatisations", function () {
           expect(données.map((d) => d.données)).to.have.deep.members(
             réfDonnées,
           );
-          console.log("ici données", données);
+
           const états = await sÉtats.terminer();
           const réfÉtats: ÉtatAutomatisation["type"][] = [
             "attente",
@@ -1647,9 +1644,7 @@ describe.only("Automatisations", function () {
           const sÉtats = await suiviÉtats({ idAuto, constl });
 
           // Avancer temps
-          console.log("avant avancer horloge")
           await horloge.tickAsync(FRÉQUENCE_IMPORTATION * 1.5);
-          console.log("après avancer horloge")
 
           // Attendre syncronisée
           const états = await sÉtats.terminer({ min: 3 });
@@ -1672,9 +1667,8 @@ describe.only("Automatisations", function () {
           changerDonnéesURL(réfDonnées, conversionColonnes);
 
           // Avancer temps
-          console.log("ici avantc horloge avancée")
           await horloge.tickAsync(FRÉQUENCE_IMPORTATION * 1.5);
-          console.log("ici horloge avancée")
+
           // Données mises à jour
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
             ({ si }) =>
@@ -1705,7 +1699,6 @@ describe.only("Automatisations", function () {
             idTableau,
             idÉlément: donnéesAvant[0].id,
           });
-          console.log("élément effacé")
 
           // Relancer
           await constl.automatisations.lancerManuellement({ id: idAuto });
@@ -2465,12 +2458,12 @@ describe.only("Automatisations", function () {
       });
 
       it.skip("pas réexportée si aucun changement", async () => {
+        await pasEnCoursDeSync({ idAuto, constl });
         const dernièreModifAvant = dernièreModif(fichier);
 
         // Avancer temps
-        console.log("tique");
         await horloge.tickAsync(FRÉQUENCE_EXPORTATION * 2.5);
-        console.log("toque");
+
         // Pas réexportée
         await pasEnCoursDeSync({ idAuto, constl });
         const dernièreModifMaintenant = dernièreModif(fichier);
@@ -2491,20 +2484,16 @@ describe.only("Automatisations", function () {
         expect(existsSync(fichier)).to.be.true();
       });
 
-      it.skip("réexportée lorsque déclanchée", async () => {
-        const modifié = attendreFichierModifié({ fichier });
+      it("réexportée lorsque déclanchée", async () => {
+        rmSync(fichier)
 
         // Relancer
-        const avant = Date.now();
         await constl.automatisations.lancerManuellement({ id: idAuto });
 
         // Bien réexportée
-        console.log("on attend la modification");
-        await modifié;
-        console.log("bien modifié");
-        const maintenant = Date.now();
+        await attendreFichierExiste({ fichier });
 
-        expect(avant - maintenant).to.be.lessThan(FRÉQUENCE_EXPORTATION);
+        expect(existsSync(fichier)).to.be.true();
       });
     });
 
@@ -2575,16 +2564,6 @@ describe.only("Automatisations", function () {
         await fichierModifié;
         const dernièreModifAprèsAjout = dernièreModif(fichier);
         expect(dernièreModifAprèsAjout).to.be.greaterThan(premièreModif!);
-      });
-
-      it.skip("réexportée si fichier disparu", async () => {
-        // Effacer fichier
-        rmSync(fichier);
-
-        // Bien réexportée
-        await attendreFichierExiste({ fichier });
-
-        expect(existsSync(fichier)).to.be.true();
       });
 
       it("réexportée lorsque déclanchée", async () => {
@@ -2721,18 +2700,15 @@ describe.only("Automatisations", function () {
       }: {
         dossier: string;
       }): Promise<string> => {
-        console.log("ici avant");
         const existants = readdirSync(dossier)
           .map((f) => join(dossier, f))
           .filter((f) => statSync(f).isFile());
-        console.log("ici après");
 
         const chokidar = await import("chokidar");
 
         const écouteur = chokidar.watch(dossier);
         return new Promise((résoudre) =>
           écouteur.on("add", (chemin) => {
-            console.log(chemin);
             if (!existants.includes(chemin))
               écouteur.close().then(() => résoudre(chemin));
           }),
@@ -2909,6 +2885,7 @@ describe.only("Automatisations", function () {
         });
 
         it("effacer automatiquement lorsque périmées", async () => {
+          const JOURS = 1000 * 60 * 60 * 24;
           const ilYA101Jours = new Date(Date.now() - JOURS * 101);
           utimesSync(fichierV1, ilYA101Jours, ilYA101Jours);
 

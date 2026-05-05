@@ -52,7 +52,6 @@ export const générerFAuto = ({
 }): (() => Promise<void>) => {
   switch (spéc.type) {
     case "importation": {
-      console.log("générer f importation");
       return générerFImportation({ spéc, service });
     }
 
@@ -73,14 +72,12 @@ export const générerFImportation = ({
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): (() => Promise<void>) => {
   return async () => {
-    console.log("f importation");
     let données: ÉlémentDicJSON[]; // À faire : améliorer type
     try {
       données = await obtDonnéesImportation(spéc);
     } catch (e) {
       throw new Error("Erreur d'importation des données : \n" + e.toString());
     }
-    console.log("ici 2", données);
 
     const tableaux = service("bds").tableaux;
     const conversions = spéc.conversions || [];
@@ -101,18 +98,18 @@ export const générerFImportation = ({
         }
       });
     }
-    console.log("ici 3");
+
     const donnéesConverties = await tableaux.convertirDonnées({
       données,
       conversions,
     });
-    console.log("ici 4");
+
     await tableaux.importerDonnées({
       idStructure: spéc.idBd,
       idTableau: spéc.idTableau,
       données: donnéesConverties.converties,
     });
-    console.log("ici 5");
+
     if (donnéesConverties.erreurs.length)
       throw new AggregateError(
         donnéesConverties.erreurs.map((e) =>
@@ -392,21 +389,18 @@ export const chronoManuel = async ({
   f: () => Promise<void>;
   suiviÉtat: (état: ÉtatAutomatisation) => void;
 }): Promise<Chronomètre> => {
-  console.log("chrono manuel");
   const queue = schéduler();
 
   const étatAttente: ÉtatAutomatisationAttente = {
     type: "attente",
   };
   suiviÉtat(étatAttente);
-  console.log("chrono manuel 2");
+
   const fAvecÉtats = async () => {
-    console.log("ici fAvecÉtats");
     const étatSync: ÉtatAutomatisationEnSync = {
       type: "sync",
       depuis: new Date().getTime(),
     };
-    console.log("f avec états manuel");
     suiviÉtat(étatSync);
 
     try {
@@ -419,10 +413,7 @@ export const chronoManuel = async ({
 
   return {
     fermer: async () => await queue.vide(),
-    relancer: () => {
-      console.log("relancer ici");
-      queue.ajouter(fAvecÉtats);
-    },
+    relancer: () =>queue.ajouter(fAvecÉtats),
   };
 };
 
@@ -449,15 +440,17 @@ export const chronoFixe = async ({
   id: string;
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
+  const stockage = service("stockage")
+  const clefStockage = obtClefStockage(id)
+
   const queue = schéduler();
   const annuler = new AbortController();
 
   const fréquenceEnMS = obtTempsInterval(fréquence.détails);
-  const dernièreFois = obtTempsDernièreFois(
-    (await service("stockage").obtenirItem(obtClefStockage(id))) || undefined,
+  const dernièreFois = await obtTempsDernièreFois(
+    (await stockage.obtenirItem(clefStockage)) || undefined,
   );
-  const tempsAvantPremière =
-    dernièreFois === undefined ? Math.max(fréquenceEnMS - dernièreFois, 0) : 0;
+  const tempsAvantPremière = Math.max(dernièreFois + fréquenceEnMS, 0);
 
   const maintenant = Date.now();
   const nouvelÉtat: ÉtatAutomatisationProgrammée = {
@@ -480,6 +473,7 @@ export const chronoFixe = async ({
 
     try {
       await f();
+      await stockage.sauvegarderItem({clef: clefStockage, valeur: Date.now().toString() })
       suiviÉtat(étatProgrammé);
     } catch (e) {
       const prochain = Date.now() + fréquenceEnMS;
@@ -595,10 +589,12 @@ export const chronoDynamiqueImportation = async ({
         suiviÉtat(étatErreur);
         return { fermer: async () => await queue.vide(), relancer: faisRien };
       }
+
       const chokidar = await import("chokidar");
       const fs = await import("fs");
+
       const { adresseFichier } = auto.source;
-      console.log({ adresseFichier });
+
       if (!adresseFichier) {
         const étatErreur: ÉtatAutomatisationErreur = {
           type: "erreur",
@@ -609,16 +605,13 @@ export const chronoDynamiqueImportation = async ({
         return { fermer: async () => await queue.vide(), relancer: faisRien };
       }
 
-      console.log("existe", existsSync(adresseFichier));
-
-      const chrono = setInterval(
-        () => console.log("adresseFichier existe", existsSync(adresseFichier)),
-        2000,
-      );
       const écouteur = chokidar.watch(adresseFichier, {
         awaitWriteFinish: true,
         ignoreInitial: true,
       });
+
+      await new Promise<void>(résoudre => écouteur.once("ready", ()=>setTimeout(résoudre, 100)))
+
       const oublierChangements = appelerLorsque({
         émetteur: écouteur as TypedEmitter<{
           [K in keyof FSWatcherEventMap]: (
@@ -626,13 +619,21 @@ export const chronoDynamiqueImportation = async ({
           ) => void;
         }>,
         événement: ["add", "change", "unlink"],
-        f: (é) => {
-          console.log({ é });
-          return queue.ajouter(fAvecStockage);
-        },
+        f: () => queue.ajouter(fAvecStockage),
       });
 
-      if (!fs.existsSync(adresseFichier)) {
+      if (fs.existsSync(adresseFichier)) {
+        const dernièreModif = fs.statSync(adresseFichier).mtime.getTime();
+        const dernièreImportation =
+          await service("stockage").obtenirItem(clefDernièreFois);
+        const fichierModifié = dernièreImportation
+          ? dernièreModif > parseInt(dernièreImportation)
+          : true;
+
+        if (fichierModifié) {
+          queue.ajouter(fAvecStockage);
+        }
+      } else {
         const étatErreur: ÉtatAutomatisationErreur = {
           type: "erreur",
           erreur: `Fichier ${adresseFichier} introuvable.`,
@@ -640,27 +641,11 @@ export const chronoDynamiqueImportation = async ({
         };
         suiviÉtat(étatErreur);
       }
-      const dernièreModif = fs.existsSync(adresseFichier)
-        ? fs.statSync(adresseFichier).mtime.getTime()
-        : undefined;
-
-      if (dernièreModif) {
-        const dernièreImportation =
-          await service("stockage").obtenirItem(clefDernièreFois);
-        const fichierModifié = dernièreImportation
-          ? dernièreModif > parseInt(dernièreImportation)
-          : true;
-        console.log({ fichierModifié });
-        if (fichierModifié) {
-          queue.ajouter(fAvecStockage);
-        }
-      }
 
       const fermer = async () => {
         await oublierChangements();
         await écouteur.close();
         await queue.vide();
-        clearInterval(chrono);
       };
       return { fermer, relancer: () => queue.ajouter(fAvecStockage) };
     }
@@ -789,7 +774,7 @@ export const obtDonnéesImportation = async <
 ) => {
   const { type } = spéc.source;
   const { formatDonnées } = spéc.source.info;
-  console.log("obt données importation");
+
   switch (type) {
     case "url": {
       const { url } = spéc.source;
@@ -820,17 +805,12 @@ export const obtDonnéesImportation = async <
       const fs = await import("fs");
       const { adresseFichier } = spéc.source;
       const adresseFichierRésolue = await résoudreAdresse(adresseFichier);
-      console.log(
-        "ici obtDonnéesImportation",
-        adresseFichierRésolue,
-        adresseFichierRésolue && fs.existsSync(adresseFichierRésolue),
-      );
+
       if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue))
         throw new Error(
           `Fichier ${adresseFichierRésolue || adresseFichier} introuvable.`,
         );
 
-      console.log({ formatDonnées });
       switch (formatDonnées) {
         case "json": {
           const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
@@ -846,27 +826,16 @@ export const obtDonnéesImportation = async <
 
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source.info;
-          console.log({ nomTableau, cols });
           const contenu = readFileSync(adresseFichierRésolue);
-          console.log("hmmm, ici");
+
           const docXLSX = XLSX.read(new TextDecoder().decode(contenu), {
             type: "string",
           });
-          console.log("hmmm, là");
+
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
 
-          try {
-            // `cols || {}` est nécessaire au cas où `cols` serait vide (et donc absent dans l'objet Orbite)
-            const x = importateur.obtDonnées(
-              nomTableau || "Sheet1",
-              cols || {},
-            );
-            console.log("ici ahah", x);
-            return x;
-          } catch (e) {
-            console.log(e);
-            throw e;
-          }
+          // `cols || {}` est nécessaire au cas où `cols` serait vide (et donc absent dans l'objet Orbite)
+          return importateur.obtDonnées(nomTableau || "Sheet1", cols || {});
         }
 
         default:
