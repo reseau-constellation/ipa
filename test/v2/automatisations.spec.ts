@@ -1933,7 +1933,7 @@ describe.only("Automatisations", function () {
     });
   });
 
-  describe("exportations", function () {
+  describe.only("exportations", function () {
     let fermer: () => Promise<void>;
     let constls: Constellation[];
     let constl: Constellation;

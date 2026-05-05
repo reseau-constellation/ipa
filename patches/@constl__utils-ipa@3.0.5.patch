@@ -1,26 +1,25 @@
 diff --git "a/dist/donn\303\251es.js" "b/dist/donn\303\251es.js"
-index 44559a241ecd999ec5cb3687422dd934a02190e9..46f6a2a1c4a910bfcced0fceddf1937c87ce295d 100644
+index 44559a241ecd999ec5cb3687422dd934a02190e9..a3948b1eb5fcd40e9b23377cd8b973be298e8f24 100644
 --- "a/dist/donn\303\251es.js"
 +++ "b/dist/donn\303\251es.js"
 @@ -19,6 +19,7 @@ export async function zipper({ fichiersDocus, fichiersMédias, nomFichier, dossi
      for (const fichier of fichiersMédias) {
          dossierFichiersMédias.file(fichier.nom, fichier.octets);
      }
-+    console.log(fichierZip.files)
++    console.log("avant sauvegarde", fichierZip.files)
      await sauvegarderFichierZip({ fichierZip, nomFichier });
  }
  export async function sauvegarderFichierZip({ fichierZip, nomFichier, }) {
 diff --git a/dist/fonctions.js b/dist/fonctions.js
-index b4b2f91eb4344eb1098866928631f8fc69e70b52..7ae1c6037e62f425259902c150c842d026cca1d9 100644
+index b4b2f91eb4344eb1098866928631f8fc69e70b52..b868e92bf3f64d50454d6fdc81a11e005dd884ce 100644
 --- a/dist/fonctions.js
 +++ b/dist/fonctions.js
-@@ -185,13 +185,14 @@ export const attendreStabilité = (n) => {
+@@ -185,13 +185,13 @@ export const attendreStabilité = (n) => {
      let val = undefined;
      let annulerRebours = faisRien;
      return (v) => new Promise((résoudre) => {
 -        if (déjàAppellé && JSON.stringify(v) === val) {
 +        if (déjàAppellé && deepEqual(v, val)) {
-+            console.log(déjàAppellé)
              résoudre(false);
              return;
          }
