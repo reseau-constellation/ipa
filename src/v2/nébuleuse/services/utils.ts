@@ -41,7 +41,7 @@ export const appelerLorsque = <
   f,
 }: {
   émetteur: TypedEmitter<L>;
-  événement: U;
+  événement: U | U[];
   f: Suivi<Parameters<L[U]>[0]>;
 }): Oublier => {
   const promesses = new Set<Promise<unknown>>();
@@ -54,9 +54,12 @@ export const appelerLorsque = <
     }
     return p;
   };
-  émetteur.on(événement, fFinale as L[U]);
+
+  const listeÉvénements = Array.isArray(événement) ? événement : [événement];
+
+  listeÉvénements.forEach((é) => émetteur.on(é, fFinale as L[U]));
   return async () => {
-    émetteur.off(événement, fFinale as L[U]);
+    listeÉvénements.forEach((é) => émetteur.off(é, fFinale as L[U]));
     await Promise.allSettled(promesses);
   };
 };

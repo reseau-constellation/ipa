@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
 import { faisRien, uneFois } from "@constl/utils-ipa";
@@ -15,6 +15,7 @@ import {
   importerJSONdURL,
 } from "../importateur/urls.js";
 import { stabiliser } from "../nébuleuse/utils.js";
+import type { ÉlémentDicJSON } from "../importateur/json.js";
 import type { ServicesNécessairesAutomatisations } from "./automatisations.js";
 import type { FSWatcherEventMap } from "chokidar";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
@@ -42,38 +43,6 @@ if (isElectronMain || isNode) {
 export const MESSAGE_NON_DISPO_NAVIGATEUR =
   "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version appli internet de Constellation.";
 
-export const fAutoAvecÉtats = (
-  fAuto: () => Promise<void>,
-  état: (état: ÉtatAutomatisation) => void,
-  tempsInterval?: number,
-): (() => Promise<void>) => {
-  return async () => {
-    const étatSync: ÉtatAutomatisationEnSync = {
-      type: "sync",
-      depuis: new Date().getTime(),
-    };
-    état(étatSync);
-
-    try {
-      await fAuto();
-      if (tempsInterval) {
-        const nouvelÉtat: ÉtatAutomatisationProgrammée = {
-          type: "programmée",
-          à: Date.now() + tempsInterval,
-        };
-        état(nouvelÉtat);
-      } else {
-        const nouvelÉtat: ÉtatAutomatisationÉcoute = {
-          type: "écoute",
-        };
-        état(nouvelÉtat);
-      }
-    } catch (e) {
-      état(étatErreur(e));
-    }
-  };
-};
-
 export const générerFAuto = ({
   spéc,
   service,
@@ -83,6 +52,7 @@ export const générerFAuto = ({
 }): (() => Promise<void>) => {
   switch (spéc.type) {
     case "importation": {
+      console.log("générer f importation");
       return générerFImportation({ spéc, service });
     }
 
@@ -103,7 +73,14 @@ export const générerFImportation = ({
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): (() => Promise<void>) => {
   return async () => {
-    const données = await obtDonnéesImportation(spéc);
+    console.log("f importation");
+    let données: ÉlémentDicJSON[]; // À faire : améliorer type
+    try {
+      données = await obtDonnéesImportation(spéc);
+    } catch (e) {
+      throw new Error("Erreur d'importation des données : \n" + e.toString());
+    }
+    console.log("ici 2", données);
 
     const tableaux = service("bds").tableaux;
     const conversions = spéc.conversions || [];
@@ -124,17 +101,18 @@ export const générerFImportation = ({
         }
       });
     }
-    console.log(données, conversions)
+    console.log("ici 3");
     const donnéesConverties = await tableaux.convertirDonnées({
       données,
       conversions,
     });
-
+    console.log("ici 4");
     await tableaux.importerDonnées({
       idStructure: spéc.idBd,
       idTableau: spéc.idTableau,
       données: donnéesConverties.converties,
     });
+    console.log("ici 5");
     if (donnéesConverties.erreurs.length)
       throw new AggregateError(
         donnéesConverties.erreurs.map((e) =>
@@ -402,16 +380,7 @@ export const chronomètre = async ({
 const étatErreur = (e: Error, prochain?: number): ÉtatAutomatisationErreur => {
   return {
     type: "erreur",
-    erreur: JSON.stringify(
-      {
-        nom: e.name,
-        message: e.message,
-        pile: e.stack,
-        cause: e.cause,
-      },
-      undefined,
-      2,
-    ),
+    erreur: e.message,
     prochaineProgramméeÀ: prochain,
   };
 };
@@ -421,31 +390,39 @@ export const chronoManuel = async ({
   suiviÉtat,
 }: {
   f: () => Promise<void>;
-  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  suiviÉtat: (état: ÉtatAutomatisation) => void;
 }): Promise<Chronomètre> => {
+  console.log("chrono manuel");
   const queue = schéduler();
 
-  const nouvelÉtat: ÉtatAutomatisationAttente = {
+  const étatAttente: ÉtatAutomatisationAttente = {
     type: "attente",
   };
-  await suiviÉtat(nouvelÉtat);
-
+  suiviÉtat(étatAttente);
+  console.log("chrono manuel 2");
   const fAvecÉtats = async () => {
-    const nouvelÉtat: ÉtatAutomatisationEnSync = {
+    console.log("ici fAvecÉtats");
+    const étatSync: ÉtatAutomatisationEnSync = {
       type: "sync",
       depuis: new Date().getTime(),
     };
-    await suiviÉtat(nouvelÉtat);
+    console.log("f avec états manuel");
+    suiviÉtat(étatSync);
+
     try {
       await f();
+      suiviÉtat(étatAttente);
     } catch (e) {
-      await suiviÉtat(étatErreur(e));
+      suiviÉtat(étatErreur(e));
     }
   };
 
   return {
     fermer: async () => await queue.vide(),
-    relancer: () => queue.ajouter(fAvecÉtats),
+    relancer: () => {
+      console.log("relancer ici");
+      queue.ajouter(fAvecÉtats);
+    },
   };
 };
 
@@ -468,7 +445,7 @@ export const chronoFixe = async ({
 }: {
   f: () => Promise<void>;
   fréquence: FréquenceFixe;
-  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  suiviÉtat: (état: ÉtatAutomatisation) => void;
   id: string;
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
@@ -487,16 +464,31 @@ export const chronoFixe = async ({
     type: "programmée",
     à: maintenant + tempsAvantPremière,
   };
-  await suiviÉtat(nouvelÉtat);
+  suiviÉtat(nouvelÉtat);
 
-  const fRépétée = async () => {
+  const fAvecÉtats = async () => {
+    const étatSync: ÉtatAutomatisationEnSync = {
+      type: "sync",
+      depuis: new Date().getTime(),
+    };
+    suiviÉtat(étatSync);
+
+    const étatProgrammé: ÉtatAutomatisationProgrammée = {
+      type: "programmée",
+      à: Date.now() + fréquenceEnMS,
+    };
+
     try {
       await f();
+      suiviÉtat(étatProgrammé);
     } catch (e) {
       const prochain = Date.now() + fréquenceEnMS;
-      await suiviÉtat(étatErreur(e, prochain));
+      suiviÉtat(étatErreur(e, prochain));
     }
+  };
 
+  const fRépétée = async () => {
+    await fAvecÉtats();
     if (!annuler.signal.aborted)
       chrono = setTimeout(() => queue.ajouter(fRépétée), fréquenceEnMS);
   };
@@ -527,18 +519,45 @@ export const chronoDynamique = async ({
   service,
 }: {
   f: () => Promise<void>;
-  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  suiviÉtat: (état: ÉtatAutomatisation) => void;
   auto: SpécificationAutomatisation;
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
+  const étatÉcoute: ÉtatAutomatisationÉcoute = {
+    type: "écoute",
+  };
+
+  const fAvecÉtats = async () => {
+    const étatSync: ÉtatAutomatisationEnSync = {
+      type: "sync",
+      depuis: new Date().getTime(),
+    };
+    suiviÉtat(étatSync);
+
+    try {
+      await f();
+      suiviÉtat(étatÉcoute);
+    } catch (e) {
+      suiviÉtat(étatErreur(e));
+    }
+  };
+
+  suiviÉtat(étatÉcoute);
+
   if (auto.type === "importation")
     return await chronoDynamiqueImportation({
-      f,
+      f: fAvecÉtats,
       auto,
       suiviÉtat,
       service,
     });
-  else return await chronoDynamiqueExportation({ f, auto, suiviÉtat, service });
+  else
+    return await chronoDynamiqueExportation({
+      f: fAvecÉtats,
+      auto,
+      suiviÉtat,
+      service,
+    });
 };
 
 export const chronoDynamiqueImportation = async ({
@@ -549,17 +568,12 @@ export const chronoDynamiqueImportation = async ({
 }: {
   f: () => Promise<void>;
   auto: SpécificationImporter;
-  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  suiviÉtat: (état: ÉtatAutomatisation) => void;
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
   const queue = schéduler();
 
   const clefDernièreFois = obtClefStockage(auto.id);
-
-  const nouvelÉtat: ÉtatAutomatisationÉcoute = {
-    type: "écoute",
-  };
-  await suiviÉtat(nouvelÉtat);
 
   const fAvecStockage = async () => {
     await f();
@@ -584,7 +598,7 @@ export const chronoDynamiqueImportation = async ({
       const chokidar = await import("chokidar");
       const fs = await import("fs");
       const { adresseFichier } = auto.source;
-
+      console.log({ adresseFichier });
       if (!adresseFichier) {
         const étatErreur: ÉtatAutomatisationErreur = {
           type: "erreur",
@@ -595,16 +609,27 @@ export const chronoDynamiqueImportation = async ({
         return { fermer: async () => await queue.vide(), relancer: faisRien };
       }
 
-      const écouteur = chokidar.watch(adresseFichier);
+      console.log("existe", existsSync(adresseFichier));
 
+      const chrono = setInterval(
+        () => console.log("adresseFichier existe", existsSync(adresseFichier)),
+        2000,
+      );
+      const écouteur = chokidar.watch(adresseFichier, {
+        awaitWriteFinish: true,
+        ignoreInitial: true,
+      });
       const oublierChangements = appelerLorsque({
         émetteur: écouteur as TypedEmitter<{
           [K in keyof FSWatcherEventMap]: (
             ...args: FSWatcherEventMap[K]
           ) => void;
         }>,
-        événement: "change",
-        f: () => queue.ajouter(fAvecStockage),
+        événement: ["add", "change", "unlink"],
+        f: (é) => {
+          console.log({ é });
+          return queue.ajouter(fAvecStockage);
+        },
       });
 
       if (!fs.existsSync(adresseFichier)) {
@@ -619,20 +644,23 @@ export const chronoDynamiqueImportation = async ({
         ? fs.statSync(adresseFichier).mtime.getTime()
         : undefined;
 
-      const dernièreImportation =
-        await service("stockage").obtenirItem(clefDernièreFois);
-      const fichierModifié =
-        dernièreModif && dernièreImportation
+      if (dernièreModif) {
+        const dernièreImportation =
+          await service("stockage").obtenirItem(clefDernièreFois);
+        const fichierModifié = dernièreImportation
           ? dernièreModif > parseInt(dernièreImportation)
           : true;
-      if (fichierModifié) {
-        queue.ajouter(fAvecStockage);
+        console.log({ fichierModifié });
+        if (fichierModifié) {
+          queue.ajouter(fAvecStockage);
+        }
       }
 
       const fermer = async () => {
         await oublierChangements();
         await écouteur.close();
         await queue.vide();
+        clearInterval(chrono);
       };
       return { fermer, relancer: () => queue.ajouter(fAvecStockage) };
     }
@@ -641,7 +669,7 @@ export const chronoDynamiqueImportation = async ({
       const étatErreur: ÉtatAutomatisationErreur = {
         type: "erreur",
         erreur:
-          "La fréquence d'une automatisation d'importation d'URL doit être spécifiée.",
+          "La fréquence d'une automatisation d'importation d'URL doit être soit fixe, soit manuelle, mais ne peut pas être dynamique.",
         prochaineProgramméeÀ: undefined,
       };
       suiviÉtat(étatErreur);
@@ -664,7 +692,7 @@ export const chronoDynamiqueExportation = async ({
 }: {
   f: () => Promise<void>;
   auto: SpécificationExporter;
-  suiviÉtat: Suivi<ÉtatAutomatisation>;
+  suiviÉtat: (état: ÉtatAutomatisation) => void;
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
   const stockage = service("stockage");
@@ -689,11 +717,6 @@ export const chronoDynamiqueExportation = async ({
         });
       }
     };
-
-  const nouvelÉtat: ÉtatAutomatisationÉcoute = {
-    type: "écoute",
-  };
-  await suiviÉtat(nouvelÉtat);
 
   const suivreEmpreinteTête = async (f: Suivi<string>): Promise<Oublier> => {
     switch (auto.typeObjet) {
@@ -766,7 +789,7 @@ export const obtDonnéesImportation = async <
 ) => {
   const { type } = spéc.source;
   const { formatDonnées } = spéc.source.info;
-
+  console.log("obt données importation");
   switch (type) {
     case "url": {
       const { url } = spéc.source;
@@ -797,11 +820,17 @@ export const obtDonnéesImportation = async <
       const fs = await import("fs");
       const { adresseFichier } = spéc.source;
       const adresseFichierRésolue = await résoudreAdresse(adresseFichier);
+      console.log(
+        "ici obtDonnéesImportation",
+        adresseFichierRésolue,
+        adresseFichierRésolue && fs.existsSync(adresseFichierRésolue),
+      );
       if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue))
         throw new Error(
           `Fichier ${adresseFichierRésolue || adresseFichier} introuvable.`,
         );
 
+      console.log({ formatDonnées });
       switch (formatDonnées) {
         case "json": {
           const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
@@ -817,16 +846,27 @@ export const obtDonnéesImportation = async <
 
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source.info;
-
+          console.log({ nomTableau, cols });
           const contenu = readFileSync(adresseFichierRésolue);
-
+          console.log("hmmm, ici");
           const docXLSX = XLSX.read(new TextDecoder().decode(contenu), {
             type: "string",
           });
-
+          console.log("hmmm, là");
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
 
-          return importateur.obtDonnées(nomTableau || "Sheet1", cols);
+          try {
+            // `cols || {}` est nécessaire au cas où `cols` serait vide (et donc absent dans l'objet Orbite)
+            const x = importateur.obtDonnées(
+              nomTableau || "Sheet1",
+              cols || {},
+            );
+            console.log("ici ahah", x);
+            return x;
+          } catch (e) {
+            console.log(e);
+            throw e;
+          }
         }
 
         default:

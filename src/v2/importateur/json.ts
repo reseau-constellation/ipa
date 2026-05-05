@@ -173,7 +173,7 @@ export class ImportateurDonnéesJSON {
     let racineDonnéesJSON = extraireDonnées(this.donnéesJSON, clefsRacine);
     if (typeof racineDonnéesJSON !== "object") {
       throw new Error(
-        `Type de données erroné : ${racineDonnéesJSON.toString()}`, // eslint-disable-line no-irregular-whitespace
+        `Type de données erroné : ${racineDonnéesJSON}`, // eslint-disable-line no-irregular-whitespace
       );
     }
 

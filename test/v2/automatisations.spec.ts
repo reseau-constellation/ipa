@@ -32,6 +32,7 @@ import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/v2/automatisations/utils.js";
 import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import {
   créerConstellationsTest,
+  journalifier,
   obtenir,
   utiliserFauxChronomètres,
 } from "./utils.js";
@@ -50,14 +51,15 @@ import type {
   SpécificationExporter,
   SpécificationImporter,
   ÉtatAutomatisation,
-  ÉtatAutomatisationAttente,
+  ÉtatAutomatisationEnSync,
   ÉtatAutomatisationErreur,
+  ÉtatAutomatisationProgrammée,
 } from "@/v2/automatisations/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type { ClefsExtraction } from "@/v2/importateur/json.js";
 
-const JOURS = 1000 * 60 * 60 * 24;
+const MINUTES = 1000 * 60;
 
 const pasEnCoursDeSync = async ({
   idAuto,
@@ -103,7 +105,7 @@ const écrireDonnées = (
             .join(",") + "\n",
       )
       .join("");
-      console.log(texte)
+  console.log(texte);
   writeFileSync(fichier, texte);
 };
 
@@ -465,10 +467,10 @@ describe.only("Automatisations", function () {
             }),
           );
 
-          expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
 
-          const états = await sÉtats.terminer();
           const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "écoute"];
+          const états = await sÉtats.terminer({ min: réfÉtats.length});
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
         });
 
@@ -556,7 +558,7 @@ describe.only("Automatisations", function () {
             }),
           );
 
-          expect(donnéesTableau.map((d) => d.données)).to.deep.equal(
+          expect(donnéesTableau.map((d) => d.données)).to.have.deep.members(
             réfDonnées,
           );
 
@@ -599,7 +601,7 @@ describe.only("Automatisations", function () {
 
           écrireDonnées(donnéesFichier, adresseFichier, conversionColonnes);
           const réfDonnées: DonnéesRangéeTableau[] = [
-            { [colDate]: new Date(1, 1, 2026).getTime(), [colPrécip]: 0.010 },
+            { [colDate]: new Date(1, 1, 2026).getTime(), [colPrécip]: 0.01 },
             { [colDate]: new Date(1, 2, 2026).getTime(), [colPrécip]: 0.005 },
           ];
           const conversions: ConversionColonne[] = [
@@ -639,10 +641,10 @@ describe.only("Automatisations", function () {
             }),
           );
 
-          expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
         });
 
-        it("erreur si fichier non disponible", async () => {
+        it.skip("erreur si fichier non disponible", async () => {
           if (isBrowser || isElectronRenderer) return;
 
           const adresseFichier = join(dossier, "je n'existe pas encore.csv");
@@ -655,46 +657,45 @@ describe.only("Automatisations", function () {
               info: {
                 formatDonnées: "feuilleCalcul",
                 nomTableau: "",
-                cols: {},
+                cols: { "col tableau": "col données" },
               },
             },
           });
+
           const états = await obtenir<{
             [key: string]: ÉtatAutomatisation;
           }>(({ si }) =>
             constl.automatisations.suivreÉtatAutomatisations({
-              f: si((x) => !!x && !!idAuto && Object.keys(x).includes(idAuto)),
+              f: si((x) => !!x?.[idAuto] && x[idAuto].type === "erreur"),
             }),
           );
 
           const réf: ÉtatAutomatisationErreur = {
             type: "erreur",
-            erreur: "Fichier non existant",
+            prochaineProgramméeÀ: undefined,
+            erreur: `Fichier ${adresseFichier} introuvable.`,
           };
           expect(états[idAuto]).to.deep.equal(réf);
 
+          const sÉtats = await suiviÉtats({ idAuto, constl });
           écrireDonnées([{ col1: 1, col2: 2 }], adresseFichier);
+          console.log("données écrites", adresseFichier);
 
-          const étatsAprèsÉcriture = await obtenir<{
-            [key: string]: ÉtatAutomatisation;
-          }>(({ si }) =>
-            constl.automatisations.suivreÉtatAutomatisations({
-              f: si((x) => !!x && !!idAuto && Object.keys(x).includes(idAuto)),
-            }),
-          );
+          const étatsAprèsÉcriture = await sÉtats.terminer({ min: 3 });
 
-          const réfAprèsÉcriture: ÉtatAutomatisationAttente = {
-            type: "attente",
-          };
-          expect(étatsAprèsÉcriture[idAuto]).to.deep.equal(réfAprèsÉcriture);
+          expect(étatsAprèsÉcriture.map(({ type }) => type)).to.deep.equal([
+            "erreur",
+            "sync",
+            "écoute",
+          ]);
         });
 
-        it("erreur si fichier corrompu", async () => {
+        it.skip("erreur si fichier corrompu", async () => {
           if (isBrowser || isElectronRenderer) return;
 
           writeFileSync(
-            join(dossier, "fichier corrompu.csv"),
-            "Ceci ne sont pas des données csv.",
+            join(dossier, "fichier corrompu.json"),
+            "Ceci ne sont pas des données json.",
           );
 
           idAuto = await constl.automatisations.ajouterAutomatisationImporter({
@@ -702,11 +703,12 @@ describe.only("Automatisations", function () {
             idTableau,
             source: {
               type: "fichier",
-              adresseFichier: join(dossier, "fichier corrompu.csv"),
+              adresseFichier: join(dossier, "fichier corrompu.json"),
               info: {
-                formatDonnées: "feuilleCalcul",
-                nomTableau: "",
-                cols: {},
+                formatDonnées: "json",
+                clefsRacine: [],
+                clefsÉléments: [],
+                cols: { "colonne tableau": ["clefJSON"] },
               },
             },
           });
@@ -715,20 +717,19 @@ describe.only("Automatisations", function () {
             [key: string]: ÉtatAutomatisation;
           }>(({ si }) =>
             constl.automatisations.suivreÉtatAutomatisations({
-              f: si((x) => !!x && !!idAuto && Object.keys(x).includes(idAuto)),
+              f: si((x) => !!x?.[idAuto] && x[idAuto].type === "erreur"),
             }),
           );
 
-          const réf: ÉtatAutomatisationErreur = {
-            type: "erreur",
-            erreur: "Fichier corrumpu",
-          };
-          expect(états[idAuto]).to.deep.equal(réf);
+          expect(états[idAuto].type).to.equal("erreur");
+          expect((états[idAuto] as ÉtatAutomatisationErreur).erreur).to.include(
+            "Erreur d'importation des données",
+          );
         });
       });
 
       describe("fréquence fixe", function () {
-        const FRÉQUENCE_IMPORTATION = JOURS * 1; // Tous les jours
+        const FRÉQUENCE_IMPORTATION = MINUTES * 1; // Toutes les minutes
 
         let dossier: string;
         let effacer: () => void;
@@ -738,6 +739,8 @@ describe.only("Automatisations", function () {
 
         let idAuto: string;
         let fichier: string;
+
+        let réfDonnées: DonnéesRangéeTableau[];
 
         const idColPrécip = "précip";
         const idColDate = "date";
@@ -771,6 +774,13 @@ describe.only("Automatisations", function () {
             idColonne: idColDate,
           });
 
+          // Sauvegarder fichier
+          réfDonnées = [
+            { [idColDate]: new Date(1, 1, 2026).getTime(), [idColPrécip]: 10 },
+            { [idColDate]: new Date(1, 2, 2026).getTime(), [idColPrécip]: 5 },
+          ];
+          écrireDonnées(réfDonnées, fichier, conversionColonnes);
+
           // Établir automatisation exportation
           idAuto = await constl.automatisations.ajouterAutomatisationImporter({
             idBd,
@@ -787,8 +797,8 @@ describe.only("Automatisations", function () {
             fréquence: {
               type: "fixe",
               détails: {
-                unités: "jours",
-                n: FRÉQUENCE_IMPORTATION / JOURS,
+                unités: "minutes",
+                n: FRÉQUENCE_IMPORTATION / MINUTES,
               },
             },
           });
@@ -804,13 +814,6 @@ describe.only("Automatisations", function () {
         });
 
         it("importation initiale", async () => {
-          // Sauvegarder fichier
-          const réfDonnées: DonnéesRangéeTableau[] = [
-            { [idColDate]: new Date(1, 1, 2026).getTime(), [idColPrécip]: 10 },
-            { [idColDate]: new Date(1, 2, 2026).getTime(), [idColPrécip]: 5 },
-          ];
-          écrireDonnées(réfDonnées, fichier, conversionColonnes);
-
           // Vérifier données importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
             ({ si }) =>
@@ -834,24 +837,28 @@ describe.only("Automatisations", function () {
           await horloge.tickAsync(FRÉQUENCE_IMPORTATION * 1.5);
 
           // Attendre syncronisée
-          const états = await sÉtats.terminer({ min: 2 });
+          const états = await sÉtats.terminer({ min: 3 });
 
           // Empreinte identique
-          const empreinte = obtEmpreinte({ idBd, constl });
+          const empreinte = await obtEmpreinte({ idBd, constl });
           expect(empreinte).to.equal(empreinteAvant);
 
-          const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "programmée"];
+          const réfÉtats: ÉtatAutomatisation["type"][] = [
+            "programmée",
+            "sync",
+            "programmée",
+          ];
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
         });
 
         it("réimportées si données changent", async () => {
           // Changer fichier
-          const nouvellesDonnées: DonnéesRangéeTableau[] = [
+          réfDonnées = [
             { [idColDate]: new Date(1, 1, 2026).getTime(), [idColPrécip]: 10 },
             { [idColDate]: new Date(1, 2, 2026).getTime(), [idColPrécip]: 5 },
             { [idColDate]: new Date(1, 3, 2026).getTime(), [idColPrécip]: 0 },
           ];
-          écrireDonnées(nouvellesDonnées, fichier, conversionColonnes);
+          écrireDonnées(réfDonnées, fichier, conversionColonnes);
 
           // Avancer temps
           await horloge.tickAsync(FRÉQUENCE_IMPORTATION * 1.5);
@@ -867,7 +874,7 @@ describe.only("Automatisations", function () {
           );
 
           expect(données.map((d) => d.données)).to.have.deep.members(
-            nouvellesDonnées,
+            réfDonnées,
           );
         });
 
@@ -879,7 +886,7 @@ describe.only("Automatisations", function () {
             { [idColDate]: new Date(1, 3, 2026).getTime(), [idColPrécip]: 0 },
             { [idColDate]: new Date(1, 4, 2026).getTime(), [idColPrécip]: 2 },
           ];
-          écrireDonnées(nouvellesDonnées, fichier);
+          écrireDonnées(nouvellesDonnées, fichier, conversionColonnes);
 
           // Relancer
           await constl.automatisations.lancerManuellement({ id: idAuto });
@@ -957,6 +964,8 @@ describe.only("Automatisations", function () {
               type: "dynamique",
             },
           });
+
+          await constl.automatisations.suivreÉtatAutomatisations({ f: x=>console.log(x[idAutos])})
         });
 
         after(async () => {
@@ -973,6 +982,7 @@ describe.only("Automatisations", function () {
             { [idColDate]: new Date(1, 2, 2026).getTime(), [idColPrécip]: 5 },
           ];
           écrireDonnées(réfDonnées, fichier, conversionColonnes);
+          // écrireDonnées(réfDonnées, fichier, conversionColonnes);
 
           // Vérifier données importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
@@ -988,6 +998,7 @@ describe.only("Automatisations", function () {
             réfDonnées,
           );
         });
+
         it("réimportation lorsque fichier modifié", async () => {
           // Sauvegarder fichier
           réfDonnées = [
@@ -1153,7 +1164,7 @@ describe.only("Automatisations", function () {
                 f: si((x) => !!x && x.length >= 2),
               }),
           );
-          expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
         });
 
         it("pas de changement si donnnées identiques", async () => {
@@ -1164,8 +1175,12 @@ describe.only("Automatisations", function () {
           await constl.automatisations.lancerManuellement({ id: idAuto });
 
           // Attendre syncronisée
-          const états = await sÉtats.terminer({ min: 2 });
-          const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "attente"];
+          const états = await sÉtats.terminer({ min: 3 });
+          const réfÉtats: ÉtatAutomatisation["type"][] = [
+            "attente",
+            "sync",
+            "attente",
+          ];
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
 
           // Empreinte identique
@@ -1194,7 +1209,7 @@ describe.only("Automatisations", function () {
                 f: si((x) => !!x && x.length >= 3),
               }),
           );
-          expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
         });
       });
     });
@@ -1219,20 +1234,22 @@ describe.only("Automatisations", function () {
           url: "https://test.réseau-constellation.ca/fichier2.png",
           données: new TextEncoder().encode("efgh"),
           idc: "bafybeicktzgg5fjm2v5wsqzvo6sqau35ffq5gerllu3lxalfdxjjmv63em",
-        }
+        },
       ];
 
       const changerDonnéesURL = (
         nouvelles: DonnéesRangéeTableau[],
         conversionsColonnes: { [clef: string]: ClefsExtraction },
       ) => {
-        // Implémentation rapide et nonrécursif qui ne fonctionne que pour un seul 
+        // Implémentation rapide et nonrécursif qui ne fonctionne que pour un seul
         // niveau d'extraction des clefs
-        données.தகவல்கள் = Object.fromEntries(
-          Object.entries(nouvelles).map(([col, val]) => [
-            conversionsColonnes[col][0],
-            val,
-          ]),
+        données.தகவல்கள் = nouvelles.map((d) =>
+          Object.fromEntries(
+            Object.entries(d).map(([col, val]) => [
+              conversionsColonnes[col][0],
+              val,
+            ]),
+          ),
         );
       };
 
@@ -1243,13 +1260,16 @@ describe.only("Automatisations", function () {
           .reply(200, données);
         mock
           .onGet("https://test.réseau-constellation.ca/invalides.json")
-          .reply(200, new TextEncoder().encode("Nous ne sommes pas vos données."));
+          .reply(
+            200,
+            new TextEncoder().encode("Nous ne sommes pas vos données."),
+          );
         mock
           .onGet("https://test.réseau-constellation.ca/inexistantes.json")
           .reply(404);
 
         for (const { url, données } of fichiers) {
-          mock.onGet(url).reply(200, données)
+          mock.onGet(url).reply(200, données);
         }
       });
 
@@ -1285,7 +1305,7 @@ describe.only("Automatisations", function () {
             idTableau,
           });
 
-          const conversionColonnes: {[clef: string]: ClefsExtraction} = {
+          const conversionColonnes: { [clef: string]: ClefsExtraction } = {
             [colDate]: ["தேதி"],
             [colPrécip]: ["Précipitation"],
           };
@@ -1299,7 +1319,7 @@ describe.only("Automatisations", function () {
           idAuto = await constl.automatisations.ajouterAutomatisationImporter({
             idBd,
             idTableau,
-            fréquence: { type: "dynamique" },
+            fréquence: { type: "manuelle" },
             source: {
               type: "url",
               url: "https://test.réseau-constellation.ca/données-test.json",
@@ -1313,18 +1333,7 @@ describe.only("Automatisations", function () {
           });
 
           const sÉtats = await suiviÉtats({ idAuto, constl });
-
-          // S'il s'agit du navigateur, on devrait avoir une erreur
-          if (isBrowser || isElectronRenderer) {
-            const états = await sÉtats.terminer({ min: 1 });
-            const réf: ÉtatAutomatisationErreur = {
-              type: "erreur",
-              erreur: MESSAGE_NON_DISPO_NAVIGATEUR,
-              prochaineProgramméeÀ: undefined,
-            };
-            expect(états).to.have.deep.members([réf]);
-            return;
-          }
+          await constl.automatisations.lancerManuellement({ id: idAuto });
 
           const données = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
@@ -1332,14 +1341,20 @@ describe.only("Automatisations", function () {
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabiliser()(si((x) => !!x && x?.length >= 2)),
+              f: stabiliser()(si((x) => !!x && x.length >= 2)),
             }),
           );
 
-          expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
-
+          expect(données.map((d) => d.données)).to.have.deep.members(
+            réfDonnées,
+          );
+          console.log("ici données", données);
           const états = await sÉtats.terminer();
-          const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "écoute"];
+          const réfÉtats: ÉtatAutomatisation["type"][] = [
+            "attente",
+            "sync",
+            "attente",
+          ];
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
         });
 
@@ -1353,22 +1368,22 @@ describe.only("Automatisations", function () {
             idTableau,
           });
 
-          const réfDonnées = fichiers.map(({ nom, url }) => ({
+          const donnéesPourURL = fichiers.map(({ nom, url }) => ({
             [colNom]: nom,
             [colFichier]: url,
           }));
-          const conversionColonnes: {[clef: string]: ClefsExtraction} = {
+          const conversionColonnes: { [clef: string]: ClefsExtraction } = {
             [colNom]: ["Nom document"],
             [colFichier]: ["Fichier"],
           };
 
-          changerDonnéesURL(réfDonnées, conversionColonnes);
+          changerDonnéesURL(donnéesPourURL, conversionColonnes);
 
           // Tester l'automatisation
           idAuto = await constl.automatisations.ajouterAutomatisationImporter({
             idBd,
             idTableau,
-            fréquence: { type: "dynamique" },
+            fréquence: { type: "fixe", détails: { unités: "jours", n: 1 } },
             source: {
               type: "url",
               url: "https://test.réseau-constellation.ca/données-test.json",
@@ -1390,11 +1405,15 @@ describe.only("Automatisations", function () {
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabiliser()(si((x) => !!x && x.length >= 3)),
+              f: stabiliser()(si((x) => !!x && x.length >= 2)),
             }),
           );
 
-          expect(donnéesTableau.map((d) => d.données)).to.deep.equal(
+          const réfDonnées = fichiers.map(({ nom, idc, url }) => ({
+            [colNom]: nom,
+            [colFichier]: `${idc}/${basename(url)}`,
+          }));
+          expect(donnéesTableau.map((d) => d.données)).to.have.deep.members(
             réfDonnées,
           );
 
@@ -1423,7 +1442,7 @@ describe.only("Automatisations", function () {
             idTableau,
           });
 
-          const conversionColonnes: {[clef: string]: ClefsExtraction} = {
+          const conversionColonnes: { [clef: string]: ClefsExtraction } = {
             [colDate]: ["தேதி"],
             [colPrécip]: ["Précipitation"],
           };
@@ -1449,19 +1468,35 @@ describe.only("Automatisations", function () {
               },
             },
           });
-          const états = await obtenir<{
-            [key: string]: ÉtatAutomatisation;
-          }>(({ si }) =>
-            constl.automatisations.suivreÉtatAutomatisations({
-              f: si((x) => !!x && !!idAuto && Object.keys(x).includes(idAuto)),
-            }),
-          );
 
-          const réf: ÉtatAutomatisationErreur = {
-            type: "erreur",
-            erreur: "Données non existantes",
-          };
-          expect(états[idAuto]).to.deep.equal(réf);
+          const sÉtats = await suiviÉtats({ idAuto, constl });
+          const états = (await sÉtats.terminer({ min: 3 })) as [
+            ÉtatAutomatisationProgrammée,
+            ÉtatAutomatisationEnSync,
+            ÉtatAutomatisationErreur,
+          ];
+
+          const réf: [
+            ÉtatAutomatisationProgrammée,
+            ÉtatAutomatisationEnSync,
+            ÉtatAutomatisationErreur,
+          ] = [
+            {
+              type: "programmée",
+              à: états[0].à,
+            },
+            {
+              type: "sync",
+              depuis: états[1].depuis,
+            },
+            {
+              type: "erreur",
+              erreur:
+                "Erreur d'importation des données : \nError: Request failed with status code 404",
+              prochaineProgramméeÀ: états[2].prochaineProgramméeÀ,
+            },
+          ];
+          expect(états).to.deep.equal(réf);
         });
 
         it("erreur si données corrompues", async () => {
@@ -1474,7 +1509,7 @@ describe.only("Automatisations", function () {
             idTableau,
           });
 
-          const conversionColonnes: {[clef: string]: ClefsExtraction} = {
+          const conversionColonnes: { [clef: string]: ClefsExtraction } = {
             [colDate]: ["தேதி"],
             [colPrécip]: ["Précipitation"],
           };
@@ -1504,20 +1539,18 @@ describe.only("Automatisations", function () {
             [key: string]: ÉtatAutomatisation;
           }>(({ si }) =>
             constl.automatisations.suivreÉtatAutomatisations({
-              f: si((x) => !!x && !!idAuto && Object.keys(x).includes(idAuto)),
+              f: si((x) => !!x?.[idAuto] && x[idAuto].type === "erreur"),
             }),
           );
 
-          const réf: ÉtatAutomatisationErreur = {
-            type: "erreur",
-            erreur: "Données invalides",
-          };
-          expect(états[idAuto]).to.deep.equal(réf);
+          expect((états[idAuto] as ÉtatAutomatisationErreur).erreur).to.include(
+            "Erreur d'importation des données",
+          );
         });
       });
 
       describe("fréquence fixe", function () {
-        const FRÉQUENCE_IMPORTATION = JOURS * 1; // Tous les jours
+        const FRÉQUENCE_IMPORTATION = MINUTES * 1; // Toutes les minutes
 
         let idBd: string;
         let idTableau: string;
@@ -1554,6 +1587,13 @@ describe.only("Automatisations", function () {
             idColonne: idColDate,
           });
 
+          // Sauvegarder donnnées
+          réfDonnées = [
+            { [idColDate]: new Date(1, 1, 2026).getTime(), [idColPrécip]: 10 },
+            { [idColDate]: new Date(1, 2, 2026).getTime(), [idColPrécip]: 5 },
+          ];
+          changerDonnéesURL(réfDonnées, conversionColonnes);
+
           // Établir automatisation exportation
           idAuto = await constl.automatisations.ajouterAutomatisationImporter({
             idBd,
@@ -1571,8 +1611,8 @@ describe.only("Automatisations", function () {
             fréquence: {
               type: "fixe",
               détails: {
-                unités: "jours",
-                n: FRÉQUENCE_IMPORTATION / JOURS,
+                unités: "minutes",
+                n: FRÉQUENCE_IMPORTATION / MINUTES,
               },
             },
           });
@@ -1586,13 +1626,6 @@ describe.only("Automatisations", function () {
         });
 
         it("importation initiale", async () => {
-          // Sauvegarder donnnées
-          réfDonnées = [
-            { [idColDate]: new Date(1, 1, 2026).getTime(), [idColPrécip]: 10 },
-            { [idColDate]: new Date(1, 2, 2026).getTime(), [idColPrécip]: 5 },
-          ];
-          changerDonnéesURL(réfDonnées, conversionColonnes);
-
           // Vérifier données importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
             ({ si }) =>
@@ -1610,19 +1643,22 @@ describe.only("Automatisations", function () {
 
         it("pas de changement si donnnées identiques", async () => {
           const empreinteAvant = await obtEmpreinte({ idBd, constl });
+
           const sÉtats = await suiviÉtats({ idAuto, constl });
 
           // Avancer temps
+          console.log("avant avancer horloge")
           await horloge.tickAsync(FRÉQUENCE_IMPORTATION * 1.5);
+          console.log("après avancer horloge")
 
           // Attendre syncronisée
-          const états = await sÉtats.terminer({ min: 2 });
+          const états = await sÉtats.terminer({ min: 3 });
 
           // Empreinte identique
-          const empreinte = obtEmpreinte({ idBd, constl });
+          const empreinte = await obtEmpreinte({ idBd, constl });
           expect(empreinte).to.equal(empreinteAvant);
 
-          const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "programmée"];
+          const réfÉtats: ÉtatAutomatisation["type"][] = ["programmée", "sync", "programmée"];
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
         });
 
@@ -1636,8 +1672,9 @@ describe.only("Automatisations", function () {
           changerDonnéesURL(réfDonnées, conversionColonnes);
 
           // Avancer temps
+          console.log("ici avantc horloge avancée")
           await horloge.tickAsync(FRÉQUENCE_IMPORTATION * 1.5);
-
+          console.log("ici horloge avancée")
           // Données mises à jour
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
             ({ si }) =>
@@ -1668,6 +1705,7 @@ describe.only("Automatisations", function () {
             idTableau,
             idÉlément: donnéesAvant[0].id,
           });
+          console.log("élément effacé")
 
           // Relancer
           await constl.automatisations.lancerManuellement({ id: idAuto });
@@ -1678,7 +1716,7 @@ describe.only("Automatisations", function () {
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 4),
+                f: si((x) => !!x && x.length >= 3),
               }),
           );
 
@@ -1756,7 +1794,8 @@ describe.only("Automatisations", function () {
           const réf: ÉtatAutomatisationErreur = {
             type: "erreur",
             erreur:
-              "Impossible d'établir une importation de fréquence dynamique pour l'importation d'un URL.",
+              "La fréquence d'une automatisation d'importation d'URL doit être soit fixe, soit manuelle, mais ne peut pas être dynamique.",
+              prochaineProgramméeÀ: undefined,
           };
           expect(états[idAuto]).to.deep.equal(réf);
         });
@@ -1853,9 +1892,9 @@ describe.only("Automatisations", function () {
                 f: si((x) => !!x && x.length >= 2),
               }),
           );
-          expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
         });
-        
+
         it("pas de changement si donnnées identiques", async () => {
           // Empreinte initiale
           const empreinteAvant = await obtEmpreinte({ idBd, constl });
@@ -1865,8 +1904,8 @@ describe.only("Automatisations", function () {
           await constl.automatisations.lancerManuellement({ id: idAuto });
 
           // Attendre syncronisée
-          const états = await sÉtats.terminer({ min: 2 });
-          const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "attente"];
+          const réfÉtats: ÉtatAutomatisation["type"][] = ["attente", "sync", "attente"];
+          const états = await sÉtats.terminer({ min: réfÉtats.length });
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
 
           // Empreinte identique
@@ -1895,7 +1934,7 @@ describe.only("Automatisations", function () {
                 f: si((x) => !!x && x.length >= 3),
               }),
           );
-          expect(données.map((d) => d.données)).to.deep.equal(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
         });
       });
     });

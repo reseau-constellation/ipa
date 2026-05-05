@@ -6,7 +6,10 @@ import { v4 as uuidv4 } from "uuid";
 import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import { schémaSpécificationAutomatisation } from "./types.js";
-import { chronomètre, fAutoAvecÉtats, générerFAuto } from "./utils.js";
+import {
+  chronomètre,
+  générerFAuto,
+} from "./utils.js";
 import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
@@ -215,6 +218,8 @@ export class Automatisations extends ServiceDonnéesAppli<
 
     await bd.put(idAuto, élément);
 
+    await this.initialisée({ idAuto });
+
     return idAuto;
   }
 
@@ -224,7 +229,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     const compte = this.service("compte");
     const bd = await this.bd();
 
-    const id = uuidv4();
+    const idAuto = uuidv4();
 
     auto = await this.obfusquerAdressesLocales(auto);
 
@@ -232,15 +237,31 @@ export class Automatisations extends ServiceDonnéesAppli<
       SourceDonnéesImportationAdresseOptionelle<T>
     > = {
       type: "importation",
-      id,
+      id: idAuto,
       ...auto,
       dispositif: auto.dispositif || (await compte.obtIdDispositif()),
       fréquence: auto.fréquence || { type: "dynamique" },
     };
 
-    await bd.put(id, élément);
+    await bd.put(idAuto, élément);
 
-    return id;
+    await this.initialisée({ idAuto });
+
+    return idAuto;
+  }
+
+  async initialisée({ idAuto }: { idAuto: string }): Promise<void> {
+    if (this.automatisations.has(idAuto)) return;
+    else
+      return new Promise((résoudre) => {
+        const fFinale = () => {
+          if (this.automatisations.has(idAuto)) {
+            this.événements.off("autos", fFinale);
+            résoudre();
+          }
+        };
+        this.événements.on("autos", fFinale);
+      });
   }
 
   async annulerAutomatisation({ id }: { id: string }): Promise<void> {
@@ -261,7 +282,9 @@ export class Automatisations extends ServiceDonnéesAppli<
   }
 
   async lancerManuellement({ id }: { id: string }) {
-    this.automatisations.get(id)?.relancer();
+    const auto = this.automatisations.get(id);
+    if (!auto) throw new Error(`Automatisation ${id} n'existe pas.`);
+    auto.relancer();
   }
 
   async suivreAutomatisations({
@@ -396,17 +419,15 @@ export class Automatisations extends ServiceDonnéesAppli<
       spéc,
       service: (clef) => this.service(clef),
     });
+    const suiviÉtat = (état: ÉtatAutomatisation) => {
+      étatAuto = état;
+      this.événements.emit("autos");
+    };
 
     const chrono = await chronomètre({
       auto: spéc,
-      suiviÉtat: async (état) => {
-        étatAuto = état;
-        this.événements.emit("autos");
-      },
-      f: fAutoAvecÉtats(fAuto, async (état) => {
-        étatAuto = état;
-        this.événements.emit("autos");
-      }),
+      suiviÉtat,
+      f: fAuto,
       service: (clef) => this.service(clef),
     });
 
