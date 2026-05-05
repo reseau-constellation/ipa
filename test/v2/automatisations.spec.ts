@@ -2135,12 +2135,15 @@ describe.only("Automatisations", function () {
           // Attendre fichier créé
           await attendreFichierExiste({ fichier: fichierZip });
 
+          await new Promise(résoudre=>setTimeout(résoudre, 2000))
           // Le fichier ZIP est valide
+          console.log({fichierZip})
           const zip = await JSZip.loadAsync(readFileSync(fichierZip));
 
           // Le document des données existe
           console.log(zip.files)
           console.log("ods", zip.files[nomTableauFra + ".ods"])
+
           expect(zip.files[nomTableauFra + ".ods"]).to.exist();
 
           // Le dossier pour les données des médias existe
