@@ -170,7 +170,7 @@ const obtEmpreinte = async ({
   );
 };
 
-describe.only("Automatisations", function () {
+describe("Automatisations", function () {
   describe("gestion automatisations", function () {
     let dossier: string;
     let effacer: () => void;
@@ -1933,7 +1933,7 @@ describe.only("Automatisations", function () {
     });
   });
 
-  describe.only("exportations", function () {
+  describe("exportations", function () {
     let fermer: () => Promise<void>;
     let constls: Constellation[];
     let constl: Constellation;
@@ -2136,13 +2136,9 @@ describe.only("Automatisations", function () {
           await attendreFichierExiste({ fichier: fichierZip });
 
           // Le fichier ZIP est valide
-          console.log({fichierZip})
           const zip = await JSZip.loadAsync(readFileSync(fichierZip));
 
           // Le document des données existe
-          console.log(zip.files)
-          console.log("ods", zip.files[nomTableauFra + ".ods"])
-
           expect(zip.files[nomTableauFra + ".ods"]).to.exist();
 
           // Le dossier pour les données des médias existe
