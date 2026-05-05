@@ -170,7 +170,7 @@ const obtEmpreinte = async ({
   );
 };
 
-describe("Automatisations", function () {
+describe.only("Automatisations", function () {
   describe("gestion automatisations", function () {
     let dossier: string;
     let effacer: () => void;
@@ -2038,7 +2038,7 @@ describe("Automatisations", function () {
 
       let idAuto: string;
 
-      const nomTableauFra = "Météo";
+      const nomTableauFra = "Meteo";
       const nomBdத = "வானிலை தகவல்கள்";
 
       before(async () => {
@@ -2143,7 +2143,7 @@ describe("Automatisations", function () {
           expect(zip.files[nomTableauFra + ".ods"]).to.exist();
 
           // Le dossier pour les données des médias existe
-          expect(zip.files["médias/"]?.dir).to.be.true();
+          expect(zip.files["medias/"]?.dir).to.be.true();
 
           // Les fichiers des médias existent
           expect(
