@@ -1416,7 +1416,7 @@ export class TableauxBds extends Tableaux {
           idStructure,
           idTableau,
           langues,
-          f: x=>{console.log(x.documentsMédias); return fSuivi(x)},
+          f: x=>{console.log(x); return fSuivi(x)},
         });
       },
       attendreStabilité(patience),
