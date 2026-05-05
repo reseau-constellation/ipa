@@ -271,8 +271,8 @@ importers:
         version: https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
     devDependencies:
       '@constl/utils-tests':
-        specifier: ^2.1.1
-        version: 2.1.1(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
+        specifier: ^2.1.2
+        version: 2.1.2(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))
       '@eslint/js':
         specifier: ^9.39.4
         version: 9.39.4
@@ -913,8 +913,8 @@ packages:
     resolution: {integrity: sha512-zgpA3zkrfKTuFlci6PoXjOjVy+jWy1Io57arJjv43wKJuneI0a9y7Ay5tQhAFKGUrEwscPha4zFrvbOsjpp0/Q==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@2.1.1':
-    resolution: {integrity: sha512-qQI7FkPbcsVk3ROndFigbowdVeN/41ck4yBG0QJpNyfCuGgXeUppPcj3btDpVgU15YONhsu6jNtKXWxtc6kfcA==}
+  '@constl/utils-tests@2.1.2':
+    resolution: {integrity: sha512-y74dsfJoX3em4ktyfatMUgb7RFERhu/ahXXkY9rSDOW+hVhTR2WcqOnbqZohdA9GvPNQsMu6mcFJxzJWp2W+bw==}
     engines: {node: '>=20'}
 
   '@cspell/cspell-bundled-dicts@10.0.0':
@@ -9507,7 +9507,7 @@ snapshots:
       uint8arrays: 5.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@2.1.1(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
+  '@constl/utils-tests@2.1.2(react-native@0.85.2(@babel/core@7.29.0)(react@19.2.5))':
     dependencies:
       '@helia/block-brokers': 5.2.4
       '@libp2p/gossipsub': 15.0.21(patch_hash=c3e687d64e6852846c0d81a15ff3e8e1686171cf166071581d7a3609e15009a4)
