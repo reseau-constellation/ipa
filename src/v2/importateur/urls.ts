@@ -15,7 +15,9 @@ export async function importerFeuilleCalculDURL(
   options?: ParsingOptions,
 ): Promise<WorkBook> {
   const réponse = await axios.get<string>(url, { responseType: "arraybuffer" });
-  const données = réponse.data;
+  const données = ArrayBuffer.isView(réponse.data)
+    ? réponse.data
+    : new Uint8Array(Object.values(réponse.data) as unknown as number[]);
 
   const optionsParDéfault: ParsingOptions = {
     type: "buffer",

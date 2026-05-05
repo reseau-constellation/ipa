@@ -833,9 +833,13 @@ export const obtDonnéesImportation = async <
           const { nomTableau, cols } = spéc.source.info;
           const contenu = readFileSync(adresseFichierRésolue);
 
-          const docXLSX = XLSX.read(new TextDecoder().decode(contenu), {
-            type: "string",
-          });
+          const docXLSX =
+            adresseFichierRésolue.endsWith(".csv") ||
+            adresseFichierRésolue.endsWith(".txt")
+              ? XLSX.read(new TextDecoder().decode(contenu), {
+                  type: "string",
+                })
+              : XLSX.readFile(adresseFichierRésolue);
 
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
 
