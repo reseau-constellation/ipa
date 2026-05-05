@@ -9,6 +9,9 @@ overrides:
   '@orbitdb/core': 4.0.0-3e1d628.0
 
 patchedDependencies:
+  '@constl/utils-ipa@3.0.5':
+    hash: 5822fcffc6856851134546875ff29f12279b3608a6fb08cc613f54829fdd4be6
+    path: patches/@constl__utils-ipa@3.0.5.patch
   '@libp2p/gossipsub':
     hash: c3e687d64e6852846c0d81a15ff3e8e1686171cf166071581d7a3609e15009a4
     path: patches/@libp2p__gossipsub.patch
@@ -37,7 +40,7 @@ importers:
         version: 3.1.2
       '@constl/utils-ipa':
         specifier: ^3.0.5
-        version: 3.0.5
+        version: 3.0.5(patch_hash=5822fcffc6856851134546875ff29f12279b3608a6fb08cc613f54829fdd4be6)
       '@helia/unixfs':
         specifier: ^7.2.1
         version: 7.2.1
@@ -9443,7 +9446,7 @@ snapshots:
       uint8arrays: 5.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-ipa@3.0.5':
+  '@constl/utils-ipa@3.0.5(patch_hash=5822fcffc6856851134546875ff29f12279b3608a6fb08cc613f54829fdd4be6)':
     dependencies:
       browser-fs-access: 0.38.0
       events: 3.3.0

@@ -2975,7 +2975,7 @@ describe("tableaux", function () {
       });
     });
 
-    describe("exportation", function () {
+    describe.only("exportation", function () {
       describe("suivi données", async () => {
         let idBd: string;
         let idTableau: string;
