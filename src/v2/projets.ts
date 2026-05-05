@@ -1239,7 +1239,7 @@ export class Projets extends ObjetConstellation<
     formatDocu,
     dossier = "",
     inclureDocuments = true,
-    dossierMédias,
+    dossierMédias = "medias",
   }: {
     données: DonnéesFichierProjetExportées;
     formatDocu: BookType | "xls";
