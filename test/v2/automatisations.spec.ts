@@ -2147,7 +2147,7 @@ describe.only("Automatisations", function () {
 
           // Les fichiers des médias existent
           expect(
-            zip.files[["médias", idc.replace("/", "-")].join("/")],
+            zip.files[["medias", idc.replace("/", "-")].join("/")],
           ).to.exist();
         });
       });
