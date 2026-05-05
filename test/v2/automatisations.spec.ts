@@ -2140,14 +2140,15 @@ describe.only("Automatisations", function () {
 
           // Le document des données existe
           console.log(zip.files)
+          console.log("ods", zip.files[nomTableauFra + ".ods"])
           expect(zip.files[nomTableauFra + ".ods"]).to.exist();
 
           // Le dossier pour les données des médias existe
-          expect(zip.files["medias/"]?.dir).to.be.true();
+          expect(zip.files["médias/"]?.dir).to.be.true();
 
           // Les fichiers des médias existent
           expect(
-            zip.files[["medias", idc.replace("/", "-")].join("/")],
+            zip.files[["médias", idc.replace("/", "-")].join("/")],
           ).to.exist();
         });
       });

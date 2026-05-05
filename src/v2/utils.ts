@@ -88,7 +88,7 @@ export const sauvegarderDonnéesExportées = async ({
   obtItérableAsyncSFIP,
   dossier = "",
   inclureDocuments = true,
-  dossierMédias = "medias",
+  dossierMédias = "médias",
 }: {
   données: DonnéesFichierBdExportées;
   formatDocu: xlsx.BookType | "xls";
