@@ -413,7 +413,7 @@ export const chronoManuel = async ({
 
   return {
     fermer: async () => await queue.vide(),
-    relancer: () =>queue.ajouter(fAvecÉtats),
+    relancer: () => queue.ajouter(fAvecÉtats),
   };
 };
 
@@ -440,8 +440,8 @@ export const chronoFixe = async ({
   id: string;
   service: AccesseurService<ServicesNécessairesAutomatisations>;
 }): Promise<Chronomètre> => {
-  const stockage = service("stockage")
-  const clefStockage = obtClefStockage(id)
+  const stockage = service("stockage");
+  const clefStockage = obtClefStockage(id);
 
   const queue = schéduler();
   const annuler = new AbortController();
@@ -473,7 +473,10 @@ export const chronoFixe = async ({
 
     try {
       await f();
-      await stockage.sauvegarderItem({clef: clefStockage, valeur: Date.now().toString() })
+      await stockage.sauvegarderItem({
+        clef: clefStockage,
+        valeur: Date.now().toString(),
+      });
       suiviÉtat(étatProgrammé);
     } catch (e) {
       const prochain = Date.now() + fréquenceEnMS;
@@ -610,7 +613,9 @@ export const chronoDynamiqueImportation = async ({
         ignoreInitial: true,
       });
 
-      await new Promise<void>(résoudre => écouteur.once("ready", ()=>setTimeout(résoudre, 100)))
+      await new Promise<void>((résoudre) =>
+        écouteur.once("ready", () => setTimeout(résoudre, 100)),
+      );
 
       const oublierChangements = appelerLorsque({
         émetteur: écouteur as TypedEmitter<{

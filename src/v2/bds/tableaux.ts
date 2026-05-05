@@ -1416,7 +1416,7 @@ export class TableauxBds extends Tableaux {
           idStructure,
           idTableau,
           langues,
-          f: x=> fSuivi(x),
+          f: fSuivi,
         });
       },
       attendreStabilité(patience),

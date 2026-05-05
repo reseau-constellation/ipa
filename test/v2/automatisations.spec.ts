@@ -465,10 +465,12 @@ describe("Automatisations", function () {
             }),
           );
 
-          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(
+            réfDonnées,
+          );
 
           const réfÉtats: ÉtatAutomatisation["type"][] = ["sync", "écoute"];
-          const états = await sÉtats.terminer({ min: réfÉtats.length});
+          const états = await sÉtats.terminer({ min: réfÉtats.length });
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
         });
 
@@ -639,7 +641,9 @@ describe("Automatisations", function () {
             }),
           );
 
-          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(
+            réfDonnées,
+          );
         });
 
         it("erreur si fichier non disponible", async () => {
@@ -677,7 +681,7 @@ describe("Automatisations", function () {
           expect(états[idAuto]).to.deep.equal(réf);
 
           const sÉtats = await suiviÉtats({ idAuto, constl });
-          
+
           écrireDonnées([{ col1: 1, col2: 2 }], adresseFichier);
 
           const étatsAprèsÉcriture = await sÉtats.terminer({ min: 3 });
@@ -963,7 +967,6 @@ describe("Automatisations", function () {
               type: "dynamique",
             },
           });
-
         });
 
         after(async () => {
@@ -1161,7 +1164,9 @@ describe("Automatisations", function () {
                 f: si((x) => !!x && x.length >= 2),
               }),
           );
-          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(
+            réfDonnées,
+          );
         });
 
         it("pas de changement si donnnées identiques", async () => {
@@ -1206,7 +1211,9 @@ describe("Automatisations", function () {
                 f: si((x) => !!x && x.length >= 3),
               }),
           );
-          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(
+            réfDonnées,
+          );
         });
       });
     });
@@ -1653,7 +1660,11 @@ describe("Automatisations", function () {
           const empreinte = await obtEmpreinte({ idBd, constl });
           expect(empreinte).to.equal(empreinteAvant);
 
-          const réfÉtats: ÉtatAutomatisation["type"][] = ["programmée", "sync", "programmée"];
+          const réfÉtats: ÉtatAutomatisation["type"][] = [
+            "programmée",
+            "sync",
+            "programmée",
+          ];
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
         });
 
@@ -1788,7 +1799,7 @@ describe("Automatisations", function () {
             type: "erreur",
             erreur:
               "La fréquence d'une automatisation d'importation d'URL doit être soit fixe, soit manuelle, mais ne peut pas être dynamique.",
-              prochaineProgramméeÀ: undefined,
+            prochaineProgramméeÀ: undefined,
           };
           expect(états[idAuto]).to.deep.equal(réf);
         });
@@ -1885,7 +1896,9 @@ describe("Automatisations", function () {
                 f: si((x) => !!x && x.length >= 2),
               }),
           );
-          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(
+            réfDonnées,
+          );
         });
 
         it("pas de changement si donnnées identiques", async () => {
@@ -1897,7 +1910,11 @@ describe("Automatisations", function () {
           await constl.automatisations.lancerManuellement({ id: idAuto });
 
           // Attendre syncronisée
-          const réfÉtats: ÉtatAutomatisation["type"][] = ["attente", "sync", "attente"];
+          const réfÉtats: ÉtatAutomatisation["type"][] = [
+            "attente",
+            "sync",
+            "attente",
+          ];
           const états = await sÉtats.terminer({ min: réfÉtats.length });
           expect(états.map((é) => é.type)).to.deep.equal(réfÉtats);
 
@@ -1927,7 +1944,9 @@ describe("Automatisations", function () {
                 f: si((x) => !!x && x.length >= 3),
               }),
           );
-          expect(données.map((d) => d.données)).to.have.deep.members(réfDonnées);
+          expect(données.map((d) => d.données)).to.have.deep.members(
+            réfDonnées,
+          );
         });
       });
     });
@@ -2485,7 +2504,7 @@ describe("Automatisations", function () {
       });
 
       it("réexportée lorsque déclanchée", async () => {
-        rmSync(fichier)
+        rmSync(fichier);
 
         // Relancer
         await constl.automatisations.lancerManuellement({ id: idAuto });

@@ -6,10 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import { schémaSpécificationAutomatisation } from "./types.js";
-import {
-  chronomètre,
-  générerFAuto,
-} from "./utils.js";
+import { chronomètre, générerFAuto } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
