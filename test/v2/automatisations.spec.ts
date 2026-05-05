@@ -2139,6 +2139,7 @@ describe("Automatisations", function () {
           const zip = await JSZip.loadAsync(readFileSync(fichierZip));
 
           // Le document des données existe
+          console.log(zip.files)
           expect(zip.files[nomTableauFra + ".ods"]).to.exist();
 
           // Le dossier pour les données des médias existe
