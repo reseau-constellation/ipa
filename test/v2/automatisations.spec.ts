@@ -804,7 +804,7 @@ describe("Automatisations", function () {
         });
 
         after(async () => {
-          horloge.restore();
+          horloge?.restore();
 
           effacer?.();
 
@@ -1119,7 +1119,7 @@ describe("Automatisations", function () {
         });
 
         after(async () => {
-          horloge.restore();
+          horloge?.restore();
 
           effacer?.();
 
@@ -1616,7 +1616,7 @@ describe("Automatisations", function () {
         });
 
         after(async () => {
-          horloge.restore();
+          horloge?.restore();
 
           if (idAuto)
             await constl.automatisations.annulerAutomatisation({ id: idAuto });
