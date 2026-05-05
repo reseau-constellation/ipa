@@ -27,14 +27,17 @@ import { v4 as uuidv4 } from "uuid";
 import { attendreStabilité, uneFois } from "@constl/utils-ipa";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
-import { readFile as xlsxReadFile, writeFile as xlsxWriteFile, utils } from "xlsx";
+import {
+  readFile as xlsxReadFile,
+  writeFile as xlsxWriteFile,
+  utils,
+} from "xlsx";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/v2/automatisations/utils.js";
 import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
 import {
   créerConstellationsTest,
-  journalifier,
   obtenir,
   utiliserFauxChronomètres,
 } from "./utils.js";
@@ -257,7 +260,7 @@ const vérifierDonnéesProjet = async (
   effacer();
 };
 
-describe.only("Automatisations", function () {
+describe("Automatisations", function () {
   describe("gestion automatisations", function () {
     let dossier: string;
     let effacer: () => void;
@@ -2080,6 +2083,8 @@ describe.only("Automatisations", function () {
 
       let idAuto: string;
 
+      before(function () {});
+
       beforeEach(async () => {
         ({ dossier, effacer } = await dossierTempo());
 
@@ -2105,9 +2110,8 @@ describe.only("Automatisations", function () {
         effacer?.();
       });
 
-      it.skip("importer de fichier tableau", async function () {
+      it("importer de fichier tableau", async function () {
         if (isBrowser || isElectronRenderer) this.skip();
-
         const fichierFeuilleCalcul = path.join(dossier, "données.ods");
 
         const données = utils.book_new();
@@ -2144,13 +2148,13 @@ describe.only("Automatisations", function () {
             type: "dynamique",
           },
         });
-        console.log("ici")
+
         const donnéesTableau = await obtenir<DonnéesRangéeTableauAvecId[]>(
           ({ si }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: journalifier (si((x) => !!x && x.length >= 3), "données"),
+              f: si((x) => !!x && x.length >= 3),
             }),
         );
 
