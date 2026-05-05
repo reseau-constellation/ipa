@@ -3,7 +3,7 @@ import { write as xlsxWrite, writeFile as xlsxWriteFile } from "xlsx";
 import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
 import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
-import { idcValide } from "@constl/utils-ipa";
+import { idcValide, zipper } from "@constl/utils-ipa";
 import { TimeoutController } from "timeout-abort-controller";
 import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
@@ -11,58 +11,6 @@ import type { DagCborEncodable } from "@orbitdb/core";
 import type { NestedValueWithUndefined } from "@orbitdb/nested-db";
 import type { SansNonDéfinis } from "./types.js";
 import type xlsx from "xlsx";
-import JSZip from "jszip";
-
-export async function zipper({
-  fichiersDocus,
-  fichiersMédias,
-  nomFichier,
-  dossierMédias = "médias",
-}: {
-  fichiersDocus: { nom: string; octets: Uint8Array }[];
-  fichiersMédias: { nom: string; octets: Uint8Array }[];
-  nomFichier: string;
-  dossierMédias?: string;
-}): Promise<void> {
-  if (!nomFichier.endsWith(".zip")) nomFichier = `${nomFichier}.zip`;
-
-  const fichierZip = new JSZip();
-  console.log("fichier zip vide", fichierZip)
-  for (const doc of fichiersDocus) {
-    fichierZip.file(doc.nom, doc.octets);
-  }
-
-  const dossierFichiersMédias = fichierZip.folder(dossierMédias)!;
-  for (const fichier of fichiersMédias) {
-    dossierFichiersMédias.file(fichier.nom, fichier.octets);
-  }
-  console.log("ici", fichierZip.files)
-  await sauvegarderFichierZip({ fichierZip, nomFichier });
-}
-
-export async function sauvegarderFichierZip({
-  fichierZip,
-  nomFichier,
-}: {
-  fichierZip: JSZip;
-  nomFichier: string;
-}): Promise<void> {
-  if (isNode || isElectronMain) {
-    const fs = await import("fs");
-
-    const contenu = fichierZip.generateNodeStream();
-    
-    const dossier = path.dirname(nomFichier)
-    if (!fs.existsSync(dossier))
-      fs.mkdirSync(dossier, { recursive: true });
-
-    const fluxÉcriture = fs.createWriteStream(nomFichier);
-    const flux = contenu.pipe(fluxÉcriture);
-    return new Promise((résoudre) => flux.on("finish", résoudre));
-  } else {
-    throw new Error("Temporaire")
-  }
-}
 
 const { saveAs } = fileSaver;
 

@@ -2135,7 +2135,6 @@ describe.only("Automatisations", function () {
           // Attendre fichier créé
           await attendreFichierExiste({ fichier: fichierZip });
 
-          await new Promise(résoudre=>setTimeout(résoudre, 2000))
           // Le fichier ZIP est valide
           console.log({fichierZip})
           const zip = await JSZip.loadAsync(readFileSync(fichierZip));
