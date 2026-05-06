@@ -74,6 +74,9 @@ export const schémaRéseau: JSONSchemaType<PartielRécursif<StructureRéseau>> 
   nullable: true;
 } = {
   type: "object",
+  additionalProperties: {
+    type: "string"
+  },
   nullable: true,
 };
 
