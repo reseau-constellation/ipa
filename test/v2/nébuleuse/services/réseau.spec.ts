@@ -426,7 +426,7 @@ describe("Réseau", function () {
         console.log(bloqués)
         const réfBloqués: CompteBloqué[] = [
           { idCompte: compteBloquéPrivé, privé: true },
-          { idCompte: compteBloquéPrivé, privé: false }
+          { idCompte: compteBloquéPublique, privé: false }
         ]
         expect(bloqués).to.include.deep.members(réfBloqués)
 
