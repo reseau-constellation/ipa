@@ -310,9 +310,9 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     const résolveur = this.résolveurs.get(épingle.épingle.type);
     if (!résolveur) {
       const journal = this.service("journal");
-      await journal.écrire(
-        `Résolveur pour épingle de type ${épingle.épingle.type} non disponible. Cet objet ne sera probablement pas épinglé.`,
-      );
+      await journal.écrire({
+        message: `Résolveur pour épingle de type ${épingle.épingle.type} non disponible. Cet objet ne sera probablement pas épinglé.`,
+      });
 
       // On épingle la racine de l'objet ; c'est tout ce qu'on peut faire dans ce cas.
       await f(new Set([enleverPréfixes(épingle.idObjet)]));

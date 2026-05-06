@@ -30,14 +30,14 @@ export const créerConstellation = (
   );
 
   if (isElectronRenderer) {
-    mandataire.services.journal.écrire(
-      "Constellation a été initialisée par le processus de rendu d'Électron. " +
+    mandataire.services.journal.écrire({
+      message: "Constellation a été initialisée par le processus de rendu d'Électron. " +
         "Ce n'est pas un gros gros problème, mais nous vous recommandons d'utiliser " +
         "Constellation dans le processus principal, ce qui est beaucoup plus performant " +
         "et vous permettra également d'accéder à toutes les fonctionnalités de Constellation " +
         "telles les sauvegardes et les importations automatisées. Voir la documentation: " +
         "https://docu.réseau-constellation.ca/avancé/applications/électron.html.",
-    );
+    });
   }
   return mandataire;
 };

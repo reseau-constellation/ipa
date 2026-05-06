@@ -34,8 +34,8 @@ describe("Journal", function () {
       });
 
       it("écrire valeur", async () => {
-        await journal.écrire("a");
-        await journal.écrire("b");
+        await journal.écrire({message: "a"});
+        await journal.écrire({message: "b"});
 
         const fs = await import("fs");
         expect(fs.existsSync(fichier)).to.be.true();
@@ -70,8 +70,8 @@ describe("Journal", function () {
     });
 
     it("écrire valeur", async () => {
-      await journal.écrire("a");
-      await journal.écrire("b");
+      await journal.écrire({message: "a"});
+      await journal.écrire({message: "b"});
 
       expect(val).to.equal("a\nb\n");
     });

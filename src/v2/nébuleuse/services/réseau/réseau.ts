@@ -202,7 +202,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   async fermer(): Promise<void> {
     this.bloquésPrivé.clear();
-    
+
     const libp2p = await this.service("libp2p").libp2p();
     const { idTopologie } = this.estDémarré;
     libp2p.unregister(idTopologie);
@@ -475,9 +475,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         this.événements.emit(ÉVÉNEMENT_BLOQUÉ_PRIVÉ, this.bloquésPrivé);
       } catch (e) {
         // C'est pas si grave que ça
-        journal.écrire(
-          "Erreur restauration comptes bloqués privés : " + e.toString(),
-        );
+        journal.écrire({
+          message: "Erreur restauration comptes bloqués privés : " + e.toString(),
+        });
       }
     }
   }

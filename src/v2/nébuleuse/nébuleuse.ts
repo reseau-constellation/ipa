@@ -211,7 +211,7 @@ export class Nébuleuse<
         });
       } else {
         const journal = this.services["journal"];
-        journal.écrire("On a pas pu effacer le compte local.");
+        journal.écrire({message: "On a pas pu effacer le compte local."});
       }
     } else {
       const fs = await import("fs");
