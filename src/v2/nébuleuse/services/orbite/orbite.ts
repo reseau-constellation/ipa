@@ -139,7 +139,8 @@ export class ServiceOrbite<
     const journal = this.service("journal");
 
     const orbite = mandatOrbite(orbiteOrig, (erreur) => {
-      if (!estErreurAvortée(erreur)) journal.écrire(erreur.toString());
+      if (!estErreurAvortée(erreur))
+        journal.écrire({ message: erreur.toString() });
     });
 
     this.estDémarré = { orbite };
