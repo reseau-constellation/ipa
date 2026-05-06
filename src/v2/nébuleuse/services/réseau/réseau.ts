@@ -201,6 +201,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }
 
   async fermer(): Promise<void> {
+    this.bloquésPrivé.clear();
+    
     const libp2p = await this.service("libp2p").libp2p();
     const { idTopologie } = this.estDémarré;
     libp2p.unregister(idTopologie);
