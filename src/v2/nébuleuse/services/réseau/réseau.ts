@@ -544,11 +544,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         fSuivre: Suivi<Set<string> | undefined>;
       }) => {
         if (!idCompte || idCompte === id) {
-          return appelerLorsque({
+          const oublier = appelerLorsque({
             émetteur: this.événements,
             événement: ÉVÉNEMENT_BLOQUÉ_PRIVÉ,
             f: fSuivre,
           });
+          
+          await fSuivre(this.bloquésPrivé);
+          return oublier
         } else {
           // Si le compte ne correspond pas à notre compte, on ne peut pas deviner
           // les comptes bloqués de manière privée
