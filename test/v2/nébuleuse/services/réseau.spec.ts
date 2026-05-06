@@ -17,8 +17,8 @@ import type {
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 
-describe.skip("Réseau", function () {
-  describe("suivre connexions", function () {
+describe("Réseau", function () {
+  describe.skip("suivre connexions", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
@@ -178,7 +178,7 @@ describe.skip("Réseau", function () {
     });
   });
 
-  describe("confiance - manuelle", function () {
+  describe.only("confiance - manuelle", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
@@ -407,7 +407,7 @@ describe.skip("Réseau", function () {
     });
   });
 
-  describe("confiance - automatique", function () {
+  describe.skip("confiance - automatique", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
@@ -526,13 +526,13 @@ describe.skip("Réseau", function () {
     it("comptes par profondeur");
   });
 
-  describe("connexion", function () {
+  describe.skip("connexion", function () {
     it("");
   });
 
-  describe("reconnexion après réouverture", function () {});
+  describe.skip("reconnexion après réouverture", function () {});
 
-  describe("automatisation ajout dispositif", function () {
+  describe.skip("automatisation ajout dispositif", function () {
     let idBd: string;
 
     before(async () => {
