@@ -134,6 +134,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const compte = this.service("compte");
     const orbite = this.service("orbite");
     this.estDémarré = { idTopologie: "à faire" };
+
     return await super.démarrer();
 
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693

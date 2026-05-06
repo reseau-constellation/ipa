@@ -323,7 +323,7 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
 }) => {
   const { dossier, effacer } = await dossierTempoPropre();
 
-  const constls: Constellation[] = [];
+  const constls: (Constellation | ConstructeurConstellation)[] = [];
 
   for (const i in [...Array(n).entries()]) {
     const constl = créerConstellation(

@@ -403,7 +403,40 @@ describe("Réseau", function () {
         ];
         expect(bloqués).to.have.deep.members(réf);
       });
-      it("persistance après redémarrage");
+
+      it("persistance après redémarrage", async () => {
+        const compteBloquéPublique = "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"
+        const compteBloquéPrivé = "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidY"
+        const compteFiable = "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidZ"
+
+        await nébuleuses[0].réseau.bloquerCompte({ idCompte: compteBloquéPublique });
+        await nébuleuses[0].réseau.bloquerCompte({ idCompte: compteBloquéPrivé, privé: true });
+        await nébuleuses[0].réseau.faireConfianceAuCompte({ idCompte: compteFiable });
+        await nébuleuses[0].fermer();
+        await nébuleuses[0].démarrer();
+
+        const bloqués = await obtenir<CompteBloqué[]>(({ si }) =>
+          nébuleuses[0].réseau.suivreComptesBloqués({
+            f: si((x) => !!x && [compteBloquéPrivé, compteBloquéPublique].every(id=>x.find(
+                ({ idCompte }) => idCompte === id,
+              )),
+            ),
+          }),
+        );
+        console.log(bloqués)
+        const réfBloqués: CompteBloqué[] = [
+          { idCompte: compteBloquéPrivé, privé: true },
+          { idCompte: compteBloquéPrivé, privé: false }
+        ]
+        expect(bloqués).to.include.deep.members(réfBloqués)
+
+        const fiables = await obtenir<string[]>(({ si }) =>
+          nébuleuses[0].réseau.suivreComptesFiables({
+            f: si((x) => !!x?.includes(compteFiable)),
+          }),
+        );
+        expect(fiables).to.include.members([compteFiable])
+      });
     });
   });
 
