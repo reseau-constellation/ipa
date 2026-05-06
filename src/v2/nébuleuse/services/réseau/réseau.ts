@@ -421,8 +421,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const bdRéseau = await this.bd();
     idCompte = enleverPréfixesEtOrbite(idCompte)
 
-    await this.débloquerCompte({ idCompte }); // Enlever du régistre publique (ou privé) s'il y est déjà
-
     if (privé) {
       await this.débloquerCompte({ idCompte }); // Enlever du régistre publique s'il y est déjà
       this.bloquésPrivé.add(idCompte);
