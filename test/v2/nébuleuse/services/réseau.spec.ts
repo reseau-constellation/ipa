@@ -111,7 +111,7 @@ describe("Réseau", function () {
       const idRelai = obtenirAdresseRelai().split("/").pop();
       const connexionsLibp2p = await obtenir<ConnexionLibp2p[]>(({ si }) =>
         nébuleuses[0].réseau.suivreConnexionsLibp2p({
-          f: si((x) => !!x?.find((c) => c.pair !== idRelai)),
+          f: si((x) => !x?.find((c) => c.pair !== idRelai)),
         }),
       );
       expect(connexionsLibp2p.filter((c) => c.pair !== idRelai)).to.be.empty();
