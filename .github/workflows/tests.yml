@@ -28,7 +28,7 @@ jobs:
     steps:
       
       - name: Ouvrir la branche
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v4
@@ -64,7 +64,7 @@ jobs:
     steps:
       
       - name: Ouvrir la branche
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v4
@@ -101,7 +101,7 @@ jobs:
     steps:
       
       - name: Ouvrir la branche
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v4
