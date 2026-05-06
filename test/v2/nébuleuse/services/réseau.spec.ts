@@ -178,7 +178,7 @@ describe("Réseau", function () {
     });
   });
 
-  describe.only("confiance - manuelle", function () {
+  describe("confiance - manuelle", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
@@ -423,7 +423,7 @@ describe("Réseau", function () {
             ),
           }),
         );
-        console.log(bloqués)
+
         const réfBloqués: CompteBloqué[] = [
           { idCompte: compteBloquéPrivé, privé: true },
           { idCompte: compteBloquéPublique, privé: false }
