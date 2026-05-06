@@ -75,7 +75,7 @@ export const schémaRéseau: JSONSchemaType<PartielRécursif<StructureRéseau>> 
 } = {
   type: "object",
   additionalProperties: {
-    type: "string"
+    type: "string",
   },
   nullable: true,
 };
@@ -401,7 +401,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idCompte: string;
   }): Promise<void> {
     await this.débloquerCompte({ idCompte });
-    idCompte = enleverPréfixesEtOrbite(idCompte)
+    idCompte = enleverPréfixesEtOrbite(idCompte);
 
     const bdRéseau = await this.bd();
     await bdRéseau.set(enleverPréfixesEtOrbite(idCompte), FIABLE);
@@ -413,7 +413,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idCompte: string;
   }): Promise<void> {
     const bdRéseau = await this.bd();
-    idCompte = enleverPréfixesEtOrbite(idCompte)
+    idCompte = enleverPréfixesEtOrbite(idCompte);
     if ((await bdRéseau.get(idCompte)) === FIABLE) await bdRéseau.del(idCompte);
   }
 
@@ -425,7 +425,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     privé?: boolean;
   }): Promise<void> {
     const bdRéseau = await this.bd();
-    idCompte = enleverPréfixesEtOrbite(idCompte)
+    idCompte = enleverPréfixesEtOrbite(idCompte);
 
     if (privé) {
       await this.débloquerCompte({ idCompte }); // Enlever du régistre publique s'il y est déjà
@@ -438,7 +438,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   async débloquerCompte({ idCompte }: { idCompte: string }): Promise<void> {
     const bdRéseau = await this.bd();
-    idCompte = enleverPréfixesEtOrbite(idCompte)
+    idCompte = enleverPréfixesEtOrbite(idCompte);
 
     if ((await bdRéseau.get(idCompte)) === BLOQUÉ) await bdRéseau.del(idCompte);
 
@@ -476,7 +476,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       } catch (e) {
         // C'est pas si grave que ça
         journal.écrire({
-          message: "Erreur restauration comptes bloqués privés : " + e.toString(),
+          message:
+            "Erreur restauration comptes bloqués privés : " + e.toString(),
         });
       }
     }
@@ -494,7 +495,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       idCompte,
       f: async (statuts) => {
         statuts ??= {};
-        await f(Object.keys(statuts).filter((id) => statuts[id] === FIABLE).map(id=>ajouterPréfixes(id, "/nébuleuse/compte")));
+        await f(
+          Object.keys(statuts)
+            .filter((id) => statuts[id] === FIABLE)
+            .map((id) => ajouterPréfixes(id, "/nébuleuse/compte")),
+        );
       },
     });
   }
@@ -530,9 +535,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       idCompte,
       f: async (statuts) => {
         statuts ??= {};
-        bloqués.publiques = Object.keys(statuts).filter(
-          (id) => statuts[id] === BLOQUÉ,
-        ).map(id=>ajouterPréfixes(id, "/nébuleuse/compte"));
+        bloqués.publiques = Object.keys(statuts)
+          .filter((id) => statuts[id] === BLOQUÉ)
+          .map((id) => ajouterPréfixes(id, "/nébuleuse/compte"));
         await fFinale();
       },
     });
@@ -553,9 +558,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             événement: ÉVÉNEMENT_BLOQUÉ_PRIVÉ,
             f: fSuivre,
           });
-          
+
           await fSuivre(this.bloquésPrivé);
-          return oublier
+          return oublier;
         } else {
           // Si le compte ne correspond pas à notre compte, on ne peut pas deviner
           // les comptes bloqués de manière privée
@@ -564,7 +569,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         }
       },
       f: async (bloquésPrivé) => {
-        bloqués.privés = Array.from(bloquésPrivé || []).map(id=>ajouterPréfixes(id, "/nébuleuse/compte"));
+        bloqués.privés = Array.from(bloquésPrivé || []).map((id) =>
+          ajouterPréfixes(id, "/nébuleuse/compte"),
+        );
         await fFinale();
       },
     });

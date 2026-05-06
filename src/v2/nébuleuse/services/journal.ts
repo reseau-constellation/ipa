@@ -67,7 +67,7 @@ export class ServiceJournal extends ServiceAppli<
     return await super.fermer();
   }
 
-  async écrire({ message }: {message: string}): Promise<void> {
+  async écrire({ message }: { message: string }): Promise<void> {
     const { f } = await this.démarré();
     return await f(message);
   }

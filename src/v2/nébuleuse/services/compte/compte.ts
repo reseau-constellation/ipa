@@ -323,7 +323,7 @@ export class BaseServiceCompte<
           }),
         journal: async (m) => {
           if (!estErreurAvortée(m))
-            await this.service("journal").écrire({message: m.toString()});
+            await this.service("journal").écrire({ message: m.toString() });
         },
       });
     }
