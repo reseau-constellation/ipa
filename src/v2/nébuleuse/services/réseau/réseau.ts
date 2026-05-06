@@ -10,6 +10,7 @@ import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
 } from "uint8arrays";
+import { ajouterPréfixes, enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.js";
 import {
   PROTOCOLE_NÉBULEUSE,
@@ -394,8 +395,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idCompte: string;
   }): Promise<void> {
     await this.débloquerCompte({ idCompte });
+    idCompte = enleverPréfixesEtOrbite(idCompte)
+
     const bdRéseau = await this.bd();
-    await bdRéseau.set(idCompte, FIABLE);
+    await bdRéseau.set(enleverPréfixesEtOrbite(idCompte), FIABLE);
   }
 
   async nePlusFaireConfianceAuCompte({
@@ -404,6 +407,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idCompte: string;
   }): Promise<void> {
     const bdRéseau = await this.bd();
+    idCompte = enleverPréfixesEtOrbite(idCompte)
     if ((await bdRéseau.get(idCompte)) === FIABLE) await bdRéseau.del(idCompte);
   }
 
@@ -415,6 +419,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     privé?: boolean;
   }): Promise<void> {
     const bdRéseau = await this.bd();
+    idCompte = enleverPréfixesEtOrbite(idCompte)
+
+    await this.débloquerCompte({ idCompte }); // Enlever du régistre publique (ou privé) s'il y est déjà
+
     if (privé) {
       await this.débloquerCompte({ idCompte }); // Enlever du régistre publique s'il y est déjà
       this.bloquésPrivé.add(idCompte);
@@ -426,6 +434,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   async débloquerCompte({ idCompte }: { idCompte: string }): Promise<void> {
     const bdRéseau = await this.bd();
+    idCompte = enleverPréfixesEtOrbite(idCompte)
+
     if ((await bdRéseau.get(idCompte)) === BLOQUÉ) await bdRéseau.del(idCompte);
 
     if (this.bloquésPrivé.has(idCompte)) {
@@ -480,7 +490,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       idCompte,
       f: async (statuts) => {
         statuts ??= {};
-        await f(Object.keys(statuts).filter((id) => statuts[id] === FIABLE));
+        await f(Object.keys(statuts).filter((id) => statuts[id] === FIABLE).map(id=>ajouterPréfixes(id, "/nébuleuse/compte")));
       },
     });
   }
@@ -518,7 +528,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         statuts ??= {};
         bloqués.publiques = Object.keys(statuts).filter(
           (id) => statuts[id] === BLOQUÉ,
-        );
+        ).map(id=>ajouterPréfixes(id, "/nébuleuse/compte"));
         await fFinale();
       },
     });
@@ -547,7 +557,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         }
       },
       f: async (bloquésPrivé) => {
-        bloqués.privés = Array.from(bloquésPrivé || []);
+        bloqués.privés = Array.from(bloquésPrivé || []).map(id=>ajouterPréfixes(id, "/nébuleuse/compte"));
         await fFinale();
       },
     });
