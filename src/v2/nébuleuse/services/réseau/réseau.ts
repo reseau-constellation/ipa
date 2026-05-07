@@ -274,9 +274,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     await libp2p.unhandle([PROTOCOLE_NÉBULEUSE]);
 
     this.signaleurArrêt.abort();
-    await Promise.all(this.flux.values().map(flux => flux.abort(new AbortError('Service réseau fermé.'))));
+    await Promise.all(this.flux.values().map(flux => flux.abort(new Error('Service réseau fermé.'))));
 
-    const libp2p = await this.service("libp2p").libp2p();
     const { idTopologie } = this.estDémarré;
     libp2p.unregister(idTopologie);
 
