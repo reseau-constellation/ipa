@@ -440,7 +440,7 @@ describe.only("Validation", function () {
         expect(erreurs).to.be.empty();
       });
 
-      it("tests bornes", () => {
+      describe("tests bornes", () => {
         const source: SourceRègle = {
           type: "tableau",
           idTableau: "idTableau",
