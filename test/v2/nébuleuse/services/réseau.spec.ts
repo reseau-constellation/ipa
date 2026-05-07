@@ -534,58 +534,168 @@ describe("Réseau", function () {
   describe.skip("reconnexion après réouverture", function () {});
 
   describe.skip("automatisation ajout dispositif", function () {
+    let nébuleuses: NébuleuseTest[];
+    let fermer: Oublier;
+
+    let idsLibp2p: string[];
+    let idsDispositifs: string[];
+    let idsComptes: string[];
+
     let idBd: string;
 
-    before(async () => {
-      const fOublierConnexions =
-        await client3.réseau.suivreConnexionsDispositifs({
-          f: (x) => attendreConnectés.mettreÀJour(x),
+    describe("requête du nouveau dispositif", async () => {
+      before(async () => {
+        ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2 }));
+
+        idsLibp2p = await Promise.all(
+          nébuleuses.map((c) => c.compte.obtIdLibp2p()),
+        );
+        idsDispositifs = await Promise.all(
+          nébuleuses.map((c) => c.compte.obtIdDispositif()),
+        );
+        idsComptes = await Promise.all(
+          nébuleuses.map((c) => c.compte.obtIdCompte()),
+        );
+
+        const { bd, oublier } = await nébuleuses[0].orbite.créerBd({
+          type: "keyvalue",
         });
-      fsOublier.push(fOublierConnexions);
-
-      idBd = await client.créerBdIndépendante({ type: "keyvalue" });
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-    });
-
-    it("Nouveau dispositif ajouté au compte", async () => {
-      const invitation = await client.générerInvitationRejoindreCompte();
-
-      client4.demanderEtPuisRejoindreCompte({
-        idCompte: invitation.idCompte,
-        codeSecret: "code secret invalid:",
+        idBd = bd.address;
+        await oublier();
       });
-      await client3.demanderEtPuisRejoindreCompte(invitation);
 
-      const mesDispositifs = await obtenir<string[]>(({ si }) =>
-        client.suivreDispositifs({
-          f: si((x) => x.includes(idDispositif3)),
+      after(async () => {
+        if (fermer) await fermer();
+      });
+
+      it("nouveau dispositif ajouté au compte", async () => {
+        const requête =
+          await nébuleuses[1].réseau.générerRequêteRejoindreCompte();
+
+        // Compte 1 obtient la requête du dispositif 2 par code R2 ou autre moyen
+        await nébuleuses[0].réseau.accepterRequêteRejoindreCompte({ requête });
+
+        // Compte 1 a bien ajouté le dispositif 2
+        const dispositifsCompte = await obtenir<string[]>(({ si }) =>
+          nébuleuses[0].compte.suivreMesDispositifs({
+            f: si((x) => !!x?.includes(idsDispositifs[1])),
+          }),
+        );
+        expect(dispositifsCompte).to.have.members([
+          idsDispositifs[0],
+          idsDispositifs[1],
+        ]);
+      });
+
+      it("le  nouveau dispositif indique le nouveau compte", async () => {
+        const idCompte = await obtenir(({ si }) =>
+          nébuleuses[1].compte.suivreIdCompte({
+            f: si((id) => id !== idsComptes[1]),
+          }),
+        );
+        expect(idCompte).to.equal(idsComptes[0]);
+      });
+
+      it("le nouveau dispositif peut modifier mes données", async () => {
+        const { bd: bdSurNébuleuse2, oublier } =
+          await nébuleuses[1].orbite.ouvrirBd({
+            id: idBd,
+            type: "keyvalue",
+          });
+        const permission = await obtenir(({ siDéfini }) =>
+          bdSurNébuleuse2.suivrePermission({
+            idObjet: idBd,
+            idDispositif: idsDispositifs[1],
+            f: siDéfini(),
+          }),
+        );
+        expect(permission).to.be.true();
+
+        await bdSurNébuleuse2.set("a", 1);
+        await oublier();
+      });
+    });
+
+    describe("requête du compte existant", async () => {
+      before(async () => {
+        ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2 }));
+
+        idsLibp2p = await Promise.all(
+          nébuleuses.map((c) => c.compte.obtIdLibp2p()),
+        );
+        idsDispositifs = await Promise.all(
+          nébuleuses.map((c) => c.compte.obtIdDispositif()),
+        );
+        idsComptes = await Promise.all(
+          nébuleuses.map((c) => c.compte.obtIdCompte()),
+        );
+
+        const { bd, oublier } = await nébuleuses[0].orbite.créerBd({
+          type: "keyvalue",
+        });
+        idBd = bd.address;
+        await oublier();
+      });
+
+      after(async () => {
+        if (fermer) await fermer();
+      });
+
+      it("nouveau dispositif ajouté au compte", async () => {
+        const invitation =
+          await nébuleuses[0].réseau.générerInvitationRejoindreCompte();
+
+        // Dispositif 2 obtient l'id et l'addresse du compte 1 par code R2 ou autre moyen
+        await nébuleuses[1].réseau.rejoindreCompteParInvitation({ invitation });
+
+        // Compte 1 a bien ajouté le dispositif 2
+        const dispositifsCompte = await obtenir<string[]>(({ si }) =>
+          nébuleuses[0].compte.suivreMesDispositifs({
+            f: si((x) => !!x?.includes(idsDispositifs[1])),
+          }),
+        );
+        expect(dispositifsCompte).to.have.members([
+          idsDispositifs[0],
+          idsDispositifs[1],
+        ]);
+      });
+
+      it("le  nouveau dispositif indique le nouveau compte", async () => {
+        const idCompte = await obtenir(({ si }) =>
+          nébuleuses[1].compte.suivreIdCompte({
+            f: si((id) => id !== idsComptes[1]),
+          }),
+        );
+        expect(idCompte).to.equal(idsComptes[0]);
+      });
+
+      it("le nouveau dispositif peut modifier mes données", async () => {
+        const { bd: bdSurNébuleuse2, oublier } =
+          await nébuleuses[1].orbite.ouvrirBd({
+            id: idBd,
+            type: "keyvalue",
+          });
+        const permission = await obtenir(({ siDéfini }) =>
+          bdSurNébuleuse2.suivrePermission({
+            idObjet: idBd,
+            idDispositif: idsDispositifs[1],
+            f: siDéfini(),
+          }),
+        );
+        expect(permission).to.be.true();
+
+        await bdSurNébuleuse2.set("a", 1);
+        await oublier();
+      });
+    });
+
+    it("ça ne fonctionne pas avec le mauvais mot de passe", async () => {
+      const dispositifsCompte = await obtenir<string[]>(({ si }) =>
+        nébuleuses[0].compte.suivreMesDispositifs({
+          f: si((x) => !!x?.includes(idsDispositifs[1])),
         }),
       );
-      expect(mesDispositifs).to.have.members([
-        idDispositif1,
-        idDispositif2,
-        idDispositif3,
-      ]);
-      expect(mesDispositifs).to.not.have.members([idDispositif4]);
-    });
-
-    it("Nouveau dispositif indique le nouveau compte", async () => {
-      const idCompte3 = await client3.obtIdCompte();
-      expect(idCompte3).to.equal(idCompte1);
-    });
-
-    it("Le nouveau dispositif peut modifier mes BDs", async () => {
-      const { bd: bd_orbite3, fOublier } = await client3.ouvrirBdTypée({
-        id: idBd,
-        type: "keyvalue",
-        schéma: schémaKVNumérique,
-      });
-      const autorisé = await orbiteTest.peutÉcrire(bd_orbite3, orbite3);
-      await fOublier();
-      expect(autorisé).to.be.true();
+      expect(dispositifsCompte).to.not.include(idsDispositifs[2]);
     });
   });
 });

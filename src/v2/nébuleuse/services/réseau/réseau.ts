@@ -10,6 +10,8 @@ import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
 } from "uint8arrays";
+import { anySignal } from "any-signal";
+import { peerIdFromString } from "@libp2p/peer-id";
 import { ajouterPréfixes, enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.js";
 import {
@@ -19,9 +21,23 @@ import {
 } from "../consts.js";
 import { ServiceDonnéesAppli } from "../services.js";
 import { MODÉRATRICE, estContrôleurNébuleuse } from "../compte/accès/index.js";
-import { appelerLorsque, combinerConfiances } from "../utils.js";
+import {
+  appelerLorsque,
+  combinerConfiances,
+  générerCodeSecret,
+} from "../utils.js";
+import {
+  ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
+  ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE,
+} from "./messages.js";
+import type {
+  MessageAcceptationInvitationRejoindreCompte,
+  MessageAcceptationRequêteRejoindreCompte,
+  MessageRéseau,
+  MessageRéseauAvecExpéditeur,
+} from "./messages.js";
 import type { ServicesNécessairesDonnées } from "../services.js";
-import type { Libp2pEvents } from "@libp2p/interface";
+import type { Libp2pEvents, Stream } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
@@ -64,6 +80,19 @@ const BLOQUÉ = "BLOQUÉ";
 
 const ÉVÉNEMENT_BLOQUÉ_PRIVÉ = "changement bloqués privé";
 
+// Ajout dispositifs
+
+export type RequêteRejoindreCompte = {
+  idDispositif: string;
+  codeSecret: string;
+};
+
+export type InvitationRejoindreCompte = {
+  idCompte: string;
+  idPair: string;
+  codeSecret: string;
+};
+
 // Types structure
 
 export type StructureRéseau = {
@@ -91,7 +120,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   événements: TypedEmitter<{
     démarré: (args: { oublier: Oublier }) => void;
     [ÉVÉNEMENT_BLOQUÉ_PRIVÉ]: (bloqués: Set<string>) => void;
+    "message réseau": (message: MessageRéseauAvecExpéditeur) => void;
   }>;
+  flux: Map<string, Stream>;
+
+  signaleurArrêt: AbortController;
 
   bloquésPrivé: Set<string>;
 
@@ -124,16 +157,49 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     this.bloquésPrivé = new Set();
     this.événements = new TypedEmitter();
     this.résolutionsConfiance = new Map();
+
+    this.flux = new Map();
+
+    this.signaleurArrêt = new AbortController();
   }
 
   // Cycle de vie
 
-  async démarrer(): Promise<{ idTopologie: string }> {
+  async démarrer(): Promise<{ idTopologie: string, oublierÉcouteRéseau: Oublier }> {
+    // Réinitialiser le signaleur, mais uniquement si nécessaire.
+    if (this.signaleurArrêt.signal.aborted)
+      this.signaleurArrêt = new AbortController();
+
     await this.restaurerBloquésPrivé();
     const libp2p = await this.service("libp2p").libp2p();
     const compte = this.service("compte");
     const orbite = this.service("orbite");
-    this.estDémarré = { idTopologie: "à faire" };
+
+    await libp2p.handle(
+      PROTOCOLE_NÉBULEUSE,
+      async (flux, connexion) => {
+        const idPair = connexion.remotePeer.toString();
+        this.flux.set(idPair, flux);
+        flux.addEventListener("close", () => this.flux.delete(idPair));
+        flux.addEventListener("remoteCloseWrite", () => flux.close());
+
+        for await (const value of flux) {
+          const octets = value.subarray();
+          try {
+            const message = JSON.parse(new TextDecoder().decode(octets))
+            this.événements.emit("message réseau", { message, expéditeur: idPair });
+          } catch {
+            // Circulez, rien à voir
+          }
+        }
+      }
+    )
+
+    const oublierÉcouteProtocole = async () => {
+      await libp2p.unhandle(PROTOCOLE_NÉBULEUSE)
+    }
+
+    this.estDémarré = { idTopologie: "à faire", oublierÉcouteProtocole };
 
     return await super.démarrer();
 
@@ -204,9 +270,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     this.bloquésPrivé.clear();
 
     const libp2p = await this.service("libp2p").libp2p();
+
+    await libp2p.unhandle([PROTOCOLE_NÉBULEUSE]);
+
+    this.signaleurArrêt.abort();
+    await Promise.all(this.flux.values().map(flux => flux.abort(new AbortError('Service réseau fermé.'))));
+
+    const libp2p = await this.service("libp2p").libp2p();
     const { idTopologie } = this.estDémarré;
     libp2p.unregister(idTopologie);
-    await libp2p.unhandle([PROTOCOLE_NÉBULEUSE]);
 
     return await super.fermer();
   }
@@ -920,11 +992,158 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     });
   }
 
+  // Messages
+
+  async obtFluxPair({ idPair }: { idPair: string }): Promise<Stream> {
+    const libp2p = await this.service("libp2p").libp2p();
+
+    const existante = this.flux.get(idPair);
+    if (existante) return existante
+    else {
+      const flux = await libp2p.dialProtocol(
+        peerIdFromString(idPair),
+        PROTOCOLE_NÉBULEUSE,
+        { signal },
+      );
+      return flux
+    }
+  }
+
+  async envoyerMessageÀPair({
+    message,
+    idPair,
+  }: {
+    message: MessageRéseau;
+    idPair: string;
+  }) {
+    const flux = await this.obtFluxPair({ idPair })
+    const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
+    flux.send(octetsMessage);
+  }
+
+  async envoyerMessage({
+    message,
+    idDispositif,
+  }: {
+    message: MessageRéseau;
+    idDispositif: string;
+  }) {
+    const idPair = await this.obtIdPairDispositif({ idDispositif });
+    return await this.envoyerMessageÀPair({ message, idPair });
+  }
+
+  async suivreMessages({
+    f,
+  }: {
+    f: Suivi<MessageRéseauAvecExpéditeur>;
+  }): Promise<Oublier> {
+    this.événements.on("message réseau", f);
+    return async () => {
+      this.événements.off("message réseau", f);
+    };
+  }
+
   // Dispositifs
 
-  async demanderEtPuisRejoindreCompte({ idCompte }): Promise<void> {}
+  async générerRequêteRejoindreCompte({
+    signal,
+  }: {
+    signal?: AbortSignal;
+  } = {}): Promise<RequêteRejoindreCompte> {
+    const compte = this.service("compte");
+    const idDispositif = await compte.obtIdDispositif();
+    const requête: RequêteRejoindreCompte = {
+      idDispositif,
+      codeSecret: générerCodeSecret(),
+    };
 
-  async inviterÀRejoidreCompte({}) {}
+    const signalFinal = anySignal([
+      this.signaleurArrêt.signal,
+      ...(signal ? [signal] : []),
+    ]);
+
+    const oublierMessages = await this.suivreMessages({
+      f: async ({ message }) => {
+        if (message.type !== ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE) return;
+        const { codeSecret, idCompte } = message;
+
+        if (codeSecret === requête.codeSecret) {
+          await oublierMessages();
+          compte
+            .rejoindreCompte({ idCompte, signal: signalFinal })
+            .finally(() => signalFinal.clear());
+        }
+      },
+    });
+    signalFinal.addEventListener("abort", () => oublierMessages());
+
+    return requête;
+  }
+
+  async accepterRequêteRejoindreCompte({
+    requête,
+  }: {
+    requête: RequêteRejoindreCompte;
+  }): Promise<void> {
+    const { idDispositif, codeSecret } = requête;
+
+    const compte = this.service("compte");
+
+    const idCompte = await compte.obtIdDispositif();
+    await compte.ajouterDispositif({ idDispositif });
+
+    const message: MessageAcceptationRequêteRejoindreCompte = {
+      type: ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE,
+      idCompte,
+      codeSecret,
+    };
+    await this.envoyerMessage({ idDispositif, message });
+  }
+
+  async générerInvitationRejoindreCompte(): Promise<InvitationRejoindreCompte> {
+    const compte = this.service("compte");
+
+    const idCompte = await compte.obtIdCompte();
+    const idPair = await compte.obtIdLibp2p();
+
+    const invitation: InvitationRejoindreCompte = {
+      idCompte,
+      idPair,
+      codeSecret: générerCodeSecret(),
+    };
+
+    const oublierMessages = await this.suivreMessages({
+      f: async ({ message }) => {
+        if (message.type !== ACCEPTATION_INVITATION_REJOINDRE_COMPTE) return;
+        const { codeSecret, idDispositif } = message;
+        if (codeSecret === invitation.codeSecret) {
+          await compte.ajouterDispositif({ idDispositif });
+          oublierMessages();
+        }
+      },
+    });
+    return invitation;
+  }
+
+  async rejoindreCompteParInvitation({
+    invitation,
+  }: {
+    invitation: InvitationRejoindreCompte;
+  }): Promise<void> {
+    const compte = this.service("compte");
+    const idDispositif = await compte.obtIdDispositif();
+
+    const { idCompte, idPair, codeSecret } = invitation;
+
+    const message: MessageAcceptationInvitationRejoindreCompte = {
+      type: ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
+      idDispositif,
+      codeSecret,
+    };
+    await this.envoyerMessageÀPair({ idPair, message });
+
+    await compte.rejoindreCompte({ idCompte });
+  }
 
   // Réseautage
 }

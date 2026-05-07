@@ -1,5 +1,7 @@
 import { IDBDatastore } from "datastore-idb";
 import { isElectronMain, isNode } from "wherearewe";
+import { randomBytes } from "@noble/hashes/utils.js";
+import bs58 from "bs58";
 import type { ListenerSignature, TypedEmitter } from "tiny-typed-emitter";
 import type { Oublier, Suivi } from "../types.js";
 import type { Datastore } from "interface-datastore";
@@ -85,3 +87,6 @@ export const combinerConfiances = (scores: number[]): number => {
 
   return positif - négatif;
 };
+
+export const générerCodeSecret = (): string =>
+  bs58.encode(randomBytes(6 * 3)).slice(0, 6);
