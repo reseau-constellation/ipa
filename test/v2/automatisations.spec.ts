@@ -1327,7 +1327,7 @@ describe("Automatisations", function () {
     });
 
     describe("importer d'URL", function () {
-      let mock: AxiosMockAdapter;
+      let mock: typeof AxiosMockAdapter;
 
       const données: NestedValue = {
         தகவல்கள்: [],
@@ -2071,7 +2071,7 @@ describe("Automatisations", function () {
     });
 
     describe("exemples réalistes", function () {
-      let mock: AxiosMockAdapter;
+      let mock: typeof AxiosMockAdapter;
 
       let dossier: string;
       let effacer: () => void;
