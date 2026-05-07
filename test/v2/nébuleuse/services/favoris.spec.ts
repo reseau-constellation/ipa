@@ -2,6 +2,7 @@ import { expect } from "aegir/chai";
 import { isNode, isElectronMain } from "wherearewe";
 import { faisRien } from "@constl/utils-ipa";
 import {
+  AUCUN_DISPOSITIF,
   TOUS_DISPOSITIFS,
   type DispositifsÉpingle,
   type Réplication,
@@ -12,6 +13,7 @@ import {
 import { enleverPréfixes } from "@/v2/utils.js";
 import { obtenir } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
+import type { ContenuÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 
@@ -21,6 +23,7 @@ describe("Favoris", function () {
   let fermer: () => Promise<void>;
 
   let idDispositif: string;
+  let idCompte: string;
 
   type ÉpingleTest = {
     type: "test";
@@ -48,6 +51,7 @@ describe("Favoris", function () {
     nébuleuse = nébuleuses[0];
 
     idDispositif = await nébuleuse.compte.obtIdDispositif();
+    idCompte = await nébuleuse.compte.obtIdCompte();
   });
 
   after(async () => {
@@ -164,6 +168,29 @@ describe("Favoris", function () {
   });
 
   describe("gestion favoris", function () {
+    it("compte original dans les favoris", async () => {
+      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
+        ({ siPasVide }) =>
+          nébuleuse.favoris.suivreFavoris({
+            f: siPasVide(),
+          }),
+      );
+
+      const réf: ÉpingleFavorisAvecId<ContenuÉpingleProfil>[] = [
+        {
+          idObjet: idCompte,
+          épingle: {
+            type: "profil",
+            épingle: {
+              base: TOUS_DISPOSITIFS,
+              favoris: AUCUN_DISPOSITIF,
+            },
+          },
+        },
+      ];
+      expect(favoris).to.have.deep.members(réf);
+    });
+
     it("épingler favoris", async () => {
       await nébuleuse.favoris.épinglerFavori({
         idObjet,
@@ -175,9 +202,9 @@ describe("Favoris", function () {
         },
       });
       const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
-        ({ siPasVide }) =>
+        ({ si }) =>
           nébuleuse.favoris.suivreFavoris({
-            f: siPasVide(),
+            f: si((x) => !!x?.find((fav) => fav.idObjet === idObjet)),
           }),
       );
 
@@ -192,7 +219,7 @@ describe("Favoris", function () {
           },
         },
       ];
-      expect(favoris).to.deep.equal(réf);
+      expect(favoris).to.include.deep.members(réf);
     });
 
     it("bien épinglé", async () => {
@@ -224,7 +251,7 @@ describe("Favoris", function () {
           },
         },
       ];
-      expect(favoris).to.deep.equal(réf);
+      expect(favoris).to.have.deep.members(réf);
     });
 
     it.skip("rechercher épingles objet", async () => {
@@ -285,14 +312,13 @@ describe("Favoris", function () {
     it("désépingler favoris", async () => {
       await nébuleuse.favoris.désépinglerFavori({ idObjet });
 
-      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
-        ({ siVide }) =>
-          nébuleuse.favoris.suivreFavoris({
-            f: siVide(),
-          }),
+      const favoris = await obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        nébuleuse.favoris.suivreFavoris({
+          f: si((x) => !x?.find((fav) => fav.idObjet === idObjet)),
+        }),
       );
 
-      expect(favoris).to.be.empty();
+      expect(favoris.filter((fav) => fav.idObjet !== idCompte)).to.be.empty();
     });
   });
 });
