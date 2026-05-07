@@ -127,7 +127,7 @@ const catégories: {
   },
 } as const;
 
-describe("Validation", function () {
+describe.only("Validation", function () {
   describe("valider catégories", function () {
     Object.keys(catégories).forEach((cat) => {
       describe(cat + " valides", function () {
@@ -454,59 +454,58 @@ describe("Validation", function () {
           { op: "<=", valides: [-1, 0], invalides: [0.1, 1] },
         ];
         ops.forEach((op) => {
-          describe(op.op, () => {
-            const règle: RègleColonne<RègleBornes> = {
-              source,
-              colonne: idColonneNumérique,
+          const règle: RègleColonne<RègleBornes> = {
+            source,
+            colonne: idColonneNumérique,
+            règle: {
+              id: uuidv4(),
               règle: {
-                id: uuidv4(),
-                règle: {
-                  type: "bornes",
-                  détails: {
-                    type: "fixe",
-                    val: 0,
-                    op: op.op,
-                  },
+                type: "bornes",
+                détails: {
+                  type: "fixe",
+                  val: 0,
+                  op: op.op,
                 },
               },
-            };
-            const fonc = générerFonctionValidation({
-              règle,
-              varsÀColonnes: {},
-              colsIndex: [],
-            });
-            const idÉlément = uuidv4();
+            },
+          };
+          const fonc = générerFonctionValidation({
+            règle,
+            varsÀColonnes: {},
+            colsIndex: [],
+          });
+          const idÉlément = uuidv4();
 
-            op.valides.forEach((v) => {
-              it(`${v}`, () => {
-                const erreurs = fonc([
-                  {
-                    données: { [idColonneNumérique]: v },
-                    id: idÉlément,
-                  },
-                ]);
-                expect(erreurs).to.be.empty();
-              });
-            });
-
-            op.invalides.forEach((v) => {
-              it(`${v}`, () => {
-                const erreurs = fonc([
-                  {
-                    données: { [idColonneNumérique]: v },
-                    id: idÉlément,
-                  },
-                ]);
-                const réf: ErreurDonnée<RègleBornes>[] = [
-                  {
-                    id: idÉlément,
-                    erreur: règle,
-                  },
-                ];
-                expect(erreurs).to.have.deep.members(réf);
-              });
+          op.valides.forEach((v) => {
+            it(`${op.op} valide : ${v}`, () => {
+              const erreurs = fonc([
+                {
+                  données: { [idColonneNumérique]: v },
+                  id: idÉlément,
+                },
+              ]);
+              expect(erreurs).to.be.empty();
             });
           });
+
+          op.invalides.forEach((v) => {
+            it(`${op.op} invalide : ${v}`, () => {
+              const erreurs = fonc([
+                {
+                  données: { [idColonneNumérique]: v },
+                  id: idÉlément,
+                },
+              ]);
+              const réf: ErreurDonnée<RègleBornes>[] = [
+                {
+                  id: idÉlément,
+                  erreur: règle,
+                },
+              ];
+              expect(erreurs).to.have.deep.members(réf);
+            });
+          });
+
         });
       });
 
