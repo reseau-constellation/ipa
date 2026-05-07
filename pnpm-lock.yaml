@@ -242,6 +242,9 @@ importers:
       punycode:
         specifier: ^2.3.1
         version: 2.3.1
+      punycode-esm:
+        specifier: ^1.0.15
+        version: 1.0.15
       ssim:
         specifier: ^0.0.0
         version: 0.0.0
@@ -5493,7 +5496,7 @@ packages:
     engines: {node: '>=18'}
 
   iso-constants@https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f:
-    resolution: {tarball: https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f}
     version: 0.1.2
     engines: {node: '>=10'}
 
@@ -7231,6 +7234,10 @@ packages:
 
   pump@3.0.4:
     resolution: {integrity: sha512-VS7sjc6KR7e1ukRFhQSY5LM2uBWAUPiOPa/A3mkKmiMwSmRFUITt0xuj+/lesgnCv+dPIEYlkzrcyXgquIHMcA==}
+
+  punycode-esm@1.0.15:
+    resolution: {integrity: sha512-pR7pzaunGU4g3v3vMIXD9WnrGUiEBs2ezcVYr9piTC/HVem9F+MJ+JNdSeYD9pK7EumLMUMO9F3Gsa3RS+o7pA==}
+    engines: {node: '>=20'}
 
   punycode.js@2.3.1:
     resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
@@ -17657,6 +17664,8 @@ snapshots:
     dependencies:
       end-of-stream: 1.4.5
       once: 1.4.0
+
+  punycode-esm@1.0.15: {}
 
   punycode.js@2.3.1: {}
 

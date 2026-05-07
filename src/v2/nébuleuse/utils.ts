@@ -1,4 +1,4 @@
-import { toUnicode } from "punycode";
+import { toUnicode } from "punycode-esm";
 import { AbortError } from "p-retry";
 import { multiaddr } from "@multiformats/multiaddr";
 import deepEqual from "fast-deep-equal";
