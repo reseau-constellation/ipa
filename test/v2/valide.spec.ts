@@ -127,7 +127,7 @@ const catégories: {
   },
 } as const;
 
-describe.only("Validation", function () {
+describe("Validation", function () {
   describe("valider catégories", function () {
     Object.keys(catégories).forEach((cat) => {
       describe(cat + " valides", function () {
