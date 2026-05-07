@@ -12,7 +12,7 @@ export const ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE =
 export type MessageAcceptationRequêteRejoindreCompte = {
   type: typeof ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE;
   idCompte: string;
-  codeSecret: string;
+  empreinteCode: string;
 };
 
 export const ACCEPTATION_INVITATION_REJOINDRE_COMPTE =
@@ -20,5 +20,5 @@ export const ACCEPTATION_INVITATION_REJOINDRE_COMPTE =
 export type MessageAcceptationInvitationRejoindreCompte = {
   type: typeof ACCEPTATION_INVITATION_REJOINDRE_COMPTE;
   idDispositif: string;
-  codeSecret: string;
+  empreinteCode: string;
 };

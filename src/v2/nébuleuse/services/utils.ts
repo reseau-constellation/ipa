@@ -2,6 +2,9 @@ import { IDBDatastore } from "datastore-idb";
 import { isElectronMain, isNode } from "wherearewe";
 import { randomBytes } from "@noble/hashes/utils.js";
 import bs58 from "bs58";
+import sha256 from "crypto-js/sha256.js";
+import Base64 from "crypto-js/enc-base64url.js";
+
 import type { ListenerSignature, TypedEmitter } from "tiny-typed-emitter";
 import type { Oublier, Suivi } from "../types.js";
 import type { Datastore } from "interface-datastore";
@@ -90,3 +93,11 @@ export const combinerConfiances = (scores: number[]): number => {
 
 export const générerCodeSecret = (): string =>
   bs58.encode(randomBytes(6 * 3)).slice(0, 6);
+
+export const obtEmpreinteCode = ({
+  codeSecret,
+  identifiant,
+}: {
+  codeSecret: string;
+  identifiant: string;
+}): string => Base64.stringify(sha256(codeSecret + identifiant));

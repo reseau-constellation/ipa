@@ -25,6 +25,7 @@ import {
   appelerLorsque,
   combinerConfiances,
   générerCodeSecret,
+  obtEmpreinteCode,
 } from "../utils.js";
 import {
   ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
@@ -165,7 +166,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   // Cycle de vie
 
-  async démarrer(): Promise<{ idTopologie: string, oublierÉcouteRéseau: Oublier }> {
+  async démarrer(): Promise<{
+    idTopologie: string;
+    oublierÉcouteRéseau: Oublier;
+  }> {
     // Réinitialiser le signaleur, mais uniquement si nécessaire.
     if (this.signaleurArrêt.signal.aborted)
       this.signaleurArrêt = new AbortController();
@@ -175,29 +179,29 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const compte = this.service("compte");
     const orbite = this.service("orbite");
 
-    await libp2p.handle(
-      PROTOCOLE_NÉBULEUSE,
-      async (flux, connexion) => {
-        const idPair = connexion.remotePeer.toString();
-        this.flux.set(idPair, flux);
-        flux.addEventListener("close", () => this.flux.delete(idPair));
-        flux.addEventListener("remoteCloseWrite", () => flux.close());
+    await libp2p.handle(PROTOCOLE_NÉBULEUSE, async (flux, connexion) => {
+      const idPair = connexion.remotePeer.toString();
+      this.flux.set(idPair, flux);
+      flux.addEventListener("close", () => this.flux.delete(idPair));
+      flux.addEventListener("remoteCloseWrite", () => flux.close());
 
-        for await (const value of flux) {
-          const octets = value.subarray();
-          try {
-            const message = JSON.parse(new TextDecoder().decode(octets))
-            this.événements.emit("message réseau", { message, expéditeur: idPair });
-          } catch {
-            // Circulez, rien à voir
-          }
+      for await (const value of flux) {
+        const octets = value.subarray();
+        try {
+          const message = JSON.parse(new TextDecoder().decode(octets));
+          this.événements.emit("message réseau", {
+            message,
+            expéditeur: idPair,
+          });
+        } catch {
+          // Circulez, rien à voir
         }
       }
-    )
+    });
 
     const oublierÉcouteProtocole = async () => {
-      await libp2p.unhandle(PROTOCOLE_NÉBULEUSE)
-    }
+      await libp2p.unhandle(PROTOCOLE_NÉBULEUSE);
+    };
 
     this.estDémarré = { idTopologie: "à faire", oublierÉcouteProtocole };
 
@@ -274,7 +278,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     await libp2p.unhandle([PROTOCOLE_NÉBULEUSE]);
 
     this.signaleurArrêt.abort();
-    await Promise.all(this.flux.values().map(flux => flux.abort(new Error('Service réseau fermé.'))));
+    await Promise.all(
+      this.flux
+        .values()
+        .map((flux) => flux.abort(new Error("Service réseau fermé."))),
+    );
 
     const { idTopologie } = this.estDémarré;
     libp2p.unregister(idTopologie);
@@ -997,14 +1005,18 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const libp2p = await this.service("libp2p").libp2p();
 
     const existante = this.flux.get(idPair);
-    if (existante) return existante
+    if (existante && existante.status === "open") return existante;
     else {
       const flux = await libp2p.dialProtocol(
         peerIdFromString(idPair),
         PROTOCOLE_NÉBULEUSE,
         { signal },
       );
-      return flux
+      this.flux.set(idPair, flux);
+      flux.addEventListener("close", () => this.flux.delete(idPair));
+      flux.addEventListener("remoteCloseWrite", () => flux.close());
+
+      return flux;
     }
   }
 
@@ -1015,9 +1027,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     message: MessageRéseau;
     idPair: string;
   }) {
-    const flux = await this.obtFluxPair({ idPair })
+    const flux = await this.obtFluxPair({ idPair });
+
     const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
-    flux.send(octetsMessage);
+
+    const succès = flux.send(octetsMessage);
+    if (!succès) {
+      await flux.onDrain();
+      flux.send(octetsMessage);
+    }
   }
 
   async envoyerMessage({
@@ -1064,9 +1082,13 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const oublierMessages = await this.suivreMessages({
       f: async ({ message }) => {
         if (message.type !== ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE) return;
-        const { codeSecret, idCompte } = message;
+        const { empreinteCode, idCompte } = message;
+        const empreinteRéférence = obtEmpreinteCode({
+          codeSecret: requête.codeSecret,
+          identifiant: idCompte,
+        });
 
-        if (codeSecret === requête.codeSecret) {
+        if (empreinteCode === empreinteRéférence) {
           await oublierMessages();
           compte
             .rejoindreCompte({ idCompte, signal: signalFinal })
@@ -1094,7 +1116,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const message: MessageAcceptationRequêteRejoindreCompte = {
       type: ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE,
       idCompte,
-      codeSecret,
+      empreinteCode: obtEmpreinteCode({ codeSecret, identifiant: idCompte }),
     };
     await this.envoyerMessage({ idDispositif, message });
   }
@@ -1114,8 +1136,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const oublierMessages = await this.suivreMessages({
       f: async ({ message }) => {
         if (message.type !== ACCEPTATION_INVITATION_REJOINDRE_COMPTE) return;
-        const { codeSecret, idDispositif } = message;
-        if (codeSecret === invitation.codeSecret) {
+        const { empreinteCode, idDispositif } = message;
+
+        const empreinteRéférence = obtEmpreinteCode({
+          codeSecret: invitation.codeSecret,
+          identifiant: idDispositif,
+        });
+
+        if (empreinteCode === empreinteRéférence) {
           await compte.ajouterDispositif({ idDispositif });
           oublierMessages();
         }
@@ -1137,7 +1165,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const message: MessageAcceptationInvitationRejoindreCompte = {
       type: ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
       idDispositif,
-      codeSecret,
+      empreinteCode: obtEmpreinteCode({ codeSecret, identifiant: idDispositif }),
     };
     await this.envoyerMessageÀPair({ idPair, message });
 
