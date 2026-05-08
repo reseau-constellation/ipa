@@ -24,6 +24,7 @@ import {
 import { enleverPréfixes } from "@/v2/utils.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
 import { serviceLibp2pTest } from "../utils.js";
+import type { KeyValueDatabase } from "@orbitdb/core";
 import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
 import type {
   ConstructeursServicesAppli,
@@ -433,7 +434,7 @@ describe("Service Compte", function () {
 
     before(async () => {
       ({ applis, fermer } = await créerApplisTest({
-        n: 2,
+        n: 3,
         services: {},
       }));
       comptes = applis.map((a) => a.services["compte"]);
@@ -560,6 +561,53 @@ describe("Service Compte", function () {
       const val = await bd_orbite2.get("a");
       await oublier();
 
+      expect(val).to.equal(1);
+    });
+
+    it("l'ancien dispositif peut modifier les objets crées par le nouveau dispositif", async () => {
+      const { bd, oublier } = await comptes[1].créerObjet({
+        type: "keyvalue",
+      });
+      const idObjet = bd.address;
+
+      const { bd: bdSurDispositif1, oublier: oublierSurDispositif1 } =
+        await applis[0].services["orbite"].ouvrirBd({
+          id: idObjet,
+          type: "keyvalue",
+        });
+
+      await attendreInvité(
+        bdSurDispositif1,
+        await comptes[0].obtIdDispositif(),
+      );
+      await bdSurDispositif1.put("a", 1);
+      const valSurDispositif1 = await bdSurDispositif1.get("a");
+
+      await obtenir<KeyValueDatabase>(({ si }) =>
+        applis[1].services["orbite"].suivreBd({
+          id: idObjet,
+          type: "keyvalue",
+          f: si(async (x) => !!(await x?.get("a"))),
+        }),
+      );
+      const valSurDispositif2 = await bd.get("a");
+
+      await oublier();
+      await oublierSurDispositif1();
+
+      expect(valSurDispositif1).to.equal(valSurDispositif2).to.equal(1);
+    });
+
+    it("une partie tierce accepte les données modifiées par le nouveau dispositif", async () => {
+      const bd = await obtenir<KeyValueDatabase>(({ si }) =>
+        applis[2].services["orbite"].suivreBd({
+          id: idObjet,
+          type: "keyvalue",
+          f: si(async (x) => !!(await x?.get("a"))),
+        }),
+      );
+
+      const val = await bd.get("a");
       expect(val).to.equal(1);
     });
   });
