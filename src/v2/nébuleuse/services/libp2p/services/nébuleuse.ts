@@ -5,6 +5,7 @@ import type { Registrar } from "@libp2p/interface-internal";
 
 // https://github.com/libp2p/js-libp2p/blob/main/doc/SERVICES.md
 
+// Exemple simple : https://github.com/libp2p/js-libp2p/blob/81e8dccbf2d6fd9258dd5b6ade5d9f3648596013/packages/kad-dht/src/topology-listener.ts#L17
 interface ComposantesConnecteurNébuleuse {
   registrar: Registrar;
 }

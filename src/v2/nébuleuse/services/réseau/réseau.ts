@@ -34,6 +34,7 @@ import {
 import type {
   MessageAcceptationInvitationRejoindreCompte,
   MessageAcceptationRequêteRejoindreCompte,
+  MessageIdentitéCompte,
   MessageRéseau,
   MessageRéseauAvecExpéditeur,
 } from "./messages.js";
@@ -175,98 +176,101 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       this.signaleurArrêt = new AbortController();
 
     await this.restaurerBloquésPrivé();
+
     const libp2p = await this.service("libp2p").libp2p();
-    const compte = this.service("compte");
     const orbite = this.service("orbite");
+    const compte = this.service("compte");
 
-    await libp2p.handle(PROTOCOLE_NÉBULEUSE, async (flux, connexion) => {
-      const idPair = connexion.remotePeer.toString();
-      this.flux.set(idPair, flux);
-      flux.addEventListener("close", () => this.flux.delete(idPair));
-      flux.addEventListener("remoteCloseWrite", () => flux.close());
+    const idDispositif = await compte.obtIdDispositif();
 
-      for await (const value of flux) {
-        const octets = value.subarray();
-        try {
-          const message = JSON.parse(new TextDecoder().decode(octets));
-          this.événements.emit("message réseau", {
-            message,
-            expéditeur: idPair,
-          });
-        } catch {
-          // Circulez, rien à voir
-        }
-      }
-    });
+    const traiterIdentitéCompte = async ({
+      message,
+      idPair,
+    }: {
+      message: MessageIdentitéCompte;
+      idPair: string;
+    }) => {
+      const { idCompte, signature, idDispositif } = message;
 
-    const oublierÉcouteProtocole = async () => {
-      await libp2p.unhandle(PROTOCOLE_NÉBULEUSE);
+      const signatureValide = await orbite.vérifierSignature({
+        signature,
+        message: idDispositif,
+      });
+      if (!signatureValide) return;
+
+      await libp2p.peerStore.merge(idPair, { metadata: { idDispositif, idCompte } });
+      libp2p.peerStore.get(idPair);
+      libp2p.addEventListener("peer:update", (x) =>
+        console.log(x.detail.peer.metadata),
+      );
     };
-
-    this.estDémarré = { idTopologie: "à faire", oublierÉcouteProtocole };
-
-    return await super.démarrer();
-
-    // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
 
     await libp2p.handle(
       PROTOCOLE_NÉBULEUSE,
-      async ({ stream, connection }) => {
-        const idPair = connection.remotePeer.toCID().toString();
-        pipe(stream, (source) =>
-          (async function () {
-            for await (const msg of source) {
-              const { message, signature } = JSON.parse(
-                uint8ArrayToString(msg.subarray()),
-              );
+      async (flux, connexion) => {
+        const idPair = connexion.remotePeer.toString();
+        this.flux.set(idPair, flux);
+        flux.addEventListener("close", () => this.flux.delete(idPair));
+        flux.addEventListener("remoteCloseWrite", () => flux.close());
 
-              // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
-              const signatureValide = await orbite.vérifierSignature({
-                signature,
-                message: JSON.stringify(message),
-              });
-              if (!signatureValide) return;
-
-              const { idCompte, idDispositif } = message;
-              this.lorsqueDispositifConnecté({
-                idCompte,
-                idDispositif,
-                idPair,
-              });
+        for await (const value of flux) {
+          const octets = value.subarray();
+          try {
+            const message = JSON.parse(
+              new TextDecoder().decode(octets),
+            ) as MessageRéseau;
+            if (message.type === "identité compte") {
+              await traiterIdentitéCompte({ message, idPair });
             }
-          })(),
-        );
+            this.événements.emit("message réseau", {
+              message,
+              expéditeur: idPair,
+            });
+          } catch {
+            // Circulez, rien à voir
+          }
+        }
       },
       {
         runOnLimitedConnection: true,
+        signal: this.signaleurArrêt.signal
       },
     );
+
+    // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
 
     const idTopologie = await libp2p.register(
       PROTOCOLE_NÉBULEUSE,
       {
         async onConnect(peerId, conn) {
+          const idCompte = await compte.obtIdCompte();
+
           const identifiantsCompte = {
-            idCompte: await compte.obtIdCompte(),
-            idDispositif: await compte.obtIdDispositif(),
+            idCompte,
+            idDispositif,
+            sigature: orbite.signer({ message: idDispositif }),
           };
 
           const flux = await conn.newStream(PROTOCOLE_NÉBULEUSE);
-          await pipe(
-            [uint8ArrayFromString(JSON.stringify(identifiantsCompte))],
-            flux,
+          flux.send(
+            new TextEncoder().encode(JSON.stringify(identifiantsCompte)),
           );
-          flux.close().catch((erreur) => flux.abort(erreur));
+          flux.close();
         },
         onDisconnect(peerId) {
           this.lorsqueDispositifDéconnecté(peerId);
         },
         notifyOnLimitedConnection: true,
       },
-      { signal },
+      { signal: this.signaleurArrêt.signal },
     );
 
-    this.estDémarré = { idTopologie };
+    const oublier = async () => {
+      libp2p.unregister(idTopologie);
+      await libp2p.unhandle([PROTOCOLE_NÉBULEUSE]);
+    }
+    this.estDémarré = { oublier };
+
     return await super.démarrer();
   }
 
@@ -275,8 +279,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const libp2p = await this.service("libp2p").libp2p();
 
-    await libp2p.unhandle([PROTOCOLE_NÉBULEUSE]);
-
     this.signaleurArrêt.abort();
     await Promise.all(
       this.flux
@@ -284,8 +286,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         .map((flux) => flux.abort(new Error("Service réseau fermé."))),
     );
 
-    const { idTopologie } = this.estDémarré;
-    libp2p.unregister(idTopologie);
+    const { oublier } = this.estDémarré;
+
+    
+    await fermer();
 
     return await super.fermer();
   }
@@ -1165,7 +1169,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const message: MessageAcceptationInvitationRejoindreCompte = {
       type: ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
       idDispositif,
-      empreinteCode: obtEmpreinteCode({ codeSecret, identifiant: idDispositif }),
+      empreinteCode: obtEmpreinteCode({
+        codeSecret,
+        identifiant: idDispositif,
+      }),
     };
     await this.envoyerMessageÀPair({ idPair, message });
 

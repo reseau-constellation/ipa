@@ -13,10 +13,6 @@ import {
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
 import pRetry, { AbortError } from "p-retry";
-import {
-  CLEF_N_CHANGEMENT_COMPTES,
-  schémaStructureBdCompte,
-} from "@/client.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque } from "./utils.js";
@@ -38,6 +34,10 @@ import type {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
+import {
+  CLEF_N_CHANGEMENT_COMPTES,
+  schémaStructureBdCompte,
+} from "@/client.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
 
 export type infoDispositif = {
