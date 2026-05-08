@@ -241,7 +241,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       fSuivreRacine: (éléments: ÉpingleFavorisAvecId[]) => Promise<void>;
     }) => {
       return await this.suivreFavoris({
-        f: favoris => fSuivreRacine(favoris || []),
+        f: (favoris) => fSuivreRacine(favoris || []),
       });
     };
 

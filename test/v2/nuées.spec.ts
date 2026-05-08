@@ -1941,22 +1941,22 @@ describe("Nuées", function () {
       ]);
     });
 
-    it.skip("persistance données", async ()=>{
+    it.skip("persistance données", async () => {
       // Créer nuée sur compte 1
       // Compte 2 contribue des données
       // Compte 2 ferme
       // Donnés de compte 2 toujours présentes sur compte 1
       // Compte 1 redémarre
       // Donnés de compte 2 toujours présentes sur compte 1
-    })
+    });
 
-    it.skip("transmission données", async ()=>{
+    it.skip("transmission données", async () => {
       // Créer nuéee sur compte 1
       // Compte 2 contribue des données
       // Compte 2 ferme
       // Compte 3 se connecte
       // Compte 3 accède aux données de compte 2
-    })
+    });
   });
 
   describe("différences", function () {

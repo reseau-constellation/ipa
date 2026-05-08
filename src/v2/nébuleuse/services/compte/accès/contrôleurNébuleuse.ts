@@ -244,9 +244,11 @@ const ContrôleurNébuleuse =
         const e = _e as Error;
         if (e.toString().includes("not append entry")) {
           throw new Error(
-            `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`, {
-            cause: _e
-          });
+            `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`,
+            {
+              cause: _e,
+            },
+          );
         }
         throw e;
       }

@@ -36,7 +36,10 @@ import type {
 import type { ServicesNécessairesDonnées } from "../services.js";
 import type { Libp2pEvents, Stream } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsAppli, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type {
+  OptionsAppli,
+  ServicesAppli,
+} from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 import { estErreurAvortée } from "../../utils.js";
@@ -195,81 +198,90 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         message: idDispositif,
       });
       if (!signatureValide) return;
-      console.log("traiterIdentitéCompte", idPair.toString())
+      console.log("traiterIdentitéCompte", idPair.toString());
       return;
-      await libp2p.peerStore.merge(idPair, { metadata: { idDispositif, idCompte } });
+      await libp2p.peerStore.merge(idPair, {
+        metadata: { idDispositif, idCompte },
+      });
       libp2p.peerStore.get(idPair);
       libp2p.addEventListener("peer:update", (x) =>
         console.log(x.detail.peer.metadata),
       );
     };
 
-    await libp2p.handle(
-      PROTOCOLE_NÉBULEUSE,
-      async (flux, connexion) => {
-        const idPair = connexion.remotePeer.toString();
+    await libp2p
+      .handle(
+        PROTOCOLE_NÉBULEUSE,
+        async (flux, connexion) => {
+          const idPair = connexion.remotePeer.toString();
 
-        this.flux.set(idPair, flux);
-        flux.addEventListener("close", () => this.flux.delete(idPair));
+          this.flux.set(idPair, flux);
+          flux.addEventListener("close", () => this.flux.delete(idPair));
 
-        for await (const value of flux) {
-          const octets = value.subarray();
-          try {
-            const message = JSON.parse(
-              new TextDecoder().decode(octets),
-            ) as MessageRéseau;
-            if (message.type === "identité compte") {
-              await traiterIdentitéCompte({ message, idPair });
+          for await (const value of flux) {
+            const octets = value.subarray();
+            try {
+              const message = JSON.parse(
+                new TextDecoder().decode(octets),
+              ) as MessageRéseau;
+              if (message.type === "identité compte") {
+                await traiterIdentitéCompte({ message, idPair });
+              }
+              this.événements.emit("message réseau", {
+                message,
+                expéditeur: idPair,
+              });
+            } catch {
+              // Circulez, rien à voir
             }
-            this.événements.emit("message réseau", {
-              message,
-              expéditeur: idPair,
-            });
-          } catch {
-            // Circulez, rien à voir
           }
-        }
-      },
-      {
-        runOnLimitedConnection: true,
-        signal
-      },
-    ).catch(e=>{if (!estErreurAvortée(e))throw e});
+        },
+        {
+          runOnLimitedConnection: true,
+          signal,
+        },
+      )
+      .catch((e) => {
+        if (!estErreurAvortée(e)) throw e;
+      });
 
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
 
+    const idTopologie = await libp2p
+      .register(
+        PROTOCOLE_NÉBULEUSE,
+        {
+          async onConnect(peerId, conn) {
+            const idCompte = await compte.obtIdCompte();
 
-    const idTopologie = await libp2p.register(
-      PROTOCOLE_NÉBULEUSE,
-      {
-        async onConnect(peerId, conn) {
-          const idCompte = await compte.obtIdCompte();
+            const identifiantsCompte: MessageIdentitéCompte = {
+              type: "identité compte",
+              idCompte,
+              idDispositif,
+              signature: await orbite.signer({ message: idDispositif }),
+            };
 
-          const identifiantsCompte: MessageIdentitéCompte = {
-            type: "identité compte",
-            idCompte,
-            idDispositif,
-            signature: await orbite.signer({ message: idDispositif }),
-          };
-
-          const flux = await conn.newStream(PROTOCOLE_NÉBULEUSE, { signal });
-          flux.send(
-            new TextEncoder().encode(JSON.stringify(identifiantsCompte)),
-          );
-          flux.close();
+            const flux = await conn.newStream(PROTOCOLE_NÉBULEUSE, { signal });
+            flux.send(
+              new TextEncoder().encode(JSON.stringify(identifiantsCompte)),
+            );
+            flux.close();
+          },
+          onDisconnect(peerId) {
+            // this.lorsqueDispositifDéconnecté(peerId);
+          },
+          notifyOnLimitedConnection: true,
         },
-        onDisconnect(peerId) {
-          // this.lorsqueDispositifDéconnecté(peerId);
-        },
-        notifyOnLimitedConnection: true,
-      },
-      { signal },
-    ).catch(e=>{if (!estErreurAvortée(e))throw e});
+        { signal },
+      )
+      .catch((e) => {
+        if (!estErreurAvortée(e)) throw e;
+      });
 
     const oublier = async () => {
       if (idTopologie) libp2p.unregister(idTopologie);
       await libp2p.unhandle([PROTOCOLE_NÉBULEUSE]);
-    }
+    };
     this.estDémarré = { oublier };
 
     return await super.démarrer();
@@ -1097,7 +1109,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           await oublierMessages();
           compte
             .rejoindreCompte({ idCompte, signal: signalFinal })
-            .catch(e=>{ if (!estErreurAvortée(e)) throw e })
+            .catch((e) => {
+              if (!estErreurAvortée(e)) throw e;
+            })
             .finally(() => signalFinal.clear());
         }
       },
