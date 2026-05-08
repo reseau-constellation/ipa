@@ -1,0 +1,247 @@
+import { ignorerNonDéfinis } from "@constl/utils-ipa";
+import {
+  combinerRecherches,
+  rechercherDansTexte,
+  rechercherSelonId,
+  rechercherTousSiVide,
+  similImages,
+  similTexte,
+} from "@/v2/recherche/fonctions/utils.js";
+import type { Profil } from "@/v2/nébuleuse/services/profil.js";
+import type { TraducsTexte } from "@/v2/types.js";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
+import type {
+  SuivreObjectifRecherche,
+  InfoRésultatVide,
+  SuiviRecherche,
+  InfoRésultatTexte,
+  RésultatObjectifRecherche,
+  AccesseurService,
+} from "../types.js";
+import type { Oublier } from "@/v2/nébuleuse/types.js";
+
+export type ServicesNécessairesRechercheProfils =
+  ServicesNécessairesRechercheObjets & {
+    profil: Profil;
+  };
+
+export const rechercherProfilsSelonActivité = (): SuivreObjectifRecherche<
+  InfoRésultatVide,
+  ServicesNécessairesRechercheProfils
+> => {
+  return async ({
+    services,
+    idObjet,
+    f,
+  }: {
+    services: AccesseurService<ServicesNécessairesRechercheProfils>;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatVide>;
+  }): Promise<Oublier> => {
+    const infosCompte: {
+      noms?: TraducsTexte;
+      image?: Uint8Array | null;
+      courriel?: string | null;
+    } = {
+      noms: undefined,
+      image: undefined,
+      courriel: undefined,
+    };
+    const calculerScore = (): RésultatObjectifRecherche<InfoRésultatVide> => {
+      const score =
+        [
+          Object.keys(infosCompte.noms || {}).length > 0,
+          infosCompte.image,
+          infosCompte.courriel,
+        ].filter(Boolean).length / 3;
+
+      return {
+        type: "résultat",
+        score,
+        de: "activité",
+        info: { type: "vide" },
+      };
+    };
+    const fSuivreNoms = (noms: TraducsTexte) => {
+      infosCompte.noms = noms;
+      f(calculerScore());
+    };
+    const fSuivreImage = (
+      infoImage: { image: Uint8Array; idImage: string } | null,
+    ) => {
+      infosCompte.image = infoImage?.image;
+      f(calculerScore());
+    };
+    const fSuivreCourriel = (courriel: string | null | undefined) => {
+      infosCompte.courriel = courriel;
+      f(calculerScore());
+    };
+
+    const oublierNoms = await services("profil").suivreNoms({
+      idCompte: idObjet,
+      f: ignorerNonDéfinis(fSuivreNoms),
+    });
+    const oublierImage = await services("profil").suivreImage({
+      idCompte: idObjet,
+      f: fSuivreImage,
+    });
+    const oublierCourriel = await services("profil").suivreCourriel({
+      idCompte: idObjet,
+      f: fSuivreCourriel,
+    });
+
+    const oublier = async () => {
+      await Promise.allSettled([
+        oublierNoms(),
+        oublierImage(),
+        oublierCourriel(),
+      ]);
+    };
+
+    return oublier;
+  };
+};
+
+export const rechercherProfilsSelonNom = (
+  nom: string,
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheProfils
+> => {
+  return async ({
+    services,
+    idObjet,
+    f,
+  }: {
+    services: AccesseurService<ServicesNécessairesRechercheProfils>;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatTexte>;
+  }): Promise<Oublier> => {
+    const fSuivre = (noms: TraducsTexte) => {
+      const corresp = similTexte({ texte: nom, possibilités: noms });
+      if (corresp) {
+        const { score, clef, info } = corresp;
+        f({
+          type: "résultat",
+          score,
+          clef,
+          info,
+          de: "nom",
+        });
+      } else {
+        f();
+      }
+    };
+    const oublier = await services("profil").suivreNoms({
+      idCompte: idObjet,
+      f: ignorerNonDéfinis(fSuivre),
+    });
+    return oublier;
+  };
+};
+
+export const rechercherProfilsSelonCourriel = (
+  courriel: string,
+): SuivreObjectifRecherche<
+  InfoRésultatTexte,
+  ServicesNécessairesRechercheProfils
+> => {
+  return async ({
+    services,
+    idObjet,
+    f,
+  }: {
+    services: AccesseurService<ServicesNécessairesRechercheProfils>;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatTexte>;
+  }): Promise<Oublier> => {
+    const fSuivre = (courrielProfil: string | null | undefined) => {
+      const corresp = courrielProfil
+        ? rechercherDansTexte({ schéma: courriel, texte: courrielProfil })
+        : undefined;
+
+      if (corresp && courrielProfil) {
+        const { score, début, fin } = corresp;
+        f({
+          type: "résultat",
+          score,
+          de: "courriel",
+          info: { type: "texte", début, fin, texte: courrielProfil },
+        });
+      } else {
+        f();
+      }
+    };
+    const oublier = await services("profil").suivreCourriel({
+      idCompte: idObjet,
+      f: fSuivre,
+    });
+    return oublier;
+  };
+};
+
+export const rechercherProfilsSelonTexte = (
+  texte: string,
+): SuivreObjectifRecherche<
+  InfoRésultatTexte | InfoRésultatVide,
+  ServicesNécessairesRechercheProfils
+> => {
+  return async ({
+    services,
+    idObjet,
+    f,
+  }: {
+    services: AccesseurService<ServicesNécessairesRechercheProfils>;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatTexte | InfoRésultatVide>;
+  }): Promise<Oublier> => {
+    const fRechercherNoms = rechercherProfilsSelonNom(texte);
+    const fRechercherCourriel = rechercherProfilsSelonCourriel(texte);
+    const fRechercherId = rechercherSelonId(texte);
+    const fRechercherTous = rechercherTousSiVide(texte);
+
+    return await combinerRecherches({
+      fsRecherche: {
+        noms: fRechercherNoms,
+        courriel: fRechercherCourriel,
+        id: fRechercherId,
+        vide: fRechercherTous,
+      },
+      services,
+      idObjet,
+      fSuivreRecherche: f,
+    });
+  };
+};
+
+export const rechercherProfilsSelonImage = (
+  image: Uint8Array,
+): SuivreObjectifRecherche<
+  InfoRésultatVide,
+  ServicesNécessairesRechercheProfils
+> => {
+  return async ({
+    services,
+    idObjet,
+    f,
+  }: {
+    services: AccesseurService<ServicesNécessairesRechercheProfils>;
+    idObjet: string;
+    f: SuiviRecherche<InfoRésultatVide>;
+  }): Promise<Oublier> => {
+    const fSuivre = (imageCompte: Uint8Array | null) => {
+      const score = similImages({ image, imageRéf: imageCompte });
+      f({
+        type: "résultat",
+        score,
+        de: "image",
+        info: { type: "vide" },
+      });
+    };
+    const oublier = await services("profil").suivreImage({
+      idCompte: idObjet,
+      f: (x) => fSuivre(x?.image || null),
+    });
+    return oublier;
+  };
+};

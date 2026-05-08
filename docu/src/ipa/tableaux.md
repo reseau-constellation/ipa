@@ -479,7 +479,7 @@ const idVariable = await client.variables.créerVariable({ catégorie: "numériq
 const idColonne = await client.tableaux.ajouterColonneTableau({ idTableau, idVariable });
 
 const règle: valid.règleBornes = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,
@@ -651,7 +651,7 @@ const nouvellesDonnées = [
   {
     [idsCols[idVarEndroit]]: "ici",
     [idsCols[idVarDate]]: "2023-01-01",
-    [idsCols[idVarTempMin]]: 101,  // Ouach! Fahrenheit...
+    [idsCols[idVarTempMin]]: 101,  // Ouach ! Fahrenheit...
   },
   {
     [idsCols[idVarEndroit]]: "là",

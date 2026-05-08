@@ -1,0 +1,30 @@
+allowBuilds:
+  classic-level: true
+  core-js: true
+  deno: true
+  electron: true
+  esbuild: true
+  iso-constants: true
+  node-datachannel: true
+  unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - bl@0.9.5
+  - bl@1.2.3
+  - braces@3.0.3
+  - micromatch@4.0.8
+  - tmp@0.2.4
+  - elliptic@6.6.2
+  - diff@8.0.3
+  - semver@5.7.2
+  - serialize-javascript@7.0.3
+  - semver@4.3.2
+  - serialize-javascript@7.0.5
+
+overrides:
+  p-queue: "^8.1.1"
+  "@orbitdb/core": "4.0.0-3e1d628.0"
+
+patchedDependencies:
+  '@libp2p/gossipsub': patches/@libp2p__gossipsub.patch
+  '@orbitdb/core': patches/@orbitdb__core.patch

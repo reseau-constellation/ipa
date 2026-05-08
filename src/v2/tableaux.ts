@@ -1,0 +1,1551 @@
+import { v4 as uuidv4 } from "uuid";
+import { faisRien, suivreDeFonctionListe, traduire } from "@constl/utils-ipa";
+import { asSplitKey, joinKey } from "@orbitdb/nested-db";
+import { typedNested, type TypedNested } from "@constl/bohr-db";
+import { cacheSuivi } from "./nébuleuse/cache.js";
+import { brancheBd } from "./nébuleuse/services/services.js";
+import {
+  générerFonctionValidation,
+  règleComplète,
+  schémaSpécificationRègleColonne,
+} from "./règles.js";
+import { schémaTraducsTexte } from "./schémas.js";
+import { définis, enleverPréfixes, idcEtFichierValide } from "./utils.js";
+import type { ServiceJournal } from "./nébuleuse/services/journal.js";
+import type { AccesseurService } from "./recherche/types.js";
+import type { DagCborEncodable } from "@orbitdb/core";
+import type { JSONSchemaType } from "ajv";
+import type { NestedValue } from "@orbitdb/nested-db";
+import type { Oublier, Suivi } from "./nébuleuse/types.js";
+import type { PartielRécursif, TraducsTexte } from "./types.js";
+import type {
+  DétailsRègleBornesDynamiqueColonne,
+  DétailsRègleBornesDynamiqueVariable,
+  DétailsRègleValeurCatégoriqueDynamique,
+  ErreurRègle,
+  ErreurRègleBornesColonneInexistante,
+  ErreurRègleBornesVariableNonPrésente,
+  ErreurRègleCatégoriqueColonneInexistante,
+  RègleBornes,
+  RègleColonne,
+  RègleValeurCatégorique,
+  RègleVariable,
+  RègleVariableAvecId,
+  ErreurColonne,
+  ErreurColonneVariableDédoublée,
+  SpécificationRègleColonne,
+  FonctionValidation,
+  ErreurRègleCatégoriqueTableauInexistant,
+} from "./règles.js";
+import type {
+  CatégorieBaseVariables,
+  CatégorieVariable,
+  Variables,
+} from "./variables.js";
+import type {
+  ServiceCompte,
+  ServiceHélia,
+  ServiceOrbite,
+} from "./nébuleuse/index.js";
+
+// Types éléments
+
+export type DonnéesRangéeTableau = {
+  [key: string]: DagCborEncodable;
+};
+
+export interface DonnéesRangéeTableauAvecId<
+  T extends DonnéesRangéeTableau = DonnéesRangéeTableau,
+> {
+  données: T;
+  id: string;
+}
+
+// Types scores
+
+export type ScoreCouvertureTableau = {
+  numérateur: number;
+  dénominateur: number;
+};
+
+// Types tableaux
+
+export type StructureTableau = {
+  noms: TraducsTexte;
+  colonnes: { [id: string]: Omit<InfoColonne, "id"> };
+  données: string;
+  règles: {
+    [idRègle: string]: SpécificationRègleColonne;
+  };
+  traducs: { [clef: string]: TraducsTexte };
+};
+
+export const schémaTableau: JSONSchemaType<
+  PartielRécursif<StructureTableau>
+> & { nullable: true } = {
+  type: "object",
+  properties: {
+    type: { type: "string", nullable: true },
+    noms: schémaTraducsTexte,
+    colonnes: {
+      type: "object",
+      additionalProperties: {
+        type: "object",
+        properties: {
+          id: { type: "string", nullable: true },
+          variable: {
+            type: "string",
+            nullable: true,
+          },
+          index: {
+            type: "boolean",
+            nullable: true,
+          },
+        },
+        nullable: true,
+        required: [],
+      },
+      nullable: true,
+      required: [],
+    },
+    données: {
+      type: "string",
+      nullable: true,
+    },
+    règles: {
+      type: "object",
+      additionalProperties: schémaSpécificationRègleColonne,
+      nullable: true,
+    },
+    traducs: {
+      type: "object",
+      additionalProperties: schémaTraducsTexte,
+      nullable: true,
+    },
+  },
+  required: [],
+  nullable: true,
+};
+
+type StructureAvecTableau = { tableaux: { [clef: string]: StructureTableau } };
+const schémaStructureAvecTableau: JSONSchemaType<
+  PartielRécursif<StructureAvecTableau>
+> = {
+  type: "object",
+  properties: {
+    tableaux: {
+      type: "object",
+      additionalProperties: schémaTableau,
+      nullable: true,
+    },
+    nullable: true,
+  },
+};
+
+// Types colonnes
+
+export type InfoColonne = {
+  id: string;
+  variable?: string;
+  index?: boolean;
+};
+
+export type InfoColonneAvecCatégorie = InfoColonne & {
+  catégorie?: CatégorieVariable;
+};
+
+// Types comparaisons tableaux
+
+export type DifférenceTableaux =
+  | DifférenceVariableColonne
+  | DifférenceIndexColonne
+  | DifférenceColonneManquante
+  | DifférenceColonneSupplémentaire;
+
+export type DifférenceVariableColonne = {
+  type: "variableColonne";
+  sévère: true;
+  idColonne: string;
+  varColTableau?: string;
+  varColTableauRéf?: string;
+};
+export type DifférenceIndexColonne = {
+  type: "indexColonne";
+  sévère: true;
+  idColonne: string;
+  colTableauIndexée: boolean;
+};
+export type DifférenceColonneManquante = {
+  type: "colonneManquante";
+  sévère: true;
+  idColonneManquante: string;
+};
+export type DifférenceColonneSupplémentaire = {
+  type: "colonneSupplémentaire";
+  sévère: false;
+  idColonneSupplémentaire: string;
+};
+
+// Tableaux
+
+export type ServicesNécessairesTableaux = {
+  hélia: ServiceHélia;
+  orbite: ServiceOrbite;
+  compte: ServiceCompte;
+  variables: Variables;
+  journal: ServiceJournal;
+};
+
+export class Tableaux {
+  service: AccesseurService<ServicesNécessairesTableaux>;
+
+  constructor({
+    service,
+  }: {
+    service: AccesseurService<ServicesNécessairesTableaux>;
+  }) {
+    this.service = service;
+  }
+
+  async créerTableau({
+    idStructure,
+    idTableau,
+  }: {
+    idStructure: string;
+    idTableau: string;
+  }): Promise<string> {
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    // On ajoute un élément vide pour ajouter la clef du tableau à la liste de tableaux
+    await tableau.put("noms", {});
+
+    await oublier();
+    return idTableau;
+  }
+
+  async copierTableau({
+    idStructure,
+    idTableau,
+    idStructureDestinataire,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idStructureDestinataire?: string;
+  }): Promise<string> {
+    idStructureDestinataire ??= idStructure;
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    const idNouveauTableau = await this.créerTableau({
+      idStructure: idStructureDestinataire,
+      // Si c'est une structure différente, on garde le même identifiant de tableau
+      idTableau: idStructure === idStructureDestinataire ? uuidv4() : idTableau,
+    });
+
+    const { tableau: nouveauTableau, oublier: oublierNouveauTableau } =
+      await this.ouvrirTableau({
+        idStructure: idStructureDestinataire,
+        idTableau: idNouveauTableau,
+      });
+
+    // Copier les noms
+    const noms = await tableau.get("noms");
+    if (noms)
+      await this.sauvegarderNoms({
+        idStructure: idStructureDestinataire,
+        idTableau: idNouveauTableau,
+        noms,
+      });
+
+    // Copier les colonnes
+    const colonnes = await tableau.get("colonnes");
+    if (colonnes) {
+      await nouveauTableau.set("colonnes", colonnes);
+    }
+
+    // Copier les règles
+    const règles = await tableau.get("règles");
+    if (règles) {
+      await nouveauTableau.set("règles", règles);
+    }
+
+    await oublier();
+    await oublierNouveauTableau();
+
+    return idNouveauTableau;
+  }
+
+  async effacerTableau({
+    idStructure,
+    idTableau,
+  }: {
+    idStructure: string;
+    idTableau: string;
+  }): Promise<void> {
+    const orbite = this.service("orbite");
+
+    // Effacer la référence au tableau
+    const { bd, oublier: oublierBd } = await orbite.ouvrirBd({
+      id: enleverPréfixes(idStructure),
+      type: "nested",
+    });
+    const bdTypée = typedNested({
+      db: bd,
+      schema: schémaStructureAvecTableau,
+    });
+
+    await bdTypée.del(`tableaux/${idTableau}`);
+
+    await oublierBd();
+  }
+
+  async ouvrirTableau({
+    idStructure,
+    idTableau,
+  }: {
+    idStructure: string;
+    idTableau: string;
+  }): Promise<{ tableau: TypedNested<StructureTableau>; oublier: Oublier }> {
+    const { bd, oublier } = await this.service("orbite").ouvrirBd({
+      id: enleverPréfixes(idStructure),
+      type: "nested",
+    });
+
+    const bdTypée = typedNested({
+      db: bd,
+      schema: schémaStructureAvecTableau,
+    });
+
+    const tableau = brancheBd<StructureTableau, `tableaux/${string}`>({
+      bd: bdTypée,
+      clef: `tableaux/${idTableau}`,
+    });
+
+    return {
+      tableau,
+      oublier,
+    };
+  }
+
+  async suivreTableau({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<PartielRécursif<StructureTableau> | undefined>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await orbite.suivreDonnéesBdEmboîtée({
+      id: enleverPréfixes(idStructure),
+      schéma: schémaStructureAvecTableau,
+      f: async (tableau) => {
+        let données: PartielRécursif<NestedValue> | undefined = tableau;
+
+        for (const k of asSplitKey(joinKey(["tableaux", idTableau]))) {
+          données = données?.[k] as NestedValue | undefined;
+          if (données === undefined) {
+            break;
+          }
+        }
+        await f(données);
+      },
+    });
+  }
+
+  // Accès
+
+  async confirmerPermission({
+    idStructure,
+  }: {
+    idStructure: string;
+  }): Promise<void> {
+    const compte = this.service("compte");
+    if (!(await compte.permission({ idObjet: enleverPréfixes(idStructure) })))
+      throw new Error(
+        `Permission de modification refusée pour un tableau au ${idStructure}.`,
+      );
+  }
+
+  // Noms
+
+  async sauvegarderNoms({
+    idStructure,
+    idTableau,
+    noms,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    noms: TraducsTexte;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    await tableau.insert(`noms`, noms);
+
+    await oublier();
+  }
+
+  async sauvegarderNom({
+    idStructure,
+    idTableau,
+    langue,
+    nom,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    langue: string;
+    nom: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    await tableau.set(`noms/${langue}`, nom);
+    await oublier();
+  }
+
+  async effacerNom({
+    idStructure,
+    idTableau,
+    langue,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    langue: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+    await tableau.del(`noms/${langue}`);
+
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreNoms({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<TraducsTexte | undefined>;
+  }): Promise<Oublier> {
+    return await this.suivreTableau({
+      idStructure,
+      idTableau,
+      f: (tableau) => f(définis(tableau?.noms || {})),
+    });
+  }
+
+  // Colonnes
+
+  async ajouterColonne({
+    idStructure,
+    idTableau,
+    idVariable,
+    idColonne,
+    index,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idVariable?: string;
+    idColonne?: string;
+    index?: boolean;
+  }): Promise<string> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    idColonne = idColonne || uuidv4();
+    const élément = {
+      variable: idVariable,
+      index,
+    };
+    await tableau.put(`colonnes/${idColonne}`, élément);
+
+    await oublier();
+    return idColonne;
+  }
+
+  async effacerColonne({
+    idStructure,
+    idTableau,
+    idColonne,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idColonne: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    await tableau.del(`colonnes/${idColonne}`);
+
+    await oublier();
+  }
+
+  async modifierVariableColonne({
+    idStructure,
+    idTableau,
+    idColonne,
+    idVariable,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idColonne: string;
+    idVariable?: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    if (idVariable)
+      await tableau.insert(`colonnes/${idColonne}`, { variable: idVariable });
+    else await tableau.del(`colonnes/${idColonne}/variable`);
+
+    await oublier();
+  }
+
+  async modifierIndexColonne({
+    idStructure,
+    idTableau,
+    idColonne,
+    index,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idColonne: string;
+    index: boolean;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    await tableau.insert(`colonnes/${idColonne}`, { index });
+
+    await oublier();
+  }
+
+  async modifierIdColonne({
+    idStructure,
+    idTableau,
+    idColonne,
+    nouvelId,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idColonne: string;
+    nouvelId: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    const infoColonne = await tableau.get(`colonnes/${idColonne}`);
+    if (infoColonne) {
+      await tableau.del(`colonnes/${idColonne}`);
+      await tableau.put(`colonnes/${nouvelId}`, infoColonne);
+    }
+
+    await oublier();
+  }
+
+  async réordonnerColonne({
+    idStructure,
+    idTableau,
+    idColonne,
+    position,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idColonne: string;
+    position: number;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+    throw new Error(
+      `Impossible de réordonner colonne ${idColonne} de tableau ${idTableau} à position ${position} : fonctionnalité pas encore implémentée.`,
+    );
+
+    /*const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+    await tableau.move(`colonnes/${idColonne}`, position)
+
+    await oublier();*/
+  }
+
+  @cacheSuivi
+  async suivreColonnes({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<InfoColonne[] | undefined>;
+  }): Promise<Oublier> {
+    return await this.suivreTableau({
+      idStructure,
+      idTableau,
+      f: async (tableau) => {
+        if (!tableau) {
+          await f(undefined);
+          return;
+        }
+        const colonnes = tableau.colonnes || [];
+        await f(
+          Object.entries(colonnes).map(([id, info]) => ({
+            id,
+            ...info,
+          })),
+        );
+      },
+    });
+  }
+
+  @cacheSuivi
+  async suivreInfoColonne({
+    idStructure,
+    idTableau,
+    idColonne,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idColonne: string;
+    f: Suivi<InfoColonne | null>;
+  }): Promise<Oublier> {
+    return await this.suivreColonnes({
+      idStructure,
+      idTableau,
+      f: async (cols) => {
+        return await f(cols?.find((c) => c.id === idColonne) || null);
+      },
+    });
+  }
+
+  @cacheSuivi
+  async suivreCatégoriesColonnes({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<InfoColonneAvecCatégorie[]>;
+  }): Promise<Oublier> {
+    const variables = this.service("variables");
+
+    const fBranche = async ({
+      fSuivreBranche,
+      branche,
+    }: {
+      fSuivreBranche: Suivi<InfoColonneAvecCatégorie>;
+      branche: InfoColonne;
+    }): Promise<Oublier> => {
+      await fSuivreBranche(branche);
+
+      const idVariable = branche.variable;
+      if (!idVariable) {
+        return faisRien;
+      }
+
+      return await variables.suivreCatégorie({
+        idVariable,
+        f: async (catégorie) => {
+          const col = Object.assign(
+            { catégorie, variable: idVariable },
+            branche,
+          );
+          await fSuivreBranche(col);
+        },
+      });
+    };
+    const fIdDeBranche = (x: InfoColonne) => x.id;
+
+    return await suivreDeFonctionListe({
+      fListe: async ({ fSuivreRacine }) =>
+        await this.suivreColonnes({
+          idStructure,
+          idTableau,
+          f: async (colonnes) => {
+            return await fSuivreRacine(colonnes || []);
+          },
+        }),
+      fBranche,
+      fIdDeBranche,
+      f,
+    });
+  }
+
+  // Variables
+
+  @cacheSuivi
+  async suivreVariables({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<string[]>;
+  }): Promise<Oublier> {
+    const variables = this.service("variables");
+
+    return await this.suivreTableau({
+      idStructure,
+      idTableau,
+      f: async (tableau) => {
+        await f(
+          Object.values(tableau?.colonnes || [])
+            .map((c) => c?.variable)
+            .filter(
+              (v): v is string =>
+                !!v && variables.identifiantValide({ identifiant: v }),
+            ),
+        );
+      },
+    });
+  }
+
+  // Règles
+
+  async ajouterRègle<R extends RègleVariable = RègleVariable>({
+    idStructure,
+    idTableau,
+    idColonne,
+    règle,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idColonne: string;
+    règle: R;
+  }): Promise<string> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    const id = uuidv4();
+
+    const élément: SpécificationRègleColonne = {
+      règle: règle,
+      colonne: idColonne,
+    };
+    await tableau.put(`règles/${id}`, élément);
+
+    await oublier();
+
+    return id;
+  }
+
+  async modifierRègle({
+    idStructure,
+    idTableau,
+    idRègle,
+    règleModifiée,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idRègle: string;
+    règleModifiée: RègleVariable;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    await tableau.put(`règles/${idRègle}/règle`, règleModifiée);
+
+    await oublier();
+  }
+
+  async effacerRègle({
+    idStructure,
+    idTableau,
+    idRègle,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    idRègle: string;
+  }): Promise<void> {
+    await this.confirmerPermission({ idStructure });
+
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    await tableau.del(`règles/${idRègle}`);
+
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreRègles({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<RègleColonne[]>;
+  }): Promise<Oublier> {
+    const dicRègles: {
+      tableau: RègleColonne[];
+      variable: RègleColonne[];
+      index: RègleColonne[];
+    } = {
+      tableau: [],
+      variable: [],
+      index: [],
+    };
+    const fFinale = async () => {
+      return await f([
+        ...dicRègles.tableau,
+        ...dicRègles.variable,
+        ...dicRègles.index,
+      ]);
+    };
+
+    // Suivre règles index unique
+    const oublierColonnes = await this.suivreColonnes({
+      idStructure,
+      idTableau,
+      f: async (colonnes) => {
+        const colonnesIndex = (colonnes || []).filter((c) => c.index);
+        dicRègles.index = colonnesIndex.map((c) => ({
+          règle: {
+            id: `unique - ${c.id}`,
+            règle: {
+              type: "indexUnique",
+            },
+          },
+          source: { type: "tableau", idStructure, idTableau },
+          colonne: c.id,
+        }));
+        await fFinale();
+      },
+    });
+
+    // Suivre les règles spécifiées dans le tableau
+    const oublierRèglesTableau = await this.suivreTableau({
+      idStructure,
+      idTableau,
+      f: async (tableau) => {
+        const règlesComplètes = Object.entries(tableau?.règles || {}).filter(
+          (items): items is [string, SpécificationRègleColonne] =>
+            règleComplète(items[1]),
+        );
+
+        const règlesTableau: RègleColonne[] = règlesComplètes.map(
+          ([id, règle]) => ({
+            règle: { id, règle: règle.règle },
+            source: { type: "tableau", idStructure, idTableau },
+            colonne: règle.colonne,
+          }),
+        );
+        dicRègles.tableau = Object.values(règlesTableau);
+        return await fFinale();
+      },
+    });
+
+    // Suivre les règles spécifiées dans les variables
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: InfoColonne[]) => Promise<void>;
+    }): Promise<Oublier> => {
+      return await this.suivreColonnes({
+        idStructure,
+        idTableau,
+        f: async (cols) =>
+          fSuivreRacine(cols?.filter((c) => !!c.variable) || []),
+      });
+    };
+
+    const fFinaleRèglesVariables = async (règles: RègleColonne[]) => {
+      dicRègles.variable = règles;
+      return await fFinale();
+    };
+
+    const fBranche = async ({
+      id: idColonne,
+      fSuivreBranche,
+      branche,
+    }: {
+      id: string;
+      fSuivreBranche: Suivi<RègleColonne[]>;
+      branche: InfoColonne;
+    }) => {
+      const { variable: idVariable } = branche;
+      if (!idVariable) {
+        await fSuivreBranche([]);
+        return faisRien;
+      }
+      const fFinaleSuivreBranche = async (règles: RègleVariableAvecId[]) => {
+        const règlesColonnes: RègleColonne[] = règles.map((r) => {
+          return {
+            règle: r,
+            source: { type: "variable", id: idVariable },
+            colonne: idColonne,
+          };
+        });
+        return await fSuivreBranche(règlesColonnes);
+      };
+      return await this.service("variables").suivreRègles({
+        idVariable,
+        f: fFinaleSuivreBranche,
+      });
+    };
+
+    const oublierRèglesVariable = await suivreDeFonctionListe({
+      fListe,
+      f: fFinaleRèglesVariables,
+      fBranche,
+      fIdDeBranche: (b) => b.id,
+    });
+
+    // Tout oublier
+    const oublier = async () => {
+      await oublierColonnes();
+      await oublierRèglesTableau();
+      await oublierRèglesVariable();
+    };
+
+    return oublier;
+  }
+
+  // Validation
+
+  @cacheSuivi
+  async suivreValidRègles({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<ErreurRègle[]>;
+  }): Promise<Oublier> {
+    const info: {
+      règles?: {
+        règle: RègleColonne<RègleVariable>;
+        colsTableauRéf?: InfoColonneAvecCatégorie[];
+      }[];
+      colonnes?: InfoColonne[];
+    } = {};
+
+    const fFinale = async () => {
+      if (!info.colonnes || !info.règles) return;
+
+      const erreurs: ErreurRègle[] = [];
+
+      const règlesTypeBornes = info.règles
+        .map((r) => r.règle)
+        .filter(
+          (r) => r.règle.règle.type === "bornes",
+        ) as RègleColonne<RègleBornes>[];
+
+      const règlesBornesColonnes = règlesTypeBornes.filter(
+        (r) => r.règle.règle.détails.type === "dynamiqueColonne",
+      ) as RègleColonne<RègleBornes<DétailsRègleBornesDynamiqueColonne>>[];
+
+      const règlesBornesVariables = règlesTypeBornes.filter(
+        (r) => r.règle.règle.détails.type === "dynamiqueVariable",
+      ) as RègleColonne<RègleBornes<DétailsRègleBornesDynamiqueVariable>>[];
+
+      const règlesCatégoriquesDynamiques = info.règles.filter(
+        (r) =>
+          r.règle.règle.règle.type === "valeurCatégorique" &&
+          r.règle.règle.règle.détails.type === "dynamique",
+      ) as {
+        règle: RègleColonne<
+          RègleValeurCatégorique<DétailsRègleValeurCatégoriqueDynamique>
+        >;
+        colsTableauRéf?: InfoColonneAvecCatégorie[];
+      }[];
+
+      for (const r of règlesBornesColonnes) {
+        const colRéfRègle = info.colonnes.find(
+          (c) => c.id === r.règle.règle.détails.val,
+        );
+        if (!colRéfRègle) {
+          const erreur: ErreurRègleBornesColonneInexistante = {
+            règle: r,
+            type: "colonneBornesInexistante",
+          };
+          erreurs.push(erreur);
+        }
+      }
+
+      for (const r of règlesBornesVariables) {
+        const varRéfRègle = info.colonnes.find(
+          (c) => c.variable === r.règle.règle.détails.val,
+        );
+        if (!varRéfRègle) {
+          const erreur: ErreurRègleBornesVariableNonPrésente = {
+            règle: r,
+            type: "variableBornesNonPrésente",
+          };
+          erreurs.push(erreur);
+        }
+      }
+
+      for (const r of règlesCatégoriquesDynamiques) {
+        if (!r.colsTableauRéf) {
+          const erreur: ErreurRègleCatégoriqueTableauInexistant = {
+            règle: r.règle,
+            type: "tableauCatégInexistant",
+          };
+          erreurs.push(erreur);
+        } else {
+          const colRéfRègle = r.colsTableauRéf.find(
+            (c) => c.id === r.règle.règle.règle.détails.colonne,
+          );
+          if (!colRéfRègle) {
+            const erreur: ErreurRègleCatégoriqueColonneInexistante = {
+              règle: r.règle,
+              type: "colonneCatégInexistante",
+            };
+            erreurs.push(erreur);
+          }
+        }
+      }
+      await f(erreurs);
+    };
+
+    const fFinaleRègles = async (
+      règles: {
+        règle: RègleColonne<RègleVariable>;
+        colsTableauRéf?: InfoColonneAvecCatégorie[];
+      }[],
+    ) => {
+      info.règles = règles;
+      return await fFinale();
+    };
+
+    const oublierColonnes = await this.suivreColonnes({
+      idStructure,
+      idTableau,
+      f: async (cols) => {
+        info.colonnes = cols;
+        return await fFinale();
+      },
+    });
+
+    const fListeRègles = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (règles: RègleColonne<RègleVariable>[]) => Promise<void>;
+    }): Promise<Oublier> => {
+      return await this.suivreRègles({
+        idStructure,
+        idTableau,
+        f: fSuivreRacine,
+      });
+    };
+
+    const fBrancheRègles = async ({
+      fSuivreBranche,
+      branche: règle,
+    }: {
+      fSuivreBranche: Suivi<{
+        règle: RègleColonne<RègleVariable>;
+        colsTableauRéf?: InfoColonne[];
+      }>;
+      branche: RègleColonne<RègleVariable>;
+    }): Promise<Oublier> => {
+      if (
+        règle.règle.règle.type === "valeurCatégorique" &&
+        règle.règle.règle.détails.type === "dynamique"
+      ) {
+        const { tableau, structure } = règle.règle.règle.détails;
+        return await this.suivreColonnes({
+          idStructure: structure,
+          idTableau: tableau,
+          f: (cols) =>
+            fSuivreBranche({
+              règle,
+              colsTableauRéf: cols,
+            }),
+        });
+      } else {
+        await fSuivreBranche({ règle });
+        return faisRien;
+      }
+    };
+
+    const oublierRègles = await suivreDeFonctionListe({
+      fListe: fListeRègles,
+      f: fFinaleRègles,
+      fBranche: fBrancheRègles,
+      fIdDeBranche: (b: RègleColonne<RègleVariable>) => b.règle.id,
+    });
+
+    const oublier = async () => {
+      await oublierRègles();
+      await oublierColonnes();
+    };
+    return oublier;
+  }
+
+  @cacheSuivi
+  async suivreValidColonnes({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<ErreurColonne[]>;
+  }): Promise<Oublier> {
+    return await this.suivreColonnes({
+      idStructure,
+      idTableau,
+      f: async (colonnes) => {
+        if (!colonnes) return await f([]);
+
+        const erreurs: ErreurColonne[] = [];
+        const décompte = colonnes
+          .map((c) => c.variable)
+          .reduce((acc: { [idVar: string]: number }, idVariable) => {
+            if (idVariable) acc[idVariable] = (acc[idVariable] || 0) + 1;
+            return acc;
+          }, {});
+
+        const déjàVue = new Set<string>();
+        for (const [idVariable, n] of Object.entries(décompte)) {
+          if (n > 1 && !déjàVue.has(idVariable)) {
+            const erreur: ErreurColonneVariableDédoublée = {
+              type: "variableDédoublée",
+              colonnes: colonnes
+                .filter((c) => c.variable === idVariable)
+                .map((c) => c.id),
+            };
+            erreurs.push(erreur);
+            déjàVue.add(idVariable);
+          }
+        }
+        await f(erreurs);
+      },
+    });
+  }
+
+  async suivreValidateursDonnées({
+    idStructure,
+    idTableau,
+    f,
+    résolveurDonnéesCatégorie,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<FonctionValidation[]>;
+    résolveurDonnéesCatégorie: (args: {
+      idStructure: string;
+      idTableau: string;
+      f: Suivi<DonnéesRangéeTableauAvecId[]>;
+    }) => Promise<Oublier>;
+  }): Promise<Oublier> {
+    type RègleAvecCatégories = {
+      règle: RègleColonne;
+      donnéesCatégorie?: DagCborEncodable[];
+    };
+
+    const info: {
+      règles?: RègleAvecCatégories[];
+      colonnes?: InfoColonne[];
+    } = {};
+
+    const fFinale = async () => {
+      if (info.colonnes && info.règles) {
+        const varsÀColonnes = info.colonnes.reduce(
+          (o, c) => (c.variable ? { ...o, [c.variable]: c.id } : { ...o }),
+          {},
+        );
+        const colsIndex = info.colonnes.filter((c) => c.index).map((c) => c.id);
+        await f(
+          info.règles.map((r) =>
+            générerFonctionValidation({
+              règle: r.règle,
+              varsÀColonnes,
+              donnéesCatégorie: r.donnéesCatégorie,
+              colsIndex,
+            }),
+          ),
+        );
+      }
+    };
+
+    const oublierColonnes = await this.suivreColonnes({
+      idStructure,
+      idTableau,
+      f: async (cols) => {
+        info.colonnes = cols;
+        await fFinale();
+      },
+    });
+
+    const fListeRègles = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (règles: RègleColonne[]) => Promise<void>;
+    }): Promise<Oublier> => {
+      return await this.suivreRègles({
+        idStructure,
+        idTableau,
+        f: fSuivreRacine,
+      });
+    };
+
+    const fBrancheRègles = async ({
+      fSuivreBranche,
+      branche: règle,
+    }: {
+      fSuivreBranche: Suivi<{
+        règle: RègleColonne;
+        donnéesCatégorie?: DagCborEncodable[];
+      }>;
+      branche: RègleColonne;
+    }): Promise<Oublier> => {
+      if (
+        règle.règle.règle.type === "valeurCatégorique" &&
+        règle.règle.règle.détails.type === "dynamique"
+      ) {
+        const { structure, tableau, colonne } = règle.règle.règle.détails;
+        return await résolveurDonnéesCatégorie({
+          idStructure: structure,
+          idTableau: tableau,
+          f: async (données) =>
+            await fSuivreBranche({
+              règle,
+              donnéesCatégorie: données.map((d) => d.données[colonne]),
+            }),
+        });
+      } else {
+        await fSuivreBranche({ règle });
+        return faisRien;
+      }
+    };
+
+    const oublierRègles = await suivreDeFonctionListe({
+      fListe: fListeRègles,
+      f: async (règles: RègleAvecCatégories[]) => {
+        info.règles = règles;
+        await fFinale();
+      },
+      fBranche: fBrancheRègles,
+      fIdDeBranche: (b: RègleColonne) => b.règle.id,
+    });
+
+    const oublier = async () => {
+      await oublierRègles();
+      await oublierColonnes();
+    };
+    return oublier;
+  }
+
+  // Traductions
+
+  async ajouterTraductionsValeur({
+    idStructure,
+    idTableau,
+    clef,
+    traducs,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    clef: string;
+    traducs: TraducsTexte;
+  }): Promise<void> {
+    const { tableau, oublier } = await this.ouvrirTableau({
+      idStructure,
+      idTableau,
+    });
+
+    await tableau.insert(`traducs/${clef}`, traducs);
+
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreTraductionsValeurs({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<{ [clef: string]: Partial<TraducsTexte> }>;
+  }): Promise<Oublier> {
+    return await this.suivreTableau({
+      idStructure,
+      idTableau,
+      f: async (tableau) => await f(définis(tableau?.traducs || {})),
+    });
+  }
+
+  // Comparaisons
+
+  @cacheSuivi
+  async suivreDifférencesAvecTableau({
+    tableau,
+    tableauRéf,
+    f,
+  }: {
+    tableau: {
+      idStructure: string;
+      idTableau: string;
+    };
+    tableauRéf: {
+      idStructure: string;
+      idTableau: string;
+    };
+    f: Suivi<DifférenceTableaux[]>;
+  }): Promise<Oublier> {
+    const info: {
+      colonnesTableau?: InfoColonne[];
+      colonnesTableauRéf?: InfoColonne[];
+    } = {};
+
+    const fFinale = async () => {
+      if (!info.colonnesTableau || !info.colonnesTableauRéf) return;
+
+      const différences: DifférenceTableaux[] = [];
+
+      for (const cRéf of info.colonnesTableauRéf) {
+        const cCorresp = info.colonnesTableau.find((c) => c.id === cRéf.id);
+        if (cCorresp) {
+          if (cCorresp.variable !== cRéf.variable) {
+            const dif: DifférenceVariableColonne = {
+              type: "variableColonne",
+              sévère: true,
+              idColonne: cCorresp.id,
+              varColTableau: cCorresp.variable,
+              varColTableauRéf: cRéf.variable,
+            };
+            différences.push(dif);
+          }
+          if (cCorresp.index !== cRéf.index) {
+            const dif: DifférenceIndexColonne = {
+              type: "indexColonne",
+              sévère: true,
+              idColonne: cCorresp.id,
+              colTableauIndexée: !!cCorresp.index,
+            };
+            différences.push(dif);
+          }
+        } else {
+          const dif: DifférenceColonneManquante = {
+            type: "colonneManquante",
+            sévère: true,
+            idColonneManquante: cRéf.id,
+          };
+          différences.push(dif);
+        }
+      }
+
+      for (const cTableau of info.colonnesTableau) {
+        const cLiée = info.colonnesTableauRéf.find((c) => c.id === cTableau.id);
+        if (!cLiée) {
+          const dif: DifférenceColonneSupplémentaire = {
+            type: "colonneSupplémentaire",
+            sévère: false,
+            idColonneSupplémentaire: cTableau.id,
+          };
+          différences.push(dif);
+        }
+      }
+
+      await f(différences);
+    };
+
+    const oublierColonnesTableau = await this.suivreColonnes({
+      ...tableau,
+      f: async (x) => {
+        info.colonnesTableau = x;
+        await fFinale();
+      },
+    });
+
+    const oublierColonnesRéf = await this.suivreColonnes({
+      ...tableauRéf,
+      f: async (x) => {
+        info.colonnesTableauRéf = x;
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await Promise.allSettled([oublierColonnesTableau, oublierColonnesRéf]);
+    };
+  }
+
+  // Éléments
+
+  async formaterÉlément({
+    élément,
+    colonnes,
+    documentsMédias,
+    langues,
+    traducs,
+  }: {
+    élément: DonnéesRangéeTableau;
+    colonnes: InfoColonneAvecCatégorie[];
+    documentsMédias: Set<string>;
+    langues?: string[];
+    traducs?: { [clef: string]: Partial<TraducsTexte> };
+  }): Promise<DonnéesRangéeTableau> {
+    const élémentFinal: DonnéesRangéeTableau = {};
+    const formaterValeur = async (
+      v: DagCborEncodable,
+      catégorie?: CatégorieBaseVariables,
+    ): Promise<string | number | undefined> => {
+      switch (typeof v) {
+        case "object": {
+          if (v instanceof Date) return v.toISOString();
+          return JSON.stringify(v);
+        }
+        case "boolean":
+          return v === true ? "vrai" : "faux";
+        case "number":
+          return v;
+        case "string":
+          if (
+            catégorie &&
+            ["audio", "image", "vidéo", "fichier"].includes(catégorie)
+          ) {
+            if (idcEtFichierValide(v)) documentsMédias.add(v);
+
+            return v;
+          } else {
+            if (idcEtFichierValide(v)) documentsMédias.add(v);
+            return traduire(définis(traducs?.[v] || {}), langues || []) || v;
+          }
+        default:
+          return;
+      }
+    };
+
+    for (const col of Object.keys(élément)) {
+      const colonne = colonnes.find((c) => c.id === col);
+      if (!colonne) continue;
+
+      const { catégorie } = colonne;
+
+      let formattée: string | number | undefined = undefined;
+      const valeur = élément[col];
+      if (catégorie?.type === "simple") {
+        formattée = await formaterValeur(valeur, catégorie.catégorie);
+      } else if (catégorie?.type === "liste") {
+        if (Array.isArray(valeur)) {
+          formattée = JSON.stringify(
+            await Promise.allSettled(
+              valeur.map((x) => formaterValeur(x, catégorie.catégorie)),
+            ),
+          );
+        }
+      } else formattée = await formaterValeur(valeur);
+      if (formattée !== undefined) élémentFinal[col] = formattée;
+    }
+
+    return élémentFinal;
+  }
+
+  // Score
+
+  @cacheSuivi
+  async suivreScoreCouverture({
+    idStructure,
+    idTableau,
+    f,
+  }: {
+    idStructure: string;
+    idTableau: string;
+    f: Suivi<ScoreCouvertureTableau>;
+  }): Promise<Oublier> {
+    const info: {
+      cols?: InfoColonneAvecCatégorie[];
+      règles?: RègleColonne[];
+    } = {};
+
+    const fFinale = async () => {
+      const { cols, règles } = info;
+
+      if (cols !== undefined && règles !== undefined) {
+        const colsÉligibles = cols.filter(
+          (c) => c.catégorie?.catégorie === "numérique",
+        );
+
+        const dénominateur = colsÉligibles.length;
+        const numérateur = colsÉligibles.filter((c) =>
+          règles.some(
+            (r) => r.règle.règle.type !== "catégorie" && r.colonne === c.id,
+          ),
+        ).length;
+        await f({ numérateur, dénominateur });
+      }
+    };
+
+    const oublierColonnes = await this.suivreCatégoriesColonnes({
+      idStructure,
+      idTableau,
+      f: async (cols) => {
+        info.cols = cols;
+        await fFinale();
+      },
+    });
+
+    const oublierRègles = await this.suivreRègles({
+      idStructure,
+      idTableau,
+      f: async (règles) => {
+        info.règles = règles;
+        await fFinale();
+      },
+    });
+
+    return async () => {
+      await oublierColonnes();
+      await oublierRègles();
+    };
+  }
+}

@@ -986,7 +986,7 @@ const idVariable = await client.variables.créerVariable({ catégorie: "numériq
 const idColonne = await client.nuées.ajouterColonneTableauNuée({ idTableau, idVariable });
 
 const règle: valid.règleBornes = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,

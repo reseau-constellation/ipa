@@ -1,0 +1,435 @@
+diff --git a/src/access-controllers/ipfs.js b/src/access-controllers/ipfs.js
+index 40904cced08d86d3ea764e12509846fb0d6507b4..daf435e25e195e4a1f4eb6b1399de9eb9ddcee5f 100644
+--- a/src/access-controllers/ipfs.js
++++ b/src/access-controllers/ipfs.js
+@@ -52,7 +52,7 @@ const type = 'ipfs'
+  * IPFSAccessController function.
+  * @memberof module:AccessControllers
+  */
+-const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, identities, address }) => {
++const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, identities, address, signal }) => {
+   storage = storage || await ComposedStorage(
+     await LRUStorage({ size: 1000 }),
+     await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
+@@ -60,7 +60,7 @@ const IPFSAccessController = ({ write, storage } = {}) => async ({ orbitdb, iden
+   write = write || [orbitdb.identity.id]
+ 
+   if (address) {
+-    const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''))
++    const manifestBytes = await storage.get(address.replaceAll('/ipfs/', ''), signal)
+     const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
+     write = value.write
+   } else {
+diff --git a/src/access-controllers/orbitdb.js b/src/access-controllers/orbitdb.js
+index 2a6deb1ee3059257d2a68dc1710d181ed8adae97..6627781304c89b2f19f87a91bc804bec89622577 100644
+--- a/src/access-controllers/orbitdb.js
++++ b/src/access-controllers/orbitdb.js
+@@ -32,12 +32,12 @@ const type = 'orbitdb'
+  * IPFSAccessController function.
+  * @memberof module:AccessControllers
+  */
+-const OrbitDBAccessController = ({ write } = {}) => async ({ orbitdb, identities, address, name }) => {
++const OrbitDBAccessController = ({ write } = {}) => async ({ orbitdb, identities, address, name, signal }) => {
+   address = address || name || await createId(64)
+   write = write || [orbitdb.identity.id]
+ 
+   // Open the database used for access information
+-  const db = await orbitdb.open(address, { type: 'keyvalue', AccessController: IPFSAccessController({ write }) })
++  const db = await orbitdb.open(address, { type: 'keyvalue', AccessController: IPFSAccessController({ write }), signal })
+   address = db.address
+ 
+   /**
+diff --git a/src/database.js b/src/database.js
+index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..714e40a0172be7f098326a3bd29a955c1eb8bac3 100644
+--- a/src/database.js
++++ b/src/database.js
+@@ -44,7 +44,7 @@ const defaultCacheSize = 1000
+  * @return {module:Databases~Database} An instance of Database.
+  * @instance
+  */
+-const Database = async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption }) => {
++const Database = async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal }) => {
+   /**
+    * @namespace module:Databases~Database
+    * @description The instance returned by {@link module:Database~Database}.
+@@ -112,7 +112,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
+ 
+   encryption = encryption || {}
+ 
+-  const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage, encryption })
++  const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage, encryption, signal })
+ 
+   const events = new EventEmitter()
+ 
+@@ -191,7 +191,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
+     events.emit('drop')
+   }
+ 
+-  const sync = await Sync({ ipfs, log, events, onSynced: applyOperation, start: syncAutomatically })
++  const sync = await Sync({ ipfs, log, events, onSynced: applyOperation, start: syncAutomatically, signal })
+ 
+   return {
+     /**
+diff --git a/src/databases/documents.js b/src/databases/documents.js
+index ffd3cfa1495e590f9ac8d03bad171c9477201a1a..7c73e8328816bddf462a7c54775c16a6e2746488 100644
+--- a/src/databases/documents.js
++++ b/src/databases/documents.js
+@@ -25,8 +25,8 @@ const DefaultOptions = { indexBy: '_id' }
+  * @return {module:Databases.Databases-Documents} A Documents function.
+  * @memberof module:Databases
+  */
+-const Documents = ({ indexBy } = DefaultOptions) => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encrypt }) => {
+-  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, encrypt })
++const Documents = ({ indexBy } = DefaultOptions) => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encrypt, signal }) => {
++  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encrypt, signal })
+ 
+   const { addOperation, log } = database
+ 
+diff --git a/src/databases/events.js b/src/databases/events.js
+index b68e782ffe12fa82a227b6680e5dce66271b030c..d37a938392486b735eef1ac44040747e8a15febd 100644
+--- a/src/databases/events.js
++++ b/src/databases/events.js
+@@ -15,8 +15,8 @@ const type = 'events'
+  * @return {module:Databases.Databases-Events} A Events function.
+  * @memberof module:Databases
+  */
+-const Events = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption }) => {
+-  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption })
++const Events = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal }) => {
++  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal })
+ 
+   const { addOperation, log } = database
+ 
+diff --git a/src/databases/keyvalue-indexed.js b/src/databases/keyvalue-indexed.js
+index 5994644be4545feb53c25321ef139fea5fb0b327..930adf49e53cf3898e77f6aa58c1b71f292144f5 100644
+--- a/src/databases/keyvalue-indexed.js
++++ b/src/databases/keyvalue-indexed.js
+@@ -109,7 +109,7 @@ const Index = ({ directory } = {}) => async () => {
+  * function.
+  * @memberof module:Databases
+  */
+-const KeyValueIndexed = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption }) => {
++const KeyValueIndexed = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal }) => {
+   // Set up the directory for an index
+   directory = pathJoin(directory || './orbitdb', `./${address}/_index/`)
+ 
+@@ -117,7 +117,7 @@ const KeyValueIndexed = () => async ({ ipfs, identity, address, name, access, di
+   const index = await Index({ directory })()
+ 
+   // Set up the underlying KeyValue database
+-  const keyValueStore = await KeyValue()({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate: index.update, encryption })
++  const keyValueStore = await KeyValue()({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate: index.update, encryption, signal })
+ 
+   /**
+    * Gets a value from the store by key.
+diff --git a/src/databases/keyvalue.js b/src/databases/keyvalue.js
+index 74e955d618e846695e18402ad0f6d0be93392285..465ebc28dba156250843718cfcdc0ebc01c1e947 100644
+--- a/src/databases/keyvalue.js
++++ b/src/databases/keyvalue.js
+@@ -15,8 +15,8 @@ const type = 'keyvalue'
+  * @return {module:Databases.Databases-KeyValue} A KeyValue function.
+  * @memberof module:Databases
+  */
+-const KeyValue = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption }) => {
+-  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption })
++const KeyValue = () => async ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal }) => {
++  const database = await Database({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate, encryption, signal })
+ 
+   const { addOperation, log } = database
+ 
+diff --git a/src/identities/identities.js b/src/identities/identities.js
+index d08d879af6cd83fba553f6887a01a21c562b4511..76b68f82bfca23d0f81e80f005b6e5a4352bab12 100644
+--- a/src/identities/identities.js
++++ b/src/identities/identities.js
+@@ -54,8 +54,8 @@ const Identities = async ({ keystore, path, storage, ipfs } = {}) => {
+    * @memberof module:Identities~Identities
+    * @instance
+    */
+-  const getIdentity = async (hash) => {
+-    const bytes = await storage.get(hash)
++  const getIdentity = async (hash, signal) => {
++    const bytes = await storage.get(hash, signal)
+     if (bytes) {
+       return decodeIdentity(bytes)
+     }
+diff --git a/src/manifest-store.js b/src/manifest-store.js
+index 85d3ee26ac2d7175b9c4bb9913c1ec4d131cc8ab..773fe97f902bc4b881f918c33fd70fcacec824a3 100644
+--- a/src/manifest-store.js
++++ b/src/manifest-store.js
+@@ -30,7 +30,7 @@ const ManifestStore = async ({ ipfs, storage } = {}) => {
+     return value
+   }
+ 
+-  const create = async ({ name, type, accessController, meta }) => {
++  const create = async ({ name, type, accessController, meta, signal }) => {
+     if (!name) throw new Error('name is required')
+     if (!type) throw new Error('type is required')
+     if (!accessController) throw new Error('accessController is required')
+@@ -47,7 +47,7 @@ const ManifestStore = async ({ ipfs, storage } = {}) => {
+ 
+     const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher })
+     const hash = cid.toString(hashStringEncoding)
+-    await storage.put(hash, bytes)
++    await storage.put(hash, bytes, signal)
+ 
+     return {
+       hash,
+diff --git a/src/oplog/heads.js b/src/oplog/heads.js
+index d51a677b5d39e3e76dd930ddeaa988f8bc0e1ef7..dc61311475d09cea87650f88a170b93782bc4bca 100644
+--- a/src/oplog/heads.js
++++ b/src/oplog/heads.js
+@@ -9,7 +9,7 @@ import MemoryStorage from '../storage/memory.js'
+ 
+ const DefaultStorage = MemoryStorage
+ 
+-const Heads = async ({ storage, heads, decryptPayloadFn, decryptEntryFn }) => {
++const Heads = async ({ storage, heads, decryptPayloadFn, decryptEntryFn, signal }) => {
+   storage = storage || await DefaultStorage()
+ 
+   const encoder = new TextEncoder()
+@@ -19,7 +19,7 @@ const Heads = async ({ storage, heads, decryptPayloadFn, decryptEntryFn }) => {
+     heads = findHeads(heads)
+     const newHeads = heads.map(e => ({ hash: e.hash, next: e.next }))
+     const bytes = encoder.encode(JSON.stringify(newHeads))
+-    await storage.put('heads', bytes)
++    await storage.put('heads', bytes, signal)
+   }
+ 
+   const add = async (head) => {
+@@ -39,7 +39,7 @@ const Heads = async ({ storage, heads, decryptPayloadFn, decryptEntryFn }) => {
+   }
+ 
+   const iterator = async function * () {
+-    const bytes = await storage.get('heads')
++    const bytes = await storage.get('heads', signal)
+     const headHashes = bytes ? JSON.parse(decoder.decode(bytes)) : []
+     for (const hash of headHashes) {
+       yield hash
+diff --git a/src/oplog/log.js b/src/oplog/log.js
+index cbfa5357725f35dab1afaabdeb60ac80e81c84da..1a7d08f77fc1383fdf7b3401697d42b29bf976e6 100644
+--- a/src/oplog/log.js
++++ b/src/oplog/log.js
+@@ -12,6 +12,7 @@ import Entry from './entry.js'
+ import Clock, { tickClock } from './clock.js'
+ import ConflictResolution from './conflict-resolution.js'
+ import OplogStore from './oplog-store.js'
++import { isAbortError } from '../utils/abort-error.js'
+ 
+ const { LastWriteWins, NoZeroes } = ConflictResolution
+ 
+@@ -52,7 +53,7 @@ const DefaultAccessController = async () => {
+  * @memberof module:Log
+  * @instance
+  */
+-const Log = async (identity, { logId, logHeads, access, entryStorage, headsStorage, indexStorage, sortFn, encryption } = {}) => {
++const Log = async (identity, { logId, logHeads, access, entryStorage, headsStorage, indexStorage, sortFn, encryption, signal } = {}) => {
+   /**
+    * @namespace Log
+    * @description The instance returned by {@link module:Log}
+@@ -76,7 +77,7 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+   access = access || await DefaultAccessController()
+ 
+   // Index and storage of entries for this Log
+-  const oplogStore = await OplogStore({ logHeads, entryStorage, indexStorage, headsStorage, encryption })
++  const oplogStore = await OplogStore({ logHeads, entryStorage, indexStorage, headsStorage, encryption, signal })
+ 
+   // Conflict-resolution sorting function
+   sortFn = NoZeroes(sortFn || LastWriteWins)
+@@ -308,7 +309,15 @@ const Log = async (identity, { logId, logHeads, access, entryStorage, headsStora
+       return true
+     }
+ 
+-    return joinQueue.add(task)
++    const taskIgnoringAbort = async () => {
++      try {
++        return await task()
++      } catch (e) {
++        if (!isAbortError(e)) throw e
++      }
++    }
++
++    return joinQueue.add(taskIgnoringAbort)
+   }
+ 
+   /**
+diff --git a/src/oplog/oplog-store.js b/src/oplog/oplog-store.js
+index 1b56421626f15271762182adb78b6cafc0eee341..e5aa23fd614e90db90d1a0f4dc41c2a5f06f1dd8 100644
+--- a/src/oplog/oplog-store.js
++++ b/src/oplog/oplog-store.js
+@@ -5,7 +5,7 @@ import MemoryStorage from '../storage/memory.js'
+ // Default storage for storing the Log and its entries. Default: Memory. Options: Memory, LRU, IPFS.
+ const DefaultStorage = MemoryStorage
+ 
+-const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage, encryption }) => {
++const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage, encryption, signal }) => {
+   // Setup encryption and decryption functions
+   const encryptEntryFn = encryption?.replication?.encrypt
+   const decryptEntryFn = encryption?.replication?.decrypt
+@@ -18,10 +18,10 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
+   // Heads storage
+   headsStorage = headsStorage || await DefaultStorage()
+   // Add heads to the state storage, ie. init the log state
+-  const _heads = await Heads({ storage: headsStorage, heads: logHeads, decryptPayloadFn, decryptEntryFn })
++  const _heads = await Heads({ storage: headsStorage, heads: logHeads, decryptPayloadFn, decryptEntryFn, signal })
+ 
+   const get = async (hash) => {
+-    const bytes = await _entries.get(hash)
++    const bytes = await _entries.get(hash, signal)
+     if (bytes) {
+       const entry = await Entry.decode(bytes, decryptEntryFn, decryptPayloadFn)
+       return entry
+@@ -29,11 +29,11 @@ const OplogStore = async ({ logHeads, entryStorage, headsStorage, indexStorage,
+   }
+ 
+   const getBytes = async (hash) => {
+-    return _entries.get(hash)
++    return _entries.get(hash, signal)
+   }
+ 
+   const has = async (hash) => {
+-    const entry = await _index.get(hash)
++    const entry = await _index.get(hash, signal)
+     return entry != null
+   }
+ 
+diff --git a/src/orbitdb.js b/src/orbitdb.js
+index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..feea0905b89b2c91be5ea61b3127d14a4248664e 100644
+--- a/src/orbitdb.js
++++ b/src/orbitdb.js
+@@ -35,7 +35,6 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+    * @namespace module:OrbitDB~OrbitDB
+    * @description The instance returned by {@link module:OrbitDB}.
+    */
+-
+   if (ipfs == null) {
+     throw new Error('IPFS instance is a required argument.')
+   }
+@@ -128,7 +127,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+       manifest = await manifestStore.get(addr.hash, signal)
+       const acType = manifest.accessController.split('/', 2).pop()
+       AccessController = getAccessController(acType)()
+-      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, address: manifest.accessController })
++      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, address: manifest.accessController, signal })
+       name = manifest.name
+       type = type || manifest.type
+       meta = manifest.meta
+@@ -136,10 +135,15 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+       // If the address given was not valid, eg. just the name of the database
+       type = type || DefaultDatabaseType
+       AccessController = AccessController || DefaultAccessController()
+-      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, name: address })
+-      const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta })
+-      manifest = m.manifest
+-      address = OrbitDBAddress(m.hash)
++      accessController = await AccessController({ orbitdb: { open, identity, ipfs }, identities, name: address, signal })
++      try {
++        const m = await manifestStore.create({ name: address, type, accessController: accessController.address, meta, signal })
++        manifest = m.manifest
++        address = OrbitDBAddress(m.hash)
++      } catch (e) {
++        await accessController.close();
++        throw (e)
++      }
+       name = manifest.name
+       meta = manifest.meta
+       // Check if we already have the database open and return if it is
+@@ -155,14 +159,18 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+     }
+ 
+     address = address.toString()
++    try {
++      const db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption, signal })
+ 
+-    const db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption })
++      db.events.on('close', onDatabaseClosed(address))
+ 
+-    db.events.on('close', onDatabaseClosed(address))
++      databases[address] = db
+ 
+-    databases[address] = db
+-
+-    return db
++      return db
++    } catch (e) {
++      await accessController.close();
++      throw (e)
++    }
+   }
+ 
+   const onDatabaseClosed = (address) => () => {
+diff --git a/src/sync.js b/src/sync.js
+index e256cd350ce8f4e2d23911eed80f95013ffea5f9..2af71c61bd94a655a0cf337529e082481285bc8a 100644
+--- a/src/sync.js
++++ b/src/sync.js
+@@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
+ import { TimeoutController } from 'timeout-abort-controller'
+ import pathJoin from './utils/path-join.js'
+ import { Entry } from './oplog/index.js'
++import { anySignal } from 'any-signal'
+ 
+ const DefaultTimeout = 30000 // 30 seconds
+ 
+@@ -67,7 +68,7 @@ const DefaultTimeout = 30000 // 30 seconds
+  * @memberof module:Sync
+  * @instance
+  */
+-const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
++const Sync = async ({ ipfs, log, events, onSynced, start, timeout, signal }) => {
+   /**
+    * @namespace module:Sync~Sync
+    * @description The instance returned by {@link module:Sync}.
+@@ -146,7 +147,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+   const sendHeads = async (stream) => {
+     const heads = await log.heads()
+     for (const { hash } of heads) {
+-      const bytes = await log.storage.get(hash)
++      const bytes = await log.storage.get(hash, signal)
+       if (bytes) {
+         stream.send(bytes)
+       }
+@@ -193,10 +194,14 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+           return
+         }
+         const timeoutController = new TimeoutController(timeout)
+-        const { signal } = timeoutController
++        const { signal: timeoutSignal } = timeoutController
++        const combinedSignal = anySignal([
++          timeoutSignal,
++          ...(signal ? [signal] : [])
++        ])
+         try {
+           peers.add(peerId)
+-          const stream = await libp2p.dialProtocol(remotePeer, headsSyncAddress, { signal })
++          const stream = await libp2p.dialProtocol(remotePeer, headsSyncAddress, { signal: combinedSignal })
+           await Promise.all([
+             receiveHeads(peerId, stream),
+             sendHeads(stream).then(() => stream.close())
+@@ -215,6 +220,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+           if (timeoutController) {
+             timeoutController.clear()
+           }
++          combinedSignal.clear()
+         }
+       } else {
+         peers.delete(peerId)
+@@ -256,7 +262,7 @@ const Sync = async ({ ipfs, log, events, onSynced, start, timeout }) => {
+    */
+   const add = async (entry) => {
+     if (started && entry && entry.hash) {
+-      const bytes = await log.storage.get(entry.hash)
++      const bytes = await log.storage.get(entry.hash, signal)
+       await pubsub.publish(address, bytes)
+     }
+   }
+diff --git a/src/utils/abort-error.js b/src/utils/abort-error.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a8f394045c50f572f74cf51d73a6ac7deee9f91
+--- /dev/null
++++ b/src/utils/abort-error.js
+@@ -0,0 +1,6 @@
++export const isAbortError = (error) => {
++  if (error instanceof AggregateError) {
++    return error.errors.some(e => isAbortError(e))
++  }
++  return error.toString().includes("AbortError")
++}

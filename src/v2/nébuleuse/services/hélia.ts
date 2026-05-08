@@ -1,0 +1,175 @@
+import { join } from "path";
+import { createHelia } from "helia";
+import { isElectronMain, isNode } from "wherearewe";
+import { IDBBlockstore } from "blockstore-idb";
+
+import { unixfs } from "@helia/unixfs";
+import { toBuffer } from "@constl/utils-ipa";
+import { CID } from "multiformats";
+import { ServiceAppli } from "../appli/index.js";
+import { obtStockageDonnées } from "./utils.js";
+import type { OptionsAppli } from "../appli/appli.js";
+import type {
+  ServiceLibp2p,
+  ServicesLibp2pNébuleuse,
+  ServicesNécessairesLibp2p,
+} from "./libp2p/libp2p.js";
+import type { Helia, HeliaInit } from "helia";
+import type { Libp2p } from "libp2p";
+
+export type OptionsServiceHélia<
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> = {
+  hélia?: Helia<Libp2p<L>>;
+};
+
+export type ServicesNécessairesHélia<
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> = ServicesNécessairesLibp2p & {
+  libp2p: ServiceLibp2p<L>;
+};
+
+type RetourDémarrageHélia<L extends ServicesLibp2pNébuleuse> = {
+  hélia?: Helia<Libp2p<L>>;
+};
+
+export class ServiceHélia<
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> extends ServiceAppli<
+  "hélia",
+  ServicesNécessairesHélia<L>,
+  RetourDémarrageHélia<L>,
+  OptionsServiceHélia<L>
+> {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesHélia<L>;
+    options: OptionsServiceHélia<L> & OptionsAppli;
+  }) {
+    super({
+      clef: "hélia",
+      services,
+      dépendances: ["libp2p", "dossier"],
+      options,
+    });
+  }
+
+  async démarrer() {
+    if (!this.options.hélia) {
+      const libp2p = await this.service("libp2p").libp2p();
+      const dossier = await this.service("dossier").dossier();
+
+      const dossierHélia = join(dossier, "hélia");
+
+      const hélia = await createHelia(
+        await obtenirOptionsHélia({ libp2p, dossierHélia }),
+      );
+      this.estDémarré = { hélia };
+    }
+    return await super.démarrer();
+  }
+
+  async hélia(): Promise<Helia<Libp2p<L>>> {
+    // Si `hélia` n'est pas défini dans les options, il sera rendu par `this.démarré`
+    return this.options.hélia || (await this.démarré()).hélia!;
+  }
+
+  async fermer(): Promise<void> {
+    // Uniquement fermer hélia si elle n'a pas été fournie dans les options
+    const { hélia } = await this.démarré();
+    if (hélia) await hélia.stop();
+
+    await super.fermer();
+  }
+
+  // Opérations Hélia
+
+  async ajouterFichierÀSFIP({
+    contenu,
+    nomFichier,
+  }: {
+    contenu: Uint8Array;
+    nomFichier: string;
+  }): Promise<string> {
+    const hélia = await this.hélia();
+    const fs = unixfs(hélia);
+    const idc = await fs.addFile({ content: contenu, path: nomFichier });
+    return idc.toString() + "/" + nomFichier;
+  }
+
+  async obtFichierDeSFIP({
+    id,
+    max,
+  }: {
+    id: string;
+    max?: number;
+  }): Promise<Uint8Array | null> {
+    return await toBuffer(await this.obtItérableAsyncSFIP({ id }), max);
+  }
+
+  async obtItérableAsyncSFIP({
+    id,
+    signal,
+  }: {
+    id: string;
+    signal?: AbortSignal;
+  }): Promise<AsyncIterable<Uint8Array>> {
+    const hélia = await this.hélia();
+    const fs = unixfs(hélia);
+    const [idc, nomFichier] = id.split("/");
+    return fs.cat(CID.parse(idc), { path: nomFichier, signal });
+  }
+}
+
+// Méthodes internes
+
+export const obtenirOptionsHélia = async <L extends ServicesLibp2pNébuleuse>({
+  libp2p,
+  dossierHélia,
+}: {
+  libp2p: Libp2p<L>;
+  dossierHélia: string;
+}): Promise<Partial<HeliaInit<Libp2p<L>>>> => {
+  const dossierDonnées = `${dossierHélia}/données`;
+  const dossierBlocs = `${dossierHélia}/blocs`;
+
+  // Importer FsBlockstore et FsDatastore dynamiquement pour éviter les erreurs
+  // de compilation sur le navigateur
+  const stockageBlocs =
+    isNode || isElectronMain
+      ? new (await import("blockstore-fs")).FsBlockstore(dossierBlocs)
+      : new IDBBlockstore(dossierBlocs);
+  const stockageDonnées = await obtStockageDonnées(dossierDonnées);
+
+  // Ouverture manuelle requise pour une drôle de raison pour l'instant.
+  if (!(isNode || isElectronMain)) {
+    await stockageBlocs.open();
+  }
+
+  const optionsHelia: Partial<HeliaInit<Libp2p<L>>> = {
+    blockstore: stockageBlocs,
+    datastore: stockageDonnées,
+    libp2p,
+  };
+
+  return optionsHelia;
+};
+
+export const serviceHélia =
+  <L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse>(
+    optionsHélia?: OptionsServiceHélia<L>,
+  ) =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesHélia<L>;
+  }) => {
+    return new ServiceHélia<L>({
+      services,
+      options: { ...optionsHélia, ...options },
+    });
+  };

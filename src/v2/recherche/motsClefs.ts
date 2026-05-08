@@ -1,0 +1,176 @@
+import { ignorerNonDéfinis } from "@constl/utils-ipa";
+import { cacheRechercheParN, cacheSuivi } from "../nébuleuse/cache.js";
+import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
+import { RechercheObjets } from "./recherche.js";
+import {
+  rechercherMotsClefsSelonDescription,
+  rechercherMotsClefsSelonNom,
+  rechercherMotsClefsSelonTexte,
+} from "./fonctions/motsClefs.js";
+import type { ServicesNécessairesRechercheMotsClefs } from "./fonctions/motsClefs.js";
+import type { InfoAuteur } from "../types.js";
+import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+import type {
+  InfoRésultat,
+  InfoRésultatTexte,
+  InfoRésultatVide,
+  SuivreObjectifRecherche,
+  RésultatRecherche,
+  AccesseurService,
+} from "./types.js";
+
+export class RechercheMotsClefs extends RechercheObjets<ServicesNécessairesRechercheMotsClefs> {
+  constructor({
+    service,
+  }: {
+    service: AccesseurService<ServicesNécessairesRechercheMotsClefs>;
+  }) {
+    super({ service });
+  }
+
+  @cacheRechercheParN
+  async tous({
+    f,
+    n,
+    idCompte,
+  }: {
+    f: Suivi<RésultatRecherche<InfoRésultatVide>[]>;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherTous(),
+      idCompte,
+    });
+  }
+
+  @cacheRechercheParN
+  async selonId({
+    idMotClef,
+    f,
+    n,
+    idCompte,
+  }: {
+    idMotClef: string;
+    f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherSelonId(idMotClef),
+      idCompte,
+    });
+  }
+
+  @cacheRechercheParN
+  async selonNom({
+    nomMotClef,
+    f,
+    n,
+    idCompte,
+  }: {
+    nomMotClef: string;
+    f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherMotsClefsSelonNom(nomMotClef),
+      idCompte,
+    });
+  }
+
+  @cacheRechercheParN
+  async selonDescription({
+    descriptionMotClef,
+    f,
+    n,
+    idCompte,
+  }: {
+    descriptionMotClef: string;
+    f: Suivi<RésultatRecherche<InfoRésultatTexte>[]>;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherMotsClefsSelonDescription(descriptionMotClef),
+      idCompte,
+    });
+  }
+
+  @cacheRechercheParN
+  async selonTexte({
+    texte,
+    f,
+    n,
+    idCompte,
+  }: {
+    texte: string;
+    f: Suivi<RésultatRecherche<InfoRésultatTexte | InfoRésultatVide>[]>;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourRecherche> {
+    return await this.selonObjectif({
+      f,
+      n,
+      fObjectif: rechercherMotsClefsSelonTexte(texte),
+      idCompte,
+    });
+  }
+
+  // Méthodes internes
+
+  @cacheSuivi
+  async suivreAuteursObjet({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    return await this.service("motsClefs").suivreAuteurs({
+      idMotClef: idObjet,
+      f,
+    });
+  }
+
+  async selonObjectif<T extends InfoRésultat = InfoRésultat>({
+    f,
+    fObjectif,
+    n,
+    idCompte,
+  }: {
+    f: Suivi<RésultatRecherche<T>[]>;
+    fObjectif: SuivreObjectifRecherche<
+      T,
+      ServicesNécessairesRechercheMotsClefs
+    >;
+    n?: number;
+    idCompte?: string;
+  }): Promise<RetourRecherche> {
+    return await this.rechercherObjets<T>({
+      f,
+      n,
+      fRecherche: async ({ f, idCompte }) =>
+        await this.service("motsClefs").suivreMotsClefs({
+          f: ignorerNonDéfinis(f),
+          idCompte,
+        }),
+      fQualité: async ({ idObjet, f: fSuiviQualité }) =>
+        await this.service("motsClefs").suivreScoreQualité({
+          idMotClef: idObjet,
+          f: fSuiviQualité,
+        }),
+      fObjectif,
+      idCompte,
+    });
+  }
+}

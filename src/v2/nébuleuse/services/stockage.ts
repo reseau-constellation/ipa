@@ -1,0 +1,182 @@
+import { join } from "path";
+import fs from "fs";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
+import type { ServiceDossier } from "./dossier.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
+
+export class StockageLocal implements Storage {
+  fichier: string;
+  _données: Map<string, string>;
+
+  constructor({ fichier }: { fichier: string }) {
+    this.fichier = fichier;
+    try {
+      this._données = new Map(
+        Object.entries(JSON.parse(fs.readFileSync(this.fichier).toString())),
+      );
+    } catch {
+      this._données = new Map();
+    }
+  }
+  getItem(clef: string): string | null {
+    return this._données.get(clef) ?? null;
+  }
+  setItem(clef: string, val: string) {
+    this._données.set(clef, val);
+    this.sauvegarder();
+  }
+  removeItem(clef: string): void {
+    this._données.delete(clef);
+    this.sauvegarder();
+  }
+  clear(): void {
+    this._données.clear();
+    this.sauvegarder();
+  }
+
+  public get length(): number {
+    return this._données.size;
+  }
+
+  key(index: number): string | null {
+    return index >= this.length ? null : [...this._données.keys()][index];
+  }
+
+  jsonifier() {
+    return JSON.stringify(Object.fromEntries(this._données));
+  }
+  sauvegarder() {
+    fs.writeFileSync(this.fichier, this.jsonifier());
+  }
+}
+
+const localStorageDossier = ({ dossier }: { dossier: string }) => {
+  const résoudreClef = (clef: string) => `${dossier}/${clef}`;
+  const clefCorrespond = (clef: string) => clef.startsWith(`${dossier}/`);
+  const clefOriginale = (clef: string) => clef.replace(`${dossier}/`, "");
+
+  return new Proxy(localStorage, {
+    get: (target, prop) => {
+      switch (prop) {
+        case "getItem":
+          return (clef: string) => target.getItem(résoudreClef(clef));
+        case "setItem":
+          return (clef: string, valeur: string) =>
+            target.setItem(résoudreClef(clef), valeur);
+        case "removeItem":
+          return (clef: string) => target.removeItem(résoudreClef(clef));
+        case "clear":
+          return () => {
+            const clefs = Object.keys(target);
+            clefs.filter(clefCorrespond).forEach((c) => target.removeItem(c));
+          };
+        case "key":
+          return (n: number) => {
+            const clefs = Object.keys(target);
+            const clefsCorrespondantes = clefs.filter(clefCorrespond);
+            return clefsCorrespondantes[n] ?? null;
+          };
+        case "length":
+          return Object.keys(target).filter(clefCorrespond).length;
+        case "jsonifier": {
+          return (): string => {
+            const données = JSON.parse(JSON.stringify(target));
+            return JSON.stringify(
+              Object.fromEntries(
+                Object.entries(données)
+                  .filter(([c, _v]) => clefCorrespond(c))
+                  .map(([c, v]) => [clefOriginale(c), v]),
+              ),
+            );
+          };
+        }
+        default:
+          return target[prop as keyof typeof target];
+      }
+    },
+  });
+};
+
+export type ServicesNécessairesStockage = {
+  dossier: ServiceDossier;
+};
+
+type RetourDémarrageStockage = { stockageLocal: Storage };
+
+export class ServiceStockage extends ServiceAppli<
+  "stockage",
+  ServicesNécessairesStockage,
+  RetourDémarrageStockage
+> {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesStockage;
+    options: OptionsAppli;
+  }) {
+    super({
+      clef: "stockage",
+      dépendances: ["dossier"],
+      services,
+      options,
+    });
+  }
+
+  async démarrer() {
+    let stockageLocal: Storage;
+
+    const dossier = await this.service("dossier").dossier();
+    if (typeof localStorage === "undefined" || localStorage === null) {
+      const fichier = join(dossier, "stockage.json");
+      stockageLocal = new StockageLocal({ fichier });
+    } else {
+      stockageLocal = localStorageDossier({ dossier });
+    }
+    this.estDémarré = { stockageLocal };
+
+    return await super.démarrer();
+  }
+
+  async obtenirItem(clef: string): Promise<string | null> {
+    const { stockageLocal } = await this.démarré();
+    return stockageLocal.getItem(clef);
+  }
+
+  async sauvegarderItem({
+    clef,
+    valeur,
+  }: {
+    clef: string;
+    valeur: string;
+  }): Promise<void> {
+    const { stockageLocal } = await this.démarré();
+    return stockageLocal.setItem(clef, valeur);
+  }
+
+  async effacerItem(clef: string) {
+    const { stockageLocal } = await this.démarré();
+    return stockageLocal.removeItem(clef);
+  }
+
+  async exporter() {
+    const { stockageLocal } = await this.démarré();
+    if (stockageLocal instanceof StockageLocal) {
+      return stockageLocal.jsonifier();
+    } else {
+      return stockageLocal.jsonifier();
+    }
+  }
+}
+
+export const serviceStockage =
+  () =>
+  ({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesStockage;
+    options: OptionsAppli;
+  }) => {
+    return new ServiceStockage({ services, options });
+  };

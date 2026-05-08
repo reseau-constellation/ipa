@@ -26,7 +26,7 @@ const client = créerConstellation();
 const idVariable = await client.variables.créerVariable({ catégorie: "image" });
 
 const règle: valid.règleExiste =  {
-    typeRègle: "existe",
+    type: "existe",
     détails: {},
 };
 
@@ -57,7 +57,7 @@ await client.variables.sauvegarderNomVariable({
 
 // La précipitation doit être positive
 const règle: valid.règleBornes<valid.détailsRègleBornesFixe> = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "fixe",
         val: 0,
@@ -93,7 +93,7 @@ await client.variables.sauvegarderNomVariable({
 
 // La température minimum ne peut pas être supérieure à la température maximum correspondante
 const règle: valid.règleBornes<valid.détailsRègleBornesDynamiqueVariable> = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "dynamiqueVariable",
         val: idVariableTempMax,
@@ -119,7 +119,7 @@ const idColonneTempMax = await client.tableaux.ajouterColonneTableau({
     idVariable: idVariableTempMax,
 });
 const règleTempMax: valid.règleBornes<valid.détailsRègleBornesDynamiqueColonne> = {
-    typeRègle: "bornes",
+    type: "bornes",
     détails: {
         type: "dynamiqueColonne",
         val: idColonneTempMin,
@@ -184,7 +184,7 @@ const idColonneNiveauDEau = await client.tableaux.ajouterColonneTableau({
 
 // Le site doit être l'un des sites d'échantillonnage connus
 const règleFixe: valid.règleValeurCatégorique = {
-    typeRègle: "valeurCatégorique",
+    type: "valeurCatégorique",
     détails: { 
         type: "fixe", 
         options: [  // Liste des identifiants pour vos sites
@@ -221,7 +221,7 @@ const idColonneIdSite = await client.tableaux.ajouterColonneTableau({
 });
 
 const règleDynamique: règleValeurCatégorique = {
-    typeRègle: "valeurCatégorique",
+    type: "valeurCatégorique",
     détails: {
         type: "dynamique",
         tableau: idTableauInfoSites,
