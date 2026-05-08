@@ -2071,7 +2071,7 @@ describe("Automatisations", function () {
     });
 
     describe("exemples réalistes", function () {
-      let mock: typeof AxiosMockAdapter;
+      let mock: AxiosMockAdapter;
 
       let dossier: string;
       let effacer: () => void;
@@ -3250,6 +3250,7 @@ describe("Automatisations", function () {
           await constl.automatisations.modifierAutomatisation({
             id: idAuto,
             automatisation: {
+              // @ts-expect-error  Erreur de `PartielRécursif`
               copies: {
                 n: 1,
               },
