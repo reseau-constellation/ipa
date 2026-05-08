@@ -198,7 +198,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         message: idDispositif,
       });
       if (!signatureValide) return;
-      console.log("traiterIdentitéCompte", idPair.toString());
+
       return;
       await libp2p.peerStore.merge(idPair, {
         metadata: { idDispositif, idCompte },
