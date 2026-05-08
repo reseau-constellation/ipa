@@ -271,16 +271,18 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }
 
   async fermer(): Promise<void> {
+    const { oublier } = await this.démarré();
+
     this.bloquésPrivé.clear();
 
     this.signaleurArrêt.abort();
+
     await Promise.all(
       this.flux
         .values()
         .map((flux) => flux.abort(new Error("Service réseau fermé."))),
     );
 
-    const { oublier } = this.estDémarré;
     await oublier();
 
     return await super.fermer();
