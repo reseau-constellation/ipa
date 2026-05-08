@@ -103,7 +103,6 @@ describe("Réseau", function () {
     });
 
     it("déconnexion - suivi connexions libp2p", async () => {
-      await nébuleuses[0].réseau.suivreConnexionsLibp2p({ f: console.log });
       for (const nébuleuse of nébuleuses.slice(1)) {
         await nébuleuse.fermer();
       }
