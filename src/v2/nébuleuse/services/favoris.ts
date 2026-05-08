@@ -226,16 +226,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     if (this.signaleurArrêt.signal.aborted)
       this.signaleurArrêt = new AbortController();
 
-    const compte = this.service("compte");
     const épingles = this.service("épingles");
-
-    const épingleMonCompte: ÉpingleProfil = {
-      type: "profil",
-      épingle: {
-        base: TOUS_DISPOSITIFS,
-        favoris: AUCUN_DISPOSITIF,
-      },
-    };
 
     const fFinale = async (résolutions: Set<string>[]) => {
       return await épingles.épingler({
@@ -249,38 +240,9 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     }: {
       fSuivreRacine: (éléments: ÉpingleFavorisAvecId[]) => Promise<void>;
     }) => {
-      const infos: { épingles: ÉpingleFavorisAvecId[]; monCompte?: string } = {
-        épingles: [],
-        monCompte: undefined,
-      };
-
-      const fFinaleListe = async () => {
-        const épingles = [...infos.épingles];
-        if (infos.monCompte) {
-          épingles.push({
-            idObjet: infos.monCompte,
-            épingle: épingleMonCompte,
-          });
-        }
-        await fSuivreRacine(épingles);
-      };
-      const oublierMonCompte = await compte.suivreIdCompte({
-        f: async (idCompte) => {
-          infos.monCompte = idCompte;
-          await fFinaleListe();
-        },
+      return await this.suivreFavoris({
+        f: favoris => fSuivreRacine(favoris || []),
       });
-      const oublierFavoris = await this.suivreBd({
-        f: async (x) => {
-          infos.épingles = Object.values(x || {}).filter(estÉpingleAvecId);
-          await fFinaleListe();
-        },
-      });
-
-      return async () => {
-        await oublierMonCompte();
-        await oublierFavoris();
-      };
     };
 
     const fBranche = async ({
