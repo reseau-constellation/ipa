@@ -1,5 +1,5 @@
 diff --git a/dist/src/gossipsub.js b/dist/src/gossipsub.js
-index eecaa1f10d492630d5cab1c8bedc0aaa7ec18635..3ac7f14e5982651315e94951ee176855f55f7b06 100644
+index eecaa1f10d492630d5cab1c8bedc0aaa7ec18635..a0882ed788e91020c3d8c6521962c78021015902 100644
 --- a/dist/src/gossipsub.js
 +++ b/dist/src/gossipsub.js
 @@ -477,7 +477,7 @@ export class GossipSub extends TypedEventEmitter {
@@ -16,7 +16,16 @@ index eecaa1f10d492630d5cab1c8bedc0aaa7ec18635..3ac7f14e5982651315e94951ee176855
          const toconnect = [];
          this.direct.forEach((id) => {
 -            if (!this.streamsOutbound.has(id)) {
-+            if (!this.streamsOutbound.get(id)?.rawStream?.status !== "open") {
++            if (!(this.streamsOutbound.get(id)?.rawStream?.status === "open")) {
                  toconnect.push(id);
              }
          });
+@@ -1858,7 +1858,7 @@ export class GossipSub extends TypedEventEmitter {
+         }
+         const rpcBytes = RPC.encode(rpc);
+         try {
+-            outboundStream.push(rpcBytes);
++            outboundStream.push(rpcBytes).catch((e) => { if ((e).name !== "StreamStateError") throw e });
+         }
+         catch (e) {
+             this.log.error(`Cannot send rpc to ${id}`, e);

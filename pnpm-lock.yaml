@@ -8,6 +8,10 @@ overrides:
   p-queue: ^8.1.1
   '@orbitdb/core': 4.0.0-3e1d628.0
 
+patchedDependencies:
+  '@libp2p/gossipsub': 6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2
+  '@orbitdb/core': a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b
+
 importers:
 
   .:
@@ -53,7 +57,7 @@ importers:
         version: 3.0.18
       '@libp2p/gossipsub':
         specifier: ^15.0.21
-        version: 15.0.21
+        version: 15.0.21(patch_hash=6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2)
       '@libp2p/identify':
         specifier: ^4.1.3
         version: 4.1.3
@@ -104,7 +108,7 @@ importers:
         version: 2.2.0
       '@orbitdb/core':
         specifier: 4.0.0-3e1d628.0
-        version: 4.0.0-3e1d628.0
+        version: 4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)
       '@orbitdb/feed-db':
         specifier: ^1.4.1
         version: 1.4.1(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
@@ -6955,8 +6959,8 @@ packages:
   protons-runtime@5.6.0:
     resolution: {integrity: sha512-/Kde+sB9DsMFrddJT/UZWe6XqvL7SL5dbag/DBCElFKhkwDj7XKt53S+mzLyaDP5OqS0wXjV5SA572uWDaT0Hg==}
 
-  protons-runtime@6.0.1:
-    resolution: {integrity: sha512-ONL+jDj143WA1m+WKLuuqBIaDKxm32dx6HfJdyujrRcni/6KkhXzVnyg22nH/Wwqmbwnd1BKUVkD1hMEWZFeww==}
+  protons-runtime@6.0.2:
+    resolution: {integrity: sha512-hiyjyANwGcgmzc+tXc1/ZcSZhKnl5MDjaVNWkISHBgadaU0sjTgKIKZMZ62d9J9zlSTyKHCs/osPkQ/3Z+7yeA==}
 
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
@@ -7868,8 +7872,8 @@ packages:
     resolution: {integrity: sha512-d79HhZya5Djd7am0q+W4RTsSU+D/aJzM+4Y4AGJGuGlgM2L6sx5ZvOYTmZjqPhrDrV6xJTtRSm1JCLj6V6LHLQ==}
     engines: {node: '>=14.16'}
 
-  terser@5.46.2:
-    resolution: {integrity: sha512-uxfo9fPcSgLDYob/w1FuL0c99MWiJDnv+5qXSQc5+Ki5NjVNsYi66INnMFBjf6uFz6OnX12piJQPF4IpjJTNTw==}
+  terser@5.47.1:
+    resolution: {integrity: sha512-tPbLXTI6ohPASb/1YViL428oEHu6/qv1OxqYnfaonVCFHqx4+wCd95pHrQWsL5X4pl90CTyW9piSAsS2L0VoMw==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -8167,8 +8171,8 @@ packages:
     engines: {node: '>=0.8.0'}
     hasBin: true
 
-  uint8-varint@2.0.4:
-    resolution: {integrity: sha512-FwpTa7ZGA/f/EssWAb5/YV6pHgVF1fViKdW8cWaEarjB8t7NyofSWBdOTyFPaGuUG4gx3v1O3PQ8etsiOs3lcw==}
+  uint8-varint@2.0.5:
+    resolution: {integrity: sha512-jeFLbL/x30wBRnWjKE1qVBXeumG46r7XmYkpis955lTQ+blccGKFrOsSMHlxePwYB1pI7L8YPHz1t4jLxEs3nA==}
 
   uint8array-extras@1.5.0:
     resolution: {integrity: sha512-rvKSBiC5zqCCiDZ9kAOszZcDvdAHwwIKJG33Ykj43OKcWsnmcBRL09YTU4nOeHZ8Y2a7l1MgTd08SBe9A8Qj6A==}
@@ -9159,7 +9163,7 @@ snapshots:
 
   '@constl/bohr-db@2.2.2(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)
       '@orbitdb/core-types': 1.2.4
       '@orbitdb/feed-db': 1.4.1(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
       '@orbitdb/nested-db': 2.1.4(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
@@ -9220,10 +9224,10 @@ snapshots:
   '@constl/utils-tests@2.1.2(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))':
     dependencies:
       '@helia/block-brokers': 5.2.4
-      '@libp2p/gossipsub': 15.0.21
+      '@libp2p/gossipsub': 15.0.21(patch_hash=6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2)
       '@libp2p/peer-id': 6.0.8
       '@libp2p/webrtc': 6.0.21(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
-      '@orbitdb/core': 4.0.0-3e1d628.0
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)
       blockstore-core: 6.1.3
       blockstore-fs: 3.0.3
       blockstore-idb: 3.0.2
@@ -9796,9 +9800,9 @@ snapshots:
       multiformats: 13.4.2
       p-defer: 4.0.1
       progress-events: 1.1.0
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       race-event: 1.6.1
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10032,7 +10036,7 @@ snapshots:
   '@lassi-js/kili@0.4.5':
     dependencies:
       '@constl/utils-ipa': 2.0.10
-      '@orbitdb/core': 4.0.0-3e1d628.0
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)
       deepcopy: 2.1.0
 
   '@leichtgewicht/ip-codec@2.0.5': {}
@@ -10048,7 +10052,7 @@ snapshots:
       any-signal: 4.2.0
       main-event: 1.0.4
       multiformats: 13.4.2
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       uint8arraylist: 2.4.9
 
   '@libp2p/bootstrap@12.0.20':
@@ -10076,7 +10080,7 @@ snapshots:
       multiformats: 13.4.2
       nanoid: 5.1.11
       progress-events: 1.1.0
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       retimeable-signal: 1.0.1
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
@@ -10095,7 +10099,7 @@ snapshots:
       '@noble/curves': 2.2.0
       '@noble/hashes': 2.2.0
       multiformats: 13.4.2
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10107,10 +10111,10 @@ snapshots:
       '@multiformats/multiaddr': 13.0.1
       '@multiformats/multiaddr-matcher': 3.0.2
       delay: 7.0.0
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       uint8arraylist: 2.4.9
 
-  '@libp2p/gossipsub@15.0.21':
+  '@libp2p/gossipsub@15.0.21(patch_hash=6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2)':
     dependencies:
       '@libp2p/crypto': 5.1.17
       '@libp2p/interface': 3.2.2
@@ -10123,7 +10127,7 @@ snapshots:
       it-pipe: 3.0.1
       it-pushable: 3.2.3
       multiformats: 13.4.2
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10139,7 +10143,7 @@ snapshots:
       '@libp2p/crypto': 5.1.17
       '@libp2p/interface': 3.2.2
       '@libp2p/peer-id': 6.0.8
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arrays: 5.1.1
 
   '@libp2p/http-utils@2.0.2':
@@ -10196,7 +10200,7 @@ snapshots:
       it-drain: 3.0.12
       it-parallel: 3.0.15
       main-event: 1.0.4
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10281,9 +10285,9 @@ snapshots:
       p-defer: 4.0.1
       p-event: 7.1.0
       progress-events: 1.1.0
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       race-signal: 2.0.0
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10333,7 +10337,7 @@ snapshots:
       '@libp2p/interface': 3.2.2
       '@libp2p/utils': 7.1.0
       it-pushable: 3.2.3
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10366,8 +10370,8 @@ snapshots:
       '@libp2p/peer-id': 6.0.8
       '@multiformats/multiaddr': 13.0.1
       multiformats: 13.4.2
-      protons-runtime: 6.0.1
-      uint8-varint: 2.0.4
+      protons-runtime: 6.0.2
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10384,7 +10388,7 @@ snapshots:
       main-event: 1.0.4
       mortice: 3.3.1
       multiformats: 13.4.2
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10411,7 +10415,7 @@ snapshots:
 
   '@libp2p/record@4.0.12':
     dependencies:
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10438,7 +10442,7 @@ snapshots:
       '@peculiar/x509': 2.0.0
       asn1js: 3.0.10
       p-event: 7.1.0
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       reflect-metadata: 0.2.2
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
@@ -10479,7 +10483,7 @@ snapshots:
       p-event: 7.1.0
       progress-events: 1.1.0
       race-signal: 2.0.0
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -10511,11 +10515,11 @@ snapshots:
       p-timeout: 7.0.1
       p-wait-for: 6.0.0
       progress-events: 1.1.0
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       race-signal: 2.0.0
       react-native-webrtc: 124.0.7(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
       reflect-metadata: 0.2.2
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
     transitivePeerDependencies:
@@ -10586,14 +10590,14 @@ snapshots:
       '@multiformats/dns': 1.0.13
       abort-error: 1.0.2
       multiformats: 13.4.2
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arrays: 5.1.1
 
   '@multiformats/multiaddr@13.0.1':
     dependencies:
       '@chainsafe/is-ip': 2.1.0
       multiformats: 13.4.2
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arrays: 5.1.1
 
   '@multiformats/murmur3@2.2.3':
@@ -10698,7 +10702,7 @@ snapshots:
 
   '@orbitdb/core-types@1.2.4': {}
 
-  '@orbitdb/core@4.0.0-3e1d628.0':
+  '@orbitdb/core@4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)':
     dependencies:
       '@ipld/dag-cbor': 9.2.6
       '@libp2p/crypto': 5.1.17
@@ -10713,7 +10717,7 @@ snapshots:
 
   '@orbitdb/feed-db@1.4.1(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)
       helia: 6.1.4(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
     transitivePeerDependencies:
       - bufferutil
@@ -10723,7 +10727,7 @@ snapshots:
 
   '@orbitdb/nested-db@2.1.4(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)
       helia: 6.1.4(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
       it-all: 3.0.11
       ts-deepmerge: 7.0.3
@@ -10735,7 +10739,7 @@ snapshots:
 
   '@orbitdb/ordered-keyvalue-db@1.4.2(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)
       helia: 6.1.4(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
       it-all: 3.0.11
     transitivePeerDependencies:
@@ -10746,7 +10750,7 @@ snapshots:
 
   '@orbitdb/set-db@2.1.1(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=a54af1092a8c601bf2a7ef61c1ac1287f85aae975f32f539e9d508e01a02da9b)
       helia: 6.1.4(react-native@0.85.3(@babel/core@7.29.0)(react@19.2.6))
     transitivePeerDependencies:
       - bufferutil
@@ -14694,7 +14698,7 @@ snapshots:
 
   ipfs-unixfs@12.0.2:
     dependencies:
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       uint8arraylist: 2.4.9
 
   ipns@10.1.6:
@@ -14705,7 +14709,7 @@ snapshots:
       cborg: 5.1.1
       interface-datastore: 9.0.3
       multiformats: 13.4.2
-      protons-runtime: 6.0.1
+      protons-runtime: 6.0.2
       timestamp-nano: 1.0.1
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
@@ -15066,14 +15070,14 @@ snapshots:
       abort-error: 1.0.2
       it-byte-stream: 2.0.6
       it-stream-types: 2.0.4
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
 
   it-length-prefixed@10.0.1:
     dependencies:
       it-reader: 6.0.4
       it-stream-types: 2.0.4
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -15842,7 +15846,7 @@ snapshots:
   metro-minify-terser@0.84.4:
     dependencies:
       flow-enums-runtime: 0.0.6
-      terser: 5.46.2
+      terser: 5.47.1
 
   metro-react-native-babel-preset@0.64.0(@babel/core@7.29.0):
     dependencies:
@@ -17138,13 +17142,13 @@ snapshots:
 
   protons-runtime@5.6.0:
     dependencies:
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
-  protons-runtime@6.0.1:
+  protons-runtime@6.0.2:
     dependencies:
-      uint8-varint: 2.0.4
+      uint8-varint: 2.0.5
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
 
@@ -18277,7 +18281,7 @@ snapshots:
       type-fest: 2.19.0
       unique-string: 3.0.0
 
-  terser@5.46.2:
+  terser@5.47.1:
     dependencies:
       '@jridgewell/source-map': 0.3.11
       acorn: 8.16.0
@@ -18591,7 +18595,7 @@ snapshots:
   uglify-js@3.19.3:
     optional: true
 
-  uint8-varint@2.0.4:
+  uint8-varint@2.0.5:
     dependencies:
       uint8arraylist: 2.4.9
       uint8arrays: 5.1.1
