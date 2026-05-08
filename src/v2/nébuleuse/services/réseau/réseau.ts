@@ -277,8 +277,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   async fermer(): Promise<void> {
     this.bloquésPrivé.clear();
 
-    const libp2p = await this.service("libp2p").libp2p();
-
     this.signaleurArrêt.abort();
     await Promise.all(
       this.flux
@@ -287,9 +285,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     );
 
     const { oublier } = this.estDémarré;
-
-    
-    await fermer();
+    await oublier();
 
     return await super.fermer();
   }
