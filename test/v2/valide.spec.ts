@@ -505,7 +505,6 @@ describe("Validation", function () {
               expect(erreurs).to.have.deep.members(réf);
             });
           });
-
         });
       });
 
