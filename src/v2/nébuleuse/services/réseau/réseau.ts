@@ -5,11 +5,6 @@ import {
 } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
 import PQueue from "p-queue";
-import { pipe } from "it-pipe";
-import {
-  fromString as uint8ArrayFromString,
-  toString as uint8ArrayToString,
-} from "uint8arrays";
 import { anySignal } from "any-signal";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { ajouterPréfixes, enleverPréfixesEtOrbite } from "@/v2/utils.js";
@@ -41,7 +36,7 @@ import type {
 import type { ServicesNécessairesDonnées } from "../services.js";
 import type { Libp2pEvents, Stream } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { OptionsAppli, ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 
@@ -115,9 +110,13 @@ export type ServicesNécessairesRéseau = ServicesNécessairesDonnées<{
   réseau: StructureRéseau;
 }>;
 
+type RetourDémarrageRéseau = { oublier: Oublier };
+
 export class ServiceRéseau extends ServiceDonnéesAppli<
   "réseau",
-  StructureRéseau
+  StructureRéseau,
+  ServicesAppli,
+  RetourDémarrageRéseau
 > {
   événements: TypedEmitter<{
     démarré: (args: { oublier: Oublier }) => void;
@@ -167,10 +166,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   // Cycle de vie
 
-  async démarrer(): Promise<{
-    idTopologie: string;
-    oublierÉcouteRéseau: Oublier;
-  }> {
+  async démarrer(): Promise<{ oublier: Oublier }> {
     // Réinitialiser le signaleur, mais uniquement si nécessaire.
     if (this.signaleurArrêt.signal.aborted)
       this.signaleurArrêt = new AbortController();
