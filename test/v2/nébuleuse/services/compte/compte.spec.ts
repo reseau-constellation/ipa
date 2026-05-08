@@ -598,6 +598,19 @@ describe("Service Compte", function () {
       expect(valSurDispositif1).to.equal(valSurDispositif2).to.equal(1);
     });
 
+    it.skip("une partie tierce reconnaît l'ajout du dispositif", async () => {
+      const dispositifs = await obtenir(({ si }) =>
+        applis[2].services["compte"].suivreDispositifs({
+          idCompte: idsComptes[0],
+          f: si((dispositifs) => !!dispositifs && dispositifs.length > 1),
+        }),
+      );
+      expect(dispositifs).to.have.members([
+        idsDispositifs[0],
+        idsDispositifs[1],
+      ]);
+    });
+
     it("une partie tierce accepte les données modifiées par le nouveau dispositif", async () => {
       const bd = await obtenir<KeyValueDatabase>(({ si }) =>
         applis[2].services["orbite"].suivreBd({
