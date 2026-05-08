@@ -1,0 +1,13 @@
+allowBuilds:
+  classic-level: true
+  core-js: true
+  deno: true
+  electron: true
+  esbuild: true
+  iso-constants: true
+  node-datachannel: true
+  unrs-resolver: true
+
+overrides:
+  p-queue: "^8.1.0"
+  "@orbitdb/core": "4.0.0-3e1d628.0"
