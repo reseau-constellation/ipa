@@ -2415,7 +2415,7 @@ describe("tableaux", function () {
         let dossier: string;
         let effacer: () => void;
 
-        let mock: typeof AxiosMockAdapter;
+        let mock: InstanceType<typeof AxiosMockAdapter>;
         let LOGO: Uint8Array;
         let idc: string;
 
