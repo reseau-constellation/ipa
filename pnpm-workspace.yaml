@@ -20,10 +20,12 @@ minimumReleaseAgeExclude:
   - serialize-javascript@7.0.3
   - semver@4.3.2
   - serialize-javascript@7.0.5
+  - "@constl/bohr-db"
 
 overrides:
   p-queue: "^8.1.1"
   "@orbitdb/core": "4.0.0-3e1d628.0"
+  multiformats: "14.0.0"
 
 patchedDependencies:
   '@libp2p/gossipsub': patches/@libp2p__gossipsub.patch
