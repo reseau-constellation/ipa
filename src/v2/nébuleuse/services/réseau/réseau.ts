@@ -1044,7 +1044,12 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     message: MessageRéseau;
     idPair: string;
   }) {
-    const flux = await this.obtFluxPair({ idPair });
+    let flux: Stream;
+    try {
+      flux = await this.obtFluxPair({ idPair });
+    } catch {
+      throw new Error(`Impossible de se connecter au pair ${idPair}.`)
+    }
 
     const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
 
@@ -1055,7 +1060,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     }
   }
 
-  async envoyerMessage({
+  async envoyerMessageAuDispositif({
     message,
     idDispositif,
   }: {
@@ -1063,7 +1068,20 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idDispositif: string;
   }) {
     const idPair = await this.obtIdPairDispositif({ idDispositif });
+    if (!idPair) throw new Error(`Le pair ${idDispositif} n'a pas été retrouvé sur le réseau.`)
     return await this.envoyerMessageÀPair({ message, idPair });
+  }
+
+  async envoyerMessageAuCompte({
+    message,
+    idCompte,
+  }: {
+    message: MessageRéseau;
+    idCompte: string;
+  }) {
+    const idsDispositifs = await this.obtDispositifsCompte({ idCompte });
+    const résultats = await Promise.allSettled(idsDispositifs.map(idDispositif => this.envoyerMessageAuDispositif({ idDispositif, message})))
+    if (résultats.every(r=>r.status === "rejected")) throw new Error(`Le message n'a pu être envoyé à aucun des dispositifs du compte ${idCompte}.`)
   }
 
   async suivreMessages({
@@ -1138,7 +1156,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       idCompte,
       empreinteCode: obtEmpreinteCode({ codeSecret, identifiant: idCompte }),
     };
-    await this.envoyerMessage({ idDispositif, message });
+    await this.envoyerMessageAuDispositif({ idDispositif, message });
   }
 
   async générerInvitationRejoindreCompte(): Promise<InvitationRejoindreCompte> {

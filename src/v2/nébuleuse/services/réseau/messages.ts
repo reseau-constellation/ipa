@@ -8,7 +8,8 @@ export type MessageRéseauAvecExpéditeur = {
 export type MessageRéseau =
   | MessageAcceptationRequêteRejoindreCompte
   | MessageAcceptationInvitationRejoindreCompte
-  | MessageIdentitéCompte;
+  | MessageIdentitéCompte
+  | MessageTexte;
 
 export const IDENTITÉ_COMPTE = "identité compte";
 export type MessageIdentitéCompte = {
@@ -32,4 +33,11 @@ export type MessageAcceptationInvitationRejoindreCompte = {
   type: typeof ACCEPTATION_INVITATION_REJOINDRE_COMPTE;
   idDispositif: string;
   empreinteCode: string;
+};
+
+export const ENVOIE_TEXTE =
+  "texte";
+export type MessageTexte = {
+  type: typeof ENVOIE_TEXTE;
+  message: string;
 };
