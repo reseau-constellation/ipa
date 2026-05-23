@@ -317,7 +317,7 @@ export class Tableaux {
       type: "nested",
     });
 
-    const bdTypée = typedNested({
+    const bdTypée = typedNested<StructureAvecTableau>({
       db: bd,
       schema: schémaStructureAvecTableau,
     });
