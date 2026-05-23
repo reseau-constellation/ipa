@@ -25,6 +25,7 @@ import {
 import {
   ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
   ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE,
+  IDENTITÉ_COMPTE,
 } from "./messages.js";
 import type {
   MessageAcceptationInvitationRejoindreCompte,
@@ -214,6 +215,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         PROTOCOLE_NÉBULEUSE,
         async (flux, connexion) => {
           const idPair = connexion.remotePeer.toString();
+          console.log("reçu flux de", idPair)
 
           this.flux.set(idPair, flux);
           flux.addEventListener("close", () => this.flux.delete(idPair));
@@ -224,7 +226,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               const message = JSON.parse(
                 new TextDecoder().decode(octets),
               ) as MessageRéseau;
-              if (message.type === "identité compte") {
+              if (message.type === IDENTITÉ_COMPTE) {
                 await traiterIdentitéCompte({ message, idPair });
               }
               this.événements.emit("message réseau", {
@@ -255,7 +257,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             const idCompte = await compte.obtIdCompte();
 
             const identifiantsCompte: MessageIdentitéCompte = {
-              type: "identité compte",
+              type: IDENTITÉ_COMPTE,
               idCompte,
               idDispositif,
               signature: await orbite.signer({ message: idDispositif }),
@@ -1031,7 +1033,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       );
       this.flux.set(idPair, flux);
       flux.addEventListener("close", () => this.flux.delete(idPair));
-      flux.addEventListener("remoteCloseWrite", () => flux.close());
+      // flux.addEventListener("remoteCloseWrite", () => flux.close());
 
       return flux;
     }
@@ -1052,8 +1054,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     }
 
     const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
-
+    const { status, readStatus, writeStatus, remoteReadStatus, remoteWriteStatus} = flux
+    console.log(flux, {status, readStatus, writeStatus, remoteReadStatus, remoteWriteStatus})
     const succès = flux.send(octetsMessage);
+    console.log({succès})
     if (!succès) {
       await flux.onDrain();
       flux.send(octetsMessage);
@@ -1089,6 +1093,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }: {
     f: Suivi<MessageRéseauAvecExpéditeur>;
   }): Promise<Oublier> {
+    console.log("on va suivre les messages")
     this.événements.on("message réseau", f);
     return async () => {
       this.événements.off("message réseau", f);

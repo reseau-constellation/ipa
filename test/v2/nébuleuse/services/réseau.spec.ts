@@ -16,6 +16,7 @@ import type {
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { peerIdFromString } from "@libp2p/peer-id";
+import { TypedEmitter } from "tiny-typed-emitter";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {
@@ -692,7 +693,7 @@ describe("Réseau", function () {
     });
   });
 
-  describe.skip("messages", async () => {
+  describe.only("messages", async () => {
     let fermer: () => Promise<void>;
     let nébuleuses: Nébuleuse[];
 
@@ -737,16 +738,16 @@ describe("Réseau", function () {
         const événementReçu = new TypedEmitter<{
           reçu: (corresp: boolean) => void;
         }>();
+
         let résultat: boolean | undefined = undefined;
         const fOublier = await d.réseau.suivreMessages({
-          type: "texte",
-          de,
           f: (message) => {
-            const corresp =
-              (message.contenu as { message: string }).message ===
-              messageÀEnvoyer;
-            résultat = corresp;
-            événementReçu.emit("reçu", corresp);
+            console.log(JSON.stringify(message, undefined, 2))
+            if (message.message.type === "texte") {
+              const corresp = message.message.message === messageÀEnvoyer && message.expéditeur === de;
+              résultat = corresp;
+              événementReçu.emit("reçu", corresp);
+            }
           },
         });
         return () =>
