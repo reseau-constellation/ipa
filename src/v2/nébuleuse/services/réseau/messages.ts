@@ -35,8 +35,7 @@ export type MessageAcceptationInvitationRejoindreCompte = {
   empreinteCode: string;
 };
 
-export const ENVOIE_TEXTE =
-  "texte";
+export const ENVOIE_TEXTE = "texte";
 export type MessageTexte = {
   type: typeof ENVOIE_TEXTE;
   message: string;
