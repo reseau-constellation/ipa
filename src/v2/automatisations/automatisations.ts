@@ -345,7 +345,9 @@ export class Automatisations extends ServiceDonnéesAppli<
     clef?: string;
   }): Promise<string | undefined> {
     const stockage = this.service("stockage");
-    return clef ? (await stockage.obtenirItem(clef)) || undefined : undefined;
+    return clef
+      ? (await stockage.obtenirItem({ clef })) || undefined
+      : undefined;
   }
 
   async sauvegarderAdressePrivéeFichier({

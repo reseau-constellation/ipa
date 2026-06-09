@@ -448,7 +448,7 @@ export const chronoFixe = async ({
 
   const fréquenceEnMS = obtTempsInterval(fréquence.détails);
   const dernièreFois = await obtTempsDernièreFois(
-    (await stockage.obtenirItem(clefStockage)) || undefined,
+    (await stockage.obtenirItem({ clef: clefStockage })) || undefined,
   );
   const tempsAvantPremière = Math.max(dernièreFois + fréquenceEnMS, 0);
 
@@ -629,8 +629,9 @@ export const chronoDynamiqueImportation = async ({
 
       if (fs.existsSync(adresseFichier)) {
         const dernièreModif = fs.statSync(adresseFichier).mtime.getTime();
-        const dernièreImportation =
-          await service("stockage").obtenirItem(clefDernièreFois);
+        const dernièreImportation = await service("stockage").obtenirItem({
+          clef: clefDernièreFois,
+        });
         const fichierModifié = dernièreImportation
           ? dernièreModif > parseInt(dernièreImportation)
           : true;
@@ -697,7 +698,9 @@ export const chronoDynamiqueExportation = async ({
   const génFAvecStockage =
     (empreinte: string) =>
     async ({ forcer }: { forcer?: boolean } = {}) => {
-      const dernièreEmpreinte = await stockage.obtenirItem(clefDernièreFois);
+      const dernièreEmpreinte = await stockage.obtenirItem({
+        clef: clefDernièreFois,
+      });
 
       if (forcer || dernièreEmpreinte !== empreinte) {
         await f();

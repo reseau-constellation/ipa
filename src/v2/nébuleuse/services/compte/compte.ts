@@ -131,7 +131,9 @@ export class BaseServiceCompte<
     bd: NestedDatabaseType;
     oublier: Oublier;
   }> {
-    let idCompte = await this.service("stockage").obtenirItem(CLEF_ID_COMPTE);
+    let idCompte = await this.service("stockage").obtenirItem({
+      clef: CLEF_ID_COMPTE,
+    });
 
     if (idCompte) {
       const { bd, oublier } = await this.service("orbite").ouvrirBd({
@@ -272,9 +274,9 @@ export class BaseServiceCompte<
     // On garde compte du nombre de changements de compte
     // afin de pouvoir, dans `réseau.ts`, ignorer les anciens changements qui peuvent
     // toujours se propager à travers le réseau
-    const texteNChangementsCompte = await stockage.obtenirItem(
-      CLEF_N_CHANGEMENT_COMPTES,
-    );
+    const texteNChangementsCompte = await stockage.obtenirItem({
+      clef: CLEF_N_CHANGEMENT_COMPTES,
+    });
     const nChangementsCompte = Number(texteNChangementsCompte) || 0;
     await stockage.sauvegarderItem({
       clef: CLEF_N_CHANGEMENT_COMPTES,

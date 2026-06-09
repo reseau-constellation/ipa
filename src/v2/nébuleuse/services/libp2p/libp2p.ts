@@ -154,8 +154,9 @@ export class ServiceLibp2p<
   }
 
   async obtenirClefPrivée(): Promise<PrivateKey | undefined> {
-    const texteClefPrivée =
-      await this.service("stockage").obtenirItem("idPairLibp2p");
+    const texteClefPrivée = await this.service("stockage").obtenirItem({
+      clef: "idPairLibp2p",
+    });
     if (texteClefPrivée) {
       const encoded = uint8ArrayFromString(texteClefPrivée, "base64");
       return keys.privateKeyFromRaw(encoded);

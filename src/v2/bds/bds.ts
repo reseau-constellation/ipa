@@ -1560,7 +1560,9 @@ export class Bds extends ObjetConstellation<
         // À faire - s'assurer que ceci n'est pas possible
         if (!stockage.estDémarré) throw new Error("Constellation fermée.");
 
-        let idBdLocale = await stockage.obtenirItem(clefStockageLocal);
+        let idBdLocale = await stockage.obtenirItem({
+          clef: clefStockageLocal,
+        });
         if (idBdLocale) {
           const crono = new TimeoutController(1000);
           try {
