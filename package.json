@@ -180,15 +180,5 @@
     "uuid": "^14.0.0",
     "wherearewe": "^2.0.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
-  },
-  "pnpm": {
-    "overrides": {
-      "p-queue": "^8.1.1",
-      "@orbitdb/core": "4.0.0-3e1d628.0"
-    },
-    "patchedDependencies": {
-      "@libp2p/gossipsub": "patches/@libp2p__gossipsub.patch",
-      "@orbitdb/core": "patches/@orbitdb__core.patch"
-    }
   }
 }
