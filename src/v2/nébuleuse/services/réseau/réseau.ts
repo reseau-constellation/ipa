@@ -564,7 +564,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const stockage = this.service("stockage");
     const journal = this.service("journal");
 
-    const bloquésPrivéChaîne = await stockage.obtenirItem(CLEF_COMPTES_BLOQUÉS);
+    const bloquésPrivéChaîne = await stockage.obtenirItem({
+      clef: CLEF_COMPTES_BLOQUÉS,
+    });
 
     if (bloquésPrivéChaîne) {
       try {
