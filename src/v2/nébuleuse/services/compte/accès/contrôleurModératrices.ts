@@ -101,15 +101,6 @@ const ContrôleurAccès =
       // Pour l'instant, on ne peut qu'ajouter (et non révoquer) des membres
       if (entry.payload.op !== "PUT" || !entry.payload.value) return false;
 
-      const { key: idAjout, value: rôle } = entry.payload as {
-        key: string;
-        value: Rôle;
-      };
-
-      const rôleValide = rôles.includes(rôle as Rôle);
-
-      if (!rôleValide) return false;
-
       const identitéSignataire = await identities.getIdentity(
         entry.identity,
         signal,
@@ -118,21 +109,28 @@ const ContrôleurAccès =
         return false;
       }
       const { id } = identitéSignataire;
-      
+
       // Vérifier l'identité
       if (!(await identities.verifyIdentity(identitéSignataire))) return false;
-      
-      // Vérifier que la signataire est une modératrice
-      if (await seraÉventuellementUneModératrice(id, entry)) {
-        // Si on a ajouté une modératrice, elle aussi pourra ajouter d'autres membres ou modératrices
-        if (rôle === MODÉRATRICE) {
-          await accès.autoriser({ id: idAjout, rôle: MODÉRATRICE });
-        }
 
-        // Qu'il s'agisse d'un membre ou d'une modératrice, on accepte la demande d'édition des données
-        return true;
+      // Vérifier que la signataire est une modératrice
+      if (!(await seraÉventuellementUneModératrice(id, entry))) return false;
+
+      const { key: idAjout, value: rôle } = entry.payload as {
+        key: string;
+        value: Rôle;
+      };
+
+      const rôleValide = rôles.includes(rôle as Rôle);
+      if (!rôleValide) return false;
+
+      // Si on a ajouté une modératrice, elle aussi pourra ajouter d'autres membres ou modératrices
+      if (rôle === MODÉRATRICE) {
+        await accès.autoriser({ id: idAjout, rôle: MODÉRATRICE });
       }
-      return false;
+
+      // Qu'il s'agisse d'un membre ou d'une modératrice, on accepte la demande d'édition des données
+      return true;
     };
 
     // Cette fonction est nécessaire dans le cas où on n'a pas encore reçu les
