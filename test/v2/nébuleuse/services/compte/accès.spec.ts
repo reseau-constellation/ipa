@@ -318,11 +318,12 @@ describe("Accès", function () {
 
     it("invitations trasitives par d'autres modératrices après fermeture de la bd", async () => {
       // Autoriser orbite 2 comme modératrice
-      let accès = bd.access as InstanceContrôleurNébuleuse
-      accès.autoriser(MODÉRATRICE, orbite2.identity.id)
+      let accès = bd.access as InstanceContrôleurNébuleuse;
+      accès.autoriser(MODÉRATRICE, orbite2.identity.id);
 
       const bdSurOrbite2 = await orbite2.open(bd.address);
-      const accèsSurOrbite2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
+      const accèsSurOrbite2 =
+        bdSurOrbite2.access as InstanceContrôleurNébuleuse;
       await attendreQue(() =>
         accèsSurOrbite2.estUneModératrice(orbite2.identity.id),
       );
@@ -333,22 +334,18 @@ describe("Accès", function () {
         type: "keyvalue",
       })) as KeyValueDatabase;
       accès = bd.access as InstanceContrôleurNébuleuse;
-      
+
       // Orbite 2 ajoute orbite 3 comme modératrice
-      await (accèsSurOrbite2).autoriser(
-        MODÉRATRICE,
-        orbite3.identity.id,
-      );
+      await accèsSurOrbite2.autoriser(MODÉRATRICE, orbite3.identity.id);
 
       // Orbite 1 accepte l'ajout
       await obtenir<AccèsDispositif[]>(({ si }) =>
-        (accès).suivreDispositifsAutorisées(
+        accès.suivreDispositifsAutorisées(
           si((x) => !!x.find((d) => d.idDispositif === orbite3.identity.id)),
         ),
       );
       const estAutorisé = await accès.estAutorisé(orbite3.identity.id);
       expect(estAutorisé).to.be.true();
-
     });
   });
 
