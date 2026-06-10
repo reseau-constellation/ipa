@@ -80,7 +80,10 @@ const FIABLE = "FIABLE";
 
 const BLOQUÉ = "BLOQUÉ";
 
-const ÉVÉNEMENT_BLOQUÉ_PRIVÉ = "changement bloqués privé";
+const ÉVÉNEMENTS = {
+  BLOQUÉ_PRIVÉ: "changement bloqués privé",
+  MESSAGE_RÉSEAU: "message réseau",
+} as const;
 
 // Ajout dispositifs
 
@@ -125,8 +128,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 > {
   événements: TypedEmitter<{
     démarré: (args: { oublier: Oublier }) => void;
-    [ÉVÉNEMENT_BLOQUÉ_PRIVÉ]: (bloqués: Set<string>) => void;
-    "message réseau": (message: MessageRéseauAvecExpéditeur) => void;
+    [ÉVÉNEMENTS.BLOQUÉ_PRIVÉ]: (bloqués: Set<string>) => void;
+    [ÉVÉNEMENTS.MESSAGE_RÉSEAU]: (message: MessageRéseauAvecExpéditeur) => void;
   }>;
   flux: Map<string, Stream>;
 
@@ -229,7 +232,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               if (message.type === IDENTITÉ_COMPTE) {
                 await traiterIdentitéCompte({ message, idPair });
               }
-              this.événements.emit("message réseau", {
+              this.événements.emit(ÉVÉNEMENTS.MESSAGE_RÉSEAU, {
                 message,
                 expéditeur: idPair,
               });
@@ -554,7 +557,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       valeur: JSON.stringify(bloqués),
     });
 
-    this.événements.emit(ÉVÉNEMENT_BLOQUÉ_PRIVÉ, this.bloquésPrivé);
+    this.événements.emit(ÉVÉNEMENTS.BLOQUÉ_PRIVÉ, this.bloquésPrivé);
   }
 
   private async restaurerBloquésPrivé(): Promise<void> {
@@ -568,7 +571,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         JSON.parse(bloquésPrivéChaîne).forEach((b: string) =>
           this.bloquésPrivé.add(b),
         );
-        this.événements.emit(ÉVÉNEMENT_BLOQUÉ_PRIVÉ, this.bloquésPrivé);
+        this.événements.emit(ÉVÉNEMENTS.BLOQUÉ_PRIVÉ, this.bloquésPrivé);
       } catch (e) {
         // C'est pas si grave que ça
         journal.écrire({
@@ -651,7 +654,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         if (!idCompte || idCompte === id) {
           const oublier = appelerLorsque({
             émetteur: this.événements,
-            événement: ÉVÉNEMENT_BLOQUÉ_PRIVÉ,
+            événement: ÉVÉNEMENTS.BLOQUÉ_PRIVÉ,
             f: fSuivre,
           });
 
@@ -1093,10 +1096,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }: {
     f: Suivi<MessageRéseauAvecExpéditeur>;
   }): Promise<Oublier> {
-    console.log("on va suivre les messages")
-    this.événements.on("message réseau", f);
+    this.événements.on(ÉVÉNEMENTS.MESSAGE_RÉSEAU, f);
     return async () => {
-      this.événements.off("message réseau", f);
+      this.événements.off(ÉVÉNEMENTS.MESSAGE_RÉSEAU, f);
     };
   }
 
