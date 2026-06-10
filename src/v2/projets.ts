@@ -7,7 +7,7 @@ import {
   uneFois,
   zipper,
 } from "@constl/utils-ipa";
-import { utils as xlsxUtils, write as xlsxWrite } from "xlsx";
+import { utils as xlsxUtils, write as xlsxWrite } from "@e965/xlsx";
 import toBuffer from "it-to-buffer";
 import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
@@ -25,7 +25,7 @@ import { ObjetConstellation } from "./objets.js";
 import type { Variables } from "./variables.js";
 import type { MotsClefs } from "./motsClefs.js";
 import type { ServicesNécessairesObjet } from "./objets.js";
-import type { BookType, WorkBook } from "xlsx";
+import type { BookType, WorkBook } from "@e965/xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   BaseÉpingleFavoris,

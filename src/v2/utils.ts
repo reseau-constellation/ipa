@@ -1,5 +1,5 @@
 import path from "path";
-import { write as xlsxWrite, writeFile as xlsxWriteFile } from "xlsx";
+import { write as xlsxWrite, writeFile as xlsxWriteFile } from "@e965/xlsx";
 import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
 import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
@@ -10,7 +10,7 @@ import md5 from "crypto-js/md5.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { NestedValueWithUndefined } from "@orbitdb/nested-db";
 import type { SansNonDéfinis } from "./types.js";
-import type xlsx from "xlsx";
+import type xlsx from "@e965/xlsx";
 
 const { saveAs } = fileSaver;
 

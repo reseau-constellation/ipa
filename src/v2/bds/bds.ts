@@ -8,7 +8,7 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import { v4 as uuidv4 } from "uuid";
-import { utils as xlsxUtils } from "xlsx";
+import { utils as xlsxUtils } from "@e965/xlsx";
 import { TimeoutController } from "timeout-abort-controller";
 import PQueue from "p-queue";
 import Base64 from "crypto-js/enc-base64url.js";
@@ -46,7 +46,7 @@ import type { ServicesNécessairesObjet } from "../objets.js";
 import type { Variables } from "../variables.js";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
 import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
-import type xlsx from "xlsx";
+import type xlsx from "@e965/xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {

@@ -8,7 +8,7 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import { v4 as uuidv4 } from "uuid";
-import { utils as xlsxUtils } from "xlsx";
+import { utils as xlsxUtils } from "@e965/xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
 import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
@@ -88,7 +88,7 @@ import type {
   ÉpingleBd,
 } from "../bds/bds.js";
 import type { JSONSchemaType } from "ajv";
-import type xlsx from "xlsx";
+import type xlsx from "@e965/xlsx";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
 import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.js";
 import type { MotsClefs } from "../motsClefs.js";

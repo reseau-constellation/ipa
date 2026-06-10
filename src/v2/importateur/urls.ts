@@ -1,6 +1,6 @@
 import axios from "axios";
-import { read as readXLSX } from "xlsx";
-import type { ParsingOptions, WorkBook } from "xlsx";
+import { read as readXLSX } from "@e965/xlsx";
+import type { ParsingOptions, WorkBook } from "@e965/xlsx";
 
 import type { DonnéesJSON } from "./json.js";
 

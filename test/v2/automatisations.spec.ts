@@ -31,7 +31,7 @@ import {
   readFile as xlsxReadFile,
   writeFile as xlsxWriteFile,
   utils,
-} from "xlsx";
+} from "@e965/xlsx";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/v2/automatisations/utils.js";
 import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
@@ -43,7 +43,7 @@ import {
 } from "./utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
-import type { WorkBook } from "xlsx";
+import type { WorkBook } from "@e965/xlsx";
 import type {
   ConversionColonne,
   ÉlémentDonnéesTableau,

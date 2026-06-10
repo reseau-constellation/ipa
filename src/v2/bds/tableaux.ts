@@ -11,7 +11,7 @@ import deepEqual from "fast-deep-equal";
 import md5 from "crypto-js/md5.js";
 import Base64 from "crypto-js/enc-base64url.js";
 import { v4 as uuidv4 } from "uuid";
-import { utils } from "xlsx";
+import { utils } from "@e965/xlsx";
 import { எண்ணிக்கை as எண்ணிக்கை_வகை } from "ennikkai";
 import { isElectronMain, isNode } from "wherearewe";
 import axios from "axios";
@@ -33,7 +33,7 @@ import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
 import type { CatégorieBaseVariables } from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
-import type { BookType, WorkBook } from "xlsx";
+import type { BookType, WorkBook } from "@e965/xlsx";
 import type { ErreurDonnée, FonctionValidation } from "../règles.js";
 import type {
   DonnéesRangéeTableau,

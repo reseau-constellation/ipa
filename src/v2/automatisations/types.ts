@@ -1,6 +1,6 @@
 import type { Héritage } from "../nuées/nuées.js";
 import type { JSONSchemaType } from "ajv";
-import type * as XLSX from "xlsx";
+import type * as XLSX from "@e965/xlsx";
 import type { PartielRécursif } from "../types.js";
 import type { ClefsExtraction } from "../importateur/json.js";
 import type { ConversionColonne } from "../bds/tableaux.js";

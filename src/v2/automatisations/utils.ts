@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync } from "fs";
 import { isElectronMain, isNode } from "wherearewe";
-import * as XLSX from "xlsx";
+import * as XLSX from "@e965/xlsx";
 import { faisRien, uneFois } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";

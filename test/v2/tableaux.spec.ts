@@ -46,7 +46,7 @@ import type {
 import type { DonnéesTableauExportées } from "@/v2/bds/tableaux.js";
 import type { DonnéesFichierBdExportées } from "@/v2/utils.js";
 import type { CatégorieBaseVariables } from "@/v2/variables.js";
-import type { CellObject, WorkBook } from "xlsx";
+import type { CellObject, WorkBook } from "@e965/xlsx";
 
 describe("tableaux", function () {
   let fermer: () => Promise<void>;

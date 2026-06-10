@@ -1,4 +1,4 @@
-import { read as xlsxRead } from "xlsx";
+import { read as xlsxRead } from "@e965/xlsx";
 
 import { expect } from "aegir/chai";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
