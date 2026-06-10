@@ -265,7 +265,7 @@ export class BaseServiceCompte<
 
     // On sauvegarde le nouvel identifiant de compte
     const stockage = this.service("stockage");
-    stockage.sauvegarderItem({ clef: CLEF_ID_COMPTE, valeur: idCompte });
+    await stockage.sauvegarderItem({ clef: CLEF_ID_COMPTE, valeur: idCompte });
 
     // Là on peut y aller
     await this.démarrer();
