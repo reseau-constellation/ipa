@@ -1,4 +1,7 @@
 name: Tests IPA
+permissions:
+  contents: read
+
 on:
   push:
     branches:
