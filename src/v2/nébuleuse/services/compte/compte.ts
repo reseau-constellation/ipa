@@ -1,6 +1,11 @@
 import { typedNested } from "@constl/bohr-db";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { suivreFonctionImbriquée, uneFois } from "@constl/utils-ipa";
+import {
+  faisRien,
+  ignorerNonDéfinis,
+  suivreFonctionImbriquée,
+  uneFois,
+} from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 import { merge } from "ts-deepmerge";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
@@ -205,16 +210,50 @@ export class BaseServiceCompte<
   // Dispositifs
 
   @cacheSuivi
-  async suivreMesDispositifs({ f }: { f: Suivi<string[]> }): Promise<Oublier> {
-    const bd = await this.bd();
-    if (estContrôleurNébuleuse(bd.access))
-      return await bd.access.suivreDispositifsAutorisées((x) =>
-        f(x.map((d) => d.idDispositif)),
-      );
-    else
-      throw new Error(
-        `Gestionnaire d'accès OrbitDB ${bd.access.type} non reconnnu.`,
-      );
+  async suivreDispositifsAutorisés({
+    f,
+    idCompte,
+  }: {
+    f: Suivi<string[]>;
+    idCompte?: string;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    return await suivreFonctionImbriquée({
+      fRacine: async ({ fSuivreRacine }) => {
+        if (idCompte) {
+          await fSuivreRacine(idCompte);
+          return faisRien;
+        } else {
+          return await this.suivreIdCompte({ f: fSuivreRacine });
+        }
+      },
+      fSuivre: async ({
+        id,
+        fSuivre,
+      }: {
+        id: string;
+        fSuivre: Suivi<string[]>;
+      }) => {
+        const { bd, oublier } = await orbite.ouvrirBd({
+          id: enleverPréfixes(id),
+        });
+
+        if (estContrôleurNébuleuse(bd.access)) {
+          const oublierSuivi = await bd.access.suivreDispositifsAutorisées(
+            (x) => fSuivre(x.map((d) => d.idDispositif)),
+          );
+          return async () => {
+            await oublierSuivi();
+            await oublier();
+          };
+        } else
+          throw new Error(
+            `Gestionnaire d'accès OrbitDB ${bd.access.type} non reconnnu.`,
+          );
+      },
+      f: ignorerNonDéfinis(f),
+    });
   }
 
   async ajouterDispositif({

@@ -453,7 +453,7 @@ describe("Service Compte", function () {
 
     it("le dispositif initial est présent", async () => {
       const mesDispositifs = await obtenir<string[]>(({ siPasVide }) =>
-        comptes[0].suivreMesDispositifs({
+        comptes[0].suivreDispositifsAutorisés({
           f: siPasVide(),
         }),
       );
@@ -486,7 +486,7 @@ describe("Service Compte", function () {
       });
 
       const mesDispositifs = await obtenir<string[]>(({ si }) =>
-        comptes[0].suivreMesDispositifs({
+        comptes[0].suivreDispositifsAutorisés({
           f: si((x) => !!x && x.length > 1),
         }),
       );
@@ -598,9 +598,9 @@ describe("Service Compte", function () {
       expect(valSurDispositif1).to.equal(valSurDispositif2).to.equal(1);
     });
 
-    it.skip("une partie tierce reconnaît l'ajout du dispositif", async () => {
-      const dispositifs = await obtenir(({ si }) =>
-        applis[2].services["compte"].suivreDispositifs({
+    it("une partie tierce reconnaît l'ajout du dispositif", async () => {
+      const dispositifs = await obtenir<string[]>(({ si }) =>
+        applis[2].services["compte"].suivreDispositifsAutorisés({
           idCompte: idsComptes[0],
           f: si((dispositifs) => !!dispositifs && dispositifs.length > 1),
         }),
