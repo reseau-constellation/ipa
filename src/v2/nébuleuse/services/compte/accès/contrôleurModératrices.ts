@@ -118,13 +118,12 @@ const ContrôleurAccès =
         return false;
       }
       const { id } = identitéSignataire;
-
-      if (
-        // Vérifier l'identité
-        (await identities.verifyIdentity(identitéSignataire)) &&
-        // Vérifier que la signataire est une modératrice
-        (await seraÉventuellementUneModératrice(id, entry))
-      ) {
+      
+      // Vérifier l'identité
+      if (!(await identities.verifyIdentity(identitéSignataire))) return false;
+      
+      // Vérifier que la signataire est une modératrice
+      if (await seraÉventuellementUneModératrice(id, entry)) {
         // Si on a ajouté une modératrice, elle aussi pourra ajouter d'autres membres ou modératrices
         if (rôle === MODÉRATRICE) {
           await accès.autoriser({ id: idAjout, rôle: MODÉRATRICE });
@@ -138,6 +137,8 @@ const ContrôleurAccès =
 
     // Cette fonction est nécessaire dans le cas où on n'a pas encore reçu les
     // entrées qui approuveront la signataire en tant que modératrice
+    // Elle permet aussi de regénérer notre liste de modératrices sous `accès`
+    // lors de la réouverture de la bd.
     const seraÉventuellementUneModératrice = async (
       id: string,
       entry: LogEntry,
