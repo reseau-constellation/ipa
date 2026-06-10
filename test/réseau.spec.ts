@@ -1062,6 +1062,5 @@ if (isNode || isElectronMain) {
 
       it.skip("Protocoles détectés");
     });
-
   });
 }
