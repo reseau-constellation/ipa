@@ -78,7 +78,13 @@ export class ServiceStockage extends ServiceAppli<
     console.log("sauvegarderItem 0")
     const { stockageLocal } = await this.démarré();
     console.log("sauvegarderItem 1")
-    await stockageLocal.put(new Key(clef), new TextEncoder().encode(valeur));
+    try {
+
+      await stockageLocal.put(new Key(clef), new TextEncoder().encode(valeur));
+    } catch (e) {
+      console.log("erreur sauvegarderItem", e)
+      throw e
+    }
     console.log("sauvegarderItem 2")
   }
 
