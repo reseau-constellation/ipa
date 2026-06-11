@@ -450,7 +450,7 @@ export class Profil extends ServiceDonnéesAppli<
     signal,
     ignorer,
   }: {
-    épingle: PartielRécursif<ÉpingleFavorisBooléenniséeAvecId<ÉpingleProfil>>;
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleProfil>;
     f: Suivi<Set<string>>;
     signal?: AbortSignal;
     ignorer?: Set<string>;
