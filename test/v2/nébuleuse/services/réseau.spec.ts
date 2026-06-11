@@ -702,7 +702,7 @@ describe("Réseau", function () {
     let idsComptes: string[];
 
     before(async () => {
-      ({nébuleuses, fermer} = await créerNébuleusesTest({ n: 3 }));
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
 
       idsLibp2p = await Promise.all(
         nébuleuses.map(async (c) => await c.compte.obtIdLibp2p()),
@@ -744,7 +744,9 @@ describe("Réseau", function () {
           f: (message) => {
             console.log(JSON.stringify(message, undefined, 2))
             if (message.message.type === "texte") {
-              const corresp = message.message.message === messageÀEnvoyer && message.expéditeur === de;
+              const corresp =
+                message.message.message === messageÀEnvoyer &&
+                message.expéditeur === de;
               résultat = corresp;
               événementReçu.emit("reçu", corresp);
             }
