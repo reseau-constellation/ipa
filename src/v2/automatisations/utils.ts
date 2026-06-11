@@ -874,7 +874,7 @@ const schéduler = (): {
     if (prochain) {
       enCours = prochain;
       prochain = undefined;
-      enCours().then(suivant);
+      enCours().finally(suivant);
     } else {
       enCours = undefined;
       événements.emit("vide");
