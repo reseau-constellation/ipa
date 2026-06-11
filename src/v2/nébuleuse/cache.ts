@@ -120,7 +120,7 @@ export class CacheSuivi {
 
       // Ajouter f à la liste de fonctions de rappel
       suivi.requêtes[idRequête] = f;
-      if (Object.keys(suivi).includes("val")) f(suivi.val);
+      if (Object.keys(suivi).includes("val")) f(suivi.val); // Différentier `val` absent de `val === undefined`
     } else {
       try {
         // Si pas en cache, générer
@@ -131,6 +131,9 @@ export class CacheSuivi {
         const fFinale = async (x: unknown) => {
           const suivi = this.suivis.get(codeCache);
           if (!suivi) return; // Si on a déjà annulé la requête
+
+          if (Object.keys(suivi).includes("val") && deepEqual(suivi.val, x))
+            return; // Ignorer si c'est la même valeur qu'avant
 
           suivi.val = x;
           const fsSuivis = Object.values(suivi.requêtes);
