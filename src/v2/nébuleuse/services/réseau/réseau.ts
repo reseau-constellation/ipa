@@ -51,7 +51,7 @@ export type ConnexionLibp2p = { pair: string; adresses: string[] };
 
 export type ConnexionDispositif = {
   idDispositif: string;
-  adresses: string[];
+  pair: ConnexionLibp2p;
 };
 
 export type ConnexionCompte = {
@@ -324,6 +324,18 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     this.résolutionsConfiance.set(clef, résolution);
   }
 
+  // Gestion info pairs
+  async obtDispositifIdPair({
+    idPair,
+  }: {
+    idPair: string;
+  }): Promise<string | undefined> {
+    const libp2p = await this.service("libp2p").libp2p();
+    const infoPair = await libp2p.peerStore.get(peerIdFromString(idPair));
+    const idDispositif = infoPair.metadata.get("idDispositif");
+    return idDispositif ? new TextDecoder().decode(idDispositif) : undefined;
+  }
+
   // Suivi connexions
 
   @cacheSuivi
@@ -371,7 +383,18 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }): Promise<Oublier> {
     return await this.suivreConnexionsLibp2p({
       f: async (connexions) => {
-        await f(connexions.filter().map());
+        await f(
+          (
+            await Promise.all(
+              connexions.map(async (c) => ({
+                pair: c,
+                idDispositif: await this.obtDispositifIdPair({
+                  idPair: c.pair,
+                }),
+              })),
+            )
+          ).filter(({ idDispositif }) => idDispositif),
+        );
       },
     });
   }
@@ -1092,7 +1115,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const idPair = await this.obtIdPairDispositif({ idDispositif });
     if (!idPair)
       throw new Error(
-        `Le pair ${idDispositif} n'a pas été retrouvé sur le réseau.`,
+        `Le dispositif ${idDispositif} n'a pas été retrouvé sur le réseau.`,
       );
     return await this.envoyerMessageÀPair({ message, idPair });
   }
