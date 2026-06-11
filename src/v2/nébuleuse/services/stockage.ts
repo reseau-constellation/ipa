@@ -7,7 +7,8 @@ import { Key, type Datastore } from "interface-datastore";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
 import { NotFoundError } from "@libp2p/interface";
-import { base58btc } from "multiformats/bases/base58";
+import sha256 from "crypto-js/sha256.js";
+import Base64 from "crypto-js/enc-base64url.js";
 
 export type ServicesNécessairesStockage = {
   dossier: ServiceDossier;
@@ -60,13 +61,13 @@ export class ServiceStockage extends ServiceAppli<
   }
 
   clefSécuritaire(clef: string):string {
-    return base58btc.encode(new TextEncoder().encode(clef))
+    return Base64.stringify(sha256(clef))
   }
 
   async obtenirItem({ clef }: { clef: string }): Promise<string | null> {
     const { stockageLocal } = await this.démarré();
     clef = this.clefSécuritaire(clef);
-    
+
     try {
       return new TextDecoder().decode(await stockageLocal.get(new Key(clef)));
     } catch (e) {
