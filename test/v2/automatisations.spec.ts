@@ -38,7 +38,6 @@ import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
 import {
   créerConstellationsTest,
-  journalifier,
   obtenir,
   utiliserFauxChronomètres,
 } from "./utils.js";
@@ -625,7 +624,6 @@ describe("Automatisations", function () {
           écrireDonnées(donnéesFichier, adresseFichier);
 
           // Tester l'automatisation
-          console.log("ici 1")
           idAuto = await constl.automatisations.ajouterAutomatisationImporter({
             idBd,
             idTableau,
@@ -643,17 +641,17 @@ describe("Automatisations", function () {
               { colonne: colFichier, conversion: { type: "fichier" } },
             ],
           });
-          console.log("ici 2")
+
           const donnéesTableau = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
           >(({ si }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: journalifier( stabiliser()(si((x) => !!x && x.length >= 3)), "suivre données"),
+              f: stabiliser()(si((x) => !!x && x.length >= 3)),
             }),
           );
-          console.log("ici 2")
+
           expect(donnéesTableau.map((d) => d.données)).to.have.deep.members(
             réfDonnées,
           );
@@ -664,7 +662,7 @@ describe("Automatisations", function () {
             const idSfip = donnéesTableau.find(
               (d) => d.données[colNom] === nom,
             )!.données[colFichier] as string;
-            console.log("ici 3", nom)
+
             expect(
               await hélia.obtFichierDeSFIP({
                 id: idSfip,

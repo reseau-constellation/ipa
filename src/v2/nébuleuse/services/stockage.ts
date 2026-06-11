@@ -83,19 +83,10 @@ export class ServiceStockage extends ServiceAppli<
     clef: string;
     valeur: string;
   }): Promise<void> {
-    console.log("sauvegarderItem 0")
+
     const { stockageLocal } = await this.démarré();
-    console.log("sauvegarderItem 1")
     clef = this.clefSécuritaire(clef);
-
-    try {
-
-      await stockageLocal.put(new Key(clef), new TextEncoder().encode(valeur));
-    } catch (e) {
-      console.log("erreur sauvegarderItem", e)
-      throw e
-    }
-    console.log("sauvegarderItem 2")
+    await stockageLocal.put(new Key(clef), new TextEncoder().encode(valeur));
   }
 
   async effacerItem({ clef }: { clef: string }) {
