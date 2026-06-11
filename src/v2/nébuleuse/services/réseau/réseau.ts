@@ -196,6 +196,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       idPair: string;
     }) => {
       const { idCompte, signature, idDispositif } = message;
+      console.log(message);
 
       const signatureValide = await orbite.vérifierSignature({
         signature,
@@ -218,7 +219,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         PROTOCOLE_NÉBULEUSE,
         async (flux, connexion) => {
           const idPair = connexion.remotePeer.toString();
-          console.log("reçu flux de", idPair)
+          console.log("reçu flux de", idPair);
 
           this.flux.set(idPair, flux);
           flux.addEventListener("close", () => this.flux.delete(idPair));
@@ -270,7 +271,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             flux.send(
               new TextEncoder().encode(JSON.stringify(identifiantsCompte)),
             );
-            flux.close();
+            // flux.close();
           },
           onDisconnect(peerId) {
             // this.lorsqueDispositifDéconnecté(peerId);
@@ -1029,7 +1030,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const signal = this.signaleurArrêt.signal;
 
     const existante = this.flux.get(idPair);
-    if (existante && existante.status === "open") return existante;
+    if (false && existante && existante.status === "open") return existante;
     else {
       const flux = await libp2p.dialProtocol(
         peerIdFromString(idPair),
@@ -1055,14 +1056,26 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     try {
       flux = await this.obtFluxPair({ idPair });
     } catch {
-      throw new Error(`Impossible de se connecter au pair ${idPair}.`)
+      throw new Error(`Impossible de se connecter au pair ${idPair}.`);
     }
 
     const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
-    const { status, readStatus, writeStatus, remoteReadStatus, remoteWriteStatus} = flux
-    console.log(flux, {status, readStatus, writeStatus, remoteReadStatus, remoteWriteStatus})
+    const {
+      status,
+      readStatus,
+      writeStatus,
+      remoteReadStatus,
+      remoteWriteStatus,
+    } = flux;
+    console.log(flux, {
+      status,
+      readStatus,
+      writeStatus,
+      remoteReadStatus,
+      remoteWriteStatus,
+    });
     const succès = flux.send(octetsMessage);
-    console.log({succès})
+    console.log({ succès });
     if (!succès) {
       await flux.onDrain();
       flux.send(octetsMessage);
@@ -1077,7 +1090,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idDispositif: string;
   }) {
     const idPair = await this.obtIdPairDispositif({ idDispositif });
-    if (!idPair) throw new Error(`Le pair ${idDispositif} n'a pas été retrouvé sur le réseau.`)
+    if (!idPair)
+      throw new Error(
+        `Le pair ${idDispositif} n'a pas été retrouvé sur le réseau.`,
+      );
     return await this.envoyerMessageÀPair({ message, idPair });
   }
 
@@ -1089,8 +1105,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idCompte: string;
   }) {
     const idsDispositifs = await this.obtDispositifsCompte({ idCompte });
-    const résultats = await Promise.allSettled(idsDispositifs.map(idDispositif => this.envoyerMessageAuDispositif({ idDispositif, message})))
-    if (résultats.every(r=>r.status === "rejected")) throw new Error(`Le message n'a pu être envoyé à aucun des dispositifs du compte ${idCompte}.`)
+    const résultats = await Promise.allSettled(
+      idsDispositifs.map((idDispositif) =>
+        this.envoyerMessageAuDispositif({ idDispositif, message }),
+      ),
+    );
+    if (résultats.every((r) => r.status === "rejected"))
+      throw new Error(
+        `Le message n'a pu être envoyé à aucun des dispositifs du compte ${idCompte}.`,
+      );
   }
 
   async suivreMessages({

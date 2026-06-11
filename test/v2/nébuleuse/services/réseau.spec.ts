@@ -742,7 +742,8 @@ describe("Réseau", function () {
         let résultat: boolean | undefined = undefined;
         const fOublier = await d.réseau.suivreMessages({
           f: (message) => {
-            console.log(JSON.stringify(message, undefined, 2))
+            console.log(JSON.stringify(message, undefined, 2));
+
             if (message.message.type === "texte") {
               const corresp =
                 message.message.message === messageÀEnvoyer &&
@@ -780,7 +781,7 @@ describe("Réseau", function () {
 
     it("envoyer message à une adresse libp2p", async () => {
       const { promesseBienReçu, messageÀEnvoyer } = await messageReçu({
-        de: idsDispositifs[0],
+        de: idsLibp2p[0],
         à: nébuleuses[1],
       });
 
@@ -797,7 +798,7 @@ describe("Réseau", function () {
 
     it("envoyer message à un autre dispositif", async () => {
       const { promesseBienReçu, messageÀEnvoyer } = await messageReçu({
-        de: idsDispositifs[0],
+        de: idsLibp2p[0],
         à: nébuleuses[1],
       });
 
@@ -834,8 +835,9 @@ describe("Réseau", function () {
         de: idsDispositifs[0],
         à: [nébuleuses[1], nébuleuses[2]],
       });
-      const invitation = await nébuleuses[1].réseau.générerInvitationRejoindreCompte();
-      await nébuleuses[2].réseau.rejoindreCompteParInvitation({invitation});
+      const invitation =
+        await nébuleuses[1].réseau.générerInvitationRejoindreCompte();
+      await nébuleuses[2].réseau.rejoindreCompteParInvitation({ invitation });
       await uneFois(
         async (fSuivi: Suivi<string[]>) => {
           return await nébuleuses[0].suivreDispositifs({
@@ -864,8 +866,8 @@ describe("Réseau", function () {
         à: nébuleuses[1],
       });
       const idLibp2pCompte2 = peerIdFromString(idsLibp2p[1]);
-      const libp2pCompte1 = await nébuleuses[0].services["libp2p"].libp2p()
-      
+      const libp2pCompte1 = await nébuleuses[0].services["libp2p"].libp2p();
+
       await libp2pCompte1.hangUp(idLibp2pCompte2);
       await libp2pCompte1.dial(idLibp2pCompte2);
 
@@ -879,5 +881,5 @@ describe("Réseau", function () {
       const bienReçu = await promesseBienReçu;
       expect(bienReçu).to.be.true();
     });
-  })
+  });
 });
