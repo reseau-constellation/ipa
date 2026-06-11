@@ -7,6 +7,7 @@ import { Key, type Datastore } from "interface-datastore";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
 import { NotFoundError } from "@libp2p/interface";
+import { base58btc } from "multiformats/bases/base58";
 
 export type ServicesNécessairesStockage = {
   dossier: ServiceDossier;
@@ -58,8 +59,14 @@ export class ServiceStockage extends ServiceAppli<
     await super.fermer();
   }
 
+  clefSécuritaire(clef: string):string {
+    return base58btc.encode(new TextEncoder().encode(clef))
+  }
+
   async obtenirItem({ clef }: { clef: string }): Promise<string | null> {
     const { stockageLocal } = await this.démarré();
+    clef = this.clefSécuritaire(clef);
+    
     try {
       return new TextDecoder().decode(await stockageLocal.get(new Key(clef)));
     } catch (e) {
@@ -78,6 +85,8 @@ export class ServiceStockage extends ServiceAppli<
     console.log("sauvegarderItem 0")
     const { stockageLocal } = await this.démarré();
     console.log("sauvegarderItem 1")
+    clef = this.clefSécuritaire(clef);
+
     try {
 
       await stockageLocal.put(new Key(clef), new TextEncoder().encode(valeur));
@@ -90,6 +99,8 @@ export class ServiceStockage extends ServiceAppli<
 
   async effacerItem({ clef }: { clef: string }) {
     const { stockageLocal } = await this.démarré();
+    
+    clef = this.clefSécuritaire(clef);
     return stockageLocal.delete(new Key(clef));
   }
 }
