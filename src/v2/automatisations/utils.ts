@@ -577,7 +577,7 @@ export const chronoDynamiqueImportation = async ({
     await f();
     console.log("fAvecStockage 1")
     const maintenant = new Date().getTime().toString();
-    console.log("fAvecStockage 2")
+    console.log("fAvecStockage 2", {clefDernièreFois, maintenant})
     await service("stockage").sauvegarderItem({
       clef: clefDernièreFois,
       valeur: maintenant,

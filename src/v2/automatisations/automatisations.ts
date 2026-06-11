@@ -114,7 +114,7 @@ export class Automatisations extends ServiceDonnéesAppli<
   async démarrer(): Promise<{ oublier: Oublier }> {
     const oublier = await this.suivreBd({
       f: (autos) =>
-        {const __id = uuidv4(); console.log("suivi autos", __id, autos); this.queue.add(async () => await this.mettreAutosÀJour(autos)); console.log("suivi autos terminé", __id)},
+        {const __id = uuidv4(); console.log("suivi autos", __id, autos); this.queue.add(async () => {await this.mettreAutosÀJour(autos); console.log("suivi autos terminé", __id)})},
     });
     this.estDémarré = { oublier };
     return await super.démarrer();
