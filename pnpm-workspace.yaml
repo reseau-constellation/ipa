@@ -5,6 +5,9 @@ allowBuilds:
   electron: true
   esbuild: true
   iso-constants: true
+  inverted-capital/iso-constants: true
+  github:inverted-capital/iso-constants: true
+  github:inverted-capital/iso-constants#patch-1: true
   node-datachannel: true
   unrs-resolver: true
 
