@@ -167,7 +167,9 @@ export class Automatisations extends ServiceDonnéesAppli<
         if (deepEqual(existante.spécification, auto)) continue;
 
         // Sinon, on ferme la précédente
+        console.log("mise à jour automatisations 0", id)
         await this.fermerAutomatisation(id);
+        console.log("mise à jour automatisations 1", id)
       }
 
       // Activer si elle correspond à ce dispositif
@@ -180,11 +182,12 @@ export class Automatisations extends ServiceDonnéesAppli<
         );
       }
     }
-
+    console.log("mise à jour automatisations 2", àFermer)
     // Fermer les automatisations qui ne sont plus actives
     await Promise.all(
       àFermer.map(async (id) => await this.fermerAutomatisation(id)),
     );
+    console.log("mise à jour automatisations 3")
 
     this.événements.emit("autos");
   }
@@ -224,11 +227,13 @@ export class Automatisations extends ServiceDonnéesAppli<
     T extends InfoImporterJSON | InfoImporterFeuilleCalcul,
   >(auto: SpécificationAjoutImportation<T>): Promise<string> {
     const compte = this.service("compte");
+    console.log("ajout automatisation 0")
     const bd = await this.bd();
-
+    console.log("ajout automatisation 1")
     const idAuto = uuidv4();
-
+    
     auto = await this.obfusquerAdressesLocales(auto);
+    console.log("ajout automatisation 2", JSON.stringify(auto, undefined, 2))
 
     const élément: SpécificationImporter<
       SourceDonnéesImportationAdresseOptionelle<T>
@@ -239,11 +244,12 @@ export class Automatisations extends ServiceDonnéesAppli<
       dispositif: auto.dispositif || (await compte.obtIdDispositif()),
       fréquence: auto.fréquence || { type: "dynamique" },
     };
+    console.log("ajout automatisation 3", JSON.stringify(élément, undefined, 2))
 
     await bd.put(idAuto, élément);
-
+    console.log("ajout automatisation 4")
     await this.initialisée({ idAuto });
-
+    console.log("ajout automatisation 5")
     return idAuto;
   }
 
@@ -412,24 +418,26 @@ export class Automatisations extends ServiceDonnéesAppli<
     auto: SpécificationAutomatisation;
   }): Promise<AutomatisationActive> {
     let étatAuto: ÉtatAutomatisation;
-
+    console.log("lancerAutomatisation 0", auto.id)
     const spéc = await this.résoudreAdressesLocales(auto);
+    console.log("lancerAutomatisation 1", auto.id)
     const fAuto = générerFAuto({
       spéc,
       service: (clef) => this.service(clef),
     });
+    console.log("lancerAutomatisation 2", auto.id)
     const suiviÉtat = (état: ÉtatAutomatisation) => {
       étatAuto = état;
       this.événements.emit("autos");
     };
-
+    console.log("lancerAutomatisation 3", auto.id)
     const chrono = await chronomètre({
       auto: spéc,
       suiviÉtat,
       f: fAuto,
       service: (clef) => this.service(clef),
     });
-
+    console.log("lancerAutomatisation 4", auto.id)
     return {
       spécification: spéc,
       état: () => étatAuto,
