@@ -573,12 +573,16 @@ export const chronoDynamiqueImportation = async ({
   const clefDernièreFois = obtClefStockage(auto.id);
 
   const fAvecStockage = async () => {
+    console.log("fAvecStockage 0")
     await f();
+    console.log("fAvecStockage 1")
     const maintenant = new Date().getTime().toString();
+    console.log("fAvecStockage 2")
     await service("stockage").sauvegarderItem({
       clef: clefDernièreFois,
       valeur: maintenant,
     });
+    console.log("fAvecStockage 3")
   };
 
   switch (auto.source.type) {
@@ -870,6 +874,7 @@ const schéduler = (): {
   const événements = new TypedEmitter<{ vide: () => void }>();
 
   const suivant = () => {
+    console.log("suivant", { prochain })
     if (prochain) {
       enCours = prochain;
       prochain = undefined;
@@ -889,7 +894,9 @@ const schéduler = (): {
     },
     vide: () =>
       new Promise((résoudre) => {
+        console.log("chrono vide 1", {enCours, prochain})
         if (!enCours && !prochain) résoudre();
+        console.log("chrono vide 2")
         événements.once("vide", résoudre);
       }),
   };

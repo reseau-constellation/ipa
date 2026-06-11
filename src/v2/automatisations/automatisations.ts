@@ -143,7 +143,6 @@ export class Automatisations extends ServiceDonnéesAppli<
     autos: PartielRécursif<StructureServiceAutomatisations> = {},
   ) {
     console.log("mise à jour automatisations -1", autos)
-    autos = autos || {};
     const compte = this.service("compte");
     const journal = this.service("journal");
     const ceDispositif = await compte.obtIdDispositif();
@@ -195,8 +194,11 @@ export class Automatisations extends ServiceDonnéesAppli<
   }
 
   async fermerAutomatisation(id: string) {
+    console.log("fermer automatisation 0", id)
     await this.automatisations.get(id)?.fermer();
+    console.log("fermer automatisation 1", id)
     this.automatisations.delete(id);
+    console.log("fermer automatisation 2", id)
   }
 
   // Actions automatisations
