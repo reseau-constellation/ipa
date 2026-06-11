@@ -225,7 +225,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     const compte = this.service("compte");
     const bd = await this.bd();
     const idAuto = uuidv4();
-    
+
     auto = await this.obfusquerAdressesLocales(auto);
 
     const élément: SpécificationImporter<

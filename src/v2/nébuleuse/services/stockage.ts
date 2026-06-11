@@ -60,8 +60,8 @@ export class ServiceStockage extends ServiceAppli<
     await super.fermer();
   }
 
-  clefSécuritaire(clef: string):string {
-    return Base64.stringify(sha256(clef))
+  clefSécuritaire(clef: string): string {
+    return Base64.stringify(sha256(clef));
   }
 
   async obtenirItem({ clef }: { clef: string }): Promise<string | null> {
@@ -83,7 +83,6 @@ export class ServiceStockage extends ServiceAppli<
     clef: string;
     valeur: string;
   }): Promise<void> {
-
     const { stockageLocal } = await this.démarré();
     clef = this.clefSécuritaire(clef);
     await stockageLocal.put(new Key(clef), new TextEncoder().encode(valeur));
@@ -91,7 +90,7 @@ export class ServiceStockage extends ServiceAppli<
 
   async effacerItem({ clef }: { clef: string }) {
     const { stockageLocal } = await this.démarré();
-    
+
     clef = this.clefSécuritaire(clef);
     return stockageLocal.delete(new Key(clef));
   }
