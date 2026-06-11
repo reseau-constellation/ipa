@@ -142,16 +142,18 @@ export class Automatisations extends ServiceDonnéesAppli<
   async mettreAutosÀJour(
     autos: PartielRécursif<StructureServiceAutomatisations> = {},
   ) {
+    console.log("mise à jour automatisations -1", autos)
     autos = autos || {};
     const compte = this.service("compte");
     const journal = this.service("journal");
     const ceDispositif = await compte.obtIdDispositif();
-
+    console.log("mise à jour automatisations -2")
     const àFermer = [...this.automatisations.keys()].filter(
       (id) => !Object.keys(autos).includes(id),
     );
-
+    console.log("mise à jour automatisations -3", àFermer)
     for (const [id, auto] of Object.entries(autos)) {
+      console.log("mise à jour automatisations -4", id)
       if (!valide(auto)) {
         if (this.automatisations.has(id)) àFermer.push(id);
         journal.écrire({
