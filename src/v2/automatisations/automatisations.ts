@@ -114,7 +114,7 @@ export class Automatisations extends ServiceDonnéesAppli<
   async démarrer(): Promise<{ oublier: Oublier }> {
     const oublier = await this.suivreBd({
       f: (autos) =>
-        {const __id = uuidv4(); console.log("suivi autos", __id, autos); this.queue.add(async () => {await this.mettreAutosÀJour(autos); console.log("suivi autos terminé", __id)})},
+        this.queue.add(async () => await this.mettreAutosÀJour(autos)),
     });
     this.estDémarré = { oublier };
     return await super.démarrer();
@@ -142,17 +142,15 @@ export class Automatisations extends ServiceDonnéesAppli<
   async mettreAutosÀJour(
     autos: PartielRécursif<StructureServiceAutomatisations> = {},
   ) {
-    console.log("mise à jour automatisations -1", autos)
     const compte = this.service("compte");
     const journal = this.service("journal");
     const ceDispositif = await compte.obtIdDispositif();
-    console.log("mise à jour automatisations -2")
+
     const àFermer = [...this.automatisations.keys()].filter(
       (id) => !Object.keys(autos).includes(id),
     );
-    console.log("mise à jour automatisations -3", àFermer)
+
     for (const [id, auto] of Object.entries(autos)) {
-      console.log("mise à jour automatisations -4", id)
       if (!valide(auto)) {
         if (this.automatisations.has(id)) àFermer.push(id);
         journal.écrire({
@@ -168,9 +166,7 @@ export class Automatisations extends ServiceDonnéesAppli<
         if (deepEqual(existante.spécification, auto)) continue;
 
         // Sinon, on ferme la précédente
-        console.log("mise à jour automatisations 0", id)
         await this.fermerAutomatisation(id);
-        console.log("mise à jour automatisations 1", id)
       }
 
       // Activer si elle correspond à ce dispositif
@@ -183,22 +179,18 @@ export class Automatisations extends ServiceDonnéesAppli<
         );
       }
     }
-    console.log("mise à jour automatisations 2", àFermer)
+
     // Fermer les automatisations qui ne sont plus actives
     await Promise.all(
       àFermer.map(async (id) => await this.fermerAutomatisation(id)),
     );
-    console.log("mise à jour automatisations 3")
 
     this.événements.emit("autos");
   }
 
   async fermerAutomatisation(id: string) {
-    console.log("fermer automatisation 0", id)
     await this.automatisations.get(id)?.fermer();
-    console.log("fermer automatisation 1", id)
     this.automatisations.delete(id);
-    console.log("fermer automatisation 2", id)
   }
 
   // Actions automatisations
@@ -231,13 +223,10 @@ export class Automatisations extends ServiceDonnéesAppli<
     T extends InfoImporterJSON | InfoImporterFeuilleCalcul,
   >(auto: SpécificationAjoutImportation<T>): Promise<string> {
     const compte = this.service("compte");
-    console.log("ajout automatisation 0")
     const bd = await this.bd();
-    console.log("ajout automatisation 1")
     const idAuto = uuidv4();
     
     auto = await this.obfusquerAdressesLocales(auto);
-    console.log("ajout automatisation 2", JSON.stringify(auto, undefined, 2))
 
     const élément: SpécificationImporter<
       SourceDonnéesImportationAdresseOptionelle<T>
@@ -248,12 +237,11 @@ export class Automatisations extends ServiceDonnéesAppli<
       dispositif: auto.dispositif || (await compte.obtIdDispositif()),
       fréquence: auto.fréquence || { type: "dynamique" },
     };
-    console.log("ajout automatisation 3", JSON.stringify(élément, undefined, 2))
 
     await bd.put(idAuto, élément);
-    console.log("ajout automatisation 4")
+
     await this.initialisée({ idAuto });
-    console.log("ajout automatisation 5")
+
     return idAuto;
   }
 
@@ -422,26 +410,25 @@ export class Automatisations extends ServiceDonnéesAppli<
     auto: SpécificationAutomatisation;
   }): Promise<AutomatisationActive> {
     let étatAuto: ÉtatAutomatisation;
-    console.log("lancerAutomatisation 0", auto.id)
+
     const spéc = await this.résoudreAdressesLocales(auto);
-    console.log("lancerAutomatisation 1", auto.id)
     const fAuto = générerFAuto({
       spéc,
       service: (clef) => this.service(clef),
     });
-    console.log("lancerAutomatisation 2", auto.id)
+
     const suiviÉtat = (état: ÉtatAutomatisation) => {
       étatAuto = état;
       this.événements.emit("autos");
     };
-    console.log("lancerAutomatisation 3", auto.id)
+
     const chrono = await chronomètre({
       auto: spéc,
       suiviÉtat,
       f: fAuto,
       service: (clef) => this.service(clef),
     });
-    console.log("lancerAutomatisation 4", auto.id)
+
     return {
       spécification: spéc,
       état: () => étatAuto,
