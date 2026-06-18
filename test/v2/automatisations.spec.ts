@@ -546,13 +546,14 @@ describe("Automatisations", function () {
             return;
           }
 
+          const stabilité = stabiliser();
           const données = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
           >(({ si }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabiliser()(si((x) => !!x && x?.length >= 2)),
+              f: stabilité(si((x) => !!x && x?.length >= 2)),
             }),
           );
 
@@ -642,13 +643,14 @@ describe("Automatisations", function () {
             ],
           });
 
+          const stabilité = stabiliser();
           const donnéesTableau = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
           >(({ si }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabiliser()(si((x) => !!x && x.length >= 3)),
+              f: stabilité(si((x) => !!x && x.length >= 3)),
             }),
           );
 
@@ -725,13 +727,14 @@ describe("Automatisations", function () {
             conversions,
           });
 
+          const stabilité = stabiliser();
           const données = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
           >(({ si }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabiliser()(si((x) => !!x && x?.length >= 2)),
+              f: stabilité(si((x) => !!x && x?.length >= 2)),
             }),
           );
 
@@ -1447,13 +1450,14 @@ describe("Automatisations", function () {
           const sÉtats = await suiviÉtats({ idAuto, constl });
           await constl.automatisations.lancerManuellement({ id: idAuto });
 
+          const stabilité = stabiliser();
           const données = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
           >(({ si }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabiliser()(si((x) => !!x && x.length >= 2)),
+              f: stabilité(si((x) => !!x && x.length >= 2)),
             }),
           );
 
@@ -1511,13 +1515,14 @@ describe("Automatisations", function () {
             ],
           });
 
+          const stabilité = stabiliser();
           const donnéesTableau = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
           >(({ si }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabiliser()(si((x) => !!x && x.length >= 2)),
+              f: stabilité(si((x) => !!x && x.length >= 2)),
             }),
           );
 
