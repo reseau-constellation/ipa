@@ -119,7 +119,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     const oublier = async () => {
       await oublierBd();
       await this.queue.onIdle();
-    }
+    };
     this.estDémarré = { oublier };
     return await super.démarrer();
   }
