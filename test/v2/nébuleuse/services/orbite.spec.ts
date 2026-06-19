@@ -369,6 +369,7 @@ describe("Service Orbite", function () {
     let appli: Appli<
       ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
     >;
+    const erreurs: string[] = [];
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
@@ -379,7 +380,12 @@ describe("Service Orbite", function () {
       >({
         services: {
           dossier: serviceDossier({ dossier }),
-          journal: serviceJournal(),
+          journal: serviceJournal({
+            f: (m) => {
+              erreurs.push(m);
+              console.log(m);
+            },
+          }),
           libp2p: serviceLibp2pTest(),
           hélia: serviceHélia(),
           stockage: serviceStockage(),
@@ -452,11 +458,15 @@ describe("Service Orbite", function () {
       const idBd = bd.address;
       await oublier();
 
-      await expect(
-        orbite.suivreBd({ id: idBd, type: "feed", f: console.log }),
-      ).to.eventually.be.rejectedWith(
-        "La bd est de type keyvalue et non feed.",
-      );
+      const oublierSuivi = await orbite.suivreBd({
+        id: idBd,
+        type: "feed",
+        f: console.log,
+      });
+      await attendreQue(() => erreurs.length > 0);
+      await oublierSuivi();
+
+      expect(erreurs[0]).to.include("La bd est de type keyvalue et non feed.");
     });
 
     it("suivre bd typée", async () => {
