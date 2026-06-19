@@ -44,6 +44,7 @@ import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { Helia } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2pNébuleuse } from "../libp2p/libp2p.js";
+import { appelerLorsque, estUnePromesse } from "../utils.js";
 
 export const préparerOrbite = () => {
   useDatabaseType(Feed);
@@ -320,40 +321,72 @@ export class ServiceOrbite<
   async suivreBd({
     id,
     f,
+    signal,
   }: {
     id: string;
     f: Suivi<BaseDatabase>;
+    signal?: AbortSignal;
   }): Promise<Oublier>;
   async suivreBd<T extends keyof BdsOrbite>({
     id,
     type,
     f,
+    signal,
   }: {
     id: string;
     type: T;
     f: Suivi<BdsOrbite[T]>;
+    signal?: AbortSignal;
   }): Promise<Oublier>;
   async suivreBd<T extends keyof BdsOrbite>({
     id,
     type,
     f,
+    signal,
   }: {
     id: string;
     type?: T | undefined;
     f: Suivi<BdsOrbite[T] | BaseDatabase>;
+    signal?: AbortSignal;
   }): Promise<Oublier> {
-    const { bd, oublier } = await this.ouvrirBd({ id, type });
+    const journal = this.service("journal");
 
-    const fFinale = async () => {
-      return await f(bd);
-    };
+    const signaleurOublier = new AbortController();
+    const signalFinal = signal
+      ? anySignal([signaleurOublier.signal, signal])
+      : signaleurOublier.signal;
 
-    bd.events.on("update", fFinale);
-    await fFinale();
+    let fFinale: Suivi<void>;
+    let pfFinale: Promise<void> | undefined = undefined;
+    let oublier: Oublier = faisRien;
+
+    this.ouvrirBd({ id, type, signal: signalFinal })
+      .then(async ({ bd, oublier: oublierBd }) => {
+        fFinale = async () => {
+          return await f(bd);
+        };
+        const oublierSuivi = appelerLorsque({
+          émetteur: bd.events,
+          événement: "update",
+          f: fFinale,
+        });
+        oublier = async () => {
+          await oublierSuivi();
+          await oublierBd();
+        };
+        const retour = fFinale();
+        if (estUnePromesse(retour)) pfFinale = retour;
+      })
+      .catch((e) => {
+        if (!estErreurAvortée(e)) {
+          journal.écrire({ message: e.toString() + e.stack || "" });
+        }
+      });
 
     return async () => {
-      bd.events.off("update", fFinale);
-      await oublier();
+      signaleurOublier.abort();
+      if (pfFinale) await pfFinale;
+      await oublier?.();
     };
   }
 
@@ -368,39 +401,19 @@ export class ServiceOrbite<
     f: Suivi<TypedNested<T>>;
     signal?: AbortSignal;
   }): Promise<Oublier> {
-    const signaleurOublier = new AbortController();
-    const signalFinal = signal
-      ? anySignal([signaleurOublier.signal, signal])
-      : signaleurOublier.signal;
+    let bdTypée: TypedNested<T> | undefined = undefined;
 
-    let fFinale: Suivi<void>;
-    let oublier: Oublier = faisRien;
-
-    this.ouvrirBd({ id, type: "nested", signal: signalFinal })
-      .then(async ({ bd, oublier: oublierBd }) => {
-        oublier = async () => {
-          await oublierBd();
-          bd.events.off("update", fFinale);
-        };
-        const bdTypée = typedNested({ db: bd, schema: schéma });
-        fFinale = async () => {
-          return await f(bdTypée);
-        };
-
-        bd.events.on("update", fFinale);
-        await fFinale();
-      })
-      .catch((e) => {
-        if (!estErreurAvortée(e)) throw e;
-      });
-
-    return async () => {
-      if (typeof fFinale === "undefined") {
-        signaleurOublier.abort();
-      } else {
-        await oublier();
-      }
+    const fFinale = async (bd: NestedDatabaseType) => {
+      if (!bdTypée || bd.address !== bdTypée.address)
+        bdTypée = typedNested({ db: bd, schema: schéma });
+      return await f(bdTypée);
     };
+    return await this.suivreBd({
+      id,
+      f: fFinale,
+      type: "nested",
+      signal,
+    });
   }
 
   async suivreDonnéesBdEmboîtée<T extends NestedValue>({
