@@ -749,7 +749,7 @@ export const chronoDynamiqueExportation = async ({
       }
     }
   };
-  const stabilité = stabiliser()
+  const stabilité = stabiliser();
   const oublierChangements = await suivreEmpreinteTête(
     stabilité((empreinte) => {
       queue.ajouter(génFAvecStockage(empreinte));

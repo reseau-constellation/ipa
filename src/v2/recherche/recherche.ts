@@ -235,7 +235,7 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
         },
       });
 
-    const stabilité = stabiliser(2000)
+    const stabilité = stabiliser(2000);
     const ajusterProfondeurStable = stabilité(profondeur);
 
     const changerN = async (nouveauN: number) => {
