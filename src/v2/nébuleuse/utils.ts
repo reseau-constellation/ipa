@@ -2,7 +2,7 @@ import { toUnicode } from "punycode-esm";
 import { AbortError } from "p-retry";
 import { multiaddr } from "@multiformats/multiaddr";
 import deepEqual from "fast-deep-equal";
-import type { Suivi } from "./types.js";
+import type { Oublier, Suivi } from "./types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {
@@ -78,22 +78,37 @@ export const stabiliser =
     let dernierT = 0;
     let annulerRebours: () => void = () => {};
 
-    return async (v: T) => {
+    return async (v: T): Promise<void> => {
       if (déjàAppellée && deepEqual(v, val)) return;
+
+      let fLancé = false;
+      
+      // Un signaleur d'avortement qu'on utilise pour signaler qu'on a complété l'appel
+      const signaleur = new AbortController();
 
       annulerRebours();
       déjàAppellée = true;
       val = v;
       dernierT = Date.now();
 
-      const crono = setTimeout(async () => await f(v), n);
+      const crono = setTimeout(async () => {
+        fLancé = true;
+        await f(v);
+        signaleur.abort();
+      }, n);
       annulerRebours = () => {
         if (dernierT) {
           const dif = Date.now() - dernierT;
           n += dif * 0.5;
         }
         clearTimeout(crono);
+        if (!fLancé) signaleur.abort();
       };
+
+      return new Promise<void>((résoudre) => {
+        if (signaleur.signal.aborted) résoudre();
+        signaleur.signal.addEventListener("abort", () => résoudre());
+      });
     };
   };
 
