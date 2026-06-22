@@ -69,8 +69,6 @@ jobs:
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       - name: Préparation de Node.js
         uses: actions/setup-node@v6
@@ -106,8 +104,6 @@ jobs:
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       - name: Préparation de Node.js
         uses: actions/setup-node@v6
