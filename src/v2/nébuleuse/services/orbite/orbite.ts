@@ -290,6 +290,7 @@ export class ServiceOrbite<
       () => orbite.open(id, { signal: signalFinal }),
       signalFinal,
     );
+    bd.events.setMaxListeners(100)
 
     if (type) {
       if (type !== bd.type) {
