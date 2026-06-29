@@ -444,9 +444,6 @@ export class BaseServiceCompte<
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
     const journal = this.service("journal");
-      signal: signaleurOublier.signal,
-    }).then(async ({bd, oublier: oublierBd})=> {
-      àOublier.push(oublierBd);
 
     const signaleurOublier = new AbortController();
     const àOublier: Oublier[] = [];
