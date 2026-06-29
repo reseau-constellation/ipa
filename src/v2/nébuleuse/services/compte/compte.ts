@@ -459,6 +459,7 @@ export class BaseServiceCompte<
 
       if (!estContrôleurNébuleuse(accès)) {
         journal.écrire({message: `Type d'accès ${bd.access.type} non reconnu.`});
+        await f([])
       } else {
         const oublierAccès = await accès.suivreUtilisateursAutorisés((autorisés) =>
           f(
