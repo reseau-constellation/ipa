@@ -280,22 +280,30 @@ export class ServiceOrbite<
     type?: T | undefined;
   }): Promise<{ bd: BdsOrbite[T] | BaseDatabase; oublier: Oublier }> {
     const orbite = await this.orbite();
+    let ouverte = false;
 
     // À faire : risque de condition course avec `fermer()` ?
     this.fermetures.get(id)?.annulerFermeture();
+
+    const signaleurLocal = new AbortController();
     const signalFinal = signal
-      ? anySignal([this.signaleurArrêt.signal, signal])
+      ? anySignal([this.signaleurArrêt.signal, signaleurLocal.signal])
       : this.signaleurArrêt.signal;
+
+    signal?.addEventListener("abort", () => {
+      if (!ouverte) signaleurLocal.abort()
+    })
 
     const bd = await réessayer(
       () => orbite.open(id, { signal: signalFinal }),
       signalFinal,
     );
+    ouverte = true
     bd.events.setMaxListeners(100)
 
     if (type) {
       if (type !== bd.type) {
-        throw new Error(`La bd est de type ${bd.type} et non ${type}.`);
+        throw new Error(`La bd ${id} est de type ${bd.type} et non ${type}.`);
       }
     }
     return {
