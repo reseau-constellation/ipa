@@ -449,6 +449,8 @@ export class TableauxBds extends Tableaux {
     idTableau: string;
     idÉlément: string;
   }) {
+    await this.confirmerPermissionDonnées({ idStructure, idTableau });
+
     const { données, oublier } = await this.ouvrirDonnéesTableau({
       idStructure,
       idTableau,
