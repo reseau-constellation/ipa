@@ -169,12 +169,6 @@ export class Projets extends ObjetConstellation<
               clef,
             )) as AccesseurService<ServicesNécessairesRechercheProjets>,
     });
-
-    const favoris = this.service("favoris");
-    favoris.inscrireRésolution({
-      clef: "projet",
-      résolution: this.suivreRésolutionÉpingle.bind(this),
-    });
   }
 
   @cacheSuivi

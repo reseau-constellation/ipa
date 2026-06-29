@@ -43,6 +43,7 @@ import type {
 import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
+import { STATUTS } from "../../appli/consts.js";
 
 export type MesDispositifs = {
   idDispositif: string;
@@ -127,6 +128,8 @@ export class BaseServiceCompte<
 
   async fermer() {
     const { oublier } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
+    
     await oublier();
     await super.fermer();
   }
@@ -427,7 +430,7 @@ export class BaseServiceCompte<
     });
 
     return async () => {
-      await Promise.all([oublierAutorisations(), oublierIdCompte()]);
+      await Promise.allSettled([oublierAutorisations(), oublierIdCompte()]);
     };
   }
 

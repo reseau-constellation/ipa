@@ -149,7 +149,7 @@ export class ServiceOrbite<
   }
 
   async orbite(): Promise<OrbitDB<L>> {
-    if (this.statut === STATUTS.FERMÉE)
+    if (this.statut === STATUTS.FERMÉE || this.statut === STATUTS.FERMETURE_EN_COURS)
       throw new Error("Service orbite déjà fermé.");
 
     // Si `orbite` n'est pas défini dans les options, il sera rendu par `this.démarré`
@@ -164,12 +164,13 @@ export class ServiceOrbite<
   async fermer(): Promise<void> {
     // Uniquement fermer orbite s'il n'a pas été fourni manuellement dans les options
     const { orbite } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
 
     this.signaleurArrêt.abort();
 
     await Promise.allSettled(
-      this.fermetures
-        .values()
+      [...this.fermetures
+        .values()]
         .map(({ fermerToutDeSuite }) => fermerToutDeSuite()),
     );
     if (orbite) await orbite.stop();

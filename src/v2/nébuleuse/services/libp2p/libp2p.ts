@@ -17,6 +17,7 @@ import type { ServiceStockage } from "../stockage.js";
 
 import type { ServiceClefPrivée } from "./config/utils.js";
 import type { OptionsAppli } from "../../appli/appli.js";
+import { STATUTS } from "../../appli/consts.js";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;
@@ -137,7 +138,7 @@ export class ServiceLibp2p<
         .filter((c) =>
           c.remoteAddr.toString().includes(`${idPair.toString()}/p2p-circuit/`),
         );
-      await Promise.all(connexions.map((c) => c.close()));
+      await Promise.allSettled(connexions.map((c) => c.close()));
     });
 
     if (this.estDémarré === false) this.estDémarré = {};
@@ -195,6 +196,7 @@ export class ServiceLibp2p<
 
   async fermer(): Promise<void> {
     const { libp2p, oublierReconnecteur } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
     oublierReconnecteur?.();
     // Uniquement fermer libp2p s'il n'a pas été fourni dans les options
     if (libp2p) await libp2p.stop();

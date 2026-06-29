@@ -14,6 +14,7 @@ import type {
   ServiceOrbite,
   ServicesNécessairesOrbite,
 } from "./orbite/orbite.js";
+import { STATUTS } from "../appli/consts.js";
 
 export type ServicesNécessairesÉpingles = ServicesNécessairesOrbite & {
   orbite: ServiceOrbite;
@@ -179,6 +180,9 @@ export class ServiceÉpingles extends ServiceAppli<
   }
 
   async fermer() {
+    await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
+
     this.signaleurArrêt.abort();
     await this.queue.onIdle();
 

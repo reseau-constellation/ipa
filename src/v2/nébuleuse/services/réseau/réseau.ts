@@ -44,6 +44,7 @@ import type {
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 import { estErreurAvortée } from "../../utils.js";
+import { STATUTS } from "../../appli/consts.js";
 
 // Types connexions
 
@@ -295,14 +296,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   async fermer(): Promise<void> {
     const { oublier } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
 
     this.bloquésPrivé.clear();
 
     this.signaleurArrêt.abort();
 
-    await Promise.all(
-      this.flux
-        .values()
+    await Promise.allSettled(
+      [...this.flux
+        .values()]
         .map((flux) => flux.abort(new Error("Service réseau fermé."))),
     );
 

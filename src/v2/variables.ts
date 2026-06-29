@@ -182,12 +182,6 @@ export class Variables extends ObjetConstellation<
               clef,
             )) as AccesseurService<ServicesNécessairesRechercheVariables>,
     });
-
-    const favoris = this.service("favoris");
-    favoris.inscrireRésolution({
-      clef: "variable",
-      résolution: this.suivreRésolutionÉpingle.bind(this),
-    });
   }
 
   @cacheSuivi

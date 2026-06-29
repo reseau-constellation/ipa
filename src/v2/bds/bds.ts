@@ -272,12 +272,6 @@ export class Bds extends ObjetConstellation<
       bds: this,
       service: accesseurService,
     });
-
-    const favoris = this.service("favoris");
-    favoris.inscrireRésolution({
-      clef: "bd",
-      résolution: this.suivreRésolutionÉpingle.bind(this),
-    });
   }
 
   // Création et gestion

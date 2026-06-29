@@ -2,7 +2,7 @@ import { toUnicode } from "punycode-esm";
 import { AbortError } from "p-retry";
 import { multiaddr } from "@multiformats/multiaddr";
 import deepEqual from "fast-deep-equal";
-import type { Oublier, Suivi } from "./types.js";
+import type { Suivi } from "./types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {

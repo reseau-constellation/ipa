@@ -5,6 +5,7 @@ import type {
   OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
+import { STATUTS } from "../appli/consts.js";
 
 export type OptionsServiceJournal = {
   f: string | ((m: string) => void | Promise<void>);
@@ -63,8 +64,11 @@ export class ServiceJournal extends ServiceAppli<
   }
 
   async fermer(): Promise<void> {
+    await this.démarrer();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
+
     await this.queue.onIdle();
-    return await super.fermer();
+    await super.fermer();
   }
 
   async écrire({ message }: { message: string }): Promise<void> {

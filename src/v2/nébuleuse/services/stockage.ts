@@ -9,6 +9,7 @@ import type { IDBDatastore } from "datastore-idb";
 import { NotFoundError } from "@libp2p/interface";
 import sha256 from "crypto-js/sha256.js";
 import Base64 from "crypto-js/enc-base64url.js";
+import { STATUTS } from "../appli/consts.js";
 
 export type ServicesNécessairesStockage = {
   dossier: ServiceDossier;
@@ -54,6 +55,7 @@ export class ServiceStockage extends ServiceAppli<
 
   async fermer(): Promise<void> {
     const { stockageLocal } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
 
     if (estStockageDonnéesFermable(stockageLocal)) await stockageLocal.close();
 

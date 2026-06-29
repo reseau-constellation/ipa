@@ -94,18 +94,6 @@ export class MotsClefs extends ObjetConstellation<
     });
   }
 
-  async démarrer() {
-    const retour = await super.démarrer();
-
-    const favoris = this.service("favoris");
-    favoris.inscrireRésolution({
-      clef: "mot-clef",
-      résolution: this.suivreRésolutionÉpingle.bind(this),
-    });
-
-    return retour;
-  }
-
   @cacheSuivi
   async suivreMotsClefs({
     f,

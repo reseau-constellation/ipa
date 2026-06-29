@@ -287,12 +287,6 @@ export class Nuées extends ObjetConstellation<
     this.recherche = new RechercheNuées({
       service: accesseurService,
     });
-
-    const favoris = this.service("favoris");
-    favoris.inscrireRésolution({
-      clef: "nuée",
-      résolution: this.suivreRésolutionÉpingle.bind(this),
-    });
   }
 
   async résolutionConfiance({
@@ -2038,7 +2032,7 @@ export class Nuées extends ObjetConstellation<
       àOublierObjectif.push(oublierNuées);
 
       return async () => {
-        await Promise.all(àOublierObjectif.map((f) => f()));
+        await Promise.allSettled(àOublierObjectif.map((f) => f()));
         await oublierIdCompte();
       };
     };
@@ -2049,7 +2043,7 @@ export class Nuées extends ObjetConstellation<
     });
 
     return async () => {
-      await Promise.all(àOublier.map((f) => f()));
+      await Promise.allSettled(àOublier.map((f) => f()));
       await oublierRecherche();
     };
   }

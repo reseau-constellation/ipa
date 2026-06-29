@@ -65,7 +65,7 @@ export abstract class ServiceAppli<
   }
 
   async fermer(): Promise<void> {
-    await this.démarré();
+    if (this.statut === STATUTS.DÉMARRAGE_EN_COURS) await this.démarré();
     this.statut = STATUTS.FERMÉE;
     this.estDémarré = false;
   }

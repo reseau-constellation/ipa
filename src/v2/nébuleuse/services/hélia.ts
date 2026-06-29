@@ -16,6 +16,7 @@ import type {
 } from "./libp2p/libp2p.js";
 import type { Helia, HeliaInit } from "helia";
 import type { Libp2p } from "libp2p";
+import { STATUTS } from "../appli/consts.js";
 
 export type OptionsServiceHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
@@ -79,6 +80,7 @@ export class ServiceHélia<
   async fermer(): Promise<void> {
     // Uniquement fermer hélia si elle n'a pas été fournie dans les options
     const { hélia } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
     if (hélia) await hélia.stop();
 
     await super.fermer();

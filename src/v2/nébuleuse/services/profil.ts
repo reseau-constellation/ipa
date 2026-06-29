@@ -150,11 +150,23 @@ export class Profil extends ServiceDonnéesAppli<
 
   async démarrer() {
     const retour = await super.démarrer();
-    this.service("favoris").inscrireRésolution({
+    const favoris = this.service("favoris");
+
+    favoris.inscrireRésolution({
       clef: this.clef,
       résolution: this.suivreRésolutionÉpingle.bind(this),
     });
     return retour;
+  }
+
+  async fermer(): Promise<void> {
+    const favoris = this.service("favoris");
+
+    favoris.désinscrireRésolution({
+      clef: this.clef,
+    });
+
+    return await super.fermer()
   }
 
   async initialiser(): Promise<void> {

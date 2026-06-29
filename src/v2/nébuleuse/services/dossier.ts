@@ -8,6 +8,7 @@ import type {
   OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
+import { STATUTS } from "../appli/consts.js";
 
 export const FICHIER_VERROU = "VERROU";
 export const INTERVALE_VERROU = 5000; // 5 millisecondes
@@ -42,6 +43,7 @@ export class ServiceDossier extends ServiceAppli<
 
   async fermer(): Promise<void> {
     const { déverrouiller } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
     await déverrouiller();
     await super.fermer();
   }

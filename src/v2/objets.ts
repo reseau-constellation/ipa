@@ -103,6 +103,14 @@ export abstract class ObjetConstellation<
     return retour;
   }
 
+  async fermer(): Promise<void> {
+    const favoris = this.service("favoris");
+    favoris.désinscrireRésolution({
+      clef: this.clef,
+    });
+    await super.fermer()
+  }
+
   async suivreRésolutionÉpingle({
     épingle,
     f,

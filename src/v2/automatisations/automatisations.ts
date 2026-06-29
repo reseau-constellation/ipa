@@ -27,6 +27,7 @@ import type {
 import type { Bds } from "../bds/bds.js";
 import type { Projets } from "../projets.js";
 import type { Nuées } from "../nuées/nuées.js";
+import { STATUTS } from "../nébuleuse/appli/consts.js";
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   spéc: T,
@@ -126,6 +127,7 @@ export class Automatisations extends ServiceDonnéesAppli<
 
   async fermer(): Promise<void> {
     const { oublier } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
 
     // Arrêter le suivi de la bd des automatisations
     await oublier();
@@ -134,13 +136,12 @@ export class Automatisations extends ServiceDonnéesAppli<
     await this.queue.onIdle();
 
     // Fermer toutes les automatisations actives
-    await Promise.all(
+    await Promise.allSettled(
       [...this.automatisations.keys()].map((id) =>
         this.fermerAutomatisation(id),
       ),
     );
-
-    return await super.fermer();
+    await super.fermer();
   }
 
   async mettreAutosÀJour(
@@ -185,7 +186,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     }
 
     // Fermer les automatisations qui ne sont plus actives
-    await Promise.all(
+    await Promise.allSettled(
       àFermer.map(async (id) => await this.fermerAutomatisation(id)),
     );
 

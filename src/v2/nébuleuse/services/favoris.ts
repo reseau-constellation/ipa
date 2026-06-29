@@ -17,6 +17,7 @@ import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { AccèsUtilisateur } from "./compte/accès/types.js";
 import type { ServiceÉpingles } from "./épingles.js";
+import { STATUTS } from "../appli/consts.js";
 
 // Types réplications
 export type Réplication<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {
@@ -276,10 +277,11 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
 
   async fermer(): Promise<void> {
     const { oublier } = await this.démarré();
+    this.statut = STATUTS.FERMETURE_EN_COURS;
 
     this.signaleurArrêt.abort();
     await oublier();
-    return await super.fermer();
+    await super.fermer();
   }
 
   async inscrireRésolution<T extends ÉpingleFavoris>({
@@ -290,6 +292,14 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     résolution: Résolveur<T>;
   }): Promise<void> {
     this.résolveurs.set(clef, résolution as Résolveur);
+  }
+
+  async désinscrireRésolution({
+    clef,
+  }: {
+    clef: string;
+  }): Promise<void> {
+    this.résolveurs.delete(clef);
   }
 
   async suivreRésolutionÉpingle({
