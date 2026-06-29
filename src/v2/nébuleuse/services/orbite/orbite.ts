@@ -225,7 +225,7 @@ export class ServiceOrbite<
       optionsFinales,
     )) as BdsOrbite[T];
 
-    return { bd, oublier: async () => await bd.close() };
+    return { bd, oublier: this.oublierAvecDélai(bd) };
   }
 
   async effacerBd({ id }: { id: string }): Promise<void> {
@@ -308,23 +308,7 @@ export class ServiceOrbite<
     }
     return {
       bd,
-      oublier: async () => {
-        const chronoOublier = setTimeout(
-          async () => await bd.close(),
-          1000 * 60,
-        );
-        const annulerFermeture = () => {
-          this.fermetures.delete(id);
-          clearTimeout(chronoOublier);
-        };
-        this.fermetures.set(id, {
-          fermerToutDeSuite: async () => {
-            annulerFermeture();
-            await bd.close();
-          },
-          annulerFermeture,
-        });
-      },
+      oublier: this.oublierAvecDélai(bd),
     };
   }
 
@@ -546,6 +530,26 @@ export class ServiceOrbite<
         message,
       ))
     );
+  }
+
+  oublierAvecDélai(bd: BaseDatabase): Oublier {
+    return async () => {
+      const chronoOublier = setTimeout(
+        async () => await bd.close(),
+        1000 * 60,
+      );
+      const annulerFermeture = () => {
+        this.fermetures.delete(bd.address);
+        clearTimeout(chronoOublier);
+      };
+      this.fermetures.set(bd.address, {
+        fermerToutDeSuite: async () => {
+          annulerFermeture();
+          await bd.close();
+        },
+        annulerFermeture,
+      });
+    }
   }
 }
 
