@@ -345,7 +345,7 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
 
   const fermer = async () => {
     await Promise.allSettled(constls.map((c) => c.fermer()));
-    effacer?.();
+    effacer();
   };
 
   return {
