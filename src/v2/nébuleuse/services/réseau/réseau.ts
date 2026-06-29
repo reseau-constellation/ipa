@@ -790,128 +790,179 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     profondeur?: number;
     idCompte?: string;
   }): Promise<RetourRechercheProfondeur> {
-    let annulé = false;
 
-    const relationsImmédiates: {
-      [idCompte: string]: { relations: RelationImmédiate[]; oublier: Oublier };
-    } = {};
-
-    const queue = new PQueue({ concurrency: 1 });
-
-    const fFinale = async () => {
-      const profondeurs = résoudreProfondeurs();
-      const relations: RelationRéseau[] = Object.entries(relationsImmédiates)
-        .map(([id, { relations }]) =>
-          relations.map((r) => ({
-            de: id,
-            pour: r.idCompte,
-            confiance: r.confiance,
-            profondeur: profondeurs[id],
-          })),
-        )
-        .flat();
-      await f(relations);
-    };
-
-    const résoudreProfondeurs = (): { [idCompte: string]: number } => {
-      const profondeurs: { [idCompte: string]: number } = { [idCompte]: 0 };
-      const profondeurParent = (id: string): number | undefined => {
-        const parent = Object.keys(profondeurs).find((idAutre) =>
-          relationsImmédiates[idAutre].relations.find((r) => r.idCompte === id),
-        );
-        return parent ? profondeurs[parent] : undefined;
+    const suivreRelationsRéseauCompte = async ({
+      f,
+      profondeur,
+      idCompte,
+    }: {
+      f: Suivi<RelationRéseau[]>;
+      profondeur?: number;
+      idCompte: string;
+    }): Promise<RetourRechercheProfondeur> => {
+      
+      let annulé = false;
+  
+      const relationsImmédiates: {
+        [idCompte: string]: { relations: RelationImmédiate[]; oublier: Oublier };
+      } = {
+        [idCompte]: {
+          relations: [],
+          oublier: await this.suivreRelationsImmédiates({
+            idCompte,
+            f: async (relations) => {
+              relationsImmédiates[idCompte].relations = relations;
+              mettreÀJour();
+              await fFinale();
+            },
+          })
+        }
       };
-      const àRésoudre = new Set(Object.keys(relationsImmédiates));
-      while (àRésoudre.size) {
-        let progrès = false;
-        for (const id of àRésoudre.values()) {
-          const p = profondeurParent(id);
-          if (p !== undefined) {
-            progrès = true;
-            profondeurs[id] = p + 1;
-            àRésoudre.delete(id);
+  
+      const queue = new PQueue({ concurrency: 1 });
+  
+      const fFinale = async () => {
+        const profondeurs = résoudreProfondeurs();
+        const relations: RelationRéseau[] = Object.entries(relationsImmédiates)
+          .map(([id, { relations }]) =>
+            relations.map((r) => ({
+              de: id,
+              pour: r.idCompte,
+              confiance: r.confiance,
+              profondeur: profondeurs[id],
+            })),
+          )
+          .flat();
+        await f(relations);
+      };
+  
+      const résoudreProfondeurs = (): { [idCompte: string]: number } => {
+        // Le compte initial a une profondeur de 0
+        const profondeurs: { [idCompte: string]: number } = { [idCompte]: 0 };
+
+        // Trouve la profondeur du parent immédiat d'un compte dans le réseau
+        const profondeurParent = (id: string): number | undefined => {
+          const parent = Object.keys(profondeurs).find((idAutre) =>
+            relationsImmédiates[idAutre].relations.find((r) => r.idCompte === id),
+          );
+          return parent ? profondeurs[parent] : undefined;
+        };
+
+        const àRésoudre = new Set(Object.keys(relationsImmédiates).filter(id=>profondeurs[id] === undefined));
+        while (àRésoudre.size) {
+          let progrès = false;
+          for (const id of àRésoudre.values()) {
+            const p = profondeurParent(id);
+            if (p !== undefined) {
+              progrès = true;
+              profondeurs[id] = p + 1;
+              àRésoudre.delete(id);
+            }
+          }
+          if (!progrès) {
+            // On ignore les relations éventuellement déconnectées du compte initial de la recherche
+            break;
           }
         }
-        if (!progrès) {
-          // On ignore les relations éventuellement déconnectées du compte initial de la recherche
-          break;
-        }
-      }
-      return profondeurs;
-    };
-
-    const mettreÀJour = () => {
-      const tâche = async () => {
-        // Calculer profondeurs des comptes suivis
-        const parProfondeur: { [idCompte: string]: number } =
-          résoudreProfondeurs();
-        const ceuxDontOnVeutSuivreLesRelations = Object.keys(
-          parProfondeur,
-          // `profondeur !== undefined` est éjà assuré par `cacheRechercheParProfondeur` mais on met ça ici pour les types TS
-        ).filter((id) => parProfondeur[id] < (profondeur ?? Infinity) - 1);
-
-        // Oublier les comptes trop profonds (en raison de déconnexion de lien de confiance ou bien de changement de profondeur)
-        const àOublier = Object.keys(relationsImmédiates).filter(
-          (id) => !ceuxDontOnVeutSuivreLesRelations.includes(id),
-        );
-        await Promise.all(
-          àOublier.map((id) => relationsImmédiates[id].oublier()),
-        );
-
-        // Ajouter les comptes à suivre
-        const àSuivre = [
-          ...new Set(
-            ceuxDontOnVeutSuivreLesRelations
-              .map((id) =>
-                relationsImmédiates[id].relations.map((r) => r.idCompte),
-              )
-              .flat(),
-          ),
-        ].filter((id) => !relationsImmédiates[id]);
-
-        await Promise.all(
-          àSuivre.map(async (id) => {
-            const oublierSuivi = await this.suivreRelationsImmédiates({
-              idCompte: id,
-              f: async (relations) => {
-                relationsImmédiates[id].relations = relations;
-                mettreÀJour();
-                await fFinale();
-              },
-            });
-            relationsImmédiates[id] = {
-              relations: [],
-              oublier: async () => {
-                await oublierSuivi();
-                delete relationsImmédiates[id];
-              },
-            };
-          }),
-        );
-        await fFinale();
+        return profondeurs;
       };
+  
+      const mettreÀJour = () => {
+        const tâche = async () => {
+          // Calculer profondeurs des comptes suivis
+          const parProfondeur: { [idCompte: string]: number } =
+            résoudreProfondeurs();
+          const ceuxDontOnVeutSuivreLesRelations = Object.keys(
+            parProfondeur,
+            // `profondeur !== undefined` est déjà assuré par `cacheRechercheParProfondeur` mais on met ça ici pour les types TS
+          ).filter((id) => parProfondeur[id] < (profondeur ?? Infinity) - 1);
+  
+          // Oublier les comptes trop profonds (en raison de déconnexion de lien de confiance ou bien de changement de profondeur)
+          const ceuxDontOnVeutOublierLesRelations = Object.keys(relationsImmédiates).filter(
+            (id) => !ceuxDontOnVeutSuivreLesRelations.includes(id),
+          );
+          await Promise.all(
+            ceuxDontOnVeutOublierLesRelations.map((id) => relationsImmédiates[id].oublier()),
+          );
 
-      if (!annulé) queue.add(tâche);
+          // Ajouter les nouveaux comptes à suivre
+          const àSuivre = [
+            ...new Set(
+              ceuxDontOnVeutSuivreLesRelations
+                .map((id) =>
+                  relationsImmédiates[id].relations.filter(r=>r.confiance >= 0).map((r) => r.idCompte),  // erreur relationsImmédiates[id] === undefined ici
+                )
+                .flat(),
+            ),
+          ].filter((id) => !relationsImmédiates[id]);
+          
+          await Promise.all(
+            àSuivre.map(async (id) => {
+              const oublierSuivi = await this.suivreRelationsImmédiates({
+                idCompte: id,
+                f: async (relations) => {
+                  relationsImmédiates[id].relations = relations;
+                  mettreÀJour();
+                  await fFinale();
+                },
+              });
+              relationsImmédiates[id] = {
+                relations: [],
+                oublier: async () => {
+                  await oublierSuivi();
+                  delete relationsImmédiates[id];
+                },
+              };
+            }),
+          );
+          await fFinale();
+        };
+  
+        if (!annulé) queue.add(tâche);
+      };
+  
+      mettreÀJour();
+  
+      const oublier = async () => {
+        annulé = true;
+        await queue.onIdle();
+        await Promise.all(
+          Object.values(relationsImmédiates).map((r) => r.oublier()),
+        );
+      };
+  
+      const changerProfondeur = async (p: number) => {
+        if (profondeur !== p && Math.ceil(p) > 0) {
+          profondeur = p;
+          mettreÀJour();
+        }
+      };
+  
+      return { oublier, profondeur: changerProfondeur };
+    }
+
+    if (idCompte) return await suivreRelationsRéseauCompte({ f, profondeur, idCompte })
+    
+    else {
+      const compte = this.service("compte")
+      const journal = this.service("journal");
+
+      // Ici on a un peu de code manuel pour rendre `suivreFonctionImbriquée` compatible avec une fonction qui rend
+      // `RetourRechercheProfondeur`.
+      let changerProfondeur: RetourRechercheProfondeur["profondeur"] = async (_p: number) => {};
+      const oublierImbriquée = await suivreFonctionImbriquée({
+        fRacine: async ({ fSuivreRacine }) => await compte.suivreIdCompte({ f: fSuivreRacine }),
+        fSuivre: async ({ id, fSuivre }) => {
+          const retour = await suivreRelationsRéseauCompte({ f: fSuivre, profondeur, idCompte: id })
+          changerProfondeur = retour.profondeur
+          return retour.oublier
+        },
+        f: ignorerNonDéfinis(f),
+        journal: journal.écrire.bind(journal),
+      });
+
+      return { oublier: oublierImbriquée, profondeur: changerProfondeur }
     };
-
-    mettreÀJour();
-
-    const oublier = async () => {
-      annulé = true;
-      await queue.onIdle();
-      await Promise.all(
-        Object.values(relationsImmédiates).map((r) => r.oublier()),
-      );
-    };
-
-    const changerProfondeur = async (p: number) => {
-      if (profondeur !== p) {
-        profondeur = p;
-        mettreÀJour();
-      }
-    };
-
-    return { oublier, profondeur: changerProfondeur };
   }
 
   @cacheSuivi
@@ -923,7 +974,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idCompte?: string;
   }): Promise<Oublier> {
     const compte = this.service("compte");
-
     const suivreRelationsCompte = async ({
       id,
       fSuivre,
