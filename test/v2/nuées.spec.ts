@@ -3554,8 +3554,8 @@ describe("Nuées", function () {
             idCompte: idsComptes[1],
           });
 
-          const autorisée = await obtenir<boolean>(({ siDéfini }) =>
-            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: siDéfini() }),
+          const autorisée = await obtenir<boolean>(({ si }) =>
+            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x === true) }),
           );
           expect(autorisée).to.be.true();
         });
