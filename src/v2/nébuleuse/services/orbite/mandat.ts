@@ -134,9 +134,11 @@ const mandatBd = (
             requêtes.delete(id);
 
             if (!requêtes.size) {
-              // On met ça avant au cas où on aurait une erreur dans `target.close()`
-              cache.delete(target.address);
-              await target.close();
+              try {
+                await target.close();
+              } finally {
+                cache.delete(target.address);
+              };
             }
           } finally {
             verrou.release(bd.address);
