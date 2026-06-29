@@ -454,20 +454,20 @@ export class BaseServiceCompte<
     }).then(async ({bd, oublier: oublierBd})=> {
       àOublier.push(oublierBd);
 
-    const accès = bd.access;
+      const accès = bd.access;
       if (signaleurOublier.signal.aborted) return;
 
-    if (!estContrôleurNébuleuse(accès)) {
+      if (!estContrôleurNébuleuse(accès)) {
         journal.écrire({message: `Type d'accès ${bd.access.type} non reconnu.`});
       } else {
-    const oublierAccès = await accès.suivreUtilisateursAutorisés((autorisés) =>
-      f(
-        autorisés.map((x) => ({
-          rôle: x.rôle,
-          idCompte: ajouterPréfixes(x.idCompte, "/nébuleuse/compte"),
-        })),
-      ),
-    );
+        const oublierAccès = await accès.suivreUtilisateursAutorisés((autorisés) =>
+          f(
+            autorisés.map((x) => ({
+              rôle: x.rôle,
+              idCompte: ajouterPréfixes(x.idCompte, "/nébuleuse/compte"),
+            })),
+          ),
+        );
         àOublier.push(oublierAccès)
       }
     }).catch((e)=>{
