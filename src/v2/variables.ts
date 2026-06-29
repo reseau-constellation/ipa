@@ -134,7 +134,7 @@ const règlesComplètes = (
 // Types épingles
 
 export type ÉpingleVariable = {
-  type: "variable";
+  type: "variables";
   épingle: ContenuÉpingleVariable;
 };
 
@@ -379,7 +379,7 @@ export class Variables extends ObjetConstellation<
     const favoris = this.service("favoris");
     await favoris.épinglerFavori({
       idObjet: idVariable,
-      épingle: { type: "variable", épingle },
+      épingle: { type: "variables", épingle },
     });
   }
 
@@ -398,7 +398,7 @@ export class Variables extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleVariable = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idVariable && épingle.type === "variable";
+          return idObjet === idVariable && épingle.type === this.clef;
         }) as ÉpingleFavorisAvecId<ContenuÉpingleVariable> | undefined;
         await f(épingleVariable?.épingle as ÉpingleVariable);
       },

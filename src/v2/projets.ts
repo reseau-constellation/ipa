@@ -55,7 +55,7 @@ export type MotClefProjet = { idMotClef: string; source: "projet" | "bds" };
 // Types épingles
 
 export type ÉpingleProjet = {
-  type: "projet";
+  type: "projets";
   épingle: ContenuÉpingleProjet;
 };
 
@@ -325,7 +325,7 @@ export class Projets extends ObjetConstellation<
     const épingle: ContenuÉpingleProjet = résoudreDéfauts(options, {
       base: TOUS_DISPOSITIFS,
       bds: {
-        type: "bd",
+        type: "bds",
         épingle: {
           base: TOUS_DISPOSITIFS,
           données: {
@@ -337,7 +337,7 @@ export class Projets extends ObjetConstellation<
     });
     await favoris.épinglerFavori({
       idObjet: idProjet,
-      épingle: { type: "projet", épingle },
+      épingle: { type: "projets", épingle },
     });
   }
 
@@ -362,7 +362,7 @@ export class Projets extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleProjet = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idProjet && épingle.type === "projet"
+          return idObjet === idProjet && épingle.type === this.clef
             ? épingle
             : undefined;
         }) as ÉpingleFavorisAvecId<ContenuÉpingleProjet> | undefined;
@@ -432,7 +432,7 @@ export class Projets extends ObjetConstellation<
               épingle: {
                 idObjet: idBd,
                 épingle: {
-                  type: "bd",
+                  type: "bds",
                   épingle: épingleBds.épingle,
                 },
               },

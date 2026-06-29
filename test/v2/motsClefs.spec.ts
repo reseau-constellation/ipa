@@ -417,7 +417,7 @@ describe("Mots-clefs", function () {
       );
 
       const réf: ÉpingleMotClef = {
-        type: "mot-clef",
+        type: "motsClefs",
         épingle: {
           base: TOUS_DISPOSITIFS,
         },
@@ -448,7 +448,7 @@ describe("Mots-clefs", function () {
       );
 
       const réf: ÉpingleMotClef = {
-        type: "mot-clef",
+        type: "motsClefs",
         épingle: { base: TOUS_DISPOSITIFS },
       };
       expect(épingle).to.deep.equal(réf);
@@ -460,7 +460,7 @@ describe("Mots-clefs", function () {
           épingle: {
             idObjet: "n'importe",
             épingle: {
-              type: "mot-clef",
+              type: "motsClefs",
               épingle: {
                 base: true,
               },

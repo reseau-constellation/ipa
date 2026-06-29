@@ -96,7 +96,7 @@ import type { MotsClefs } from "../motsClefs.js";
 // Types épingles
 
 export type ÉpingleNuée = {
-  type: "nuée";
+  type: "nuées";
   épingle: ContenuÉpingleNuée;
 };
 
@@ -731,7 +731,7 @@ export class Nuées extends ObjetConstellation<
     const épingle: ContenuÉpingleNuée = résoudreDéfauts(options, {
       base: TOUS_DISPOSITIFS,
       bds: {
-        type: "bd",
+        type: "bds",
         épingle: {
           base: TOUS_DISPOSITIFS,
           données: {
@@ -743,7 +743,7 @@ export class Nuées extends ObjetConstellation<
     });
     await favoris.épinglerFavori({
       idObjet: idNuée,
-      épingle: { type: "nuée", épingle },
+      épingle: { type: "nuées", épingle },
     });
   }
 
@@ -768,7 +768,7 @@ export class Nuées extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleNuée = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idNuée && épingle.type === "nuée"
+          return idObjet === idNuée && épingle.type === this.clef
             ? épingle
             : undefined;
         }) as ÉpingleFavorisAvecId<ContenuÉpingleNuée> | undefined;
@@ -853,7 +853,7 @@ export class Nuées extends ObjetConstellation<
               épingle: {
                 idObjet: idBd,
                 épingle: {
-                  type: "bd",
+                  type: "bds",
                   épingle: épingleBds.épingle,
                 },
               },

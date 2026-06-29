@@ -52,7 +52,7 @@ export const schémaMotClef: JSONSchemaType<PartielRécursif<StructureMotClef>> 
 // Types épingles
 
 export type ÉpingleMotClef = {
-  type: "mot-clef";
+  type: "motsClefs";
   épingle: ContenuÉpingleMotClef;
 };
 
@@ -252,7 +252,7 @@ export class MotsClefs extends ObjetConstellation<
     const favoris = this.service("favoris");
     await favoris.épinglerFavori({
       idObjet: idMotClef,
-      épingle: { type: "mot-clef", épingle },
+      épingle: { type: this.clef, épingle },
     });
   }
 
@@ -271,7 +271,7 @@ export class MotsClefs extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleMotClef = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idMotClef && épingle.type === "mot-clef"
+          return idObjet === idMotClef && épingle.type === this.clef
             ? épingle
             : undefined;
         }) as ÉpingleFavorisAvecId<ContenuÉpingleMotClef> | undefined;

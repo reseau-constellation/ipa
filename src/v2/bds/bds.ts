@@ -76,7 +76,7 @@ import type { ServicesNécessairesRechercheBds } from "../recherche/fonctions/bd
 // Types épingles
 
 export type ÉpingleBd = {
-  type: "bd";
+  type: "bds";
   épingle: ContenuÉpingleBd;
 };
 
@@ -669,7 +669,7 @@ export class Bds extends ObjetConstellation<
 
     await favoris.épinglerFavori({
       idObjet: idBd,
-      épingle: { type: "bd", épingle },
+      épingle: { type: "bds", épingle },
     });
   }
 
@@ -693,7 +693,7 @@ export class Bds extends ObjetConstellation<
       idCompte,
       f: async (épingles) => {
         const épingleBd = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idBd && épingle.type === "bd"
+          return idObjet === idBd && épingle.type === this.clef
             ? épingle
             : undefined;
         }) as ÉpingleFavorisAvecId<ContenuÉpingleBd> | undefined;

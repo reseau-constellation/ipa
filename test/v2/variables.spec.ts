@@ -737,7 +737,7 @@ describe("Variables", function () {
       );
 
       const réf: ÉpingleVariable = {
-        type: "variable",
+        type: "variables",
         épingle: {
           base: TOUS_DISPOSITIFS,
         },
@@ -764,7 +764,7 @@ describe("Variables", function () {
       );
 
       const réf: ÉpingleVariable = {
-        type: "variable",
+        type: "variables",
         épingle: {
           base: TOUS_DISPOSITIFS,
         },
@@ -778,7 +778,7 @@ describe("Variables", function () {
           épingle: {
             idObjet: idVariable,
             épingle: {
-              type: "variable",
+              type: "variables",
               épingle: {
                 base: true,
               },

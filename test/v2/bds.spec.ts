@@ -678,7 +678,7 @@ describe("Bases de données", function () {
       );
 
       const réf: ÉpingleBd = {
-        type: "bd",
+        type: "bds",
         épingle: {
           base: TOUS_DISPOSITIFS,
           données: {
@@ -714,7 +714,7 @@ describe("Bases de données", function () {
       );
 
       const réf: ÉpingleBd = {
-        type: "bd",
+        type: "bds",
         épingle: {
           base: TOUS_DISPOSITIFS,
           données: {
@@ -733,7 +733,7 @@ describe("Bases de données", function () {
           épingle: {
             idObjet: idBd,
             épingle: {
-              type: "bd",
+              type: "bds",
               épingle: { base: true },
             },
           },
@@ -756,7 +756,7 @@ describe("Bases de données", function () {
           épingle: {
             idObjet: idBd,
             épingle: {
-              type: "bd",
+              type: "bds",
               épingle: {
                 base: true,
                 données: {
@@ -779,7 +779,7 @@ describe("Bases de données", function () {
             épingle: {
               idObjet: idBd,
               épingle: {
-                type: "bd",
+                type: "bds",
                 épingle: {
                   base: true,
                 },
@@ -822,7 +822,7 @@ describe("Bases de données", function () {
           épingle: {
             idObjet: idBd,
             épingle: {
-              type: "bd",
+              type: "bds",
               épingle: {
                 base: true,
                 données: {
@@ -846,7 +846,7 @@ describe("Bases de données", function () {
           épingle: {
             idObjet: idBd,
             épingle: {
-              type: "bd",
+              type: "bds",
               épingle: {
                 base: true,
               },
@@ -890,7 +890,7 @@ describe("Bases de données", function () {
           épingle: {
             idObjet: idBd,
             épingle: {
-              type: "bd",
+              type: "bds",
               épingle: {
                 base: true,
                 données: {

@@ -1128,11 +1128,11 @@ describe("Nuées", function () {
       );
 
       const réf: ÉpingleNuée = {
-        type: "nuée",
+        type: "nuées",
         épingle: {
           base: TOUS_DISPOSITIFS,
           bds: {
-            type: "bd",
+            type: "bds",
             épingle: {
               base: TOUS_DISPOSITIFS,
               données: {
@@ -1169,11 +1169,11 @@ describe("Nuées", function () {
       );
 
       const réf: ÉpingleNuée = {
-        type: "nuée",
+        type: "nuées",
         épingle: {
           base: TOUS_DISPOSITIFS,
           bds: {
-            type: "bd",
+            type: "bds",
             épingle: {
               base: TOUS_DISPOSITIFS,
               données: {
@@ -1194,7 +1194,7 @@ describe("Nuées", function () {
           épingle: {
             idObjet: idNuée,
             épingle: {
-              type: "nuée",
+              type: "nuées",
               épingle: { base: true },
             },
           },
@@ -1221,11 +1221,11 @@ describe("Nuées", function () {
           épingle: {
             idObjet: idNuée,
             épingle: {
-              type: "nuée",
+              type: "nuées",
               épingle: {
                 base: true,
                 bds: {
-                  type: "bd",
+                  type: "bds",
                   épingle: {
                     base: true,
                     données: {
@@ -1251,11 +1251,11 @@ describe("Nuées", function () {
             épingle: {
               idObjet: idNuée,
               épingle: {
-                type: "nuée",
+                type: "nuées",
                 épingle: {
                   base: true,
                   bds: {
-                    type: "bd",
+                    type: "bds",
                     épingle: {
                       base: true,
                       données: {
@@ -1312,11 +1312,11 @@ describe("Nuées", function () {
           épingle: {
             idObjet: idNuée,
             épingle: {
-              type: "nuée",
+              type: "nuées",
               épingle: {
                 base: true,
                 bds: {
-                  type: "bd",
+                  type: "bds",
                   épingle: {
                     base: true,
                     données: {
@@ -1343,11 +1343,11 @@ describe("Nuées", function () {
           épingle: {
             idObjet: idNuée,
             épingle: {
-              type: "nuée",
+              type: "nuées",
               épingle: {
                 base: true,
                 bds: {
-                  type: "bd",
+                  type: "bds",
                   épingle: {
                     base: true,
                     données: {
@@ -1374,11 +1374,11 @@ describe("Nuées", function () {
             épingle: {
               idObjet: idNuée,
               épingle: {
-                type: "nuée",
+                type: "nuées",
                 épingle: {
                   base: true,
                   bds: {
-                    type: "bd",
+                    type: "bds",
                     épingle: {
                       base: true,
                     },
@@ -1404,7 +1404,7 @@ describe("Nuées", function () {
           épingle: {
             idObjet: idNuée,
             épingle: {
-              type: "nuée",
+              type: "nuées",
               épingle: { base: true },
             },
           },

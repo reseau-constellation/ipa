@@ -630,11 +630,11 @@ describe("Projets", function () {
       );
 
       const réf: ÉpingleProjet = {
-        type: "projet",
+        type: "projets",
         épingle: {
           base: TOUS_DISPOSITIFS,
           bds: {
-            type: "bd",
+            type: "bds",
             épingle: {
               base: TOUS_DISPOSITIFS,
               données: {
@@ -668,11 +668,11 @@ describe("Projets", function () {
       );
 
       const réf: ÉpingleProjet = {
-        type: "projet",
+        type: "projets",
         épingle: {
           base: TOUS_DISPOSITIFS,
           bds: {
-            type: "bd",
+            type: "bds",
             épingle: {
               base: TOUS_DISPOSITIFS,
               données: {
@@ -693,7 +693,7 @@ describe("Projets", function () {
           épingle: {
             idObjet: idProjet,
             épingle: {
-              type: "projet",
+              type: "projets",
               épingle: { base: true },
             },
           },
@@ -721,11 +721,11 @@ describe("Projets", function () {
           épingle: {
             idObjet: idProjet,
             épingle: {
-              type: "projet",
+              type: "projets",
               épingle: {
                 base: true,
                 bds: {
-                  type: "bd",
+                  type: "bds",
                   épingle: {
                     base: true,
                     données: {
@@ -750,11 +750,11 @@ describe("Projets", function () {
           épingle: {
             idObjet: idProjet,
             épingle: {
-              type: "projet",
+              type: "projets",
               épingle: {
                 base: true,
                 bds: {
-                  type: "bd",
+                  type: "bds",
                   épingle: {
                     base: true,
                     données: {
@@ -807,11 +807,11 @@ describe("Projets", function () {
           épingle: {
             idObjet: idProjet,
             épingle: {
-              type: "projet",
+              type: "projets",
               épingle: {
                 base: true,
                 bds: {
-                  type: "bd",
+                  type: "bds",
                   épingle: {
                     base: true,
                     données: {
@@ -838,11 +838,11 @@ describe("Projets", function () {
           épingle: {
             idObjet: idProjet,
             épingle: {
-              type: "projet",
+              type: "projets",
               épingle: {
                 base: true,
                 bds: {
-                  type: "bd",
+                  type: "bds",
                   épingle: {
                     base: true,
                     données: {
@@ -868,11 +868,11 @@ describe("Projets", function () {
             épingle: {
               idObjet: idProjet,
               épingle: {
-                type: "projet",
+                type: "projets",
                 épingle: {
                   base: true,
                   bds: {
-                    type: "bd",
+                    type: "bds",
                     épingle: {
                       base: true,
                     },
