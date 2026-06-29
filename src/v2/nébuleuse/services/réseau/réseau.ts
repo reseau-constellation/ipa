@@ -443,6 +443,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const { bd, oublier } = await orbite.ouvrirBd({
         id,
         type: "keyvalue",
+        signal: this.signaleurArrêt.signal,
       });
       const accès = bd.access;
       if (!estContrôleurNébuleuse(accès)) {
