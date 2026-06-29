@@ -417,8 +417,8 @@ export class BaseServiceCompte<
 
     const oublierAutorisations = await this.suivreAutorisations({
       idObjet,
-      f: async (utilis: AccèsUtilisateur[]) => {
-        utilisateurs = utilis;
+      f: async (accès: AccèsUtilisateur[]) => {
+        utilisateurs = accès;
         await fFinale();
       },
     });
