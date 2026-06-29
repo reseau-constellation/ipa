@@ -141,7 +141,7 @@ export class ServiceOrbite<
 
     const orbite = mandatOrbite(orbiteOrig, (erreur) => {
       if (!estErreurAvortée(erreur))
-        journal.écrire({ message: erreur.toString() + erreur.stack || "" });
+        journal.écrire({ message: "Erreur ouverture données Orbite : " + JSON.stringify(erreur) + erreur.stack || "" });
     });
 
     this.estDémarré = { orbite };
@@ -381,7 +381,7 @@ export class ServiceOrbite<
       })
       .catch((e) => {
         if (!estErreurAvortée(e)) {
-          journal.écrire({ message: e.toString() + e.stack || "" });
+          journal.écrire({ message: "Erreur ouverture données Orbite : " + e.toString() + e.stack || "" });
         }
       });
 
