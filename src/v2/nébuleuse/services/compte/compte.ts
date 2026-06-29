@@ -108,7 +108,7 @@ export class BaseServiceCompte<
     super({
       clef: "compte",
       services,
-      dépendances: ["orbite", "libp2p", "stockage"],
+      dépendances: ["orbite", "libp2p", "journal", "stockage"],
       options: { ...options, consts },
     });
 
@@ -344,6 +344,7 @@ export class BaseServiceCompte<
     idCompte?: string;
     signal?: AbortSignal;
   }): Promise<Oublier> {
+    const journal = this.service("journal");
     const orbite = this.service("orbite");
 
     if (idCompte) {
@@ -367,7 +368,7 @@ export class BaseServiceCompte<
           }),
         journal: async (m) => {
           if (!estErreurAvortée(m))
-            await this.service("journal").écrire({ message: m.toString() });
+            await journal.écrire({ message: "Erreur suivi données Orbite : " + m.toString() });
         },
       });
     }
