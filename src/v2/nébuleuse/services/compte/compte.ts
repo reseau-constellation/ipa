@@ -442,15 +442,27 @@ export class BaseServiceCompte<
     idObjet: string;
     f: Suivi<AccèsUtilisateur[]>;
   }): Promise<Oublier> {
-    const { bd, oublier: oublierBd } = await this.service("orbite").ouvrirBd({
-      id: enleverPréfixes(idObjet),
-    });
-    const accès = bd.access;
-    if (!estContrôleurNébuleuse(accès)) {
-      await oublierBd();
-      throw new Error(`Type d'accès ${bd.access.type} non reconnu.`);
-    }
+    const orbite = this.service("orbite");
+    const journal = this.service("journal");
+      signal: signaleurOublier.signal,
+    }).then(async ({bd, oublier: oublierBd})=> {
+      àOublier.push(oublierBd);
 
+    const signaleurOublier = new AbortController();
+    const àOublier: Oublier[] = [];
+
+    orbite.ouvrirBd({
+      id: enleverPréfixes(idObjet),
+      signal: signaleurOublier.signal,
+    }).then(async ({bd, oublier: oublierBd})=> {
+      àOublier.push(oublierBd);
+
+    const accès = bd.access;
+      if (signaleurOublier.signal.aborted) return;
+
+    if (!estContrôleurNébuleuse(accès)) {
+        journal.écrire({message: `Type d'accès ${bd.access.type} non reconnu.`});
+      } else {
     const oublierAccès = await accès.suivreUtilisateursAutorisés((autorisés) =>
       f(
         autorisés.map((x) => ({
@@ -459,10 +471,16 @@ export class BaseServiceCompte<
         })),
       ),
     );
+        àOublier.push(oublierAccès)
+      }
+    }).catch((e)=>{
+      if (!estErreurAvortée(e)) journal.écrire({message: `Erreur ouverture données Orbite dans suivi autorisations pour ${idObjet} : ${e.toString()}`})
+    });
 
     return async () => {
-      await Promise.all([oublierAccès(), oublierBd()]);
-    };
+      signaleurOublier.abort();
+      await Promise.allSettled([àOublier.map(f=>f())]);
+    }    
   }
 
   async créerObjet<T extends keyof BdsOrbite>({
