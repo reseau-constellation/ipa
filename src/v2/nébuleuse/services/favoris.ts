@@ -415,6 +415,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
         await fFinale();
       },
       idCompte,
+      signal: this.signaleurArrêt.signal,
     });
 
     const oublierMonCompte = await compte.suivreIdCompte({
