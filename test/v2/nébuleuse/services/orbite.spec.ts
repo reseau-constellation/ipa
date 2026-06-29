@@ -431,7 +431,7 @@ describe("Service Orbite", function () {
       await expect(
         orbite.ouvrirBd({ id: idBd, type: "feed" }),
       ).to.eventually.be.rejectedWith(
-        "La bd est de type keyvalue et non feed.",
+        `La bd ${idBd} est de type keyvalue et non feed.`,
       );
     });
 
@@ -466,7 +466,7 @@ describe("Service Orbite", function () {
       await attendreQue(() => erreurs.length > 0);
       await oublierSuivi();
 
-      expect(erreurs[0]).to.include("La bd est de type keyvalue et non feed.");
+      expect(erreurs[0]).to.include(`La bd ${idBd} est de type keyvalue et non feed.`);
     });
 
     it("suivre bd typée", async () => {
