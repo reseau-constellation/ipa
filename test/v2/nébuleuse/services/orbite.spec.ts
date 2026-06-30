@@ -466,7 +466,9 @@ describe("Service Orbite", function () {
       await attendreQue(() => erreurs.length > 0);
       await oublierSuivi();
 
-      expect(erreurs[0]).to.include(`La bd ${idBd} est de type keyvalue et non feed.`);
+      expect(erreurs[0]).to.include(
+        `La bd ${idBd} est de type keyvalue et non feed.`,
+      );
     });
 
     it("suivre bd typée", async () => {

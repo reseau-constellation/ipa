@@ -166,7 +166,7 @@ export class Profil extends ServiceDonnéesAppli<
       clef: this.clef,
     });
 
-    return await super.fermer()
+    return await super.fermer();
   }
 
   async initialiser(): Promise<void> {

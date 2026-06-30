@@ -82,7 +82,7 @@ export const stabiliser =
       if (déjàAppellée && deepEqual(v, val)) return;
 
       let fLancé = false;
-      
+
       // Un signaleur d'avortement qu'on utilise pour signaler qu'on a complété l'appel
       const signaleur = new AbortController();
 

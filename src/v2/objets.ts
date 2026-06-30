@@ -108,7 +108,7 @@ export abstract class ObjetConstellation<
     favoris.désinscrireRésolution({
       clef: this.clef,
     });
-    await super.fermer()
+    await super.fermer();
   }
 
   async suivreRésolutionÉpingle({

@@ -3555,7 +3555,11 @@ describe("Nuées", function () {
           });
 
           const autorisée = await obtenir<boolean>(({ si }) =>
-            constl.nuées.suivreAutorisationBd({ idNuée, idBd, f: si(x=>x === true) }),
+            constl.nuées.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: si((x) => x === true),
+            }),
           );
           expect(autorisée).to.be.true();
         });

@@ -294,11 +294,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     this.résolveurs.set(clef, résolution as Résolveur);
   }
 
-  async désinscrireRésolution({
-    clef,
-  }: {
-    clef: string;
-  }): Promise<void> {
+  async désinscrireRésolution({ clef }: { clef: string }): Promise<void> {
     this.résolveurs.delete(clef);
   }
 

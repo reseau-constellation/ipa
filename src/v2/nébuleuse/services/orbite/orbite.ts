@@ -141,7 +141,12 @@ export class ServiceOrbite<
 
     const orbite = mandatOrbite(orbiteOrig, (erreur) => {
       if (!estErreurAvortée(erreur))
-        journal.écrire({ message: "Erreur ouverture données Orbite : " + JSON.stringify(erreur) + erreur.stack || "" });
+        journal.écrire({
+          message:
+            "Erreur ouverture données Orbite : " +
+              JSON.stringify(erreur) +
+              erreur.stack || "",
+        });
     });
 
     this.estDémarré = { orbite };
@@ -149,7 +154,10 @@ export class ServiceOrbite<
   }
 
   async orbite(): Promise<OrbitDB<L>> {
-    if (this.statut === STATUTS.FERMÉE || this.statut === STATUTS.FERMETURE_EN_COURS)
+    if (
+      this.statut === STATUTS.FERMÉE ||
+      this.statut === STATUTS.FERMETURE_EN_COURS
+    )
       throw new Error("Service orbite déjà fermé.");
 
     // Si `orbite` n'est pas défini dans les options, il sera rendu par `this.démarré`
@@ -169,9 +177,9 @@ export class ServiceOrbite<
     this.signaleurArrêt.abort();
 
     await Promise.allSettled(
-      [...this.fermetures
-        .values()]
-        .map(({ fermerToutDeSuite }) => fermerToutDeSuite()),
+      [...this.fermetures.values()].map(({ fermerToutDeSuite }) =>
+        fermerToutDeSuite(),
+      ),
     );
     if (orbite) await orbite.stop();
 
@@ -291,15 +299,15 @@ export class ServiceOrbite<
       : this.signaleurArrêt.signal;
 
     signal?.addEventListener("abort", () => {
-      if (!ouverte) signaleurLocal.abort()
-    })
+      if (!ouverte) signaleurLocal.abort();
+    });
 
     const bd = await réessayer(
       () => orbite.open(id, { signal: signalFinal }),
       signalFinal,
     );
-    ouverte = true
-    bd.events.setMaxListeners(100)
+    ouverte = true;
+    bd.events.setMaxListeners(100);
 
     if (type) {
       if (type !== bd.type) {
@@ -373,7 +381,11 @@ export class ServiceOrbite<
       })
       .catch((e) => {
         if (!estErreurAvortée(e)) {
-          journal.écrire({ message: "Erreur ouverture données Orbite : " + e.toString() + e.stack || "" });
+          journal.écrire({
+            message:
+              "Erreur ouverture données Orbite : " + e.toString() + e.stack ||
+              "",
+          });
         }
       });
 
@@ -534,10 +546,7 @@ export class ServiceOrbite<
 
   oublierAvecDélai(bd: BaseDatabase): Oublier {
     return async () => {
-      const chronoOublier = setTimeout(
-        async () => await bd.close(),
-        1000 * 60,
-      );
+      const chronoOublier = setTimeout(async () => await bd.close(), 1000 * 60);
       const annulerFermeture = () => {
         this.fermetures.delete(bd.address);
         clearTimeout(chronoOublier);
@@ -549,7 +558,7 @@ export class ServiceOrbite<
         },
         annulerFermeture,
       });
-    }
+    };
   }
 }
 

@@ -138,7 +138,7 @@ const mandatBd = (
                 await target.close();
               } finally {
                 cache.delete(target.address);
-              };
+              }
             }
           } finally {
             verrou.release(bd.address);

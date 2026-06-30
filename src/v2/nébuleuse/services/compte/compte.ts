@@ -129,7 +129,7 @@ export class BaseServiceCompte<
   async fermer() {
     const { oublier } = await this.démarré();
     this.statut = STATUTS.FERMETURE_EN_COURS;
-    
+
     await oublier();
     await super.fermer();
   }
@@ -368,7 +368,9 @@ export class BaseServiceCompte<
           }),
         journal: async (m) => {
           if (!estErreurAvortée(m))
-            await journal.écrire({ message: "Erreur suivi données Orbite : " + m.toString() });
+            await journal.écrire({
+              message: "Erreur suivi données Orbite : " + m.toString(),
+            });
         },
       });
     }
@@ -448,37 +450,46 @@ export class BaseServiceCompte<
     const signaleurOublier = new AbortController();
     const àOublier: Oublier[] = [];
 
-    orbite.ouvrirBd({
-      id: enleverPréfixes(idObjet),
-      signal: signaleurOublier.signal,
-    }).then(async ({bd, oublier: oublierBd})=> {
-      àOublier.push(oublierBd);
+    orbite
+      .ouvrirBd({
+        id: enleverPréfixes(idObjet),
+        signal: signaleurOublier.signal,
+      })
+      .then(async ({ bd, oublier: oublierBd }) => {
+        àOublier.push(oublierBd);
 
-      const accès = bd.access;
-      if (signaleurOublier.signal.aborted) return;
+        const accès = bd.access;
+        if (signaleurOublier.signal.aborted) return;
 
-      if (!estContrôleurNébuleuse(accès)) {
-        journal.écrire({message: `Type d'accès ${bd.access.type} non reconnu.`});
-        await f([])
-      } else {
-        const oublierAccès = await accès.suivreUtilisateursAutorisés((autorisés) =>
-          f(
-            autorisés.map((x) => ({
-              rôle: x.rôle,
-              idCompte: ajouterPréfixes(x.idCompte, "/nébuleuse/compte"),
-            })),
-          ),
-        );
-        àOublier.push(oublierAccès)
-      }
-    }).catch((e)=>{
-      if (!estErreurAvortée(e)) journal.écrire({message: `Erreur ouverture données Orbite dans suivi autorisations pour ${idObjet} : ${e.toString()}`})
-    });
+        if (!estContrôleurNébuleuse(accès)) {
+          journal.écrire({
+            message: `Type d'accès ${bd.access.type} non reconnu.`,
+          });
+          await f([]);
+        } else {
+          const oublierAccès = await accès.suivreUtilisateursAutorisés(
+            (autorisés) =>
+              f(
+                autorisés.map((x) => ({
+                  rôle: x.rôle,
+                  idCompte: ajouterPréfixes(x.idCompte, "/nébuleuse/compte"),
+                })),
+              ),
+          );
+          àOublier.push(oublierAccès);
+        }
+      })
+      .catch((e) => {
+        if (!estErreurAvortée(e))
+          journal.écrire({
+            message: `Erreur ouverture données Orbite dans suivi autorisations pour ${idObjet} : ${e.toString()}`,
+          });
+      });
 
     return async () => {
       signaleurOublier.abort();
-      await Promise.allSettled([àOublier.map(f=>f())]);
-    }    
+      await Promise.allSettled([àOublier.map((f) => f())]);
+    };
   }
 
   async créerObjet<T extends keyof BdsOrbite>({
