@@ -59,6 +59,13 @@ export type DonnéesTableauExportées = {
   documentsMédias: Set<string>;
 };
 
+const estEncodable = (val: DonnéeImportation): val is DagCborEncodable => {
+  if (typeof val === "boolean" || typeof val === "string" || typeof val === "number" || val === null ) return true;
+  else if (Array.isArray(val)) return val.every(x=>estEncodable(x))
+  else if (typeof val === "object") return Object.values(val).every(x=>estEncodable(x));
+  return false
+}
+
 // Types conversions
 
 export type DonnéeImportation =
@@ -854,7 +861,7 @@ export class TableauxBds extends Tableaux {
           (c) => c.colonne === colonne,
         );
         if (!conversionColonne) {
-          if (valeur !== undefined) convertie[colonne] = valeur;
+          if (estEncodable(valeur)) convertie[colonne] = valeur;
           continue;
         }
 
