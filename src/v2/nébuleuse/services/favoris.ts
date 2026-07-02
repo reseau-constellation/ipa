@@ -577,7 +577,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     return await this.suivreBd({
       f: async (favoris) => {
         const favorisObjet = favoris?.[idObjet];
-        if (typeÉpinglePrésent(favorisObjet?.épingle))
+        if (typeÉpinglePrésent(favorisObjet?.épingle) && favorisObjet.épingle.épingle)
           await f({
             type: favorisObjet.épingle.type,
             épingle: await this.résoudreÉpinglesSurDispositif({
