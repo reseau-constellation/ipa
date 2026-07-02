@@ -101,7 +101,7 @@
     "@chainsafe/libp2p-noise": "^17.0.0",
     "@chainsafe/libp2p-yamux": "^8.0.1",
     "@chriscdn/promise-semaphore": "^4.0.0",
-    "@constl/bohr-db": "^2.2.5",
+    "@constl/bohr-db": "^2.2.6",
     "@constl/mandataire": "^3.1.2",
     "@constl/utils-ipa": "^3.0.6",
     "@e965/xlsx": "^0.20.3",
