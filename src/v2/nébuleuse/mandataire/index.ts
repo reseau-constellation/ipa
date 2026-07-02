@@ -4,4 +4,3 @@ export {
   MandataireTravailleur,
   générerMandataireTravailleur,
 } from "./ipaTravailleur.js";
-export { mandatairifier } from "./fonctions.js";
