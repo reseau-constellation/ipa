@@ -15,11 +15,11 @@ import type {
   GetValueFromKey,
   GetValueFromKeyList,
   GetValueFromNestedKey,
-} from "node_modules/@constl/bohr-db/dist/types.js";
+  RecursivePartial
+} from "@constl/bohr-db";
 import type {
   NestedValueWithUndefined,
-  RecursivePartial,
-} from "node_modules/@orbitdb/nested-db/dist/types.js";
+} from "@orbitdb/nested-db";
 import type {
   OptionsAppli,
   ServicesAppli,
@@ -207,7 +207,7 @@ export abstract class ServiceDonnéesAppli<
         for (const k of asSplitKey(
           clef ? joinKey([this.clef, ...splitKey(clef)]) : this.clef,
         )) {
-          if (isNestedValue<DagCborEncodable>(données))
+          if (isNestedValue(données))
             données = (données as NestedValue)[k];
           else {
             return await f(undefined);
