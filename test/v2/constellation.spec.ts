@@ -12,7 +12,7 @@ import {
   obtenir,
 } from "./utils.js";
 import type { KeyValueDatabase } from "@orbitdb/core";
-import type { Constellation } from "@/v2/constellation.js";
+import type { Constellation } from "@/v2/index.js";
 import type { TraducsTexte } from "@/v2/types.js";
 import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/types.js";
 
