@@ -120,7 +120,8 @@ export type ServicesNécessairesProfil = ServicesNécessairesCompte & {
 export class Profil extends ServiceDonnéesAppli<
   "profil",
   StructureProfil,
-  ServicesNécessairesProfil
+  ServicesNécessairesProfil,
+  undefined
 > {
   recherche: RechercheProfils;
 
