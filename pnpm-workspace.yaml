@@ -8,22 +8,24 @@ allowBuilds:
   node-datachannel: true
   unrs-resolver: true
   iso-constants@https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f: true
+  bun: true
 
 packages: []
 
 minimumReleaseAgeExclude:
-  - bl@0.9.5
-  - bl@1.2.3
+  - bl@0.9.5 || 1.2.3
   - braces@3.0.3
   - micromatch@4.0.8
   - tmp@0.2.4
   - elliptic@6.6.2
   - diff@8.0.3
-  - semver@5.7.2
-  - serialize-javascript@7.0.3
-  - semver@4.3.2
-  - serialize-javascript@7.0.5
+  - semver@4.3.2 || 5.7.2
+  - serialize-javascript@7.0.3 || 7.0.5
   - "@constl/bohr-db"
+  - '@orbitdb/feed-db@1.4.2'
+  - '@orbitdb/nested-db@2.1.5'
+  - '@orbitdb/ordered-keyvalue-db@1.4.5'
+  - '@orbitdb/set-db@2.1.2'
 
 overrides:
   p-queue: "^8.1.1"
