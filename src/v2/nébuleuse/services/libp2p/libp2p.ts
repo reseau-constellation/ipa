@@ -109,12 +109,14 @@ export class ServiceLibp2p<
     // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
     const chrono = setInterval(async () => {
       const pairsConnus = await libp2p.peerStore.all();
-
+      const connexions = libp2p.getPeers().map(p=>p.toString());
       for (const connu of pairsConnus) {
-        try {
-          await libp2p.dial(connu.id);
-        } catch {
-          // Tant pis...
+        if (!connexions.some((id) => id.toString() === connu.id.toString())) {
+          try {
+            await libp2p.dial(connu.id);
+          } catch {
+            // Tant pis...
+          }
         }
       }
     }, 1000);
