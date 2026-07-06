@@ -349,7 +349,7 @@ describe("Service Libp2p", function () {
           services: {
             dossier: serviceDossier({ dossier: dossierAppli }),
             stockage: serviceStockage(),
-            libp2p: serviceLibp2p<ServicesLibp2pNébuleuseDéfaut>({
+            libp2p: serviceLibp2p({
               libp2p: optionsLibp2p,
             }),
           },
