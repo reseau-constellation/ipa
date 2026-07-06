@@ -111,7 +111,7 @@ export const brancheBd = <T extends NestedValue, C extends string>({
             valeur as GetValueFromKey<Record<C, T>, ExtractKeys<Record<C, T>>>,
           );
         };
-        return putBranche;
+        return putBranche as TypedNested<T>["put"];
       } else if (prop === "all") {
         const allBranche: TypedNested<T>["all"] = async () => {
           return (await target.all())[clef] || {};
