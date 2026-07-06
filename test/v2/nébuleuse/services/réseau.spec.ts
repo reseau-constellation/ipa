@@ -882,4 +882,20 @@ describe("Réseau", function () {
       expect(bienReçu).to.be.true();
     });
   });
+
+  describe.skip("suivre relations réseau", function () {
+    it("rien pour commencer");
+    it("ajout relation");
+    it("enlever relation");
+    it("relations transitives");
+    it("augmenter profondeur");
+    it("diminuer profondeur");
+    it("changement relation transitive");
+    it("suivi réseau d'un tiers");
+    it("changement id compte original");
+    it("profondeur zéro");
+    it("profondeur négative");
+    it("profondeur fraction < 1");
+    it("profondeur fraction > 1");
+  });
 });
