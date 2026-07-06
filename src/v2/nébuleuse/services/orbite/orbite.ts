@@ -5,7 +5,6 @@ import {
   useAccessController,
 } from "@orbitdb/core";
 import drain from "it-drain";
-
 import { Nested } from "@orbitdb/nested-db";
 import { Feed } from "@orbitdb/feed-db";
 import { SetDb } from "@orbitdb/set-db";
@@ -30,6 +29,8 @@ import type {
   BaseDatabase,
   OpenDatabaseOptions,
   KeyValueDatabase,
+  DagCborEncodable,
+  LogEntry,
 } from "@orbitdb/core";
 import type { ServiceJournal } from "../journal.js";
 import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
@@ -358,7 +359,7 @@ export class ServiceOrbite<
       ? anySignal([signaleurOublier.signal, signal])
       : signaleurOublier.signal;
 
-    let fFinale: Suivi<void>;
+    let fFinale: Suivi<LogEntry<DagCborEncodable> | void>;
     let pfFinale: Promise<void> | undefined = undefined;
     let oublier: Oublier = faisRien;
 
