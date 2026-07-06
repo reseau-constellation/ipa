@@ -31,6 +31,7 @@ overrides:
   p-queue: "^8.1.1"
   "@orbitdb/core": "4.0.0-3e1d628.0"
   multiformats: "14.0.0"
+  libp2p: "3.3.3"
 
 patchedDependencies:
   '@libp2p/gossipsub': patches/@libp2p__gossipsub.patch
