@@ -21,6 +21,9 @@ import type { NestedValue } from "@orbitdb/nested-db";
 import type { PartielRécursif } from "./types.js";
 import type { StructureServiceAutomatisations } from "./automatisations/types.js";
 import type { JSONSchemaType } from "ajv";
+import { isWebWorker, isElectronRenderer } from "wherearewe";
+import { générerMandataireProcessus } from "./nébuleuse/mandataire/ipaProc.js";
+import { générerMandataireTravailleur } from "./nébuleuse/mandataire/ipaTravailleur.js";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
@@ -123,3 +126,37 @@ export class Constellation<
     this.automatisations = this.services["automatisations"];
   }
 }
+
+
+export const créerConstellation = <T extends { [clef: string]: NestedValue; } = Record<string, never>, L extends ServicesLibp2pNébuleuse>(
+  opts: OptionsConstellation<L>,
+  avecMandataire = true,
+): Constellation<T, L> => {
+  opts = Object.assign({}, { nomAppli: "constellation", mode: "prod" }, opts);
+  if (!avecMandataire) return new Constellation(opts);
+  if (isWebWorker) {
+    console.warn(
+      "Constellation a été initialisée dans un processus de travailleur, ce qui pourrait mener à des difficultés de connectivité.",
+    );
+    return générerMandataireTravailleur(
+      () => new Constellation(opts),
+    );
+  }
+
+  const mandataire = générerMandataireProcessus(
+    async () => new Constellation(opts),
+  );
+
+  if (isElectronRenderer) {
+    mandataire.services.journal.écrire({
+      message:
+        "Constellation a été initialisée par le processus de rendu d'Électron. " +
+        "Ce n'est pas un gros gros problème, mais nous vous recommandons d'utiliser " +
+        "Constellation dans le processus principal, ce qui est beaucoup plus performant " +
+        "et vous permettra également d'accéder à toutes les fonctionnalités de Constellation " +
+        "telles les sauvegardes et les importations automatisées. Voir la documentation: " +
+        "https://docu.réseau-constellation.ca/avancé/applications/électron.html.",
+    });
+  }
+  return mandataire as Constellation<T, L>;
+};
