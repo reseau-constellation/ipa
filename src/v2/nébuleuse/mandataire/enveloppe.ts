@@ -282,6 +282,7 @@ export class EnveloppeNébuleuse<T extends Nébuleuse> {
           // @ts-expect-error Ça, ça me dépasse
           fonctionNébuleuse = fonctionNébuleuse[attr].bind(fonctionNébuleuse);
         } else {
+          // @ts-expect-error Ça aussi, ça me dépasse
           fonctionNébuleuse =
             fonctionNébuleuse[attr as keyof typeof fonctionNébuleuse];
         }
@@ -311,7 +312,7 @@ export class EnveloppeNébuleuse<T extends Nébuleuse> {
       });
       return undefined;
     }
-    return fonctionNébuleuse;
+    return fonctionNébuleuse as ((...args: any[]) => unknown);
   }
 
   connecterÉcouteurs({
