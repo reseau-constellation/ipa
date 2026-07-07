@@ -434,8 +434,7 @@ describe("Variables", function () {
           idVariable,
           f: si((x) => {
             const règleBornes = x?.find((r) => r.id === idRègle) as
-              | RègleVariableAvecId<RègleBornes>
-              | undefined;
+              RègleVariableAvecId<RègleBornes> | undefined;
             return !!x && x.length > 1 && règleBornes?.règle.détails.op !== ">";
           }),
         }),

@@ -300,7 +300,11 @@ describe.only("Service Libp2p", function () {
 
       let appli: Appli<
         ServicesNécessairesLibp2p & {
-          libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut | ServicesLibp2pTest | ServicesLibp2pTestAvecServiceTest>;
+          libp2p: ServiceLibp2p<
+            | ServicesLibp2pNébuleuseDéfaut
+            | ServicesLibp2pTest
+            | ServicesLibp2pTestAvecServiceTest
+          >;
         } & ServicesAppli
       >;
       let dossier: string;
@@ -437,7 +441,9 @@ describe.only("Service Libp2p", function () {
         });
         await appli.démarrer();
 
-        const libp2p = await appli.services["libp2p"].libp2p() as Libp2p<ServicesLibp2pTestAvecServiceTest>;
+        const libp2p = (await appli.services[
+          "libp2p"
+        ].libp2p()) as Libp2p<ServicesLibp2pTestAvecServiceTest>;
         const résultatTest = libp2p.services["test"].test();
         expect(résultatTest).to.equal("message test");
       });
@@ -465,7 +471,8 @@ describe.only("Service Libp2p", function () {
         });
         await appli.démarrer();
 
-        const libp2p = await appli.services.libp2p.libp2p() as Libp2p<ServicesLibp2pNébuleuseDéfaut>;
+        const libp2p =
+          (await appli.services.libp2p.libp2p()) as Libp2p<ServicesLibp2pNébuleuseDéfaut>;
         const pairsÀReconnecter = libp2p.services.reconnecteur["liste"];
 
         expect(

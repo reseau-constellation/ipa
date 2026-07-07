@@ -24,8 +24,7 @@ export const rechercherDansTexte = ({
   schéma: string;
   texte: string;
 }):
-  | { type: "texte"; score: number; début: number; fin: number }
-  | undefined => {
+  { type: "texte"; score: number; début: number; fin: number } | undefined => {
   // Une alternative - https://www.npmjs.com/package/js-levenshtein
   const correspondances = correspTexte(
     texte,

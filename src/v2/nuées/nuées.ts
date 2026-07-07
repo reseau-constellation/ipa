@@ -128,8 +128,7 @@ export type ValeurAscendance<T> = {
 // Types autorisation
 
 export type AutorisationNuée =
-  | AutorisationNuéeOuverte
-  | AutorisationNuéeParInvitation;
+  AutorisationNuéeOuverte | AutorisationNuéeParInvitation;
 
 export type AutorisationNuéeOuverte = {
   type: "ouverte";

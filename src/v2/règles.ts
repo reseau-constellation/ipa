@@ -87,8 +87,7 @@ export type RègleValeurCatégorique<
 };
 
 export type DétailsRègleValeurCatégorique =
-  | DétailsRègleValeurCatégoriqueFixe
-  | DétailsRègleValeurCatégoriqueDynamique;
+  DétailsRègleValeurCatégoriqueFixe | DétailsRègleValeurCatégoriqueDynamique;
 
 export type DétailsRègleValeurCatégoriqueFixe = {
   type: "fixe";

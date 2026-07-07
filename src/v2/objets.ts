@@ -56,12 +56,9 @@ export abstract class ObjetConstellation<
   Services extends Record<
     Exclude<string, C | keyof ServicesNécessairesObjet<C>>,
     ServiceAppli
-  > & ServicesNécessairesObjet<C>,
-> extends ServiceDonnéesAppli<
-  C,
-  StructureServiceObjet,
-  Services
-> {
+  > &
+    ServicesNécessairesObjet<C>,
+> extends ServiceDonnéesAppli<C, StructureServiceObjet, Services> {
   abstract schémaObjet: JSONSchemaType<PartielRécursif<S>>;
 
   constructor({

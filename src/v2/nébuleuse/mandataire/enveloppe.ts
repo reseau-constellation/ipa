@@ -272,7 +272,7 @@ export class EnveloppeNébuleuse<
       ".",
     )} n'existe pas ou n'est pas une fonction.`;
 
-    type N = Nébuleuse<T, S, L>
+    type N = Nébuleuse<T, S, L>;
     let fonctionNébuleuse:
       | N
       | N[keyof N]
@@ -319,7 +319,7 @@ export class EnveloppeNébuleuse<
       });
       return undefined;
     }
-    return fonctionNébuleuse as ((...args: any[]) => unknown);
+    return fonctionNébuleuse as (...args: any[]) => unknown;
   }
 
   connecterÉcouteurs({

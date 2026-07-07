@@ -15,11 +15,9 @@ import type {
   GetValueFromKey,
   GetValueFromKeyList,
   GetValueFromNestedKey,
-  RecursivePartial
+  RecursivePartial,
 } from "@constl/bohr-db";
-import type {
-  NestedValueWithUndefined,
-} from "@orbitdb/nested-db";
+import type { NestedValueWithUndefined } from "@orbitdb/nested-db";
 import type {
   OptionsAppli,
   ServicesAppli,
@@ -33,9 +31,9 @@ import type {
 } from "./compte/compte.js";
 
 export type ClefDeBranche<T extends NestedValue> = keyof {
-  [C in ExtractKeys<T> as GetValueFromKey<T, C> extends NestedValue
-    ? C
-    : never]: unknown;
+  [
+    C in ExtractKeys<T> as GetValueFromKey<T, C> extends NestedValue ? C : never
+  ]: unknown;
 };
 
 export const brancheBd = <T extends NestedValue, C extends string>({
@@ -207,8 +205,7 @@ export abstract class ServiceDonnéesAppli<
         for (const k of asSplitKey(
           clef ? joinKey([this.clef, ...splitKey(clef)]) : this.clef,
         )) {
-          if (isNestedValue(données))
-            données = (données as NestedValue)[k];
+          if (isNestedValue(données)) données = (données as NestedValue)[k];
           else {
             return await f(undefined);
           }

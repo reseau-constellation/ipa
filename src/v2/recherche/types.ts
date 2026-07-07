@@ -21,9 +21,7 @@ export interface InfoRésultatRecherche<T extends InfoRésultat = InfoRésultat>
 }
 
 export type InfoRésultat =
-  | InfoRésultatTexte
-  | InfoRésultatVide
-  | InfoRésultatRecherche;
+  InfoRésultatTexte | InfoRésultatVide | InfoRésultatRecherche;
 
 export interface RésultatObjectifRecherche<
   T extends InfoRésultat = InfoRésultat,

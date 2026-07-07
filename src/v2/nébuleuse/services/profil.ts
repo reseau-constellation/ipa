@@ -446,12 +446,12 @@ export class Profil extends ServiceDonnéesAppli<
       idCompte: idCompteQuiÉpingle,
       f: async (épingles) => {
         const épingleBd:
-          | ÉpingleFavorisAvecId<ContenuÉpingleProfil>
-          | undefined = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idCompte && épingle.type === "profil"
-            ? épingle
-            : undefined;
-        });
+          ÉpingleFavorisAvecId<ContenuÉpingleProfil> | undefined =
+          épingles?.find(({ idObjet, épingle }) => {
+            return idObjet === idCompte && épingle.type === "profil"
+              ? épingle
+              : undefined;
+          });
         await f(épingleBd?.épingle as ÉpingleProfil | undefined);
       },
     });

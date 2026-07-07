@@ -124,8 +124,9 @@ export class Constellation<
   }
 }
 
-
-export const créerConstellation = <L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse>(
+export const créerConstellation = <
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+>(
   opts: OptionsConstellation<L>,
   avecMandataire = true,
 ): Constellation<L> => {
@@ -137,8 +138,17 @@ export const créerConstellation = <L extends ServicesLibp2pNébuleuse = Service
     );
   }
 
-  const mandataire = générerMandataireProcessus<StructureConstellation, Record<string, never>, L>(
-    async () => new Constellation<L>(opts) as unknown as Nébuleuse<StructureConstellation, Record<string, never>, L>,
+  const mandataire = générerMandataireProcessus<
+    StructureConstellation,
+    Record<string, never>,
+    L
+  >(
+    async () =>
+      new Constellation<L>(opts) as unknown as Nébuleuse<
+        StructureConstellation,
+        Record<string, never>,
+        L
+      >,
   );
 
   if (isElectronRenderer) {

@@ -60,11 +60,18 @@ export type DonnéesTableauExportées = {
 };
 
 const estEncodable = (val: DonnéeImportation): val is DagCborEncodable => {
-  if (typeof val === "boolean" || typeof val === "string" || typeof val === "number" || val === null ) return true;
-  else if (Array.isArray(val)) return val.every(x=>estEncodable(x))
-  else if (typeof val === "object") return Object.values(val).every(x=>estEncodable(x));
-  return false
-}
+  if (
+    typeof val === "boolean" ||
+    typeof val === "string" ||
+    typeof val === "number" ||
+    val === null
+  )
+    return true;
+  else if (Array.isArray(val)) return val.every((x) => estEncodable(x));
+  else if (typeof val === "object")
+    return Object.values(val).every((x) => estEncodable(x));
+  return false;
+};
 
 // Types conversions
 

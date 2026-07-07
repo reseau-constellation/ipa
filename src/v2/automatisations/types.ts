@@ -145,8 +145,7 @@ export type XLSXParsingOptions = XLSXCommonOptions & {
 // Types automatisations
 
 export type SpécificationAutomatisation =
-  | SpécificationExporter
-  | SpécificationImporter;
+  SpécificationExporter | SpécificationImporter;
 
 export type TypeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
@@ -257,8 +256,7 @@ export type InfoImporterFeuilleCalcul = {
 };
 
 export type SourceDonnéesImportation<T extends InfoImporter> =
-  | SourceDonnéesImportationURL<T>
-  | SourceDonnéesImportationFichier<T>;
+  SourceDonnéesImportationURL<T> | SourceDonnéesImportationFichier<T>;
 
 export type SourceDonnéesImportationAdresseOptionelle<
   T extends InfoImporter = InfoImporter,
