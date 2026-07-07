@@ -19,6 +19,7 @@ import {
 } from "../consts.js";
 import { appelerLorsque } from "../utils.js";
 import { estErreurAvortée } from "../../utils.js";
+import { STATUTS } from "../../appli/consts.js";
 import {
   ContrôleurNébuleuse,
   MEMBRE,
@@ -43,7 +44,6 @@ import type {
 import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
-import { STATUTS } from "../../appli/consts.js";
 
 export type MesDispositifs = {
   idDispositif: string;

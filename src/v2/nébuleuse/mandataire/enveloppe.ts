@@ -14,11 +14,11 @@ import {
   ERREUR_PAS_UNE_FONCTION,
 } from "@constl/mandataire";
 import { v4 as uuidv4 } from "uuid";
-import type { Oublier } from "../types.js";
+import type { NestedValue } from "@orbitdb/nested-db";
+import type { ServicesAppli } from "../appli/appli.js";
+import type { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
 import type { Nébuleuse } from "../nébuleuse.js";
-import { NestedValue } from "@orbitdb/nested-db";
-import { ServicesAppli } from "../appli/appli.js";
-import { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
+import type { Oublier } from "../types.js";
 
 export class EnveloppeNébuleuse<
   T extends { [clef: string]: NestedValue } = { [clef: string]: NestedValue },

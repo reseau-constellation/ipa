@@ -5,6 +5,7 @@ import Base64 from "crypto-js/enc-base64url.js";
 import md5 from "crypto-js/md5.js";
 import { enleverPréfixes } from "@/v2/utils.js";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
+import { STATUTS } from "../appli/consts.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
 import type { ÉpingleProfil } from "./profil.js";
@@ -17,7 +18,6 @@ import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { AccèsUtilisateur } from "./compte/accès/types.js";
 import type { ServiceÉpingles } from "./épingles.js";
-import { STATUTS } from "../appli/consts.js";
 
 // Types réplications
 export type Réplication<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {

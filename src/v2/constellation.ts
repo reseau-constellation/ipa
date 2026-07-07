@@ -1,4 +1,5 @@
 import { merge } from "ts-deepmerge";
+import { isWebWorker, isElectronRenderer } from "wherearewe";
 import { Variables } from "./variables.js";
 import { MotsClefs } from "./motsClefs.js";
 import { Nébuleuse } from "./nébuleuse/nébuleuse.js";
@@ -9,6 +10,7 @@ import { Projets } from "./projets.js";
 import { Automatisations } from "./automatisations/automatisations.js";
 import { schémaServiceObjet, type StructureServiceObjet } from "./objets.js";
 import { schémaServiceAutomatisations } from "./automatisations/types.js";
+import { générerMandataireProcessus } from "./nébuleuse/mandataire/ipaProc.js";
 import type { ServiceÉpingles } from "./nébuleuse/services/épingles.js";
 import type { ServiceFavoris } from "./nébuleuse/services/favoris.js";
 import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
@@ -20,8 +22,6 @@ import type {
 import type { PartielRécursif } from "./types.js";
 import type { StructureServiceAutomatisations } from "./automatisations/types.js";
 import type { JSONSchemaType } from "ajv";
-import { isWebWorker, isElectronRenderer } from "wherearewe";
-import { générerMandataireProcessus } from "./nébuleuse/mandataire/ipaProc.js";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,

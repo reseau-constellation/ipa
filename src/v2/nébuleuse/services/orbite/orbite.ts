@@ -22,6 +22,7 @@ import { ServiceAppli } from "../../appli/index.js";
 import { estErreurAvortée, réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
 import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
+import { appelerLorsque, estUnePromesse } from "../utils.js";
 import { mandatOrbite } from "./mandat.js";
 import type { OptionsAppli } from "../../appli/appli.js";
 import type {
@@ -45,7 +46,6 @@ import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { Helia } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2pNébuleuse } from "../libp2p/libp2p.js";
-import { appelerLorsque, estUnePromesse } from "../utils.js";
 
 export const préparerOrbite = () => {
   useDatabaseType(Feed);

@@ -5,6 +5,7 @@ import deepEqual from "fast-deep-equal";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
+import { STATUTS } from "../nébuleuse/appli/consts.js";
 import { schémaSpécificationAutomatisation } from "./types.js";
 import { chronomètre, générerFAuto } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
@@ -27,7 +28,6 @@ import type {
 import type { Bds } from "../bds/bds.js";
 import type { Projets } from "../projets.js";
 import type { Nuées } from "../nuées/nuées.js";
-import { STATUTS } from "../nébuleuse/appli/consts.js";
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   spéc: T,

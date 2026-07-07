@@ -6,10 +6,8 @@ import {
 } from "@orbitdb/nested-db";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { NestedValue } from "@orbitdb/nested-db";
-import type { TypedNested } from "@constl/bohr-db";
-import type { JSONSchemaType } from "ajv";
-import type {
+import type { NestedValue , NestedValueWithUndefined } from "@orbitdb/nested-db";
+import type { TypedNested ,
   ExtractKeys,
   ExtractKeysAsList,
   GetValueFromKey,
@@ -17,7 +15,7 @@ import type {
   GetValueFromNestedKey,
   RecursivePartial,
 } from "@constl/bohr-db";
-import type { NestedValueWithUndefined } from "@orbitdb/nested-db";
+import type { JSONSchemaType } from "ajv";
 import type {
   OptionsAppli,
   ServicesAppli,

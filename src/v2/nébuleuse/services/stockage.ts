@@ -1,15 +1,15 @@
 import { join } from "path";
-import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
-import type { ServiceDossier } from "./dossier.js";
-import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
-import { obtStockageDonnées } from "./utils.js";
 import { Key, type Datastore } from "interface-datastore";
-import type { FsDatastore } from "datastore-fs";
-import type { IDBDatastore } from "datastore-idb";
 import { NotFoundError } from "@libp2p/interface";
 import sha256 from "crypto-js/sha256.js";
 import Base64 from "crypto-js/enc-base64url.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import { STATUTS } from "../appli/consts.js";
+import { obtStockageDonnées } from "./utils.js";
+import type { ServiceDossier } from "./dossier.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { FsDatastore } from "datastore-fs";
+import type { IDBDatastore } from "datastore-idb";
 
 export type ServicesNécessairesStockage = {
   dossier: ServiceDossier;

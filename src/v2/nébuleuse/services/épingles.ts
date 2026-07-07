@@ -7,6 +7,7 @@ import { anySignal } from "any-signal";
 import { ServiceAppli } from "../appli/services.js";
 import { idcEtFichierValide } from "../../utils.js";
 import { estErreurAvortée } from "../utils.js";
+import { STATUTS } from "../appli/consts.js";
 import { filtreAsync } from "./utils.js";
 import type { OptionsAppli } from "../appli/appli.js";
 import type { Oublier } from "../types.js";
@@ -14,7 +15,6 @@ import type {
   ServiceOrbite,
   ServicesNécessairesOrbite,
 } from "./orbite/orbite.js";
-import { STATUTS } from "../appli/consts.js";
 
 export type ServicesNécessairesÉpingles = ServicesNécessairesOrbite & {
   orbite: ServiceOrbite;

@@ -2,13 +2,13 @@ import { join } from "path";
 import { isElectronMain, isNode } from "wherearewe";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
+import { STATUTS } from "../appli/consts.js";
 import type TypeFs from "fs";
 import type { Jsonifiable, Oublier } from "../types.js";
 import type {
   OptionsAppli,
   ServicesAppli,
 } from "@/v2/nébuleuse/appli/appli.js";
-import { STATUTS } from "../appli/consts.js";
 
 export const FICHIER_VERROU = "VERROU";
 export const INTERVALE_VERROU = 5000; // 5 millisecondes

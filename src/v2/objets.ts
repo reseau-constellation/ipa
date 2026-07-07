@@ -10,11 +10,11 @@ import { cacheSuivi } from "./nébuleuse/cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
 import { MEMBRE } from "./nébuleuse/services/compte/accès/consts.js";
-import type { ServiceAppli } from "./nébuleuse/appli/index.js";
 import {
   type ServiceFavoris,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
+import type { ServiceAppli } from "./nébuleuse/appli/index.js";
 import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { NestedValue } from "@orbitdb/nested-db";

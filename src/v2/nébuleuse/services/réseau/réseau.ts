@@ -22,6 +22,8 @@ import {
   générerCodeSecret,
   obtEmpreinteCode,
 } from "../utils.js";
+import { estErreurAvortée } from "../../utils.js";
+import { STATUTS } from "../../appli/consts.js";
 import {
   ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
   ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE,
@@ -43,8 +45,6 @@ import type {
 } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
-import { estErreurAvortée } from "../../utils.js";
-import { STATUTS } from "../../appli/consts.js";
 
 // Types connexions
 

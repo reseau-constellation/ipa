@@ -6,6 +6,7 @@ import {
 } from "uint8arrays";
 import { keys } from "@libp2p/crypto";
 import { ServiceAppli } from "../../appli/index.js";
+import { STATUTS } from "../../appli/consts.js";
 import { obtenirOptionsLibp2p } from "./config/index.js";
 import type { ServiceDossier } from "../dossier.js";
 import type { Oublier, Suivi } from "../../types.js";
@@ -17,7 +18,6 @@ import type { ServiceStockage } from "../stockage.js";
 
 import type { ServiceClefPrivée } from "./config/utils.js";
 import type { OptionsAppli } from "../../appli/appli.js";
-import { STATUTS } from "../../appli/consts.js";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;

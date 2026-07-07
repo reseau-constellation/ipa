@@ -1,6 +1,8 @@
 import { expect } from "aegir/chai";
 import { faisRien } from "@constl/utils-ipa";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
+import { peerIdFromString } from "@libp2p/peer-id";
+import { TypedEmitter } from "tiny-typed-emitter";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import { obtenir } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
@@ -15,8 +17,6 @@ import type {
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { peerIdFromString } from "@libp2p/peer-id";
-import { TypedEmitter } from "tiny-typed-emitter";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {

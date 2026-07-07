@@ -7,6 +7,7 @@ import { unixfs } from "@helia/unixfs";
 import { toBuffer } from "@constl/utils-ipa";
 import { CID } from "multiformats";
 import { ServiceAppli } from "../appli/index.js";
+import { STATUTS } from "../appli/consts.js";
 import { obtStockageDonnées } from "./utils.js";
 import type { OptionsAppli } from "../appli/appli.js";
 import type {
@@ -16,7 +17,6 @@ import type {
 } from "./libp2p/libp2p.js";
 import type { Helia, HeliaInit } from "helia";
 import type { Libp2p } from "libp2p";
-import { STATUTS } from "../appli/consts.js";
 
 export type OptionsServiceHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,

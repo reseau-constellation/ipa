@@ -1,5 +1,6 @@
 import { générerMandataire, Mandatairifiable } from "@constl/mandataire";
 import { EnveloppeNébuleuse } from "./enveloppe.js";
+import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   MandataireConstellation,
   MessageDIpa,
@@ -8,9 +9,8 @@ import type {
 } from "@constl/mandataire";
 
 import type { Nébuleuse } from "../index.js";
-import { NestedValue } from "@orbitdb/nested-db";
-import { ServicesAppli } from "../appli/appli.js";
-import { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
+import type { ServicesAppli } from "../appli/appli.js";
+import type { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
 
 export class MandataireProc<
   T extends { [clef: string]: NestedValue } = { [clef: string]: NestedValue },
