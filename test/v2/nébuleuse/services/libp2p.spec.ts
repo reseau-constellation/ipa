@@ -39,7 +39,7 @@ import type { IDBDatastore } from "datastore-idb";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { Libp2pOptions } from "libp2p";
 
-describe.only("Service Libp2p", function () {
+describe("Service Libp2p", function () {
   describe("demarrage", function () {
     let appli: Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }>;
     let dossier: string;
