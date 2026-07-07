@@ -17,7 +17,6 @@ import type {
   ServicesNébuleuse,
   StructureNébuleuse,
 } from "./nébuleuse/nébuleuse.js";
-import type { NestedValue } from "@orbitdb/nested-db";
 import type { PartielRécursif } from "./types.js";
 import type { StructureServiceAutomatisations } from "./automatisations/types.js";
 import type { JSONSchemaType } from "ajv";
@@ -68,10 +67,9 @@ export type ServicesConstellation = ServicesSpécifiquesConstellation &
   ServicesNébuleuse<StructureNébuleuse & StructureConstellation>;
 
 export class Constellation<
-  T extends { [clef: string]: NestedValue } = Record<string, never>,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends Nébuleuse<
-  T & StructureConstellation,
+  StructureConstellation,
   ServicesSpécifiquesConstellation,
   L
 > {
@@ -127,20 +125,20 @@ export class Constellation<
 }
 
 
-export const créerConstellation = <T extends { [clef: string]: NestedValue; } = Record<string, never>, L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse>(
+export const créerConstellation = <L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse>(
   opts: OptionsConstellation<L>,
   avecMandataire = true,
-): Constellation<T, L> => {
+): Constellation<L> => {
   opts = Object.assign({}, { nomAppli: "constellation", mode: "prod" }, opts);
-  if (!avecMandataire) return new Constellation<T, L>(opts);
+  if (!avecMandataire) return new Constellation<L>(opts);
   if (isWebWorker) {
     console.warn(
       "Constellation a été initialisée dans un processus de travailleur, ce qui pourrait mener à des difficultés de connectivité.",
     );
   }
 
-  const mandataire = générerMandataireProcessus<T & ServicesLibp2pNébuleuse, Record<string, never>, L>(
-    async () => new Constellation<T, L>(opts),
+  const mandataire = générerMandataireProcessus<StructureConstellation, Record<string, never>, L>(
+    async () => new Constellation<L>(opts) as unknown as Nébuleuse<StructureConstellation, Record<string, never>, L>,
   );
 
   if (isElectronRenderer) {
@@ -154,5 +152,5 @@ export const créerConstellation = <T extends { [clef: string]: NestedValue; } =
         "https://docu.réseau-constellation.ca/avancé/applications/électron.html.",
     });
   }
-  return mandataire as unknown as Constellation<T, L>;
+  return mandataire as unknown as Constellation<L>;
 };

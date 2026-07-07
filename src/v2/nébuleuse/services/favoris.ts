@@ -41,7 +41,7 @@ export type DispositifsÉpingle =
 export type ÉpingleFavoris<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> =
   {
     type: string;
-    épingle?: PartielRécursif<T>;
+    épingle: PartielRécursif<T>;
   };
 
 export type BaseÉpingleFavoris = {

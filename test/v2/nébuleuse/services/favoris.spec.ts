@@ -151,7 +151,7 @@ describe("Favoris", function () {
         nébuleuse.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet,
-            épingle: { type: "INEXISTANTE" },
+            épingle: { type: "INEXISTANTE", épingle: {} },
           },
           f: siDéfini(),
         }),
@@ -301,7 +301,7 @@ describe("Favoris", function () {
           épingle: {
             type: "test",
             épingle: {
-              base: TOUS_DISPOSITIFS,
+              base: true,
             },
           },
         },
