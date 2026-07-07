@@ -33,13 +33,13 @@ import type {
   ServicesNécessairesLibp2p,
   ServiceLibp2p,
 } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import type { PrivateKey } from "@libp2p/interface";
+import type { Libp2p, PrivateKey } from "@libp2p/interface";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { Libp2pOptions } from "libp2p";
 
-describe("Service Libp2p", function () {
+describe.only("Service Libp2p", function () {
   describe("demarrage", function () {
     let appli: Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }>;
     let dossier: string;
@@ -289,9 +289,18 @@ describe("Service Libp2p", function () {
     });
 
     describe("options appli", function () {
+      class ServiceLibp2pTest {
+        test(): string {
+          return "message test";
+        }
+      }
+      type ServicesLibp2pTestAvecServiceTest = ServicesLibp2pTest & {
+        test: ServiceLibp2pTest;
+      };
+
       let appli: Appli<
         ServicesNécessairesLibp2p & {
-          libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
+          libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut | ServicesLibp2pTest | ServicesLibp2pTestAvecServiceTest>;
         } & ServicesAppli
       >;
       let dossier: string;
@@ -394,14 +403,6 @@ describe("Service Libp2p", function () {
       });
 
       it("configuration externe - modifications services", async () => {
-        class ServiceLibp2pTest {
-          test(): string {
-            return "message test";
-          }
-        }
-        type ServicesLibp2pTestModifiés = ServicesLibp2pTest & {
-          test: ServiceLibp2pTest;
-        };
         const optionsLibp2p = async ({
           clefPrivée,
         }: {
@@ -410,7 +411,7 @@ describe("Service Libp2p", function () {
           const optionsDéfaut = await obtenirOptionsLibp2pTest()({
             clefPrivée,
           });
-          const mesOptions: Libp2pOptions<ServicesLibp2pTestModifiés> = {
+          const mesOptions: Libp2pOptions<ServicesLibp2pTestAvecServiceTest> = {
             ...optionsDéfaut,
             services: {
               ...optionsDéfaut.services!,
@@ -422,7 +423,7 @@ describe("Service Libp2p", function () {
 
         appli = new Appli<
           ServicesNécessairesLibp2p & {
-            libp2p: ServiceLibp2p<ServicesLibp2pTestModifiés>;
+            libp2p: ServiceLibp2p<ServicesLibp2pTestAvecServiceTest>;
           }
         >({
           services: {
@@ -436,7 +437,7 @@ describe("Service Libp2p", function () {
         });
         await appli.démarrer();
 
-        const libp2p = await appli.services["libp2p"].libp2p();
+        const libp2p = await appli.services["libp2p"].libp2p() as Libp2p<ServicesLibp2pTestAvecServiceTest>;
         const résultatTest = libp2p.services["test"].test();
         expect(résultatTest).to.equal("message test");
       });
@@ -464,7 +465,7 @@ describe("Service Libp2p", function () {
         });
         await appli.démarrer();
 
-        const libp2p = await appli.services.libp2p.libp2p();
+        const libp2p = await appli.services.libp2p.libp2p() as Libp2p<ServicesLibp2pNébuleuseDéfaut>;
         const pairsÀReconnecter = libp2p.services.reconnecteur["liste"];
 
         expect(

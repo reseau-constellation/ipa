@@ -1,5 +1,5 @@
 import { ServiceDonnéesAppli } from "./services.js";
-import type { Oublier } from "../types.js";
+import type { Oublier, Suivi } from "../types.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { OptionsAppli } from "../appli/appli.js";
@@ -10,9 +10,10 @@ import type {
 import type { ServiceDispositifs } from "./dispositifs.js";
 import type { ServiceFavoris } from "./favoris.js";
 import type { ServiceRéseau } from "./réseau/réseau.js";
+import { cacheSuivi } from "../cache.js";
 
 export type StructureProtocole = {
-  string: null;
+  [protocole: string]: null;
 };
 
 export const schémaProtocole: JSONSchemaType<
@@ -50,7 +51,7 @@ export class Protocole extends ServiceDonnéesAppli<
     super({
       clef: "protocole",
       services,
-      dépendances: [],
+      dépendances: ["compte"],
       options,
     });
   }
@@ -62,11 +63,13 @@ export class Protocole extends ServiceDonnéesAppli<
     protocoles?: string[];
     idDispositif?: string;
   }): Promise<void> {
-    idDispositif = idDispositif || (await this.client.obtIdDispositif());
+    const compte = this.service("compte");
+    idDispositif = idDispositif || await compte.obtIdDispositif();
 
-    const { bd, fOublier } = await this.obtBd();
+    const bd = await this.bd();
 
-    const existants = (await bd.allAsJSON())[idDispositif] || [];
+    const existants = Object.keys(await bd.all());
+
     if (protocoles) {
       if (
         protocoles.some((p) => !existants.includes(p)) ||
@@ -86,10 +89,10 @@ export class Protocole extends ServiceDonnéesAppli<
     f,
     idCompte,
   }: {
-    f: Suivi<{ [idDispositif: string]: string[] }>;
+    f: Suivi<string[]>;
     idCompte?: string;
   }): Promise<Oublier> {
-    return await this.suivreBdPrincipale({
+    return await this.suivreBd({
       idCompte,
       f,
     });

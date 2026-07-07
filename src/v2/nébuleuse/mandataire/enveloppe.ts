@@ -16,10 +16,17 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import type { Oublier } from "../types.js";
 import type { Nébuleuse } from "../nébuleuse.js";
+import { NestedValue } from "@orbitdb/nested-db";
+import { ServicesAppli } from "../appli/appli.js";
+import { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
 
-export class EnveloppeNébuleuse<T extends Nébuleuse> {
-  nébuleuse?: T;
-  créerNébuleuse: () => Promise<T>;
+export class EnveloppeNébuleuse<
+  T extends { [clef: string]: NestedValue } = { [clef: string]: NestedValue },
+  S extends ServicesAppli = ServicesAppli,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> {
+  nébuleuse?: Nébuleuse<T, S, L>;
+  créerNébuleuse: () => Promise<Nébuleuse<T, S, L>>;
 
   erreurInitialisation?: Error;
   _messagesEnAttente: MessagePourIpa[];
@@ -40,7 +47,7 @@ export class EnveloppeNébuleuse<T extends Nébuleuse> {
   constructor(
     fMessage: (m: MessageDIpa) => void,
     fErreur: (args: ErreurMandataire) => void,
-    créerNébuleuse: () => Promise<T>,
+    créerNébuleuse: () => Promise<Nébuleuse<T, S, L>>,
   ) {
     this.fsMessages = {};
     this.fsErreurs = {};
@@ -79,7 +86,7 @@ export class EnveloppeNébuleuse<T extends Nébuleuse> {
     );
   }
 
-  async init(): Promise<T> {
+  async init(): Promise<Nébuleuse<T, S, L>> {
     await this._verrou.acquire("init");
 
     if (this.nébuleuse) {
@@ -265,9 +272,10 @@ export class EnveloppeNébuleuse<T extends Nébuleuse> {
       ".",
     )} n'existe pas ou n'est pas une fonction.`;
 
+    type N = Nébuleuse<T, S, L>
     let fonctionNébuleuse:
-      | T
-      | T[keyof T]
+      | N
+      | N[keyof N]
       | ((args: { [key: string]: unknown }) => Promise<unknown>) =
       this.nébuleuse!;
 
@@ -282,7 +290,6 @@ export class EnveloppeNébuleuse<T extends Nébuleuse> {
           // @ts-expect-error Ça, ça me dépasse
           fonctionNébuleuse = fonctionNébuleuse[attr].bind(fonctionNébuleuse);
         } else {
-          // @ts-expect-error Ça aussi, ça me dépasse
           fonctionNébuleuse =
             fonctionNébuleuse[attr as keyof typeof fonctionNébuleuse];
         }

@@ -23,7 +23,6 @@ import type { StructureServiceAutomatisations } from "./automatisations/types.js
 import type { JSONSchemaType } from "ajv";
 import { isWebWorker, isElectronRenderer } from "wherearewe";
 import { générerMandataireProcessus } from "./nébuleuse/mandataire/ipaProc.js";
-import { générerMandataireTravailleur } from "./nébuleuse/mandataire/ipaTravailleur.js";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
@@ -128,23 +127,20 @@ export class Constellation<
 }
 
 
-export const créerConstellation = <T extends { [clef: string]: NestedValue; } = Record<string, never>, L extends ServicesLibp2pNébuleuse>(
+export const créerConstellation = <T extends { [clef: string]: NestedValue; } = Record<string, never>, L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse>(
   opts: OptionsConstellation<L>,
   avecMandataire = true,
 ): Constellation<T, L> => {
   opts = Object.assign({}, { nomAppli: "constellation", mode: "prod" }, opts);
-  if (!avecMandataire) return new Constellation(opts);
+  if (!avecMandataire) return new Constellation<T, L>(opts);
   if (isWebWorker) {
     console.warn(
       "Constellation a été initialisée dans un processus de travailleur, ce qui pourrait mener à des difficultés de connectivité.",
     );
-    return générerMandataireTravailleur(
-      () => new Constellation(opts),
-    );
   }
 
-  const mandataire = générerMandataireProcessus(
-    async () => new Constellation(opts),
+  const mandataire = générerMandataireProcessus<T & ServicesLibp2pNébuleuse, Record<string, never>, L>(
+    async () => new Constellation<T, L>(opts),
   );
 
   if (isElectronRenderer) {
@@ -158,5 +154,5 @@ export const créerConstellation = <T extends { [clef: string]: NestedValue; } =
         "https://docu.réseau-constellation.ca/avancé/applications/électron.html.",
     });
   }
-  return mandataire as Constellation<T, L>;
+  return mandataire as unknown as Constellation<T, L>;
 };

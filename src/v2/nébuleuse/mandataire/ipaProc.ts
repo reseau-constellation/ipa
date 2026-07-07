@@ -8,14 +8,21 @@ import type {
 } from "@constl/mandataire";
 
 import type { Nébuleuse } from "../index.js";
+import { NestedValue } from "@orbitdb/nested-db";
+import { ServicesAppli } from "../appli/appli.js";
+import { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
 
-export class MandataireProc<T extends Nébuleuse> extends Mandatairifiable {
-  nébuleuse: EnveloppeNébuleuse<T>;
+export class MandataireProc<
+  T extends { [clef: string]: NestedValue } = { [clef: string]: NestedValue },
+  S extends ServicesAppli = ServicesAppli,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> extends Mandatairifiable {
+  nébuleuse: EnveloppeNébuleuse<T, S, L>;
 
-  constructor(créerNébuleuse: () => Promise<T>) {
+  constructor(créerNébuleuse: () => Promise<Nébuleuse<T, S, L>>) {
     super();
 
-    this.nébuleuse = new EnveloppeNébuleuse(
+    this.nébuleuse = new EnveloppeNébuleuse<T, S, L>(
       (m: MessageDIpa) => this.recevoirMessageDIpa(m),
       ({
         erreur,
@@ -43,8 +50,12 @@ export class MandataireProc<T extends Nébuleuse> extends Mandatairifiable {
   }
 }
 
-export const générerMandataireProcessus = <T extends Nébuleuse>(
-  créerNébuleuse: () => Promise<T>,
-): MandataireConstellation<T> => {
-  return générerMandataire(new MandataireProc(créerNébuleuse));
+export const générerMandataireProcessus = <
+  T extends { [clef: string]: NestedValue } = { [clef: string]: NestedValue },
+  S extends ServicesAppli = ServicesAppli,
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+>(
+  créerNébuleuse: () => Promise<Nébuleuse<T, S, L>>,
+): MandataireConstellation<Nébuleuse<T, S, L>> => {
+  return générerMandataire(new MandataireProc<T, S, L>(créerNébuleuse));
 };

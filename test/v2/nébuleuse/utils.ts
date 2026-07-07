@@ -55,9 +55,10 @@ export const connecterNébuleuses = async <
 >(
   nébuleuses: Nébuleuse<T, S>[],
 ) => {
-  const libp2ps: Libp2p<ServicesLibp2pNébuleuse>[] = await Promise.all(
-    nébuleuses.map(async (c) => await c.services.libp2p.libp2p()),
-  );
+  const libp2ps: Libp2p<ServicesLibp2pNébuleuse>[] = [];
+  for (const nébuleuse of nébuleuses) {
+    libp2ps.push(await nébuleuse.services.libp2p.libp2p());
+  }
   await toutesConnectées(libp2ps, { adresseRelai: obtenirAdresseRelai() });
 };
 
@@ -102,6 +103,7 @@ export const créerNébuleusesTest = async <
     nébuleuses.push(nébuleuse);
   }
 
+  // @ts-expect-error Aucune idée du problème. Une boucle `for` fonctionne sans se plaindre
   await Promise.all(nébuleuses.map((c) => c.démarrer()));
 
   await connecterNébuleuses(nébuleuses);

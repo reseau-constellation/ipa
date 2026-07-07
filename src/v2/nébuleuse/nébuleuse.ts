@@ -129,8 +129,8 @@ export type OptionsNébuleuse<
 };
 
 export class Nébuleuse<
-  T extends { [clef: string]: NestedValue } = Record<string, never>,
-  S extends ServicesAppli = Record<string, never>,
+  T extends { [clef: string]: NestedValue } = { [clef: string]: NestedValue },
+  S extends ServicesAppli = ServicesAppli,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends Appli<ServicesNébuleuse<StructureNébuleuse & T> & S> {
   orbite: ServiceOrbite;
