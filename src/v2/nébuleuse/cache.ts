@@ -157,7 +157,8 @@ export class CacheSuivi {
   }
 
   async suivreRecherche<
-    T extends (...args: unknown[]) => Promise<RetourRecherche>,
+    T extends (...args: unknown[]) => Promise<RetourRecherche<N>>,
+    N extends string,
     R,
     U,
   >({
@@ -170,13 +171,13 @@ export class CacheSuivi {
     sélection,
   }: {
     adresseFonction: string;
-    nomArgTaille: string;
+    nomArgTaille: N;
     idInstance: string;
     fOriginale: T;
     args: [{ [clef: string]: unknown }];
     ceciOriginal: U;
     sélection: (n: number, résultats: R[]) => R[];
-  }): Promise<RetourRecherche> {
+  }): Promise<RetourRecherche<N>> {
     // Extraire la fonction de suivi et les autres arguments
     const { argsSansF, f, nomArgFonction } = this.vérifierArgs({
       args,
@@ -220,11 +221,11 @@ export class CacheSuivi {
       const maxTaille = Math.max(
         ...Object.values(recherche.requêtes).map((r) => r.taille),
       );
-      const { n } = recherche.fs!;
+      const taille = recherche.fs![nomArgTaille];
 
       if (maxTaille !== recherche.taillePrésente) {
         recherche.taillePrésente = maxTaille;
-        n(maxTaille);
+        taille(maxTaille);
       }
     };
 
@@ -283,8 +284,8 @@ export class CacheSuivi {
 
     return {
       oublier: oublierRequête,
-      n: fChangerTailleRequête,
-    };
+      [nomArgTaille]: fChangerTailleRequête,
+    } as RetourRecherche<N>;
   }
 
   async oublierSuivi({
@@ -403,6 +404,7 @@ export const envelopper = <T>({
   nom,
   descripteur,
   recherche,
+  nomArgTaille = "n",
 }: {
   nom: string;
   descripteur: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -425,7 +427,7 @@ export const envelopper = <T>({
             fOriginale: original,
             args,
             ceciOriginal: this,
-            nomArgTaille: "n",
+            nomArgTaille,
             sélection: recherche,
           });
         } else {
