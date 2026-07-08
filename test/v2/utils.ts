@@ -18,7 +18,12 @@ import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import type { InfoRésultat, RésultatRecherche } from "@/v2/recherche/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Constellation as ConstructeurConstellation } from "@/v2/constellation.js";
-import type { Oublier, RetourRecherche, Suivi } from "@/v2/nébuleuse/types.js";
+import type {
+  Oublier,
+  RetourRecherche,
+  RetourRechercheProfondeur,
+  Suivi,
+} from "@/v2/nébuleuse/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
@@ -218,6 +223,9 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
     trouvé: (x: RésultatRecherche<T>[]) => void;
   }>();
 
+  let val: RésultatRecherche<T>[];
+  let déjàÉvalué = false;
+
   const si = (
     fTest: (
       x: RésultatRecherche<T>[] | undefined,
@@ -231,6 +239,7 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
         }
       };
       événements.on("trouvé", fTrouvé);
+      if (déjàÉvalué) fTrouvé(val);
     });
   };
 
@@ -282,6 +291,8 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
 
   const { oublier, n: changerN } = await f({
     f: (x) => {
+      déjàÉvalué = true;
+      val = x;
       événements.emit("trouvé", x);
     },
   });
@@ -299,6 +310,117 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
     siAuMoins,
     siPasPlusQue,
     n: changerN,
+  };
+};
+
+export type ObtRechercheProfondeur<T> = {
+  si(f: (x?: T[]) => boolean | Promise<boolean>): Promise<T[]>;
+  siDéfini: () => Promise<T[]>;
+  siNonDéfini: () => Promise<T[]>;
+  siVide: () => Promise<T[]>;
+  siNul: () => Promise<T[]>;
+  siPasVide: () => Promise<T[]>;
+  siPasNul: () => Promise<T[]>;
+  siAuMoins: (n: number) => Promise<T[]>;
+  siPasPlusQue: (n: number) => Promise<T[]>;
+  tous: () => Promise<T[]>;
+
+  p: (p: number) => Promise<void>;
+};
+
+export const rechercherProfondeur = async <T>(
+  f: (args: { f: Suivi<T[]> }) => Promise<RetourRechercheProfondeur>,
+): Promise<ObtRechercheProfondeur<T>> => {
+  const événements = new TypedEmitter<{
+    trouvé: (x: T[]) => void;
+  }>();
+
+  let val: T[];
+  let déjàÉvalué = false;
+
+  const si = (
+    fTest: (x: T[] | undefined) => boolean | Promise<boolean>,
+  ): Promise<T[]> => {
+    return new Promise<T[]>((résoudre) => {
+      const fTrouvé = async (x: T[]) => {
+        if (await fTest(x)) {
+          événements.off("trouvé", fTrouvé);
+          résoudre(x);
+        }
+      };
+      if (déjàÉvalué) fTrouvé(val);
+      événements.on("trouvé", fTrouvé);
+    });
+  };
+
+  const siDéfini = (): Promise<T[]> => {
+    return si((x): x is T[] => x !== undefined);
+  };
+
+  const siNonDéfini = (): Promise<T[]> => {
+    return si((x) => x === undefined);
+  };
+
+  const siVide = (): Promise<T[]> => {
+    return si((x) => {
+      if (Array.isArray(x)) return x.length === 0;
+      else if (typeof x === "object" && !isNull(x))
+        return Object.keys(x).length === 0;
+      else return false;
+    });
+  };
+
+  const siNul = (): Promise<T[]> => {
+    return si((x) => isNull(x));
+  };
+
+  const siPasVide = (): Promise<T[]> => {
+    return si((x) => {
+      if (Array.isArray(x)) return x.length > 0;
+      else if (typeof x === "object" && !isNull(x))
+        return Object.keys(x).length > 0;
+      else return false;
+    });
+  };
+
+  const siPasNul = (): Promise<T[]> => {
+    return si((x) => !isNull(x));
+  };
+
+  const siAuMoins = (n: number): Promise<T[]> => {
+    return si((x) => !!x && x.length >= n);
+  };
+
+  const siPasPlusQue = (n: number): Promise<T[]> => {
+    return si((x) => !!x && x.length <= n);
+  };
+
+  const tous = (): Promise<T[]> => {
+    return si(() => true);
+  };
+
+  const { oublier, profondeur: changerProfondeur } = await f({
+    f: (x) => {
+      déjàÉvalué = true;
+      val = x;
+      événements.emit("trouvé", x);
+    },
+  });
+
+  after(async () => await oublier());
+
+  return {
+    si,
+    siDéfini,
+    siNonDéfini,
+    siVide,
+    siNul,
+    siPasVide,
+    siPasNul,
+    tous,
+    siAuMoins,
+    siPasPlusQue,
+    p: changerProfondeur,
   };
 };
 

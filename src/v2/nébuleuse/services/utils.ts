@@ -101,3 +101,10 @@ export const obtEmpreinteCode = ({
   codeSecret: string;
   identifiant: string;
 }): string => Base64.stringify(sha256(codeSecret + identifiant));
+
+export const vérifierProfondeur = (p: number): void => {
+  if (p < 0) throw new Error("La profondeur ne peut pas être négative");
+
+  if (Math.round(p) !== p)
+    throw new Error("La profondeur doit être un nombre entier");
+};

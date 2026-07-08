@@ -21,6 +21,7 @@ import {
   combinerConfiances,
   générerCodeSecret,
   obtEmpreinteCode,
+  vérifierProfondeur,
 } from "../utils.js";
 import { estErreurAvortée } from "../../utils.js";
 import { STATUTS } from "../../appli/consts.js";
@@ -574,6 +575,12 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     }
   }
 
+  async effacerConfiances(): Promise<void> {
+    const bdRéseau = await this.bd();
+    const comptes = Object.keys(await bdRéseau.all());
+    await Promise.all(comptes.map((c) => bdRéseau.del(c)));
+  }
+
   private async sauvegarderBloquésPrivé() {
     const stockage = this.service("stockage");
 
@@ -804,19 +811,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const relationsImmédiates: {
         [idCompte: string]: {
           relations: RelationImmédiate[];
-          oublier: Oublier;
+          oublier?: Oublier;
         };
       } = {
         [idCompte]: {
           relations: [],
-          oublier: await this.suivreRelationsImmédiates({
-            idCompte,
-            f: async (relations) => {
-              relationsImmédiates[idCompte].relations = relations;
-              mettreÀJour();
-              await fFinale();
-            },
-          }),
         },
       };
 
@@ -826,12 +825,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         const profondeurs = résoudreProfondeurs();
         const relations: RelationRéseau[] = Object.entries(relationsImmédiates)
           .map(([id, { relations }]) =>
-            relations.map((r) => ({
-              de: id,
-              pour: r.idCompte,
-              confiance: r.confiance,
-              profondeur: profondeurs[id],
-            })),
+            relations
+              .filter((r) => r.idCompte !== id)
+              .map((r) => ({
+                de: id,
+                pour: r.idCompte,
+                confiance: r.confiance,
+                profondeur: profondeurs[id],
+              })),
           )
           .flat();
         await f(relations);
@@ -890,7 +891,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           ).filter((id) => !ceuxDontOnVeutSuivreLesRelations.includes(id));
           await Promise.all(
             ceuxDontOnVeutOublierLesRelations.map((id) =>
-              relationsImmédiates[id].oublier(),
+              relationsImmédiates[id].oublier?.(),
             ),
           );
 
@@ -898,11 +899,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           const àSuivre = [
             ...new Set(
               ceuxDontOnVeutSuivreLesRelations
-                .map(
-                  (id) =>
-                    relationsImmédiates[id].relations
-                      .filter((r) => r.confiance >= 0)
-                      .map((r) => r.idCompte), // erreur relationsImmédiates[id] === undefined ici
+                .map((id) =>
+                  relationsImmédiates[id].relations
+                    .filter((r) => r.confiance >= 0)
+                    .map((r) => r.idCompte),
                 )
                 .flat(),
             ),
@@ -910,6 +910,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
           await Promise.all(
             àSuivre.map(async (id) => {
+              relationsImmédiates[id] = {
+                relations: [],
+              };
               const oublierSuivi = await this.suivreRelationsImmédiates({
                 idCompte: id,
                 f: async (relations) => {
@@ -918,12 +921,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
                   await fFinale();
                 },
               });
-              relationsImmédiates[id] = {
-                relations: [],
-                oublier: async () => {
-                  await oublierSuivi();
-                  delete relationsImmédiates[id];
-                },
+              relationsImmédiates[id].oublier = async () => {
+                await oublierSuivi();
+                delete relationsImmédiates[id];
               };
             }),
           );
@@ -933,7 +933,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         if (!annulé) queue.add(tâche);
       };
 
-      mettreÀJour();
+      const oublierRelationsInitiale = await this.suivreRelationsImmédiates({
+        idCompte,
+        f: async (relations) => {
+          relationsImmédiates[idCompte].relations = relations;
+          mettreÀJour();
+          await fFinale();
+        },
+      });
+      relationsImmédiates[idCompte].oublier = oublierRelationsInitiale;
 
       const oublier = async () => {
         annulé = true;
@@ -944,7 +952,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       };
 
       const changerProfondeur = async (p: number) => {
-        if (profondeur !== p && Math.ceil(p) > 0) {
+        vérifierProfondeur(p);
+        if (profondeur !== p) {
           profondeur = p;
           mettreÀJour();
         }
@@ -961,9 +970,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
       // Ici on a un peu de code manuel pour rendre `suivreFonctionImbriquée` compatible avec une fonction qui rend
       // `RetourRechercheProfondeur`.
-      let changerProfondeur: RetourRechercheProfondeur["profondeur"] = async (
-        _p: number,
-      ) => {};
+      let _changerProfondeur:
+        RetourRechercheProfondeur["profondeur"] | undefined = undefined;
+      const changerProfondeur: RetourRechercheProfondeur["profondeur"] = async (
+        p: number,
+      ) => {
+        if (_changerProfondeur) await _changerProfondeur(p);
+        profondeur = p;
+      };
+
       const oublierImbriquée = await suivreFonctionImbriquée({
         fRacine: async ({ fSuivreRacine }) =>
           await compte.suivreIdCompte({ f: fSuivreRacine }),
@@ -973,7 +988,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             profondeur,
             idCompte: id,
           });
-          changerProfondeur = retour.profondeur;
+          _changerProfondeur = retour.profondeur;
+          _changerProfondeur(profondeur ?? Infinity);
           return retour.oublier;
         },
         f: ignorerNonDéfinis(f),

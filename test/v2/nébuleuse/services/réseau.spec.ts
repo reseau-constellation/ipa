@@ -4,8 +4,9 @@ import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
-import { obtenir } from "../../utils.js";
+import { obtenir, rechercherProfondeur } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
+import type { ObtRechercheProfondeur } from "../../utils.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
 import type {
@@ -14,6 +15,7 @@ import type {
   ConnexionDispositif,
   ConnexionLibp2p,
   RelationImmédiate,
+  RelationRéseau,
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
@@ -883,19 +885,353 @@ describe("Réseau", function () {
     });
   });
 
-  describe.skip("suivre relations réseau", function () {
-    it("rien pour commencer");
-    it("ajout relation");
-    it("enlever relation");
-    it("relations transitives");
-    it("augmenter profondeur");
-    it("diminuer profondeur");
-    it("changement relation transitive");
-    it("suivi réseau d'un tiers");
-    it("changement id compte original");
-    it("profondeur zéro");
-    it("profondeur négative");
-    it("profondeur fraction < 1");
-    it("profondeur fraction > 1");
+  describe("suivre relations réseau", function () {
+    let fermer: () => Promise<void>;
+    let nébuleuses: NébuleuseTest[];
+
+    let rechercheRelations: ObtRechercheProfondeur<RelationRéseau>;
+
+    let idsComptes: string[];
+
+    const idCompteInexistant =
+      "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+
+    before(async () => {
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
+
+      idsComptes = await Promise.all(
+        nébuleuses.map(async (c) => await c.compte.obtIdCompte()),
+      );
+      console.log({ idsComptes });
+
+      rechercheRelations = await rechercherProfondeur<RelationRéseau>(({ f }) =>
+        nébuleuses[0].réseau.suivreRelationsRéseau({
+          f,
+        }),
+      );
+    });
+
+    after(async () => {
+      await fermer?.();
+    });
+
+    afterEach(async () => {
+      await Promise.all(nébuleuses.map((n) => n.réseau.effacerConfiances()));
+      rechercheRelations.p(Infinity);
+    });
+
+    it("rien pour commencer", async () => {
+      const relations = await rechercheRelations.siVide();
+      expect(relations).to.be.empty();
+    });
+
+    it("ajout relation", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      const relations = await rechercheRelations.siPasVide();
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[0],
+          pour: idsComptes[1],
+          confiance: 1,
+          profondeur: 0,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
+
+    it("enlever relation", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await rechercheRelations.siPasVide();
+
+      await nébuleuses[0].réseau.nePlusFaireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      const relations = await rechercheRelations.siVide();
+
+      expect(relations).to.be.empty();
+    });
+
+    it("relations transitives", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+
+      const relations = await rechercheRelations.siAuMoins(2);
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[0],
+          pour: idsComptes[1],
+          confiance: 1,
+          profondeur: 0,
+        },
+        {
+          de: idsComptes[1],
+          pour: idsComptes[2],
+          confiance: 1,
+          profondeur: 1,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
+
+    it("diminuer profondeur", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+
+      await rechercheRelations.siAuMoins(2);
+      await rechercheRelations.p(0);
+
+      const relations = await rechercheRelations.siPasPlusQue(1);
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[0],
+          pour: idsComptes[1],
+          confiance: 1,
+          profondeur: 0,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
+
+    it("augmenter profondeur", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+      await rechercheRelations.p(0);
+      await rechercheRelations.siPasPlusQue(1);
+
+      await rechercheRelations.p(5);
+
+      const relations = await rechercheRelations.siAuMoins(2);
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[0],
+          pour: idsComptes[1],
+          confiance: 1,
+          profondeur: 0,
+        },
+        {
+          de: idsComptes[1],
+          pour: idsComptes[2],
+          confiance: 1,
+          profondeur: 1,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
+
+    it("changement relation transitive", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+      await rechercheRelations.siAuMoins(2);
+
+      await nébuleuses[1].réseau.nePlusFaireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+
+      const relations = await rechercheRelations.siPasPlusQue(1);
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[0],
+          pour: idsComptes[1],
+          confiance: 1,
+          profondeur: 0,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
+
+    it("membre non disponible", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+      await nébuleuses[2].réseau.faireConfianceAuCompte({
+        idCompte: idCompteInexistant,
+      });
+
+      const relations = await rechercheRelations.siAuMoins(3);
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[0],
+          pour: idsComptes[1],
+          confiance: 1,
+          profondeur: 0,
+        },
+        {
+          de: idsComptes[1],
+          pour: idsComptes[2],
+          confiance: 1,
+          profondeur: 1,
+        },
+        {
+          de: idsComptes[2],
+          pour: idCompteInexistant,
+          confiance: 1,
+          profondeur: 2,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
+
+    it("circulairité", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+      await nébuleuses[2].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[0],
+      });
+
+      const relations = await rechercheRelations.siAuMoins(3);
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[0],
+          pour: idsComptes[1],
+          confiance: 1,
+          profondeur: 0,
+        },
+        {
+          de: idsComptes[1],
+          pour: idsComptes[2],
+          confiance: 1,
+          profondeur: 1,
+        },
+        {
+          de: idsComptes[2],
+          pour: idsComptes[0],
+          confiance: 1,
+          profondeur: 2,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
+
+    it("suivi réseau d'un tiers", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+      await nébuleuses[2].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[0],
+      });
+
+      const rechercheRelationsTiers =
+        await rechercherProfondeur<RelationRéseau>(({ f }) =>
+          nébuleuses[0].réseau.suivreRelationsRéseau({
+            f,
+            idCompte: idsComptes[1],
+          }),
+        );
+
+      const relations = await rechercheRelationsTiers.siAuMoins(2);
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[1],
+          pour: idsComptes[2],
+          confiance: 1,
+          profondeur: 0,
+        },
+        {
+          de: idsComptes[2],
+          pour: idsComptes[0],
+          confiance: 1,
+          profondeur: 1,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
+
+    it("profondeur négative", async () => {
+      expect(rechercheRelations.p(-1)).to.eventually.be.rejectedWith(
+        "La profondeur ne peut pas être négative",
+      );
+    });
+
+    it("profondeur fraction < 1", async () => {
+      expect(rechercheRelations.p(0.4)).to.eventually.be.rejectedWith(
+        "La profondeur doit être un nombre entier",
+      );
+    });
+
+    it("profondeur fraction > 1", async () => {
+      expect(rechercheRelations.p(1.4)).to.eventually.be.rejectedWith(
+        "La profondeur doit être un nombre entier",
+      );
+    });
+
+    it("changement id compte original", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+      await nébuleuses[2].réseau.faireConfianceAuCompte({
+        idCompte: idCompteInexistant,
+      });
+      await rechercheRelations.siAuMoins(2);
+
+      await nébuleuses[1].compte.ajouterDispositif({
+        idDispositif: await nébuleuses[0].compte.obtIdDispositif(),
+      });
+
+      await nébuleuses[0].compte.rejoindreCompte({ idCompte: idsComptes[1] });
+
+      const relations = await rechercheRelations.si(
+        (x) =>
+          !!x &&
+          x.length === 2 &&
+          !!x.find((r) => r.de === idsComptes[1] && r.profondeur === 0),
+      );
+
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[1],
+          pour: idsComptes[2],
+          confiance: 1,
+          profondeur: 0,
+        },
+        {
+          de: idsComptes[2],
+          pour: idCompteInexistant,
+          confiance: 1,
+          profondeur: 1,
+        },
+      ];
+      expect(relations).to.have.deep.members(réf);
+    });
   });
 });
