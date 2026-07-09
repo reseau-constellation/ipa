@@ -74,6 +74,12 @@ export type RelationRéseau = {
 
 export type RelationImmédiate = { idCompte: string; confiance: number };
 
+export type CompteParProfondeur = {
+  idCompte: string;
+  confiance: number;
+  profondeur: number;
+};
+
 // Constantes
 
 const CLEF_COMPTES_BLOQUÉS = "comptes bloqués";
@@ -725,7 +731,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     profondeur,
     idCompte,
   }: {
-    f: Suivi<{ idCompte: string; confiance: number; profondeur: number }[]>;
+    f: Suivi<CompteParProfondeur[]>;
     profondeur?: number;
     idCompte?: string;
   }): Promise<RetourRechercheProfondeur> {

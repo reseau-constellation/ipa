@@ -52,7 +52,16 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           const nomOuAdresse = args[0];
           const parAdresse = isValidAddress(nomOuAdresse);
 
-          const signal = args[1]?.signal;
+          // Ceci est nécessaire pour éviter qu'une requête ne soit annulée immédiatement après l'appel à
+          // `open()`, ce qui bousille les requêtes suivantes à Hélia pour le manifeste de la base de données.
+          let ouverte = false;
+          const signaleurLocal = new AbortController();
+          const { signal, ...argsSansSignal } = args[1] ? args[1] : {};
+          const signalFinal = signal ? signaleurLocal.signal : undefined;
+          signal?.addEventListener("abort", async () => {
+            await new Promise((résoudre) => setTimeout(résoudre, 250));
+            if (!ouverte) signaleurLocal.abort();
+          });
 
           const promesseVerrou = verrouOrbite.acquire(nomOuAdresse);
 
@@ -64,8 +73,13 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
             const existante = cacheBdsOrbite.get(nomOuAdresse);
 
             const bd =
-              (parAdresse && existante) || (await target.open(...args));
+              (parAdresse && existante) ||
+              (await target.open(args[0], {
+                ...argsSansSignal,
+                signal: signalFinal,
+              }));
             const adresse = bd.address;
+            ouverte = true;
 
             if (!parAdresse && existante)
               throw new Error(
