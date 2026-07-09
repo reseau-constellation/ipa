@@ -6,7 +6,7 @@ import {
 } from "@/v2/nébuleuse/cache.js";
 import { attendreQue } from "../appli/utils/fonctions.js";
 import type { RésultatProfondeur } from "@/v2/nébuleuse/cache.js";
-import type { Suivi, Oublier, RetourRecherche } from "@/v2/nébuleuse/types.js";
+import type { Suivi, Oublier, RetourRecherche, RetourRechercheProfondeur } from "@/v2/nébuleuse/types.js";
 
 describe("Cache", function () {
   describe("suivi", function () {
@@ -256,12 +256,12 @@ describe("Cache", function () {
       async parProfondeur<T>({
         a,
         f,
-        n,
+        profondeur,
       }: {
         a: T;
         f: Suivi<RésultatProfondeur<T>[]>;
-        n: number;
-      }): Promise<RetourRecherche> {
+        profondeur: number;
+      }): Promise<RetourRechercheProfondeur> {
         const générerDonnées = (n_: number) => {
           const liste = Array(n_)
             .fill(0)
@@ -272,13 +272,13 @@ describe("Cache", function () {
           );
         };
 
-        await f(générerDonnées(n));
+        await f(générerDonnées(profondeur));
 
         return {
           oublier: async () => {
             appelOublié.add(a);
           },
-          n: async (n: number) => await f(générerDonnées(n)),
+          profondeur: async (n: number) => await f(générerDonnées(n)),
         };
       }
     }
@@ -524,17 +524,17 @@ describe("Cache", function () {
     it("par profondeur", async () => {
       let val: RésultatProfondeur<string>[] = [];
 
-      const { oublier, n } = await test.parProfondeur({
+      const { oublier, profondeur } = await test.parProfondeur({
         a: "a",
         f: (x) => {
           val = x;
         },
-        n: 5,
+        profondeur: 5,
       });
       àOublier.push(oublier);
 
       expect(val.map((x) => x.val)).to.deep.equal(Array(10).fill("a"));
-      n(3);
+      profondeur(3);
       await attendreQue(() => val.length === 6);
 
       expect(val.every((v) => v.profondeur <= 3));
