@@ -576,7 +576,7 @@ describe("Réseau", function () {
 
         // Compte 1 a bien ajouté le dispositif 2
         const dispositifsCompte = await obtenir<string[]>(({ si }) =>
-          nébuleuses[0].compte.suivreMesDispositifs({
+          nébuleuses[0].compte.suivreDispositifsAutorisés({
             f: si((x) => !!x?.includes(idsDispositifs[1])),
           }),
         );
@@ -646,7 +646,7 @@ describe("Réseau", function () {
 
         // Compte 1 a bien ajouté le dispositif 2
         const dispositifsCompte = await obtenir<string[]>(({ si }) =>
-          nébuleuses[0].compte.suivreMesDispositifs({
+          nébuleuses[0].compte.suivreDispositifsAutorisés({
             f: si((x) => !!x?.includes(idsDispositifs[1])),
           }),
         );
@@ -687,7 +687,7 @@ describe("Réseau", function () {
 
     it("ça ne fonctionne pas avec le mauvais mot de passe", async () => {
       const dispositifsCompte = await obtenir<string[]>(({ si }) =>
-        nébuleuses[0].compte.suivreMesDispositifs({
+        nébuleuses[0].compte.suivreDispositifsAutorisés({
           f: si((x) => !!x?.includes(idsDispositifs[1])),
         }),
       );
