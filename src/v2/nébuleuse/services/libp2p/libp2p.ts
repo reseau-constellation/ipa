@@ -54,6 +54,8 @@ export class ServiceLibp2p<
   RetourDémarrageLibp2p<L>,
   OptionsServiceLibp2p<L>
 > {
+  signaleurArrêt: AbortController;
+
   constructor({
     services,
     options,
@@ -67,9 +69,15 @@ export class ServiceLibp2p<
       dépendances: ["stockage", "dossier"],
       options,
     });
+    
+    this.signaleurArrêt = new AbortController();
   }
 
   async démarrer() {
+    // Réinitialiser le signaleur, mais uniquement si nécessaire.
+    if (this.signaleurArrêt.signal.aborted)
+      this.signaleurArrêt = new AbortController();
+
     let libp2p = this.options.libp2p;
 
     if (!isLibp2p(libp2p)) {
@@ -113,7 +121,7 @@ export class ServiceLibp2p<
       for (const connu of pairsConnus) {
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           try {
-            await libp2p.dial(connu.id);
+            await libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
           } catch {
             // Tant pis...
           }
@@ -122,14 +130,14 @@ export class ServiceLibp2p<
     }, 1000);
     libp2p.addEventListener("peer:discovery", async (x) => {
       try {
-        await libp2p.dial(x.detail.id);
+        await libp2p.dial(x.detail.id, { signal: this.signaleurArrêt.signal });
       } catch {
         // Tant pis...
       }
     });
     libp2p.addEventListener("peer:update", async (x) => {
       try {
-        await libp2p.dial(x.detail.peer.id);
+        await libp2p.dial(x.detail.peer.id, { signal: this.signaleurArrêt.signal });
       } catch {
         // Tant pis...
       }
@@ -199,6 +207,9 @@ export class ServiceLibp2p<
   async fermer(): Promise<void> {
     const { libp2p, oublierReconnecteur } = await this.démarré();
     this.statut = STATUTS.FERMETURE_EN_COURS;
+
+    this.signaleurArrêt.abort();
+
     oublierReconnecteur?.();
     // Uniquement fermer libp2p s'il n'a pas été fourni dans les options
     if (libp2p) await libp2p.stop();
