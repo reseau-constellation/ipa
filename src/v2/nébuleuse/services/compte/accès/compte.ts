@@ -29,17 +29,27 @@ class AccèsCompte {
   estDémarré?: { oublier?: Oublier };
   oublier?: Oublier;
 
+  signaleurArrêt: AbortController;
+
   constructor(orbite: OrbitDB, idCompte: string) {
     this.orbite = orbite;
     this.idCompte = idCompte;
 
     this.dispositifs = [];
     this.événements = new TypedEmitter();
+
+    this.signaleurArrêt = new AbortController();
   }
 
   async démarrer({ signal }: { signal?: AbortSignal } = {}): Promise<void> {
     try {
-      const bd = await this.orbite.open(this.idCompte, { signal });
+      const signalFinal = anySignal([
+        this.signaleurArrêt.signal,
+        ...(signal ? [signal] : []),
+      ]);
+      const bd = await this.orbite.open(this.idCompte, { signal: signalFinal });
+      signalFinal.clear();
+
       const accèsCompte = bd.access;
 
       if (!estContrôleurNébuleuse(accèsCompte)) {
@@ -83,6 +93,8 @@ class AccèsCompte {
   }
 
   async fermer() {
+    this.signaleurArrêt.abort()
+    
     const { oublier } = await this.démarré();
     await oublier?.();
   }
