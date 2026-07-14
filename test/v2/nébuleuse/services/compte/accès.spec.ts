@@ -317,7 +317,7 @@ describe("Accès", function () {
     });
 
     it("invitations trasitives par d'autres modératrices après fermeture de la bd", async () => {
-      // Autoriser orbite 2 comme modératrice
+      // Autoriser orbite 2 comme modératrice
       let accès = bd.access as InstanceContrôleurNébuleuse;
       accès.autoriser(MODÉRATRICE, orbite2.identity.id);
 
@@ -328,7 +328,7 @@ describe("Accès", function () {
         accèsSurOrbite2.estUneModératrice(orbite2.identity.id),
       );
 
-      // Fermer et rouvrir la bd sur orbite 1
+      // Fermer et rouvrir la bd sur orbite 1
       await bd.close();
       bd = (await orbite1.open(bd.address, {
         type: "keyvalue",
