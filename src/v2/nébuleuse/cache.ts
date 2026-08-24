@@ -1,9 +1,10 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
-import Base64 from "crypto-js/enc-base64url.js";
-import md5 from "crypto-js/md5.js";
 import { v4 as uuidv4 } from "uuid";
 
 import deepEqual from "fast-deep-equal";
+import { base64 } from "@hexagon/base64";
+
+import { sha256 } from "js-sha256";
 import type { Oublier, RetourRecherche, Suivi } from "./types.js";
 
 export class CacheSuivi {
@@ -195,7 +196,7 @@ export class CacheSuivi {
         `Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`,
       );
 
-    const codeCache = this.générerCodeCache({
+    const codeCache = await this.générerCodeCache({
       adresseFonction,
       idInstance,
       argsClefs: argsSansFOuTaille,
@@ -350,7 +351,7 @@ export class CacheSuivi {
   }): string {
     const texte =
       adresseFonction + "-" + idInstance + "-" + JSON.stringify(argsClefs);
-    return Base64.stringify(md5(texte));
+    return base64.fromString(sha256(texte), true);
   }
 }
 
