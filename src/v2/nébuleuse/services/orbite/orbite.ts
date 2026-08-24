@@ -324,46 +324,37 @@ export class ServiceOrbite<
   async suivreBd({
     id,
     f,
-    signal,
   }: {
     id: string;
     f: Suivi<BaseDatabase>;
-    signal?: AbortSignal;
   }): Promise<Oublier>;
   async suivreBd<T extends keyof BdsOrbite>({
     id,
     type,
     f,
-    signal,
   }: {
     id: string;
     type: T;
     f: Suivi<BdsOrbite[T]>;
-    signal?: AbortSignal;
   }): Promise<Oublier>;
   async suivreBd<T extends keyof BdsOrbite>({
     id,
     type,
     f,
-    signal,
   }: {
     id: string;
     type?: T | undefined;
     f: Suivi<BdsOrbite[T] | BaseDatabase>;
-    signal?: AbortSignal;
   }): Promise<Oublier> {
     const journal = this.service("journal");
 
     const signaleurOublier = new AbortController();
-    const signalFinal = signal
-      ? anySignal([signaleurOublier.signal, signal])
-      : signaleurOublier.signal;
 
     let fFinale: Suivi<LogEntry<DagCborEncodable> | void>;
     let pfFinale: Promise<void> | undefined = undefined;
     let oublier: Oublier = faisRien;
 
-    this.ouvrirBd({ id, type, signal: signalFinal })
+    this.ouvrirBd({ id, type, signal: signaleurOublier.signal })
       .then(async ({ bd, oublier: oublierBd }) => {
         fFinale = async () => {
           return await f(bd);
@@ -401,12 +392,10 @@ export class ServiceOrbite<
     id,
     schéma,
     f,
-    signal,
   }: {
     id: string;
     schéma: JSONSchemaType<PartielRécursif<T>>;
     f: Suivi<TypedNested<T>>;
-    signal?: AbortSignal;
   }): Promise<Oublier> {
     let bdTypée: TypedNested<T> | undefined = undefined;
 
@@ -419,7 +408,6 @@ export class ServiceOrbite<
       id,
       f: fFinale,
       type: "nested",
-      signal,
     });
   }
 

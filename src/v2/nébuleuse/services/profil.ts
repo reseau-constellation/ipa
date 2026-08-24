@@ -460,12 +460,10 @@ export class Profil extends ServiceDonnéesAppli<
   async suivreRésolutionÉpingle({
     épingle,
     f,
-    signal,
     ignorer,
   }: {
     épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleProfil>;
     f: Suivi<Set<string>>;
-    signal?: AbortSignal;
     ignorer?: Set<string>;
   }): Promise<Oublier> {
     const info: {
@@ -502,7 +500,6 @@ export class Profil extends ServiceDonnéesAppli<
               : [ajouterPréfixeOrbite(idCompteSansPréfixes)];
           await fFinale();
         },
-        signal,
       });
       fsOublier.push(oublierBase);
     }

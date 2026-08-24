@@ -180,7 +180,6 @@ export abstract class ServiceDonnéesAppli<
     f,
     idCompte,
     clef,
-    signal,
   }: {
     f: Suivi<
       | (T extends ExtractKeys<Structure>
@@ -190,7 +189,6 @@ export abstract class ServiceDonnéesAppli<
     >;
     clef?: T;
     idCompte?: string;
-    signal?: AbortSignal;
   }): Promise<Oublier> {
     const compte = this.service("compte");
     return compte.suivreBd({
@@ -216,7 +214,6 @@ export abstract class ServiceDonnéesAppli<
         );
       },
       idCompte,
-      signal,
     });
   }
 }
