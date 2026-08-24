@@ -5,8 +5,8 @@ import fileSaver from "file-saver";
 import toBuffer from "it-to-buffer";
 import { idcValide, zipper } from "@constl/utils-ipa";
 import { TimeoutController } from "timeout-abort-controller";
-import Base64 from "crypto-js/enc-base64url.js";
-import md5 from "crypto-js/md5.js";
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { NestedValueWithUndefined } from "@orbitdb/nested-db";
 import type { SansNonDéfinis } from "./types.js";
@@ -31,7 +31,7 @@ export const obtIdIndex = (
   const valsIndex = Object.fromEntries(
     Object.entries(v).filter((x) => colsIndex.includes(x[0])),
   );
-  return Base64.stringify(md5(JSON.stringify(valsIndex)));
+  return base64.fromString(sha256(JSON.stringify(valsIndex)), true);
 };
 
 export const sauvegarderDonnéesExportées = async ({
