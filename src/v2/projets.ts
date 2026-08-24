@@ -9,9 +9,9 @@ import {
 } from "@constl/utils-ipa";
 import { utils as xlsxUtils, write as xlsxWrite } from "@e965/xlsx";
 import toBuffer from "it-to-buffer";
-import Base64 from "crypto-js/enc-base64url.js";
-import md5 from "crypto-js/md5.js";
 import { isBrowser, isWebWorker } from "wherearewe";
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { conversionsTypes, définis } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
@@ -963,7 +963,7 @@ export class Projets extends ObjetConstellation<
       ]
         .toSorted()
         .join("/");
-      await f(Base64.stringify(md5(texte)));
+      await f(base64.fromString(sha256(JSON.stringify(texte)), true));
     };
 
     const oublierEmpreinteProjet = await orbite.suivreEmpreinteTêteBd({

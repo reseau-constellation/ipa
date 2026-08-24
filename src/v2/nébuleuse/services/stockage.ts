@@ -1,8 +1,8 @@
 import { join } from "path";
 import { Key, type Datastore } from "interface-datastore";
 import { NotFoundError } from "@libp2p/interface";
-import sha256 from "crypto-js/sha256.js";
-import Base64 from "crypto-js/enc-base64url.js";
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import { STATUTS } from "../appli/consts.js";
 import { obtStockageDonnées } from "./utils.js";
@@ -63,7 +63,7 @@ export class ServiceStockage extends ServiceAppli<
   }
 
   clefSécuritaire(clef: string): string {
-    return Base64.stringify(sha256(clef));
+    return base64.fromString(sha256(clef), true);
   }
 
   async obtenirItem({ clef }: { clef: string }): Promise<string | null> {

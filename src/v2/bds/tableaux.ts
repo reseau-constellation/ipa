@@ -8,8 +8,6 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import deepEqual from "fast-deep-equal";
-import md5 from "crypto-js/md5.js";
-import Base64 from "crypto-js/enc-base64url.js";
 import { v4 as uuidv4 } from "uuid";
 import { utils } from "@e965/xlsx";
 import { எண்ணிக்கை as எண்ணிக்கை_வகை } from "ennikkai";
@@ -17,6 +15,8 @@ import { isElectronMain, isNode } from "wherearewe";
 import axios from "axios";
 import { typedNested, type TypedNested } from "@constl/bohr-db";
 import gjv from "geojson-validation";
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import { cholqij } from "@/dates.js";
 import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
@@ -1112,9 +1112,11 @@ export class TableauxBds extends Tableaux {
               ([_clef, traducs]) => traducs[langue] === valeur,
             )?.[0];
             if (!clef) {
-              // On utilise md5 au lieu de uuidv4 en raison de la concurrence avec des conversions parallèles de données
+              // On utilise sha256 au lieu de uuidv4 en raison de la concurrence avec des conversions parallèles de données
               clef =
-                valeur.length <= 24 ? valeur : Base64.stringify(md5(valeur));
+                valeur.length <= 24
+                  ? valeur
+                  : base64.fromString(sha256(valeur));
               nouvellesTraductions[clef] = { [langue]: valeur };
             }
             return clef;

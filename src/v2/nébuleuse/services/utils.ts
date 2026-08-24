@@ -2,9 +2,9 @@ import { IDBDatastore } from "datastore-idb";
 import { isElectronMain, isNode } from "wherearewe";
 import { randomBytes } from "@noble/hashes/utils.js";
 import bs58 from "bs58";
-import sha256 from "crypto-js/sha256.js";
-import Base64 from "crypto-js/enc-base64url.js";
 
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import type { ListenerSignature, TypedEmitter } from "tiny-typed-emitter";
 import type { Oublier, Suivi } from "../types.js";
 import type { Datastore } from "interface-datastore";
@@ -100,7 +100,7 @@ export const obtEmpreinteCode = ({
 }: {
   codeSecret: string;
   identifiant: string;
-}): string => Base64.stringify(sha256(codeSecret + identifiant));
+}): string => base64.fromString(sha256(codeSecret + identifiant));
 
 export const vérifierProfondeur = (p: number): void => {
   if (p < 0) throw new Error("La profondeur ne peut pas être négative");

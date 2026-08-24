@@ -106,6 +106,7 @@
     "@constl/utils-ipa": "^3.0.6",
     "@e965/xlsx": "^0.20.3",
     "@helia/unixfs": "^7.2.1",
+    "@hexagon/base64": "^2.0.4",
     "@ipld/dag-cbor": "^9.2.7",
     "@libp2p/autonat": "^3.0.22",
     "@libp2p/bootstrap": "^12.0.25",
@@ -143,7 +144,6 @@
     "browser-fs-access": "^0.38.0",
     "bs58": "^6.0.0",
     "chokidar": "^4.0.3",
-    "crypto-js": "^4.2.0",
     "datastore-fs": "^11.0.4",
     "datastore-idb": "^4.0.3",
     "detect-browser": "^5.3.0",
@@ -161,6 +161,7 @@
     "it-pipe": "^3.0.1",
     "it-pushable": "^3.2.4",
     "it-to-buffer": "^4.0.12",
+    "js-sha256": "^1.0.0",
     "jszip": "^3.10.1",
     "libp2p": "^3.3.3",
     "lodash-es": "^4.18.1",
@@ -181,5 +182,5 @@
     "uuid": "^14.0.1",
     "wherearewe": "^2.0.1"
   },
-  "packageManager": "pnpm@11.10.0"
+  "packageManager": "pnpm@11.23.0+sha512.f00082e5b283a199b74e079da28d155c008fe232f44c8a06ea7ddfa014ecf719fc362f790ecc67b28106ddac2afb24c49a9a079159da560b2ce7d1e98efd11af"
 }

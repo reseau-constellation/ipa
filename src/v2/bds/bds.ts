@@ -11,8 +11,9 @@ import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "@e965/xlsx";
 import { TimeoutController } from "timeout-abort-controller";
 import PQueue from "p-queue";
-import Base64 from "crypto-js/enc-base64url.js";
-import md5 from "crypto-js/md5.js";
+
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import {
   DISPOSITIFS_INSTALLÉS,
@@ -1765,7 +1766,7 @@ export class Bds extends ObjetConstellation<
       ]
         .toSorted()
         .join("/");
-      await f(Base64.stringify(md5(texte)));
+      await f(base64.fromString(sha256(JSON.stringify(texte)), true));
     };
 
     const oublierEmpreinteBd = await orbite.suivreEmpreinteTêteBd({

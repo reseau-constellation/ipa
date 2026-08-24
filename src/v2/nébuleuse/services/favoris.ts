@@ -1,8 +1,8 @@
 import deepEqual from "fast-deep-equal";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
-import Base64 from "crypto-js/enc-base64url.js";
-import md5 from "crypto-js/md5.js";
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import { enleverPréfixes } from "@/v2/utils.js";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { STATUTS } from "../appli/consts.js";
@@ -107,7 +107,7 @@ export type Résolveur<T extends ÉpingleFavoris = ÉpingleFavoris> = (args: {
 }) => Promise<Oublier>;
 
 export const idObjetÀClef = (idObjet: string): string => {
-  return Base64.stringify(md5(idObjet));
+  return base64.fromString(sha256(idObjet), true);
 };
 
 // Structure données

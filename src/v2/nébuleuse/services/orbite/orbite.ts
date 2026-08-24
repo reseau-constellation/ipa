@@ -12,10 +12,10 @@ import { v4 as uuidv4 } from "uuid";
 import { OrderedKeyValue } from "@orbitdb/ordered-keyvalue-db";
 import { typedNested } from "@constl/bohr-db";
 import { anySignal } from "any-signal";
-import Base64 from "crypto-js/enc-base64url.js";
-import md5 from "crypto-js/md5.js";
 import { CID } from "multiformats";
 import { faisRien } from "@constl/utils-ipa";
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import { STATUTS } from "@/v2/nébuleuse/appli/consts.js";
 import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../appli/index.js";
@@ -487,7 +487,8 @@ export class ServiceOrbite<
       const tête = éléments[éléments.length - 1]?.hash || "";
       return tête;
     };
-    const calculerEmpreinte = (texte: string) => Base64.stringify(md5(texte));
+    const calculerEmpreinte = (texte: string) =>
+      base64.fromString(sha256(texte), true);
 
     return await this.suivreBd({
       id: idBd,

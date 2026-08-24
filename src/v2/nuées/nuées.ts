@@ -10,8 +10,8 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { utils as xlsxUtils } from "@e965/xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
-import Base64 from "crypto-js/enc-base64url.js";
-import md5 from "crypto-js/md5.js";
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import { schémaTableau } from "../tableaux.js";
 import {
   ajouterPréfixes,
@@ -2074,7 +2074,7 @@ export class Nuées extends ObjetConstellation<
       ]
         .toSorted()
         .join("/");
-      await f(Base64.stringify(md5(texte)));
+      await f(base64.fromString(sha256(texte), true));
     };
 
     const oublierEmpreinteNuée = await orbite.suivreEmpreinteTêteBd({
