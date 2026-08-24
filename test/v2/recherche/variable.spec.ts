@@ -355,11 +355,11 @@ describe("Rechercher variables", function () {
     it("résultat description détecté", async () => {
       const pRésultatDescription = obtenir<
         RésultatObjectifRecherche<TypeRésultat>
-      >(({ siDéfini }) =>
+      >(({ si }) =>
         rechercheDescription({
           services: (clef) => constl.services[clef],
           idObjet: idVariable,
-          f: siDéfini(),
+          f: si(r=>r?.de === "descriptions"),
         }),
       );
 
