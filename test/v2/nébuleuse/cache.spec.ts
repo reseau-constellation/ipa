@@ -6,7 +6,12 @@ import {
 } from "@/v2/nébuleuse/cache.js";
 import { attendreQue } from "../appli/utils/fonctions.js";
 import type { RésultatProfondeur } from "@/v2/nébuleuse/cache.js";
-import type { Suivi, Oublier, RetourRecherche, RetourRechercheProfondeur } from "@/v2/nébuleuse/types.js";
+import type {
+  Suivi,
+  Oublier,
+  RetourRecherche,
+  RetourRechercheProfondeur,
+} from "@/v2/nébuleuse/types.js";
 
 describe("Cache", function () {
   describe("suivi", function () {
