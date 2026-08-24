@@ -11,9 +11,11 @@ overrides:
   libp2p: 3.3.3
 
 patchedDependencies:
+  '@constl/bohr-db': 766b66c1e58f118219f8a9d270fba02d6b6779e3674999a75d8aea4fef12e9aa
   '@constl/utils-tests@2.1.2': 41044d3741d78a0dc37c3dad7749c9d7253569715bef5fa4ed6812fbe2990a03
   '@libp2p/gossipsub': 6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2
   '@orbitdb/core': 6837e2ea8d2c64404876de5b2d014c52f5d255f31d38cc7290b7a9d7d363080f
+  '@orbitdb/nested-db': e1d5392c05be803a2d10735f141799263098369db13b03e23a585687fc1cb6e1
 
 importers:
 
@@ -30,7 +32,7 @@ importers:
         version: 4.0.0
       '@constl/bohr-db':
         specifier: ^2.2.10
-        version: 2.2.10(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
+        version: 2.2.10(patch_hash=766b66c1e58f118219f8a9d270fba02d6b6779e3674999a75d8aea4fef12e9aa)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
       '@constl/mandataire':
         specifier: ^3.1.2
         version: 3.1.2
@@ -120,7 +122,7 @@ importers:
         version: 1.4.2(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
       '@orbitdb/nested-db':
         specifier: ^2.1.5
-        version: 2.1.5(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
+        version: 2.1.5(patch_hash=e1d5392c05be803a2d10735f141799263098369db13b03e23a585687fc1cb6e1)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
       '@orbitdb/ordered-keyvalue-db':
         specifier: ^1.4.5
         version: 1.4.5(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
@@ -254,8 +256,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0
       ts-deepmerge:
-        specifier: ^7.0.3
-        version: 7.0.3
+        specifier: ^8.0.0
+        version: 8.0.0
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -9245,12 +9247,12 @@ snapshots:
 
   '@colors/colors@1.5.0': {}
 
-  '@constl/bohr-db@2.2.10(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)':
+  '@constl/bohr-db@2.2.10(patch_hash=766b66c1e58f118219f8a9d270fba02d6b6779e3674999a75d8aea4fef12e9aa)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)':
     dependencies:
       '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=6837e2ea8d2c64404876de5b2d014c52f5d255f31d38cc7290b7a9d7d363080f)
       '@orbitdb/core-types': 1.2.4
       '@orbitdb/feed-db': 1.4.2(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
-      '@orbitdb/nested-db': 2.1.5(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
+      '@orbitdb/nested-db': 2.1.5(patch_hash=e1d5392c05be803a2d10735f141799263098369db13b03e23a585687fc1cb6e1)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
       '@orbitdb/ordered-keyvalue-db': 1.4.5(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
       '@orbitdb/set-db': 2.1.2(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
       ajv: 8.20.0
@@ -10790,7 +10792,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@orbitdb/nested-db@2.1.5(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)':
+  '@orbitdb/nested-db@2.1.5(patch_hash=e1d5392c05be803a2d10735f141799263098369db13b03e23a585687fc1cb6e1)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)':
     dependencies:
       '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=6837e2ea8d2c64404876de5b2d014c52f5d255f31d38cc7290b7a9d7d363080f)
       helia: 6.1.4(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
