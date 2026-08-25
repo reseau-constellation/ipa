@@ -36,6 +36,6 @@ overrides:
 patchedDependencies:
   '@libp2p/gossipsub': patches/@libp2p__gossipsub.patch
   '@orbitdb/core': patches/@orbitdb__core.patch
-  '@constl/utils-tests@2.1.2': patches/@constl__utils-tests@2.1.2.patch
   '@orbitdb/nested-db': patches/@orbitdb__nested-db.patch
   '@constl/bohr-db': patches/@constl__bohr-db.patch
+  '@constl/utils-tests': patches/@constl__utils-tests.patch
