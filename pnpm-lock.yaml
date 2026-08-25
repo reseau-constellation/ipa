@@ -12,7 +12,7 @@ overrides:
 
 patchedDependencies:
   '@constl/bohr-db': 766b66c1e58f118219f8a9d270fba02d6b6779e3674999a75d8aea4fef12e9aa
-  '@constl/utils-tests@2.1.2': 41044d3741d78a0dc37c3dad7749c9d7253569715bef5fa4ed6812fbe2990a03
+  '@constl/utils-tests@2.1.2': a205b17944d93d423e74b305a3986fa3efd69de83a482173825f71c7bd45015c
   '@libp2p/gossipsub': 6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2
   '@orbitdb/core': 6837e2ea8d2c64404876de5b2d014c52f5d255f31d38cc7290b7a9d7d363080f
   '@orbitdb/nested-db': e1d5392c05be803a2d10735f141799263098369db13b03e23a585687fc1cb6e1
@@ -273,7 +273,7 @@ importers:
     devDependencies:
       '@constl/utils-tests':
         specifier: ^2.1.2
-        version: 2.1.2(patch_hash=41044d3741d78a0dc37c3dad7749c9d7253569715bef5fa4ed6812fbe2990a03)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
+        version: 2.1.2(patch_hash=a205b17944d93d423e74b305a3986fa3efd69de83a482173825f71c7bd45015c)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@9.39.4(supports-color@8.1.1))
@@ -9307,7 +9307,7 @@ snapshots:
       uint8arrays: 5.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@2.1.2(patch_hash=41044d3741d78a0dc37c3dad7749c9d7253569715bef5fa4ed6812fbe2990a03)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)':
+  '@constl/utils-tests@2.1.2(patch_hash=a205b17944d93d423e74b305a3986fa3efd69de83a482173825f71c7bd45015c)(react-native@0.86.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)(supports-color@8.1.1))(supports-color@8.1.1)':
     dependencies:
       '@helia/block-brokers': 5.2.4
       '@libp2p/gossipsub': 15.0.23(patch_hash=6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2)

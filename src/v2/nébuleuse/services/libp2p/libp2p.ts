@@ -121,7 +121,7 @@ export class ServiceLibp2p<
       for (const connu of pairsConnus) {
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           try {
-            await libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
+            //  await libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
           } catch {
             // Tant pis...
           }
