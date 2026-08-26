@@ -1618,7 +1618,7 @@ describe("Automatisations", function () {
             maintenant + 1000 * 60 * 60 * 24,
           );
           expect(étatErreur.erreur).to.equal(
-            "Erreur d'importation des données : \nError: Request failed with status code 404",
+            "Erreur d'importation des données : \nRequest failed with status code 404",
           );
         });
 
