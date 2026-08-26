@@ -764,28 +764,49 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         const comptes: {
           [id: string]: { confiances: number[]; profondeur: number };
         } = {};
-        for (let p = 1; p <= profondeurMax; p++) {
+        const ajouterConfiance = ({
+          pour,
+          confiance,
+          profondeur,
+        }: {
+          pour: string;
+          confiance: number;
+          profondeur: number;
+        }) => {
+          if (comptes[pour]) {
+            // On garde la profondeur moindre initiale
+            comptes[pour].confiances.push(confiance);
+          } else {
+            comptes[pour] = {
+              confiances: [confiance],
+              profondeur,
+            };
+          }
+        };
+
+        for (let p = 0; p <= profondeurMax; p++) {
           const relationsP = relations.filter((r) => r.profondeur === p);
           for (const { pour, de, confiance, profondeur } of relationsP) {
-            const confianceCompteSource = résoudreConfiances(
-              comptes[de].confiances,
-            );
-            // On ignore les relations des comptes auxquels nous ne faisons pas confiance
-            if (confianceCompteSource > 0) {
-              const confianceTransitive =
-                confianceCompteSource *
-                confiance *
-                (confiance > 0
-                  ? FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE
-                  : FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE);
-              if (comptes[pour]) {
-                // On garde la profondeur moindre initiale
-                comptes[pour].confiances.push(confianceTransitive);
-              } else {
-                comptes[pour] = {
-                  confiances: [confianceTransitive],
+            if (p === 0) {
+              ajouterConfiance({ pour, confiance, profondeur });
+            } else {
+              const confianceCompteSource = résoudreConfiances(
+                comptes[de].confiances,
+              );
+
+              // On ignore les relations des comptes auxquels nous ne faisons pas confiance
+              if (confianceCompteSource > 0) {
+                const confianceTransitive =
+                  confianceCompteSource *
+                  confiance *
+                  (confiance > 0
+                    ? FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE
+                    : FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE);
+                ajouterConfiance({
+                  confiance: confianceTransitive,
+                  pour,
                   profondeur,
-                };
+                });
               }
             }
           }
