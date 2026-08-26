@@ -94,8 +94,16 @@ const ContrôleurAccès =
     }
 
     // Ajouter la première modératrice
+    const chrono1 = setTimeout(() => {
+      if (!signal?.aborted) console.log("délai contrôleur modératrices 1");
+    }, 5000);
     await accès.autoriser({ id: écriture, rôle: MODÉRATRICE });
+    clearTimeout(chrono1);
+    const chrono2 = setTimeout(() => {
+      if (!signal?.aborted) console.log("délai contrôleur modératrices 2");
+    }, 5000);
     await accès.àJour();
+    clearTimeout(chrono2);
 
     const canAppend = async (entry: LogEntry): Promise<boolean> => {
       // Pour l'instant, on ne peut qu'ajouter (et non révoquer) des membres
@@ -159,7 +167,12 @@ const ContrôleurAccès =
     };
 
     const close = async () => {
+      const chrono1 = setTimeout(
+        () => console.log("délai fermeture cntrl mod 1"),
+        5000,
+      );
       await accès.fermer();
+      clearTimeout(chrono1);
     };
 
     return {

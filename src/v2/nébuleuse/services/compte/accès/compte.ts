@@ -94,9 +94,18 @@ class AccèsCompte {
 
   async fermer() {
     this.signaleurArrêt.abort();
-
+    const chrono1 = setTimeout(
+      () => console.log("délai fermer accès compte 1"),
+      5000,
+    );
     const { oublier } = await this.démarré();
+    clearTimeout(chrono1);
+    const chrono2 = setTimeout(
+      () => console.log("délai fermer accès compte 2"),
+      5000,
+    );
     await oublier?.();
+    clearTimeout(chrono2);
   }
 }
 
@@ -150,8 +159,18 @@ export class AccèsParComptes {
           });
 
           const oublier = async () => {
+            const chrono1 = setTimeout(
+              () => console.log("délai oublier utilisateur 1"),
+              5000,
+            );
             await oublierUtilisateur();
+            clearTimeout(chrono1);
+            const chrono2 = setTimeout(
+              () => console.log("délai oublier utilisateur 2"),
+              5000,
+            );
             await accèsCompte.fermer();
+            clearTimeout(chrono2);
           };
           this.oublier.push(oublier);
           try {

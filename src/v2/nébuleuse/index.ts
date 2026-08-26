@@ -3,6 +3,6 @@ export {
   ServiceHélia,
   ServiceLibp2p,
   ServiceOrbite,
-  ServiceCompte,
+  type ServiceCompte,
   ServiceStockage,
 } from "./services/index.js";

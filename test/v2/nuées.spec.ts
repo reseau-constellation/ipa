@@ -66,6 +66,10 @@ describe("Nuées", function () {
     }));
     constl = constls[0];
     idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
+    console.log(
+      "ids",
+      await Promise.all(constls.map((c) => c.compte.obtIdLibp2p())),
+    );
   });
 
   after(async () => {
@@ -111,6 +115,7 @@ describe("Nuées", function () {
     });
 
     it("détectée sur un autre compte", async () => {
+      console.log({idNuée})
       const sesNuées = await obtenir<string[]>(({ siPasVide }) =>
         constls[1].nuées.suivreNuées({
           f: siPasVide(),

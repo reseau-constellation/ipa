@@ -15,7 +15,6 @@ import type { Identify } from "@libp2p/identify";
 import type { GossipSub } from "@libp2p/gossipsub";
 import type { PeerUpdate, PrivateKey, ServiceMap } from "@libp2p/interface";
 import type { ServiceStockage } from "../stockage.js";
-
 import type { ServiceClefPrivée } from "./config/utils.js";
 import type { OptionsAppli } from "../../appli/appli.js";
 
@@ -127,24 +126,40 @@ export class ServiceLibp2p<
           }
         }
       }
-    }, 1000);
-    libp2p.addEventListener("peer:discovery", async (x) => {
-      try {
-        await libp2p.dial(x.detail.id, { signal: this.signaleurArrêt.signal });
-      } catch {
-        // Tant pis...
-      }
+    }, 3000);
+
+    const idLibp2p = libp2p.peerId.toString();
+    libp2p.addEventListener("peer:connect", (x) => {
+      console.log(
+        "peer:connect",
+        "de",
+        idLibp2p.slice(-10),
+        x.detail.toString(),
+      );
     });
-    libp2p.addEventListener("peer:update", async (x) => {
-      try {
-        await libp2p.dial(x.detail.peer.id, {
-          signal: this.signaleurArrêt.signal,
-        });
-      } catch {
-        // Tant pis...
-      }
+    libp2p.addEventListener("connection:open", (x) => {
+      console.log(
+        "connection:open",
+        "de",
+        idLibp2p.slice(-10),
+        x.detail.remoteAddr.toString(),
+      );
+    });
+    libp2p.addEventListener("connection:close", async (x) => {
+      console.log(
+        "connexion:close",
+        "de",
+        idLibp2p.slice(-10),
+        x.detail.remoteAddr.toString(),
+      );
     });
     libp2p.addEventListener("peer:disconnect", async ({ detail: idPair }) => {
+      console.log(
+        "peer:disconnect",
+        "de",
+        idLibp2p.slice(-10),
+        idPair.toString(),
+      );
       const connexions = libp2p
         .getConnections()
         .filter((c) =>

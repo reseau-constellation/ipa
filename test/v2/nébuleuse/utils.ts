@@ -59,7 +59,11 @@ export const connecterNébuleuses = async <
   for (const nébuleuse of nébuleuses) {
     libp2ps.push(await nébuleuse.services.libp2p.libp2p());
   }
-  await toutesConnectées(libp2ps, { adresseRelai: obtenirAdresseRelai() });
+  console.log("connecterNébuleuses")
+  await toutesConnectées(libp2ps, { 
+    adresseRelai: obtenirAdresseRelai(), 
+    // filtre: (ma)=>{console.log(ma.toString()); return ma.toString().startsWith("/webrtc/")} 
+  });
 };
 
 export const créerNébuleusesTest = async <

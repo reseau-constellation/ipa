@@ -61,6 +61,9 @@ export type ConnexionCompte = {
   dispositifs;
 };
 
+// Types dispositifs
+export type DispositifCompte = { idDispositif: string; statut: "invité" | "accepté" }
+
 // Types relations
 
 export type CompteBloqué = { idCompte: string; privé: boolean };
@@ -204,7 +207,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       idPair: string;
     }) => {
       const { idCompte, signature, idDispositif } = message;
-      console.log(message);
 
       const signatureValide = await orbite.vérifierSignature({
         signature,
@@ -227,7 +229,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         PROTOCOLE_NÉBULEUSE,
         async (flux, connexion) => {
           const idPair = connexion.remotePeer.toString();
-          console.log("reçu flux de", idPair);
+          console.log("reçu flux de", idPair, connexion.remoteAddr.toString());
 
           this.flux.set(idPair, flux);
           flux.addEventListener("close", () => this.flux.delete(idPair));
@@ -260,12 +262,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       });
 
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
-
+    const monId = libp2p.peerId;
     const idTopologie = await libp2p
       .register(
         PROTOCOLE_NÉBULEUSE,
         {
           async onConnect(peerId, conn) {
+            console.log(
+              `pair ${peerId.toString()} connecté à ${libp2p.peerId.toString()}`,
+            );
             const idCompte = await compte.obtIdCompte();
 
             const identifiantsCompte: MessageIdentitéCompte = {
@@ -274,14 +279,22 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               idDispositif,
               signature: await orbite.signer({ message: idDispositif }),
             };
-
+            conn.addEventListener("remoteCloseWrite", () =>
+              console.log("remoteCloseWrite", peerId.toString()),
+            );
+            conn.addEventListener("close", () =>
+              console.log("close", peerId.toString()),
+            );
             const flux = await conn.newStream(PROTOCOLE_NÉBULEUSE, { signal });
             flux.send(
               new TextEncoder().encode(JSON.stringify(identifiantsCompte)),
             );
-            // flux.close();
+            flux.close();
           },
           onDisconnect(peerId) {
+            console.log(
+              `pair ${peerId.toString()} déconnecté de ${libp2p.peerId.toString()}`,
+            );
             // this.lorsqueDispositifDéconnecté(peerId);
           },
           notifyOnLimitedConnection: true,
@@ -426,7 +439,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     f,
     idCompte,
   }: {
-    f: Suivi<{ idDispositif: string; statut: "invité" | "accepté" }[]>;
+    f: Suivi<DispositifCompte[]>;
     idCompte?: string;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");

@@ -51,7 +51,7 @@
     "@types/tmp": "^0.2.6",
     "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.62.0",
-    "aegir": "^48.0.13",
+    "aegir": "^48.1.4",
     "axios-mock-adapter": "^2.1.0",
     "bmp-js": "^0.1.0",
     "browserify-fs": "^1.0.0",
@@ -94,7 +94,7 @@
     "tscpaths": "^0.0.9",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.0",
-    "typescript-transform-paths": "^3.5.6",
+    "typescript-transform-paths": "^4.0.0",
     "uint8arraylist": "^2.4.9"
   },
   "dependencies": {

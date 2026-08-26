@@ -27,7 +27,7 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "types": ["mocha"],
-    "importsNotUsedAsValues": "remove",
+    "verbatimModuleSyntax": true,
 
     "plugins": [
       { "transform": "typescript-transform-paths" },

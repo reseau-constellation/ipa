@@ -1,5 +1,5 @@
 import { expect } from "aegir/chai";
-import { faisRien } from "@constl/utils-ipa";
+import { faisRien, uneFois } from "@constl/utils-ipa";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { TypedEmitter } from "tiny-typed-emitter";
@@ -15,13 +15,16 @@ import type {
   ConnexionCompte,
   ConnexionDispositif,
   ConnexionLibp2p,
+  DispositifCompte,
   RelationImmédiate,
   RelationRéseau,
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import { v4 as uuidv4 } from "uuid";
+import { FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE, FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE } from "@/v2/nébuleuse/services/consts.js";
 
-describe("Réseau", function () {
+describe.only("Réseau", function () {
   describe("suivre connexions", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
@@ -696,7 +699,7 @@ describe("Réseau", function () {
     });
   });
 
-  describe.skip("messages", async () => {
+  describe("messages", async () => {
     let fermer: () => Promise<void>;
     let nébuleuses: Nébuleuse[];
 
@@ -732,10 +735,10 @@ describe("Réseau", function () {
       promesseBienReçu: Promise<boolean>;
       messageÀEnvoyer: string;
     }> => {
-      const messageÀEnvoyer = `C'est bien moi : ${de}`;
+      const messageÀEnvoyer = `C'est bien moi : ${de} ${uuidv4()}`;
       if (!Array.isArray(à)) à = [à];
 
-      const générerPromesseReçuParDisposoitif = async (
+      const générerPromesseReçuParDispositif = async (
         d: Nébuleuse,
       ): Promise<() => Promise<boolean>> => {
         const événementReçu = new TypedEmitter<{
@@ -745,8 +748,6 @@ describe("Réseau", function () {
         let résultat: boolean | undefined = undefined;
         const fOublier = await d.réseau.suivreMessages({
           f: (message) => {
-            console.log(JSON.stringify(message, undefined, 2));
-
             if (message.message.type === "texte") {
               const corresp =
                 message.message.message === messageÀEnvoyer &&
@@ -770,12 +771,13 @@ describe("Réseau", function () {
       };
 
       const promessesBienReçu = await Promise.all(
-        à.map((d) => générerPromesseReçuParDisposoitif(d)),
+        à.map((d) => générerPromesseReçuParDispositif(d)),
       );
 
       const promesseTousBienReçus = Promise.all(
         promessesBienReçu.map((p) => p()),
       ).then((réceptions) => réceptions.every((r) => r));
+
       return {
         promesseBienReçu: promesseTousBienReçus,
         messageÀEnvoyer,
@@ -842,8 +844,8 @@ describe("Réseau", function () {
         await nébuleuses[1].réseau.générerInvitationRejoindreCompte();
       await nébuleuses[2].réseau.rejoindreCompteParInvitation({ invitation });
       await uneFois(
-        async (fSuivi: Suivi<string[]>) => {
-          return await nébuleuses[0].suivreDispositifs({
+        async (fSuivi: Suivi<DispositifCompte[]>) => {
+          return await nébuleuses[0].réseau.suivreDispositifsCompte({
             idCompte: idsComptes[1],
             f: fSuivi,
           });
@@ -1264,10 +1266,156 @@ describe("Réseau", function () {
       await fermer?.();
     });
 
-    it("priorité score fiable");
-    it("priorité score bloqué");
-    it("confiance transitive");
-    it("augmenter profondeur");
-    it("diminuer profondeur");
+    afterEach(async () => {
+      await Promise.all(nébuleuses.map((n) => n.réseau.effacerConfiances()));
+      rechercheComptes.p(Infinity);
+    });
+
+    it("priorité score fiable", async () => {
+      // 0 fait confiance à 1 et à 2
+      await nébuleuses[0].réseau.faireConfianceAuCompte({ idCompte: idsComptes[1] })
+      await nébuleuses[0].réseau.faireConfianceAuCompte({ idCompte: idsComptes[2] })
+
+      // 1 bloque 2
+      await nébuleuses[1].réseau.bloquerCompte({ idCompte: idsComptes[2] })
+
+      const comptes = await rechercheComptes.siAuMoins(2)
+
+      const réf: CompteParProfondeur[] = [
+        {
+          idCompte: idsComptes[1],
+          confiance: 1,
+          profondeur: 0
+        },
+        {
+          idCompte: idsComptes[2],
+          confiance: 1,
+          profondeur: 0
+        }
+      ]
+      expect(comptes).to.have.deep.members(réf)
+    });
+
+    it("priorité score bloqué", async () => {
+      // 0 bloque 2, fait confiance à 1
+      await nébuleuses[0].réseau.bloquerCompte({ idCompte: idsComptes[2] });
+      await nébuleuses[0].réseau.faireConfianceAuCompte({ idCompte: idsComptes[1] })
+
+      // 1 fait confiance à 2
+      await nébuleuses[1].réseau.faireConfianceAuCompte({ idCompte: idsComptes[2] })
+      
+      const comptes = await rechercheComptes.siPasPlusQue(1);
+      const réf: CompteParProfondeur[] = [
+        {
+          idCompte: idsComptes[1],
+          confiance: 1,
+          profondeur: 0
+        }
+      ]
+      expect(comptes).to.have.deep.members(réf)
+    });
+
+    it("confiance transitive", async () => {
+      // 0 fait confiance à 1
+      await nébuleuses[0].réseau.faireConfianceAuCompte({ idCompte: idsComptes[1] })
+
+      // 1 fait confiance à 2
+      await nébuleuses[1].réseau.faireConfianceAuCompte({ idCompte: idsComptes[2] })
+
+      const comptes = await rechercheComptes.siAuMoins(2);
+      const réf: CompteParProfondeur[] = [
+        {
+          idCompte: idsComptes[1],
+          confiance: 1,
+          profondeur: 0
+        },
+        {
+          idCompte: idsComptes[2],
+          confiance: FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
+          profondeur: 1
+        }
+      ]
+      expect(comptes).to.have.deep.members(réf)
+    });
+
+    it("confiance négative transitive", async () => {
+      // 0 fait confiance à 1
+      await nébuleuses[0].réseau.faireConfianceAuCompte({ idCompte: idsComptes[1] })
+
+      // 1 bloque 2
+      await nébuleuses[1].réseau.bloquerCompte({ idCompte: idsComptes[2] })
+
+      const comptes = await rechercheComptes.siAuMoins(2);
+      const réf: CompteParProfondeur[] = [
+        {
+          idCompte: idsComptes[1],
+          confiance: 1,
+          profondeur: 0
+        },
+        {
+          idCompte: idsComptes[2],
+          confiance: FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
+          profondeur: 1
+        }
+      ]
+      expect(comptes).to.have.deep.members(réf)
+    });
+
+    it("diminuer profondeur", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+
+      await rechercheComptes.siAuMoins(2);
+      await rechercheComptes.p(0);
+
+      const comptes = await rechercheComptes.siPasPlusQue(1);
+
+      const réf: CompteParProfondeur[] = [
+        {
+          idCompte: idsComptes[1],
+          confiance: 1,
+          profondeur: 0
+        },
+      ]
+      expect(comptes).to.have.deep.members(réf)
+
+    });
+
+    it("augmenter profondeur", async () => {
+      await nébuleuses[0].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[1],
+      });
+      await nébuleuses[1].réseau.faireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
+
+      await rechercheComptes.siAuMoins(2);
+      await rechercheComptes.p(0);
+
+      await rechercheComptes.siPasPlusQue(1);
+
+      await rechercheComptes.p(5);
+
+      const comptes = await rechercheComptes.siAuMoins(2);
+
+      const réf: CompteParProfondeur[] = [
+        {
+          idCompte: idsComptes[1],
+          confiance: 1,
+          profondeur: 0,
+        },
+        {
+          idCompte: idsComptes[2],
+          confiance: FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
+          profondeur: 1,
+        },
+      ];
+      expect(comptes).to.have.deep.members(réf)
+
+    });
   });
 });
