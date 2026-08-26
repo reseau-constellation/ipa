@@ -3,6 +3,7 @@ import { faisRien, uneFois } from "@constl/utils-ipa";
 import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { TypedEmitter } from "tiny-typed-emitter";
+import { v4 as uuidv4 } from "uuid";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import {
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
@@ -25,8 +26,6 @@ import type {
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { v4 as uuidv4 } from "uuid";
-import { FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE, FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE } from "@/v2/nébuleuse/services/consts.js";
 
 describe.only("Réseau", function () {
   describe("suivre connexions", function () {

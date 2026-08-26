@@ -62,7 +62,10 @@ export type ConnexionCompte = {
 };
 
 // Types dispositifs
-export type DispositifCompte = { idDispositif: string; statut: "invité" | "accepté" }
+export type DispositifCompte = {
+  idDispositif: string;
+  statut: "invité" | "accepté";
+};
 
 // Types relations
 

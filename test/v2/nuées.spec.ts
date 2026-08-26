@@ -115,7 +115,6 @@ describe("Nuées", function () {
     });
 
     it("détectée sur un autre compte", async () => {
-      console.log({idNuée})
       const sesNuées = await obtenir<string[]>(({ siPasVide }) =>
         constls[1].nuées.suivreNuées({
           f: siPasVide(),
