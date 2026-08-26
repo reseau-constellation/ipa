@@ -1,6 +1,8 @@
 import deepEqual from "fast-deep-equal";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
+import { base64 } from "@hexagon/base64";
+import { sha256 } from "js-sha256";
 import { enleverPréfixes } from "@/v2/utils.js";
 import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { STATUTS } from "../appli/consts.js";
@@ -16,8 +18,6 @@ import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { AccèsUtilisateur } from "./compte/accès/types.js";
 import type { ServiceÉpingles } from "./épingles.js";
-import { base64 } from "@hexagon/base64";
-import {sha256} from "js-sha256";
 
 // Types réplications
 export type Réplication<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {

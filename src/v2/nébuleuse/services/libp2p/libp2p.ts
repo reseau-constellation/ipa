@@ -69,7 +69,7 @@ export class ServiceLibp2p<
       dépendances: ["stockage", "dossier"],
       options,
     });
-    
+
     this.signaleurArrêt = new AbortController();
   }
 
@@ -137,7 +137,9 @@ export class ServiceLibp2p<
     });
     libp2p.addEventListener("peer:update", async (x) => {
       try {
-        await libp2p.dial(x.detail.peer.id, { signal: this.signaleurArrêt.signal });
+        await libp2p.dial(x.detail.peer.id, {
+          signal: this.signaleurArrêt.signal,
+        });
       } catch {
         // Tant pis...
       }

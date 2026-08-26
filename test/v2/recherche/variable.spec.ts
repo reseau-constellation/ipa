@@ -359,7 +359,7 @@ describe("Rechercher variables", function () {
         rechercheDescription({
           services: (clef) => constl.services[clef],
           idObjet: idVariable,
-          f: si(r=>r?.de === "descriptions"),
+          f: si((r) => r?.de === "descriptions"),
         }),
       );
 

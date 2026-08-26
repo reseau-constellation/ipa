@@ -77,7 +77,7 @@ export const générerFImportation = ({
       données = await obtDonnéesImportation(spéc);
     } catch (e) {
       throw new Error("Erreur d'importation des données", {
-        cause: e
+        cause: e,
       });
     }
 

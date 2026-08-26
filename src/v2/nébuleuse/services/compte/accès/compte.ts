@@ -93,8 +93,8 @@ class AccèsCompte {
   }
 
   async fermer() {
-    this.signaleurArrêt.abort()
-    
+    this.signaleurArrêt.abort();
+
     const { oublier } = await this.démarré();
     await oublier?.();
   }
