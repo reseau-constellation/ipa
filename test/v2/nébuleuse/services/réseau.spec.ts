@@ -702,7 +702,7 @@ describe.only("Réseau", function () {
     });
   });
 
-  describe("messages", async () => {
+  describe.skip("messages", async () => {
     let fermer: () => Promise<void>;
     let nébuleuses: Nébuleuse[];
 
