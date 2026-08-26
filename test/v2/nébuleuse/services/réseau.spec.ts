@@ -11,6 +11,7 @@ import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
 import type {
   CompteBloqué,
+  CompteParProfondeur,
   ConnexionCompte,
   ConnexionDispositif,
   ConnexionLibp2p,
@@ -1233,5 +1234,40 @@ describe("Réseau", function () {
       ];
       expect(relations).to.have.deep.members(réf);
     });
+  });
+
+  describe("suivre comptes par profondeur", function () {
+    let fermer: () => Promise<void>;
+    let nébuleuses: NébuleuseTest[];
+
+    let rechercheComptes: ObtRechercheProfondeur<CompteParProfondeur>;
+
+    let idsComptes: string[];
+
+    before(async () => {
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
+
+      idsComptes = await Promise.all(
+        nébuleuses.map(async (c) => await c.compte.obtIdCompte()),
+      );
+      console.log({ idsComptes });
+
+      rechercheComptes = await rechercherProfondeur<CompteParProfondeur>(
+        ({ f }) =>
+          nébuleuses[0].réseau.suivreComptesParProfondeur({
+            f,
+          }),
+      );
+    });
+
+    after(async () => {
+      await fermer?.();
+    });
+
+    it("priorité score fiable");
+    it("priorité score bloqué");
+    it("confiance transitive");
+    it("augmenter profondeur");
+    it("diminuer profondeur");
   });
 });
