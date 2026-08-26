@@ -1,18 +1,14 @@
-import { uneFois } from "@constl/utils-ipa";
 import {
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 import { isElectronMain, isNode } from "wherearewe";
 import { expect } from "aegir/chai";
-import { TypedEmitter } from "tiny-typed-emitter";
-import { peerIdFromString } from "@libp2p/peer-id";
 import { MEMBRE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 
 import { obtRessourceTest } from "./v2/ressources/index.js";
 import type {
   schémaFonctionOublier,
-  schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
 import type {
@@ -20,7 +16,6 @@ import type {
   infoMembre,
   infoMembreRéseau,
   infoRelation,
-  infoRéplications,
   statutDispositif,
   statutMembre,
 } from "@/reseau.js";
