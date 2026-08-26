@@ -76,7 +76,9 @@ export const générerFImportation = ({
     try {
       données = await obtDonnéesImportation(spéc);
     } catch (e) {
-      throw new Error("Erreur d'importation des données : \n" + e.toString());
+      throw new Error("Erreur d'importation des données", {
+        cause: e
+      });
     }
 
     const tableaux = service("bds").tableaux;
