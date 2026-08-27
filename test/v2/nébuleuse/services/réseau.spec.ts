@@ -1278,7 +1278,7 @@ describe("Réseau", function () {
       // 1 bloque 2
       await nébuleuses[1].réseau.bloquerCompte({ idCompte: idsComptes[2] });
 
-      // 0 fait confiance à 1 et à 2
+      // 0 fait confiance à 1 et à 2
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
@@ -1348,7 +1348,7 @@ describe("Réseau", function () {
         {
           idCompte: idsComptes[1],
           confiance: 1,
-          profondeur: 0
+          profondeur: 0,
         },
         {
           idCompte: idsComptes[2],
