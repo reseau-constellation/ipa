@@ -169,8 +169,11 @@ describe("Objets", function () {
     });
 
     it("enlever protocole - déjà enlevé", async () => {
-      const adresse = nébuleuse.services.objetTest.enleverProtocole(racine);
-      expect(adresse).to.equal(racine);
+      expect(() =>
+        nébuleuse.services.objetTest.enleverProtocole(racine),
+      ).to.throw(
+        `L'identifiant ${racine} n'est pas un identifiant valide pour objetTest.`,
+      );
     });
 
     it("identifiant valide", async () => {
