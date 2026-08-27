@@ -519,6 +519,8 @@ export class Bds extends ObjetConstellation<
     idBd: string;
     copierDonnées?: boolean;
   }): Promise<string> {
+    const serviceMotsClefs = this.service("motsClefs");
+
     const { bd, oublier } = await this.ouvrirBd({ idBd });
     const licence = await bd.get("licence");
     const licenceContenu = await bd.get("licenceContenu");
@@ -552,7 +554,9 @@ export class Bds extends ObjetConstellation<
     if (motsClefs)
       await this.ajouterMotsClefs({
         idBd: idNouvelleBd,
-        idsMotsClefs: Object.keys(motsClefs),
+        idsMotsClefs: Object.keys(motsClefs).map((id) =>
+          serviceMotsClefs.ajouterProtocole(id),
+        ),
       });
 
     const nuées = await bd.get("nuées");
