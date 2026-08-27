@@ -18,7 +18,6 @@ import {
 import type { ServicesNécessairesRechercheProjets } from "./fonctions/projets.js";
 import type { InfoAuteur } from "../types.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
-import type { Projets } from "../projets.js";
 import type {
   InfoRésultat,
   InfoRésultatTexte,
@@ -33,7 +32,6 @@ export class RechercheProjets extends RechercheObjets<ServicesNécessairesRecher
   constructor({
     service,
   }: {
-    projets: Projets;
     service: AccesseurService<ServicesNécessairesRechercheProjets>;
   }) {
     super({ service });

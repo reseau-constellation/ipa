@@ -161,7 +161,6 @@ export class Projets extends ObjetConstellation<
     });
 
     this.recherche = new RechercheProjets({
-      projets: this,
       service: ((clef) =>
         clef === "projets"
           ? this
