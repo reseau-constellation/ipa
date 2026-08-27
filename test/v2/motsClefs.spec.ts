@@ -455,10 +455,12 @@ describe("Mots-clefs", function () {
     });
 
     it("résoudre épingle", async () => {
+      const idNimporte =
+        "/constl/motsClefs/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
       const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
         constl.motsClefs.suivreRésolutionÉpingle({
           épingle: {
-            idObjet: "n'importe",
+            idObjet: idNimporte,
             épingle: {
               type: "motsClefs",
               épingle: {
@@ -469,7 +471,9 @@ describe("Mots-clefs", function () {
           f: siDéfini(),
         }),
       );
-      expect([...résolution]).to.have.members(["n'importe"]);
+      expect([...résolution]).to.have.members([
+        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX",
+      ]);
     });
   });
 
