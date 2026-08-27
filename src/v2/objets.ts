@@ -1,4 +1,5 @@
 import {
+  adresseOrbiteValide,
   faisRien,
   ignorerNonDéfinis,
   suivreDeFonctionListe,
@@ -142,6 +143,8 @@ export abstract class ObjetConstellation<
   àIdOrbite(id: string): string {
     if (id.startsWith(this.préfixeProtocole))
       id = id.replace(this.préfixeProtocole, "");
+    else if (!adresseOrbiteValide(id))
+      throw new Error(`L'identifiant ${id} n'est pas un identifiant valide pour ${this.clef}.`)
     return id;
   }
 
