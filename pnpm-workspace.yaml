@@ -26,6 +26,7 @@ minimumReleaseAgeExclude:
   - '@orbitdb/nested-db@2.1.5'
   - '@orbitdb/ordered-keyvalue-db@1.4.5'
   - '@orbitdb/set-db@2.1.2'
+  - ennikkai@2.3.7
 
 overrides:
   p-queue: "^8.1.1"
