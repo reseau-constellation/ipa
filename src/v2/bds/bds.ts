@@ -270,7 +270,6 @@ export class Bds extends ObjetConstellation<
       service: accesseurService,
     });
     this.recherche = new RechercheBds({
-      bds: this,
       service: accesseurService,
     });
   }

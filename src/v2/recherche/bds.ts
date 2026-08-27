@@ -14,7 +14,6 @@ import {
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { RechercheObjets } from "./recherche.js";
 import type { ServicesNécessairesRechercheBds } from "./fonctions/bds.js";
-import type { Bds } from "../bds/bds.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type {
   RésultatRecherche,
@@ -28,17 +27,13 @@ import type {
 import type { InfoAuteur } from "../types.js";
 
 export class RechercheBds extends RechercheObjets<ServicesNécessairesRechercheBds> {
-  bds: Bds;
 
   constructor({
-    bds,
     service,
   }: {
-    bds: Bds;
     service: AccesseurService<ServicesNécessairesRechercheBds>;
   }) {
     super({ service });
-    this.bds = bds;
   }
 
   @cacheRechercheParN
@@ -296,13 +291,15 @@ export class RechercheBds extends RechercheObjets<ServicesNécessairesRechercheB
     n?: number;
     idCompte?: string;
   }): Promise<RetourRecherche> {
+    const bds = this.service("bds");
+
     return await this.rechercherObjets<T>({
       f,
       n,
       fRecherche: async ({ f, idCompte }) =>
-        await this.bds.suivreBds({ f: ignorerNonDéfinis(f), idCompte }),
+        await bds.suivreBds({ f: ignorerNonDéfinis(f), idCompte }),
       fQualité: async ({ idObjet, f: fSuiviQualité }) =>
-        await this.bds.suivreScoreQualité({
+        await bds.suivreScoreQualité({
           idBd: idObjet,
           f: (score) => fSuiviQualité(score.total),
         }),
