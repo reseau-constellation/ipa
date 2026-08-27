@@ -261,6 +261,10 @@ export abstract class RechercheObjets<
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier>;
 
+  abstract identifiantValide({
+    idObjet
+  }: { idObjet: string }): boolean;
+
   async rechercherObjets<T extends InfoRésultat = InfoRésultat>({
     f,
     n,
@@ -345,7 +349,7 @@ export abstract class RechercheObjets<
         const oublierFavoris = await serviceFavoris.suivreFavoris({
           idCompte,
           f: async (favoris) => {
-            résultats.favoris = favoris?.map((fav) => fav.idObjet);
+            résultats.favoris = favoris?.map((fav) => fav.idObjet).filter(idObjet => this.identifiantValide({idObjet}));
             await fFinale();
           },
         });

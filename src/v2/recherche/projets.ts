@@ -337,6 +337,12 @@ export class RechercheProjets extends RechercheObjets<ServicesNécessairesRecher
     });
   }
 
+  identifiantValide({
+    idObjet
+  }: { idObjet: string }): boolean {
+    return this.service("projets").identifiantValide({ identifiant: idObjet })
+  }
+
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
     fObjectif,

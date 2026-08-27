@@ -142,6 +142,12 @@ export class RechercheMotsClefs extends RechercheObjets<ServicesNécessairesRech
     });
   }
 
+  identifiantValide({
+    idObjet
+  }: { idObjet: string }): boolean {
+    return this.service("motsClefs").identifiantValide({ identifiant: idObjet })
+  }
+
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
     fObjectif,

@@ -275,7 +275,14 @@ export class RechercheBds extends RechercheObjets<ServicesNécessairesRechercheB
     idObjet: string;
     f: Suivi<InfoAuteur[]>;
   }): Promise<Oublier> {
-    return await this.bds.suivreAuteurs({ idBd: idObjet, f });
+    const bds = this.service("bds");
+    return await bds.suivreAuteurs({ idBd: idObjet, f });
+  }
+
+  identifiantValide({
+    idObjet
+  }: { idObjet: string }): boolean {
+    return this.service("bds").identifiantValide({ identifiant: idObjet })
   }
 
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({

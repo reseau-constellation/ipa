@@ -142,6 +142,12 @@ export class RechercheVariables extends RechercheObjets<ServicesNécessairesRech
     });
   }
 
+  identifiantValide({
+    idObjet
+  }: { idObjet: string }): boolean {
+    return this.service("variables").identifiantValide({ identifiant: idObjet })
+  }
+
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({
     f,
     fObjectif,
