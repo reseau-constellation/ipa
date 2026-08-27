@@ -144,7 +144,9 @@ export abstract class ObjetConstellation<
     if (id.startsWith(this.préfixeProtocole))
       id = id.replace(this.préfixeProtocole, "");
     else if (!adresseOrbiteValide(id))
-      throw new Error(`L'identifiant ${id} n'est pas un identifiant valide pour ${this.clef}.`)
+      throw new Error(
+        `L'identifiant ${id} n'est pas un identifiant valide pour ${this.clef}.`,
+      );
     return id;
   }
 
@@ -156,8 +158,8 @@ export abstract class ObjetConstellation<
   }
 
   async ajouterÀMesObjets({ idObjet }: { idObjet: string }): Promise<void> {
-    if (!this.identifiantValide({ identifiant: idObjet })) 
-      throw new Error(`Identifiant ${idObjet} non valide pour ${this.clef}.`)
+    if (!this.identifiantValide({ identifiant: idObjet }))
+      throw new Error(`Identifiant ${idObjet} non valide pour ${this.clef}.`);
 
     const bd = await this.bd();
     await bd.put(this.enleverProtocole(idObjet), null);

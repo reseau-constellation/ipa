@@ -27,7 +27,6 @@ import type {
 import type { InfoAuteur } from "../types.js";
 
 export class RechercheBds extends RechercheObjets<ServicesNécessairesRechercheBds> {
-
   constructor({
     service,
   }: {
@@ -274,10 +273,8 @@ export class RechercheBds extends RechercheObjets<ServicesNécessairesRechercheB
     return await bds.suivreAuteurs({ idBd: idObjet, f });
   }
 
-  identifiantValide({
-    idObjet
-  }: { idObjet: string }): boolean {
-    return this.service("bds").identifiantValide({ identifiant: idObjet })
+  identifiantValide({ idObjet }: { idObjet: string }): boolean {
+    return this.service("bds").identifiantValide({ identifiant: idObjet });
   }
 
   async selonObjectif<T extends InfoRésultat = InfoRésultat>({

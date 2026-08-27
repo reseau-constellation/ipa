@@ -156,7 +156,15 @@ export class Projets extends ObjetConstellation<
     super({
       clef: "projets",
       services,
-      dépendances: ["motsClefs", "variables", "bds", "favoris", "compte", "orbite", "hélia"],
+      dépendances: [
+        "motsClefs",
+        "variables",
+        "bds",
+        "favoris",
+        "compte",
+        "orbite",
+        "hélia",
+      ],
       options,
     });
 
