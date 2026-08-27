@@ -2063,6 +2063,7 @@ export class Nuées extends ObjetConstellation<
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
     const bds = this.service("bds");
+    const variables = this.service("variables");
 
     const empreintes: { bds?: string[]; variables?: string[]; nuée?: string } =
       {};
@@ -2078,7 +2079,7 @@ export class Nuées extends ObjetConstellation<
     };
 
     const oublierEmpreinteNuée = await orbite.suivreEmpreinteTêteBd({
-      idBd: idNuée,
+      idBd: this.àIdOrbite(idNuée),
       f: async (x) => {
         empreintes.nuée = x;
         await fFinale();
@@ -2106,7 +2107,7 @@ export class Nuées extends ObjetConstellation<
         await this.suivreVariables({ idNuée, f: fSuivreRacine }),
       fBranche: async ({ id: idVariable, fSuivreBranche }) =>
         await orbite.suivreEmpreinteTêteBd({
-          idBd: idVariable,
+          idBd: variables.àIdOrbite(idVariable),
           f: fSuivreBranche,
         }),
       f: async (x: string[]) => {

@@ -156,7 +156,7 @@ export class Projets extends ObjetConstellation<
     super({
       clef: "projets",
       services,
-      dépendances: ["motsClefs", "bds", "favoris", "compte", "orbite", "hélia"],
+      dépendances: ["motsClefs", "variables", "bds", "favoris", "compte", "orbite", "hélia"],
       options,
     });
 
@@ -948,6 +948,7 @@ export class Projets extends ObjetConstellation<
     f: Suivi<string>;
   }): Promise<Oublier> {
     const orbite = this.service("orbite");
+    const variables = this.service("variables");
 
     const empreintes: {
       bds?: string[];
@@ -966,7 +967,7 @@ export class Projets extends ObjetConstellation<
     };
 
     const oublierEmpreinteProjet = await orbite.suivreEmpreinteTêteBd({
-      idBd: idProjet,
+      idBd: this.àIdOrbite(idProjet),
       f: async (x) => {
         empreintes.projet = x;
         await fFinale();
@@ -998,7 +999,7 @@ export class Projets extends ObjetConstellation<
         await this.suivreVariables({ idProjet, f: fSuivreRacine }),
       fBranche: async ({ id: idVariable, fSuivreBranche }) =>
         await orbite.suivreEmpreinteTêteBd({
-          idBd: idVariable,
+          idBd: variables.àIdOrbite(idVariable),
           f: fSuivreBranche,
         }),
       f: async (x: string[]) => {
