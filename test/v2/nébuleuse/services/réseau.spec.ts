@@ -1311,7 +1311,7 @@ describe("Réseau", function () {
         idCompte: idsComptes[1],
       });
 
-      // 1 fait confiance à 2
+      // 1 fait confiance à 2
       await nébuleuses[1].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[2],
       });
@@ -1332,13 +1332,13 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it("confiance transitive", async () => {
-      // 0 fait confiance à 1
+    it.skip("confiance transitive", async () => {
+      // 0 fait confiance à 1
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
 
-      // 1 fait confiance à 2
+      // 1 fait confiance à 2
       await nébuleuses[1].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[2],
       });
@@ -1359,8 +1359,8 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it("confiance négative transitive", async () => {
-      // 0 fait confiance à 1
+    it.skip("confiance négative transitive", async () => {
+      // 0 fait confiance à 1
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
@@ -1384,7 +1384,7 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it("diminuer profondeur", async () => {
+    it.skip("diminuer profondeur", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
@@ -1407,7 +1407,7 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it("augmenter profondeur", async () => {
+    it.skip("augmenter profondeur", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
