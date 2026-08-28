@@ -1369,6 +1369,7 @@ describe("Automatisations", function () {
       };
 
       before(async () => {
+        // @ts-expect-error: Erreur types AxiosMockAdapter
         mock = new AxiosMockAdapter(axios);
         mock
           .onGet("https://test.réseau-constellation.ca/données-test.json")
@@ -2175,6 +2176,7 @@ describe("Automatisations", function () {
           nomFichier: "cases.csv",
         });
 
+        // @ts-expect-error: Erreur types AxiosMockAdapter
         mock = new AxiosMockAdapter(axios);
         mock
           .onGet("https://coviddata.github.io/coviddata/v1/countries/cases.csv")
@@ -2236,6 +2238,8 @@ describe("Automatisations", function () {
         const données = await obtRessourceTest({
           nomFichier: "indigenousLanguages.json",
         });
+
+        // @ts-expect-error: Erreur types AxiosMockAdapter
         mock = new AxiosMockAdapter(axios);
         mock
           .onGet("https://coordinates.native-land.ca/indigenousLanguages.json")

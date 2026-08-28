@@ -2428,6 +2428,7 @@ describe("tableaux", function () {
             nomFichier: "logo.svg",
           });
 
+          // @ts-expect-error: Erreur types AxiosMockAdapter
           mock = new AxiosMockAdapter(axios);
           mock
             .onGet("https://test.réseau-constellation.ca/logo.svg")
