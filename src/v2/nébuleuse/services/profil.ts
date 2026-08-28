@@ -153,7 +153,7 @@ export class Profil extends ServiceDonnéesAppli<
     const retour = await super.démarrer();
     const favoris = this.service("favoris");
 
-    favoris.inscrireRésolution({
+    await favoris.inscrireRésolution({
       clef: this.clef,
       résolution: this.suivreRésolutionÉpingle.bind(this),
     });
