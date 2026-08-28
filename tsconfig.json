@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "incremental": true,
     "importHelpers": true,
+    "importsNotUsedAsValues": "remove",
     "jsx": "react",
     "lib": ["dom", "esnext"],
     "module": "NodeNext",
