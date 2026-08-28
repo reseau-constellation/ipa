@@ -78,7 +78,7 @@ const régressionNonLinéaire = ({
     y.map((y_i, i) => Math.pow(y_i - y_p[i], 2)).reduce((a, b) => a + b); // SSD
 
   p0 = p0.slice();
-  let p1 = p0.slice();
+  let p1: number[];
 
   const objP = (p: number[]) => fObj(y, f(x, p)); // la fonction à minimiser
   for (let i = 0; i < maxItér; i++) {
