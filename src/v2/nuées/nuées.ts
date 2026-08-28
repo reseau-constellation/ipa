@@ -1901,7 +1901,7 @@ export class Nuées extends ObjetConstellation<
     const bds = this.service("bds");
 
     const événements = new TypedEmitter<{ parentée: () => void }>();
-    événements.setMaxListeners(0)
+    événements.setMaxListeners(0);
 
     const parentéeNuée: { ascendants: string[]; descendants: string[] } = {
       ascendants: [],
