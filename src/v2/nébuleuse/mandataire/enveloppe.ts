@@ -263,11 +263,10 @@ export class EnveloppeNébuleuse<
     }
   }
 
-  extraireFonctionNébuleuse(
+  extraireFonctionNébuleuse<A>(
     adresseFonction: string[],
     idMessage: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): ((...args: any[]) => unknown) | undefined {
+  ): ((...args: A[]) => unknown) | undefined {
     const erreur = `Fonction Constellation.${adresseFonction.join(
       ".",
     )} n'existe pas ou n'est pas une fonction.`;
@@ -319,7 +318,7 @@ export class EnveloppeNébuleuse<
       });
       return undefined;
     }
-    return fonctionNébuleuse as (...args: any[]) => unknown;
+    return fonctionNébuleuse as (...args: A[]) => unknown;
   }
 
   connecterÉcouteurs({
