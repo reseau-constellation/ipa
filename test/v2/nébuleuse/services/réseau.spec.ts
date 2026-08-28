@@ -620,9 +620,8 @@ describe("Réseau", function () {
             type: "keyvalue",
           });
         const permission = await obtenir(({ siDéfini }) =>
-          bdSurNébuleuse2.suivrePermission({
+          nébuleuses[1].compte.suivrePermission({
             idObjet: idBd,
-            idDispositif: idsDispositifs[1],
             f: siDéfini(),
           }),
         );
@@ -690,9 +689,8 @@ describe("Réseau", function () {
             type: "keyvalue",
           });
         const permission = await obtenir(({ siDéfini }) =>
-          bdSurNébuleuse2.suivrePermission({
+          nébuleuses[1].compte.suivrePermission({
             idObjet: idBd,
-            idDispositif: idsDispositifs[1],
             f: siDéfini(),
           }),
         );
