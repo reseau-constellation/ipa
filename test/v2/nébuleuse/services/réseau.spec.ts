@@ -441,10 +441,21 @@ describe("Réseau", function () {
           dépendances: ["réseau"],
           options,
         });
-        this.service("réseau").inscrireRésolutionConfiance({
+      }
+
+      async démarrer() {
+        await this.service("réseau").inscrireRésolutionConfiance({
           clef: this.clef,
           résolution: this.résolutionConfiance.bind(this),
         });
+        return await super.démarrer();
+      }
+
+      async fermer() {
+        await this.service("réseau").désinscrireRésolutionConfiance({
+          clef: this.clef,
+        });
+        return await super.fermer();
       }
 
       async résolutionConfiance({

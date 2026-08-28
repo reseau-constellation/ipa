@@ -20,8 +20,11 @@ import {
   appelerLorsque,
   combinerConfiances,
   générerCodeSecret,
+  générerRésolveur,
   obtEmpreinteCode,
   vérifierProfondeur,
+  type FonctionRésolveur,
+  type Résolveur,
 } from "../utils.js";
 import { estErreurAvortée } from "../../utils.js";
 import { STATUTS } from "../../appli/consts.js";
@@ -68,6 +71,15 @@ export type DispositifCompte = {
 };
 
 // Types relations
+
+export type FonctionRésolveurConfianceRéseau = FonctionRésolveur<
+  { de: string },
+  RelationImmédiate[]
+>;
+export type RésolveurConfianceRéseau = Résolveur<
+  { de: string },
+  RelationImmédiate[]
+>;
 
 export type CompteBloqué = { idCompte: string; privé: boolean };
 
@@ -151,10 +163,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   bloquésPrivé: Set<string>;
 
-  résolutionsConfiance: Map<
-    string,
-    (args: { de: string; f: Suivi<RelationImmédiate[]> }) => Promise<Oublier>
-  >;
+  résolutionsConfiance: Map<string, RésolveurConfianceRéseau>;
 
   constructor({
     services,
@@ -341,12 +350,19 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     résolution,
   }: {
     clef: string;
-    résolution: (args: {
-      de: string;
-      f: Suivi<RelationImmédiate[]>;
-    }) => Promise<Oublier>;
+    résolution: FonctionRésolveurConfianceRéseau;
   }) {
-    this.résolutionsConfiance.set(clef, résolution);
+    this.résolutionsConfiance.set(clef, générerRésolveur(résolution));
+  }
+
+  async désinscrireRésolutionConfiance({
+    clef,
+  }: {
+    clef: string;
+  }): Promise<void> {
+    const résolveur = this.résolutionsConfiance.get(clef);
+    await résolveur?.fermer();
+    this.résolutionsConfiance.delete(clef);
   }
 
   // Gestion info pairs

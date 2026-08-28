@@ -5,8 +5,8 @@ import {
   AUCUN_DISPOSITIF,
   TOUS_DISPOSITIFS,
   type DispositifsÉpingle,
+  type FonctionRésolveurFavoris,
   type Réplication,
-  type Résolveur,
   type ÉpingleFavorisAvecId,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "@/v2/nébuleuse/services/favoris.js";
@@ -105,7 +105,7 @@ describe("Favoris", function () {
 
   describe("résolution épingles", function () {
     it("inscrire résolution", async () => {
-      const résolution: Résolveur<ÉpingleTest> = async ({
+      const résolution: FonctionRésolveurFavoris<ÉpingleTest> = async ({
         épingle,
         f,
       }: {

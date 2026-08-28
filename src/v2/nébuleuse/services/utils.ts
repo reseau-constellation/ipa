@@ -5,7 +5,9 @@ import bs58 from "bs58";
 
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import type { ListenerSignature, TypedEmitter } from "tiny-typed-emitter";
+import { faisRien } from "@constl/utils-ipa";
+import { TypedEmitter } from "tiny-typed-emitter";
+import type { ListenerSignature } from "tiny-typed-emitter";
 import type { Oublier, Suivi } from "../types.js";
 import type { Datastore } from "interface-datastore";
 
@@ -107,4 +109,48 @@ export const vérifierProfondeur = (p: number): void => {
 
   if (Math.round(p) !== p)
     throw new Error("La profondeur doit être un nombre entier");
+};
+
+export type FonctionRésolveur<T, S> = (
+  args: T & { f: Suivi<S> },
+) => Promise<Oublier>;
+
+export type Résolveur<T, S> = FonctionRésolveur<T, S> & {
+  fermer: () => Promise<void>;
+};
+
+export const générerRésolveur = <T, S>(
+  f: FonctionRésolveur<T, S>,
+): Résolveur<T, S> => {
+  const oublis = new Set<Oublier>();
+
+  let fermé = false;
+  let n = 0;
+  const événements = new TypedEmitter<{ terminé: (n: number) => void }>();
+
+  const fermer = async () => {
+    fermé = true;
+    await new Promise<void>((résoudre) => {
+      événements.on("terminé", () => {
+        if (n === 0) résoudre();
+      });
+      if (n === 0) résoudre();
+    });
+
+    await Promise.allSettled(oublis.values().map((f) => f()));
+  };
+  const fFinale = async (...args: Parameters<FonctionRésolveur<T, S>>) => {
+    if (fermé) return faisRien;
+    n++;
+    const oublier = await f(...args);
+    oublis.add(oublier);
+    n--;
+    événements.emit("terminé", n);
+
+    return async () => {
+      oublier();
+      oublis.delete(oublier);
+    };
+  };
+  return Object.assign(fFinale, { fermer });
 };

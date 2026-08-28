@@ -8,6 +8,11 @@ import { cacheRechercheParN, cacheSuivi } from "../cache.js";
 import { STATUTS } from "../appli/consts.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
+import {
+  type FonctionRésolveur,
+  type Résolveur,
+  générerRésolveur,
+} from "./utils.js";
 import type { ÉpingleProfil } from "./profil.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
@@ -99,12 +104,26 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
 
 // Type résolveur
 
-export type Résolveur<T extends ÉpingleFavoris = ÉpingleFavoris> = (args: {
-  épingle: ÉpingleFavorisBooléenniséeAvecId<T>;
-  f: Suivi<Set<string>>;
-  signal: AbortSignal;
-  ignorer: Set<string>;
-}) => Promise<Oublier>;
+export type FonctionRésolveurFavoris<
+  T extends ÉpingleFavoris = ÉpingleFavoris,
+> = FonctionRésolveur<
+  {
+    épingle: ÉpingleFavorisBooléenniséeAvecId<T>;
+    signal: AbortSignal;
+    ignorer: Set<string>;
+  },
+  Set<string>
+>;
+
+export type RésolveurFavoris<T extends ÉpingleFavoris = ÉpingleFavoris> =
+  Résolveur<
+    {
+      épingle: ÉpingleFavorisBooléenniséeAvecId<T>;
+      signal: AbortSignal;
+      ignorer: Set<string>;
+    },
+    Set<string>
+  >;
 
 export const idObjetÀClef = (idObjet: string): string => {
   return base64.fromString(sha256(idObjet), true);
@@ -187,7 +206,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   ServicesNécessairesFavoris,
   { oublier: Oublier }
 > {
-  résolveurs: Map<string, Résolveur>;
+  résolveurs: Map<string, RésolveurFavoris>;
   signaleurArrêt: AbortController;
 
   constructor({
@@ -214,12 +233,6 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     });
     this.résolveurs = new Map();
     this.signaleurArrêt = new AbortController();
-
-    const réseau = this.service("réseau");
-    réseau.inscrireRésolutionConfiance({
-      clef: this.clef,
-      résolution: this.résolutionConfiance.bind(this),
-    });
   }
 
   async démarrer(): Promise<{ oublier: Oublier }> {
@@ -228,6 +241,11 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       this.signaleurArrêt = new AbortController();
 
     const épingles = this.service("épingles");
+    const réseau = this.service("réseau");
+    await réseau.inscrireRésolutionConfiance({
+      clef: this.clef,
+      résolution: this.résolutionConfiance.bind(this),
+    });
 
     const fFinale = async (résolutions: Set<string>[]) => {
       return await épingles.épingler({
@@ -271,7 +289,9 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       fIdDeBranche,
     });
 
-    this.estDémarré = { oublier };
+    this.estDémarré = {
+      oublier,
+    };
     return await super.démarrer();
   }
 
@@ -281,6 +301,11 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
 
     this.signaleurArrêt.abort();
     await oublier();
+
+    const réseau = this.service("réseau");
+    await réseau.désinscrireRésolutionConfiance({
+      clef: this.clef,
+    });
     await super.fermer();
   }
 
@@ -289,12 +314,14 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     résolution,
   }: {
     clef: string;
-    résolution: Résolveur<T>;
+    résolution: FonctionRésolveurFavoris<T>;
   }): Promise<void> {
-    this.résolveurs.set(clef, résolution as Résolveur);
+    this.résolveurs.set(clef, générerRésolveur(résolution));
   }
 
   async désinscrireRésolution({ clef }: { clef: string }): Promise<void> {
+    const résolveur = this.résolveurs.get(clef);
+    await résolveur?.fermer();
     this.résolveurs.delete(clef);
   }
 

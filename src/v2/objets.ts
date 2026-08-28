@@ -81,12 +81,6 @@ export abstract class ObjetConstellation<
         schéma: schémaServiceObjet,
       }),
     });
-
-    const réseau = this.service("réseau");
-    réseau.inscrireRésolutionConfiance({
-      clef: this.clef,
-      résolution: this.résolutionConfiance.bind(this),
-    });
   }
 
   async démarrer() {
@@ -98,6 +92,12 @@ export abstract class ObjetConstellation<
       résolution: this.suivreRésolutionÉpingle.bind(this),
     });
 
+    const réseau = this.service("réseau");
+    await réseau.inscrireRésolutionConfiance({
+      clef: this.clef,
+      résolution: this.résolutionConfiance.bind(this),
+    });
+
     return retour;
   }
 
@@ -106,6 +106,12 @@ export abstract class ObjetConstellation<
     await favoris.désinscrireRésolution({
       clef: this.clef,
     });
+
+    const réseau = this.service("réseau");
+    await réseau.désinscrireRésolutionConfiance({
+      clef: this.clef,
+    });
+
     await super.fermer();
   }
 
@@ -179,7 +185,6 @@ export abstract class ObjetConstellation<
     idCompte?: string;
   }): Promise<Oublier> {
     const compte = this.service("compte");
-
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
         await this.suivreBd({
