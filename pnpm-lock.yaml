@@ -37,8 +37,8 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2
       '@constl/utils-ipa':
-        specifier: ^3.0.8
-        version: 3.0.8
+        specifier: ^3.0.9
+        version: 3.0.9
       '@e965/xlsx':
         specifier: ^0.20.3
         version: 0.20.3
@@ -903,8 +903,8 @@ packages:
   '@constl/mandataire@3.1.2':
     resolution: {integrity: sha512-L4N87H3ZQy8jYcZ2xxToER/VV2TPNVsbBfCFYtQvTKFHaFh/XGXXJrc0tW0Mr9CLHadaQdqQZvEfKughZmXK+Q==}
 
-  '@constl/utils-ipa@3.0.8':
-    resolution: {integrity: sha512-3/TNRLNbwQ3dZu4zbMMx20KDMolZ5QXtlPIwUCDv1tRnhof4nBYLarVjcPSvZOOsGlrXGk8gibZhAzBd1ANw/g==}
+  '@constl/utils-ipa@3.0.9':
+    resolution: {integrity: sha512-Em0Wb5KtcK0OJjN1R9I5XF3QZqJszdKiNR7m6WpnnGy6DN8C65iYiFdJEePzpx9kJD2xb2j3yRpkbu52m9IkRw==}
     engines: {node: '>=20'}
 
   '@constl/utils-tests@2.1.2':
@@ -9201,7 +9201,7 @@ snapshots:
       tiny-typed-emitter: 2.1.0
       uuid: 11.1.1
 
-  '@constl/utils-ipa@3.0.8':
+  '@constl/utils-ipa@3.0.9':
     dependencies:
       browser-fs-access: 0.38.0
       events: 3.3.0

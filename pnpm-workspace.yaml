@@ -27,7 +27,7 @@ minimumReleaseAgeExclude:
   - '@orbitdb/ordered-keyvalue-db@1.4.5'
   - '@orbitdb/set-db@2.1.2'
   - ennikkai@2.3.7
-  - '@constl/utils-ipa@3.0.8'
+  - '@constl/utils-ipa@3.0.8 || 3.0.9'
 
 overrides:
   p-queue: "^8.1.1"

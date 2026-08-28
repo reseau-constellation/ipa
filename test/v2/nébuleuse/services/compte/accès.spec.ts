@@ -1,7 +1,6 @@
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import { créerOrbitesTest } from "@constl/utils-tests";
-import { obtenir } from "@constl/utils-ipa";
 import {
   ContrôleurNébuleuse,
   MEMBRE,
@@ -9,7 +8,7 @@ import {
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import { préparerOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import { attendreQue } from "../../../appli/utils/fonctions.js";
-import { attendreInvité, peutÉcrire } from "../../../utils.js";
+import { attendreInvité, obtenir, peutÉcrire } from "../../../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type {
   AccèsDispositif,
@@ -185,7 +184,7 @@ describe("Accès", function () {
 
     it("dispositifs autorisés", async () => {
       const promesseUtilisateurs = obtenir<AccèsDispositif[]>(({ si }) =>
-        accès.suivreDispositifsAutorisées(si((x) => x.length > 1)),
+        accès.suivreDispositifsAutorisées(si((x) => !!x && x.length > 1)),
       );
       await accès.autoriser(MEMBRE, orbite2.identity.id);
 
@@ -217,7 +216,7 @@ describe("Accès", function () {
       expect(membre).to.be.true();
 
       const autorisés = await obtenir<AccèsDispositif[]>(({ si }) =>
-        accès.suivreDispositifsAutorisées(si((x) => x.length > 1)),
+        accès.suivreDispositifsAutorisées(si((x) => !!x && x.length > 1)),
       );
 
       const réf: AccèsDispositif[] = [
@@ -300,7 +299,7 @@ describe("Accès", function () {
       // Attendre que la base de donées originale reçoive la dernière modification
       await obtenir<AccèsDispositif[]>(({ si }) =>
         (bd.access as InstanceContrôleurNébuleuse).suivreDispositifsAutorisées(
-          si((x) => !!x.find((d) => d.idDispositif === orbite4.identity.id)),
+          si((x) => !!x?.find((d) => d.idDispositif === orbite4.identity.id)),
         ),
       );
 
@@ -341,7 +340,7 @@ describe("Accès", function () {
       // Orbite 1 accepte l'ajout
       await obtenir<AccèsDispositif[]>(({ si }) =>
         accès.suivreDispositifsAutorisées(
-          si((x) => !!x.find((d) => d.idDispositif === orbite3.identity.id)),
+          si((x) => !!x?.find((d) => d.idDispositif === orbite3.identity.id)),
         ),
       );
       const estAutorisé = await accès.estAutorisé(orbite3.identity.id);
@@ -514,7 +513,7 @@ describe("Accès", function () {
 
     it("utilisateurs autorisés", async () => {
       const promesseUtilisateurs = obtenir<AccèsUtilisateur[]>(({ si }) =>
-        accès.suivreUtilisateursAutorisés(si((x) => x.length > 1)),
+        accès.suivreUtilisateursAutorisés(si((x) => !!x && x.length > 1)),
       );
       await accès.autoriser(MEMBRE, idCompte2);
 
@@ -550,7 +549,7 @@ describe("Accès", function () {
 
     it("dispositifs autorisés", async () => {
       const promesseUtilisateurs = obtenir<AccèsDispositif[]>(({ si }) =>
-        accès.suivreDispositifsAutorisées(si((x) => x.length > 1)),
+        accès.suivreDispositifsAutorisées(si((x) => !!x && x.length > 1)),
       );
       await accès.autoriser(MEMBRE, idCompte2);
 
@@ -586,7 +585,7 @@ describe("Accès", function () {
       expect(membre).to.be.true();
 
       const autorisés = await obtenir<AccèsUtilisateur[]>(({ si }) =>
-        accès.suivreUtilisateursAutorisés(si((x) => x.length > 1)),
+        accès.suivreUtilisateursAutorisés(si((x) => !!x && x.length > 1)),
       );
 
       const réf: AccèsUtilisateur[] = [

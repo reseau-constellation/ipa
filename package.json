@@ -103,7 +103,7 @@
     "@chriscdn/promise-semaphore": "^4.0.0",
     "@constl/bohr-db": "^2.2.10",
     "@constl/mandataire": "^3.1.2",
-    "@constl/utils-ipa": "^3.0.8",
+    "@constl/utils-ipa": "^3.0.9",
     "@e965/xlsx": "^0.20.3",
     "@helia/unixfs": "^7.2.1",
     "@hexagon/base64": "^2.0.4",
