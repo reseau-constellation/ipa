@@ -103,7 +103,7 @@ export abstract class ObjetConstellation<
 
   async fermer(): Promise<void> {
     const favoris = this.service("favoris");
-    favoris.désinscrireRésolution({
+    await favoris.désinscrireRésolution({
       clef: this.clef,
     });
     await super.fermer();
