@@ -1,7 +1,7 @@
 import { isValidAddress } from "@orbitdb/core";
 import PQueue from "p-queue";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { anySignal } from "any-signal";
+import { anySignal, type ClearableSignal } from "any-signal";
 import { estErreurAvortée } from "@/v2/nébuleuse/utils.js";
 import { appelerLorsque } from "../../utils.js";
 import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
@@ -47,8 +47,7 @@ class AccèsCompte {
         this.signaleurArrêt.signal,
         ...(signal ? [signal] : []),
       ]);
-      const bd = await this.orbite.open(this.idCompte, { signal: signalFinal });
-      signalFinal.clear();
+      const bd = await this.orbite.open(this.idCompte, { signal: signalFinal }).finally(()=>signalFinal.clear()).finally(()=>signalFinal.clear());
 
       const accèsCompte = bd.access;
 
@@ -115,7 +114,7 @@ export class AccèsParComptes {
   événements: TypedEmitter<{ misÀJour: () => void }>;
   oublier: Oublier[];
   signaleurArrêt: AbortController;
-  signal: AbortSignal;
+  signal: ClearableSignal;
 
   _comptes: Map<string, { rôles: Set<Rôle>; accès: AccèsCompte }>;
   _dispositifs: Map<string, Set<Rôle>>;
@@ -127,9 +126,7 @@ export class AccèsParComptes {
     this.événements = new TypedEmitter();
     this.oublier = [];
     this.signaleurArrêt = new AbortController();
-    this.signal = signal
-      ? anySignal([signal, this.signaleurArrêt.signal])
-      : this.signaleurArrêt.signal;
+    this.signal = anySignal(signal ? [signal, this.signaleurArrêt.signal]: [this.signaleurArrêt.signal]);
 
     this._comptes = new Map();
     this._dispositifs = new Map();
@@ -269,5 +266,6 @@ export class AccèsParComptes {
   async fermer(): Promise<void> {
     this.signaleurArrêt.abort();
     await Promise.allSettled(this.oublier.map((f) => f()));
+    this.signal.clear();
   }
 }

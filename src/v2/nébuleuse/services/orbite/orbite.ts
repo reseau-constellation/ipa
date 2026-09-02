@@ -219,9 +219,9 @@ export class ServiceOrbite<
   }): Promise<{ bd: BdsOrbite[T]; oublier: Oublier }> {
     const orbite = await this.orbite();
 
-    const signalFinal = options.signal
-      ? anySignal([this.signaleurArrêt.signal, options.signal])
-      : this.signaleurArrêt.signal;
+    const signalFinal = anySignal(options.signal
+      ? [this.signaleurArrêt.signal, options.signal]: [this.signaleurArrêt.signal])
+      ;
     const optionsFinales: OpenDatabaseOptions = {
       AccessController: ContrôleurNébuleuse(),
       ...options,
@@ -232,7 +232,7 @@ export class ServiceOrbite<
     const bd = (await orbite.open(
       nom || uuidv4(),
       optionsFinales,
-    )) as BdsOrbite[T];
+    ).finally(()=>signalFinal.clear())) as BdsOrbite[T];
 
     return { bd, oublier: this.oublierAvecDélai(bd) };
   }
@@ -295,9 +295,9 @@ export class ServiceOrbite<
     this.fermetures.get(id)?.annulerFermeture();
 
     const signaleurLocal = new AbortController();
-    const signalFinal = signal
-      ? anySignal([this.signaleurArrêt.signal, signaleurLocal.signal])
-      : this.signaleurArrêt.signal;
+    const signalFinal = anySignal(signal
+      ? [this.signaleurArrêt.signal, signaleurLocal.signal]
+      : [this.signaleurArrêt.signal]);
 
     signal?.addEventListener("abort", () => {
       if (!ouverte) signaleurLocal.abort();
@@ -306,7 +306,8 @@ export class ServiceOrbite<
     const bd = await réessayer(
       () => orbite.open(id, { signal: signalFinal }),
       signalFinal,
-    );
+    ).finally(()=>signalFinal.clear());
+    
     ouverte = true;
     bd.events.setMaxListeners(100);
 

@@ -165,7 +165,7 @@ export class ServiceÉpingles extends ServiceAppli<
         .catch(() => {
           // Faut pas trop s'en faire si la bd n'est pas accessible.
           return;
-        });
+        }).finally(()=>signal.clear());
     });
 
     const bdsOrbiteÀDésépingler = [...this.bdsOuvertes.keys()].filter(
