@@ -51,7 +51,7 @@
     "@types/tmp": "^0.2.6",
     "@typescript-eslint/eslint-plugin": "^8.68.0",
     "@typescript-eslint/parser": "^8.68.0",
-    "aegir": "^48.1.5",
+    "aegir": "^48.1.6",
     "axios-mock-adapter": "^2.1.0",
     "bmp-js": "^0.1.0",
     "browserify-fs": "^1.0.0",
@@ -122,13 +122,14 @@
     "@libp2p/pubsub-peer-discovery": "^12.0.0",
     "@libp2p/tcp": "^11.0.27",
     "@libp2p/upnp-nat": "^4.0.27",
+    "@libp2p/utils": "^7.4.0",
     "@libp2p/webrtc": "6.0.24",
     "@libp2p/websockets": "^10.1.20",
-    "@libp2p/webtransport": "^6.0.36",
+    "@libp2p/webtransport": "^6.0.37",
     "@multiformats/mafmt": "^12.1.6",
     "@multiformats/multiaddr": "^13.0.3",
     "@multiformats/multiaddr-matcher": "^3.0.2",
-    "@noble/hashes": "^2.3.0",
+    "@noble/hashes": "^2.4.0",
     "@orbitdb/core": "4.0.0-3e1d628.0",
     "@orbitdb/feed-db": "^1.4.2",
     "@orbitdb/nested-db": "^2.1.5",
@@ -158,6 +159,8 @@
     "indexed-db-stream": "^1.0.0",
     "iso-constants": "github:inverted-capital/iso-constants#patch-1",
     "it-drain": "^3.0.12",
+    "it-length-prefixed": "^11.0.1",
+    "it-length-prefixed-stream": "^3.0.1",
     "it-pipe": "^3.0.1",
     "it-pushable": "^3.2.4",
     "it-to-buffer": "^4.0.12",
@@ -181,5 +184,5 @@
     "uuid": "^14.0.2",
     "wherearewe": "^2.0.1"
   },
-  "packageManager": "pnpm@11.24.0"
+  "packageManager": "pnpm@11.25.0"
 }

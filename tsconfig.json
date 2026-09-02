@@ -7,7 +7,7 @@
     "importHelpers": true,
     "importsNotUsedAsValues": "remove",
     "jsx": "react",
-    "lib": ["dom", "esnext"],
+    "lib": ["dom", "es2025"],
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "noFallthroughCasesInSwitch": true,
