@@ -23,6 +23,7 @@ import type {
   ÉpingleFavorisBooléenniséeAvecId,
   ÉpingleFavorisAvecId,
   ServiceFavoris,
+  FonctionRésolveurFavoris,
 } from "@/v2/nébuleuse/services/favoris.js";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
@@ -155,7 +156,7 @@ export class Profil extends ServiceDonnéesAppli<
 
     await favoris.inscrireRésolution({
       clef: this.clef,
-      résolution: this.suivreRésolutionÉpingle.bind(this),
+      résolution: this.suivreRésolutionÉpingle.bind(this) as FonctionRésolveurFavoris,
     });
     return retour;
   }
