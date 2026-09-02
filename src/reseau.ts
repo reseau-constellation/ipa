@@ -17,7 +17,6 @@ import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque } from "./utils.js";
 import type { Constellation, Signature } from "@/client.js";
-import type { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 import type { Pushable } from "it-pushable";
 
 import type {
@@ -38,7 +37,7 @@ import {
   CLEF_N_CHANGEMENT_COMPTES,
   schémaStructureBdCompte,
 } from "@/client.js";
-import { cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 export type infoDispositif = {
   idLibp2p: string;
@@ -391,48 +390,6 @@ export class Réseau {
       // Sera relâché avant le `return` ci-dessus
       this.verrouFlux.release(idPair);
     }
-  }
-
-  async envoyerMessageGossipsub({
-    message,
-    sujet,
-  }: {
-    message: unknown;
-    sujet?: string;
-  }): Promise<string[]> {
-    sujet ??= this.client.sujet_réseau;
-    const pubsub = (await this.client.attendreSfipEtOrbite()).sfip.libp2p
-      .services.pubsub;
-
-    const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
-    const retour = await pubsub.publish(sujet, Buffer.from(octetsMessage));
-    return retour.recipients.map((r) => r.toString());
-  }
-
-  async suivreMessagesGossipsub({
-    sujet,
-    f,
-  }: {
-    sujet: string;
-    f: schémaFonctionSuivi<string>;
-  }): Promise<schémaFonctionOublier> {
-    const pubsub = (await this.client.attendreSfipEtOrbite()).sfip.libp2p
-      .services.pubsub;
-    pubsub.subscribe(sujet);
-
-    const fÉcoutePubSub = async (évé: CustomEvent<GossipsubMessage>) => {
-      const messageGs = évé.detail.msg;
-      if (messageGs.topic === sujet) {
-        const message = new TextDecoder().decode(messageGs.data);
-        await f(message);
-      }
-    };
-    pubsub.addEventListener("gossipsub:message", fÉcoutePubSub);
-
-    return async () => {
-      // À faire : garder compte des requêtes pour `sujet` et appeler `unsubscribe` si nécessaire
-      pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
-    };
   }
 
   async connecterÀAdresse({ adresse }: { adresse: string }) {
