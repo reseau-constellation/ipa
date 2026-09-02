@@ -265,7 +265,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
                 break
               }
               // Circulez, rien à voir
-              this.service("journal").écrire({message: "Erreur réseautage" + e.toString()})
+              this.service("journal").écrire({message: "Erreur réseautage " + e.toString()})
             }
           }
         },
