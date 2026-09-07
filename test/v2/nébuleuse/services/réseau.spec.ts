@@ -917,7 +917,6 @@ describe("Réseau", function () {
       idsComptes = await Promise.all(
         nébuleuses.map(async (c) => await c.compte.obtIdCompte()),
       );
-      console.log({ idsComptes });
 
       rechercheRelations = await rechercherProfondeur<RelationRéseau>(({ f }) =>
         nébuleuses[0].réseau.suivreRelationsRéseau({
@@ -1264,7 +1263,6 @@ describe("Réseau", function () {
       idsComptes = await Promise.all(
         nébuleuses.map(async (c) => await c.compte.obtIdCompte()),
       );
-      console.log({ idsComptes });
 
       rechercheComptes = await rechercherProfondeur<CompteParProfondeur>(
         ({ f }) =>
@@ -1295,9 +1293,8 @@ describe("Réseau", function () {
         idCompte: idsComptes[2],
       });
 
-      console.log("ici, 0");
       const comptes = await rechercheComptes.siAuMoins(2);
-      console.log("ici, 1");
+
       const réf: CompteParProfondeur[] = [
         {
           idCompte: idsComptes[1],
@@ -1341,7 +1338,7 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it.skip("confiance transitive", async () => {
+    it("confiance transitive", async () => {
       // 0 fait confiance à 1
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
@@ -1368,7 +1365,7 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it.skip("confiance négative transitive", async () => {
+    it("confiance négative transitive", async () => {
       // 0 fait confiance à 1
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
@@ -1393,7 +1390,7 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it.skip("diminuer profondeur", async () => {
+    it("diminuer profondeur", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
@@ -1416,7 +1413,7 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it.skip("augmenter profondeur", async () => {
+    it("augmenter profondeur", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
