@@ -27,7 +27,7 @@ import type {
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 
-describe("Réseau", function () {
+describe.only("Réseau", function () {
   describe("suivre connexions", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
@@ -711,7 +711,7 @@ describe("Réseau", function () {
     });
   });
 
-  describe("messages", async () => {
+  describe.only("messages", async () => {
     let fermer: () => Promise<void>;
     let nébuleuses: Nébuleuse[];
 
