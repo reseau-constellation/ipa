@@ -66,10 +66,6 @@ describe("Nuées", function () {
     }));
     constl = constls[0];
     idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
-    console.log(
-      "ids",
-      await Promise.all(constls.map((c) => c.compte.obtIdLibp2p())),
-    );
   });
 
   after(async () => {
