@@ -318,10 +318,18 @@ index 1b56421626f15271762182adb78b6cafc0eee341..e5aa23fd614e90db90d1a0f4dc41c2a5
    }
  
 diff --git a/src/orbitdb.js b/src/orbitdb.js
-index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..b7819792710c74916ca6cb62c3bd22c7ae76b0f7 100644
+index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..57f1df82a0d74be7501f5188b4f1a24be9f0fd36 100644
 --- a/src/orbitdb.js
 +++ b/src/orbitdb.js
-@@ -35,7 +35,6 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+@@ -11,6 +11,7 @@ import { createId } from './utils/index.js'
+ import pathJoin from './utils/path-join.js'
+ import { getAccessController } from './access-controllers/index.js'
+ import IPFSAccessController from './access-controllers/ipfs.js'
++import { AbortError } from '@libp2p/interface'
+ 
+ const DefaultDatabaseType = 'events'
+ 
+@@ -35,7 +36,6 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
     * @namespace module:OrbitDB~OrbitDB
     * @description The instance returned by {@link module:OrbitDB}.
     */
@@ -329,7 +337,7 @@ index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..b7819792710c74916ca6cb62c3bd22c7
    if (ipfs == null) {
      throw new Error('IPFS instance is a required argument.')
    }
-@@ -116,7 +115,19 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+@@ -116,7 +116,19 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
     * @async
     */
    const open = async (address, { type, meta, sync, Database, AccessController, headsStorage, entryStorage, indexStorage, referencesCount, encryption, signal } = {}) => {
@@ -350,7 +358,7 @@ index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..b7819792710c74916ca6cb62c3bd22c7
  
      if (databases[address]) {
        return databases[address]
-@@ -128,7 +139,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+@@ -128,7 +140,7 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
        manifest = await manifestStore.get(addr.hash, signal)
        const acType = manifest.accessController.split('/', 2).pop()
        AccessController = getAccessController(acType)()
@@ -359,7 +367,7 @@ index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..b7819792710c74916ca6cb62c3bd22c7
        name = manifest.name
        type = type || manifest.type
        meta = manifest.meta
-@@ -136,10 +147,15 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+@@ -136,10 +148,15 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
        // If the address given was not valid, eg. just the name of the database
        type = type || DefaultDatabaseType
        AccessController = AccessController || DefaultAccessController()
@@ -379,11 +387,12 @@ index 1d6f428ccee6092434cd1f11b7aaa5c700b148b2..b7819792710c74916ca6cb62c3bd22c7
        name = manifest.name
        meta = manifest.meta
        // Check if we already have the database open and return if it is
-@@ -155,14 +171,18 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
+@@ -155,14 +172,19 @@ const OrbitDB = async ({ ipfs, id, identity, identities, directory } = {}) => {
      }
  
      address = address.toString()
 +    try {
++      if (signal?.aborted) throw new AbortError()
 +      db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption, signal: localSignal })
  
 -    const db = await Database({ ipfs, identity, address, name, access: accessController, directory, meta, syncAutomatically: sync, headsStorage, entryStorage, indexStorage, referencesCount, encryption })
