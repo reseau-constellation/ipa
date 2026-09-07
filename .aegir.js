@@ -73,7 +73,10 @@ const aprèsTest = async (_, avant) => {
 
 const générerConfigÆgirFinal = async () => {
   const configÆgir = await générerConfigÆgir();
-  configÆgir.test.browser.config.buildConfig.external.push("@constl/serveur", "@lassi-js/kili");
+  configÆgir.test.browser.config.buildConfig.external.push(
+    "@constl/serveur",
+    "@lassi-js/kili",
+  );
   const avantTestDéfaut = configÆgir.test.before;
   configÆgir.test.before = async (opts) => {
     const retourAvantTestDéfaut = await avantTestDéfaut(opts);

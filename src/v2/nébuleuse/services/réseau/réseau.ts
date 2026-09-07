@@ -7,7 +7,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import PQueue from "p-queue";
 import { anySignal } from "any-signal";
 import { peerIdFromString } from "@libp2p/peer-id";
-import { lpStream, type LengthPrefixedStream } from '@libp2p/utils'
+import { lpStream, type LengthPrefixedStream } from "@libp2p/utils";
 import { ajouterPréfixes, enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.js";
 import {
@@ -158,7 +158,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     [ÉVÉNEMENTS.BLOQUÉ_PRIVÉ]: (bloqués: Set<string>) => void;
     [ÉVÉNEMENTS.MESSAGE_RÉSEAU]: (message: MessageRéseauAvecExpéditeur) => void;
   }>;
-  flux: Map<string, {soujacent: Stream; flux: LengthPrefixedStream}>;
+  flux: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>;
 
   signaleurArrêt: AbortController;
 
@@ -241,15 +241,16 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       .handle(
         PROTOCOLE_NÉBULEUSE,
         async (flux, connexion) => {
-
           const idPair = connexion.remotePeer.toString();
           const fluxPl = lpStream(flux);
-          this.flux.set(idPair, {soujacent: flux, flux: fluxPl});
+          this.flux.set(idPair, { soujacent: flux, flux: fluxPl });
           flux.addEventListener("close", () => this.flux.delete(idPair));
-          
+
           while (true) {
             try {
-              const octets = await fluxPl.read({ signal: this.signaleurArrêt.signal })
+              const octets = await fluxPl.read({
+                signal: this.signaleurArrêt.signal,
+              });
               const message = JSON.parse(
                 new TextDecoder().decode(octets.slice()),
               ) as MessageRéseau;
@@ -261,11 +262,13 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
                 expéditeur: idPair,
               });
             } catch (e) {
-              if (e.name === 'UnexpectedEOFError' || estErreurAvortée(e)) {
-                break
+              if (e.name === "UnexpectedEOFError" || estErreurAvortée(e)) {
+                break;
               }
               // Circulez, rien à voir
-              this.service("journal").écrire({message: "Erreur réseautage " + e.toString()})
+              this.service("journal").écrire({
+                message: "Erreur réseautage " + e.toString(),
+              });
             }
           }
         },
@@ -297,16 +300,19 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               signature: await orbite.signer({ message: idDispositif }),
             };
             conn.addEventListener("remoteCloseWrite", () =>
-              console.log("remoteCloseWrite", peerId.toString()),
+              console.log("✘ remoteCloseWrite", peerId.toString()),
             );
             conn.addEventListener("close", () =>
-              console.log("close", peerId.toString()),
+              console.log("✘ close", peerId.toString()),
             );
-            await ceci.envoyerMessageÀPair({ idPair: peerId.toString(), message: identifiantsCompte})
+            await ceci.envoyerMessageÀPair({
+              idPair: peerId.toString(),
+              message: identifiantsCompte,
+            });
           },
           onDisconnect(peerId) {
             console.log(
-              `pair ${peerId.toString()} déconnecté de ${libp2p.peerId.toString()}`,
+              `✘ pair ${peerId.toString()} déconnecté de ${libp2p.peerId.toString()}`,
             );
             // this.lorsqueDispositifDéconnecté(peerId);
           },
@@ -336,7 +342,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     this.signaleurArrêt.abort();
 
     await Promise.allSettled(
-      [...this.flux.values()].map(({soujacent: flux }) =>
+      [...this.flux.values()].map(({ soujacent: flux }) =>
         flux.abort(new Error("Service réseau fermé.")),
       ),
     );
@@ -1195,8 +1201,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   // Messages
 
-  async obtFluxPair({ idPair }: { idPair: string }): Promise<LengthPrefixedStream> {
-    
+  async obtFluxPair({
+    idPair,
+  }: {
+    idPair: string;
+  }): Promise<LengthPrefixedStream> {
     const x = this.flux.get(idPair);
 
     // console.log("statut existante", flux?.status, flux?.readStatus, flux?.writeStatus, flux?.remoteReadStatus, flux?.remoteWriteStatus)
@@ -1205,14 +1214,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const libp2p = await this.service("libp2p").libp2p();
       const signal = this.signaleurArrêt.signal;
 
-      console.log("nouveau flux pair")
+      console.log("nouveau flux pair");
       const flux = await libp2p.dialProtocol(
         peerIdFromString(idPair),
         PROTOCOLE_NÉBULEUSE,
         { signal },
       );
-      const fluxPl = lpStream(flux)
-      this.flux.set(idPair, {soujacent: flux, flux: fluxPl});
+      const fluxPl = lpStream(flux);
+      this.flux.set(idPair, { soujacent: flux, flux: fluxPl });
       flux.addEventListener("close", () => this.flux.delete(idPair));
       // flux.addEventListener("remoteCloseWrite", () => flux.close());
 
@@ -1231,11 +1240,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     try {
       flux = await this.obtFluxPair({ idPair });
     } catch (e) {
-      throw new Error(`Impossible de se connecter au pair ${idPair}.` + e.toString(), { cause: e });
+      throw new Error(
+        `Impossible de se connecter au pair ${idPair}.` + e.toString(),
+        { cause: e },
+      );
     }
 
     const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
-    await flux.write(octetsMessage);    
+    await flux.write(octetsMessage);
   }
 
   async envoyerMessageAuDispositif({

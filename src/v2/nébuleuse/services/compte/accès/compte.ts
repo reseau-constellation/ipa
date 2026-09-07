@@ -47,7 +47,10 @@ class AccèsCompte {
         this.signaleurArrêt.signal,
         ...(signal ? [signal] : []),
       ]);
-      const bd = await this.orbite.open(this.idCompte, { signal: signalFinal }).finally(()=>signalFinal.clear()).finally(()=>signalFinal.clear());
+      const bd = await this.orbite
+        .open(this.idCompte, { signal: signalFinal })
+        .finally(() => signalFinal.clear())
+        .finally(() => signalFinal.clear());
 
       const accèsCompte = bd.access;
 
@@ -116,7 +119,11 @@ export class AccèsParComptes {
     this.événements = new TypedEmitter();
     this.oublier = [];
     this.signaleurArrêt = new AbortController();
-    this.signal = anySignal(signal ? [signal, this.signaleurArrêt.signal]: [this.signaleurArrêt.signal]);
+    this.signal = anySignal(
+      signal
+        ? [signal, this.signaleurArrêt.signal]
+        : [this.signaleurArrêt.signal],
+    );
 
     this._comptes = new Map();
     this._dispositifs = new Map();

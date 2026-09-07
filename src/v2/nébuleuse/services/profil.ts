@@ -156,7 +156,9 @@ export class Profil extends ServiceDonnéesAppli<
 
     await favoris.inscrireRésolution({
       clef: this.clef,
-      résolution: this.suivreRésolutionÉpingle.bind(this) as FonctionRésolveurFavoris,
+      résolution: this.suivreRésolutionÉpingle.bind(
+        this,
+      ) as FonctionRésolveurFavoris,
     });
     return retour;
   }
