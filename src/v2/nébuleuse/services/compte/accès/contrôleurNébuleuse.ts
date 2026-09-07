@@ -120,19 +120,10 @@ const ContrôleurNébuleuse =
     }
 
     if (address) {
-      const chrono1 = setTimeout(() => {
-        if (!signal?.aborted)
-          console.log(
-            "délai obtenir manifeste cntrl néb",
-            signal,
-            signal?.aborted,
-          );
-      }, 5000);
       const manifestBytes = await stockage.get(
         address.replaceAll(`/${nomType}/`, ""),
         signal,
       );
-      clearTimeout(chrono1);
       const { value } = await Block.decode({
         bytes: manifestBytes,
         codec,
@@ -144,20 +135,10 @@ const ContrôleurNébuleuse =
         adresseBdAccès: string;
       });
 
-      const chrono2 = setTimeout(() => {
-        if (!signal?.aborted)
-          console.log(
-            "délai ouvrir bd accès cntl néb",
-            adresseBdAccès,
-            "par",
-            orbitdb.ipfs.libp2p.peerId.toString(),
-          );
-      }, 5000);
       bdAccès = (await orbitdb.open(adresseBdAccès, {
         type: "keyvalue",
         signal,
       })) as KeyValueDatabase;
-      clearTimeout(chrono2);
     } else {
       écriture ??= orbitdb.identity.id;
       bdAccès = (await orbitdb.open(
