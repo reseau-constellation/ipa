@@ -131,7 +131,7 @@ export class ServiceLibp2p<
     const idLibp2p = libp2p.peerId.toString();
     libp2p.addEventListener("peer:connect", (x) => {
       console.log(
-        "peer:connect",
+        "✔ peer:connect",
         "de",
         idLibp2p.slice(-10),
         x.detail.toString(),
@@ -139,7 +139,7 @@ export class ServiceLibp2p<
     });
     libp2p.addEventListener("connection:open", (x) => {
       console.log(
-        "connection:open",
+        "✔ connection:open",
         "de",
         idLibp2p.slice(-10),
         x.detail.remoteAddr.toString(),
@@ -147,7 +147,7 @@ export class ServiceLibp2p<
     });
     libp2p.addEventListener("connection:close", async (x) => {
       console.log(
-        "connexion:close",
+        "✘ connexion:close",
         "de",
         idLibp2p.slice(-10),
         x.detail.remoteAddr.toString(),
@@ -155,7 +155,7 @@ export class ServiceLibp2p<
     });
     libp2p.addEventListener("peer:disconnect", async ({ detail: idPair }) => {
       console.log(
-        "peer:disconnect",
+        "✘ peer:disconnect",
         "de",
         idLibp2p.slice(-10),
         idPair.toString(),
