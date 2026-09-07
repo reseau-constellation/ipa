@@ -305,7 +305,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             conn.addEventListener("close", () =>
               console.log("✘ close", peerId.toString()),
             );
-            await ceci.envoyerMessageÀPair({
+            await ceci.envoyerMessageAuPair({
               idPair: peerId.toString(),
               message: identifiantsCompte,
             });
@@ -1229,7 +1229,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     }
   }
 
-  async envoyerMessageÀPair({
+  async envoyerMessageAuPair({
     message,
     idPair,
   }: {
@@ -1245,7 +1245,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         { cause: e },
       );
     }
-
+    const monIdPair = await this.service("compte").obtIdLibp2p()
+    if (message.type === "texte") console.log(`Pair ${monIdPair} envoie le message à ${idPair}`)
     const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
     await flux.write(octetsMessage);
   }
@@ -1262,7 +1263,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       throw new Error(
         `Le dispositif ${idDispositif} n'a pas été retrouvé sur le réseau.`,
       );
-    return await this.envoyerMessageÀPair({ message, idPair });
+    return await this.envoyerMessageAuPair({ message, idPair });
   }
 
   async envoyerMessageAuCompte({
@@ -1408,7 +1409,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         identifiant: idDispositif,
       }),
     };
-    await this.envoyerMessageÀPair({ idPair, message });
+    await this.envoyerMessageAuPair({ idPair, message });
 
     await compte.rejoindreCompte({ idCompte });
   }

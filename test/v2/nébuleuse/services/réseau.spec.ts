@@ -802,7 +802,7 @@ describe.only("Réseau", function () {
         à: nébuleuses[1],
       });
 
-      await nébuleuses[0].réseau.envoyerMessageÀPair({
+      await nébuleuses[0].réseau.envoyerMessageAuPair({
         message: {
           type: "texte",
           message: messageÀEnvoyer,
