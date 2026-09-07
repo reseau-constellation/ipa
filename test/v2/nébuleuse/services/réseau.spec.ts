@@ -711,7 +711,7 @@ describe.only("Réseau", function () {
     });
   });
 
-  describe.only("messages", async () => {
+  describe("messages", async () => {
     let fermer: () => Promise<void>;
     let nébuleuses: Nébuleuse[];
 
