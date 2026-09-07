@@ -1245,8 +1245,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         { cause: e },
       );
     }
-    const monIdPair = await this.service("compte").obtIdLibp2p()
-    if (message.type === "texte") console.log(`Pair ${monIdPair} envoie le message à ${idPair}`)
+
     const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
     await flux.write(octetsMessage);
   }
