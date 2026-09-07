@@ -1374,7 +1374,12 @@ describe("Réseau", function () {
       // 1 bloque 2
       await nébuleuses[1].réseau.bloquerCompte({ idCompte: idsComptes[2] });
 
-      const comptes = await rechercheComptes.si(r=>!!r && r.length >= 2 && r.filter(x=>x.idCompte===idsComptes[2])[0].confiance < 0);
+      const comptes = await rechercheComptes.si(
+        (r) =>
+          !!r &&
+          r.length >= 2 &&
+          r.filter((x) => x.idCompte === idsComptes[2])[0].confiance < 0,
+      );
       const réf: CompteParProfondeur[] = [
         {
           idCompte: idsComptes[1],
