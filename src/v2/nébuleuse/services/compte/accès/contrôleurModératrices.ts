@@ -159,12 +159,7 @@ const ContrôleurAccès =
     };
 
     const close = async () => {
-      const chrono1 = setTimeout(
-        () => console.log("délai fermeture cntrl mod 1"),
-        5000,
-      );
       await accès.fermer();
-      clearTimeout(chrono1);
     };
 
     return {
