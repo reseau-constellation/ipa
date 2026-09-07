@@ -1,8 +1,8 @@
 diff --git a/dist/src/gossipsub.js b/dist/src/gossipsub.js
-index eecaa1f10d492630d5cab1c8bedc0aaa7ec18635..a0882ed788e91020c3d8c6521962c78021015902 100644
+index bc1ffa34043269d17ea67f3f5695c88d8e9c093f..1734a6ae96e3cf01c9194ef4e51cc57c1565542a 100644
 --- a/dist/src/gossipsub.js
 +++ b/dist/src/gossipsub.js
-@@ -477,7 +477,7 @@ export class GossipSub extends TypedEventEmitter {
+@@ -478,7 +478,7 @@ export class GossipSub extends TypedEventEmitter {
          // TODO make this behavior more robust
          // This behavior is different than for inbound streams
          // If an outbound stream already exists, don't create a new stream
@@ -11,7 +11,7 @@ index eecaa1f10d492630d5cab1c8bedc0aaa7ec18635..a0882ed788e91020c3d8c6521962c780
              return;
          }
          try {
-@@ -1329,7 +1329,7 @@ export class GossipSub extends TypedEventEmitter {
+@@ -1336,7 +1336,7 @@ export class GossipSub extends TypedEventEmitter {
      async directConnect() {
          const toconnect = [];
          this.direct.forEach((id) => {
@@ -20,7 +20,7 @@ index eecaa1f10d492630d5cab1c8bedc0aaa7ec18635..a0882ed788e91020c3d8c6521962c780
                  toconnect.push(id);
              }
          });
-@@ -1858,7 +1858,7 @@ export class GossipSub extends TypedEventEmitter {
+@@ -1865,7 +1865,7 @@ export class GossipSub extends TypedEventEmitter {
          }
          const rpcBytes = RPC.encode(rpc);
          try {

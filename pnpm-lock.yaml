@@ -114,7 +114,7 @@ overrides:
 patchedDependencies:
   '@constl/bohr-db': 766b66c1e58f118219f8a9d270fba02d6b6779e3674999a75d8aea4fef12e9aa
   '@constl/utils-tests': a205b17944d93d423e74b305a3986fa3efd69de83a482173825f71c7bd45015c
-  '@libp2p/gossipsub': 6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2
+  '@libp2p/gossipsub': 74ab2a80f4520989d01b7fbedb1cc88271aa85eb86b463673fee06a455bebf92
   '@orbitdb/core': ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff
   '@orbitdb/nested-db': e1d5392c05be803a2d10735f141799263098369db13b03e23a585687fc1cb6e1
 
@@ -169,7 +169,7 @@ importers:
         version: 3.0.28
       '@libp2p/gossipsub':
         specifier: ^15.0.23
-        version: 15.0.23(patch_hash=6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2)
+        version: 15.0.23(patch_hash=74ab2a80f4520989d01b7fbedb1cc88271aa85eb86b463673fee06a455bebf92)
       '@libp2p/identify':
         specifier: ^4.1.14
         version: 4.1.14
@@ -9359,7 +9359,7 @@ snapshots:
   '@constl/utils-tests@2.1.2(patch_hash=a205b17944d93d423e74b305a3986fa3efd69de83a482173825f71c7bd45015c)(react-native@0.87.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1))(supports-color@8.1.1)':
     dependencies:
       '@helia/block-brokers': 5.2.4
-      '@libp2p/gossipsub': 15.0.23(patch_hash=6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2)
+      '@libp2p/gossipsub': 15.0.23(patch_hash=74ab2a80f4520989d01b7fbedb1cc88271aa85eb86b463673fee06a455bebf92)
       '@libp2p/peer-id': 6.0.15
       '@libp2p/webrtc': 6.0.24(react-native@0.87.0(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.8)(supports-color@8.1.1))(supports-color@8.1.1)
       '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)
@@ -10232,7 +10232,7 @@ snapshots:
       protons-runtime: 7.0.0
       uint8arraylist: 3.0.2
 
-  '@libp2p/gossipsub@15.0.23(patch_hash=6dc1cf71f5d65e1ff8ddb3fadb76535179fcfe0d3e56adbeb5a85ce145432df2)':
+  '@libp2p/gossipsub@15.0.23(patch_hash=74ab2a80f4520989d01b7fbedb1cc88271aa85eb86b463673fee06a455bebf92)':
     dependencies:
       '@libp2p/crypto': 5.1.23
       '@libp2p/interface': 3.3.0
@@ -15916,7 +15916,7 @@ snapshots:
       '@babel/types': 7.29.8
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
-      metro-symbolicate: 0.87.0(supports-color@8.1.1)
+      metro-symbolicate: 0.87.0
       nullthrows: 1.1.1
       ob1: 0.87.0
       source-map: 0.5.7
@@ -15924,7 +15924,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  metro-symbolicate@0.87.0(supports-color@8.1.1):
+  metro-symbolicate@0.87.0:
     dependencies:
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
@@ -15932,8 +15932,6 @@ snapshots:
       nullthrows: 1.1.1
       source-map: 0.5.7
       vlq: 1.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   metro-transform-plugins@0.87.0(supports-color@8.1.1):
     dependencies:
@@ -15997,7 +15995,7 @@ snapshots:
       metro-resolver: 0.87.0
       metro-runtime: 0.87.0
       metro-source-map: 0.87.0(supports-color@8.1.1)
-      metro-symbolicate: 0.87.0(supports-color@8.1.1)
+      metro-symbolicate: 0.87.0
       metro-transform-plugins: 0.87.0(supports-color@8.1.1)
       metro-transform-worker: 0.87.0(supports-color@8.1.1)
       mime-types: 3.0.2
