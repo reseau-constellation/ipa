@@ -3,6 +3,7 @@ import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { RechercheProfils } from "@/v2/recherche/profils.js";
 import {
   AUCUN_DISPOSITIF,
+  RÉSOLVEUR_FAVORIS,
   TOUS_DISPOSITIFS,
   résoudreDéfauts,
 } from "@/v2/nébuleuse/services/favoris.js";
@@ -23,7 +24,6 @@ import type {
   ÉpingleFavorisBooléenniséeAvecId,
   ÉpingleFavorisAvecId,
   ServiceFavoris,
-  FonctionRésolveurFavoris,
 } from "@/v2/nébuleuse/services/favoris.js";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
@@ -148,19 +148,6 @@ export class Profil extends ServiceDonnéesAppli<
               clef,
             )) as AccesseurService<ServicesNécessairesRechercheProfils>,
     });
-  }
-
-  async démarrer() {
-    const retour = await super.démarrer();
-    const favoris = this.service("favoris");
-
-    await favoris.inscrireRésolution({
-      clef: this.clef,
-      résolution: this.suivreRésolutionÉpingle.bind(
-        this,
-      ) as FonctionRésolveurFavoris,
-    });
-    return retour;
   }
 
   async fermer(): Promise<void> {
@@ -460,7 +447,7 @@ export class Profil extends ServiceDonnéesAppli<
     });
   }
 
-  async suivreRésolutionÉpingle({
+  async [RÉSOLVEUR_FAVORIS]({
     épingle,
     f,
     ignorer,

@@ -3,6 +3,7 @@ import { CID } from "multiformats";
 import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "@/v2/nébuleuse/services/consts.js";
 import {
   AUCUN_DISPOSITIF,
+  RÉSOLVEUR_FAVORIS,
   TOUS_DISPOSITIFS,
 } from "@/v2/nébuleuse/services/favoris.js";
 import { enleverPréfixes, idcEtFichierValide } from "@/v2/utils.js";
@@ -308,7 +309,7 @@ describe("Profil", function () {
 
     it("résoudre épingle - base", async () => {
       const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
-        nébuleuse.profil.suivreRésolutionÉpingle({
+        nébuleuse.profil[RÉSOLVEUR_FAVORIS]({
           épingle: {
             idObjet: idsComptes[1],
             épingle: {
@@ -325,7 +326,7 @@ describe("Profil", function () {
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
       const résolutionAvecImage = await obtenir<Set<string>>(({ si }) =>
-        nébuleuse.profil.suivreRésolutionÉpingle({
+        nébuleuse.profil[RÉSOLVEUR_FAVORIS]({
           épingle: {
             idObjet: idsComptes[1],
             épingle: {
@@ -347,7 +348,7 @@ describe("Profil", function () {
     it("résoudre épingle - favoris", async () => {
       await nébuleuses[1].profil.épingler({ idCompte: idCompteInexistant });
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        nébuleuse.profil.suivreRésolutionÉpingle({
+        nébuleuse.profil[RÉSOLVEUR_FAVORIS]({
           épingle: {
             idObjet: idsComptes[1],
             épingle: {
@@ -376,7 +377,7 @@ describe("Profil", function () {
       });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        nébuleuse.profil.suivreRésolutionÉpingle({
+        nébuleuse.profil[RÉSOLVEUR_FAVORIS]({
           épingle: {
             idObjet: idsComptes[1],
             épingle: {

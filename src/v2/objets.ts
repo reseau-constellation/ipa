@@ -12,6 +12,7 @@ import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
 import { MEMBRE } from "./nébuleuse/services/compte/accès/consts.js";
 import {
+  RÉSOLVEUR_FAVORIS,
   type ServiceFavoris,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
@@ -86,12 +87,6 @@ export abstract class ObjetConstellation<
   async démarrer() {
     const retour = await super.démarrer();
 
-    const favoris = this.service("favoris");
-    await favoris.inscrireRésolution({
-      clef: this.clef,
-      résolution: this.suivreRésolutionÉpingle.bind(this),
-    });
-
     const réseau = this.service("réseau");
     await réseau.inscrireRésolutionConfiance({
       clef: this.clef,
@@ -115,7 +110,7 @@ export abstract class ObjetConstellation<
     await super.fermer();
   }
 
-  async suivreRésolutionÉpingle({
+  async [RÉSOLVEUR_FAVORIS]({
     épingle,
     f,
   }: {

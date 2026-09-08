@@ -23,6 +23,7 @@ import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";
 import type { AccèsUtilisateur } from "./compte/accès/types.js";
 import type { ServiceÉpingles } from "./épingles.js";
+import type { ServiceAppli } from "../appli/services.js";
 
 // Types réplications
 export type Réplication<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {
@@ -200,6 +201,8 @@ export type ServicesNécessairesFavoris = ServicesNécessairesDonnées<
   épingles: ServiceÉpingles;
 };
 
+export const RÉSOLVEUR_FAVORIS = Symbol("résolveur favoris");
+
 export class ServiceFavoris extends ServiceDonnéesAppli<
   "favoris",
   StructureServiceFavoris,
@@ -239,6 +242,21 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     // Réinitialiser le signaleur, mais uniquement si nécessaire.
     if (this.signaleurArrêt.signal.aborted)
       this.signaleurArrêt = new AbortController();
+
+    type ServicePotentiellementAvecRésolveur = ServiceAppli & {
+      [RÉSOLVEUR_FAVORIS]?: RésolveurFavoris;
+    };
+
+    for (const [clef, service] of Object.entries(this.services)) {
+      const serviceAvecRésolveur =
+        service as ServicePotentiellementAvecRésolveur;
+      if (serviceAvecRésolveur[RÉSOLVEUR_FAVORIS]) {
+        this.inscrireRésolution({
+          clef,
+          résolution: serviceAvecRésolveur[RÉSOLVEUR_FAVORIS].bind(service),
+        });
+      }
+    }
 
     const épingles = this.service("épingles");
     const réseau = this.service("réseau");
@@ -309,13 +327,13 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     await super.fermer();
   }
 
-  async inscrireRésolution<T extends ÉpingleFavoris>({
+  inscrireRésolution<T extends ÉpingleFavoris>({
     clef,
     résolution,
   }: {
     clef: string;
     résolution: FonctionRésolveurFavoris<T>;
-  }): Promise<void> {
+  }) {
     this.résolveurs.set(clef, générerRésolveur(résolution));
   }
 

@@ -3,6 +3,7 @@ import { isNode, isElectronMain } from "wherearewe";
 import { faisRien } from "@constl/utils-ipa";
 import {
   AUCUN_DISPOSITIF,
+  RÉSOLVEUR_FAVORIS,
   TOUS_DISPOSITIFS,
   type DispositifsÉpingle,
   type FonctionRésolveurFavoris,
@@ -11,11 +12,16 @@ import {
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "@/v2/nébuleuse/services/favoris.js";
 import { enleverPréfixes } from "@/v2/utils.js";
+import { ServiceAppli } from "@/v2/nébuleuse/appli/services.js";
 import { obtenir } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ContenuÉpingleProfil } from "@/v2/nébuleuse/services/profil.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
+import type {
+  OptionsAppli,
+  ServicesAppli,
+} from "@/v2/nébuleuse/appli/appli.js";
 
 describe("Favoris", function () {
   let nébuleuses: NébuleuseTest[];
@@ -104,25 +110,25 @@ describe("Favoris", function () {
   });
 
   describe("résolution épingles", function () {
-    it("inscrire résolution", async () => {
-      const résolution: FonctionRésolveurFavoris<ÉpingleTest> = async ({
-        épingle,
-        f,
-      }: {
-        épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleTest>;
-        f: Suivi<Set<string>>;
-      }): Promise<Oublier> => {
-        await f(
-          new Set(
-            épingle.épingle.épingle.base && épingle.idObjet
-              ? [enleverPréfixes(épingle.idObjet)]
-              : [],
-          ),
-        );
-        return faisRien;
-      };
+    const résolution: FonctionRésolveurFavoris<ÉpingleTest> = async ({
+      épingle,
+      f,
+    }: {
+      épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleTest>;
+      f: Suivi<Set<string>>;
+    }): Promise<Oublier> => {
+      await f(
+        new Set(
+          épingle.épingle.épingle.base && épingle.idObjet
+            ? [enleverPréfixes(épingle.idObjet)]
+            : [],
+        ),
+      );
+      return faisRien;
+    };
 
-      await nébuleuse.favoris.inscrireRésolution({
+    it("inscrire résolution", async () => {
+      nébuleuse.favoris.inscrireRésolution({
         clef: "test",
         résolution,
       });
@@ -189,6 +195,10 @@ describe("Favoris", function () {
         },
       ];
       expect(favoris).to.have.deep.members(réf);
+
+      expect(erreurs).to.not.include(
+        "Résolveur pour épingle de type profil non disponible. Cet objet ne sera probablement pas épinglé.\n",
+      );
     });
 
     it("épingler favoris", async () => {
@@ -319,6 +329,108 @@ describe("Favoris", function () {
       );
 
       expect(favoris.filter((fav) => fav.idObjet !== idCompte)).to.be.empty();
+    });
+
+    it("détection automatique", async () => {
+      const clefService = "test";
+      const erreursTest: string[] = [];
+      const CID_TEST =
+        "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidY/fichier.txt";
+
+      class ServiceAvecFavoris extends ServiceAppli {
+        constructor({
+          services,
+          options,
+        }: {
+          services: ServicesAppli;
+          options: OptionsAppli;
+        }) {
+          super({
+            clef: clefService,
+            dépendances: ["favoris"],
+            services,
+            options,
+          });
+        }
+        async [RÉSOLVEUR_FAVORIS]({
+          épingle,
+          f,
+        }: {
+          épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleTest>;
+          f: Suivi<Set<string>>;
+          ignorer?: Set<string>;
+        }): Promise<Oublier> {
+          await f(new Set([enleverPréfixes(épingle.idObjet), CID_TEST]));
+          return faisRien;
+        }
+      }
+      const { fermer: fermerTest, nébuleuses: nébuleusesTest } =
+        await créerNébuleusesTest({
+          n: 1,
+          services: {
+            [clefService]: ({ services, options }) =>
+              new ServiceAvecFavoris({
+                services,
+                options,
+              }),
+          },
+          options: {
+            services: {
+              journal: {
+                f: (erreur) => {
+                  erreursTest.push(erreur);
+                },
+              },
+            },
+          },
+        });
+      const nébuleuseTest = nébuleusesTest[0];
+      after(fermerTest);
+      const épingle: ÉpingleTest = {
+        type: clefService,
+        épingle: {
+          base: idDispositif,
+        },
+      };
+      await nébuleuseTest.favoris.épinglerFavori({
+        idObjet,
+        épingle,
+      });
+
+      const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
+        ({ si }) =>
+          nébuleuseTest.favoris.suivreFavoris({
+            f: si((x) => !!x?.find((fav) => fav.idObjet === idObjet)),
+          }),
+      );
+
+      const réf: ÉpingleFavorisAvecId[] = [
+        {
+          idObjet,
+          épingle: {
+            type: clefService,
+            épingle: {
+              base: idDispositif,
+            },
+          },
+        },
+      ];
+      expect(favoris).to.include.deep.members(réf);
+      expect(erreursTest).to.be.empty();
+
+      const résolus = await obtenir<Set<string>>(({ si }) =>
+        nébuleuseTest.favoris.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet,
+            épingle,
+          },
+          f: si((x) => !!x && x.size >= 2),
+        }),
+      );
+      expect([...résolus]).to.have.members([
+        enleverPréfixes(idObjet),
+        CID_TEST,
+      ]);
     });
   });
 });
