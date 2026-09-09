@@ -317,6 +317,10 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     const { oublier } = await this.démarré();
     this.statut = STATUTS.FERMETURE_EN_COURS;
 
+    for (const clef of this.résolveurs.keys()) {
+      await this.désinscrireRésolution({clef})
+    }
+
     this.signaleurArrêt.abort();
     await oublier();
 
