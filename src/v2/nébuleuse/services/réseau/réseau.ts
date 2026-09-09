@@ -215,7 +215,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const serviceAvecRésolveur =
         service as ServicePotentiellementAvecRésolveurConfiance;
       if (serviceAvecRésolveur[RÉSOLVEUR_CONFIANCE]) {
-        console.log({service: service.clef})
         this.inscrireRésolutionConfiance({
           clef,
           résolution: serviceAvecRésolveur[RÉSOLVEUR_CONFIANCE].bind(service),
