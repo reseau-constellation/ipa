@@ -141,7 +141,7 @@ const mandatBd = (
 
       if (prop === "close") {
         const fermer: BaseDatabase["close"] = async () => {
-          await verrou.acquire(bd.address);
+          await verrou.acquire({key: bd.address, priority: -1});
 
           try {
             requêtes.delete(id);
