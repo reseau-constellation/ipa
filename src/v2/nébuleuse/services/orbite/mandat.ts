@@ -69,7 +69,6 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
             if (signalFinal) await Promise.race([promesseVerrou, pSignal(signalFinal)]);
             else await promesseVerrou;
 
-            if (signal?.aborted) throw new Error("Opération avortée");
             const existante = cacheBdsOrbite.get(nomOuAdresse);
 
             const bd =
