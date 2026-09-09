@@ -66,7 +66,7 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           const promesseVerrou = verrouOrbite.acquire(nomOuAdresse);
 
           try {
-            if (signal) await Promise.race([promesseVerrou, pSignal(signal)]);
+            if (signalFinal) await Promise.race([promesseVerrou, pSignal(signalFinal)]);
             else await promesseVerrou;
 
             if (signal?.aborted) throw new Error("Opération avortée");
