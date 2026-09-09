@@ -559,7 +559,7 @@ describe("Projets", function () {
       const motsClefs = await obtenir<MotClefProjet[]>(({ si }) =>
         constl.projets.suivreMotsClefs({
           idProjet,
-          f: si((x) => !!x && x.length <= 1),
+          f: si((x) => !!x && 0 < x.length && x.length <= 1),
         }),
       );
 

@@ -2247,8 +2247,8 @@ describe("Nuées", function () {
     });
 
     it("les autorisations sont copiées", async () => {
-      const autorisation = await obtenir<AutorisationNuée>(({ siDéfini }) =>
-        constl.nuées.suivreAutorisation({ idNuée: idNuéeCopie, f: siDéfini() }),
+      const autorisation = await obtenir<AutorisationNuée>(({ si }) =>
+        constl.nuées.suivreAutorisation({ idNuée: idNuéeCopie, f: si(x=>x?.type === "ouverte" && x.bloqués.length > 0) }),
       );
       const réf: AutorisationNuée = {
         type: "ouverte",
