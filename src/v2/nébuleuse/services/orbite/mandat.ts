@@ -49,6 +49,8 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 
       if (prop === "open") {
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
+          await new Promise(compléter => {setTimeout(compléter, 0)})
+
           const nomOuAdresse = args[0];
           const parAdresse = isValidAddress(nomOuAdresse);
 
