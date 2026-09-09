@@ -22,7 +22,7 @@ import type { Oublier } from "@/v2/nébuleuse/types.js";
 import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
-describe.only("Objets", function () {
+describe("Objets", function () {
   let fermer: () => Promise<void>;
   let nébuleuses: Nébuleuse<
     { objetTest: StructureServiceObjet },
