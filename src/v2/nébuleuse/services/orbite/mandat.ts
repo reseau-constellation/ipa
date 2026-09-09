@@ -56,8 +56,8 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           // `open()`, ce qui bousille les requêtes suivantes à Hélia pour le manifeste de la base de données.
           let ouverte = false;
           const signaleurLocal = new AbortController();
-          const { signal, ...argsSansSignal } = args[1] ? args[1] : {};
-          const signalFinal = signal ? signaleurLocal.signal : undefined;
+          const { signal = undefined, ...argsSansSignal } = args[1] ? args[1] : {};
+          const signalFinal = signaleurLocal.signal;
           signal?.addEventListener("abort", async () => {
             await new Promise((résoudre) => setTimeout(résoudre, 250));
             if (!ouverte) signaleurLocal.abort();
