@@ -51,7 +51,7 @@ import type {
   SchémaBd,
 } from "@/v2/bds/bds.js";
 import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
-import type { RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
+import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -502,7 +502,7 @@ describe("Nuées", function () {
       await constl.nuées.inviterCompte({ idNuée, idCompte: idsComptes[1] });
 
       const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
-        constl.nuées.résolutionConfiance({
+        constl.nuées[RÉSOLVEUR_CONFIANCE]({
           de: idsComptes[0],
           f: si((x) => !!x && x.length > 0),
         }),
@@ -520,7 +520,7 @@ describe("Nuées", function () {
       await constl.nuées.bloquerCompte({ idNuée, idCompte: idsComptes[1] });
 
       const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
-        constl.nuées.résolutionConfiance({
+        constl.nuées[RÉSOLVEUR_CONFIANCE]({
           de: idsComptes[0],
           f: si(
             (x) =>
@@ -546,7 +546,7 @@ describe("Nuées", function () {
       });
 
       const confiances = await obtenir<RelationImmédiate[]>(({ si }) =>
-        constl.nuées.résolutionConfiance({
+        constl.nuées[RÉSOLVEUR_CONFIANCE]({
           de: idsComptes[0],
           f: si(
             (x) =>
@@ -572,7 +572,7 @@ describe("Nuées", function () {
       });
 
       const relations = await obtenir<RelationImmédiate[]>(({ si }) =>
-        constl.nuées.résolutionConfiance({
+        constl.nuées[RÉSOLVEUR_CONFIANCE]({
           de: idsComptes[0],
           f: si(
             (x) =>

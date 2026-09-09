@@ -50,6 +50,7 @@ import type {
 } from "@/v2/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
+import type { ServiceAppli } from "../../appli/services.js";
 
 // Types connexions
 
@@ -147,6 +148,8 @@ export type ServicesNécessairesRéseau = ServicesNécessairesDonnées<{
 
 type RetourDémarrageRéseau = { oublier: Oublier };
 
+export const RÉSOLVEUR_CONFIANCE = "résolveur confiance";
+
 export class ServiceRéseau extends ServiceDonnéesAppli<
   "réseau",
   StructureRéseau,
@@ -204,6 +207,21 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       this.signaleurArrêt = new AbortController();
 
     await this.restaurerBloquésPrivé();
+    type ServicePotentiellementAvecRésolveurConfiance = ServiceAppli & {
+      [RÉSOLVEUR_CONFIANCE]?: RésolveurConfianceRéseau;
+    };
+
+    for (const [clef, service] of Object.entries(this.services)) {
+      const serviceAvecRésolveur =
+        service as ServicePotentiellementAvecRésolveurConfiance;
+      if (serviceAvecRésolveur[RÉSOLVEUR_CONFIANCE]) {
+        console.log({service: service.clef})
+        this.inscrireRésolutionConfiance({
+          clef,
+          résolution: serviceAvecRésolveur[RÉSOLVEUR_CONFIANCE].bind(service),
+        });
+      }
+    }
 
     const libp2p = await this.service("libp2p").libp2p();
     const orbite = this.service("orbite");
@@ -341,6 +359,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     this.signaleurArrêt.abort();
 
+    for (const clef of this.résolutionsConfiance.keys()) {
+      await this.désinscrireRésolutionConfiance({clef})
+    }
+
     await Promise.allSettled(
       [...this.flux.values()].map(({ soujacent: flux }) =>
         flux.abort(new Error("Service réseau fermé.")),
@@ -352,7 +374,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     return await super.fermer();
   }
 
-  async inscrireRésolutionConfiance({
+  inscrireRésolutionConfiance({
     clef,
     résolution,
   }: {

@@ -20,9 +20,10 @@ import type { ServiceAppli } from "./nébuleuse/appli/index.js";
 import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { NestedValue } from "@orbitdb/nested-db";
-import type {
-  RelationImmédiate,
-  ServiceRéseau,
+import {
+  RÉSOLVEUR_CONFIANCE,
+  type RelationImmédiate,
+  type ServiceRéseau,
 } from "./nébuleuse/services/réseau/réseau.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
@@ -82,18 +83,6 @@ export abstract class ObjetConstellation<
         schéma: schémaServiceObjet,
       }),
     });
-  }
-
-  async démarrer() {
-    const retour = await super.démarrer();
-
-    const réseau = this.service("réseau");
-    await réseau.inscrireRésolutionConfiance({
-      clef: this.clef,
-      résolution: this.résolutionConfiance.bind(this),
-    });
-
-    return retour;
   }
 
   async fermer(): Promise<void> {
@@ -328,7 +317,7 @@ export abstract class ObjetConstellation<
 
   // Confiance réseau
 
-  async résolutionConfiance({
+  async [RÉSOLVEUR_CONFIANCE]({
     de,
     f,
   }: {

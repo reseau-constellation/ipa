@@ -19,10 +19,10 @@ import type { InfoAuteur, PartielRécursif } from "@/v2/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import type { RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
+import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
-describe("Objets", function () {
+describe.only("Objets", function () {
   let fermer: () => Promise<void>;
   let nébuleuses: Nébuleuse<
     { objetTest: StructureServiceObjet },
@@ -453,7 +453,7 @@ describe("Objets", function () {
 
     it("de coauteurs", async () => {
       const promesseRelations = obtenir<RelationImmédiate[]>(({ si }) =>
-        nébuleuse.services.objetTest.résolutionConfiance({
+        nébuleuse.services.objetTest[RÉSOLVEUR_CONFIANCE]({
           de: idsComptes[0],
           f: si((x) => !!x && x.length > 0),
         }),

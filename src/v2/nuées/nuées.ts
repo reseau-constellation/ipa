@@ -42,7 +42,7 @@ import {
   type TraducsTexte,
 } from "../types.js";
 import { TableauxNuées } from "./tableaux.js";
-import type { RelationImmédiate } from "../nébuleuse/services/réseau/réseau.js";
+import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate } from "../nébuleuse/services/réseau/réseau.js";
 import type { Variables } from "../variables.js";
 import type { ServicesNécessairesObjet } from "../objets.js";
 import type {
@@ -288,7 +288,7 @@ export class Nuées extends ObjetConstellation<
     });
   }
 
-  async résolutionConfiance({
+  async [RÉSOLVEUR_CONFIANCE]({
     de,
     f,
   }: {
@@ -359,7 +359,7 @@ export class Nuées extends ObjetConstellation<
       },
     });
 
-    const oublierConfianceAutorat = await super.résolutionConfiance({
+    const oublierConfianceAutorat = await super[RÉSOLVEUR_CONFIANCE]({
       de,
       f: async (confiance) => {
         confiances.autorat = confiance;

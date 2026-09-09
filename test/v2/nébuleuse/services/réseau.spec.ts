@@ -14,15 +14,16 @@ import { créerNébuleusesTest } from "../utils.js";
 import type { ObtRechercheProfondeur } from "../../utils.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
-import type {
-  CompteBloqué,
-  CompteParProfondeur,
-  ConnexionCompte,
-  ConnexionDispositif,
-  ConnexionLibp2p,
-  DispositifCompte,
-  RelationImmédiate,
-  RelationRéseau,
+import {
+  RÉSOLVEUR_CONFIANCE,
+  type CompteBloqué,
+  type CompteParProfondeur,
+  type ConnexionCompte,
+  type ConnexionDispositif,
+  type ConnexionLibp2p,
+  type DispositifCompte,
+  type RelationImmédiate,
+  type RelationRéseau,
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
@@ -443,14 +444,6 @@ describe("Réseau", function () {
         });
       }
 
-      async démarrer() {
-        await this.service("réseau").inscrireRésolutionConfiance({
-          clef: this.clef,
-          résolution: this.résolutionConfiance.bind(this),
-        });
-        return await super.démarrer();
-      }
-
       async fermer() {
         await this.service("réseau").désinscrireRésolutionConfiance({
           clef: this.clef,
@@ -458,7 +451,7 @@ describe("Réseau", function () {
         return await super.fermer();
       }
 
-      async résolutionConfiance({
+      async [RÉSOLVEUR_CONFIANCE]({
         de,
         f,
       }: {

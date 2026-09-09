@@ -16,7 +16,7 @@ import {
 import type { ÉpingleProfil } from "./profil.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
-import type { RelationImmédiate, ServiceRéseau } from "./réseau/réseau.js";
+import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate, type ServiceRéseau } from "./réseau/réseau.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "../../types.js";
@@ -259,11 +259,6 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     }
 
     const épingles = this.service("épingles");
-    const réseau = this.service("réseau");
-    await réseau.inscrireRésolutionConfiance({
-      clef: this.clef,
-      résolution: this.résolutionConfiance.bind(this),
-    });
 
     const fFinale = async (résolutions: Set<string>[]) => {
       return await épingles.épingler({
@@ -676,7 +671,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     return résultat;
   }
 
-  async résolutionConfiance({
+  async [RÉSOLVEUR_CONFIANCE]({
     de,
     f,
   }: {
