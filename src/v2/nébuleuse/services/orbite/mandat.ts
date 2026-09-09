@@ -59,7 +59,7 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           const { signal = undefined, ...argsSansSignal } = args[1] ? args[1] : {};
           const signalFinal = signaleurLocal.signal;
           signal?.addEventListener("abort", async () => {
-            await new Promise((résoudre) => setTimeout(résoudre, 250));
+            await new Promise((compléter) => setTimeout(compléter, 250));
             if (!ouverte) signaleurLocal.abort();
           });
 
