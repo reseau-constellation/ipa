@@ -181,8 +181,8 @@ export class ServiceDossier extends ServiceAppli<
         verifierSiVieux();
       } catch {
         // Si le verrou existe, on lui donne une chance de périmer
-        await new Promise((résoudre) =>
-          setTimeout(résoudre, INTERVALE_VERROU * 1.2),
+        await new Promise((compléter) =>
+          setTimeout(compléter, INTERVALE_VERROU * 1.2),
         );
         verifierSiVieux();
       }

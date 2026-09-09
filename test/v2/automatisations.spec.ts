@@ -158,11 +158,11 @@ const suiviÉtats = async ({
         await oublier();
         return historique.toReversed();
       } else
-        return new Promise((résoudre) => {
+        return new Promise((compléter) => {
           événements.on("modifié", async () => {
             if (conditions()) {
               await oublier();
-              résoudre(historique.toReversed());
+              compléter(historique.toReversed());
             }
           });
         });
@@ -223,14 +223,14 @@ const vérifierDonnéesProjet = async (
   // être créé avant la fin de l'écriture du fichier (ce qui cause
   // une erreur de lecture).
 
-  const zip = await new Promise<JSZip>((résoudre) => {
+  const zip = await new Promise<JSZip>((compléter) => {
     const interval = setInterval(async () => {
       let zip_: JSZip;
       try {
         const donnéesFichier = readFileSync(doc);
         zip_ = await JSZip.loadAsync(donnéesFichier);
         clearInterval(interval);
-        résoudre(zip_);
+        compléter(zip_);
       } catch {
         // Réessayer
       }
@@ -3166,10 +3166,10 @@ describe("Automatisations", function () {
         const chokidar = await import("chokidar");
 
         const écouteur = chokidar.watch(dossier);
-        return new Promise((résoudre) =>
+        return new Promise((compléter) =>
           écouteur.on("add", (chemin) => {
             if (!existants.includes(chemin))
-              écouteur.close().then(() => résoudre(chemin));
+              écouteur.close().then(() => compléter(chemin));
           }),
         );
       };

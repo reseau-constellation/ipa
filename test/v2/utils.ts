@@ -172,13 +172,13 @@ export const obtenir = async <T>(
 
   let fOublier: Oublier | undefined = undefined;
 
-  const promesse = new Promise<T>((résoudre) =>
+  const promesse = new Promise<T>((compléter) =>
     événements.once("résolu", async (x) => {
       if (fOublier) {
         await fOublier();
         fOublier = undefined;
       }
-      résoudre(x);
+      compléter(x);
     }),
   );
   fOublier = await f({
@@ -231,11 +231,11 @@ export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
       x: RésultatRecherche<T>[] | undefined,
     ) => boolean | Promise<boolean>,
   ): Promise<RésultatRecherche<T>[]> => {
-    return new Promise<RésultatRecherche<T>[]>((résoudre) => {
+    return new Promise<RésultatRecherche<T>[]>((compléter) => {
       const fTrouvé = async (x: RésultatRecherche<T>[]) => {
         if (await fTest(x)) {
           événements.off("trouvé", fTrouvé);
-          résoudre(x);
+          compléter(x);
         }
       };
       événements.on("trouvé", fTrouvé);
@@ -341,11 +341,11 @@ export const rechercherProfondeur = async <T>(
   const si = (
     fTest: (x: T[] | undefined) => boolean | Promise<boolean>,
   ): Promise<T[]> => {
-    return new Promise<T[]>((résoudre) => {
+    return new Promise<T[]>((compléter) => {
       const fTrouvé = async (x: T[]) => {
         if (await fTest(x)) {
           événements.off("trouvé", fTrouvé);
-          résoudre(x);
+          compléter(x);
         }
       };
       if (déjàÉvalué) fTrouvé(val);

@@ -616,8 +616,8 @@ export const chronoDynamiqueImportation = async ({
         ignoreInitial: true,
       });
 
-      await new Promise<void>((résoudre) =>
-        écouteur.once("ready", () => setTimeout(résoudre, 100)),
+      await new Promise<void>((compléter) =>
+        écouteur.once("ready", () => setTimeout(compléter, 100)),
       );
 
       const oublierChangements = appelerLorsque({
@@ -892,9 +892,9 @@ const schéduler = (): {
       }
     },
     vide: () =>
-      new Promise((résoudre) => {
-        if (!enCours && !prochain) résoudre();
-        événements.once("vide", résoudre);
+      new Promise((compléter) => {
+        if (!enCours && !prochain) compléter();
+        événements.once("vide", compléter);
       }),
   };
 };

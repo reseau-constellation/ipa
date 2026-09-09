@@ -770,14 +770,14 @@ describe("Réseau", function () {
           },
         });
         return () =>
-          new Promise<boolean>((résoudre) => {
+          new Promise<boolean>((compléter) => {
             événementReçu.once("reçu", (x) => {
               fOublier();
-              résoudre(x);
+              compléter(x);
             });
             if (résultat !== undefined) {
               fOublier();
-              résoudre(résultat);
+              compléter(résultat);
             }
           });
       };

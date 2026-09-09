@@ -61,7 +61,7 @@ export abstract class ServiceAppli<
 
   async démarré(): Promise<RetourDémarré> {
     if (this.estDémarré) return this.estDémarré;
-    return new Promise((résoudre) => this.événements.once("démarré", résoudre));
+    return new Promise((compléter) => this.événements.once("démarré", compléter));
   }
 
   async fermer(): Promise<void> {

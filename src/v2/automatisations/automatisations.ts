@@ -253,11 +253,11 @@ export class Automatisations extends ServiceDonnéesAppli<
   async initialisée({ idAuto }: { idAuto: string }): Promise<void> {
     if (this.automatisations.has(idAuto)) return;
     else
-      return new Promise((résoudre) => {
+      return new Promise((compléter) => {
         const fFinale = () => {
           if (this.automatisations.has(idAuto)) {
             this.événements.off("autos", fFinale);
-            résoudre();
+            compléter();
           }
         };
         this.événements.on("autos", fFinale);

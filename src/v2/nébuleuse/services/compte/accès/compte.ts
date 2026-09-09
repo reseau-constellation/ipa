@@ -88,9 +88,9 @@ class AccèsCompte {
   }
 
   démarré(): Promise<{ oublier?: Oublier }> {
-    return new Promise((résoudre) => {
-      if (this.estDémarré) résoudre(this.estDémarré);
-      this.événements.once("démarré", résoudre);
+    return new Promise((compléter) => {
+      if (this.estDémarré) compléter(this.estDémarré);
+      this.événements.once("démarré", compléter);
     });
   }
 

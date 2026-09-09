@@ -6,11 +6,11 @@ import type { Suivi } from "./types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {
-  return new Promise<void>((résoudre) => {
+  return new Promise<void>((compléter) => {
     const terminer = () => {
       clearInterval(chrono);
       signal.removeEventListener("abort", terminer);
-      résoudre();
+      compléter();
     };
     const chrono = setTimeout(terminer, t);
     signal.addEventListener("abort", terminer);
@@ -19,10 +19,10 @@ const attendre = (t: number, signal: AbortSignal): Promise<void> => {
 
 export const pSignal = async (signal: AbortSignal): Promise<never> => {
   if (signal.aborted) throw new AbortError(Error("Signal déjà avorté"));
-  return new Promise<never>((_résoudre, rejeter) => {
+  return new Promise<never>((_compléter, rompre) => {
     const lorsquAvorté = () => {
       signal.removeEventListener("abort", lorsquAvorté);
-      rejeter("Signal avorté");
+      rompre(new AbortError("Signal avorté"));
     };
     signal.addEventListener("abort", lorsquAvorté);
   });
@@ -105,9 +105,9 @@ export const stabiliser =
         if (!fLancé) signaleur.abort();
       };
 
-      return new Promise<void>((résoudre) => {
-        if (signaleur.signal.aborted) résoudre();
-        signaleur.signal.addEventListener("abort", () => résoudre());
+      return new Promise<void>((compléter) => {
+        if (signaleur.signal.aborted) compléter();
+        signaleur.signal.addEventListener("abort", () => compléter());
       });
     };
   };

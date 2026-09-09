@@ -353,7 +353,7 @@ describe("Appli", function () {
 
         async démarrer() {
           // Un tout petit délai
-          await new Promise((résoudre) => setTimeout(résoudre, 25));
+          await new Promise((compléter) => setTimeout(compléter, 25));
           return await super.démarrer();
         }
 

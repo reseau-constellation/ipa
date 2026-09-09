@@ -130,11 +130,11 @@ export const générerRésolveur = <T, S>(
 
   const fermer = async () => {
     fermé = true;
-    await new Promise<void>((résoudre) => {
+    await new Promise<void>((compléter) => {
       événements.on("terminé", () => {
-        if (n === 0) résoudre();
+        if (n === 0) compléter();
       });
-      if (n === 0) résoudre();
+      if (n === 0) compléter();
     });
 
     await Promise.allSettled(oublis.values().map((f) => f()));

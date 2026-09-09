@@ -69,16 +69,16 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
 
   async démarrée(): Promise<void> {
     if (this.estDémarrée) return;
-    return new Promise((résoudre) =>
-      this.événements.once("démarrée", résoudre),
+    return new Promise((compléter) =>
+      this.événements.once("démarrée", compléter),
     );
   }
 
   async démarrer() {
     if (this.estDémarrée) return;
     if (this.statut === STATUTS.DÉMARRAGE_EN_COURS) {
-      return new Promise<void>((résoudre) =>
-        this.événements.once("démarrée", résoudre),
+      return new Promise<void>((compléter) =>
+        this.événements.once("démarrée", compléter),
       );
     }
     this.statut = STATUTS.DÉMARRAGE_EN_COURS;
@@ -134,8 +134,8 @@ export class Appli<S extends ServicesAppli = ServicesAppli> {
     if (this.statut === STATUTS.ERREUR_DÉMARRAGE)
       throw new Error("Erreur de démarrage");
     if (this.statut === STATUTS.FERMETURE_EN_COURS) {
-      return new Promise<void>((résoudre) =>
-        this.événements.once("fermée", résoudre),
+      return new Promise<void>((compléter) =>
+        this.événements.once("fermée", compléter),
       );
     }
 
