@@ -1,13 +1,13 @@
 {
   // "extends": "aegir/src/config/tsconfig.aegir.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
     "incremental": true,
     "importHelpers": true,
+    "importsNotUsedAsValues": "remove",
     "jsx": "react",
-    "lib": ["dom", "esnext"],
+    "lib": ["dom", "es2025"],
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "noFallthroughCasesInSwitch": true,
@@ -15,7 +15,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "outDir": "./dist",
     "sourceMap": true,
@@ -27,7 +27,8 @@
 
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "importsNotUsedAsValues": "remove",
+    "types": ["mocha"],
+    "verbatimModuleSyntax": true,
 
     "plugins": [
       { "transform": "typescript-transform-paths" },

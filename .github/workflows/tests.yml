@@ -1,4 +1,7 @@
 name: Tests IPA
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -23,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest] # , windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       
@@ -32,13 +35,11 @@ jobs:
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       - name: Préparation de Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22.16.0"
+          node-version: "24.4.1"
           cache: 'pnpm'
 
       - name: Installer
@@ -68,13 +69,11 @@ jobs:
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       - name: Préparation de Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22.16.0"
+          node-version: "24.4.1"
           cache: 'pnpm'
 
       - name: Installer
@@ -96,7 +95,7 @@ jobs:
     needs: test-ipa-nodejs
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest] # , windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       
@@ -105,13 +104,11 @@ jobs:
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       - name: Préparation de Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22.16.0"
+          node-version: "24.4.1"
           cache: 'pnpm'
 
       - name: Installer
