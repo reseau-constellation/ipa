@@ -33,11 +33,11 @@ overrides:
   p-queue: "^8.1.1"
   "@orbitdb/core": "4.0.0-3e1d628.0"
   multiformats: "14.0.0"
-  libp2p: "3.3.3"
 
 patchedDependencies:
-  '@libp2p/gossipsub': patches/@libp2p__gossipsub.patch
   '@orbitdb/core': patches/@orbitdb__core.patch
   '@orbitdb/nested-db': patches/@orbitdb__nested-db.patch
   '@constl/bohr-db': patches/@constl__bohr-db.patch
   '@constl/utils-tests': patches/@constl__utils-tests.patch
+  '@libp2p/gossipsub@17.1.1': patches/@libp2p__gossipsub@17.1.1.patch
+  '@libp2p/gossipsub@15.0.23': patches/@libp2p__gossipsub@15.0.23.patch
