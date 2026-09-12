@@ -9,11 +9,6 @@ import {
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
   FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
 } from "@/v2/nébuleuse/services/consts.js";
-import { obtenir, rechercherProfondeur } from "../../utils.js";
-import { créerNébuleusesTest } from "../utils.js";
-import type { ObtRechercheProfondeur } from "../../utils.js";
-import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
-import type { NébuleuseTest } from "../utils.js";
 import {
   RÉSOLVEUR_CONFIANCE,
   type CompteBloqué,
@@ -25,6 +20,11 @@ import {
   type RelationImmédiate,
   type RelationRéseau,
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
+import { obtenir, rechercherProfondeur } from "../../utils.js";
+import { créerNébuleusesTest } from "../utils.js";
+import type { ObtRechercheProfondeur } from "../../utils.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 

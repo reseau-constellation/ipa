@@ -13,10 +13,14 @@ import {
   type Résolveur,
   générerRésolveur,
 } from "./utils.js";
+import {
+  RÉSOLVEUR_CONFIANCE,
+  type RelationImmédiate,
+  type ServiceRéseau,
+} from "./réseau/réseau.js";
 import type { ÉpingleProfil } from "./profil.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
-import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate, type ServiceRéseau } from "./réseau/réseau.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "../../types.js";
@@ -313,7 +317,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     this.statut = STATUTS.FERMETURE_EN_COURS;
 
     for (const clef of this.résolveurs.keys()) {
-      await this.désinscrireRésolution({clef})
+      await this.désinscrireRésolution({ clef });
     }
 
     this.signaleurArrêt.abort();

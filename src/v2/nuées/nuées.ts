@@ -41,8 +41,11 @@ import {
   type StatutDonnées,
   type TraducsTexte,
 } from "../types.js";
+import {
+  RÉSOLVEUR_CONFIANCE,
+  type RelationImmédiate,
+} from "../nébuleuse/services/réseau/réseau.js";
 import { TableauxNuées } from "./tableaux.js";
-import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate } from "../nébuleuse/services/réseau/réseau.js";
 import type { Variables } from "../variables.js";
 import type { ServicesNécessairesObjet } from "../objets.js";
 import type {

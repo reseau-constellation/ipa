@@ -24,6 +24,10 @@ import {
   PÉNALITÉ_CONFIANCE_BLOQUÉ,
 } from "@/v2/nuées/nuées.js";
 import { CONFIANCE_DE_COAUTEUR } from "@/v2/nébuleuse/services/consts.js";
+import {
+  RÉSOLVEUR_CONFIANCE,
+  type RelationImmédiate,
+} from "@/v2/nébuleuse/services/réseau/réseau.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { obtenir, créerConstellationsTest } from "./utils.js";
 import type {
@@ -51,7 +55,6 @@ import type {
   SchémaBd,
 } from "@/v2/bds/bds.js";
 import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
-import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -2248,7 +2251,10 @@ describe("Nuées", function () {
 
     it("les autorisations sont copiées", async () => {
       const autorisation = await obtenir<AutorisationNuée>(({ si }) =>
-        constl.nuées.suivreAutorisation({ idNuée: idNuéeCopie, f: si(x=>x?.type === "ouverte" && x.bloqués.length > 0) }),
+        constl.nuées.suivreAutorisation({
+          idNuée: idNuéeCopie,
+          f: si((x) => x?.type === "ouverte" && x.bloqués.length > 0),
+        }),
       );
       const réf: AutorisationNuée = {
         type: "ouverte",

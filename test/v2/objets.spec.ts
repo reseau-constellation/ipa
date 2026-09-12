@@ -7,6 +7,10 @@ import {
 import { ObjetConstellation, schémaServiceObjet } from "@/v2/objets.js";
 import { CONFIANCE_DE_COAUTEUR } from "@/v2/nébuleuse/services/consts.js";
 import { TOUS_DISPOSITIFS } from "@/v2/nébuleuse/services/favoris.js";
+import {
+  RÉSOLVEUR_CONFIANCE,
+  type RelationImmédiate,
+} from "@/v2/nébuleuse/services/réseau/réseau.js";
 import { obtenir } from "./utils.js";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
 import type { Rôle } from "@/v2/nébuleuse/services/compte/accès/index.js";
@@ -19,7 +23,6 @@ import type { InfoAuteur, PartielRécursif } from "@/v2/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
-import { RÉSOLVEUR_CONFIANCE, type RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 
 describe("Objets", function () {

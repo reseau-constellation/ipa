@@ -28,7 +28,7 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
   lorsquErreur?: (e: Error) => void,
 ) => {
   lorsquErreur ??= (erreur) => {
-    if (!estErreurAvortée(erreur)) console.log("Erreur OrbitDB", erreur);
+    if (!estErreurAvortée(erreur)) console.log("Erreur OrbitDB : ", erreur);
   };
 
   if (!verrous.has(orbite.identity.id))
@@ -49,7 +49,9 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 
       if (prop === "open") {
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
-          await new Promise(compléter => {setTimeout(compléter, 0)})
+          await new Promise((compléter) => {
+            setTimeout(compléter, 0);
+          });
 
           const nomOuAdresse = args[0];
           const parAdresse = isValidAddress(nomOuAdresse);
@@ -58,7 +60,9 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           // `open()`, ce qui bousille les requêtes suivantes à Hélia pour le manifeste de la base de données.
           let ouverte = false;
           const signaleurLocal = new AbortController();
-          const { signal = undefined, ...argsSansSignal } = args[1] ? args[1] : {};
+          const { signal = undefined, ...argsSansSignal } = args[1]
+            ? args[1]
+            : {};
           const signalFinal = signaleurLocal.signal;
           signal?.addEventListener("abort", async () => {
             await new Promise((compléter) => setTimeout(compléter, 250));
@@ -68,7 +72,8 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           const promesseVerrou = verrouOrbite.acquire(nomOuAdresse);
 
           try {
-            if (signalFinal) await Promise.race([promesseVerrou, pSignal(signalFinal)]);
+            if (signalFinal)
+              await Promise.race([promesseVerrou, pSignal(signalFinal)]);
             else await promesseVerrou;
 
             const existante = cacheBdsOrbite.get(nomOuAdresse);
@@ -143,7 +148,7 @@ const mandatBd = (
 
       if (prop === "close") {
         const fermer: BaseDatabase["close"] = async () => {
-          await verrou.acquire({key: bd.address, priority: -1});
+          await verrou.acquire({ key: bd.address, priority: -1 });
 
           try {
             requêtes.delete(id);

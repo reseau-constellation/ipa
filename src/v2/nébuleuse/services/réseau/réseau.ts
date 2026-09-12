@@ -359,7 +359,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     this.signaleurArrêt.abort();
 
     for (const clef of this.résolutionsConfiance.keys()) {
-      await this.désinscrireRésolutionConfiance({clef})
+      await this.désinscrireRésolutionConfiance({ clef });
     }
 
     await Promise.allSettled(

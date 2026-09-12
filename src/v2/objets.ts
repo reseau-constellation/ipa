@@ -16,15 +16,15 @@ import {
   type ServiceFavoris,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
-import type { ServiceAppli } from "./nébuleuse/appli/index.js";
-import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
-import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
-import type { NestedValue } from "@orbitdb/nested-db";
 import {
   RÉSOLVEUR_CONFIANCE,
   type RelationImmédiate,
   type ServiceRéseau,
 } from "./nébuleuse/services/réseau/réseau.js";
+import type { ServiceAppli } from "./nébuleuse/appli/index.js";
+import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
+import type { NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
 import type { InfoAuteur, PartielRécursif } from "./types.js";
