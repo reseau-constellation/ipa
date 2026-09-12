@@ -298,8 +298,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         if (!estErreurAvortée(e)) throw e;
       });
 
+    const envoyerMessageAuPair = this.envoyerMessageAuPair.bind(this);
+
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
-    const ceci = this;
     const idTopologie = await libp2p
       .register(
         PROTOCOLE_NÉBULEUSE,
@@ -322,7 +323,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             conn.addEventListener("close", () =>
               console.log("✘ close", peerId.toString()),
             );
-            await ceci.envoyerMessageAuPair({
+            await envoyerMessageAuPair({
               idPair: peerId.toString(),
               message: identifiantsCompte,
             });
