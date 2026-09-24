@@ -76,3 +76,5 @@ export const serviceLibp2pTest =
       services,
     });
   };
+
+export const Déno = navigator.userAgent.startsWith("Deno")
