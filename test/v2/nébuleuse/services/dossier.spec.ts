@@ -13,8 +13,9 @@ import {
 import { dossierTempoPropre, utiliserFauxChronomètres } from "../../utils.js";
 import type { SinonFakeTimers } from "sinon";
 import type Quibble from "quibble";
-
-describe("Dossier", function () {
+import { Déno } from "./utils.js";
+ 
+(Déno ? describe.skip : describe)("Dossier", function () {
   let horloge: SinonFakeTimers;
   let quibble: typeof Quibble;
 
