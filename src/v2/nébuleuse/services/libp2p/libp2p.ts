@@ -17,11 +17,13 @@ import type { PeerUpdate, PrivateKey, ServiceMap } from "@libp2p/interface";
 import type { ServiceStockage } from "../stockage.js";
 import type { ServiceClefPrivée } from "./config/utils.js";
 import type { OptionsAppli } from "../../appli/appli.js";
+import type { Ping } from "@libp2p/ping";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;
   pubsub: GossipSub;
   obtClefPrivée: ServiceClefPrivée;
+  ping: Ping;
 } & ServiceMap;
 
 export interface OptionsServiceLibp2p<
