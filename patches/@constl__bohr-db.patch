@@ -1,0 +1,58 @@
+diff --git a/dist/nested.js b/dist/nested.js
+index 11488299e171784b2d9bc4a2b29aa9d387a9cdcf..5bd6c21a79b5440ffa99ab604ec294e7784176a2 100644
+--- a/dist/nested.js
++++ b/dist/nested.js
+@@ -1,20 +1,22 @@
+ import { Ajv } from "ajv";
+ import { joinKey, splitKey, asJoinedKey, } from "@orbitdb/nested-db";
+ import { getJoinedKey, removeUndefinedProperties, } from "./utils.js";
+-const nestedCache = new WeakMap();
++
++const ajv = new Ajv({ allowUnionTypes: true });
++
++const cache = new WeakMap();
++
++const compileAjv = (schema) => {
++    const existing = cache.get(schema)
++    if (existing) return existing
++    const validator = ajv.compile(schema)
++    cache.set(schema, validator)
++    return validator
++}
++
+ export const typedNested = ({ db, schema, }) => {
+-    let dbCache = nestedCache.get(db);
+-    if (dbCache) {
+-        const cached = dbCache.get(schema);
+-        if (cached)
+-            return cached;
+-    }
+-    else {
+-        nestedCache.set(db, new WeakMap());
+-        dbCache = nestedCache.get(db);
+-    }
+-    const ajv = new Ajv({ allowUnionTypes: true });
+-    const rootValidator = ajv.compile(schema);
++
++    const rootValidator = compileAjv(schema);
+     const validators = {};
+     const getValidator = (key) => {
+         let branchSchema = schema;
+@@ -27,7 +29,7 @@ export const typedNested = ({ db, schema, }) => {
+                 branchSchema.properties?.[k] || branchSchema.additionalProperties;
+         }
+         if (!validators[key]) {
+-            validators[key] = ajv.compile(branchSchema);
++            validators[key] = compileAjv(branchSchema);
+         }
+         return validators[key];
+     };
+@@ -133,7 +135,7 @@ export const typedNested = ({ db, schema, }) => {
+             return target[prop];
+         },
+     });
+-    dbCache.set(schema, proxy);
++
+     return proxy;
+ };
+ //# sourceMappingURL=nested.js.map

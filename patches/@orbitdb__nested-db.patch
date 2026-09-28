@@ -1,0 +1,12 @@
+diff --git a/dist/utils.js b/dist/utils.js
+index 2ea7180592aec99e3632764776ff70e4757067da..1eb177ff986f2a1684c107993c84037e15e6a8dd 100644
+--- a/dist/utils.js
++++ b/dist/utils.js
+@@ -10,6 +10,7 @@ export const parentKey = (key) => {
+     return undefined;
+ };
+ export const isSubkey = (subkey, key) => {
++    return subkey.startsWith(key+'/')
+     const subkeyComponents = splitKey(subkey);
+     const keyComponents = splitKey(key);
+     // Either not a subkey, either identical keys
