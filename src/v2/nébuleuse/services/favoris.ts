@@ -342,7 +342,12 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
 
   async désinscrireRésolution({ clef }: { clef: string }): Promise<void> {
     const résolveur = this.résolveurs.get(clef);
-    await résolveur?.fermer();
+    if (!résolveur) {
+      // eslint-disable-next-line no-irregular-whitespace
+      this.service("journal").écrire({ message : `Erreur : résolvveur ${clef} non inscrit.` })
+      return;
+    }
+    await résolveur.fermer();
     this.résolveurs.delete(clef);
   }
 
