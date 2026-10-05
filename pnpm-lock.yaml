@@ -166,7 +166,6 @@ overrides:
   p-queue: ^8.1.1
   '@orbitdb/core': 4.0.0-3e1d628.0
   multiformats: 14.0.0
-  '@constl/utils-tests': file:../utils-tests
 
 patchedDependencies:
   '@libp2p/gossipsub@17.1.2': 01f0e57e1cd000f4bfb47308a6f7aa7cef82d7c96682fc6ac72491eeea52a82e
@@ -436,8 +435,8 @@ importers:
         version: 2.0.1
     devDependencies:
       '@constl/utils-tests':
-        specifier: file:../utils-tests
-        version: file:../utils-tests(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1))(supports-color@8.1.1)
+        specifier: ^2.2.1
+        version: 2.2.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1))(supports-color@8.1.1)
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@9.39.5(supports-color@8.1.1))
@@ -1074,8 +1073,8 @@ packages:
     resolution: {integrity: sha512-Em0Wb5KtcK0OJjN1R9I5XF3QZqJszdKiNR7m6WpnnGy6DN8C65iYiFdJEePzpx9kJD2xb2j3yRpkbu52m9IkRw==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@file:../utils-tests':
-    resolution: {directory: ../utils-tests, type: directory}
+  '@constl/utils-tests@2.2.1':
+    resolution: {integrity: sha512-wcJheCD2XsDhp4BstYYIi/oNPsS483IMvqMDJ6pp0XYoO6b8yylO1MYO0y8n7nfyskKqL+ic5Fvy0yEJesPg7A==}
     engines: {node: '>=20'}
 
   '@cspell/cspell-bundled-dicts@10.3.5':
@@ -9414,7 +9413,7 @@ snapshots:
       uint8arrays: 5.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@file:../utils-tests(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1))(supports-color@8.1.1)':
+  '@constl/utils-tests@2.2.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1))(supports-color@8.1.1)':
     dependencies:
       '@helia/libp2p': 2.1.5(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1))(supports-color@8.1.1)
       '@libp2p/gossipsub': 17.1.2(patch_hash=01f0e57e1cd000f4bfb47308a6f7aa7cef82d7c96682fc6ac72491eeea52a82e)
