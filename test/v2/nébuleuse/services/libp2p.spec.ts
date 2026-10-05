@@ -1,12 +1,8 @@
 import fs from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
-import { createLibp2p, isLibp2p } from "libp2p";
-import {
-  obtenirAdresseRelai,
-  OptionsDéfautLibp2pNavigateur,
-  OptionsDéfautLibp2pNode,
-} from "@constl/utils-tests";
+import { isLibp2p } from "libp2p";
+import { obtenirAdresseRelai } from "@constl/utils-tests";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import {
   fromString as uint8ArrayFromString,
@@ -20,19 +16,19 @@ import { serviceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
+import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
 import {
   obtenirOptionsLibp2pLocal,
   obtenirOptionsLibp2pTest,
-  serviceLibp2pTest,
+  serviceHéliaTest,
 } from "./utils.js";
-import type { ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
-import type { ServiceLibp2pTest } from "./utils.js";
-import type { ServicesLibp2pNébuleuseDéfaut } from "@/v2/nébuleuse/services/libp2p/config/utils.js";
 import type {
-  ServicesNécessairesLibp2p,
   ServiceLibp2p,
+  ServicesNécessairesLibp2p,
 } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { ServicesLibp2pNébuleuseDéfaut } from "@/v2/nébuleuse/services/libp2p/config/utils.js";
 import type { Libp2p, PrivateKey } from "@libp2p/interface";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
@@ -41,7 +37,7 @@ import type { Libp2pOptions } from "libp2p";
 
 describe("Service Libp2p", function () {
   describe("demarrage", function () {
-    let appli: Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }>;
+    let appli: Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2p }>;
     let dossier: string;
     let effacer: () => void;
 
@@ -55,32 +51,30 @@ describe("Service Libp2p", function () {
     });
 
     it("libp2p démarre", async () => {
-      appli = new Appli<
-        ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
-      >({
+      appli = new Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2p }>({
         services: {
           dossier: serviceDossier({ dossier }),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2pTest(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
         },
       });
       await appli.démarrer();
 
-      const serviceLibp2p = appli.services["libp2p"];
-      const libp2p = await serviceLibp2p.libp2p();
+      const instanceServiceLibp2p = appli.services["libp2p"];
+      const libp2p = await instanceServiceLibp2p.libp2p();
 
       expect(isLibp2p(libp2p)).to.be.true();
       expect(libp2p.status).to.equal("started");
     });
 
     it("persistence identité", async () => {
-      appli = new Appli<
-        ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
-      >({
+      appli = new Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2p }>({
         services: {
           dossier: serviceDossier({ dossier }),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2pTest(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
         },
       });
       await appli.démarrer();
@@ -89,77 +83,18 @@ describe("Service Libp2p", function () {
       const id = libp2p.peerId.toString();
 
       await appli.fermer();
-      appli = new Appli<
-        ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
-      >({
+      appli = new Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2p }>({
         services: {
           dossier: serviceDossier({ dossier }),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2pTest(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
         },
       });
       await appli.démarrer();
 
       const nouveauLibp2p = await appli.services["libp2p"].libp2p();
       expect(id).to.equal(nouveauLibp2p.peerId.toString());
-    });
-  });
-
-  describe("fermer", function () {
-    let appli: Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2p }>;
-    let dossier: string;
-    let effacer: () => void;
-
-    beforeEach(async () => {
-      ({ dossier, effacer } = await dossierTempoPropre());
-    });
-
-    afterEach(async () => {
-      if (appli?.estDémarrée) await appli.fermer();
-      effacer?.();
-    });
-
-    it("libp2p fermée si endogène", async () => {
-      appli = new Appli<
-        ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
-      >({
-        services: {
-          dossier: serviceDossier({ dossier }),
-          stockage: serviceStockage(),
-          libp2p: serviceLibp2pTest(),
-        },
-      });
-      await appli.démarrer();
-
-      const serviceLibp2p = appli.services["libp2p"];
-      const libp2p = await serviceLibp2p.libp2p();
-      await appli.fermer();
-
-      expect(libp2p.status).to.equal("stopped");
-    });
-
-    it("libp2p non fermée si exogène", async () => {
-      const libp2pOriginal = await createLibp2p(
-        isBrowser ? OptionsDéfautLibp2pNavigateur() : OptionsDéfautLibp2pNode(),
-      );
-      appli = new Appli<
-        ServicesNécessairesLibp2p & { libp2p: ServiceLibp2pTest }
-      >({
-        services: {
-          dossier: serviceDossier({ dossier }),
-          stockage: serviceStockage(),
-          // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
-          libp2p: serviceLibp2p({ libp2p: libp2pOriginal }),
-        },
-      });
-
-      await appli.démarrer();
-
-      const libp2p = await appli.services["libp2p"].libp2p();
-      await appli.fermer();
-
-      expect(libp2p.status).to.equal("started");
-      await libp2p.stop();
     });
   });
 
@@ -299,7 +234,11 @@ describe("Service Libp2p", function () {
       };
 
       let appli: Appli<
-        ServicesNécessairesLibp2p & {
+        ServicesNécessairesLibp2p<
+          | ServicesLibp2pNébuleuseDéfaut
+          | ServicesLibp2pTest
+          | ServicesLibp2pTestAvecServiceTest
+        > & {
           libp2p: ServiceLibp2p<
             | ServicesLibp2pNébuleuseDéfaut
             | ServicesLibp2pTest
@@ -322,16 +261,17 @@ describe("Service Libp2p", function () {
       it("dossier dans options appli", async () => {
         const dossierAppli = join(dossier, "mon", "dossier");
         appli = new Appli<
-          ServicesNécessairesLibp2p & {
+          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
             libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
           }
         >({
           services: {
             dossier: serviceDossier({ dossier: dossierAppli }),
             stockage: serviceStockage(),
-            libp2p: serviceLibp2p({
+            hélia: serviceHélia({
               libp2p: obtenirOptionsLibp2pLocal(),
             }),
+            libp2p: serviceLibp2p(),
           },
         });
 
@@ -355,14 +295,15 @@ describe("Service Libp2p", function () {
         });
 
         appli = new Appli<
-          ServicesNécessairesLibp2p & {
+          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
             libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
           }
         >({
           services: {
             dossier: serviceDossier({ dossier: dossierAppli }),
             stockage: serviceStockage(),
-            libp2p: serviceLibp2p({
+            libp2p: serviceLibp2p(),
+            hélia: serviceHélia({
               libp2p: optionsLibp2p,
             }),
           },
@@ -426,15 +367,16 @@ describe("Service Libp2p", function () {
         };
 
         appli = new Appli<
-          ServicesNécessairesLibp2p & {
+          ServicesNécessairesLibp2p<ServicesLibp2pTestAvecServiceTest> & {
             libp2p: ServiceLibp2p<ServicesLibp2pTestAvecServiceTest>;
           }
         >({
           services: {
             dossier: serviceDossier({ dossier }),
             stockage: serviceStockage(),
-            // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
-            libp2p: serviceLibp2p({
+            libp2p: serviceLibp2p(),
+            // On n'a pas besoin de ServiceHéliaTest parce que `libp2p` est externe
+            hélia: serviceHélia({
               libp2p: optionsLibp2p,
             }),
           },
@@ -456,17 +398,18 @@ describe("Service Libp2p", function () {
         });
 
         appli = new Appli<
-          ServicesNécessairesLibp2p & {
+          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
             libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
           }
         >({
           services: {
             dossier: serviceDossier({ dossier }),
             stockage: serviceStockage(),
-            // On n'a pas besoin de ServiceLibp2pTest parce que `pairParDéfaut` est spécifié
-            libp2p: serviceLibp2p({
+            // On n'a pas besoin de ServiceHéliaTest parce que `pairParDéfaut` est spécifié
+            hélia: serviceHélia({
               libp2p: optionsLibp2p,
             }),
+            libp2p: serviceLibp2p(),
           },
         });
         await appli.démarrer();
@@ -482,40 +425,6 @@ describe("Service Libp2p", function () {
             .map((m) => m.toString()),
         ).to.include(pairParDéfaut);
       });
-
-      it("libp2p externe", async () => {
-        const libp2pOriginal = await createLibp2p(
-          isBrowser
-            ? OptionsDéfautLibp2pNavigateur()
-            : OptionsDéfautLibp2pNode(),
-        );
-        appli = new Appli<
-          ServicesNécessairesLibp2p & {
-            libp2p: ServiceLibp2p<ServicesLibp2pTest>;
-          }
-        >({
-          services: {
-            dossier: serviceDossier({ dossier }),
-            stockage: serviceStockage(),
-            // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
-            libp2p: serviceLibp2p({
-              libp2p: libp2pOriginal,
-            }),
-          },
-        });
-        await appli.démarrer();
-
-        const clefOriginale =
-          libp2pOriginal.services["obtClefPrivée"].obtenirClef();
-        const clefRéelle = (await appli.services["libp2p"].libp2p()).services[
-          "obtClefPrivée"
-        ].obtenirClef();
-
-        await appli.fermer();
-        expect(uint8ArrayToString(clefOriginale.raw)).to.equal(
-          uint8ArrayToString(clefRéelle.raw),
-        );
-      });
     });
   });
 
@@ -529,7 +438,8 @@ describe("Service Libp2p", function () {
       appli = new Appli<ServicesNécessairesLibp2p & { libp2p: ServiceLibp2p }>({
         services: {
           dossier: serviceDossier({ dossier }),
-          libp2p: serviceLibp2pTest(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
           stockage: serviceStockage(),
         },
       });

@@ -11,10 +11,10 @@ import {
   serviceDossier,
 } from "@/v2/nébuleuse/services/dossier.js";
 import { dossierTempoPropre, utiliserFauxChronomètres } from "../../utils.js";
+import { Déno } from "./utils.js";
 import type { SinonFakeTimers } from "sinon";
 import type Quibble from "quibble";
-import { Déno } from "./utils.js";
- 
+
 (Déno ? describe.skip : describe)("Dossier", function () {
   let horloge: SinonFakeTimers;
   let quibble: typeof Quibble;

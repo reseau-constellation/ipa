@@ -11,7 +11,6 @@ import {
 } from "@orbitdb/core";
 import { expect } from "aegir/chai";
 import { createHelia } from "helia";
-import { createLibp2p } from "libp2p";
 import { isBrowser } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
@@ -30,7 +29,7 @@ import { serviceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import { obtenir, dossierTempoPropre } from "../../utils.js";
 import { attendreQue } from "../../appli/utils/fonctions.js";
-import { serviceLibp2pTest } from "./utils.js";
+import { serviceHéliaTest } from "./utils.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { JSONSchemaType } from "ajv";
@@ -272,8 +271,8 @@ describe("Service Orbite", function () {
         services: {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
           stockage: serviceStockage(),
           orbite: serviceOrbite(),
         },
@@ -312,8 +311,8 @@ describe("Service Orbite", function () {
         services: {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
           stockage: serviceStockage(),
           orbite: serviceOrbite(),
         },
@@ -327,11 +326,11 @@ describe("Service Orbite", function () {
     });
 
     it("orbite non fermé si exogène", async () => {
-      const libp2p = await createLibp2p(
-        isBrowser ? OptionsDéfautLibp2pNavigateur() : OptionsDéfautLibp2pNode(),
-      );
-      const hélia = await createHelia({ libp2p });
-      const orbiteOriginale = await createOrbitDB({
+      const libp2p = isBrowser
+        ? OptionsDéfautLibp2pNavigateur()
+        : OptionsDéfautLibp2pNode();
+      const hélia = await createHelia({ libp2p }).start();
+      const orbiteOriginale: OrbitDB<ServicesLibp2pTest> = await createOrbitDB({
         ipfs: hélia,
         directory: dossier,
       });
@@ -344,8 +343,8 @@ describe("Service Orbite", function () {
         services: {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
-          // On n'a pas besoin de ServiceLibp2pTest parce que `libp2p` est externe
           libp2p: serviceLibp2p(),
+          // On n'a pas besoin de ServiceHéliaTest parce que `hélia` est externe
           hélia: serviceHélia(),
           stockage: serviceStockage(),
           orbite: serviceOrbite({ orbite: orbiteOriginale }),
@@ -386,8 +385,8 @@ describe("Service Orbite", function () {
               console.log(m);
             },
           }),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
           stockage: serviceStockage(),
           orbite: serviceOrbite(),
         },
@@ -612,8 +611,8 @@ describe("Service Orbite", function () {
         services: {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
           stockage: serviceStockage(),
           orbite: serviceOrbite(),
         },
@@ -681,8 +680,8 @@ describe("Service Orbite", function () {
         services: {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia(),
+          libp2p: serviceLibp2p(),
+          hélia: serviceHéliaTest(),
           stockage: serviceStockage(),
           orbite: serviceOrbite(),
         },

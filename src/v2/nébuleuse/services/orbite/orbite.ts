@@ -34,7 +34,6 @@ import type {
   LogEntry,
 } from "@orbitdb/core";
 import type { ServiceJournal } from "../journal.js";
-import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type { PartielRécursif } from "@/v2/types.js";
 import type { TypedNested } from "@constl/bohr-db";
@@ -43,9 +42,12 @@ import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
-import type { Helia } from "helia";
-import type { Libp2p } from "libp2p";
-import type { ServicesLibp2pNébuleuse } from "../libp2p/libp2p.js";
+import type {
+  ServiceLibp2p,
+  ServicesLibp2pNébuleuse,
+  ServicesNécessairesLibp2p,
+} from "../libp2p/libp2p.js";
+import type { HeliaWithLibp2p } from "@helia/libp2p";
 
 export const préparerOrbite = () => {
   useDatabaseType(Feed);
@@ -85,8 +87,8 @@ export type OptionsServiceOrbite<
 
 export type ServicesNécessairesOrbite<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
-> = ServicesNécessairesHélia<L> & {
-  hélia: ServiceHélia<L>;
+> = ServicesNécessairesLibp2p<L> & {
+  libp2p: ServiceLibp2p<L>;
   journal: ServiceJournal;
 };
 
@@ -192,7 +194,7 @@ export class ServiceOrbite<
   async générerOrbite({
     hélia,
   }: {
-    hélia: Helia<Libp2p<L>>;
+    hélia: HeliaWithLibp2p<L>;
   }): Promise<OrbitDB<L>> {
     préparerOrbite();
 

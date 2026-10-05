@@ -2192,7 +2192,7 @@ describe("Bases de données", function () {
       const constlRéouverte = créerConstellation({
         services: {
           dossier: { dossier: dossierOriginal },
-          libp2p: {
+          hélia: {
             libp2p: obtenirOptionsLibp2pTest(),
           },
         },

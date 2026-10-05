@@ -1,8 +1,10 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
-import { créerOrbitesTest } from "@constl/utils-tests";
-import { isLibp2p } from "libp2p";
+import {
+  créerOrbitesTest,
+  OptionsDéfautLibp2pNavigateur,
+} from "@constl/utils-tests";
 import {
   isBrowser,
   isElectronMain,
@@ -10,7 +12,10 @@ import {
   isNode,
 } from "wherearewe";
 import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
-import { extraireHéliaEtLibp2p } from "@/v2/nébuleuse/nébuleuse.js";
+import {
+  ERREUR_DUPLIQUÉS,
+  extraireOptionsHélia,
+} from "@/v2/nébuleuse/nébuleuse.js";
 import {
   FICHIER_VERROU,
   INTERVALE_VERROU,
@@ -26,17 +31,19 @@ import type {
 } from "@/v2/nébuleuse/appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { OrbitDB } from "@orbitdb/core";
-import type { Helia } from "helia";
-import type { Libp2p } from "libp2p";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "@/v2/types.js";
+import type { HeliaWithLibp2p } from "@helia/libp2p";
+import type { GénérateurOptionsLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
 
 describe("Nébuleuse", function () {
   describe("options - extraire libp2p et Hélia", function () {
     let orbite: OrbitDB<ServicesLibp2pNébuleuse>;
-    let hélia: Helia<Libp2p<ServicesLibp2pNébuleuse>>;
-    let libp2p: Libp2p<ServicesLibp2pNébuleuse>;
+    let hélia: HeliaWithLibp2p<ServicesLibp2pNébuleuse>;
     let fermer: () => Promise<void>;
+
+    const libp2p: GénérateurOptionsLibp2p<ServicesLibp2pNébuleuse> = async () =>
+      OptionsDéfautLibp2pNavigateur();
 
     before(async () => {
       const test = await créerOrbitesTest({ n: 1 });
@@ -44,54 +51,83 @@ describe("Nébuleuse", function () {
 
       orbite = test.orbites[0];
       hélia = orbite.ipfs;
-      libp2p = hélia.libp2p;
     });
 
     after(async () => await fermer());
 
     it("extraire Hélia - Orbite", () => {
-      const { hélia: héliaExtraite } = extraireHéliaEtLibp2p({
+      const { hélia: héliaExtraite } = extraireOptionsHélia({
         orbite: { orbite },
       });
       expect(héliaExtraite).to.equal(hélia);
     });
 
     it("extraire Hélia - Hélia", () => {
-      const { hélia: héliaExtraite } = extraireHéliaEtLibp2p({
+      const { hélia: héliaExtraite } = extraireOptionsHélia({
         hélia: { hélia },
       });
       expect(héliaExtraite).to.equal(hélia);
     });
 
     it("extraire Hélia - absente", () => {
-      const { hélia: héliaExtraite } = extraireHéliaEtLibp2p({});
+      const { hélia: héliaExtraite } = extraireOptionsHélia({});
       expect(héliaExtraite).to.be.undefined();
     });
 
     it("extraire Libp2p - Orbite", () => {
-      const { libp2p: libp2pExtrait } = extraireHéliaEtLibp2p({
+      const { libp2p: libp2pExtrait } = extraireOptionsHélia({
         orbite: { orbite },
       });
-      expect(isLibp2p(libp2pExtrait)).to.be.true();
+      expect(libp2pExtrait).to.be.undefined();
     });
 
     it("extraire Libp2p - Hélia", () => {
-      const { libp2p: libp2pExtrait } = extraireHéliaEtLibp2p({
-        hélia: { hélia },
-      });
-      expect(isLibp2p(libp2pExtrait)).to.be.true();
+      const { libp2p: libp2pExtrait, hélia: héliaExtraite } =
+        extraireOptionsHélia({
+          hélia: { hélia },
+        });
+      expect(libp2pExtrait).to.be.undefined();
+      expect(héliaExtraite).to.equal(hélia);
     });
 
     it("extraire Libp2p - Libp2p", () => {
-      const { libp2p: libp2pExtrait } = extraireHéliaEtLibp2p({
-        libp2p: { libp2p },
-      });
-      expect(isLibp2p(libp2pExtrait)).to.be.true();
+      const { libp2p: libp2pExtrait, hélia: héliaExtraite } =
+        extraireOptionsHélia({
+          hélia: { libp2p },
+        });
+      expect(libp2pExtrait).to.equal(libp2p);
+      expect(héliaExtraite).to.be.undefined();
     });
 
     it("extraire Libp2p - absent", () => {
-      const { libp2p: libp2pExtrait } = extraireHéliaEtLibp2p({});
+      const { libp2p: libp2pExtrait } = extraireOptionsHélia({});
       expect(libp2pExtrait).to.be.undefined();
+    });
+
+    it("erreur si dédoublement hélia + libp2p", () => {
+      expect(() =>
+        extraireOptionsHélia({
+          hélia: { hélia, libp2p },
+        }),
+      ).to.throw(ERREUR_DUPLIQUÉS);
+    });
+
+    it("erreur si dédoublement orbite + libp2p", () => {
+      expect(() =>
+        extraireOptionsHélia({
+          hélia: { libp2p },
+          orbite: { orbite },
+        }),
+      ).to.throw(ERREUR_DUPLIQUÉS);
+    });
+
+    it("erreur si dédoublement hélia + orbite", () => {
+      expect(() =>
+        extraireOptionsHélia({
+          orbite: { orbite },
+          hélia: { hélia },
+        }),
+      ).to.throw(ERREUR_DUPLIQUÉS);
     });
   });
 

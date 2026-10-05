@@ -8,12 +8,12 @@ import { Appli } from "@/v2/nébuleuse/appli/index.js";
 import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { serviceCompte } from "@/v2/nébuleuse/services/compte/compte.js";
-import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
 import { serviceOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import { schémaNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
+import { serviceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
-import { serviceLibp2pTest } from "./utils.js";
+import { serviceHéliaTest } from "./utils.js";
 import type { StructureNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type {
@@ -38,8 +38,8 @@ describe("Dispositifs", function () {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia<ServicesLibp2pTest>(),
+          libp2p: serviceLibp2p<ServicesLibp2pTest>(),
+          hélia: serviceHéliaTest(),
           orbite: serviceOrbite<ServicesLibp2pTest>(),
           compte: serviceCompte<StructureNébuleuse>({
             schéma: schémaNébuleuse,

@@ -2,7 +2,6 @@ import { expect } from "aegir/chai";
 import { créerOrbitesTest } from "@constl/utils-tests";
 import { typedNested } from "@constl/bohr-db";
 import { v4 as uuidv4 } from "uuid";
-import { extraireHéliaEtLibp2p } from "@/v2/nébuleuse/nébuleuse.js";
 import {
   ServiceDonnéesAppli,
   brancheBd,
@@ -15,92 +14,12 @@ import type { JSONSchemaType } from "ajv";
 import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { OrbitDB } from "@orbitdb/core";
-import type { Libp2p } from "libp2p";
 import type { TypedNested } from "@constl/bohr-db";
 import type { NestedDatabaseType } from "@orbitdb/nested-db";
-import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { PartielRécursif } from "@/v2/types.js";
-import type { Helia } from "helia";
-
-const ERREUR_DUPLIQUÉS =
-  "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
 
 describe("Services Nébuleuse", function () {
-  describe("valider options", function () {
-    let orbite: OrbitDB<ServicesLibp2pNébuleuse>;
-    let hélia: Helia<Libp2p<ServicesLibp2pNébuleuse>>;
-    let libp2p: Libp2p<ServicesLibp2pNébuleuse>;
-    let fermer: () => Promise<void>;
-
-    before(async () => {
-      const test = await créerOrbitesTest({ n: 1 });
-      ({ fermer } = test);
-
-      orbite = test.orbites[0];
-      hélia = orbite.ipfs;
-      libp2p = hélia.libp2p;
-    });
-
-    after(async () => {
-      if (fermer) await fermer();
-    });
-
-    it("orbite", () => {
-      const { libp2p: libp2pRésolue, hélia: héliaRésolue } =
-        extraireHéliaEtLibp2p({
-          orbite: { orbite },
-        });
-      expect(libp2pRésolue).to.equal(libp2p);
-      expect(héliaRésolue).to.equal(hélia);
-    });
-
-    it("hélia", () => {
-      const { libp2p: libp2pRésolue, hélia: héliaRésolue } =
-        extraireHéliaEtLibp2p({
-          hélia: { hélia },
-        });
-      expect(libp2pRésolue).to.equal(libp2p);
-      expect(héliaRésolue).to.equal(hélia);
-    });
-
-    it("libp2p", () => {
-      const { libp2p: libp2pRésolue, hélia: héliaRésolue } =
-        extraireHéliaEtLibp2p({
-          libp2p: { libp2p },
-        });
-      expect(libp2pRésolue).to.equal(libp2p);
-      expect(héliaRésolue).to.be.undefined();
-    });
-
-    it("erreur si dédoublement hélia + libp2p", () => {
-      expect(() =>
-        extraireHéliaEtLibp2p({
-          libp2p: { libp2p },
-          hélia: { hélia },
-        }),
-      ).to.throw(ERREUR_DUPLIQUÉS);
-    });
-
-    it("erreur si dédoublement orbite + libp2p", () => {
-      expect(() =>
-        extraireHéliaEtLibp2p({
-          libp2p: { libp2p },
-          orbite: { orbite },
-        }),
-      ).to.throw(ERREUR_DUPLIQUÉS);
-    });
-
-    it("erreur si dédoublement hélia + orbite", () => {
-      expect(() =>
-        extraireHéliaEtLibp2p({
-          orbite: { orbite },
-          hélia: { hélia },
-        }),
-      ).to.throw(ERREUR_DUPLIQUÉS);
-    });
-  });
-
   describe("services données", function () {
     describe("branche bd", function () {
       let orbite: OrbitDB;

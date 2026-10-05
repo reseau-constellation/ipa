@@ -20,7 +20,7 @@ import type {
   ServicesLibp2pNébuleuseDéfaut,
 } from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
-import type { PrivateKey } from "@libp2p/interface";
+import type { PrivateKey, ServiceMap } from "@libp2p/interface";
 
 export type ConfigLibp2p = {
   dossier?: string;
@@ -30,7 +30,14 @@ export type ConfigLibp2p = {
   clefPrivée?: PrivateKey;
 };
 
-export const obtenirOptionsLibp2p = (config: ConfigLibp2p = {}) => {
+export type GénérateurOptionsLibp2p<L extends ServiceMap> = (args: {
+  dossier: string;
+  clefPrivée?: PrivateKey;
+}) => Promise<Libp2pOptions<L>>;
+
+export const obtenirOptionsLibp2p = (
+  config: ConfigLibp2p = {},
+): GénérateurOptionsLibp2p<ServicesLibp2pNébuleuseDéfaut> => {
   return async ({
     dossier,
     clefPrivée,

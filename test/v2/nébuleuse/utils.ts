@@ -3,8 +3,8 @@ import { obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
 import { merge } from "ts-deepmerge";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
-import { serviceLibp2pTest } from "./services/utils.js";
-import type { ServiceLibp2pTest } from "./services/utils.js";
+import { serviceHéliaTest } from "./services/utils.js";
+import type { ServiceHéliaTest } from "./services/utils.js";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { NestedValue } from "@orbitdb/nested-db";
@@ -38,10 +38,10 @@ export class NébuleuseTest<
     super({
       services: {
         ...(services || {}),
-        libp2p: serviceLibp2pTest(),
+        hélia: serviceHéliaTest(),
       } as ConstructeursServicesAppli<
         S & {
-          libp2p?: ServiceLibp2pTest;
+          hélia?: ServiceHéliaTest;
         }
       >,
       options,

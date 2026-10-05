@@ -5,7 +5,7 @@ import importPlugin from "eslint-plugin-import";
 
 export default [
   {
-    ignores: ["**/dist/**", "**/.vitepress/cache/**"],
+    ignores: ["**/dist/**"],
   },
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,

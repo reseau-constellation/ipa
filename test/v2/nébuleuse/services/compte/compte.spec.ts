@@ -13,7 +13,7 @@ import { ServiceDonnéesAppli } from "@/v2/nébuleuse/services/services.js";
 import { serviceJournal } from "@/v2/nébuleuse/services/journal.js";
 import { MODÉRATRICE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
-import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
+import { serviceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import { serviceOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import {
@@ -23,7 +23,7 @@ import {
 } from "@/v2/nébuleuse/nébuleuse.js";
 import { enleverPréfixes } from "@/v2/utils.js";
 import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
-import { serviceLibp2pTest } from "../utils.js";
+import { serviceHéliaTest } from "../utils.js";
 import type { KeyValueDatabase } from "@orbitdb/core";
 import type { ServiceCompte } from "@/v2/nébuleuse/index.js";
 import type {
@@ -73,8 +73,8 @@ const créerApplisTest = async <
         dossier: serviceDossier({ dossier: path.join(dossier, i) }),
         journal: serviceJournal(options?.journal),
         stockage: serviceStockage(),
-        libp2p: serviceLibp2pTest(),
-        hélia: serviceHélia<ServicesLibp2pTest>(options?.hélia),
+        libp2p: serviceLibp2p(),
+        hélia: serviceHéliaTest(options?.hélia),
         orbite: serviceOrbite<ServicesLibp2pTest>(options?.orbite),
         compte: serviceCompte<T>({
           ...options?.compte,
@@ -119,8 +119,8 @@ describe("Service Compte", function () {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia<ServicesLibp2pTest>(),
+          libp2p: serviceLibp2p<ServicesLibp2pTest>(),
+          hélia: serviceHéliaTest(),
           orbite: serviceOrbite<ServicesLibp2pTest>(),
           compte: serviceCompte<{
             [clef: string]: NestedValue;
@@ -169,8 +169,8 @@ describe("Service Compte", function () {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia(),
+          libp2p: serviceLibp2p<ServicesLibp2pTest>(),
+          hélia: serviceHéliaTest(),
           orbite: serviceOrbite(),
           compte: serviceCompte({ schéma: { type: "object" } }),
         },
@@ -210,8 +210,8 @@ describe("Service Compte", function () {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2pTest(),
-          hélia: serviceHélia(),
+          libp2p: serviceLibp2p<ServicesLibp2pTest>(),
+          hélia: serviceHéliaTest(),
           orbite: serviceOrbite(),
           compte: serviceCompte<Record<string, never>>({
             schéma: { type: "object" },

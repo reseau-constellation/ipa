@@ -22,22 +22,20 @@ minimumReleaseAgeExclude:
   - semver@4.3.2 || 5.7.2
   - serialize-javascript@7.0.3 || 7.0.5
   - "@constl/bohr-db"
-  - '@orbitdb/feed-db@1.4.2'
-  - '@orbitdb/nested-db@2.1.5'
-  - '@orbitdb/ordered-keyvalue-db@1.4.5'
-  - '@orbitdb/set-db@2.1.2'
+  - '@orbitdb/feed-db@1.4.2 || 2.0.0'
+  - '@orbitdb/nested-db@2.1.5 || 2.2.0'
+  - '@orbitdb/ordered-keyvalue-db@1.4.5 || 2.0.1'
+  - '@orbitdb/set-db@2.1.2 || 2.2.1'
   - ennikkai@2.3.7
   - '@constl/utils-ipa@3.0.8 || 3.0.9'
+  - '@orbitdb/core-types@2.0.0'
 
 overrides:
   p-queue: "^8.1.1"
   "@orbitdb/core": "4.0.0-3e1d628.0"
   multiformats: "14.0.0"
+  '@constl/utils-tests': file:../utils-tests
 
 patchedDependencies:
   '@orbitdb/core': patches/@orbitdb__core.patch
-  '@orbitdb/nested-db': patches/@orbitdb__nested-db.patch
-  '@constl/bohr-db': patches/@constl__bohr-db.patch
-  '@constl/utils-tests': patches/@constl__utils-tests.patch
-  '@libp2p/gossipsub@17.1.1': patches/@libp2p__gossipsub@17.1.1.patch
-  '@libp2p/gossipsub@15.0.23': patches/@libp2p__gossipsub@15.0.23.patch
+  '@libp2p/gossipsub@17.1.2': patches/@libp2p__gossipsub@17.1.2.patch

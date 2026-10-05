@@ -4,7 +4,7 @@ import {
   obtenirAdresseRelai,
 } from "@constl/utils-tests";
 import { isBrowser, isElectronRenderer, isWebWorker } from "wherearewe";
-import { ServiceLibp2p } from "@/v2/nébuleuse/index.js";
+import { ServiceHélia } from "@/v2/nébuleuse/index.js";
 import { obtenirOptionsLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { PrivateKey } from "@libp2p/interface";
@@ -16,6 +16,7 @@ import type {
 } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
 import type { ConfigLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
+import type { OptionsServiceHélia } from "@/v2/nébuleuse/services/hélia.js";
 
 export const obtenirOptionsLibp2pLocal = (config: ConfigLibp2p = {}) => {
   return obtenirOptionsLibp2p({
@@ -46,24 +47,25 @@ export const obtenirOptionsLibp2pTest = (
   };
 };
 
-export class ServiceLibp2pTest extends ServiceLibp2p<ServicesLibp2pTest> {
+export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pTest> {
   constructor({
     services,
     options,
   }: {
-    services: ServicesNécessairesLibp2p;
-    options: OptionsServiceLibp2p<ServicesLibp2pTest> & OptionsAppli;
+    services: ServicesNécessairesLibp2p<ServicesLibp2pTest>;
+    options: OptionsServiceLibp2p & OptionsAppli;
   }) {
     super({
       services,
-      options,
+      options: Object.assign({}, options, {
+        libp2p: obtenirOptionsLibp2pTest(),
+      }),
     });
-    this.options.libp2p = obtenirOptionsLibp2pTest();
   }
 }
 
-export const serviceLibp2pTest =
-  (optionsLibp2p?: OptionsServiceLibp2p<ServicesLibp2pTest>) =>
+export const serviceHéliaTest =
+  (optionsHélia?: OptionsServiceHélia<ServicesLibp2pTest>) =>
   ({
     options,
     services,
@@ -71,10 +73,10 @@ export const serviceLibp2pTest =
     options: OptionsAppli;
     services: ServicesNécessairesLibp2p;
   }) => {
-    return new ServiceLibp2pTest({
-      options: { ...optionsLibp2p, ...options },
+    return new ServiceHéliaTest({
+      options: { ...optionsHélia, ...options },
       services,
     });
   };
 
-export const Déno = navigator.userAgent.startsWith("Deno")
+export const Déno = navigator.userAgent.startsWith("Deno");

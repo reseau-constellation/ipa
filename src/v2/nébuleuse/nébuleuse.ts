@@ -87,26 +87,24 @@ export type ServicesNébuleuse<
   favoris: ServiceFavoris;
 };
 
-export const extraireHéliaEtLibp2p = <
+export const ERREUR_DUPLIQUÉS =
+  "Une seule option parmi `orbite`, `hélia` ou `libp2p` peut être spécifiée dans les options.";
+
+export const extraireOptionsHélia = <
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 >(options: {
   orbite?: OptionsServiceOrbite<L>;
   hélia?: OptionsServiceHélia<L>;
-  libp2p?: OptionsServiceLibp2p<L>;
-}) => {
+}): OptionsServiceHélia<L> => {
   const { orbite } = options?.orbite || {};
-  let { hélia } = options?.hélia || {};
-  let { libp2p } = options?.libp2p || {};
+  let { hélia, libp2p } = options?.hélia || {};
 
-  const ERREUR_DUPLIQUÉS =
-    "Un seul d'`orbite`, `hélia` ou `libp2p` peut être spécifié dans les options.";
   if (orbite) {
     if (hélia) throw new Error(ERREUR_DUPLIQUÉS);
     hélia = orbite.ipfs;
   }
   if (hélia) {
     if (libp2p) throw new Error(ERREUR_DUPLIQUÉS);
-    libp2p = hélia.libp2p;
   }
 
   return { hélia, libp2p };
@@ -120,7 +118,7 @@ export type OptionsNébuleuse<
   services?: {
     journal?: OptionsServiceJournal;
     dossier?: OptionsServiceDossier;
-    libp2p?: OptionsServiceLibp2p<L>;
+    libp2p?: OptionsServiceLibp2p;
     hélia?: OptionsServiceHélia<L>;
     orbite?: OptionsServiceOrbite<L>;
     // On n'inclut pas `StructureNébuleuse` dans `OptionsServiceCompte` car celle-ci est ajoutée dans l'initialisateur de `Nébuleuse`
@@ -151,17 +149,16 @@ export class Nébuleuse<
   }) {
     options = options || {};
     services = services ?? ({} as ConstructeursServicesAppli<S>);
-    const { hélia, libp2p } = extraireHéliaEtLibp2p(options?.services || {});
+    const hélia = extraireOptionsHélia(options?.services || {});
 
     if (!options.services) options.services = {};
-    if (libp2p) options.services.libp2p = { libp2p };
-    if (hélia) options.services.hélia = { hélia };
+    if (hélia) options.services.hélia = hélia;
 
     const optionsCompte: OptionsServiceCompte<StructureNébuleuse & T> = {
       ...options?.services.compte,
       schéma: merge(
         {},
-        options?.services?.compte?.schéma || {},
+        options.services.compte?.schéma || {},
         schémaNébuleuse,
       ) as JSONSchemaType<PartielRécursif<StructureNébuleuse & T>>,
     };

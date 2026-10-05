@@ -27,6 +27,7 @@ import type {
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
+import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,
@@ -424,17 +425,19 @@ export const rechercherProfondeur = async <T>(
   };
 };
 
-type CréerConstellationsTest = {
+type CréerConstellationsTest<
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+> = {
   (args: { n: number; avecMandataire: false }): Promise<{
-    constls: ConstructeurConstellation[];
+    constls: ConstructeurConstellation<L>[];
     fermer: Oublier;
   }>;
   (args: { n: number; avecMandataire?: true }): Promise<{
-    constls: Constellation[];
+    constls: Constellation<L>[];
     fermer: Oublier;
   }>;
   (args: { n: number; avecMandataire?: boolean }): Promise<{
-    constls: (Constellation | ConstructeurConstellation)[];
+    constls: (Constellation<L> | ConstructeurConstellation<L>)[];
     fermer: Oublier;
   }>;
 };
@@ -452,7 +455,7 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
       {
         services: {
           dossier: { dossier: path.join(dossier, i) },
-          libp2p: {
+          hélia: {
             libp2p: obtenirOptionsLibp2pTest(),
           },
         },
