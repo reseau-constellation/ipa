@@ -299,26 +299,23 @@ describe("Accès", function () {
           orbite.identity.id,
         );
         dernière = orbite;
-        console.log("ici");
       }
-      console.log("ici 1");
+      
       // Attendre que la base de donées originale reçoive la dernière modification
       await obtenir<AccèsDispositif[]>(({ si }) =>
         (bd.access as InstanceContrôleurNébuleuse).suivreDispositifsAutorisées(
           si((x) => !!x?.find((d) => d.idDispositif === orbite4.identity.id)),
         ),
       );
-      console.log("ici 2");
+
       await bd.close();
-      console.log("ici 3");
       bd = (await orbite1.open(bd.address, {
         type: "keyvalue",
       })) as KeyValueDatabase;
-      console.log("ici 4");
+
       const accès = bd.access as InstanceContrôleurNébuleuse;
       for (const o of [orbite1, orbite2, orbite3, orbite4]) {
         const estAutorisé = await accès.estAutorisé(o.identity.id);
-        console.log("ici 5");
         expect(estAutorisé).to.be.true();
       }
     });
