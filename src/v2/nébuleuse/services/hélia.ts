@@ -88,7 +88,7 @@ export class ServiceHélia<
 
       const hélia = await createHelia({
         ...(await obtenirOptionsHélia({ dossierHélia })),
-        libp2p: configLibp2p,
+        libp2p: { ...configLibp2p },
       }).start();
 
       // Sauvegarder la clef privée si elle a été générée automatiquement par libp2p

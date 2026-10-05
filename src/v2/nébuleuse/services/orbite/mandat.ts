@@ -49,6 +49,7 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 
       if (prop === "open") {
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
+          // Très bizarre...sans ça, certaines promesses et événements ci-dessous ne fonctionnent plus.
           await new Promise((compléter) => {
             setTimeout(compléter, 0);
           });

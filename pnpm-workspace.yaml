@@ -29,7 +29,7 @@ minimumReleaseAgeExclude:
   - ennikkai@2.3.7
   - '@constl/utils-ipa@3.0.8 || 3.0.9'
   - '@orbitdb/core-types@2.0.0'
-  - '@constl/utils-tests@2.2.1'
+  - '@constl/utils-tests@2.2.1 || 2.2.2'
 
 overrides:
   p-queue: "^8.1.1"

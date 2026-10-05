@@ -3,14 +3,16 @@ import { multiaddr } from "@multiformats/multiaddr";
 import { gossipsub } from "@libp2p/gossipsub";
 import { autoNAT } from "@libp2p/autonat";
 import { dcutr } from "@libp2p/dcutr";
+import { keychain } from "@libp2p/keychain";
+import { http } from "@libp2p/http";
 import { identify, identifyPush } from "@libp2p/identify";
 import { ping } from "@libp2p/ping";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { bootstrap } from "@libp2p/bootstrap";
 import { reconnecteur } from "../services/reconnecteur.js";
+import type { HTTP } from "@libp2p/http";
+import type { Keychain } from "@libp2p/keychain";
 import type { Reconnecteur } from "../services/reconnecteur.js";
-import type { Ping } from "@libp2p/ping";
-import type { IdentifyPush } from "@libp2p/identify";
 import type { GossipSub, GossipSubComponents } from "@libp2p/gossipsub";
 import type { ServiceFactoryMap } from "libp2p";
 import type { Multiaddr } from "@multiformats/multiaddr";
@@ -84,8 +86,8 @@ const optionsIdentify = {
 // https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#recommendations-for-network-operators
 
 export type ServicesLibp2pNébuleuseDéfaut = ServicesLibp2pNébuleuse & {
-  ping: Ping;
-  identifyPush: IdentifyPush;
+  http: HTTP;
+  keychain: Keychain;
   reconnecteur: Reconnecteur;
 };
 
@@ -95,14 +97,18 @@ export const servicesDéfaut = ({
   pairsParDéfaut?: string[];
 }): ServiceFactoryMap<ServicesLibp2pNébuleuseDéfaut> => {
   const services = {
-    ping: ping(),
-    identify: identify(optionsIdentify),
-    identifyPush: identifyPush(optionsIdentify),
     autoNAT: autoNAT(),
     dcutr: dcutr(),
+    identify: identify(optionsIdentify),
+    identifyPush: identifyPush(optionsIdentify),
+    keychain: keychain(),
+    // delegatedPeerRouting: delegatedRoutingV1HttpApiClientPeerRouting(delegatedHTTPRoutingDefaults()),
+    // delegatedContentRouting: delegatedRoutingV1HttpApiClientContentRouting(delegatedHTTPRoutingDefaults()),
+    http: http(),
     reconnecteur: reconnecteur({
       liste: pairsParDéfaut || [],
     }),
+    ping: ping(),
     pubsub: gossipsub({
       allowPublishToZeroTopicPeers: true,
       runOnLimitedConnection: true,

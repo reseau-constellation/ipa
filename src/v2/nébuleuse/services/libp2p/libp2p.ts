@@ -2,7 +2,7 @@ import { ServiceAppli } from "../../appli/index.js";
 import { STATUTS } from "../../appli/consts.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type { Libp2p } from "libp2p";
-import type { Identify } from "@libp2p/identify";
+import type { Identify, IdentifyPush } from "@libp2p/identify";
 import type { GossipSub } from "@libp2p/gossipsub";
 import type { PeerUpdate, ServiceMap } from "@libp2p/interface";
 import type { ServiceClefPrivée } from "./config/utils.js";
@@ -12,6 +12,7 @@ import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;
+  identifyPush: IdentifyPush;
   pubsub: GossipSub;
   obtClefPrivée: ServiceClefPrivée;
   ping: Ping;

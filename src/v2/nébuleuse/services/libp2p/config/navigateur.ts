@@ -47,7 +47,10 @@ export const obtOptionsLibp2pNavigateur = async (
     },
     datastore: stockage,
     peerDiscovery: découvertePairs(config),
-    services: servicesDéfaut({ pairsParDéfaut }),
+    services: {
+      ...servicesDéfaut({ pairsParDéfaut }),
+      // dht: kadDHT({ clientMode: true }),
+    },
   };
   return options;
 };

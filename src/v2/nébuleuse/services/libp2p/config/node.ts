@@ -1,8 +1,10 @@
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import { FaultTolerance } from "@libp2p/interface";
+import { tls } from "@libp2p/tls";
 import { webSockets } from "@libp2p/websockets";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webTransport } from "@libp2p/webtransport";
+import { autoTLS } from "@ipshipyard/libp2p-auto-tls";
 import {
   circuitRelayServer,
   circuitRelayTransport,
@@ -46,8 +48,10 @@ export const obtOptionsLibp2pNode = async (
       listen: [
         "/ip4/0.0.0.0/tcp/0",
         "/ip4/0.0.0.0/tcp/0/ws",
+        "/ip4/0.0.0.0/udp/0/webrtc-direct",
         "/ip6/::/tcp/0",
         "/ip6/::/tcp/0/ws",
+        "/ip6/::/udp/0/webrtc-direct",
         "/webrtc",
         "/webtransport",
         "/p2p-circuit",
@@ -66,14 +70,14 @@ export const obtOptionsLibp2pNode = async (
       faultTolerance: FaultTolerance.NO_FATAL,
     },
     transports: [
+      circuitRelayTransport(),
+      tcp(),
       webSockets(),
       webRTC(),
       webTransport(),
       webRTCDirect(),
-      tcp(),
-      circuitRelayTransport(),
     ],
-    connectionEncrypters: [noise()],
+    connectionEncrypters: [noise(), tls()],
     streamMuxers: [yamux()],
     connectionGater: {
       denyDialMultiaddr: () => false,
@@ -83,6 +87,8 @@ export const obtOptionsLibp2pNode = async (
     peerDiscovery: [mdns(), ...découvertePairs(config)],
     services: {
       ...servicesDéfaut({ pairsParDéfaut }),
+      autoTLS: autoTLS(),
+      // dht: kadDHT(),
       upnp: uPnPNAT(),
       relay: circuitRelayServer(),
     },

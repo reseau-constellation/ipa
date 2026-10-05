@@ -49,7 +49,6 @@ class AccèsCompte {
       ]);
       const bd = await this.orbite
         .open(this.idCompte, { signal: signalFinal })
-        .finally(() => signalFinal.clear())
         .finally(() => signalFinal.clear());
 
       const accèsCompte = bd.access;

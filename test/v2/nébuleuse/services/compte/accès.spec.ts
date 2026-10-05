@@ -7,6 +7,7 @@ import {
   MODÉRATRICE,
 } from "@/v2/nébuleuse/services/compte/accès/index.js";
 import { préparerOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
+import { mandatOrbite } from "@/v2/nébuleuse/services/orbite/mandat.js";
 import { attendreQue } from "../../../appli/utils/fonctions.js";
 import { attendreInvité, obtenir, peutÉcrire } from "../../../utils.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
@@ -23,7 +24,6 @@ describe("Accès", function () {
   });
 
   describe("par identités orbite", function () {
-    let orbites: OrbitDB[];
     let orbite1: OrbitDB;
     let orbite2: OrbitDB;
     let orbite3: OrbitDB;
@@ -34,8 +34,13 @@ describe("Accès", function () {
     let accès: InstanceContrôleurNébuleuse;
 
     before(async () => {
-      ({ fermer, orbites } = await créerOrbitesTest({ n: 4 }));
-      [orbite1, orbite2, orbite3, orbite4] = orbites;
+      const { fermer: fermerOrbites, orbites } = await créerOrbitesTest({
+        n: 4,
+      });
+      fermer = fermerOrbites;
+      [orbite1, orbite2, orbite3, orbite4] = orbites.map((o) =>
+        mandatOrbite(o),
+      );
     });
 
     after(async () => {
@@ -294,28 +299,31 @@ describe("Accès", function () {
           orbite.identity.id,
         );
         dernière = orbite;
+        console.log("ici");
       }
-
+      console.log("ici 1");
       // Attendre que la base de donées originale reçoive la dernière modification
       await obtenir<AccèsDispositif[]>(({ si }) =>
         (bd.access as InstanceContrôleurNébuleuse).suivreDispositifsAutorisées(
           si((x) => !!x?.find((d) => d.idDispositif === orbite4.identity.id)),
         ),
       );
-
+      console.log("ici 2");
       await bd.close();
+      console.log("ici 3");
       bd = (await orbite1.open(bd.address, {
         type: "keyvalue",
       })) as KeyValueDatabase;
-
+      console.log("ici 4");
       const accès = bd.access as InstanceContrôleurNébuleuse;
       for (const o of [orbite1, orbite2, orbite3, orbite4]) {
         const estAutorisé = await accès.estAutorisé(o.identity.id);
+        console.log("ici 5");
         expect(estAutorisé).to.be.true();
       }
     });
 
-    it("invitations trasitives par d'autres modératrices après fermeture de la bd", async () => {
+    it("invitations transitives par d'autres modératrices après fermeture de la bd", async () => {
       // Autoriser orbite 2 comme modératrice
       let accès = bd.access as InstanceContrôleurNébuleuse;
       accès.autoriser(MODÉRATRICE, orbite2.identity.id);
@@ -349,7 +357,6 @@ describe("Accès", function () {
   });
 
   describe("par identité utilisateur", function () {
-    let orbites: OrbitDB[];
     let orbite1: OrbitDB;
     let orbite2: OrbitDB;
     let orbite3: OrbitDB;
@@ -362,8 +369,11 @@ describe("Accès", function () {
     let accès: InstanceContrôleurNébuleuse;
 
     before(async () => {
-      ({ fermer, orbites } = await créerOrbitesTest({ n: 3 }));
-      [orbite1, orbite2, orbite3] = orbites;
+      const { fermer: fermerOrbites, orbites } = await créerOrbitesTest({
+        n: 5,
+      });
+      fermer = fermerOrbites;
+      [orbite1, orbite2, orbite3] = orbites.map((o) => mandatOrbite(o));
     });
 
     after(async () => {
@@ -512,12 +522,12 @@ describe("Accès", function () {
     });
 
     it("utilisateurs autorisés", async () => {
-      const promesseUtilisateurs = obtenir<AccèsUtilisateur[]>(({ si }) =>
-        accès.suivreUtilisateursAutorisés(si((x) => !!x && x.length > 1)),
+      const promesseDispositifs = obtenir<AccèsDispositif[]>(({ si }) =>
+        accès.suivreDispositifsAutorisées(si((x) => !!x && x.length > 1)),
       );
       await accès.autoriser(MEMBRE, idCompte2);
 
-      const autorisés = await promesseUtilisateurs;
+      const dispositifsAutorisés = await promesseDispositifs;
 
       const réf: AccèsUtilisateur[] = [
         {
@@ -541,10 +551,8 @@ describe("Accès", function () {
         },
       ];
 
-      expect(autorisés).to.have.deep.members(réf);
-      expect(await accès.dispositifsAutorisés()).to.have.deep.members(
-        réfDispositifs,
-      );
+      expect(dispositifsAutorisés).to.have.deep.members(réfDispositifs);
+      expect(await accès.utilisateursAutorisés()).to.have.deep.members(réf);
     });
 
     it("dispositifs autorisés", async () => {
