@@ -23,7 +23,6 @@ import type {
   Connection,
   Libp2pEvents,
   PeerId,
-  PeerUpdate,
   Stream,
 } from "@libp2p/interface";
 import type {
