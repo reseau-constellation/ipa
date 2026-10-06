@@ -13,23 +13,7 @@ allowBuilds:
 packages: []
 
 minimumReleaseAgeExclude:
-  - bl@0.9.5 || 1.2.3
-  - braces@3.0.3
-  - micromatch@4.0.8
-  - tmp@0.2.4
-  - elliptic@6.6.2
-  - diff@8.0.3
-  - semver@4.3.2 || 5.7.2
-  - serialize-javascript@7.0.3 || 7.0.5
-  - "@constl/bohr-db"
-  - '@orbitdb/feed-db@1.4.2 || 2.0.0'
-  - '@orbitdb/nested-db@2.1.5 || 2.2.0'
-  - '@orbitdb/ordered-keyvalue-db@1.4.5 || 2.0.1'
-  - '@orbitdb/set-db@2.1.2 || 2.2.1'
-  - ennikkai@2.3.7
-  - '@constl/utils-ipa@3.0.8 || 3.0.9'
-  - '@orbitdb/core-types@2.0.0'
-  - '@constl/utils-tests@2.2.1 || 2.2.2'
+  - '@constl/utils-tests@2.2.3 || 2.2.4'
 
 overrides:
   p-queue: "^8.1.1"
