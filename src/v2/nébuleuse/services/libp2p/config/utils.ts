@@ -14,7 +14,7 @@ import type { HTTP } from "@libp2p/http";
 import type { Keychain } from "@libp2p/keychain";
 import type { Reconnecteur } from "../services/reconnecteur.js";
 import type { GossipSub, GossipSubComponents } from "@libp2p/gossipsub";
-import type { ServiceFactoryMap } from "libp2p";
+import type { Libp2pOptions, ServiceFactoryMap } from "libp2p";
 import type { Multiaddr } from "@multiformats/multiaddr";
 import type { ServicesLibp2pNébuleuse } from "../libp2p.js";
 import type { PrivateKey } from "@libp2p/interface";
@@ -127,17 +127,23 @@ export const servicesDéfaut = ({
   return services;
 };
 
-export const découvertePairs = (config: ConfigOptionsLibp2p) => {
-  const découverte = [
-    bootstrap({
-      list: config.pairsParDéfaut || [],
-      timeout: 0,
-    }),
+export const découvertePairs = (
+  config: ConfigOptionsLibp2p,
+): Exclude<Libp2pOptions["peerDiscovery"], undefined> => {
+  const découverte: Libp2pOptions["peerDiscovery"] = [
     pubsubPeerDiscovery({
       interval: 1000,
       topics: config.sujetsDécouvertePairsPubSub, // par défaut : ['_peer-discovery._p2p._pubsub']
       listenOnly: false,
     }),
   ];
+  if (config.pairsParDéfaut?.length) {
+    découverte.push(
+      bootstrap({
+        list: config.pairsParDéfaut,
+        timeout: 0,
+      }),
+    );
+  }
   return découverte;
 };
