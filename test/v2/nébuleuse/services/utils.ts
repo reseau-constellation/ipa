@@ -35,7 +35,7 @@ export const obtenirOptionsLibp2pTest = (
     clefPrivée,
   }: {
     clefPrivée?: PrivateKey;
-  }): Promise<Libp2pOptions<ServicesLibp2pNébuleuse>> => {
+  } = {}): Promise<Libp2pOptions<ServicesLibp2pNébuleuse>> => {
     clefPrivée = config.clefPrivée ?? clefPrivée;
 
     const options =
