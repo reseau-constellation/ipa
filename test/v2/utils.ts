@@ -10,6 +10,17 @@ import {
   type BaseDatabase,
   type KeyValueDatabase,
 } from "@orbitdb/core";
+import {
+  withLibp2pLight,
+  type CreateLibp2pOptions,
+  type HeliaWithLibp2p,
+} from "@helia/libp2p";
+import { withBitswap } from "@helia/bitswap";
+import { createHeliaLight, type HeliaInit } from "helia";
+import * as dagCbor from "@ipld/dag-cbor";
+import * as dagJson from "@ipld/dag-json";
+import * as json from "multiformats/codecs/json";
+import { sha512 } from "multiformats/hashes/sha2";
 import { créerConstellation } from "@/v2/index.js";
 import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
@@ -479,6 +490,22 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
     fermer,
   };
 };
+
+export const créerHéliaÉphémère = <
+  L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
+>(
+  opts?: HeliaInit & { libp2p?: CreateLibp2pOptions<L> },
+): HeliaWithLibp2p<L> =>
+  withBitswap(
+    withLibp2pLight(
+      createHeliaLight({
+        ...opts,
+        codecs: [dagCbor, dagJson, json],
+        hashers: [sha512],
+      }),
+      opts?.libp2p || {},
+    ),
+  );
 
 export const utiliserFauxChronomètres = () => {
   const horloge = useFakeTimers({

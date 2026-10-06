@@ -4,16 +4,15 @@ import {
 } from "@constl/utils-tests";
 
 import { expect } from "aegir/chai";
-import { createHeliaLight } from "helia";
 import { isBrowser } from "wherearewe";
 import { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
-import { withLibp2pLight, type HeliaWithLibp2p } from "@helia/libp2p";
+import { type HeliaWithLibp2p } from "@helia/libp2p";
 import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
-import { dossierTempoPropre } from "../../utils.js";
+import { créerHéliaÉphémère, dossierTempoPropre } from "../../utils.js";
 import { serviceHéliaTest } from "./utils.js";
 import type { ServiceHéliaTest } from "./utils.js";
 import type { ServiceStockage } from "@/v2/nébuleuse/index.js";
@@ -96,10 +95,7 @@ describe("Service Hélia", function () {
       const libp2p = isBrowser
         ? OptionsDéfautLibp2pNavigateur()
         : OptionsDéfautLibp2pNode();
-      const héliaOriginal = await withLibp2pLight(
-        createHeliaLight(),
-        libp2p,
-      ).start();
+      const héliaOriginal = await créerHéliaÉphémère({ libp2p }).start();
 
       appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
         services: {

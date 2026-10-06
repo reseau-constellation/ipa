@@ -12,6 +12,7 @@ import toBuffer from "it-to-buffer";
 import { isBrowser, isWebWorker } from "wherearewe";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
+import { TimeoutController } from "timeout-abort-controller";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { conversionsTypes, définis } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
@@ -1269,11 +1270,17 @@ export class Projets extends ObjetConstellation<
       ? (
           await Promise.allSettled(
             [...documentsMédias].map(async (fichier) => {
+              const chrono = new TimeoutController(5000);
+              const octets = await toBuffer(
+                await hélia.obtItérableAsyncSFIP({
+                  id: fichier,
+                  signal: chrono.signal,
+                }),
+              );
+              chrono.clear();
               return {
                 nom: fichier.replace("/", "-"),
-                octets: await toBuffer(
-                  await hélia.obtItérableAsyncSFIP({ id: fichier }),
-                ),
+                octets,
               };
             }),
           )
@@ -1284,7 +1291,7 @@ export class Projets extends ObjetConstellation<
               x,
             ): x is PromiseFulfilledResult<{
               nom: string;
-              octets: Uint8Array;
+              octets: Uint8Array<ArrayBuffer>;
             }> => x.status === "fulfilled" && !!x.value.octets,
           )
           .map((x) => x.value)

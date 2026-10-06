@@ -14,7 +14,11 @@ import {
 } from "@/v2/nébuleuse/services/favoris.js";
 import { enleverPréfixes, enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { obtenir, créerConstellationsTest } from "./utils.js";
+import {
+  obtenir,
+  créerConstellationsTest,
+  utiliserFauxChronomètres,
+} from "./utils.js";
 import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type {
   InfoAuteur,
@@ -31,6 +35,7 @@ import type {
   MotClefProjet,
   ÉpingleProjet,
 } from "@/v2/projets.js";
+import type { SinonFakeTimers } from "sinon";
 
 describe("Projets", function () {
   let fermer: Oublier;
@@ -1546,8 +1551,10 @@ describe("Projets", function () {
 
       let dossier: string;
       let effacer: () => void;
+      let horloge: SinonFakeTimers;
 
       before(async () => {
+        horloge = utiliserFauxChronomètres();
         ({ dossier, effacer } = await dossierTempo());
 
         idProjet = await constl.projets.créerProjet();
@@ -1646,7 +1653,7 @@ describe("Projets", function () {
           éléments: [{ [idColonne]: idcIndisponible }],
         });
 
-        await constl.projets.exporterÀFichier({
+        const attendreExporté = constl.projets.exporterÀFichier({
           idProjet,
           nomFichier: nomFichierTest,
           dossier,
@@ -1654,6 +1661,9 @@ describe("Projets", function () {
           langues: ["fra"],
         });
 
+        // Avancer temps
+        await horloge.tickAsync(5000 * 1.5);
+        await attendreExporté;
         const nomZip = join(dossier, nomFichierTest + ".zip");
         zip = await JSZip.loadAsync(readFileSync(nomZip));
 

@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
-import { dossierTempo } from "@constl/utils-tests";
+import { dossierTempo, type ServicesLibp2pTest } from "@constl/utils-tests";
 import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   DISPOSITIFS_INSTALLÉS,
@@ -20,7 +20,12 @@ import {
   moyenne,
 } from "@/v2/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
+import {
+  créerConstellationsTest,
+  créerHéliaÉphémère,
+  obtenir,
+  utiliserFauxChronomètres,
+} from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import type { ÉpingleFavorisAvecId } from "@/v2/nébuleuse/services/favoris.js";
 import type {
@@ -44,6 +49,7 @@ import type {
   InfoColonne,
 } from "@/v2/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
+import type { SinonFakeTimers } from "sinon";
 
 describe("Bases de données", function () {
   let fermer: () => Promise<void>;
@@ -2189,10 +2195,11 @@ describe("Bases de données", function () {
 
       await constlTestRéouverture.fermer();
 
-      const constlRéouverte = créerConstellation({
+      const constlRéouverte = créerConstellation<ServicesLibp2pTest>({
         services: {
           dossier: { dossier: dossierOriginal },
           hélia: {
+            hélia: créerHéliaÉphémère<ServicesLibp2pTest>,
             libp2p: obtenirOptionsLibp2pTest(),
           },
         },
@@ -2365,11 +2372,13 @@ describe("Bases de données", function () {
 
       let dossier: string;
       let effacer: () => void;
+      let horloge: SinonFakeTimers;
 
       const nomTableauFr = "voici un tableau";
       const nomFichier = "mes données";
 
       before(async () => {
+        horloge = utiliserFauxChronomètres();
         ({ dossier, effacer } = await dossierTempo());
 
         idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
@@ -2394,6 +2403,7 @@ describe("Bases de données", function () {
 
       after(async () => {
         if (effacer) effacer();
+        horloge?.restore();
       });
 
       it("le fichier zip existe", async () => {
@@ -2452,12 +2462,16 @@ describe("Bases de données", function () {
           éléments: [{ [idColonne]: idcIndisponible }],
         });
 
-        await constl.bds.exporterÀFichier({
+        const attendreExporté = constl.bds.exporterÀFichier({
           idBd,
           nomFichier: nomFichierTest,
           dossier,
           formatDocu: "ods",
         });
+
+        // Avancer temps
+        await horloge.tickAsync(5000 * 1.5);
+        await attendreExporté;
 
         const nomZip = join(dossier, nomFichierTest + ".zip");
         zip = await JSZip.loadAsync(readFileSync(nomZip));

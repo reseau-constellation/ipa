@@ -6,6 +6,7 @@ import {
 import { isBrowser, isElectronRenderer, isWebWorker } from "wherearewe";
 import { ServiceHélia } from "@/v2/nébuleuse/index.js";
 import { obtenirOptionsLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
+import { créerHéliaÉphémère } from "../../utils.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { PrivateKey } from "@libp2p/interface";
 import type { Libp2pOptions } from "libp2p";
@@ -58,6 +59,7 @@ export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pTest> {
     super({
       services,
       options: Object.assign({}, options, {
+        hélia: créerHéliaÉphémère,
         libp2p: obtenirOptionsLibp2pTest(),
       }),
     });

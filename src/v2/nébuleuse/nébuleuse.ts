@@ -104,7 +104,8 @@ export const extraireOptionsHélia = <
     hélia = orbite.ipfs;
   }
   if (hélia) {
-    if (libp2p) throw new Error(ERREUR_DUPLIQUÉS);
+    if (typeof hélia !== "function" && libp2p)
+      throw new Error(ERREUR_DUPLIQUÉS);
   }
 
   return { hélia, libp2p };

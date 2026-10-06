@@ -19,15 +19,22 @@ import type { OptionsAppli } from "../appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 import type { HeliaInit } from "helia";
 import type { Libp2p, Libp2pOptions } from "libp2p";
-import type { HeliaWithLibp2p } from "@helia/libp2p";
+import type { CreateLibp2pOptions, HeliaWithLibp2p } from "@helia/libp2p";
 import type { ServiceDossier } from "./dossier.js";
 import type { ServiceStockage } from "./stockage.js";
-import type { PrivateKey } from "@libp2p/interface";
+import type { PrivateKey, ServiceMap } from "@libp2p/interface";
+import type { BitswapOptions } from "@helia/bitswap";
 
+export type CréerHélia<L extends ServiceMap> = (
+  init?: HeliaInit & {
+    libp2p?: CreateLibp2pOptions<L>;
+    bitswap?: BitswapOptions;
+  },
+) => HeliaWithLibp2p<L>;
 export type OptionsServiceHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
-  hélia?: HeliaWithLibp2p<L>;
+  hélia?: HeliaWithLibp2p<L> | CréerHélia<L>;
   libp2p?: (args: {
     dossier: string;
     clefPrivée?: PrivateKey;
@@ -67,7 +74,7 @@ export class ServiceHélia<
   }
 
   async démarrer() {
-    if (!this.options.hélia) {
+    if (!this.options.hélia || typeof this.options.hélia === "function") {
       const générateurOptions = this.options.libp2p || obtenirOptionsLibp2p();
 
       const dossier = await this.service("dossier").dossier();
@@ -86,7 +93,8 @@ export class ServiceHélia<
 
       const dossierHélia = join(dossier, "hélia");
 
-      const hélia = await createHelia({
+      const créerHélia = this.options.hélia ?? createHelia;
+      const hélia = await créerHélia({
         ...(await obtenirOptionsHélia({ dossierHélia })),
         libp2p: { ...configLibp2p },
       }).start();
@@ -97,6 +105,7 @@ export class ServiceHélia<
 
       this.estDémarré = { hélia };
     }
+
     return await super.démarrer();
   }
 
@@ -126,7 +135,9 @@ export class ServiceHélia<
 
   async hélia(): Promise<HeliaWithLibp2p<L>> {
     // Si `hélia` n'est pas défini dans les options, il sera rendu par `this.démarré`
-    return this.options.hélia || (await this.démarré()).hélia!;
+    return this.options.hélia && typeof this.options.hélia !== "function"
+      ? this.options.hélia
+      : (await this.démarré()).hélia!;
   }
 
   async fermer(): Promise<void> {

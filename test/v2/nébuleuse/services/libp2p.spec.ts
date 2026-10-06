@@ -17,7 +17,11 @@ import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
-import { dossierTempoPropre, obtenir } from "../../utils.js";
+import {
+  créerHéliaÉphémère,
+  dossierTempoPropre,
+  obtenir,
+} from "../../utils.js";
 import {
   obtenirOptionsLibp2pLocal,
   obtenirOptionsLibp2pTest,
@@ -234,17 +238,15 @@ describe("Service Libp2p", function () {
       };
 
       let appli: Appli<
-        ServicesNécessairesLibp2p<
-          | ServicesLibp2pNébuleuseDéfaut
-          | ServicesLibp2pTest
-          | ServicesLibp2pTestAvecServiceTest
-        > & {
-          libp2p: ServiceLibp2p<
-            | ServicesLibp2pNébuleuseDéfaut
-            | ServicesLibp2pTest
-            | ServicesLibp2pTestAvecServiceTest
-          >;
-        } & ServicesAppli
+        (
+          | (ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
+              libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
+            })
+          | (ServicesNécessairesLibp2p<ServicesLibp2pTestAvecServiceTest> & {
+              libp2p: ServiceLibp2p<ServicesLibp2pTestAvecServiceTest>;
+            })
+        ) &
+          ServicesAppli
       >;
       let dossier: string;
       let effacer: () => void;
@@ -268,8 +270,9 @@ describe("Service Libp2p", function () {
           services: {
             dossier: serviceDossier({ dossier: dossierAppli }),
             stockage: serviceStockage(),
-            hélia: serviceHélia({
+            hélia: serviceHélia<ServicesLibp2pNébuleuseDéfaut>({
               libp2p: obtenirOptionsLibp2pLocal(),
+              hélia: créerHéliaÉphémère,
             }),
             libp2p: serviceLibp2p(),
           },
@@ -303,8 +306,9 @@ describe("Service Libp2p", function () {
             dossier: serviceDossier({ dossier: dossierAppli }),
             stockage: serviceStockage(),
             libp2p: serviceLibp2p(),
-            hélia: serviceHélia({
+            hélia: serviceHélia<ServicesLibp2pNébuleuseDéfaut>({
               libp2p: optionsLibp2p,
+              hélia: créerHéliaÉphémère,
             }),
           },
         });
@@ -376,8 +380,9 @@ describe("Service Libp2p", function () {
             stockage: serviceStockage(),
             libp2p: serviceLibp2p(),
             // On n'a pas besoin de ServiceHéliaTest parce que `libp2p` est externe
-            hélia: serviceHélia({
+            hélia: serviceHélia<ServicesLibp2pTestAvecServiceTest>({
               libp2p: optionsLibp2p,
+              hélia: créerHéliaÉphémère,
             }),
           },
         });
@@ -406,8 +411,9 @@ describe("Service Libp2p", function () {
             dossier: serviceDossier({ dossier }),
             stockage: serviceStockage(),
             // On n'a pas besoin de ServiceHéliaTest parce que `pairParDéfaut` est spécifié
-            hélia: serviceHélia({
+            hélia: serviceHélia<ServicesLibp2pNébuleuseDéfaut>({
               libp2p: optionsLibp2p,
+              hélia: créerHéliaÉphémère,
             }),
             libp2p: serviceLibp2p(),
           },

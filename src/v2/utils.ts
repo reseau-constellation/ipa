@@ -80,19 +80,26 @@ export const sauvegarderDonnéesExportées = async ({
             id: fichier,
             signal: chrono.signal,
           });
+
+          // `chrono.clear()` doit venir après `toBuffer`
+          const octets = await toBuffer(itérable);
           chrono.clear();
 
           return {
             nom: fichier.replace("/", "-"),
-            octets: await toBuffer(itérable),
+            octets,
           };
         }),
       )
     )
       .filter(
         // On ignore les fichiers qui n'ont pas pu être trouvés sur le réseau
-        (x): x is PromiseFulfilledResult<{ nom: string; octets: Uint8Array }> =>
-          x.status === "fulfilled" && !!x.value.octets,
+        (
+          x,
+        ): x is PromiseFulfilledResult<{
+          nom: string;
+          octets: Uint8Array<ArrayBuffer>;
+        }> => x.status === "fulfilled" && !!x.value.octets,
       )
       .map((x) => x.value);
 

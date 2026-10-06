@@ -300,7 +300,7 @@ describe("Accès", function () {
         );
         dernière = orbite;
       }
-      
+
       // Attendre que la base de donées originale reçoive la dernière modification
       await obtenir<AccèsDispositif[]>(({ si }) =>
         (bd.access as InstanceContrôleurNébuleuse).suivreDispositifsAutorisées(

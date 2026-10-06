@@ -84,8 +84,11 @@ export class Constellation<
   licences: Licences;
 
   constructor(options: OptionsConstellation<L>) {
-    const défauts = {
-      nomAppli: "constellation",
+    const défauts: OptionsConstellation<L> = {
+      options: {
+        nomAppli: "constellation",
+        mode: "prod",
+      },
       services: {
         compte: {
           schéma: schémaConstellation,
