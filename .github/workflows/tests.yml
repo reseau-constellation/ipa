@@ -130,7 +130,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
   
-  test-deno:
+  test-ipa-deno:
     name: IPA sur Déno
     strategy:
       matrix:
