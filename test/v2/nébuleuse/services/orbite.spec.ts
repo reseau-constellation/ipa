@@ -10,9 +10,10 @@ import {
   isValidAddress,
 } from "@orbitdb/core";
 import { expect } from "aegir/chai";
-import { createHelia } from "helia";
+import { createHeliaLight } from "helia";
 import { isBrowser } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
+import { withLibp2pLight } from "@helia/libp2p";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import {
   BD_ORIGINALE,
@@ -329,7 +330,7 @@ describe("Service Orbite", function () {
       const libp2p = isBrowser
         ? OptionsDéfautLibp2pNavigateur()
         : OptionsDéfautLibp2pNode();
-      const hélia = await createHelia({ libp2p }).start();
+      const hélia = await withLibp2pLight(createHeliaLight(), libp2p).start();
       const orbiteOriginale: OrbitDB<ServicesLibp2pTest> = await createOrbitDB({
         ipfs: hélia,
         directory: dossier,
