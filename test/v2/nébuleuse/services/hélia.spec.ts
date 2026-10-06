@@ -4,10 +4,11 @@ import {
 } from "@constl/utils-tests";
 
 import { expect } from "aegir/chai";
-import { createHelia } from "helia";
+import { createHeliaLight } from "helia";
 import { isBrowser } from "wherearewe";
 import { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
+import { withLibp2pLight, type HeliaWithLibp2p } from "@helia/libp2p";
 import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import { serviceDossier } from "@/v2/nébuleuse/services/dossier.js";
@@ -22,7 +23,6 @@ import type {
 } from "@/v2/nébuleuse/services/hélia.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { ServicesLibp2pTest } from "@constl/utils-tests";
-import type { HeliaWithLibp2p } from "@helia/libp2p";
 
 describe("Service Hélia", function () {
   describe("demarrage", function () {
@@ -96,7 +96,10 @@ describe("Service Hélia", function () {
       const libp2p = isBrowser
         ? OptionsDéfautLibp2pNavigateur()
         : OptionsDéfautLibp2pNode();
-      const héliaOriginal = await createHelia({ libp2p }).start();
+      const héliaOriginal = await withLibp2pLight(
+        createHeliaLight(),
+        libp2p,
+      ).start();
 
       appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
         services: {
