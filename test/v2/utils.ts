@@ -1,6 +1,6 @@
 import path from "path";
 import { isBrowser } from "wherearewe";
-import { dossierTempo } from "@constl/utils-tests";
+import { créerHéliasTest, dossierTempo } from "@constl/utils-tests";
 
 import { TypedEmitter } from "tiny-typed-emitter";
 import { isNull } from "lodash-es";
@@ -14,7 +14,6 @@ import { créerConstellation } from "@/v2/index.js";
 import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
-import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import type { InfoRésultat, RésultatRecherche } from "@/v2/recherche/types.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Constellation as ConstructeurConstellation } from "@/v2/constellation.js";
@@ -450,13 +449,14 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
 
   const constls: (Constellation | ConstructeurConstellation)[] = [];
 
+  const { fermer: fermerHélias, hélias } = await créerHéliasTest({ n });
   for (const i in [...Array(n).entries()]) {
     const constl = créerConstellation(
       {
         services: {
           dossier: { dossier: path.join(dossier, i) },
           hélia: {
-            libp2p: obtenirOptionsLibp2pTest(),
+            hélia: hélias[i],
           },
         },
       },
@@ -470,6 +470,7 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
 
   const fermer = async () => {
     await Promise.allSettled(constls.map((c) => c.fermer()));
+    await fermerHélias();
     effacer();
   };
 
