@@ -285,6 +285,8 @@ export class BaseServiceCompte<
       throw new Error(`Adresse compte "${idCompte}" non valide`);
     }
 
+    const { oublier: oublierAncienneBdCompte } = await this.démarré()
+
     // Attendre de recevoir la permission d'écrire au nouveau compte
     const { bd: bdNouveauCompte, oublier } = await this.service(
       "orbite",
