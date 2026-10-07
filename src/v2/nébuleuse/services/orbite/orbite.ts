@@ -294,9 +294,6 @@ export class ServiceOrbite<
     const orbite = await this.orbite();
     let ouverte = false;
 
-    // À faire : risque de condition course avec `fermer()` ?
-    this.fermetures.get(id)?.annulerFermeture();
-
     const signaleurLocal = new AbortController();
     const signalFinal = anySignal(
       signal
@@ -543,11 +540,12 @@ export class ServiceOrbite<
   oublierAvecDélai(bd: BaseDatabase): Oublier {
     return async () => {
       const chronoOublier = setTimeout(async () => await bd.close(), 1000 * 60);
+      const id = bd.address + uuidv4()
       const annulerFermeture = () => {
-        this.fermetures.delete(bd.address);
+        this.fermetures.delete(id);
         clearTimeout(chronoOublier);
       };
-      this.fermetures.set(bd.address, {
+      this.fermetures.set(id, {
         fermerToutDeSuite: async () => {
           annulerFermeture();
           await bd.close();
