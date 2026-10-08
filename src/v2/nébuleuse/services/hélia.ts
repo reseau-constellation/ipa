@@ -1,7 +1,5 @@
 import { join } from "path";
 import { createHelia } from "helia";
-import { isElectronMain, isNode } from "wherearewe";
-import { IDBBlockstore } from "blockstore-idb";
 import {
   fromString as uint8ArrayFromString,
   toString as uint8ArrayToString,
@@ -200,7 +198,6 @@ export const obtenirOptionsHélia = async ({
 
   const stockageBlocs = await obtStockageBlocs(dossierBlocs);
   const stockageDonnées = await obtStockageDonnées(dossierDonnées);
-
 
   const optionsHelia: HeliaInit = {
     blockstore: stockageBlocs,

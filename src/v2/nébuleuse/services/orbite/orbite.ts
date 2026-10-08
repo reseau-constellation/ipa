@@ -540,7 +540,7 @@ export class ServiceOrbite<
   oublierAvecDélai(bd: BaseDatabase): Oublier {
     return async () => {
       const chronoOublier = setTimeout(async () => await bd.close(), 1000 * 60);
-      const id = bd.address + uuidv4()
+      const id = bd.address + uuidv4();
       const annulerFermeture = () => {
         this.fermetures.delete(id);
         clearTimeout(chronoOublier);
