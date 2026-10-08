@@ -1229,12 +1229,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idPair,
   }: {
     idPair: string;
-  }): Promise<LengthPrefixedStream> {
-    const x = this.flux.get(idPair);
+  }): Promise< { soujacent: Stream; flux: LengthPrefixedStream; }> {
+    const fluxExistant = this.flux.get(idPair);
 
-    // console.log("statut existante", flux?.status, flux?.readStatus, flux?.writeStatus, flux?.remoteReadStatus, flux?.remoteWriteStatus)
-    if (x) return x.flux;
-    else {
+    if (false && fluxExistant) {
+      console.log(`✨ flux existant vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`, fluxExistant?.soujacent.status, fluxExistant?.soujacent.readStatus, fluxExistant?.soujacent.writeStatus, fluxExistant?.soujacent.remoteReadStatus, fluxExistant?.soujacent.remoteWriteStatus)
+      return fluxExistant
+    } else {
+      // console.log(`✨ nouveau flux vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`)
       const libp2p = await this.service("libp2p").libp2p();
       const signal = this.signaleurArrêt.signal;
 
@@ -1249,7 +1251,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       flux.addEventListener("close", () => this.flux.delete(idPair));
       // flux.addEventListener("remoteCloseWrite", () => flux.close());
 
-      return fluxPl;
+      return { soujacent: flux, flux: fluxPl };
     }
   }
 
@@ -1260,18 +1262,17 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     message: MessageRéseau;
     idPair: string;
   }) {
-    let flux: LengthPrefixedStream;
     try {
-      flux = await this.obtFluxPair({ idPair });
+      const {flux, soujacent} = await this.obtFluxPair({ idPair });
+      const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
+      await flux.write(octetsMessage);
+      // console.log("après écriture", soujacent.status, soujacent.readStatus, soujacent.writeStatus, soujacent.remoteReadStatus, soujacent.remoteWriteStatus)
     } catch (e) {
       throw new Error(
         `Impossible de se connecter au pair ${idPair}.` + e.toString(),
         { cause: e },
       );
-    }
-
-    const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
-    await flux.write(octetsMessage);
+    }    
   }
 
   async envoyerMessageAuDispositif({
