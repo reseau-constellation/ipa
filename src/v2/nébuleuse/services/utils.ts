@@ -30,6 +30,7 @@ export const obtStockageDonnées = async (
   }
   // Ouverture manuelle requise pour une drôle de raison pour l'instant.
   await stockage.open();
+  return stockage;
 };
 
 export const obtStockageBlocs = async (
