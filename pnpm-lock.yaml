@@ -169,7 +169,7 @@ overrides:
 
 patchedDependencies:
   '@libp2p/gossipsub@17.1.2': 01f0e57e1cd000f4bfb47308a6f7aa7cef82d7c96682fc6ac72491eeea52a82e
-  '@orbitdb/core': ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff
+  '@orbitdb/core': 9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053
 
 importers:
 
@@ -294,7 +294,7 @@ importers:
         version: 2.4.0
       '@orbitdb/core':
         specifier: 4.0.0-3e1d628.0
-        version: 4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)
+        version: 4.0.0-3e1d628.0(patch_hash=9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053)
       '@orbitdb/feed-db':
         specifier: ^2.0.0
         version: 2.0.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
@@ -373,6 +373,9 @@ importers:
       indexed-db-stream:
         specifier: ^1.0.0
         version: 1.0.0
+      interface-blockstore:
+        specifier: ^7.0.1
+        version: 7.0.1
       iso-constants:
         specifier: github:inverted-capital/iso-constants#patch-1
         version: https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f
@@ -453,8 +456,8 @@ importers:
         version: 2.0.1
     devDependencies:
       '@constl/utils-tests':
-        specifier: ^2.2.4
-        version: 2.2.4(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
+        specifier: ^2.2.7
+        version: 2.2.7(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@9.39.5(supports-color@10.2.2))
@@ -1091,8 +1094,8 @@ packages:
     resolution: {integrity: sha512-Em0Wb5KtcK0OJjN1R9I5XF3QZqJszdKiNR7m6WpnnGy6DN8C65iYiFdJEePzpx9kJD2xb2j3yRpkbu52m9IkRw==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@2.2.4':
-    resolution: {integrity: sha512-MiVdcvbtGFy6jJRoLYpB9wLss8Q2xBtJMERlM2J+giyuqeV8L0EJo+XuxRMZeajpaeWAbSWbJ8UTcwaVS34WCQ==}
+  '@constl/utils-tests@2.2.7':
+    resolution: {integrity: sha512-QJ1jZ9Lh1+jpcGtK9sWarmXrHW+qV7BSc2oenfxa0f6DDm+c+662K1fbVNK56r0kNSSU4+3rTdE+wG8kqm0TvQ==}
     engines: {node: '>=20'}
 
   '@cspell/cspell-bundled-dicts@10.3.6':
@@ -9364,7 +9367,7 @@ snapshots:
 
   '@constl/bohr-db@2.3.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053)
       '@orbitdb/core-types': 2.0.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
       '@orbitdb/feed-db': 2.0.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
       '@orbitdb/nested-db': 2.2.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
@@ -9404,7 +9407,7 @@ snapshots:
       uint8arrays: 5.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@2.2.4(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)':
+  '@constl/utils-tests@2.2.7(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
       '@helia/bitswap': 4.0.20(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
       '@helia/libp2p': 2.1.5(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
@@ -9414,16 +9417,20 @@ snapshots:
       '@libp2p/peer-id': 6.0.15
       '@libp2p/ping': 3.1.13
       '@libp2p/webrtc': 6.0.33(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053)
       blockstore-core: 7.0.1
       blockstore-fs: 4.0.1
       blockstore-idb: 4.0.1
       browserify-fs: 1.0.0
       chokidar: 5.0.0
       crypto-browserify: 3.12.1
+      datastore-core: 12.0.1
+      datastore-fs: 12.0.1
+      datastore-idb: 5.0.1
       events: 3.3.0
       genversion: 3.2.0
       helia: 7.1.16(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
+      interface-datastore: 10.0.1
       libp2p: 3.3.11
       multiformats: 14.0.0
       os-browserify: 0.3.0
@@ -10944,7 +10951,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@orbitdb/core@4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)':
+  '@orbitdb/core@4.0.0-3e1d628.0(patch_hash=9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053)':
     dependencies:
       '@ipld/dag-cbor': 9.2.7
       '@libp2p/crypto': 5.1.23
@@ -10960,7 +10967,7 @@ snapshots:
   '@orbitdb/feed-db@2.0.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
       '@helia/libp2p': 2.1.5(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053)
       helia: 7.1.16(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
       tiny-typed-emitter: 2.1.0
     transitivePeerDependencies:
@@ -10972,7 +10979,7 @@ snapshots:
   '@orbitdb/nested-db@2.2.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
       '@helia/libp2p': 2.1.5(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053)
       helia: 7.1.16(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
       it-all: 3.0.11
       tiny-typed-emitter: 2.1.0
@@ -10985,7 +10992,7 @@ snapshots:
 
   '@orbitdb/ordered-keyvalue-db@2.0.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053)
       helia: 7.1.16(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
       it-all: 3.0.11
       tiny-typed-emitter: 2.1.0
@@ -10997,7 +11004,7 @@ snapshots:
 
   '@orbitdb/set-db@2.2.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
-      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=ef2a947e67c2e7b2fb3db39a98fcacc048aefe96e05729d8182094ba56dee4ff)
+      '@orbitdb/core': 4.0.0-3e1d628.0(patch_hash=9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053)
       helia: 7.1.16(react-native@0.87.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2))(supports-color@10.2.2)
       tiny-typed-emitter: 2.1.0
     transitivePeerDependencies:

@@ -40,10 +40,18 @@ index 2a6deb1ee3059257d2a68dc1710d181ed8adae97..6627781304c89b2f19f87a91bc804bec
  
    /**
 diff --git a/src/database.js b/src/database.js
-index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..db45f6562df949c377d12e421cb8907c431c7109 100644
+index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..b0340481e408bfb2c4d9eedcafcdf75eaa1af188 100644
 --- a/src/database.js
 +++ b/src/database.js
-@@ -44,7 +44,7 @@ const defaultCacheSize = 1000
+@@ -10,6 +10,7 @@ import Sync from './sync.js'
+ import { Log } from './oplog/index.js'
+ import { ComposedStorage, LRUStorage, IPFSBlockStorage, LevelStorage } from './storage/index.js'
+ import pathJoin from './utils/path-join.js'
++import { anySignal } from "any-signal";
+ 
+ const defaultReferencesCount = 16
+ const defaultCacheSize = 1000
+@@ -44,7 +45,7 @@ const defaultCacheSize = 1000
   * @return {module:Databases~Database} An instance of Database.
   * @instance
   */
@@ -52,12 +60,13 @@ index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..db45f6562df949c377d12e421cb8907c
    /**
     * @namespace module:Databases~Database
     * @description The instance returned by {@link module:Database~Database}.
-@@ -112,12 +112,14 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
+@@ -112,12 +113,15 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
  
    encryption = encryption || {}
  
 -  const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage, encryption })
-+  const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage, encryption, signal })
++  const localController = new AbortController()
++  const log = await Log(identity, { logId: address, access, entryStorage, headsStorage, indexStorage, encryption, signal:  anySignal([signal, localController.signal]) })
  
    const events = new EventEmitter()
  
@@ -68,7 +77,7 @@ index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..db45f6562df949c377d12e421cb8907c
    /**
     * Adds an operation to the oplog.
     * @function addOperation
-@@ -167,12 +169,17 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
+@@ -167,12 +171,18 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
     * @async
     */
    const close = async () => {
@@ -76,6 +85,7 @@ index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..db45f6562df949c377d12e421cb8907c
 +    else if (status === "closing") return new Promise(resolve=>events.once('close', resolve)) 
 +    status = "closing"
 +
++    localController.abort()
      await sync.stop()
      await queue.onIdle()
      await log.close()
@@ -86,7 +96,7 @@ index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..db45f6562df949c377d12e421cb8907c
      events.emit('close')
    }
  
-@@ -191,7 +198,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
+@@ -191,7 +201,7 @@ const Database = async ({ ipfs, identity, address, name, access, directory, meta
      events.emit('drop')
    }
  

@@ -37,7 +37,7 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/utils-tests": "^2.2.4",
+    "@constl/utils-tests": "^2.2.7",
     "@eslint/js": "^10.0.1",
     "@libp2p/interface": "^3.3.0",
     "@libp2p/interface-internal": "^3.1.13",
@@ -167,6 +167,7 @@
     "geojson-validation": "^1.0.2",
     "helia": "^7.1.16",
     "indexed-db-stream": "^1.0.0",
+    "interface-blockstore": "^7.0.1",
     "iso-constants": "github:inverted-capital/iso-constants#patch-1",
     "it-drain": "^3.0.12",
     "it-length-prefixed": "^11.0.1",
