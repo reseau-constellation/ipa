@@ -14,7 +14,7 @@ import { CID } from "multiformats";
 import { ServiceAppli } from "../appli/index.js";
 import { STATUTS } from "../appli/consts.js";
 import { obtenirOptionsLibp2p } from "./libp2p/config/index.js";
-import { obtStockageDonnées } from "./utils.js";
+import { obtStockageBlocs, obtStockageDonnées } from "./utils.js";
 import type { OptionsAppli } from "../appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 import type { HeliaInit } from "helia";
@@ -195,21 +195,12 @@ export const obtenirOptionsHélia = async ({
 }: {
   dossierHélia: string;
 }): Promise<HeliaInit> => {
-  const dossierDonnées = `${dossierHélia}/données`;
-  const dossierBlocs = `${dossierHélia}/blocs`;
+  const dossierDonnées = join(dossierHélia, "données");
+  const dossierBlocs = join(dossierHélia, "blocs");
 
-  // Importer FsBlockstore et FsDatastore dynamiquement pour éviter les erreurs
-  // de compilation sur le navigateur
-  const stockageBlocs =
-    isNode || isElectronMain
-      ? new (await import("blockstore-fs")).FsBlockstore(dossierBlocs)
-      : new IDBBlockstore(dossierBlocs);
+  const stockageBlocs = await obtStockageBlocs(dossierBlocs);
   const stockageDonnées = await obtStockageDonnées(dossierDonnées);
 
-  // Ouverture manuelle requise pour une drôle de raison pour l'instant.
-  if (!(isNode || isElectronMain)) {
-    await stockageBlocs.open();
-  }
 
   const optionsHelia: HeliaInit = {
     blockstore: stockageBlocs,

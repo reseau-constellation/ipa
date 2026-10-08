@@ -1,5 +1,5 @@
 import { IDBDatastore } from "datastore-idb";
-import { isElectronMain, isNode } from "wherearewe";
+import { isBrowser, isElectronRenderer, isWebWorker } from "wherearewe";
 import { randomBytes } from "@noble/hashes/utils.js";
 import bs58 from "bs58";
 
@@ -7,26 +7,46 @@ import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
 import { faisRien } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
+import { IDBBlockstore } from "blockstore-idb";
 import type { ListenerSignature } from "tiny-typed-emitter";
 import type { Oublier, Suivi } from "../types.js";
 import type { Datastore } from "interface-datastore";
+import type { Blockstore } from "interface-blockstore";
+import type { FsDatastore } from "datastore-fs";
+import type { FsBlockstore } from "blockstore-fs";
 
 export const obtStockageDonnées = async (
   dossier: string,
 ): Promise<Datastore> => {
-  if (isNode || isElectronMain) {
+  let stockage: FsDatastore | IDBDatastore;
+  if (isBrowser || isElectronRenderer || isWebWorker) {
+    stockage = new IDBDatastore(dossier);
+  } else {
     // Cette librairie ne peut pas être compilée pour l'environnement
     // navigateur. Nous devons donc le'importer dynamiquement ici afin d'éviter
     // des problèmes de compilation sur navigateur.
     const { FsDatastore } = await import("datastore-fs");
-    const stockage = new FsDatastore(dossier);
-    await stockage.open();
-    return stockage;
-  } else {
-    const stockage = new IDBDatastore(dossier);
-    await stockage.open();
-    return stockage;
+    stockage = new FsDatastore(dossier);
   }
+  // Ouverture manuelle requise pour une drôle de raison pour l'instant.
+  await stockage.open();
+};
+
+export const obtStockageBlocs = async (
+  dossier: string,
+): Promise<Blockstore> => {
+  let stockage: FsBlockstore | IDBBlockstore;
+  if (isBrowser || isElectronRenderer || isWebWorker) {
+    stockage = new IDBBlockstore(dossier);
+  } else {
+    // Importer FsBlockstore dynamiquement pour éviter les erreurs
+    // de compilation sur le navigateur
+    const { FsBlockstore } = await import("blockstore-fs");
+    stockage = new FsBlockstore(dossier);
+  }
+  // Ouverture manuelle requise pour une drôle de raison pour l'instant.
+  await stockage.open();
+  return stockage;
 };
 
 export const estUnePromesse = (x: unknown): x is Promise<void> => {
@@ -137,7 +157,7 @@ export const générerRésolveur = <T, S>(
       if (n === 0) compléter();
     });
 
-    await Promise.allSettled(oublis.values().map((f) => f()));
+    await Promise.allSettled([...oublis.values()].map((f) => f()));
   };
   const fFinale = async (...args: Parameters<FonctionRésolveur<T, S>>) => {
     if (fermé) return faisRien;
