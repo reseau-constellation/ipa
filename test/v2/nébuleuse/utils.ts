@@ -34,7 +34,7 @@ export class NébuleuseTest<
       ServicesNébuleuse<T & StructureNébuleuse>
     >;
     options?: Omit<OptionsNébuleuse<T, ServicesLibp2pTest>, "libp2p">;
-  }) {
+  } = {}) {
     super({
       services: {
         ...(services || {}),
