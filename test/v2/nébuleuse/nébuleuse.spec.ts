@@ -1,10 +1,7 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
-import {
-  créerOrbitesTest,
-  OptionsDéfautLibp2pNavigateur,
-} from "@constl/utils-tests";
+import { créerOrbitesTest, optionsDéfautLibp2p } from "@constl/utils-tests";
 import {
   isBrowser,
   isElectronMain,
@@ -43,7 +40,7 @@ describe("Nébuleuse", function () {
     let fermer: () => Promise<void>;
 
     const libp2p: GénérateurOptionsLibp2p<ServicesLibp2pNébuleuse> = async () =>
-      OptionsDéfautLibp2pNavigateur();
+      optionsDéfautLibp2p();
 
     before(async () => {
       const test = await créerOrbitesTest({ n: 1 });
