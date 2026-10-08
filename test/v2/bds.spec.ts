@@ -2173,7 +2173,7 @@ describe("Bases de données", function () {
 
     it("persistance à la réouverture", async () => {
       const { constls: constlsTestRéouverture, fermer: fermerTestRéouverture } =
-        await créerConstellationsTest({ n: 1, persistant: true });
+        await créerConstellationsTest({ n: 1, persistante: true });
       const constlTestRéouverture = constlsTestRéouverture[0];
       const idBdUniqueTestRéouverture =
         await constlTestRéouverture.bds.obtenirBdUnique({

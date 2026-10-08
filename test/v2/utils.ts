@@ -438,15 +438,15 @@ export const rechercherProfondeur = async <T>(
 type CréerConstellationsTest<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
-  (args: { n: number; persistant?: boolean; avecMandataire: false }): Promise<{
+  (args: { n: number; persistante?: boolean; avecMandataire: false }): Promise<{
     constls: ConstructeurConstellation<L>[];
     fermer: Oublier;
   }>;
-  (args: { n: number; persistant?: boolean; avecMandataire?: true }): Promise<{
+  (args: { n: number; persistante?: boolean; avecMandataire?: true }): Promise<{
     constls: Constellation<L>[];
     fermer: Oublier;
   }>;
-  (args: { n: number; persistant?: boolean; avecMandataire?: boolean }): Promise<{
+  (args: { n: number; persistante?: boolean; avecMandataire?: boolean }): Promise<{
     constls: (Constellation<L> | ConstructeurConstellation<L>)[];
     fermer: Oublier;
   }>;
@@ -455,7 +455,7 @@ type CréerConstellationsTest<
 export const créerConstellationsTest: CréerConstellationsTest = async ({
   n,
   avecMandataire = true,
-  persistant = false,
+  persistante = false,
 }) => {
   const { dossier, effacer } = await dossierTempoPropre();
 
@@ -463,7 +463,7 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
 
   const { fermer: fermerHélias, hélias } = await créerHéliasTest({
     n,
-    dossier: persistant ? dossier : undefined,
+    dossier: persistante ? dossier : undefined,
   });
   for (const i in [...Array(n).entries()]) {
     const constl = créerConstellation(

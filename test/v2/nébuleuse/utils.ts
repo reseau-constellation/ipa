@@ -1,5 +1,5 @@
 import path from "path";
-import { obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
+import { créerHéliasTest, obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
 import { merge } from "ts-deepmerge";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
@@ -70,6 +70,7 @@ export const créerNébuleusesTest = async <
   n,
   services,
   options,
+  persistante = false,
 }: {
   n: number;
   services?: ConstructeursServicesAppli<
@@ -77,6 +78,7 @@ export const créerNébuleusesTest = async <
     ServicesNébuleuse<T & StructureNébuleuse>
   >;
   options?: Omit<OptionsNébuleuse<T, ServicesLibp2pNébuleuse>, "libp2p"> | undefined;
+  persistante?: boolean;
 }): Promise<{
   nébuleuses: NébuleuseTest<T, S>[];
   fermer: Oublier;
@@ -94,12 +96,15 @@ export const créerNébuleusesTest = async <
   }
 
   const nébuleuses: NébuleuseTest<T, S>[] = [];
-
+  const { fermer: fermerHélias, hélias } = await créerHéliasTest({
+    n,
+    dossier: persistante ? dossierBase : undefined,
+  });
   for (const i in [...Array(n).entries()]) {
     const dossier = path.join(dossierBase, String(i));
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
-      options: merge({}, options, { services: { dossier: { dossier } } }),
+      options: merge({}, options, { services: { dossier: { dossier }, hélia: hélias[i] } }),
     });
     nébuleuses.push(nébuleuse);
   }
@@ -111,6 +116,7 @@ export const créerNébuleusesTest = async <
 
   const fermer = async () => {
     await Promise.allSettled(nébuleuses.map((c) => c.fermer()));
+    await fermerHélias()
     effacer?.();
   };
 

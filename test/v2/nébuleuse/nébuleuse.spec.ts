@@ -19,7 +19,7 @@ import {
 } from "@/v2/nébuleuse/services/dossier.js";
 import { ServiceAppli } from "@/v2/nébuleuse/appli/index.js";
 import { dossierTempoPropre, utiliserFauxChronomètres } from "../utils.js";
-import { NébuleuseTest } from "./utils.js";
+import { créerNébuleusesTest, NébuleuseTest } from "./utils.js";
 import type sinon from "sinon";
 import type { ServicesNécessairesDonnées } from "@/v2/nébuleuse/services/services.js";
 import type {
@@ -130,23 +130,16 @@ describe("Nébuleuse", function () {
 
   describe("création", function () {
     let nébuleuse: NébuleuseTest;
-    let dossier: string;
-    let effacer: () => void;
-
-    before(async () => {
-      ({ dossier, effacer } = await dossierTempoPropre());
-    });
+    let nébuleuses: NébuleuseTest[];
+    let fermer: () => void;
 
     after(async () => {
-      if (nébuleuse) await nébuleuse.fermer();
-      effacer?.();
+      fermer?.();
     });
 
     it("démarrage", async () => {
-      nébuleuse = new NébuleuseTest({
-        options: { services: { dossier: { dossier } } },
-        services: {},
-      });
+      ({nébuleuses, fermer } = await créerNébuleusesTest({ n: 1 }));
+      nébuleuse = nébuleuses[0]
 
       await nébuleuse.démarrer();
       expect(Object.values(nébuleuse.services).every((s) => s.estDémarré));
@@ -237,13 +230,13 @@ describe("Nébuleuse", function () {
     };
 
     let nébuleuse: NébuleuseTest<StructureDonnées>;
+    let nébuleuses: NébuleuseTest<StructureDonnées>[];
     let dossier: string;
-    let effacer: () => void;
+    let fermer: () => void;
 
     before(async () => {
-      ({ dossier, effacer } = await dossierTempoPropre());
-
-      nébuleuse = new NébuleuseTest<StructureDonnées>({
+      ({nébuleuses, fermer } = await créerNébuleusesTest({ 
+        n: 1,
         services: {
           générique: ({ options, services }) =>
             new ServiceGénérique({ options, services }),
@@ -257,14 +250,13 @@ describe("Nébuleuse", function () {
             dossier: { dossier },
             compte: { schéma },
           },
-        },
-      });
-      await nébuleuse.démarrer();
+      }));
+      nébuleuse = nébuleuses[0]
+
     });
 
     after(async () => {
-      await nébuleuse?.fermer();
-      effacer?.();
+      fermer?.();
     });
 
     it("accès aux services additionnels", async () => {
