@@ -460,7 +460,10 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
 
   const constls: (Constellation | ConstructeurConstellation)[] = [];
 
-  const { fermer: fermerHélias, hélias } = await créerHéliasTest({ n });
+  const { fermer: fermerHélias, hélias } = await créerHéliasTest({
+    n,
+    dossier,
+  });
   for (const i in [...Array(n).entries()]) {
     const constl = créerConstellation(
       {
