@@ -1,6 +1,5 @@
 import {
-  OptionsDéfautLibp2pNavigateur,
-  OptionsDéfautLibp2pNode,
+  optionsDéfautLibp2p,
   créerOrbitesTest,
   que,
 } from "@constl/utils-tests";
@@ -10,7 +9,6 @@ import {
   isValidAddress,
 } from "@orbitdb/core";
 import { expect } from "aegir/chai";
-import { isBrowser } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";
 import {
@@ -329,9 +327,7 @@ describe("Service Orbite", function () {
     });
 
     it("orbite non fermé si exogène", async () => {
-      const libp2p = isBrowser
-        ? OptionsDéfautLibp2pNavigateur()
-        : OptionsDéfautLibp2pNode();
+      const libp2p = optionsDéfautLibp2p();
       const hélia = await créerHéliaÉphémère({ libp2p }).start();
       const orbiteOriginale: OrbitDB<ServicesLibp2pTest> = await createOrbitDB({
         ipfs: hélia,

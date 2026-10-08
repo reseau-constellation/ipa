@@ -1,9 +1,4 @@
-import {
-  OptionsDéfautLibp2pNavigateur,
-  OptionsDéfautLibp2pNode,
-  obtenirAdresseRelai,
-} from "@constl/utils-tests";
-import { isBrowser, isElectronRenderer, isWebWorker } from "wherearewe";
+import { optionsDéfautLibp2p, obtenirAdresseRelai } from "@constl/utils-tests";
 import { ServiceHélia } from "@/v2/nébuleuse/index.js";
 import { obtenirOptionsLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
 import { créerHéliaÉphémère } from "../../utils.js";
@@ -39,10 +34,7 @@ export const obtenirOptionsLibp2pTest = (
   } = {}): Promise<Libp2pOptions<ServicesLibp2pNébuleuse>> => {
     clefPrivée = config.clefPrivée ?? clefPrivée;
 
-    const options =
-      isBrowser || isElectronRenderer || isWebWorker
-        ? OptionsDéfautLibp2pNavigateur()
-        : OptionsDéfautLibp2pNode();
+    const options = optionsDéfautLibp2p();
     if (clefPrivée) options.privateKey = clefPrivée;
     return options;
   };

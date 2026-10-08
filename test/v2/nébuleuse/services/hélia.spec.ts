@@ -1,10 +1,7 @@
-import {
-  OptionsDéfautLibp2pNavigateur,
-  OptionsDéfautLibp2pNode,
-} from "@constl/utils-tests";
+import { optionsDéfautLibp2p } from "@constl/utils-tests";
 
 import { expect } from "aegir/chai";
-import { isBrowser } from "wherearewe";
+
 import { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
 import { type HeliaWithLibp2p } from "@helia/libp2p";
@@ -92,9 +89,7 @@ describe("Service Hélia", function () {
     });
 
     it("hélia non fermée si exogène", async () => {
-      const libp2p = isBrowser
-        ? OptionsDéfautLibp2pNavigateur()
-        : OptionsDéfautLibp2pNode();
+      const libp2p = optionsDéfautLibp2p();
       const héliaOriginal = await créerHéliaÉphémère({ libp2p }).start();
 
       appli = new Appli<ServicesNécessairesHélia & { hélia: ServiceHélia }>({
