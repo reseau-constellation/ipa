@@ -19,13 +19,13 @@ export async function importerFeuilleCalculDURL(
     ? réponse.data
     : new Uint8Array(Object.values(réponse.data) as unknown as number[]);
 
-  const optionsParDéfault: ParsingOptions = {
+  const optionsParDéfaut: ParsingOptions = {
     type: "buffer",
     cellDates: true,
   };
   const optsXLSX: ParsingOptions = Object.assign(
     {},
-    optionsParDéfault,
+    optionsParDéfaut,
     options || {},
   );
   return readXLSX(données, optsXLSX);
