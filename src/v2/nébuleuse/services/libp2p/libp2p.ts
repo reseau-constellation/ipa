@@ -5,7 +5,6 @@ import type { Libp2p } from "libp2p";
 import type { Identify, IdentifyPush } from "@libp2p/identify";
 import type { GossipSub } from "@libp2p/gossipsub";
 import type { PeerUpdate, ServiceMap } from "@libp2p/interface";
-import type { ServiceClefPrivée } from "./config/utils.js";
 import type { OptionsAppli } from "../../appli/appli.js";
 import type { Ping } from "@libp2p/ping";
 import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
@@ -14,7 +13,6 @@ export type ServicesLibp2pNébuleuse = {
   identify: Identify;
   identifyPush: IdentifyPush;
   pubsub: GossipSub;
-  obtClefPrivée: ServiceClefPrivée;
   ping: Ping;
 } & ServiceMap;
 
@@ -116,8 +114,12 @@ export class ServiceLibp2p<
       );
       const connexions = libp2p
         .getConnections()
-        .filter((c) =>
-          c.remoteAddr.toString().includes(`${idPair.toString()}/p2p-circuit/`),
+        .filter(
+          (c) =>
+            c.remoteAddr
+              .toString()
+              .includes(`${idPair.toString()}/p2p-circuit/`) ||
+            c.remoteAddr.toString().startsWith("/webrtc/p2p/"),
         );
       await Promise.allSettled(connexions.map((c) => c.close()));
     });

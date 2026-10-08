@@ -268,9 +268,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               const octets = await fluxPl.read({
                 signal: this.signaleurArrêt.signal,
               });
+              // console.log(octets)
               const message = JSON.parse(
                 new TextDecoder().decode(octets.slice()),
               ) as MessageRéseau;
+              // console.log({message})
               if (message.type === IDENTITÉ_COMPTE) {
                 await traiterIdentitéCompte({ message, idPair });
               }

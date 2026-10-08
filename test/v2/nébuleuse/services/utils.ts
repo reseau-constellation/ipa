@@ -2,7 +2,6 @@ import { optionsDéfautLibp2p, obtenirAdresseRelai } from "@constl/utils-tests";
 import { ServiceHélia } from "@/v2/nébuleuse/index.js";
 import { obtenirOptionsLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
 import { créerHéliaÉphémère } from "../../utils.js";
-import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { PrivateKey } from "@libp2p/interface";
 import type { Libp2pOptions } from "libp2p";
 import type {
@@ -40,12 +39,12 @@ export const obtenirOptionsLibp2pTest = (
   };
 };
 
-export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pTest> {
+export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pNébuleuse> {
   constructor({
     services,
     options,
   }: {
-    services: ServicesNécessairesLibp2p<ServicesLibp2pTest>;
+    services: ServicesNécessairesLibp2p<ServicesLibp2pNébuleuse>;
     options: OptionsServiceLibp2p & OptionsAppli;
   }) {
     super({
@@ -59,7 +58,7 @@ export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pTest> {
 }
 
 export const serviceHéliaTest =
-  (optionsHélia?: OptionsServiceHélia<ServicesLibp2pTest>) =>
+  (optionsHélia?: OptionsServiceHélia) =>
   ({
     options,
     services,

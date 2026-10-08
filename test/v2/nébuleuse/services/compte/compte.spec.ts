@@ -4,7 +4,6 @@ import { isValidAddress } from "@orbitdb/core";
 import {
   obtenirAdresseRelai,
   toutesConnectées,
-  type ServicesLibp2pTest,
 } from "@constl/utils-tests";
 import { merge } from "lodash-es";
 import { serviceCompte } from "@/v2/nébuleuse/services/compte/compte.js";
@@ -50,7 +49,7 @@ const créerApplisTest = async <
   n,
 }: {
   options?: Omit<
-    NonNullable<OptionsNébuleuse<T, ServicesLibp2pTest>["services"]>,
+    NonNullable<OptionsNébuleuse<T>["services"]>,
     "libp2p" | "dossier"
   >;
   services: ConstructeursServicesAppli<
@@ -75,7 +74,7 @@ const créerApplisTest = async <
         stockage: serviceStockage(),
         libp2p: serviceLibp2p(),
         hélia: serviceHéliaTest(options?.hélia),
-        orbite: serviceOrbite<ServicesLibp2pTest>(options?.orbite),
+        orbite: serviceOrbite(options?.orbite),
         compte: serviceCompte<T>({
           ...options?.compte,
           schéma: merge({}, schémaNébuleuse, options?.compte?.schéma || {}),
@@ -119,9 +118,9 @@ describe("Service Compte", function () {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2p<ServicesLibp2pTest>(),
+          libp2p: serviceLibp2p(),
           hélia: serviceHéliaTest(),
-          orbite: serviceOrbite<ServicesLibp2pTest>(),
+          orbite: serviceOrbite(),
           compte: serviceCompte<{
             [clef: string]: NestedValue;
           }>({
@@ -156,8 +155,10 @@ describe("Service Compte", function () {
       expect(idCompte).to.be.a("string");
     });
 
-    it("persistence id compte lorsque redémarré", async () => {
+    it("persistence id compte, dispositif et libp2p lorsque redémarré", async () => {
       const idCompte = await appli.services.compte.obtIdCompte();
+      const idDispositif = await appli.services.compte.obtIdDispositif();
+      const idLibp2p = await appli.services.compte.obtIdLibp2p();
 
       await appli.fermer();
       appli = new Appli<
@@ -169,7 +170,7 @@ describe("Service Compte", function () {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2p<ServicesLibp2pTest>(),
+          libp2p: serviceLibp2p<ServicesLibp2pNébuleuse>(),
           hélia: serviceHéliaTest(),
           orbite: serviceOrbite(),
           compte: serviceCompte({ schéma: { type: "object" } }),
@@ -179,6 +180,12 @@ describe("Service Compte", function () {
 
       const nouvelIdCompte = await appli.services.compte.obtIdCompte();
       expect(nouvelIdCompte).to.equal(idCompte);
+
+      const nouvelIdDispositif = await appli.services.compte.obtIdDispositif();
+      expect(nouvelIdDispositif).to.equal(idDispositif);
+
+      const nouvelIdLibp2p = await appli.services.compte.obtIdLibp2p();
+      expect(nouvelIdLibp2p).to.equal(idLibp2p);
     });
 
     it("suivre id compte", async () => {
@@ -210,7 +217,7 @@ describe("Service Compte", function () {
           dossier: serviceDossier({ dossier }),
           journal: serviceJournal(),
           stockage: serviceStockage(),
-          libp2p: serviceLibp2p<ServicesLibp2pTest>(),
+          libp2p: serviceLibp2p<ServicesLibp2pNébuleuse>(),
           hélia: serviceHéliaTest(),
           orbite: serviceOrbite(),
           compte: serviceCompte<Record<string, never>>({

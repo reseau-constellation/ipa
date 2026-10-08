@@ -29,6 +29,7 @@ import {
 } from "./utils.js";
 import type {
   ServiceLibp2p,
+  ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,
 } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import type { ServicesAppli } from "@/v2/nébuleuse/appli/appli.js";
@@ -36,7 +37,6 @@ import type { ServicesLibp2pNébuleuseDéfaut } from "@/v2/nébuleuse/services/l
 import type { Libp2p, PrivateKey } from "@libp2p/interface";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
-import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { Libp2pOptions } from "libp2p";
 
 describe("Service Libp2p", function () {
@@ -233,7 +233,7 @@ describe("Service Libp2p", function () {
           return "message test";
         }
       }
-      type ServicesLibp2pTestAvecServiceTest = ServicesLibp2pTest & {
+      type ServicesLibp2pNébuleuseAvecServiceTest = ServicesLibp2pNébuleuse & {
         test: ServiceLibp2pTest;
       };
 
@@ -242,8 +242,8 @@ describe("Service Libp2p", function () {
           | (ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
               libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
             })
-          | (ServicesNécessairesLibp2p<ServicesLibp2pTestAvecServiceTest> & {
-              libp2p: ServiceLibp2p<ServicesLibp2pTestAvecServiceTest>;
+          | (ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseAvecServiceTest> & {
+              libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseAvecServiceTest>;
             })
         ) &
           ServicesAppli
@@ -360,7 +360,7 @@ describe("Service Libp2p", function () {
           const optionsDéfaut = await obtenirOptionsLibp2pTest()({
             clefPrivée,
           });
-          const mesOptions: Libp2pOptions<ServicesLibp2pTestAvecServiceTest> = {
+          const mesOptions: Libp2pOptions<ServicesLibp2pNébuleuseAvecServiceTest> = {
             ...optionsDéfaut,
             services: {
               ...optionsDéfaut.services!,
@@ -371,8 +371,8 @@ describe("Service Libp2p", function () {
         };
 
         appli = new Appli<
-          ServicesNécessairesLibp2p<ServicesLibp2pTestAvecServiceTest> & {
-            libp2p: ServiceLibp2p<ServicesLibp2pTestAvecServiceTest>;
+          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseAvecServiceTest> & {
+            libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseAvecServiceTest>;
           }
         >({
           services: {
@@ -380,7 +380,7 @@ describe("Service Libp2p", function () {
             stockage: serviceStockage(),
             libp2p: serviceLibp2p(),
             // On n'a pas besoin de ServiceHéliaTest parce que `libp2p` est externe
-            hélia: serviceHélia<ServicesLibp2pTestAvecServiceTest>({
+            hélia: serviceHélia<ServicesLibp2pNébuleuseAvecServiceTest>({
               libp2p: optionsLibp2p,
               hélia: créerHéliaÉphémère,
             }),
@@ -390,7 +390,7 @@ describe("Service Libp2p", function () {
 
         const libp2p = (await appli.services[
           "libp2p"
-        ].libp2p()) as Libp2p<ServicesLibp2pTestAvecServiceTest>;
+        ].libp2p()) as Libp2p<ServicesLibp2pNébuleuseAvecServiceTest>;
         const résultatTest = libp2p.services["test"].test();
         expect(résultatTest).to.equal("message test");
       });

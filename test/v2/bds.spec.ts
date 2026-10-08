@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
-import { dossierTempo, type ServicesLibp2pTest } from "@constl/utils-tests";
+import { dossierTempo } from "@constl/utils-tests";
 import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   DISPOSITIFS_INSTALLÉS,
@@ -50,6 +50,7 @@ import type {
 } from "@/v2/tableaux.js";
 import type { RègleBornes } from "@/v2/règles.js";
 import type { SinonFakeTimers } from "sinon";
+import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 
 describe("Bases de données", function () {
   let fermer: () => Promise<void>;
@@ -2195,11 +2196,11 @@ describe("Bases de données", function () {
 
       await constlTestRéouverture.fermer();
 
-      const constlRéouverte = créerConstellation<ServicesLibp2pTest>({
+      const constlRéouverte = créerConstellation<ServicesLibp2pNébuleuse>({
         services: {
           dossier: { dossier: dossierOriginal },
           hélia: {
-            hélia: créerHéliaÉphémère<ServicesLibp2pTest>,
+            hélia: créerHéliaÉphémère,
             libp2p: obtenirOptionsLibp2pTest(),
           },
         },

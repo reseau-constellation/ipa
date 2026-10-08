@@ -22,7 +22,7 @@ import {
   type ServicesNécessairesOrbite,
 } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
-import { serviceLibp2p } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import { serviceLibp2p, type ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import {
   obtenir,
@@ -35,11 +35,10 @@ import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { BaseDatabase, KeyValueDatabase, OrbitDB } from "@orbitdb/core";
-import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { ServiceOrbite } from "@/v2/nébuleuse/index.js";
 
 describe("Mandataire OrbitDB", function () {
-  let orbites: OrbitDB<ServicesLibp2pTest>[];
+  let orbites: OrbitDB<ServicesLibp2pNébuleuse>[];
   let fermer: Oublier;
 
   const mêmeBd = (bd1: BaseDatabase, bd2: BaseDatabase): boolean => {
@@ -251,7 +250,7 @@ describe("Service Orbite", function () {
     let dossier: string;
     let effacer: () => void;
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
     >;
 
     before(async () => {
@@ -266,7 +265,7 @@ describe("Service Orbite", function () {
     it("orbite démarre", async () => {
       appli = new Appli<
         ServicesNécessairesOrbite & {
-          orbite: ServiceOrbite<ServicesLibp2pTest>;
+          orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
         }
       >({
         services: {
@@ -288,7 +287,7 @@ describe("Service Orbite", function () {
 
   describe("fermer", function () {
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
     >;
 
     let dossier: string;
@@ -306,7 +305,7 @@ describe("Service Orbite", function () {
     it("orbite fermé si endogène", async () => {
       appli = new Appli<
         ServicesNécessairesOrbite & {
-          orbite: ServiceOrbite<ServicesLibp2pTest>;
+          orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
         }
       >({
         services: {
@@ -329,14 +328,14 @@ describe("Service Orbite", function () {
     it("orbite non fermé si exogène", async () => {
       const libp2p = optionsDéfautLibp2p();
       const hélia = await créerHéliaÉphémère({ libp2p }).start();
-      const orbiteOriginale: OrbitDB<ServicesLibp2pTest> = await createOrbitDB({
+      const orbiteOriginale: OrbitDB<ServicesLibp2pNébuleuse> = await createOrbitDB({
         ipfs: hélia,
         directory: dossier,
       });
 
       appli = new Appli<
         ServicesNécessairesOrbite & {
-          orbite: ServiceOrbite<ServicesLibp2pTest>;
+          orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
         }
       >({
         services: {
@@ -365,7 +364,7 @@ describe("Service Orbite", function () {
     let effacer: () => void;
 
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
     >;
     const erreurs: string[] = [];
 
@@ -373,7 +372,7 @@ describe("Service Orbite", function () {
       ({ dossier, effacer } = await dossierTempoPropre());
       appli = new Appli<
         ServicesNécessairesOrbite & {
-          orbite: ServiceOrbite<ServicesLibp2pTest>;
+          orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
         }
       >({
         services: {
@@ -597,14 +596,14 @@ describe("Service Orbite", function () {
     let effacer: () => void;
 
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
     >;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
       appli = new Appli<
         ServicesNécessairesOrbite & {
-          orbite: ServiceOrbite<ServicesLibp2pTest>;
+          orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
         }
       >({
         services: {
@@ -666,14 +665,14 @@ describe("Service Orbite", function () {
     let effacer: () => void;
 
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pTest> }
+      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
     >;
 
     before(async () => {
       ({ dossier, effacer } = await dossierTempoPropre());
       appli = new Appli<
         ServicesNécessairesOrbite & {
-          orbite: ServiceOrbite<ServicesLibp2pTest>;
+          orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
         }
       >({
         services: {

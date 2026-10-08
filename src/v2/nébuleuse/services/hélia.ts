@@ -1,18 +1,14 @@
 import { join } from "path";
 import { createHelia } from "helia";
-import {
-  fromString as uint8ArrayFromString,
-  toString as uint8ArrayToString,
-} from "uint8arrays";
-import { keys } from "@libp2p/crypto";
-
 import { unixfs } from "@helia/unixfs";
 import { toBuffer } from "@constl/utils-ipa";
 import { CID } from "multiformats";
+import { loadOrCreateSelfKey } from "@libp2p/config";
 import { ServiceAppli } from "../appli/index.js";
 import { STATUTS } from "../appli/consts.js";
 import { obtenirOptionsLibp2p } from "./libp2p/config/index.js";
 import { obtStockageBlocs, obtStockageDonnées } from "./utils.js";
+
 import type { OptionsAppli } from "../appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 import type { HeliaInit } from "helia";
@@ -22,6 +18,7 @@ import type { ServiceDossier } from "./dossier.js";
 import type { ServiceStockage } from "./stockage.js";
 import type { PrivateKey, ServiceMap } from "@libp2p/interface";
 import type { BitswapOptions } from "@helia/bitswap";
+import type { Datastore } from "interface-datastore";
 
 export type CréerHélia<L extends ServiceMap> = (
   init?: HeliaInit & {
@@ -77,58 +74,26 @@ export class ServiceHélia<
 
       const dossier = await this.service("dossier").dossier();
       const dossierLibp2p = join(dossier, "libp2p");
+      const dossierHélia = join(dossier, "hélia");
 
-      const clefPrivée = await this.obtenirClefPrivée();
+      const optionsHélia = await obtenirOptionsHélia({ dossierHélia });
+      const clefPrivée = await loadOrCreateSelfKey(optionsHélia.datastore);
 
       const configLibp2p = (await générateurOptions({
         dossier: dossierLibp2p,
         clefPrivée,
       })) as Libp2pOptions<L>;
 
-      // Il faut accéder configLibp2p.privateKey *avant* d'appeler `createLibp2p` parce que ce dernier
-      // modifie l'objet `configLibp2p` et lui ajoute la clef générée.
-      const clefPrivéeExistante = configLibp2p.privateKey;
-
-      const dossierHélia = join(dossier, "hélia");
-
       const créerHélia = this.options.hélia ?? createHelia;
       const hélia = await créerHélia({
-        ...(await obtenirOptionsHélia({ dossierHélia })),
+        ...optionsHélia,
         libp2p: { ...configLibp2p },
       }).start();
-
-      // Sauvegarder la clef privée si elle a été générée automatiquement par libp2p
-      if (!clefPrivéeExistante)
-        await this.sauvegarderClefPrivée({ libp2p: hélia.libp2p });
 
       this.estDémarré = { hélia };
     }
 
     return await super.démarrer();
-  }
-
-  async obtenirClefPrivée(): Promise<PrivateKey | undefined> {
-    const texteClefPrivée = await this.service("stockage").obtenirItem({
-      clef: "idPairLibp2p",
-    });
-    if (texteClefPrivée) {
-      const encoded = uint8ArrayFromString(texteClefPrivée, "base64");
-      return keys.privateKeyFromRaw(encoded);
-    }
-    return undefined;
-  }
-
-  async sauvegarderClefPrivée({ libp2p }: { libp2p: Libp2p<L> }) {
-    const clefPrivéeGénérée = libp2p.services.obtClefPrivée.obtenirClef();
-    const texteNouvelleClefPrivée = uint8ArrayToString(
-      clefPrivéeGénérée.raw,
-      "base64",
-    );
-
-    await this.service("stockage").sauvegarderItem({
-      clef: "idPairLibp2p",
-      valeur: texteNouvelleClefPrivée,
-    });
   }
 
   async hélia(): Promise<HeliaWithLibp2p<L>> {
@@ -192,14 +157,14 @@ export const obtenirOptionsHélia = async ({
   dossierHélia,
 }: {
   dossierHélia: string;
-}): Promise<HeliaInit> => {
+}): Promise<HeliaInit & { datastore: Datastore }> => {
   const dossierDonnées = join(dossierHélia, "données");
   const dossierBlocs = join(dossierHélia, "blocs");
 
   const stockageBlocs = await obtStockageBlocs(dossierBlocs);
   const stockageDonnées = await obtStockageDonnées(dossierDonnées);
 
-  const optionsHelia: HeliaInit = {
+  const optionsHelia: HeliaInit & { datastore: Datastore } = {
     blockstore: stockageBlocs,
     datastore: stockageDonnées,
   };

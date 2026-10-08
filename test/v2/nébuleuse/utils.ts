@@ -6,7 +6,6 @@ import { dossierTempoPropre } from "../utils.js";
 import { serviceHéliaTest } from "./services/utils.js";
 import type { ServiceHéliaTest } from "./services/utils.js";
 import type { Libp2p } from "libp2p";
-import type { ServicesLibp2pTest } from "@constl/utils-tests";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   OptionsNébuleuse,
@@ -24,7 +23,7 @@ import type { Oublier } from "@/v2/nébuleuse/types.js";
 export class NébuleuseTest<
   T extends { [clef: string]: NestedValue } = Record<string, never>,
   S extends ServicesAppli = ServicesAppli,
-> extends Nébuleuse<T, S, ServicesLibp2pTest> {
+> extends Nébuleuse<T, S, ServicesLibp2pNébuleuse> {
   constructor({
     services,
     options,
@@ -33,7 +32,7 @@ export class NébuleuseTest<
       S,
       ServicesNébuleuse<T & StructureNébuleuse>
     >;
-    options?: Omit<OptionsNébuleuse<T, ServicesLibp2pTest>, "libp2p">;
+    options?: Omit<OptionsNébuleuse<T, ServicesLibp2pNébuleuse>, "libp2p">;
   } = {}) {
     super({
       services: {
@@ -77,7 +76,7 @@ export const créerNébuleusesTest = async <
     S,
     ServicesNébuleuse<T & StructureNébuleuse>
   >;
-  options?: Omit<OptionsNébuleuse<T, ServicesLibp2pTest>, "libp2p"> | undefined;
+  options?: Omit<OptionsNébuleuse<T, ServicesLibp2pNébuleuse>, "libp2p"> | undefined;
 }): Promise<{
   nébuleuses: NébuleuseTest<T, S>[];
   fermer: Oublier;

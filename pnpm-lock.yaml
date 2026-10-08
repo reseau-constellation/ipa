@@ -226,6 +226,9 @@ importers:
       '@libp2p/circuit-relay-v2':
         specifier: ^4.2.13
         version: 4.2.13
+      '@libp2p/config':
+        specifier: ^1.1.37
+        version: 1.1.37
       '@libp2p/crypto':
         specifier: 5.1.23
         version: 5.1.23

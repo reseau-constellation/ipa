@@ -18,7 +18,6 @@ import type {
   ServiceHélia,
 } from "@/v2/nébuleuse/services/hélia.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
-import type { ServicesLibp2pTest } from "@constl/utils-tests";
 
 describe("Service Hélia", function () {
   describe("demarrage", function () {
@@ -71,7 +70,7 @@ describe("Service Hélia", function () {
     it("hélia fermé si endogène", async () => {
       appli = new Appli<
         ServicesNécessairesHélia & {
-          hélia: ServiceHélia<ServicesLibp2pTest>;
+          hélia: ServiceHélia;
         }
       >({
         services: {
@@ -130,7 +129,7 @@ describe("Service Hélia", function () {
       ({ dossier, effacer } = await dossierTempoPropre());
       appli = new Appli<
         ServicesNécessairesHélia & {
-          hélia: ServiceHélia<ServicesLibp2pTest>;
+          hélia: ServiceHélia;
         }
       >({
         services: {

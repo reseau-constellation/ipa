@@ -28,23 +28,6 @@ export interface ConfigOptionsLibp2p {
   domaines?: string[];
 }
 
-// Service clef privée
-export interface ComposantesServiceClefPrivée {
-  privateKey: PrivateKey;
-}
-
-export class ServiceClefPrivée {
-  privateKey: PrivateKey;
-
-  constructor(components: ComposantesServiceClefPrivée) {
-    this.privateKey = components.privateKey;
-  }
-
-  obtenirClef(): PrivateKey {
-    return this.privateKey;
-  }
-}
-
 export const obtIdPairAdresse = (adresse: Multiaddr): string | undefined => {
   const composantes = adresse.getComponents().filter((c) => c.name === "p2p");
   const idPair = composantes[composantes.length - 1].value;
@@ -121,8 +104,6 @@ export const servicesDéfaut = ({
         acceptPXThreshold: 100,
       },
     }) as (components: GossipSubComponents) => GossipSub, // Erreur de type dans @chainsafe/pubsub
-    obtClefPrivée: (components: ComposantesServiceClefPrivée) =>
-      new ServiceClefPrivée(components),
   };
   return services;
 };
