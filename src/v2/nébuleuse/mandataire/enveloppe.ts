@@ -100,14 +100,14 @@ export class EnveloppeNébuleuse<
     } catch (e) {
       this.erreurInitialisation = e;
       this.fErreur({
-        erreur: e.toString(),
+        erreur: e.toString() + e.stack,
         code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
       });
 
       // Aussi renvoyer l'erreur à toutes les requêtes potentiellement en attente de l'initialisation.
       this._messagesEnAttente.forEach((m) =>
         this.fErreur({
-          erreur: e.toString(),
+          erreur: e.toString() + e.stack,
           idRequête: m.idRequête,
           code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
         }),
@@ -128,7 +128,9 @@ export class EnveloppeNébuleuse<
       await this._gérerMessage(message);
     } else if (this.erreurInitialisation) {
       this.fErreur({
-        erreur: this.erreurInitialisation.toString(),
+        erreur:
+          this.erreurInitialisation.toString() +
+          this.erreurInitialisation.stack,
         idRequête: message.idRequête,
         code:
           this.erreurInitialisation.name === "Error"
