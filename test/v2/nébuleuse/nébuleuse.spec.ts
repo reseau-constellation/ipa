@@ -250,7 +250,7 @@ describe("Nébuleuse", function () {
             dossier: { dossier },
             compte: { schéma },
           },
-      }));
+      }}));
       nébuleuse = nébuleuses[0]
 
     });
