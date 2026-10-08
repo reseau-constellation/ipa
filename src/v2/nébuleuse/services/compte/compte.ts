@@ -285,7 +285,7 @@ export class BaseServiceCompte<
       throw new Error(`Adresse compte "${idCompte}" non valide`);
     }
 
-    const { oublier: oublierAncienneBdCompte } = await this.démarré()
+    const { oublier: oublierAncienneBdCompte } = await this.démarré();
 
     // Attendre de recevoir la permission d'écrire au nouveau compte
     const { bd: bdNouveauCompte, oublier } = await this.service(
@@ -312,6 +312,7 @@ export class BaseServiceCompte<
     await stockage.sauvegarderItem({ clef: CLEF_ID_COMPTE, valeur: idCompte });
 
     // Là on peut y aller
+    await oublierAncienneBdCompte();
     await this.démarrer();
     await oublier();
 
