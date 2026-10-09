@@ -713,7 +713,7 @@ describe("Réseau", function () {
     let idsComptes: string[];
 
     before(async () => {
-      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2 }));
 
       idsLibp2p = await Promise.all(
         nébuleuses.map(async (c) => await c.compte.obtIdLibp2p()),
@@ -804,6 +804,23 @@ describe("Réseau", function () {
       });
       const bienReçu = await promesseBienReçu;
       expect(bienReçu).to.be.true();
+    });
+
+    it("envoyer message à une adresse libp2p - retour", async () => {
+      const { promesseBienReçu: promesseBienReçuRetour, messageÀEnvoyer: messageÀEnvoyerRetour } = await messageReçu({
+        de: idsLibp2p[1],
+        à: nébuleuses[0],
+      });
+
+      await nébuleuses[1].réseau.envoyerMessageAuPair({
+        message: {
+          type: "texte",
+          message: messageÀEnvoyerRetour,
+        },
+        idPair: idsLibp2p[0],
+      });
+      const bienReçuRetour = await promesseBienReçuRetour;
+      expect(bienReçuRetour).to.be.true();
     });
 
     it.skip("envoyer message à un autre dispositif", async () => {

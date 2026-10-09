@@ -161,7 +161,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     [ÉVÉNEMENTS.BLOQUÉ_PRIVÉ]: (bloqués: Set<string>) => void;
     [ÉVÉNEMENTS.MESSAGE_RÉSEAU]: (message: MessageRéseauAvecExpéditeur) => void;
   }>;
-  flux: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>;
+  flux: {intrants: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>, sortants: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>};
 
   signaleurArrêt: AbortController;
 
@@ -194,7 +194,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     this.événements = new TypedEmitter();
     this.résolutionsConfiance = new Map();
 
-    this.flux = new Map();
+    this.flux = {intrants: new Map(), sortants: new Map()};
 
     this.signaleurArrêt = new AbortController();
   }
@@ -259,9 +259,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         PROTOCOLE_NÉBULEUSE,
         async (flux, connexion) => {
           const idPair = connexion.remotePeer.toString();
+          console.log(`handle ${idPair} reçu par ${libp2p.peerId.toString()}`)
           const fluxPl = lpStream(flux);
-          this.flux.set(idPair, { soujacent: flux, flux: fluxPl });
-          flux.addEventListener("close", () => this.flux.delete(idPair));
+          this.flux.intrants.set(idPair, { soujacent: flux, flux: fluxPl });
+          flux.addEventListener("close", () => this.flux.intrants.delete(idPair));
 
           while (true) {
             try {
@@ -272,7 +273,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               const message = JSON.parse(
                 new TextDecoder().decode(octets.slice()),
               ) as MessageRéseau;
-              // console.log({message})
+              console.log({message})
               if (message.type === IDENTITÉ_COMPTE) {
                 await traiterIdentitéCompte({ message, idPair });
               }
@@ -309,7 +310,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         {
           async onConnect(peerId, conn) {
             console.log(
-              `pair ${peerId.toString()} connecté à ${libp2p.peerId.toString()} sur ${conn.remoteAddr.toString()}`,
+              `onConnect - ${peerId.toString()} connecté à ${libp2p.peerId.toString()} sur ${conn.remoteAddr.toString()}`,
             );
             const idCompte = await compte.obtIdCompte();
 
@@ -366,8 +367,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     }
 
     await Promise.allSettled(
-      [...this.flux.values()].map(({ soujacent: flux }) =>
-        flux.abort(new Error("Service réseau fermé.")),
+      [...this.flux.intrants.values()].map(({ soujacent: flux }) =>
+        flux.close(),
+      ),
+    );
+
+    await Promise.allSettled(
+      [...this.flux.sortants.values()].map(({ soujacent: flux }) =>
+        flux.close(),
       ),
     );
 
@@ -1230,9 +1237,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }: {
     idPair: string;
   }): Promise< { soujacent: Stream; flux: LengthPrefixedStream; }> {
-    const fluxExistant = this.flux.get(idPair);
+    const fluxExistant = this.flux.sortants.get(idPair);
 
-    if (false && fluxExistant) {
+    if (fluxExistant) {
       console.log(`✨ flux existant vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`, fluxExistant?.soujacent.status, fluxExistant?.soujacent.readStatus, fluxExistant?.soujacent.writeStatus, fluxExistant?.soujacent.remoteReadStatus, fluxExistant?.soujacent.remoteWriteStatus)
       return fluxExistant
     } else {
@@ -1240,15 +1247,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const libp2p = await this.service("libp2p").libp2p();
       const signal = this.signaleurArrêt.signal;
 
-      console.log("nouveau flux pair");
       const flux = await libp2p.dialProtocol(
         peerIdFromString(idPair),
         PROTOCOLE_NÉBULEUSE,
         { signal },
       );
       const fluxPl = lpStream(flux);
-      this.flux.set(idPair, { soujacent: flux, flux: fluxPl });
-      flux.addEventListener("close", () => this.flux.delete(idPair));
+      this.flux.sortants.set(idPair, { soujacent: flux, flux: fluxPl });
+      flux.addEventListener("close", () => this.flux.sortants.delete(idPair));
+      flux.addEventListener("message", ({data}) => console.log("hmmm", {idPair, data: data.bufs.map(d=>new TextDecoder().decode(d))}))
       // flux.addEventListener("remoteCloseWrite", () => flux.close());
 
       return { soujacent: flux, flux: fluxPl };
