@@ -1,0 +1,31 @@
+diff --git a/dist/src/gossipsub.js b/dist/src/gossipsub.js
+index 83bfc8270549829281bac9d15465fa344370b12b..910778b1feb68d048d60fcd0614e8c276d92980f 100644
+--- a/dist/src/gossipsub.js
++++ b/dist/src/gossipsub.js
+@@ -488,7 +488,7 @@ export class GossipSub extends TypedEventEmitter {
+         // TODO make this behavior more robust
+         // This behavior is different than for inbound streams
+         // If an outbound stream already exists, don't create a new stream
+-        if (this.streamsOutbound.has(id)) {
++        if (this.streamsOutbound.get(id)?.rawStream?.status === "open") {
+             return;
+         }
+         try {
+@@ -1420,7 +1420,7 @@ export class GossipSub extends TypedEventEmitter {
+     async directConnect() {
+         const toconnect = [];
+         this.direct.forEach((id) => {
+-            if (!this.streamsOutbound.has(id)) {
++            if (!(this.streamsOutbound.get(id)?.rawStream?.status === "open")) {
+                 toconnect.push(id);
+             }
+         });
+@@ -1989,7 +1989,7 @@ export class GossipSub extends TypedEventEmitter {
+         }
+         const rpcBytes = RPC.encode(rpc);
+         try {
+-            outboundStream.push(rpcBytes);
++            outboundStream.push(rpcBytes).catch((e) => { if ((e).name !== "StreamStateError") throw e });
+         }
+         catch (e) {
+             this.log.error(`Cannot send rpc to ${id}`, e);

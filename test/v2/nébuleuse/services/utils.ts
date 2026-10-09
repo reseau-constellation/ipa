@@ -1,0 +1,75 @@
+import { optionsDéfautLibp2p, obtenirAdresseRelai } from "@constl/utils-tests";
+import { ServiceHélia } from "@/v2/nébuleuse/index.js";
+import { obtenirOptionsLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
+import { créerHéliaÉphémère } from "../../utils.js";
+import type { PrivateKey } from "@libp2p/interface";
+import type { Libp2pOptions } from "libp2p";
+import type {
+  OptionsServiceLibp2p,
+  ServicesLibp2pNébuleuse,
+  ServicesNécessairesLibp2p,
+} from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type { ConfigLibp2p } from "@/v2/nébuleuse/services/libp2p/config/config.js";
+import type { OptionsServiceHélia } from "@/v2/nébuleuse/services/hélia.js";
+
+export const obtenirOptionsLibp2pLocal = (config: ConfigLibp2p = {}) => {
+  return obtenirOptionsLibp2p({
+    ...config,
+    pairsParDéfaut: [obtenirAdresseRelai()],
+  });
+};
+
+export const obtenirOptionsLibp2pTest = (
+  config: Omit<
+    ConfigLibp2p,
+    "pairsParDéfaut" | "domaines" | "sujetsDécouvertePairsPubSub" | "dossier"
+  > = {},
+) => {
+  return async ({
+    clefPrivée,
+  }: {
+    clefPrivée?: PrivateKey;
+  } = {}): Promise<Libp2pOptions<ServicesLibp2pNébuleuse>> => {
+    clefPrivée = config.clefPrivée ?? clefPrivée;
+
+    const options = optionsDéfautLibp2p();
+    if (clefPrivée) options.privateKey = clefPrivée;
+    return options;
+  };
+};
+
+export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pNébuleuse> {
+  constructor({
+    services,
+    options,
+  }: {
+    services: ServicesNécessairesLibp2p<ServicesLibp2pNébuleuse>;
+    options: OptionsServiceLibp2p & OptionsAppli;
+  }) {
+    super({
+      services,
+      options: Object.assign({}, options, {
+        hélia: créerHéliaÉphémère,
+        libp2p: obtenirOptionsLibp2pTest(),
+      }),
+    });
+  }
+}
+
+export const serviceHéliaTest =
+  (optionsHélia?: OptionsServiceHélia) =>
+  ({
+    options,
+    services,
+  }: {
+    options: OptionsAppli;
+    services: ServicesNécessairesLibp2p;
+  }) => {
+    return new ServiceHéliaTest({
+      options: { ...optionsHélia, ...options },
+      services,
+    });
+  };
+
+export const Déno = navigator.userAgent.startsWith("Deno");
