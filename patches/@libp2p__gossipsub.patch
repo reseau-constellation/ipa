@@ -1,5 +1,5 @@
 diff --git a/dist/src/gossipsub.js b/dist/src/gossipsub.js
-index 83bfc8270549829281bac9d15465fa344370b12b..910778b1feb68d048d60fcd0614e8c276d92980f 100644
+index a341a31acbd8bee8fa49754d4e08c186578d4deb..c176184868a3c2b3c670df648de1eade72eb3524 100644
 --- a/dist/src/gossipsub.js
 +++ b/dist/src/gossipsub.js
 @@ -488,7 +488,7 @@ export class GossipSub extends TypedEventEmitter {

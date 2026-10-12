@@ -21,5 +21,5 @@ overrides:
   multiformats: "14.0.0"
 
 patchedDependencies:
+  '@libp2p/gossipsub': patches/@libp2p__gossipsub.patch
   '@orbitdb/core': patches/@orbitdb__core.patch
-  '@libp2p/gossipsub@17.1.2': patches/@libp2p__gossipsub@17.1.2.patch
