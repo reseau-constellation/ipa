@@ -142,7 +142,7 @@
     "@multiformats/multiaddr": "^13.0.3",
     "@multiformats/multiaddr-matcher": "^3.0.2",
     "@noble/hashes": "^2.4.0",
-    "@orbitdb/core": "4.0.0-3e1d628.0",
+    "@orbitdb/core": "4.0.0",
     "@orbitdb/feed-db": "^2.0.0",
     "@orbitdb/nested-db": "^2.2.0",
     "@orbitdb/ordered-keyvalue-db": "^2.0.1",

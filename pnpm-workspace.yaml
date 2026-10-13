@@ -17,7 +17,6 @@ minimumReleaseAgeExclude:
 
 overrides:
   p-queue: "^8.1.1"
-  "@orbitdb/core": "4.0.0-3e1d628.0"
   multiformats: "14.0.5"
 
 patchedDependencies:
