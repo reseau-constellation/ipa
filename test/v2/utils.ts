@@ -446,7 +446,11 @@ type CréerConstellationsTest<
     constls: Constellation<L>[];
     fermer: Oublier;
   }>;
-  (args: { n: number; persistante?: boolean; avecMandataire?: boolean }): Promise<{
+  (args: {
+    n: number;
+    persistante?: boolean;
+    avecMandataire?: boolean;
+  }): Promise<{
     constls: (Constellation<L> | ConstructeurConstellation<L>)[];
     fermer: Oublier;
   }>;
@@ -461,7 +465,7 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
 
   const constls: (Constellation | ConstructeurConstellation)[] = [];
 
-  const { fermer: fermerHélias, hélias } = await créerHéliasTest({
+  const { hélias } = await créerHéliasTest({
     n,
     dossier: persistante ? dossier : undefined,
   });
@@ -481,11 +485,19 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
     constls.push(constl);
   }
 
+  for (const constl of constls) {
+    const fermerAvant = constl.fermer.bind(constl);
+    constl.fermer = async () => {
+      const hélia = await constl.services.hélia.hélia();
+      await fermerAvant();
+      await hélia.stop();
+    };
+  }
+
   await connecterNébuleuses(constls);
 
   const fermer = async () => {
     await Promise.allSettled(constls.map((c) => c.fermer()));
-    await fermerHélias();
     effacer();
   };
 

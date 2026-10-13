@@ -96,7 +96,7 @@ export const créerNébuleusesTest = async <
   }
 
   const nébuleuses: NébuleuseTest<T, S>[] = [];
-  const { fermer: fermerHélias, hélias } = await créerHéliasTest({
+  const { hélias } = await créerHéliasTest({
     n,
     dossier: persistante ? dossierBase : undefined,
   });
@@ -108,6 +108,14 @@ export const créerNébuleusesTest = async <
     });
     nébuleuses.push(nébuleuse);
   }
+  for (const nébuleuse of nébuleuses) {
+    const fermerAvant = nébuleuse.fermer.bind(nébuleuse);
+    nébuleuse.fermer = async () => {
+      const hélia = await nébuleuse.services.hélia.hélia();
+      await fermerAvant();
+      await hélia.stop();
+    };
+  }
 
   // @ts-expect-error Aucune idée du problème. Une boucle `for` fonctionne sans se plaindre
   await Promise.all(nébuleuses.map((c) => c.démarrer()));
@@ -116,7 +124,6 @@ export const créerNébuleusesTest = async <
 
   const fermer = async () => {
     await Promise.allSettled(nébuleuses.map((c) => c.fermer()));
-    await fermerHélias()
     effacer?.();
   };
 
