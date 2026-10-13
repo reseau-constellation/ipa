@@ -2903,7 +2903,7 @@ describe("Automatisations", function () {
         );
 
         // États
-        const états = await sÉtats.terminer();
+        const états = await sÉtats.terminer({ min: 3 });
         expect(états.map((é) => é.type)).to.deep.equal([
           "programmée",
           "sync",
