@@ -12,7 +12,7 @@ import { obtStockageBlocs, obtStockageDonnées } from "./utils.js";
 import type { OptionsAppli } from "../appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "./libp2p/libp2p.js";
 import type { HeliaInit } from "helia";
-import type { Libp2p, Libp2pOptions } from "libp2p";
+import type { Libp2pOptions } from "libp2p";
 import type { CreateLibp2pOptions, HeliaWithLibp2p } from "@helia/libp2p";
 import type { ServiceDossier } from "./dossier.js";
 import type { ServiceStockage } from "./stockage.js";

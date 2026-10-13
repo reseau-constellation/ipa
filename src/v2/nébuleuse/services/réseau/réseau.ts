@@ -1280,10 +1280,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idPair: string;
   }) {
     try {
-      const {flux, soujacent} = await this.obtFluxPair({ idPair });
+      const { flux } = await this.obtFluxPair({ idPair });
       const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
       await flux.write(octetsMessage);
-      // console.log("après écriture", soujacent.status, soujacent.readStatus, soujacent.writeStatus, soujacent.remoteReadStatus, soujacent.remoteWriteStatus)
     } catch (e) {
       throw new Error(
         `Impossible de se connecter au pair ${idPair}.` + e.toString(),

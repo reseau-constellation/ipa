@@ -97,7 +97,8 @@ export const extraireOptionsHélia = <
   hélia?: OptionsServiceHélia<L>;
 }): OptionsServiceHélia<L> => {
   const { orbite } = options?.orbite || {};
-  let { hélia, libp2p } = options?.hélia || {};
+  let { hélia } = options?.hélia || {};
+  const { libp2p } = options?.hélia || {};
 
   if (orbite) {
     if (hélia) throw new Error(ERREUR_DUPLIQUÉS);
