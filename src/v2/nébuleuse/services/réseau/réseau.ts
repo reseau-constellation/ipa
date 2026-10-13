@@ -51,6 +51,7 @@ import type {
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 import type { ServiceAppli } from "../../appli/services.js";
+import { peerSet } from '@libp2p/peer-collections'
 
 // Types connexions
 
@@ -303,6 +304,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const envoyerMessageAuPair = this.envoyerMessageAuPair.bind(this);
 
+    const salués = peerSet();
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
     const idTopologie = await libp2p
       .register(
@@ -312,6 +314,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             console.log(
               `onConnect - ${peerId.toString()} connecté à ${libp2p.peerId.toString()} sur ${conn.remoteAddr.toString()}`,
             );
+            if (salués.has(peerId)) return;
+            
+            salués.add(peerId)
             const idCompte = await compte.obtIdCompte();
 
             const identifiantsCompte: MessageIdentitéCompte = {
