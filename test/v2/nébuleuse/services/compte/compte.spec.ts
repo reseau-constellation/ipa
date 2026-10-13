@@ -1,10 +1,7 @@
 import path from "path";
 import { expect } from "aegir/chai";
 import { isValidAddress } from "@orbitdb/core";
-import {
-  obtenirAdresseRelai,
-  toutesConnectées,
-} from "@constl/utils-tests";
+import { obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
 import { merge } from "lodash-es";
 import { serviceCompte } from "@/v2/nébuleuse/services/compte/compte.js";
 import { Appli } from "@/v2/nébuleuse/appli/appli.js";

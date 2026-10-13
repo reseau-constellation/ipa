@@ -138,8 +138,8 @@ describe("Nébuleuse", function () {
     });
 
     it("démarrage", async () => {
-      ({nébuleuses, fermer } = await créerNébuleusesTest({ n: 1 }));
-      nébuleuse = nébuleuses[0]
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 1 }));
+      nébuleuse = nébuleuses[0];
 
       await nébuleuse.démarrer();
       expect(Object.values(nébuleuse.services).every((s) => s.estDémarré));
@@ -235,7 +235,7 @@ describe("Nébuleuse", function () {
     let fermer: () => void;
 
     before(async () => {
-      ({nébuleuses, fermer } = await créerNébuleusesTest({ 
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({
         n: 1,
         services: {
           générique: ({ options, services }) =>
@@ -250,9 +250,9 @@ describe("Nébuleuse", function () {
             dossier: { dossier },
             compte: { schéma },
           },
-      }}));
-      nébuleuse = nébuleuses[0]
-
+        },
+      }));
+      nébuleuse = nébuleuses[0];
     });
 
     after(async () => {

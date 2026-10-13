@@ -360,13 +360,14 @@ describe("Service Libp2p", function () {
           const optionsDéfaut = await obtenirOptionsLibp2pTest()({
             clefPrivée,
           });
-          const mesOptions: Libp2pOptions<ServicesLibp2pNébuleuseAvecServiceTest> = {
-            ...optionsDéfaut,
-            services: {
-              ...optionsDéfaut.services!,
-              test: () => new ServiceLibp2pTest(),
-            },
-          };
+          const mesOptions: Libp2pOptions<ServicesLibp2pNébuleuseAvecServiceTest> =
+            {
+              ...optionsDéfaut,
+              services: {
+                ...optionsDéfaut.services!,
+                test: () => new ServiceLibp2pTest(),
+              },
+            };
           return mesOptions;
         };
 

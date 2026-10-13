@@ -22,7 +22,10 @@ import {
   type ServicesNécessairesOrbite,
 } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import { serviceHélia } from "@/v2/nébuleuse/services/hélia.js";
-import { serviceLibp2p, type ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import {
+  serviceLibp2p,
+  type ServicesLibp2pNébuleuse,
+} from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import {
   obtenir,
@@ -250,7 +253,9 @@ describe("Service Orbite", function () {
     let dossier: string;
     let effacer: () => void;
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
+      ServicesNécessairesOrbite & {
+        orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
+      }
     >;
 
     before(async () => {
@@ -287,7 +292,9 @@ describe("Service Orbite", function () {
 
   describe("fermer", function () {
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
+      ServicesNécessairesOrbite & {
+        orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
+      }
     >;
 
     let dossier: string;
@@ -328,10 +335,11 @@ describe("Service Orbite", function () {
     it("orbite non fermé si exogène", async () => {
       const libp2p = optionsDéfautLibp2p();
       const hélia = await créerHéliaÉphémère({ libp2p }).start();
-      const orbiteOriginale: OrbitDB<ServicesLibp2pNébuleuse> = await createOrbitDB({
-        ipfs: hélia,
-        directory: dossier,
-      });
+      const orbiteOriginale: OrbitDB<ServicesLibp2pNébuleuse> =
+        await createOrbitDB({
+          ipfs: hélia,
+          directory: dossier,
+        });
 
       appli = new Appli<
         ServicesNécessairesOrbite & {
@@ -364,7 +372,9 @@ describe("Service Orbite", function () {
     let effacer: () => void;
 
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
+      ServicesNécessairesOrbite & {
+        orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
+      }
     >;
     const erreurs: string[] = [];
 
@@ -596,7 +606,9 @@ describe("Service Orbite", function () {
     let effacer: () => void;
 
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
+      ServicesNécessairesOrbite & {
+        orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
+      }
     >;
 
     before(async () => {
@@ -665,7 +677,9 @@ describe("Service Orbite", function () {
     let effacer: () => void;
 
     let appli: Appli<
-      ServicesNécessairesOrbite & { orbite: ServiceOrbite<ServicesLibp2pNébuleuse> }
+      ServicesNécessairesOrbite & {
+        orbite: ServiceOrbite<ServicesLibp2pNébuleuse>;
+      }
     >;
 
     before(async () => {

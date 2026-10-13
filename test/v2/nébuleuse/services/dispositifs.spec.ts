@@ -11,7 +11,10 @@ import { serviceCompte } from "@/v2/nébuleuse/services/compte/compte.js";
 import { serviceOrbite } from "@/v2/nébuleuse/services/orbite/orbite.js";
 import { serviceStockage } from "@/v2/nébuleuse/services/stockage.js";
 import { schémaNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import { serviceLibp2p, type ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import {
+  serviceLibp2p,
+  type ServicesLibp2pNébuleuse,
+} from "@/v2/nébuleuse/services/libp2p/libp2p.js";
 import { dossierTempoPropre, obtenir } from "../../utils.js";
 import { serviceHéliaTest } from "./utils.js";
 import type { StructureNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";

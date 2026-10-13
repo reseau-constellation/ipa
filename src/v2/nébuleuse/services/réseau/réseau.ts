@@ -8,6 +8,7 @@ import PQueue from "p-queue";
 import { anySignal } from "any-signal";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { lpStream, type LengthPrefixedStream } from "@libp2p/utils";
+import { peerSet } from "@libp2p/peer-collections";
 import { ajouterPréfixes, enleverPréfixesEtOrbite } from "@/v2/utils.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.js";
 import {
@@ -51,7 +52,6 @@ import type {
 import type { PartielRécursif } from "@/v2/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 import type { ServiceAppli } from "../../appli/services.js";
-import { peerSet } from '@libp2p/peer-collections'
 
 // Types connexions
 
@@ -162,7 +162,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     [ÉVÉNEMENTS.BLOQUÉ_PRIVÉ]: (bloqués: Set<string>) => void;
     [ÉVÉNEMENTS.MESSAGE_RÉSEAU]: (message: MessageRéseauAvecExpéditeur) => void;
   }>;
-  flux: {intrants: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>, sortants: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>};
+  flux: {
+    intrants: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>;
+    sortants: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>;
+  };
 
   signaleurArrêt: AbortController;
 
@@ -195,7 +198,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     this.événements = new TypedEmitter();
     this.résolutionsConfiance = new Map();
 
-    this.flux = {intrants: new Map(), sortants: new Map()};
+    this.flux = { intrants: new Map(), sortants: new Map() };
 
     this.signaleurArrêt = new AbortController();
   }
@@ -263,7 +266,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           console.log(`handle ${idPair} reçu par ${libp2p.peerId.toString()}`)
           const fluxPl = lpStream(flux);
           this.flux.intrants.set(idPair, { soujacent: flux, flux: fluxPl });
-          flux.addEventListener("close", () => this.flux.intrants.delete(idPair));
+          flux.addEventListener("close", () =>
+            this.flux.intrants.delete(idPair),
+          );
 
           while (true) {
             try {
@@ -315,8 +320,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               `onConnect - ${peerId.toString()} connecté à ${libp2p.peerId.toString()} sur ${conn.remoteAddr.toString()}`,
             );
             if (salués.has(peerId)) return;
-            
-            salués.add(peerId)
+
+            salués.add(peerId);
             const idCompte = await compte.obtIdCompte();
 
             const identifiantsCompte: MessageIdentitéCompte = {
@@ -336,7 +341,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               message: identifiantsCompte,
             });
           },
-          onDisconnect(peerId) {
+          async onDisconnect(peerId) {
             console.log(
               `✘ pair ${peerId.toString()} déconnecté de ${libp2p.peerId.toString()}`,
             );
@@ -1241,7 +1246,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idPair,
   }: {
     idPair: string;
-  }): Promise< { soujacent: Stream; flux: LengthPrefixedStream; }> {
+  }): Promise<{ soujacent: Stream; flux: LengthPrefixedStream }> {
     const fluxExistant = this.flux.sortants.get(idPair);
 
     if (fluxExistant) {
@@ -1284,7 +1289,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         `Impossible de se connecter au pair ${idPair}.` + e.toString(),
         { cause: e },
       );
-    }    
+    }
   }
 
   async envoyerMessageAuDispositif({

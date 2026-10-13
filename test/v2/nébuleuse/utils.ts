@@ -1,5 +1,9 @@
 import path from "path";
-import { créerHéliasTest, obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
+import {
+  créerHéliasTest,
+  obtenirAdresseRelai,
+  toutesConnectées,
+} from "@constl/utils-tests";
 import { merge } from "ts-deepmerge";
 import { Nébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
@@ -77,7 +81,8 @@ export const créerNébuleusesTest = async <
     S,
     ServicesNébuleuse<T & StructureNébuleuse>
   >;
-  options?: Omit<OptionsNébuleuse<T, ServicesLibp2pNébuleuse>, "libp2p"> | undefined;
+  options?:
+    Omit<OptionsNébuleuse<T, ServicesLibp2pNébuleuse>, "libp2p"> | undefined;
   persistante?: boolean;
 }): Promise<{
   nébuleuses: NébuleuseTest<T, S>[];
@@ -104,7 +109,9 @@ export const créerNébuleusesTest = async <
     const dossier = path.join(dossierBase, String(i));
     const nébuleuse = new NébuleuseTest<T, S>({
       services,
-      options: merge({}, options, { services: { dossier: { dossier }, hélia: { hélia: hélias[i] } } }),
+      options: merge({}, options, {
+        services: { dossier: { dossier }, hélia: { hélia: hélias[i] } },
+      }),
     });
     nébuleuses.push(nébuleuse);
   }
