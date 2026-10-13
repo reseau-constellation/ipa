@@ -116,7 +116,9 @@ describe("Réseau", function () {
 
     it("déconnexion - suivi connexions libp2p", async () => {
       for (const nébuleuse of nébuleuses.slice(1)) {
+        const hélia = await nébuleuse.services.hélia.hélia()
         await nébuleuse.fermer();
+        await hélia.stop();
       }
 
       const idRelai = obtenirAdresseRelai().split("/").pop();
