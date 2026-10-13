@@ -52,7 +52,7 @@ export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pNébuleuse> {
       options: Object.assign({}, options, {
         hélia: créerHéliaÉphémère,
         libp2p: obtenirOptionsLibp2pTest(),
-      }),
+      }, options),
     });
   }
 }
