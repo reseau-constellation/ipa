@@ -49,7 +49,7 @@ export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pNébuleuse> {
   }) {
     super({
       services,
-      options: Object.assign({}, options, {
+      options: Object.assign({}, {
         hélia: créerHéliaÉphémère,
         libp2p: obtenirOptionsLibp2pTest(),
       }, options),
