@@ -37,7 +37,7 @@ export class NébuleuseTest<
     super({
       services: {
         ...(services || {}),
-        hélia: serviceHéliaTest(),
+        hélia: serviceHéliaTest(options?.services?.hélia),
       } as ConstructeursServicesAppli<
         S & {
           hélia?: ServiceHéliaTest;
