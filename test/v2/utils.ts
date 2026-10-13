@@ -485,10 +485,11 @@ export const créerConstellationsTest: CréerConstellationsTest = async ({
     constls.push(constl);
   }
 
-  for (const constl of constls) {
-    const fermerAvant = constl.fermer.bind(constl);
-    constl.fermer = async () => {
-      const hélia = await constl.services.hélia.hélia();
+  for (const c of constls) {
+    // En raison du mandataire, on n'a pas besoin de `bind`
+    const fermerAvant = avecMandataire ? c.fermer : c.fermer.bind(c);
+    c.fermer = async () => {
+      const hélia = await c.services.hélia.hélia();
       await fermerAvant();
       await hélia.stop();
     };
