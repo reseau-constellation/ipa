@@ -807,7 +807,10 @@ describe("Réseau", function () {
     });
 
     it("envoyer message à une adresse libp2p - retour", async () => {
-      const { promesseBienReçu: promesseBienReçuRetour, messageÀEnvoyer: messageÀEnvoyerRetour } = await messageReçu({
+      const {
+        promesseBienReçu: promesseBienReçuRetour,
+        messageÀEnvoyer: messageÀEnvoyerRetour,
+      } = await messageReçu({
         de: idsLibp2p[1],
         à: nébuleuses[0],
       });
