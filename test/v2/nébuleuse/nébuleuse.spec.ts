@@ -231,7 +231,6 @@ describe("Nébuleuse", function () {
 
     let nébuleuse: NébuleuseTest<StructureDonnées>;
     let nébuleuses: NébuleuseTest<StructureDonnées>[];
-    let dossier: string;
     let fermer: () => void;
 
     before(async () => {
@@ -247,7 +246,6 @@ describe("Nébuleuse", function () {
         },
         options: {
           services: {
-            dossier: { dossier },
             compte: { schéma },
           },
         },
