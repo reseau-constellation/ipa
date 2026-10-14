@@ -153,7 +153,7 @@ describe("Réseau", function () {
     let idsComptes: string[];
 
     before(async () => {
-      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2 }));
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2, persistante: true }));
 
       idsComptes = await Promise.all(
         nébuleuses.map((c) => c.compte.obtIdCompte()),
