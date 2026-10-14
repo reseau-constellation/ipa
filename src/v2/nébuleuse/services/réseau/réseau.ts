@@ -593,30 +593,59 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }: {
     f: Suivi<ConnexionCompte[]>;
   }): Promise<Oublier> {
-    const regrouperParCompte = async (
-      dispositifs: ConnexionDispositif[],
-    ): Promise<ConnexionCompte[]> => {
+    const infos: {
+      connexionsDispositifs?: ConnexionDispositif[];
+      pairs?: { idPair: string; idDispositif?: string; idCompte?: string }[];
+    } = {};
+    const fFinale = async () => {
+      const { connexionsDispositifs, pairs } = infos;
       const connexions: ConnexionCompte[] = [];
-      for (const connexionDispositif of dispositifs) {
-        const idCompte = await obtCompte(connexionDispositif);
-        if (idCompte) {
-          const connexionCompte: ConnexionCompte = connexions.find(
-            (c) => c.idCompte === idCompte,
-          ) || {
-            idCompte,
-            dispositifs: [],
-          };
-          connexionCompte.dispositifs.push(connexionDispositif);
+      if (connexionsDispositifs && pairs) {
+        for (const connexionDispositif of connexionsDispositifs) {
+          const { idCompte } =
+            pairs.find(
+              ({ idDispositif }) =>
+                idDispositif === connexionDispositif.idDispositif,
+            ) || {};
+          if (idCompte) {
+            let connexionCompte = connexions.find(
+              (c) => c.idCompte === idCompte,
+            );
+            if (!connexionCompte) {
+              connexionCompte = {
+                idCompte,
+                dispositifs: [],
+              };
+              connexions.push(connexionCompte);
+            }
+            connexionCompte.dispositifs.push(connexionDispositif);
+          }
         }
       }
-      return connexions;
+      await f(connexions);
     };
 
-    return await this.suivreConnexionsDispositifs({
-      f: async (connexions) => {
-        await f(await regrouperParCompte(connexions));
+    const oublierConnexionsPairs = await this.suivreInfosPairs({
+      f: async (pairs) => {
+        infos.pairs = pairs;
+        await fFinale();
       },
     });
+
+    const oublierConnexionsDispositifs = await this.suivreConnexionsDispositifs(
+      {
+        f: async (connexions) => {
+          infos.connexionsDispositifs = connexions;
+          await fFinale();
+        },
+      },
+    );
+    return async () => {
+      await Promise.all([
+        oublierConnexionsPairs(),
+        oublierConnexionsDispositifs(),
+      ]);
+    };
   }
 
   @cacheSuivi

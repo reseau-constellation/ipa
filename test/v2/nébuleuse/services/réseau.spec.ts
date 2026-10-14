@@ -98,7 +98,7 @@ describe("Réseau", function () {
       }
     });
 
-    it.skip("suivre connexions compte", async () => {
+    it("suivre connexions compte", async () => {
       for (const [i, nébuleuse] of nébuleuses.entries()) {
         const autresIds = idsComptes.filter((id) => id !== idsComptes[i]);
 
@@ -141,7 +141,7 @@ describe("Réseau", function () {
       expect(connexionsDispositifs).to.be.empty();
     });
 
-    it.skip("déconnexion - suivi connexions comptes", async () => {
+    it("déconnexion - suivi connexions comptes", async () => {
       const connexionsCompte = await obtenir<ConnexionCompte[]>(({ siVide }) =>
         nébuleuses[0].réseau.suivreConnexionsComptes({ f: siVide() }),
       );
