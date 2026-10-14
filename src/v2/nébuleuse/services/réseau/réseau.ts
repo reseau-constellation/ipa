@@ -64,7 +64,7 @@ export type ConnexionDispositif = {
 
 export type ConnexionCompte = {
   idCompte: string;
-  dispositifs;
+  dispositifs: ConnexionDispositif[];
 };
 
 // Types dispositifs
@@ -112,6 +112,7 @@ const BLOQUÉ = "BLOQUÉ";
 const ÉVÉNEMENTS = {
   BLOQUÉ_PRIVÉ: "changement bloqués privé",
   MESSAGE_RÉSEAU: "message réseau",
+  IDENTIFICATION_COMPTE: "identification compte",
 } as const;
 
 // Ajout dispositifs
@@ -161,6 +162,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     démarré: (args: { oublier: Oublier }) => void;
     [ÉVÉNEMENTS.BLOQUÉ_PRIVÉ]: (bloqués: Set<string>) => void;
     [ÉVÉNEMENTS.MESSAGE_RÉSEAU]: (message: MessageRéseauAvecExpéditeur) => void;
+    [ÉVÉNEMENTS.IDENTIFICATION_COMPTE]: (args: {
+      idPair: string;
+      idDispositif: string;
+      idCompte: string;
+    }) => void;
   }>;
   flux: {
     intrants: Map<string, { soujacent: Stream; flux: LengthPrefixedStream }>;
@@ -247,15 +253,22 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         message: idDispositif,
       });
       if (!signatureValide) return;
-
-      return;
-      await libp2p.peerStore.merge(idPair, {
-        metadata: { idDispositif, idCompte },
-      });
-      libp2p.peerStore.get(idPair);
+      console.log("ici");
       libp2p.addEventListener("peer:update", (x) =>
-        console.log(x.detail.peer.metadata),
+        console.log("ahah", x.detail.peer.metadata),
       );
+      await libp2p.peerStore.merge(peerIdFromString(idPair), {
+        metadata: {
+          idDispositif: new TextEncoder().encode(idDispositif),
+          idCompte: new TextEncoder().encode(idCompte),
+        },
+      });
+      console.log("ici terminé");
+      this.événements.emit(ÉVÉNEMENTS.IDENTIFICATION_COMPTE, {
+        idCompte,
+        idDispositif,
+        idPair,
+      });
     };
 
     await libp2p
@@ -425,6 +438,63 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     return idDispositif ? new TextDecoder().decode(idDispositif) : undefined;
   }
 
+  async suivreDispositifIdPair({
+    idPair,
+    f,
+  }: {
+    idPair: string;
+    f: Suivi<string | undefined>;
+  }): Promise<Oublier> {
+    const fFinale = async ({ idPair: idPairIdentifié }: { idPair: string }) => {
+      if (idPairIdentifié === idPair) {
+        const idDispositif = await this.obtDispositifIdPair({ idPair });
+        await f(idDispositif);
+      }
+    };
+    const oublier = appelerLorsque({
+      émetteur: this.événements,
+      événement: ÉVÉNEMENTS.IDENTIFICATION_COMPTE,
+      f: fFinale,
+    });
+    await fFinale({ idPair });
+    return oublier;
+  }
+
+  async suivreInfosPairs({
+    f,
+  }: {
+    f: Suivi<{ idPair: string; idDispositif?: string; idCompte?: string }[]>;
+  }): Promise<Oublier> {
+    const libp2p = await this.service("libp2p").libp2p();
+    const fFinale = async () => {
+      const infos: {
+        idPair: string;
+        idDispositif?: string;
+        idCompte?: string;
+      }[] = [];
+      for (const pair of await libp2p.peerStore.all()) {
+        const idDispositif = pair.metadata.get("idDispositif");
+        const idCompte = pair.metadata.get("idCompte");
+
+        infos.push({
+          idPair: pair.id.toString(),
+          idDispositif: idDispositif
+            ? new TextDecoder().decode(idDispositif)
+            : undefined,
+          idCompte: idCompte ? new TextDecoder().decode(idCompte) : undefined,
+        });
+      }
+      await f(infos);
+    };
+    const oublier = appelerLorsque({
+      émetteur: this.événements,
+      événement: ÉVÉNEMENTS.IDENTIFICATION_COMPTE,
+      f: fFinale,
+    });
+    await fFinale();
+    return oublier;
+  }
+
   // Suivi connexions
 
   @cacheSuivi
@@ -470,22 +540,52 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }: {
     f: Suivi<ConnexionDispositif[]>;
   }): Promise<Oublier> {
-    return await this.suivreConnexionsLibp2p({
-      f: async (connexions) => {
-        await f(
-          (
-            await Promise.all(
-              connexions.map(async (c) => ({
-                pair: c,
-                idDispositif: await this.obtDispositifIdPair({
-                  idPair: c.pair,
-                }),
-              })),
-            )
-          ).filter(({ idDispositif }) => idDispositif),
-        );
+    const libp2pÀDispositif = (
+      connexionsLibp2p: ConnexionLibp2p[],
+      infosPairs: {
+        idCompte?: string;
+        idDispositif?: string;
+        idPair: string;
+      }[],
+    ): ConnexionDispositif[] => {
+      const connexions: ConnexionDispositif[] = [];
+      for (const connexionLibp2p of connexionsLibp2p) {
+        const { idDispositif } =
+          infosPairs.find(({ idPair }) => idPair === connexionLibp2p.pair) ||
+          {};
+        if (idDispositif)
+          connexions.push({ idDispositif, pair: connexionLibp2p });
+      }
+      return connexions;
+    };
+    const info: {
+      connexions?: ConnexionLibp2p[];
+      infosPairs?: {
+        idCompte?: string;
+        idDispositif?: string;
+        idPair: string;
+      }[];
+    } = {};
+    const fFinale = async () => {
+      const { infosPairs, connexions } = info;
+      if (connexions && infosPairs)
+        await f(libp2pÀDispositif(connexions, infosPairs));
+    };
+    const oublierIdDispositif = await this.suivreInfosPairs({
+      f: async (infos) => {
+        info.infosPairs = infos;
+        await fFinale();
       },
     });
+    const oublierConnexionsLibp2p = await this.suivreConnexionsLibp2p({
+      f: async (connexions) => {
+        info.connexions = connexions;
+        await fFinale();
+      },
+    });
+    return async () => {
+      await Promise.all([oublierIdDispositif(), oublierConnexionsLibp2p()]);
+    };
   }
 
   @cacheSuivi
@@ -494,9 +594,28 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }: {
     f: Suivi<ConnexionCompte[]>;
   }): Promise<Oublier> {
+    const regrouperParCompte = async (
+      dispositifs: ConnexionDispositif[],
+    ): Promise<ConnexionCompte[]> => {
+      const connexions: ConnexionCompte[] = [];
+      for (const connexionDispositif of dispositifs) {
+        const idCompte = await obtCompte(connexionDispositif);
+        if (idCompte) {
+          const connexionCompte: ConnexionCompte = connexions.find(
+            (c) => c.idCompte === idCompte,
+          ) || {
+            idCompte,
+            dispositifs: [],
+          };
+          connexionCompte.dispositifs.push(connexionDispositif);
+        }
+      }
+      return connexions;
+    };
+
     return await this.suivreConnexionsDispositifs({
       f: async (connexions) => {
-        await f(connexions.filter().map());
+        await f(await regrouperParCompte(connexions));
       },
     });
   }

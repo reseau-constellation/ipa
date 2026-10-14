@@ -23,14 +23,17 @@ import {
 import { obtenir, rechercherProfondeur } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ObtRechercheProfondeur } from "../../utils.js";
-import type { OptionsAppli } from "@/v2/nébuleuse/appli/appli.js";
+import type {
+  OptionsAppli,
+  ServicesAppli,
+} from "@/v2/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {
-    let nébuleuses: NébuleuseTest[];
+    let nébuleuses: NébuleuseTest<Record<string, never>, ServicesAppli>[];
     let fermer: Oublier;
 
     let idsLibp2p: string[];
@@ -73,7 +76,7 @@ describe("Réseau", function () {
       }
     });
 
-    it.skip("suivre connexions dispositifs", async () => {
+    it("suivre connexions dispositifs", async () => {
       for (const [i, nébuleuse] of nébuleuses.entries()) {
         const autresIds = idsDispositifs.filter(
           (id) => id !== idsDispositifs[i],
@@ -130,7 +133,7 @@ describe("Réseau", function () {
       expect(connexionsLibp2p.filter((c) => c.pair !== idRelai)).to.be.empty();
     });
 
-    it.skip("déconnexion - suivi connexions dispositifs", async () => {
+    it("déconnexion - suivi connexions dispositifs", async () => {
       const connexionsDispositifs = await obtenir<ConnexionDispositif[]>(
         ({ siVide }) =>
           nébuleuses[0].réseau.suivreConnexionsDispositifs({ f: siVide() }),
