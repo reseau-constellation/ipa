@@ -106,6 +106,8 @@
     "@constl/utils-ipa": "^3.0.9",
     "@e965/xlsx": "^0.20.3",
     "@helia/bitswap": "^4.0.20",
+    "@helia/delegated-routing-client": "^1.0.7",
+    "@helia/delegated-routing-v1-http-api-client": "^9.0.2",
     "@helia/libp2p": "^2.1.5",
     "@helia/unixfs": "^8.0.9",
     "@hexagon/base64": "^2.0.4",
