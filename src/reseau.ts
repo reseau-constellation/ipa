@@ -10,9 +10,7 @@ import {
   suivreDeFonctionListe,
   uneFois,
 } from "@constl/utils-ipa";
-import { peerIdFromString } from "@libp2p/peer-id";
-import { anySignal } from "any-signal";
-import pRetry, { AbortError } from "p-retry";
+import { AbortError } from "p-retry";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import { appelerLorsque } from "./utils.js";
@@ -169,12 +167,6 @@ export class Réseau {
   événements: TypedEmitter<ÉvénementsRéseau>;
 
   constructor({ client }: { client: Constellation }) {
-    super({
-      client,
-      clef: "réseau",
-      schémaBdPrincipale: schémaBdPrincipaleRéseau,
-    });
-
     this.client = client;
 
     this.dispositifsEnLigne = {};
@@ -311,142 +303,9 @@ export class Réseau {
     });
   }
 
-  async obtFluxDispositif({
-    idDispositif,
-    signal,
-  }: {
-    idDispositif: string;
-    signal?: AbortSignal;
-  }): Promise<Pushable<Uint8Array>> {
-    const idLibp2pDestinataire = await uneFois(
-      async (fSuivi: schémaFonctionSuivi<string>) => {
-        return await this.suivreConnexionsDispositifs({
-          f: async (dispositifs) => {
-            const correspondant = dispositifs?.find(
-              (d) => d.infoDispositif.idDispositif === idDispositif,
-            );
-            if (correspondant)
-              return await fSuivi(correspondant.infoDispositif.idLibp2p);
-          },
-        });
-      },
-    );
-    return await this.obtFluxPair({
-      idPair: idLibp2pDestinataire,
-      signal,
-    });
-  }
-
-  async obtFluxPair({
-    idPair,
-    signal,
-  }: {
-    idPair: string;
-    signal?: AbortSignal;
-  }): Promise<Pushable<Uint8Array>> {
-    await this.verrouFlux.acquire(idPair);
-    if (this.connexionsDirectes[idPair]) {
-      this.verrouFlux.release(idPair);
-      return this.connexionsDirectes[idPair];
-    }
-    try {
-      const { sfip } = await this.client.attendreSfipEtOrbite();
-
-      const signalCombiné = anySignal([
-        this.client.signaleurArrêt.signal,
-        ...(signal ? [signal] : []),
-      ]);
-
-      const idPairDestinataire = peerIdFromString(idPair);
-
-      const flux = await pRetry(async () => {
-        // Double AbortError nécessaire parce que pRetry enlève l'erreur externe
-        if (signalCombiné.aborted)
-          throw new AbortError(new AbortError(Error("Opération annulée")));
-        return await sfip.libp2p.dialProtocol(
-          idPairDestinataire,
-          PROTOCOLE_CONSTELLATION,
-          { signal: signalCombiné, runOnLimitedConnection: true },
-        );
-      });
-      signalCombiné.clear();
-      pipe(flux, async (source) => {
-        for await (const value of source) {
-          const octets = value.subarray();
-          const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
-          this.événements.emit("messageDirecte", {
-            de: idPair,
-            message: messageDécodé,
-          });
-        }
-      });
-
-      const fluxÀÉcrire = pushable();
-      this.connexionsDirectes[idPair] = fluxÀÉcrire;
-      pipe(fluxÀÉcrire, flux); // Pas d'await
-      return fluxÀÉcrire;
-    } finally {
-      // Sera relâché avant le `return` ci-dessus
-      this.verrouFlux.release(idPair);
-    }
-  }
-
   async connecterÀAdresse({ adresse }: { adresse: string }) {
     const { sfip } = await this.client.attendreSfipEtOrbite();
     await sfip.libp2p.dial(multiaddr(adresse));
-  }
-
-  async envoyerMessageAuDispositif({
-    msg,
-    idDispositif,
-    signal,
-  }: {
-    msg: MessageDirecte;
-    idDispositif: string;
-    signal?: AbortSignal;
-  }) {
-    const flux = await this.obtFluxDispositif({ idDispositif, signal });
-    const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
-    flux.push(msgBinaire);
-  }
-
-  async envoyerMessageAuPair({
-    msg,
-    idPair,
-    signal,
-  }: {
-    msg: MessageDirecte;
-    idPair: string;
-    signal?: AbortSignal;
-  }) {
-    const flux = await this.obtFluxPair({ idPair, signal });
-    const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
-    flux.push(msgBinaire);
-  }
-
-  async envoyerMessageAuMembre({
-    msg,
-    idCompte,
-  }: {
-    msg: MessageDirecte;
-    idCompte: string;
-  }): Promise<void> {
-    const dispositifsMembre = Object.values(this.dispositifsEnLigne)
-      .filter((d) => d.infoDispositif.idCompte === idCompte)
-      .filter((d) => d.vuÀ === undefined);
-    if (!dispositifsMembre.length)
-      throw new Error(
-        `Aucun dispositif présentement en ligne pour membre ${idCompte}`,
-      );
-
-    await Promise.allSettled(
-      dispositifsMembre.map(async (d) => {
-        await this.envoyerMessageAuDispositif({
-          msg,
-          idDispositif: d.infoDispositif.idDispositif,
-        });
-      }),
-    );
   }
 
   async suivreMessagesDirectes({
@@ -486,7 +345,6 @@ export class Réseau {
     return appelerLorsque({
       émetteur: this.événements,
       événement: "messageDirecte",
-      // @ts-expect-error à voir
       f: gérerMessage,
     });
   }
