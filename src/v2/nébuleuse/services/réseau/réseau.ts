@@ -1391,8 +1391,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   async obtFluxPair({
     idPair,
+    signal,
   }: {
     idPair: string;
+    signal?: AbortSignal;
   }): Promise<{ soujacent: Stream; flux: LengthPrefixedStream }> {
     const fluxExistant = this.flux.sortants.get(idPair);
 
@@ -1409,39 +1411,48 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     } else {
       // console.log(`✨ nouveau flux vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`)
       const libp2p = await this.service("libp2p").libp2p();
-      const signal = this.signaleurArrêt.signal;
+      const signalCombiné = anySignal([
+        this.signaleurArrêt.signal,
+        ...(signal ? [signal] : []),
+      ]);
 
-      const flux = await libp2p.dialProtocol(
-        peerIdFromString(idPair),
-        PROTOCOLE_NÉBULEUSE,
-        { signal },
-      );
-      const fluxPl = lpStream(flux);
-      this.flux.sortants.set(idPair, { soujacent: flux, flux: fluxPl });
-      flux.addEventListener("close", () => this.flux.sortants.delete(idPair));
-      flux.addEventListener("message", ({ data }) =>
-        console.log("hmmm", {
-          idPair,
-          data: data.bufs.map((d) => new TextDecoder().decode(d)),
-        }),
-      );
-      // flux.addEventListener("remoteCloseWrite", () => flux.close());
+      try {
+        const flux = await libp2p.dialProtocol(
+          peerIdFromString(idPair),
+          PROTOCOLE_NÉBULEUSE,
+          { signal: signalCombiné },
+        );
+        const fluxPl = lpStream(flux);
+        this.flux.sortants.set(idPair, { soujacent: flux, flux: fluxPl });
+        flux.addEventListener("close", () => this.flux.sortants.delete(idPair));
+        flux.addEventListener("message", ({ data }) =>
+          console.log("hmmm", {
+            idPair,
+            data: data.bufs.map((d) => new TextDecoder().decode(d)),
+          }),
+        );
+        // flux.addEventListener("remoteCloseWrite", () => flux.close());
 
-      return { soujacent: flux, flux: fluxPl };
+        return { soujacent: flux, flux: fluxPl };
+      } finally {
+        signalCombiné.clear();
+      }
     }
   }
 
   async envoyerMessageAuPair({
     message,
     idPair,
+    signal,
   }: {
     message: MessageRéseau;
     idPair: string;
+    signal?: AbortSignal;
   }) {
     try {
-      const { flux } = await this.obtFluxPair({ idPair });
-      const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
-      await flux.write(octetsMessage);
+      const { flux } = await this.obtFluxPair({ idPair, signal });
+      const messageBinaire = new TextEncoder().encode(JSON.stringify(message));
+      await flux.write(messageBinaire, { signal });
     } catch (e) {
       throw new Error(
         `Impossible de se connecter au pair ${idPair}.` + e.toString(),
@@ -1453,29 +1464,37 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   async envoyerMessageAuDispositif({
     message,
     idDispositif,
+    signal,
   }: {
     message: MessageRéseau;
     idDispositif: string;
+    signal?: AbortSignal;
   }) {
     const idPair = await this.obtIdPairDispositif({ idDispositif });
     if (!idPair)
       throw new Error(
         `Le dispositif ${idDispositif} n'a pas été retrouvé sur le réseau.`,
       );
-    return await this.envoyerMessageAuPair({ message, idPair });
+    return await this.envoyerMessageAuPair({ message, idPair, signal });
   }
 
   async envoyerMessageAuCompte({
     message,
     idCompte,
+    signal,
   }: {
     message: MessageRéseau;
     idCompte: string;
+    signal?: AbortSignal;
   }) {
     const idsDispositifs = await this.obtDispositifsCompte({ idCompte });
+    if (!idsDispositifs.length)
+      throw new Error(
+        `Aucun dispositif du compte ${idCompte} est présentement en ligne`,
+      );
     const résultats = await Promise.allSettled(
       idsDispositifs.map((idDispositif) =>
-        this.envoyerMessageAuDispositif({ idDispositif, message }),
+        this.envoyerMessageAuDispositif({ idDispositif, message, signal }),
       ),
     );
     if (résultats.every((r) => r.status === "rejected"))
