@@ -9,9 +9,12 @@ import { identify, identifyPush } from "@libp2p/identify";
 import { ping } from "@libp2p/ping";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { bootstrap } from "@libp2p/bootstrap";
+import {
+  delegatedRoutingV1HttpApiClientContentRouting,
+  delegatedRoutingV1HttpApiClientPeerRouting,
+} from "@helia/delegated-routing-v1-http-api-client";
+import { delegatedHTTPRoutingDefaults } from "@helia/delegated-routing-client";
 import { reconnecteur } from "../services/reconnecteur.js";
-import { delegatedRoutingV1HttpApiClientContentRouting, delegatedRoutingV1HttpApiClientPeerRouting } from '@helia/delegated-routing-v1-http-api-client'
-import { delegatedHTTPRoutingDefaults } from '@helia/delegated-routing-client'
 import type { HTTP } from "@libp2p/http";
 import type { Keychain } from "@libp2p/keychain";
 import type { Reconnecteur } from "../services/reconnecteur.js";
@@ -88,8 +91,12 @@ export const servicesDéfaut = ({
     identify: identify(optionsIdentify),
     identifyPush: identifyPush(optionsIdentify),
     keychain: keychain(),
-    delegatedPeerRouting: delegatedRoutingV1HttpApiClientPeerRouting(delegatedHTTPRoutingDefaults()),
-    delegatedContentRouting: delegatedRoutingV1HttpApiClientContentRouting(delegatedHTTPRoutingDefaults()),
+    delegatedPeerRouting: delegatedRoutingV1HttpApiClientPeerRouting(
+      delegatedHTTPRoutingDefaults(),
+    ),
+    delegatedContentRouting: delegatedRoutingV1HttpApiClientContentRouting(
+      delegatedHTTPRoutingDefaults(),
+    ),
     http: http(),
     reconnecteur: reconnecteur({
       liste: pairsParDéfaut || [],
