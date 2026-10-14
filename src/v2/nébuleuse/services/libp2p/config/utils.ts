@@ -22,7 +22,7 @@ import type { AddrInfo } from "@libp2p/gossipsub/types";
 
 export interface ConfigOptionsLibp2p {
   dossier: string;
-  mode: "dév" | "prod",
+  mode: "dév" | "prod";
   pairsParDéfaut?: string[];
   sujetsDécouvertePairsPubSub?: string[];
   clefPrivée?: PrivateKey;

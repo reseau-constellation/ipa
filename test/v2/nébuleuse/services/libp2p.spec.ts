@@ -140,7 +140,8 @@ describe("Service Libp2p", function () {
         );
         const générateur = obtenirOptionsLibp2p({ clefPrivée });
         const options = await générateur({
-          dossier: join(dossier, "un", "dossier"), mode: "dév",
+          dossier: join(dossier, "un", "dossier"),
+          mode: "dév",
         });
 
         expect(options.privateKey).to.exist();
@@ -161,7 +162,8 @@ describe("Service Libp2p", function () {
 
         const générateur = obtenirOptionsLibp2p();
         const options = await générateur({
-          dossier: join(dossier, "un", "dossier"), mode: "dév",
+          dossier: join(dossier, "un", "dossier"),
+          mode: "dév",
           clefPrivée,
         });
 
@@ -189,7 +191,7 @@ describe("Service Libp2p", function () {
 
         const générateur = obtenirOptionsLibp2p({ clefPrivée });
         const options = await générateur({
-          dossier: join(dossier, "un", "dossier"), 
+          dossier: join(dossier, "un", "dossier"),
           clefPrivée: clefPrivée2,
           mode: "dév",
         });
@@ -207,7 +209,7 @@ describe("Service Libp2p", function () {
           domaines: ["mon.domaine.ca", "என்.ஆள்கள.பெயர்.இந்தியா"],
         });
         const options = await générateur({
-          dossier: join(dossier, "un", "dossier"), 
+          dossier: join(dossier, "un", "dossier"),
           mode: "dév",
         });
 

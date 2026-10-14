@@ -33,7 +33,7 @@ export type ConfigLibp2p = {
 export type GénérateurOptionsLibp2p<L extends ServiceMap> = (args: {
   dossier: string;
   clefPrivée?: PrivateKey;
-  mode: "dév" | "prod" 
+  mode: "dév" | "prod";
 }) => Promise<Libp2pOptions<L>>;
 
 export const obtenirOptionsLibp2p = (

@@ -80,7 +80,7 @@ export class ServiceHélia<
       const configLibp2p = (await générateurOptions({
         dossier: dossierLibp2p,
         clefPrivée,
-        mode: this.options.mode
+        mode: this.options.mode,
       })) as Libp2pOptions<L>;
 
       const créerHélia = this.options.hélia ?? createHelia;
