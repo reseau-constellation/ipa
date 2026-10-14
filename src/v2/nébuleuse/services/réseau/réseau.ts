@@ -263,7 +263,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         PROTOCOLE_NÉBULEUSE,
         async (flux, connexion) => {
           const idPair = connexion.remotePeer.toString();
-          console.log(`handle ${idPair} reçu par ${libp2p.peerId.toString()}`)
+          console.log(`handle ${idPair} reçu par ${libp2p.peerId.toString()}`);
           const fluxPl = lpStream(flux);
           this.flux.intrants.set(idPair, { soujacent: flux, flux: fluxPl });
           flux.addEventListener("close", () =>
@@ -279,7 +279,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               const message = JSON.parse(
                 new TextDecoder().decode(octets.slice()),
               ) as MessageRéseau;
-              console.log({message})
+              console.log({ message });
               if (message.type === IDENTITÉ_COMPTE) {
                 await traiterIdentitéCompte({ message, idPair });
               }
@@ -1250,8 +1250,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const fluxExistant = this.flux.sortants.get(idPair);
 
     if (fluxExistant) {
-      console.log(`✨ flux existant vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`, fluxExistant?.soujacent.status, fluxExistant?.soujacent.readStatus, fluxExistant?.soujacent.writeStatus, fluxExistant?.soujacent.remoteReadStatus, fluxExistant?.soujacent.remoteWriteStatus)
-      return fluxExistant
+      console.log(
+        `✨ flux existant vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`,
+        fluxExistant?.soujacent.status,
+        fluxExistant?.soujacent.readStatus,
+        fluxExistant?.soujacent.writeStatus,
+        fluxExistant?.soujacent.remoteReadStatus,
+        fluxExistant?.soujacent.remoteWriteStatus,
+      );
+      return fluxExistant;
     } else {
       // console.log(`✨ nouveau flux vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`)
       const libp2p = await this.service("libp2p").libp2p();
@@ -1265,7 +1272,12 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const fluxPl = lpStream(flux);
       this.flux.sortants.set(idPair, { soujacent: flux, flux: fluxPl });
       flux.addEventListener("close", () => this.flux.sortants.delete(idPair));
-      flux.addEventListener("message", ({data}) => console.log("hmmm", {idPair, data: data.bufs.map(d=>new TextDecoder().decode(d))}))
+      flux.addEventListener("message", ({ data }) =>
+        console.log("hmmm", {
+          idPair,
+          data: data.bufs.map((d) => new TextDecoder().decode(d)),
+        }),
+      );
       // flux.addEventListener("remoteCloseWrite", () => flux.close());
 
       return { soujacent: flux, flux: fluxPl };
