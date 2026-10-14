@@ -253,17 +253,16 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         message: idDispositif,
       });
       if (!signatureValide) return;
-      console.log("ici");
-      libp2p.addEventListener("peer:update", (x) =>
-        console.log("ahah", x.detail.peer.metadata),
-      );
+
       await libp2p.peerStore.merge(peerIdFromString(idPair), {
         metadata: {
           idDispositif: new TextEncoder().encode(idDispositif),
           idCompte: new TextEncoder().encode(idCompte),
         },
       });
-      console.log("ici terminé");
+
+      // libp2p.addEventListener("peer:update") ne semble pas fonctionner pour une modification locale
+      // ...donc on utilise notre propre gestionnaire d'événements
       this.événements.emit(ÉVÉNEMENTS.IDENTIFICATION_COMPTE, {
         idCompte,
         idDispositif,
