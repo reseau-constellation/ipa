@@ -116,7 +116,7 @@ describe("Réseau", function () {
 
     it("déconnexion - suivi connexions libp2p", async () => {
       for (const nébuleuse of nébuleuses.slice(1)) {
-        const hélia = await nébuleuse.services.hélia.hélia()
+        const hélia = await nébuleuse.services.hélia.hélia();
         await nébuleuse.fermer();
         await hélia.stop();
       }
@@ -153,7 +153,10 @@ describe("Réseau", function () {
     let idsComptes: string[];
 
     before(async () => {
-      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2, persistante: true }));
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({
+        n: 2,
+        persistante: true,
+      }));
 
       idsComptes = await Promise.all(
         nébuleuses.map((c) => c.compte.obtIdCompte()),
