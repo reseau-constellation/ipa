@@ -12,6 +12,7 @@ import {
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { uPnPNAT } from "@libp2p/upnp-nat";
+import { kadDHT } from "@libp2p/kad-dht";
 import { obtStockageDonnées } from "../../utils.js";
 import { découvertePairs, servicesDéfaut } from "./utils.js";
 import type {
@@ -30,7 +31,7 @@ export type ServicesLibp2pNode = ServicesLibp2pNébuleuseDéfaut & {
 export const obtOptionsLibp2pNode = async (
   config: ConfigOptionsLibp2p,
 ): Promise<Libp2pOptions<ServicesLibp2pNode>> => {
-  const { clefPrivée, dossier, domaines, pairsParDéfaut } = config;
+  const { clefPrivée, dossier, domaines, pairsParDéfaut, mode } = config;
 
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
   // navigateur. Nous devons donc les importer dynamiquement ici afin d'éviter
@@ -87,8 +88,15 @@ export const obtOptionsLibp2pNode = async (
     peerDiscovery: [mdns(), ...découvertePairs(config)],
     services: {
       ...servicesDéfaut({ pairsParDéfaut }),
-      autoTLS: autoTLS(),
-      // dht: kadDHT(),
+      autoTLS: autoTLS(
+        mode === "dév"
+          ? {
+              acmeDirectory:
+                "https://acme-staging-v02.api.letsencrypt.org/directory",
+            }
+          : {},
+      ),
+      dht: kadDHT(),
       upnp: uPnPNAT(),
       relay: circuitRelayServer(),
     },

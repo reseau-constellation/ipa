@@ -9,6 +9,8 @@ import { uPnPNAT } from "@libp2p/upnp-nat";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
 import { webTransport } from "@libp2p/webtransport";
+import { kadDHT } from "@libp2p/kad-dht";
+import { autoTLS } from "@ipshipyard/libp2p-auto-tls";
 import { obtStockageDonnées } from "../../utils.js";
 import { découvertePairs, servicesDéfaut } from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
@@ -27,7 +29,7 @@ export type ServicesLibp2pÉlectronPrincipal = ServicesLibp2pNébuleuseDéfaut &
 export const obtOptionsLibp2pÉlectronPrincipal = async (
   config: ConfigOptionsLibp2p,
 ): Promise<Libp2pOptions<ServicesLibp2pÉlectronPrincipal>> => {
-  const { dossier, clefPrivée, pairsParDéfaut } = config;
+  const { dossier, clefPrivée, pairsParDéfaut, mode } = config;
 
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
   // navigateur. Nous devons donc les importer dynamiquement ici afin d'éviter
@@ -70,8 +72,17 @@ export const obtOptionsLibp2pÉlectronPrincipal = async (
     peerDiscovery: [mdns(), ...découvertePairs(config)],
     services: {
       ...servicesDéfaut({ pairsParDéfaut }),
-      upnp: uPnPNAT(),
+      autoTLS: autoTLS(
+        mode === "dév"
+          ? {
+              acmeDirectory:
+                "https://acme-staging-v02.api.letsencrypt.org/directory",
+            }
+          : {},
+      ),
+      dht: kadDHT(),
       relay: circuitRelayServer(),
+      upnp: uPnPNAT(),
     },
   };
 };

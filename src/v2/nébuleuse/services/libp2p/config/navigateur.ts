@@ -7,6 +7,7 @@ import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import { detect } from "detect-browser";
 
 import { FaultTolerance } from "@libp2p/interface";
+import { kadDHT } from "@libp2p/kad-dht";
 import { obtStockageDonnées } from "../../utils.js";
 import { découvertePairs, servicesDéfaut } from "./utils.js";
 import type {
@@ -49,7 +50,7 @@ export const obtOptionsLibp2pNavigateur = async (
     peerDiscovery: découvertePairs(config),
     services: {
       ...servicesDéfaut({ pairsParDéfaut }),
-      // dht: kadDHT({ clientMode: true }),
+      dht: kadDHT({ clientMode: true }),
     },
   };
   return options;
