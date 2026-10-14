@@ -33,6 +33,7 @@ export type ConfigLibp2p = {
 export type GénérateurOptionsLibp2p<L extends ServiceMap> = (args: {
   dossier: string;
   clefPrivée?: PrivateKey;
+  mode: "dév" | "prod" 
 }) => Promise<Libp2pOptions<L>>;
 
 export const obtenirOptionsLibp2p = (
@@ -41,9 +42,11 @@ export const obtenirOptionsLibp2p = (
   return async ({
     dossier,
     clefPrivée,
+    mode,
   }: {
     dossier: string;
     clefPrivée?: PrivateKey;
+    mode: "dév" | "prod";
   }): Promise<Libp2pOptions<ServicesLibp2pNébuleuseDéfaut>> => {
     if (isElectronRenderer)
       console.warn(
@@ -53,6 +56,7 @@ export const obtenirOptionsLibp2p = (
 
     const configOptions: ConfigOptionsLibp2p = {
       domaines,
+      mode,
       pairsParDéfaut: pairsParDéfaut ?? ADRESSES_NŒUDS_RELAI_WS,
       sujetsDécouvertePairsPubSub:
         sujetsDécouvertePairsPubSub ?? SUJETS_PUBSUB_DÉCOUVERTE_PAIRS,
