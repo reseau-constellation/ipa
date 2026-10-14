@@ -120,7 +120,7 @@ describe("Service Libp2p", function () {
         const dossier2 = join(dossier, "un", "autre", "dossier");
 
         const générateur = obtenirOptionsLibp2p({ dossier: dossier1 });
-        const options = await générateur({ dossier: dossier2 });
+        const options = await générateur({ dossier: dossier2, mode: "dév" });
 
         if (isBrowser) {
           expect((options.datastore as IDBDatastore)["location"]).to.equal(
@@ -140,7 +140,7 @@ describe("Service Libp2p", function () {
         );
         const générateur = obtenirOptionsLibp2p({ clefPrivée });
         const options = await générateur({
-          dossier: join(dossier, "un", "dossier"),
+          dossier: join(dossier, "un", "dossier"), mode: "dév",
         });
 
         expect(options.privateKey).to.exist();
@@ -161,7 +161,7 @@ describe("Service Libp2p", function () {
 
         const générateur = obtenirOptionsLibp2p();
         const options = await générateur({
-          dossier: join(dossier, "un", "dossier"),
+          dossier: join(dossier, "un", "dossier"), mode: "dév",
           clefPrivée,
         });
 
@@ -189,8 +189,9 @@ describe("Service Libp2p", function () {
 
         const générateur = obtenirOptionsLibp2p({ clefPrivée });
         const options = await générateur({
-          dossier: join(dossier, "un", "dossier"),
+          dossier: join(dossier, "un", "dossier"), 
           clefPrivée: clefPrivée2,
+          mode: "dév",
         });
 
         expect(options.privateKey).to.exist();
@@ -206,7 +207,8 @@ describe("Service Libp2p", function () {
           domaines: ["mon.domaine.ca", "என்.ஆள்கள.பெயர்.இந்தியா"],
         });
         const options = await générateur({
-          dossier: join(dossier, "un", "dossier"),
+          dossier: join(dossier, "un", "dossier"), 
+          mode: "dév",
         });
 
         // On n'annonce un domaine dns que sur Node.js
@@ -335,7 +337,7 @@ describe("Service Libp2p", function () {
         );
 
         const adressesÉcouteDomaine = (
-          await optionsLibp2p({ dossier, clefPrivée })
+          await optionsLibp2p({ dossier, clefPrivée, mode: "dév" })
         ).addresses?.announce?.filter((a) =>
           multiaddr(a)
             .getComponents()

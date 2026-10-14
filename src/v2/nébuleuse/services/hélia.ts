@@ -16,9 +16,10 @@ import type { Libp2pOptions } from "libp2p";
 import type { CreateLibp2pOptions, HeliaWithLibp2p } from "@helia/libp2p";
 import type { ServiceDossier } from "./dossier.js";
 import type { ServiceStockage } from "./stockage.js";
-import type { PrivateKey, ServiceMap } from "@libp2p/interface";
+import type { ServiceMap } from "@libp2p/interface";
 import type { BitswapOptions } from "@helia/bitswap";
 import type { Datastore } from "interface-datastore";
+import type { GénérateurOptionsLibp2p } from "./libp2p/config/config.js";
 
 export type CréerHélia<L extends ServiceMap> = (
   init?: HeliaInit & {
@@ -30,10 +31,7 @@ export type OptionsServiceHélia<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
   hélia?: HeliaWithLibp2p<L> | CréerHélia<L>;
-  libp2p?: (args: {
-    dossier: string;
-    clefPrivée?: PrivateKey;
-  }) => Promise<Libp2pOptions<L>>;
+  libp2p?: GénérateurOptionsLibp2p<L>;
 };
 
 export type ServicesNécessairesHélia = {
@@ -82,6 +80,7 @@ export class ServiceHélia<
       const configLibp2p = (await générateurOptions({
         dossier: dossierLibp2p,
         clefPrivée,
+        mode: this.options.mode
       })) as Libp2pOptions<L>;
 
       const créerHélia = this.options.hélia ?? createHelia;
