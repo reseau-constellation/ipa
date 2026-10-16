@@ -319,7 +319,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         if (!estErreurAvortée(e)) throw e;
       });
 
-    const envoyerMessageAuPair = this.envoyerMessageAuPair.bind(this);
+    const envoyerMesIdentifiants = this.envoyerMesIdentifiants.bind(this);
 
     const salués = peerSet();
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
@@ -334,24 +334,16 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             if (salués.has(peerId)) return;
 
             salués.add(peerId);
-            const idCompte = await compte.obtIdCompte();
 
-            const identifiantsCompte: MessageIdentitéCompte = {
-              type: IDENTITÉ_COMPTE,
-              idCompte,
-              idDispositif,
-              signature: await orbite.signer({ message: idDispositif }),
-            };
             conn.addEventListener("remoteCloseWrite", () =>
               console.log("✘ remoteCloseWrite", peerId.toString()),
             );
             conn.addEventListener("close", () =>
               console.log("✘ close", peerId.toString()),
             );
-            await envoyerMessageAuPair({
-              idPair: peerId.toString(),
-              message: identifiantsCompte,
-            });
+            await envoyerMesIdentifiants({
+              idPair: peerId.toString()
+            })
           },
           async onDisconnect(peerId) {
             console.log(
@@ -509,6 +501,34 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     return oublier;
   }
 
+  async annoncerIdCompte() {
+    const libp2p = await this.service("libp2p").libp2p();
+    const pairsConnectés = libp2p.getPeers()
+    // C'est pas grave si on n'arrive pas à passer le message à tout le monde
+    console.log(pairsConnectés)
+    await Promise.allSettled(pairsConnectés.map(async p=> await this.envoyerMesIdentifiants({ idPair: p.toString() })))
+  }
+
+  async envoyerMesIdentifiants({idPair}: { idPair: string}) {
+    const orbite = this.service("orbite");
+    const compte = this.service("compte");
+
+    const idCompte = await compte.obtIdCompte();
+    const idDispositif = await compte.obtIdDispositif();
+
+    const identifiantsCompte: MessageIdentitéCompte = {
+      type: IDENTITÉ_COMPTE,
+      idCompte,
+      idDispositif,
+      signature: await orbite.signer({ message: idDispositif }),
+    };
+
+    await this.envoyerMessageAuPair({
+      idPair,
+      message: identifiantsCompte,
+    });
+  }
+
   // Suivi connexions
 
   @cacheSuivi
@@ -614,6 +634,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     } = {};
     const fFinale = async () => {
       const { connexionsDispositifs, pairs } = infos;
+      
       const connexions: ConnexionCompte[] = [];
       if (connexionsDispositifs && pairs) {
         for (const connexionDispositif of connexionsDispositifs) {
@@ -1652,6 +1673,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     await this.envoyerMessageAuPair({ idPair, message });
 
     await compte.rejoindreCompte({ idCompte });
+    await this.annoncerIdCompte()
   }
 
   // Réseautage
