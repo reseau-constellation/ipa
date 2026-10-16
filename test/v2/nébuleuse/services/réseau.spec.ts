@@ -579,7 +579,7 @@ describe("Réseau", function () {
           nébuleuses.map((c) => c.compte.obtIdCompte()),
         );
 
-        const { bd, oublier } = await nébuleuses[0].orbite.créerBd({
+        const { bd, oublier } = await nébuleuses[0].compte.créerObjet({
           type: "keyvalue",
         });
         idBd = bd.address;
@@ -687,7 +687,7 @@ describe("Réseau", function () {
           nébuleuses.map((c) => c.compte.obtIdCompte()),
         );
 
-        const { bd, oublier } = await nébuleuses[0].orbite.créerBd({
+        const { bd, oublier } = await nébuleuses[0].compte.créerObjet({
           type: "keyvalue",
         });
         idBd = bd.address;
