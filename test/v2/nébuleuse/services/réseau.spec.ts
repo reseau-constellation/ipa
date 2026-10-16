@@ -30,10 +30,13 @@ import type {
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import type {
-  MessageRéseau,
-  MessageRéseauAvecExpéditeur,
+import {
+  ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
+  type MessageAcceptationInvitationRejoindreCompte,
+  type MessageRéseau,
+  type MessageRéseauAvecExpéditeur,
 } from "@/v2/nébuleuse/services/réseau/messages.js";
+import { obtEmpreinteCode } from "@/v2/nébuleuse/services/utils.js";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {
@@ -768,17 +771,23 @@ describe("Réseau", function () {
         ).to.have.members([idsDispositifs[0], idsDispositifs[1]]);
       });
 
-      it.skip("ça ne fonctionne pas avec le mauvais mot de passe", async () => {
+      it("ça ne fonctionne pas avec le mauvais mot de passe", async () => {
         const invitation =
           await nébuleuses[0].réseau.générerInvitationRejoindreCompte();
 
-        await nébuleuses[2].réseau.rejoindreCompteParInvitation({
-          invitation: {
-            ...invitation,
-            codeSecret: "Mauvais code",
-          },
-        });
+        const { idPair } = invitation;
 
+        const message: MessageAcceptationInvitationRejoindreCompte = {
+          type: ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
+          idDispositif: idsDispositifs[2],
+          empreinteCode: obtEmpreinteCode({
+            codeSecret: "Mauvais code",
+            identifiant: idsDispositifs[2],
+          }),
+        };
+        await nébuleuses[2].réseau.envoyerMessageAuPair({ idPair, message });
+        
+        // À faire...test plus robuste qui attent que nébuleuses[0] reçoive bien le message
         const dispositifsCompte = await obtenir<string[]>(({ si }) =>
           nébuleuses[0].compte.suivreDispositifsAutorisés({
             f: si((x) => !!x?.includes(idsDispositifs[1])),
