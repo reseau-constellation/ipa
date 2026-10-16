@@ -1592,7 +1592,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           await oublierMessages();
           compte
             .rejoindreCompte({ idCompte, signal: signalFinal })
-            .then( async () => await this.annoncerIdCompte() )
+            .then(async () => await this.annoncerIdCompte())
             .catch((e) => {
               if (!estErreurAvortée(e)) throw e;
             })
