@@ -437,6 +437,21 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     return idDispositif ? new TextDecoder().decode(idDispositif) : undefined;
   }
 
+  async obtIdPairDispositif({
+    idDispositif,
+  }: {
+    idDispositif: string;
+  }): Promise<string | undefined> {
+    const libp2p = await this.service("libp2p").libp2p();
+    const infosPairs = await libp2p.peerStore.all();
+    for (const pair of infosPairs) {
+      const dispositif = pair.metadata.get("idDispositif");
+      if (dispositif && new TextDecoder().decode(dispositif) === idDispositif)
+        return pair.id.toString();
+    }
+    return undefined;
+  }
+
   async suivreDispositifIdPair({
     idPair,
     f,
