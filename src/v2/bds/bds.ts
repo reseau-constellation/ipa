@@ -363,7 +363,7 @@ export class Bds extends ObjetConstellation<
   async créerSchémaDeBd({ idBd }: { idBd: string }): Promise<SchémaBd> {
     const licence = (await uneFois<string | null | undefined>(
       (f) => this.suivreLicence({ idBd, f }),
-      (x) => !!x,
+      { condition: (x) => !!x },
     )) as string;
     const licenceContenu =
       (await uneFois<string | null | undefined>((f) =>
@@ -1491,11 +1491,11 @@ export class Bds extends ObjetConstellation<
   }): Promise<void> {
     const tableauxSource = await uneFois<string[]>(
       (f) => this.suivreTableaux({ idBd: idBdSource, f }),
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
     const tableauxDestinataire = await uneFois<string[]>(
       (f) => this.suivreTableaux({ idBd: idBdDestinataire, f }),
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
     const communs = tableauxSource.filter((t) =>
       tableauxDestinataire.includes(t),
@@ -1678,9 +1678,11 @@ export class Bds extends ObjetConstellation<
           f: fSuivi,
         });
       },
-      async (idBd) => {
-        // Il faut vérifier que la bd est toujours valide en raison de la cache sur `this.suivreBdUnique`
-        return idBd !== undefined && bdUniqueValide(idBd);
+      {
+        condition: async (idBd) => {
+          // Il faut vérifier que la bd est toujours valide en raison de la cache sur `this.suivreBdUnique`
+          return idBd !== undefined && bdUniqueValide(idBd);
+        },
       },
     );
   }
@@ -2245,7 +2247,7 @@ export class Bds extends ObjetConstellation<
           f: fSuivi,
         });
       },
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
 
     nomFichier = nomFichier || données.nomBd;

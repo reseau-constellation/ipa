@@ -581,13 +581,13 @@ export class TableauxBds extends Tableaux {
           f: fSuivi,
         });
       },
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
     const pDonnéesTableauDestinataire = uneFois(
       async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
         return await this.suivreDonnées({ ...à, f: fSuivi });
       },
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
     const pColsTableauDestinataire = uneFois(
       async (fSuivi: Suivi<InfoColonne[]>) => {
@@ -596,7 +596,7 @@ export class TableauxBds extends Tableaux {
           f: ignorerNonDéfinis(fSuivi),
         });
       },
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
 
     const [
@@ -808,7 +808,7 @@ export class TableauxBds extends Tableaux {
       async (fSuivi: Suivi<DonnéesRangéeTableauAvecId[]>) => {
         return await this.suivreDonnées({ idStructure, idTableau, f: fSuivi });
       },
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
 
     const nouveaux: DonnéesRangéeTableau[] = [];
@@ -1437,7 +1437,7 @@ export class TableauxBds extends Tableaux {
           f: fSuivi,
         });
       },
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
 
     /* Créer le tableau */

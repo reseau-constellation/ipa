@@ -1170,7 +1170,7 @@ export class Projets extends ObjetConstellation<
           f: fSuivi,
         });
       },
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
 
     nomFichier = nomFichier || données.nomProjet;

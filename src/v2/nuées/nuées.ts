@@ -459,7 +459,7 @@ export class Nuées extends ObjetConstellation<
   }): Promise<SchémaBd> {
     const pMétadonnées = uneFois<Métadonnées>(
       (f) => this.suivreMétadonnées({ idNuée, f }),
-      attendreStabilité(100),
+      { condition: attendreStabilité(100) },
     );
 
     const pMotsClefs = uneFois<string[]>(
@@ -468,12 +468,12 @@ export class Nuées extends ObjetConstellation<
           idNuée,
           f: async (x) => await f(x.map((m) => m.val)),
         }),
-      attendreStabilité(100),
+      { condition: attendreStabilité(100) },
     );
 
     const pStatut = uneFois<StatutDonnées | undefined>(
       (f) => this.suivreStatut({ idNuée, f }),
-      attendreStabilité(100),
+      { condition: attendreStabilité(100) },
     );
 
     // On inclut tous les tableaux, indépendament de la source
@@ -483,7 +483,7 @@ export class Nuées extends ObjetConstellation<
           idNuée,
           f: (tblx) => f(tblx.map((t) => t.id)),
         }),
-      attendreStabilité(100),
+      { condition: attendreStabilité(100) },
     );
 
     const [métadonnées, motsClefs, statut, idsTableaux] = await Promise.all([
@@ -505,7 +505,7 @@ export class Nuées extends ObjetConstellation<
               idTableau,
               f: ignorerNonDéfinis(f),
             }),
-          attendreStabilité(100),
+          { condition: attendreStabilité(100) },
         );
         const cols = infoCols.map((col) => ({
           idColonne: col.id,
@@ -2509,7 +2509,7 @@ export class Nuées extends ObjetConstellation<
           f: fSuivi,
         });
       },
-      attendreStabilité(patience),
+      { condition: attendreStabilité(patience) },
     );
 
     nomFichier = nomFichier || données.nomBd;

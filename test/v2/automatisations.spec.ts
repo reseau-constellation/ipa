@@ -177,10 +177,9 @@ const obtEmpreinte = async ({
   idBd: string;
   constl: Constellation;
 }): Promise<string> => {
-  return await uneFois(
-    (f) => constl.bds.suivreEmpreinteTête({ idBd, f }),
-    attendreStabilité(100),
-  );
+  return await uneFois((f) => constl.bds.suivreEmpreinteTête({ idBd, f }), {
+    condition: attendreStabilité(100),
+  });
 };
 
 const vérifierDonnéesTableau = (
