@@ -14,6 +14,7 @@ packages: []
 
 minimumReleaseAgeExclude:
   - "@constl/utils-tests@2.2.3 || 2.2.4 || 2.2.6 || 2.2.7 || 2.2.8"
+  - "@constl/utils-ipa@3.1.0"
 
 overrides:
   p-queue: "^8.1.1"
