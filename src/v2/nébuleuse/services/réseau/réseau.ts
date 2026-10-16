@@ -1678,7 +1678,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     await this.envoyerMessageAuPair({ idPair, message });
 
     await compte.rejoindreCompte({ idCompte });
-    await this.annoncerIdCompte()
+    await this.annoncerIdCompte();
   }
 
   // Réseautage
