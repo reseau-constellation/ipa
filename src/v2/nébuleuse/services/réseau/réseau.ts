@@ -1464,12 +1464,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         const fluxPl = lpStream(flux);
         this.flux.sortants.set(idPair, { soujacent: flux, flux: fluxPl });
         flux.addEventListener("close", () => this.flux.sortants.delete(idPair));
-        flux.addEventListener("message", ({ data }) =>
-          console.log("hmmm", {
-            idPair,
-            data: data.bufs.map((d) => new TextDecoder().decode(d)),
-          }),
-        );
         // flux.addEventListener("remoteCloseWrite", () => flux.close());
 
         return { soujacent: flux, flux: fluxPl };
