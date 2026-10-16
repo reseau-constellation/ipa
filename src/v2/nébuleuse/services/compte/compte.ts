@@ -259,6 +259,33 @@ export class BaseServiceCompte<
     });
   }
 
+  async obtDispositifsAutorisés({
+    idCompte,
+    signal,
+  }: {
+    idCompte?: string;
+    signal?: AbortSignal;
+  }): Promise<string[]> {
+    const orbite = this.service("orbite");
+    idCompte = idCompte ?? (await this.obtIdCompte());
+
+    const { bd, oublier } = await orbite.ouvrirBd({
+      id: enleverPréfixes(idCompte),
+      signal,
+    });
+
+    if (estContrôleurNébuleuse(bd.access)) {
+      const dispositifs = (await bd.access.dispositifsAutorisés()).map(
+        ({ idDispositif }) => idDispositif,
+      );
+      await oublier();
+      return dispositifs;
+    } else
+      throw new Error(
+        `Gestionnaire d'accès OrbitDB ${bd.access.type} non reconnnu.`,
+      );
+  }
+
   async ajouterDispositif({
     idDispositif,
   }: {
