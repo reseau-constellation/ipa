@@ -342,8 +342,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               console.log("✘ close", peerId.toString()),
             );
             await envoyerMesIdentifiants({
-              idPair: peerId.toString()
-            })
+              idPair: peerId.toString(),
+            });
           },
           async onDisconnect(peerId) {
             console.log(
@@ -503,13 +503,18 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   async annoncerIdCompte() {
     const libp2p = await this.service("libp2p").libp2p();
-    const pairsConnectés = libp2p.getPeers()
+    const pairsConnectés = libp2p.getPeers();
+
     // C'est pas grave si on n'arrive pas à passer le message à tout le monde
-    console.log(pairsConnectés)
-    await Promise.allSettled(pairsConnectés.map(async p=> await this.envoyerMesIdentifiants({ idPair: p.toString() })))
+    await Promise.allSettled(
+      pairsConnectés.map(
+        async (p) =>
+          await this.envoyerMesIdentifiants({ idPair: p.toString() }),
+      ),
+    );
   }
 
-  async envoyerMesIdentifiants({idPair}: { idPair: string}) {
+  async envoyerMesIdentifiants({ idPair }: { idPair: string }) {
     const orbite = this.service("orbite");
     const compte = this.service("compte");
 
@@ -634,7 +639,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     } = {};
     const fFinale = async () => {
       const { connexionsDispositifs, pairs } = infos;
-      
+
       const connexions: ConnexionCompte[] = [];
       if (connexionsDispositifs && pairs) {
         for (const connexionDispositif of connexionsDispositifs) {
@@ -1610,7 +1615,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const compte = this.service("compte");
 
-    const idCompte = await compte.obtIdDispositif();
+    const idCompte = await compte.obtIdCompte();
     await compte.ajouterDispositif({ idDispositif });
 
     const message: MessageAcceptationRequêteRejoindreCompte = {

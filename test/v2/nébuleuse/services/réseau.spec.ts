@@ -647,13 +647,25 @@ describe("Réseau", function () {
 
       it.skip("changement de compte propagé sur le réseau", async () => {
         const connexionCompte0 = await uneFois<ConnexionCompte>(
-          async (fSuivi) => nébuleuses[2].réseau.suivreConnexionsComptes({
-            f: connexions => fSuivi(connexions.filter(c=>c.idCompte === idsComptes[0])[0])
-          }),
-          { condition: connexion => !!connexion && connexion.dispositifs.some(d=>d.idDispositif === idsDispositifs[1]) }
-        )
-        expect(connexionCompte0.dispositifs.map(d=>d.idDispositif)).to.have.members([idsComptes[0], idsComptes[1]])
-      })
+          async (fSuivi) =>
+            nébuleuses[2].réseau.suivreConnexionsComptes({
+              f: (connexions) =>
+                fSuivi(
+                  connexions.filter((c) => c.idCompte === idsComptes[0])[0],
+                ),
+            }),
+          {
+            condition: (connexion) =>
+              !!connexion &&
+              connexion.dispositifs.some(
+                (d) => d.idDispositif === idsDispositifs[1],
+              ),
+          },
+        );
+        expect(
+          connexionCompte0.dispositifs.map((d) => d.idDispositif),
+        ).to.have.members([idsComptes[0], idsComptes[1]]);
+      });
     });
 
     describe("requête du compte existant", async () => {
@@ -726,23 +738,38 @@ describe("Réseau", function () {
 
       it("changement de compte propagé sur le réseau", async () => {
         const connexionCompte0 = await uneFois<ConnexionCompte>(
-          async (fSuivi) => nébuleuses[2].réseau.suivreConnexionsComptes({
-            f: connexions => fSuivi(connexions.filter(c=>c.idCompte === idsComptes[0])[0])
-          }),
-          { condition: connexion => !!connexion && connexion.dispositifs.length >= 2 && connexion.dispositifs.some(d=>d.idDispositif === idsDispositifs[1]) }
-        )
-        console.log(idsDispositifs)
-        expect(connexionCompte0.dispositifs.map(d=>d.idDispositif)).to.have.members([idsDispositifs[0], idsDispositifs[1]])
-      })
+          async (fSuivi) =>
+            nébuleuses[2].réseau.suivreConnexionsComptes({
+              f: (connexions) =>
+                fSuivi(
+                  connexions.filter((c) => c.idCompte === idsComptes[0])[0],
+                ),
+            }),
+          {
+            condition: (connexion) =>
+              !!connexion &&
+              connexion.dispositifs.length >= 2 &&
+              connexion.dispositifs.some(
+                (d) => d.idDispositif === idsDispositifs[1],
+              ),
+          },
+        );
+
+        expect(
+          connexionCompte0.dispositifs.map((d) => d.idDispositif),
+        ).to.have.members([idsDispositifs[0], idsDispositifs[1]]);
+      });
 
       it.skip("ça ne fonctionne pas avec le mauvais mot de passe", async () => {
         const invitation =
           await nébuleuses[0].réseau.générerInvitationRejoindreCompte();
 
-        await nébuleuses[2].réseau.rejoindreCompteParInvitation({ invitation: {
-          ...invitation,
-          codeSecret: "Mauvais code"
-        } });
+        await nébuleuses[2].réseau.rejoindreCompteParInvitation({
+          invitation: {
+            ...invitation,
+            codeSecret: "Mauvais code",
+          },
+        });
 
         const dispositifsCompte = await obtenir<string[]>(({ si }) =>
           nébuleuses[0].compte.suivreDispositifsAutorisés({
@@ -752,7 +779,6 @@ describe("Réseau", function () {
         expect(dispositifsCompte).to.not.include(idsDispositifs[2]);
       });
     });
-
   });
 
   describe("messages", async () => {
