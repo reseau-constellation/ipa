@@ -1487,9 +1487,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }) {
     const idPair = await this.obtIdPairDispositif({ idDispositif });
     if (!idPair)
-      throw new Error(
-        `Le dispositif ${idDispositif} n'a pas été retrouvé sur le réseau.`,
-      );
+      throw new Error(`Le dispositif ${idDispositif} n'a pas été vu en ligne.`);
     return await this.envoyerMessageAuPair({ message, idPair, signal });
   }
 
@@ -1502,17 +1500,26 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idCompte: string;
     signal?: AbortSignal;
   }) {
-    const idsDispositifs = await this.obtDispositifsCompte({ idCompte });
+    const compte = this.service("compte");
+    const journal = this.service("journal");
+
+    const idsDispositifs = await compte.obtDispositifsAutorisés({ idCompte });
     if (!idsDispositifs.length)
       throw new Error(
-        `Aucun dispositif du compte ${idCompte} est présentement en ligne`,
+        `Le compte ${idCompte} n'a pas été retrouvé sur le réseau.`,
       );
+
     const résultats = await Promise.allSettled(
       idsDispositifs.map((idDispositif) =>
         this.envoyerMessageAuDispositif({ idDispositif, message, signal }),
       ),
     );
-    if (résultats.every((r) => r.status === "rejected"))
+    if (résultats.some((r) => r.status === "rejected"))
+      journal.écrire({
+        message: `Le message n'a pas pu être délivré à tous les dispositifs du compte ${idCompte}`,
+      });
+
+    if (!résultats.some((r) => r.status === "fulfilled"))
       throw new Error(
         `Le message n'a pu être envoyé à aucun des dispositifs du compte ${idCompte}.`,
       );
