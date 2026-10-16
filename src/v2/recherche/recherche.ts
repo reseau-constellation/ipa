@@ -213,25 +213,23 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
           fSuivreRacine: Suivi<{ idCompte: string; profondeur: number }[]>;
         }): Promise<{ fOublier: Oublier; profondeur: (p: number) => void }> => {
           const { oublier, profondeur: changerProfondeur } =
-            await réseau.suivreComptesParProfondeur({
-              f: (liste) =>
+            await réseau.suivreComptes({
+              f: (liste) => {
                 fSuivreRacine(
                   liste
                     // On ignore les membres bloqués directement ou avec un score négatif
-                    .filter(({ confiance }) => confiance >= 0)
-                    .map(({ idCompte, profondeur }) => ({
-                      idCompte: idCompte,
-                      profondeur,
-                    })),
-                ),
+                    .filter(({ confiance }) => confiance >= 0),
+                );
+              },
               profondeur: PROFONDEUR_MINIMALE_RECHERCHE,
             });
           return { profondeur: changerProfondeur, fOublier: oublier };
         },
         fBranche: fSuivreCompte,
         fIdDeBranche: (x) => x.idCompte,
-        f: (x: RésultatAvecProfondeur[]) => {
+        f: async (x: RésultatAvecProfondeur[]) => {
           résultats = x;
+          await fFinale();
         },
       });
 

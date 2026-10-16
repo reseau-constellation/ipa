@@ -11,7 +11,7 @@ import {
 import {
   RÉSOLVEUR_CONFIANCE,
   type CompteBloqué,
-  type CompteParProfondeur,
+  type CompteRéseau,
   type ConnexionCompte,
   type ConnexionDispositif,
   type ConnexionLibp2p,
@@ -20,6 +20,13 @@ import {
   type RelationRéseau,
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
 import { MODÉRATRICE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
+import {
+  ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
+  type MessageAcceptationInvitationRejoindreCompte,
+  type MessageRéseau,
+  type MessageRéseauAvecExpéditeur,
+} from "@/v2/nébuleuse/services/réseau/messages.js";
+import { obtEmpreinteCode } from "@/v2/nébuleuse/services/utils.js";
 import { obtenir, rechercherProfondeur } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ObtRechercheProfondeur } from "../../utils.js";
@@ -30,13 +37,6 @@ import type {
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/v2/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/v2/nébuleuse/nébuleuse.js";
-import {
-  ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
-  type MessageAcceptationInvitationRejoindreCompte,
-  type MessageRéseau,
-  type MessageRéseauAvecExpéditeur,
-} from "@/v2/nébuleuse/services/réseau/messages.js";
-import { obtEmpreinteCode } from "@/v2/nébuleuse/services/utils.js";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {
@@ -501,7 +501,7 @@ describe("Réseau", function () {
     });
 
     it("confiance transitive", async () => {
-      const comptes = await obtenir<Compte>(({ si }) =>
+      const comptes = await obtenir<CompteRéseau[]>(({ si }) =>
         nébuleuses[0].réseau.suivreComptes({
           f: si((x) => !!x && x.length >= 3),
         }),
@@ -786,7 +786,7 @@ describe("Réseau", function () {
           }),
         };
         await nébuleuses[2].réseau.envoyerMessageAuPair({ idPair, message });
-        
+
         // À faire...test plus robuste qui attent que nébuleuses[0] reçoive bien le message
         const dispositifsCompte = await obtenir<string[]>(({ si }) =>
           nébuleuses[0].compte.suivreDispositifsAutorisés({
@@ -1426,7 +1426,7 @@ describe("Réseau", function () {
     let fermer: () => Promise<void>;
     let nébuleuses: NébuleuseTest[];
 
-    let rechercheComptes: ObtRechercheProfondeur<CompteParProfondeur>;
+    let rechercheComptes: ObtRechercheProfondeur<CompteRéseau>;
 
     let idsComptes: string[];
 
@@ -1437,11 +1437,10 @@ describe("Réseau", function () {
         nébuleuses.map(async (c) => await c.compte.obtIdCompte()),
       );
 
-      rechercheComptes = await rechercherProfondeur<CompteParProfondeur>(
-        ({ f }) =>
-          nébuleuses[0].réseau.suivreComptesParProfondeur({
-            f,
-          }),
+      rechercheComptes = await rechercherProfondeur<CompteRéseau>(({ f }) =>
+        nébuleuses[0].réseau.suivreComptesRéseau({
+          f,
+        }),
       );
     });
 
@@ -1468,7 +1467,7 @@ describe("Réseau", function () {
 
       const comptes = await rechercheComptes.siAuMoins(2);
 
-      const réf: CompteParProfondeur[] = [
+      const réf: CompteRéseau[] = [
         {
           idCompte: idsComptes[1],
           confiance: 1,
@@ -1496,7 +1495,7 @@ describe("Réseau", function () {
       });
 
       const comptes = await rechercheComptes.siAuMoins(2);
-      const réf: CompteParProfondeur[] = [
+      const réf: CompteRéseau[] = [
         {
           idCompte: idsComptes[1],
           confiance: 1,
@@ -1523,7 +1522,7 @@ describe("Réseau", function () {
       });
 
       const comptes = await rechercheComptes.siAuMoins(2);
-      const réf: CompteParProfondeur[] = [
+      const réf: CompteRéseau[] = [
         {
           idCompte: idsComptes[1],
           confiance: 1,
@@ -1553,7 +1552,7 @@ describe("Réseau", function () {
           r.length >= 2 &&
           r.filter((x) => x.idCompte === idsComptes[2])[0].confiance < 0,
       );
-      const réf: CompteParProfondeur[] = [
+      const réf: CompteRéseau[] = [
         {
           idCompte: idsComptes[1],
           confiance: 1,
@@ -1581,7 +1580,7 @@ describe("Réseau", function () {
 
       const comptes = await rechercheComptes.siPasPlusQue(1);
 
-      const réf: CompteParProfondeur[] = [
+      const réf: CompteRéseau[] = [
         {
           idCompte: idsComptes[1],
           confiance: 1,
@@ -1608,7 +1607,7 @@ describe("Réseau", function () {
 
       const comptes = await rechercheComptes.siAuMoins(2);
 
-      const réf: CompteParProfondeur[] = [
+      const réf: CompteRéseau[] = [
         {
           idCompte: idsComptes[1],
           confiance: 1,

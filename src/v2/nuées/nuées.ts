@@ -2034,6 +2034,15 @@ export class Nuées extends ObjetConstellation<
       });
       àOublierObjectif.push(oublierNuées);
 
+      const oublierAuteurs = await bds.suivreAuteurs({
+        idBd,
+        f: async (auteurs) => {
+          infoBd.auteurs = auteurs;
+          await fFinale();
+        },
+      });
+      àOublierObjectif.push(oublierAuteurs);
+
       return async () => {
         await Promise.allSettled(àOublierObjectif.map((f) => f()));
         await oublierIdCompte();

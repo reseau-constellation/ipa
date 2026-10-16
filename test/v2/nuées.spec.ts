@@ -1658,7 +1658,7 @@ describe("Nuées", function () {
 
     it("bd exclue si pas autorisée", async () => {
       await constl.bds.rejoindreNuée({ idBd, idNuée });
-      obtenir(({ siPasVide }) =>
+      await obtenir(({ siPasVide }) =>
         constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
       );
 
@@ -1671,6 +1671,11 @@ describe("Nuées", function () {
     });
 
     it("filtres - par licence", async () => {
+      await constl.bds.rejoindreNuée({ idBd, idNuée });
+      await obtenir(({ siPasVide }) =>
+        constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
+      );
+
       await constl.bds.changerLicence({ idBd, licence: "ODC-BY-1_0" });
 
       // La bd est exclue même si enforcerAutorisation !== false et que nous sommes l'auteur
@@ -1686,10 +1691,16 @@ describe("Nuées", function () {
     });
 
     it("filtres - ignorer autorisation", async () => {
+      await constl.bds.rejoindreNuée({ idBd, idNuée });
+      await obtenir(({ siPasVide }) =>
+        constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
+      );
+
       await constl.nuées.modifierTypeAutorisation({
         idNuée,
         type: "par invitation",
       });
+
       const bds = await obtenir<string[]>(({ siPasVide }) =>
         constl.nuées.suivreBds({
           idNuée,
@@ -1706,10 +1717,10 @@ describe("Nuées", function () {
         idNuée,
         type: "par invitation",
       });
-      const bds = await obtenir<string[]>(({ siDéfini }) =>
+      const bds = await obtenir<string[]>(({ siVide }) =>
         constl.nuées.suivreBds({
           idNuée,
-          f: siDéfini(),
+          f: siVide(),
           filtres: { ignorerAutorisation: false },
         }),
       );
@@ -1719,11 +1730,8 @@ describe("Nuées", function () {
 
     it("filtres - toujours inclure mes données même avec nuée indisponible", async () => {
       const idNuéeIndisponible =
-        "/constl/nuée/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
-      await constl.nuées.modifierTypeAutorisation({
-        idNuée: idNuéeIndisponible,
-        type: "par invitation",
-      });
+        "/constl/nuées/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      await constl.bds.rejoindreNuée({ idBd, idNuée: idNuéeIndisponible });
 
       const bds = await obtenir<string[]>(({ siPasVide }) =>
         constl.nuées.suivreBds({ idNuée: idNuéeIndisponible, f: siPasVide() }),

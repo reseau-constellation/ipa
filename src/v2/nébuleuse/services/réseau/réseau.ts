@@ -95,10 +95,16 @@ export type RelationRéseau = {
 
 export type RelationImmédiate = { idCompte: string; confiance: number };
 
-export type CompteParProfondeur = {
+export type CompteRéseau = {
   idCompte: string;
   confiance: number;
   profondeur: number;
+};
+
+export type InfosPair = {
+  idPair: string;
+  idDispositif: string;
+  idCompte: string;
 };
 
 // Constantes
@@ -416,6 +422,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }
 
   // Gestion info pairs
+
   async obtDispositifIdPair({
     idPair,
   }: {
@@ -464,11 +471,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     return oublier;
   }
 
-  async suivreInfosPairs({
-    f,
-  }: {
-    f: Suivi<{ idPair: string; idDispositif?: string; idCompte?: string }[]>;
-  }): Promise<Oublier> {
+  async suivreInfosPairs({ f }: { f: Suivi<InfosPair[]> }): Promise<Oublier> {
     const libp2p = await this.service("libp2p").libp2p();
     const fFinale = async () => {
       const infos: {
@@ -633,7 +636,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }): Promise<Oublier> {
     const infos: {
       connexionsDispositifs?: ConnexionDispositif[];
-      pairs?: { idPair: string; idDispositif?: string; idCompte?: string }[];
+      pairs?: InfosPair[];
     } = {};
     const fFinale = async () => {
       const { connexionsDispositifs, pairs } = infos;
@@ -679,6 +682,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         },
       },
     );
+
     return async () => {
       await Promise.all([
         oublierConnexionsPairs(),
@@ -789,8 +793,72 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     };
   }
 
-  @cacheSuivi
-  async suivreComptes({ f }: { f: Suivi<string[]> }): Promise<Oublier> {}
+  // @cacheRechercheParProfondeur
+  async suivreComptes({
+    f,
+    profondeur: profonfeurInitiale,
+  }: {
+    f: Suivi<CompteRéseau[]>;
+    profondeur?: number;
+  }): Promise<RetourRechercheProfondeur> {
+    const compte = this.service("compte");
+    const info: {
+      pairs: InfosPair[];
+      comptes: CompteRéseau[];
+      monCompte: string;
+    } = { pairs: [], comptes: [], monCompte: await compte.obtIdCompte() };
+
+    const fFinale = async () => {
+      const comptes: CompteRéseau[] = [
+        {
+          idCompte: info.monCompte,
+          profondeur: 0,
+          confiance: 1,
+        },
+        ...info.pairs.map(({ idCompte }) => ({
+          idCompte,
+          confiance: 0,
+          profondeur: Infinity,
+        })),
+        ...info.comptes,
+      ];
+      await f(comptes);
+    };
+
+    const oublierMonCompte = await compte.suivreIdCompte({
+      f: async (idCompte) => {
+        info.monCompte = idCompte;
+        await fFinale();
+      },
+    });
+
+    const oublierInfoPairs = await this.suivreInfosPairs({
+      f: async (pairs) => {
+        info.pairs = pairs;
+        await fFinale();
+      },
+    });
+
+    const { profondeur, oublier: oublierComptesRéseau } =
+      await this.suivreComptesRéseau({
+        f: async (comptes) => {
+          info.comptes = comptes;
+          await fFinale();
+        },
+        profondeur: profonfeurInitiale,
+      });
+
+    return {
+      profondeur,
+      oublier: async () => {
+        await Promise.allSettled([
+          oublierInfoPairs(),
+          oublierComptesRéseau(),
+          oublierMonCompte(),
+        ]);
+      },
+    };
+  }
 
   // Gestion manuelle du réseau
 
@@ -992,12 +1060,12 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   // Méthodes réseau ambiant
 
   @cacheRechercheParProfondeur
-  async suivreComptesParProfondeur({
+  async suivreComptesRéseau({
     f,
     profondeur,
     idCompte,
   }: {
-    f: Suivi<CompteParProfondeur[]>;
+    f: Suivi<CompteRéseau[]>;
     profondeur?: number;
     idCompte?: string;
   }): Promise<RetourRechercheProfondeur> {
@@ -1419,7 +1487,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     Elle retourne un nombre, pas une liste de résultats, et ça va bien sûr planter
     si on essaie de l'envelopper.
     */
-    return await this.suivreComptesParProfondeur({
+    return await this.suivreComptesRéseau({
       f: async (comptes) =>
         await f(comptes.find((c) => c.idCompte === idCompte)?.confiance),
       idCompte: idCompteDépart,
