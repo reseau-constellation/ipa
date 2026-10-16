@@ -234,9 +234,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const libp2p = await this.service("libp2p").libp2p();
     const orbite = this.service("orbite");
-    const compte = this.service("compte");
 
-    const idDispositif = await compte.obtIdDispositif();
     const signal = this.signaleurArrêt.signal;
 
     const traiterIdentitéCompte = async ({
@@ -287,7 +285,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               const octets = await fluxPl.read({
                 signal: this.signaleurArrêt.signal,
               });
-              // console.log(octets)
+
               const message = JSON.parse(
                 new TextDecoder().decode(octets.slice()),
               ) as MessageRéseau;
