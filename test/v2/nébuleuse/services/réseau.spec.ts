@@ -558,7 +558,7 @@ describe("Réseau", function () {
 
   describe.skip("reconnexion après réouverture", function () {});
 
-  describe.skip("automatisation ajout dispositif", function () {
+  describe("automatisation ajout dispositif", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
@@ -583,6 +583,16 @@ describe("Réseau", function () {
         });
         idBd = bd.address;
         await oublier();
+
+        // Attendre que les dispositifs soient bien connectés
+        await uneFois<ConnexionDispositif[]>(
+          (fSuivi) =>
+            nébuleuses[0].réseau.suivreConnexionsDispositifs({ f: fSuivi }),
+          {
+            condition: (connexions) =>
+              !!connexions?.find((c) => c.idDispositif === idsDispositifs[1]),
+          },
+        );
       });
 
       after(async () => {
@@ -617,7 +627,7 @@ describe("Réseau", function () {
         expect(idCompte).to.equal(idsComptes[0]);
       });
 
-      it("le nouveau dispositif peut modifier mes données", async () => {
+      it.skip("le nouveau dispositif peut modifier mes données", async () => {
         const { bd: bdSurNébuleuse2, oublier } =
           await nébuleuses[1].orbite.ouvrirBd({
             id: idBd,
@@ -634,11 +644,21 @@ describe("Réseau", function () {
         await bdSurNébuleuse2.set("a", 1);
         await oublier();
       });
+
+      it.skip("changement de compte propagé sur le réseau", async () => {
+        const connexionCompte0 = await uneFois<ConnexionCompte>(
+          async (fSuivi) => nébuleuses[2].réseau.suivreConnexionsComptes({
+            f: connexions => fSuivi(connexions.filter(c=>c.idCompte === idsComptes[0])[0])
+          }),
+          { condition: connexion => !!connexion && connexion.dispositifs.some(d=>d.idDispositif === idsDispositifs[1]) }
+        )
+        expect(connexionCompte0.dispositifs.map(d=>d.idDispositif)).to.have.members([idsComptes[0], idsComptes[1]])
+      })
     });
 
     describe("requête du compte existant", async () => {
       before(async () => {
-        ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2 }));
+        ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
 
         idsDispositifs = await Promise.all(
           nébuleuses.map((c) => c.compte.obtIdDispositif()),
@@ -677,7 +697,7 @@ describe("Réseau", function () {
         ]);
       });
 
-      it("le  nouveau dispositif indique le nouveau compte", async () => {
+      it.skip("le  nouveau dispositif indique le nouveau compte", async () => {
         const idCompte = await obtenir(({ si }) =>
           nébuleuses[1].compte.suivreIdCompte({
             f: si((id) => id !== idsComptes[1]),
@@ -686,7 +706,7 @@ describe("Réseau", function () {
         expect(idCompte).to.equal(idsComptes[0]);
       });
 
-      it("le nouveau dispositif peut modifier mes données", async () => {
+      it.skip("le nouveau dispositif peut modifier mes données", async () => {
         const { bd: bdSurNébuleuse2, oublier } =
           await nébuleuses[1].orbite.ouvrirBd({
             id: idBd,
@@ -703,16 +723,36 @@ describe("Réseau", function () {
         await bdSurNébuleuse2.set("a", 1);
         await oublier();
       });
+
+      it("changement de compte propagé sur le réseau", async () => {
+        const connexionCompte0 = await uneFois<ConnexionCompte>(
+          async (fSuivi) => nébuleuses[2].réseau.suivreConnexionsComptes({
+            f: connexions => fSuivi(connexions.filter(c=>c.idCompte === idsComptes[0])[0])
+          }),
+          { condition: connexion => !!connexion && connexion.dispositifs.length >= 2 && connexion.dispositifs.some(d=>d.idDispositif === idsDispositifs[1]) }
+        )
+        console.log(idsDispositifs)
+        expect(connexionCompte0.dispositifs.map(d=>d.idDispositif)).to.have.members([idsDispositifs[0], idsDispositifs[1]])
+      })
+
+      it.skip("ça ne fonctionne pas avec le mauvais mot de passe", async () => {
+        const invitation =
+          await nébuleuses[0].réseau.générerInvitationRejoindreCompte();
+
+        await nébuleuses[2].réseau.rejoindreCompteParInvitation({ invitation: {
+          ...invitation,
+          codeSecret: "Mauvais code"
+        } });
+
+        const dispositifsCompte = await obtenir<string[]>(({ si }) =>
+          nébuleuses[0].compte.suivreDispositifsAutorisés({
+            f: si((x) => !!x?.includes(idsDispositifs[1])),
+          }),
+        );
+        expect(dispositifsCompte).to.not.include(idsDispositifs[2]);
+      });
     });
 
-    it("ça ne fonctionne pas avec le mauvais mot de passe", async () => {
-      const dispositifsCompte = await obtenir<string[]>(({ si }) =>
-        nébuleuses[0].compte.suivreDispositifsAutorisés({
-          f: si((x) => !!x?.includes(idsDispositifs[1])),
-        }),
-      );
-      expect(dispositifsCompte).to.not.include(idsDispositifs[2]);
-    });
   });
 
   describe("messages", async () => {
