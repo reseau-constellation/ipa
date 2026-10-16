@@ -19,6 +19,7 @@ import {
   type RelationImmédiate,
   type RelationRéseau,
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
+import { MODÉRATRICE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { obtenir, rechercherProfondeur } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ObtRechercheProfondeur } from "../../utils.js";
@@ -618,7 +619,7 @@ describe("Réseau", function () {
         ]);
       });
 
-      it("le  nouveau dispositif indique le nouveau compte", async () => {
+      it("le nouveau dispositif indique le nouveau compte", async () => {
         const idCompte = await obtenir(({ si }) =>
           nébuleuses[1].compte.suivreIdCompte({
             f: si((id) => id !== idsComptes[1]),
@@ -627,25 +628,31 @@ describe("Réseau", function () {
         expect(idCompte).to.equal(idsComptes[0]);
       });
 
-      it.skip("le nouveau dispositif peut modifier mes données", async () => {
+      it("le nouveau dispositif peut modifier mes données", async () => {
         const { bd: bdSurNébuleuse2, oublier } =
           await nébuleuses[1].orbite.ouvrirBd({
             id: idBd,
             type: "keyvalue",
           });
+
+        // Vérifier permission
         const permission = await obtenir(({ siDéfini }) =>
           nébuleuses[1].compte.suivrePermission({
             idObjet: idBd,
             f: siDéfini(),
           }),
         );
-        expect(permission).to.be.true();
+        expect(permission).to.equal(MODÉRATRICE);
 
+        // Vérifier écriture données
         await bdSurNébuleuse2.set("a", 1);
+        const données = await bdSurNébuleuse2.get("a");
+
         await oublier();
+        expect(données).to.equal(1);
       });
 
-      it.skip("changement de compte propagé sur le réseau", async () => {
+      it("changement de compte propagé sur le réseau", async () => {
         const connexionCompte0 = await uneFois<ConnexionCompte>(
           async (fSuivi) =>
             nébuleuses[2].réseau.suivreConnexionsComptes({
@@ -657,6 +664,7 @@ describe("Réseau", function () {
           {
             condition: (connexion) =>
               !!connexion &&
+              connexion.dispositifs.length >= 2 &&
               connexion.dispositifs.some(
                 (d) => d.idDispositif === idsDispositifs[1],
               ),
@@ -664,7 +672,7 @@ describe("Réseau", function () {
         );
         expect(
           connexionCompte0.dispositifs.map((d) => d.idDispositif),
-        ).to.have.members([idsComptes[0], idsComptes[1]]);
+        ).to.have.members([idsDispositifs[0], idsDispositifs[1]]);
       });
     });
 
@@ -709,7 +717,7 @@ describe("Réseau", function () {
         ]);
       });
 
-      it.skip("le  nouveau dispositif indique le nouveau compte", async () => {
+      it("le nouveau dispositif indique le nouveau compte", async () => {
         const idCompte = await obtenir(({ si }) =>
           nébuleuses[1].compte.suivreIdCompte({
             f: si((id) => id !== idsComptes[1]),
@@ -718,7 +726,7 @@ describe("Réseau", function () {
         expect(idCompte).to.equal(idsComptes[0]);
       });
 
-      it.skip("le nouveau dispositif peut modifier mes données", async () => {
+      it("le nouveau dispositif peut modifier mes données", async () => {
         const { bd: bdSurNébuleuse2, oublier } =
           await nébuleuses[1].orbite.ouvrirBd({
             id: idBd,
@@ -730,7 +738,7 @@ describe("Réseau", function () {
             f: siDéfini(),
           }),
         );
-        expect(permission).to.be.true();
+        expect(permission).to.equal(MODÉRATRICE);
 
         await bdSurNébuleuse2.set("a", 1);
         await oublier();
@@ -901,7 +909,7 @@ describe("Réseau", function () {
       const idsLibp2pDestinataires: string[] = await Promise.all(
         destinataires.map((d) => d.compte.obtIdLibp2p()),
       );
-      
+
       // Expéditeur
       const { réception, message } = await messageReçu({
         de: expéditeur,
