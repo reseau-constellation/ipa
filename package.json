@@ -15,7 +15,7 @@
     "compiler:prod": "pnpm versioner && pnpm formatter && pnpm nettoyer && pnpm tspc -p tsconfig.build.json",
     "test:node": "pnpm compiler || pnpm test:node:sans-compiler",
     "test:node:sans-compiler": "pnpm aegir test -t node -f \"dist/test/v2/**/*.spec.js\" --cov -- --exit",
-    "test:déno": "pnpm compiler || test:déno:sans-compiler",
+    "test:déno": "pnpm compiler || pnpm test:déno:sans-compiler",
     "test:déno:sans-compiler": "pnpm aegir test -t deno -f \"dist/test/v2/**/*.spec.js\" --cov -- --exit",
     "test:navig": "pnpm compiler || pnpm test:navig:sans-compiler",
     "test:navig:sans-compiler": "pnpm aegir test -t browser -f \"dist/test/v2/**/*.spec.js\" --cov",
