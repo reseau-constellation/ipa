@@ -304,7 +304,10 @@ export class BaseServiceCompte<
 
     await uneFois<AccèsDispositif[]>(
       async (f) => accès.suivreDispositifsAutorisées(f),
-      (autorisés) => !!autorisés?.find((a) => a.idDispositif === moi),
+      {
+        condition: (autorisés) =>
+          !!autorisés?.find((a) => a.idDispositif === moi),
+      },
     );
 
     // On sauvegarde le nouvel identifiant de compte
