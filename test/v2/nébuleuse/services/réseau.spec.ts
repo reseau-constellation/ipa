@@ -569,7 +569,7 @@ describe("Réseau", function () {
 
     describe("requête du nouveau dispositif", async () => {
       before(async () => {
-        ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 2 }));
+        ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
 
         idsDispositifs = await Promise.all(
           nébuleuses.map((c) => c.compte.obtIdDispositif()),
@@ -901,7 +901,8 @@ describe("Réseau", function () {
       const idsLibp2pDestinataires: string[] = await Promise.all(
         destinataires.map((d) => d.compte.obtIdLibp2p()),
       );
-      // Expéditeur
+      
+      // Expéditeur
       const { réception, message } = await messageReçu({
         de: expéditeur,
         à: idsLibp2pDestinataires,
