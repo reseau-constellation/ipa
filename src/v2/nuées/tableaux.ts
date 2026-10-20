@@ -310,7 +310,7 @@ export class TableauxNuées extends Tableaux {
   async suivreDonnéesExportation({
     idStructure,
     idTableau,
-    langues,
+    langues = [],
     f,
     héritage,
     filtresBds,
@@ -318,7 +318,7 @@ export class TableauxNuées extends Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    langues?: string[];
+    langues?: string[] | false;
     f: Suivi<DonnéesTableauNuéeExportées>;
     héritage?: Héritage;
     filtresBds?: FiltresBds;

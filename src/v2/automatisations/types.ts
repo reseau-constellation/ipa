@@ -174,7 +174,7 @@ export type BaseSpécificationExporter = BaseSpécificationAutomatisation & {
   idObjet: string;
   formatDoc: FormatTélécharger;
   dossier: string;
-  langues?: string[];
+  langues?: string[] | false;
   dispositifs: string[];
   inclureDocuments: boolean;
   copies?: CopiesExportation;

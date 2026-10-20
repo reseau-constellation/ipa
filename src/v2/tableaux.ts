@@ -1431,7 +1431,7 @@ export class Tableaux {
     élément: DonnéesRangéeTableau;
     colonnes: InfoColonneAvecCatégorie[];
     documentsMédias: Set<string>;
-    langues?: string[];
+    langues?: string[] | false;
     traducs?: { [clef: string]: Partial<TraducsTexte> };
   }): Promise<DonnéesRangéeTableau> {
     const élémentFinal: DonnéesRangéeTableau = {};

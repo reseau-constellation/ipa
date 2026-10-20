@@ -2150,11 +2150,11 @@ export class Bds extends ObjetConstellation<
 
   async suivreDonnéesExportation({
     idBd,
-    langues,
+    langues = [],
     f,
   }: {
     idBd: string;
-    langues?: string[];
+    langues?: string[] | false;
     f: Suivi<DonnéesBdExportées>;
   }): Promise<Oublier> {
     const info: {
@@ -2228,12 +2228,12 @@ export class Bds extends ObjetConstellation<
 
   async exporterDonnées({
     idBd,
-    langues,
+    langues = [],
     nomFichier,
     patience = 500,
   }: {
     idBd: string;
-    langues?: string[];
+    langues?: string[] | false;
     nomFichier?: string;
     patience?: number;
   }): Promise<DonnéesFichierBdExportées> {
@@ -2272,7 +2272,7 @@ export class Bds extends ObjetConstellation<
 
   async exporterÀFichier({
     idBd,
-    langues,
+    langues = [],
     nomFichier,
     patience = 500,
     formatDocu,
@@ -2281,7 +2281,7 @@ export class Bds extends ObjetConstellation<
     dossierMédias,
   }: {
     idBd: string;
-    langues?: string[];
+    langues?: string[] | false;
     nomFichier?: string;
     patience?: number;
     formatDocu: xlsx.BookType | "xls";

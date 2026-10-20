@@ -1265,7 +1265,7 @@ export class TableauxBds extends Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    langues?: string[];
+    langues?: string[] | false;
     f: Suivi<DonnéesTableauExportées>;
   }): Promise<Oublier> {
     const variables = this.service("variables");
@@ -1414,7 +1414,7 @@ export class TableauxBds extends Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    langues?: string[];
+    langues?: string[] | false;
     docu?: WorkBook;
     nomFichier?: string;
     patience?: number;
@@ -1463,7 +1463,7 @@ export class TableauxBds extends Tableaux {
   }: {
     idStructure: string;
     idTableau: string;
-    langues?: string[];
+    langues?: string[] | false;
     nomFichier?: string;
     patience?: number;
     formatDocu: BookType | "xls";

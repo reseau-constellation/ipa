@@ -1077,11 +1077,11 @@ export class Projets extends ObjetConstellation<
 
   async suivreDonnéesExportation({
     idProjet,
-    langues,
+    langues = [],
     f,
   }: {
     idProjet: string;
-    langues?: string[];
+    langues?: string[] | false;
     f: Suivi<DonnéesProjetExportées>;
   }): Promise<Oublier> {
     const bds = this.service("bds");
@@ -1153,12 +1153,12 @@ export class Projets extends ObjetConstellation<
 
   async exporterDonnées({
     idProjet,
-    langues,
+    langues = [],
     nomFichier,
     patience = 500,
   }: {
     idProjet: string;
-    langues?: string[];
+    langues?: string[] | false;
     nomFichier?: string;
     patience?: number;
   }): Promise<DonnéesFichierProjetExportées> {
@@ -1205,7 +1205,7 @@ export class Projets extends ObjetConstellation<
 
   async exporterÀFichier({
     idProjet,
-    langues,
+    langues = [],
     nomFichier,
     patience = 500,
     formatDocu,
@@ -1214,7 +1214,7 @@ export class Projets extends ObjetConstellation<
     dossierMédias,
   }: {
     idProjet: string;
-    langues?: string[];
+    langues?: string[] | false;
     nomFichier?: string;
     patience?: number;
     formatDocu: BookType | "xls";

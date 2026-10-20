@@ -2388,7 +2388,7 @@ export class Nuées extends ObjetConstellation<
 
   async suivreDonnéesExportation({
     idNuée,
-    langues,
+    langues = [],
     f,
     héritage,
     filtresBds,
@@ -2396,7 +2396,7 @@ export class Nuées extends ObjetConstellation<
     idsTableaux,
   }: {
     idNuée: string;
-    langues?: string[];
+    langues?: string[] | false;
     f: Suivi<DonnéesBdExportées>;
     héritage?: Héritage;
     filtresBds?: FiltresBds;
@@ -2487,7 +2487,7 @@ export class Nuées extends ObjetConstellation<
 
   async exporterDonnées({
     idNuée,
-    langues,
+    langues = [],
     nomFichier,
     héritage,
     filtresBds,
@@ -2496,7 +2496,7 @@ export class Nuées extends ObjetConstellation<
     patience = 500,
   }: {
     idNuée: string;
-    langues?: string[];
+    langues?: string[] | false;
     nomFichier?: string;
     héritage?: Héritage;
     filtresBds?: FiltresBds;
@@ -2544,7 +2544,7 @@ export class Nuées extends ObjetConstellation<
   async exporterÀFichier({
     idNuée,
     formatDocu,
-    langues,
+    langues = [],
     nomFichier,
     héritage,
     filtresBds,
@@ -2556,7 +2556,7 @@ export class Nuées extends ObjetConstellation<
   }: {
     idNuée: string;
     formatDocu: xlsx.BookType | "xls";
-    langues?: string[];
+    langues?: string[] | false;
     nomFichier?: string;
     héritage?: Héritage;
     filtresBds?: FiltresBds;
