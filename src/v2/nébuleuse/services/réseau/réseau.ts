@@ -815,7 +815,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           profondeur: 0,
           confiance: 1,
         },
-        ...info.pairs.map(({ idCompte }) => ({
+        ...info.pairs.filter(({ idCompte }) => idCompte).map(({ idCompte }) => ({
           idCompte,
           confiance: 0,
           profondeur: Infinity,
