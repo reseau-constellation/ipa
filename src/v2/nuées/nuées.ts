@@ -2469,9 +2469,7 @@ export class Nuées extends ObjetConstellation<
           idStructure: idNuée,
           idTableau: id,
           langues,
-          f: async (données) => {
-            return await fSuivreBranche(données);
-          },
+          f: fSuivreBranche,
           héritage,
           filtresBds,
           filtresDonnées,
