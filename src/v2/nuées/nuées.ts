@@ -2405,7 +2405,7 @@ export class Nuées extends ObjetConstellation<
   }): Promise<Oublier> {
     const info: {
       nomsNuée?: TraducsTexte;
-      données?: DonnéesTableauExportées[];
+      données?: DonnéesTableauNuéeExportées[];
     } = {};
     const fsOublier: Oublier[] = [];
 
@@ -2417,9 +2417,20 @@ export class Nuées extends ObjetConstellation<
       const nomNuée =
         nomsNuée && langues ? traduire(nomsNuée, langues) || idCourt : idCourt;
 
+      const tableaux: DonnéesTableauExportées[] = données.map((t) => {
+        return {
+          ...t,
+          données: t.données.map((d) => ({
+            idBd: d.idBd,
+            id: d.données.id,
+            ...d.données.données,
+          })),
+        };
+      });
+
       await f({
         nomBd: nomNuée,
-        tableaux: données,
+        tableaux,
       });
     };
 
