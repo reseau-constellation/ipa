@@ -212,6 +212,9 @@ export class TableauxNuées extends Tableaux {
           }),
         fBranche: async ({ id: idBd, fSuivreBranche }) => {
           if (filtresDonnées?.exclureAvecDifférencesTableaux) {
+            // Il faut appeler ça ici au cas où la nuée ne serait
+            // pas disponible.
+            await fSuivreBranche(idBd);
             return await this.suivreDifférencesAvecTableau({
               tableau: {
                 idStructure: idBd,
@@ -338,10 +341,10 @@ export class TableauxNuées extends Tableaux {
     const fFinale = async () => {
       const { colonnes, données, nomsTableau, nomsVariables, traducs } = info;
 
-      if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
+      if (données) {
         const nomsColonnes: { [idColonne: string]: string } =
           Object.fromEntries(
-            colonnes?.map((c) => {
+            (colonnes || []).map((c) => {
               const nomVar =
                 langues && c.variable && nomsVariables?.[c.variable]
                   ? traduire(nomsVariables[c.variable], langues) || c.id
