@@ -2167,7 +2167,7 @@ export class Bds extends ObjetConstellation<
       const { nomsBd, données } = info;
       if (!données) return;
 
-      const idCourt = enleverPréfixesEtOrbite(idBd);
+      const idCourt = this.enleverProtocole(idBd);
       const nomBd =
         nomsBd && langues ? traduire(nomsBd, langues) || idCourt : idCourt;
       await f({
