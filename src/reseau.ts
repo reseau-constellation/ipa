@@ -225,16 +225,6 @@ export class Réseau {
 
     this.fsOublier.push(
       await this.suivreMessagesDirectes({
-        type: "Je veux rejoindre ce compte",
-        f: ({ contenu }) =>
-          this.client.considérerRequêteRejoindreCompte({
-            requête: contenu as ContenuMessageRejoindreCompte,
-          }),
-      }),
-    );
-
-    this.fsOublier.push(
-      await this.suivreMessagesDirectes({
         type: "Salut !",
         f: ({ contenu }) =>
           this.recevoirSalut({
@@ -274,16 +264,6 @@ export class Réseau {
     );
     this.fsOublier.push(async () =>
       libp2p.removeEventListener("peer:disconnect", fSuivrePairConnecté),
-    );
-
-    this.fsOublier.push(
-      await this.client.suivreIdCompte({
-        f: async () => {
-          return libp2p
-            .getPeers()
-            .forEach((p) => this.direSalut({ idPair: p.toString() }));
-        },
-      }),
     );
 
     const événements: (keyof Libp2pEvents)[] = [
@@ -380,36 +360,6 @@ export class Réseau {
     } catch (e) {
       if (!(e instanceof AbortError)) throw e;
     }
-  }
-
-  async envoyerDemandeRejoindreCompte({
-    codeSecret,
-  }: {
-    codeSecret: string;
-  }): Promise<void> {
-    const idDispositif = await this.client.obtIdDispositif();
-    let idDispositifQuiInvite: string | undefined = undefined;
-    let codeSecretOriginal: string | undefined = undefined;
-    if (codeSecret.includes(":")) {
-      [idDispositifQuiInvite, codeSecretOriginal] = codeSecret.split(":");
-    } else {
-      codeSecretOriginal = codeSecret;
-    }
-    const msg: MessageDirecteRequêteRejoindreCompte = {
-      type: "Je veux rejoindre ce compte",
-      contenu: {
-        idDispositif,
-        empreinteVérification: this.client.empreinteInvitation({
-          idDispositif,
-          codeSecret: codeSecretOriginal,
-        }),
-      },
-    };
-
-    await this.envoyerMessageAuDispositif({
-      msg,
-      idDispositif: idDispositifQuiInvite!,
-    });
   }
 
   async recevoirSalut({
@@ -731,23 +681,6 @@ export class Réseau {
       f,
       fBranche,
       fIdDeBranche: (x: statutMembreSansProtocoles) => x.infoMembre.idCompte,
-    });
-  }
-
-  @cacheSuivi
-  async suivreProtocolesMembre({
-    f,
-    idCompte,
-  }: {
-    f: schémaFonctionSuivi<{ [key: string]: string[] }>;
-    idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
-      id: idCompte || (await this.client.obtIdCompte()),
-      clef: "protocoles",
-      // @ts-expect-error Je ne sais pas pourquoi
-      schéma: schémaStructureBdCompte,
-      f,
     });
   }
 
