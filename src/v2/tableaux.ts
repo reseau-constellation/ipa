@@ -1429,7 +1429,7 @@ export class Tableaux {
     traducs,
   }: {
     élément: DonnéesRangéeTableau;
-    colonnes: InfoColonneAvecCatégorie[];
+    colonnes?: InfoColonneAvecCatégorie[];
     documentsMédias: Set<string>;
     langues?: string[] | false;
     traducs?: { [clef: string]: Partial<TraducsTexte> };
@@ -1466,10 +1466,9 @@ export class Tableaux {
     };
 
     for (const col of Object.keys(élément)) {
-      const colonne = colonnes.find((c) => c.id === col);
-      if (!colonne) continue;
+      const colonne = colonnes?.find((c) => c.id === col);
 
-      const { catégorie } = colonne;
+      const { catégorie } = colonne || {};
 
       let formattée: string | number | undefined = undefined;
       const valeur = élément[col];
