@@ -155,7 +155,7 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
           fSuivreBranche,
         }: {
           id: string;
-          fSuivreBranche: Suivi<RésultatAvecProfondeur>;
+          fSuivreBranche: Suivi<RésultatAvecProfondeur | undefined>;
         }) => {
           const info: {
             résultat?: RésultatObjectifRecherche<T>;
@@ -172,6 +172,8 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
                 }),
                 profondeur: branche.profondeur,
               });
+            // Nécessaire si jamais le résultat change et devient `undefined`
+            else await fSuivreBranche(undefined);
           };
           const oublierObjectif = await fObjectif({
             services: this.service,
