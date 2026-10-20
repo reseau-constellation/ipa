@@ -848,7 +848,7 @@ export class Nuées extends ObjetConstellation<
           fSuivreBranche,
         }: {
           id: string;
-          fSuivreBranche: Suivi<Set<string>>;
+          fSuivreBranche: Suivi<string[]>;
         }) => {
           if (épingleBds.épingle)
             return await serviceBds.suivreRésolutionÉpingle({
@@ -859,7 +859,7 @@ export class Nuées extends ObjetConstellation<
                   épingle: épingleBds.épingle,
                 },
               },
-              f: fSuivreBranche,
+              f: async bds => await fSuivreBranche([...bds]),
             });
           else return faisRien;
         },
