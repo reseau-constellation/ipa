@@ -2413,7 +2413,7 @@ export class Nuées extends ObjetConstellation<
       const { nomsNuée, données } = info;
       if (!données) return;
 
-      const idCourt = idNuée.replace("/orbitdb/", "");
+      const idCourt = this.enleverProtocole(idNuée);
       const nomNuée =
         nomsNuée && langues ? traduire(nomsNuée, langues) || idCourt : idCourt;
 
