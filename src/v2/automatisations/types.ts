@@ -209,7 +209,7 @@ type BaseSpécificationAjoutExportation = {
   formatDoc: FormatTélécharger;
   inclureDocuments: boolean;
   dossier: string;
-  langues?: string[];
+  langues?: string[] | false;
   dispositifs?: string[];
   copies?: CopiesExportation;
   fréquence?: Fréquence;
