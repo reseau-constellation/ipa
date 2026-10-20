@@ -2456,6 +2456,7 @@ describe("Automatisations", function () {
       let idc: string;
 
       let éléments: ÉlémentDonnéesTableau[];
+      let idsÉléments: string[];
 
       let idAuto: string;
 
@@ -2497,7 +2498,7 @@ describe("Automatisations", function () {
           { [idColPhoto]: idc, [idColPrécip]: 12 },
           { [idColPrécip]: 2 },
         ];
-        await constl.bds.tableaux.ajouterÉléments({
+        idsÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau,
           éléments,
@@ -2637,7 +2638,7 @@ describe("Automatisations", function () {
         });
       });
 
-      describe.skip("exporter nuées", function () {
+      describe("exporter nuées", function () {
         let idNuée: string;
         const nomNuée = "Mon projet de science citoyenne";
 
@@ -2648,6 +2649,12 @@ describe("Automatisations", function () {
             idNuée,
             langue: "fra",
             nom: nomNuée,
+          });
+          await constl.nuées.tableaux.sauvegarderNom({
+            idStructure: idNuée,
+            idTableau,
+            langue: "fra",
+            nom: nomTableauFra,
           });
 
           await constl.bds.rejoindreNuée({ idBd, idNuée });
@@ -2674,11 +2681,11 @@ describe("Automatisations", function () {
           await attendreFichierExiste({ fichier });
 
           // Vérifier contenu fichier
-          const idCompte = idsComptes[0];
           vérifierDonnéesBd(fichier, {
-            [nomTableauFra]: éléments.map((rangée) => ({
+            [nomTableauFra]: éléments.map((rangée, i) => ({
               ...rangée,
-              auteur: idCompte,
+              idBd,
+              id: idsÉléments[i],
             })),
           });
         });
