@@ -864,7 +864,7 @@ export class Nuées extends ObjetConstellation<
           else return faisRien;
         },
         f: async (bds: string[]) => {
-          info.bds = bds.map((id) => serviceBds.àIdOrbite(id));
+          info.bds = bds;
           await fFinale();
         },
       });
