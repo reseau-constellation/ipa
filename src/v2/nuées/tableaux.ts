@@ -369,7 +369,7 @@ export class TableauxNuées extends Tableaux {
                 id,
                 données: Object.fromEntries(
                   Object.entries(donnéesFormattées).map(([idCol, données]) => [
-                    nomsColonnes[idCol] || this.modifierIdColonne,
+                    nomsColonnes[idCol] || idCol,
                     données,
                   ]),
                 ),
