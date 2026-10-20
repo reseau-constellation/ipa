@@ -815,11 +815,13 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           profondeur: 0,
           confiance: 1,
         },
-        ...info.pairs.filter(({ idCompte }) => idCompte).map(({ idCompte }) => ({
-          idCompte,
-          confiance: 0,
-          profondeur: Infinity,
-        })),
+        ...info.pairs
+          .filter(({ idCompte }) => idCompte)
+          .map(({ idCompte }) => ({
+            idCompte,
+            confiance: 0,
+            profondeur: Infinity,
+          })),
         ...info.comptes,
       ];
       await f(comptes);
