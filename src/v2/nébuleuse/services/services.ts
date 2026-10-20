@@ -110,10 +110,17 @@ export const brancheBd = <T extends NestedValue, C extends string>({
         };
         return putBranche as TypedNested<T>["put"];
       } else if (prop === "all") {
-        const allBranche: TypedNested<T>["all"] = async () => {
-          return (await target.all())[clef] || {};
+        const allBranche = async () => {
+          const composantesClef = asSplitKey(clef);
+          let résultat = await target.all()
+          for (const composante of composantesClef) {
+            // À faire : meilleure gestion des types
+            résultat = résultat[composante as keyof typeof résultat] as RecursivePartial<Record<C, T>>
+            if (résultat === undefined) break;
+          }
+          return résultat || {};
         };
-        return allBranche;
+        return allBranche as TypedNested<T>["all"];
       } else {
         return target[prop as keyof typeof target];
       }
