@@ -2453,7 +2453,7 @@ export class Nuées extends ObjetConstellation<
         });
       },
 
-      f: async (données: DonnéesTableauExportées[]) => {
+      f: async (données: DonnéesTableauNuéeExportées[]) => {
         info.données = données;
         await fFinale();
       },
