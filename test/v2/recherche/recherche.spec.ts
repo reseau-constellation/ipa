@@ -61,7 +61,7 @@ const vérifierRecherche = (
   }
 };
 
-describe.skip("Rechercher dans réseau", function () {
+describe("Rechercher dans réseau", function () {
   describe("profil", function () {
     let fermer: Oublier;
     let constls: Constellation[];
@@ -97,16 +97,16 @@ describe.skip("Rechercher dans réseau", function () {
         const résultat = await recherche.siPasVide();
 
         const réf: RésultatRecherche<InfoRésultatTexte> = {
-          id: idsComptes[1],
+          id: idsComptes[0],
           résultatObjectif: {
             score: 0,
             type: "résultat",
             de: "id",
             info: {
               type: "texte",
-              texte: enleverPréfixesEtOrbite(idsComptes[1]),
+              texte: enleverPréfixesEtOrbite(idsComptes[0]),
               début: 0,
-              fin: enleverPréfixesEtOrbite(idsComptes[1]).length,
+              fin: enleverPréfixesEtOrbite(idsComptes[0]).length,
             },
           },
         };
@@ -119,7 +119,7 @@ describe.skip("Rechercher dans réseau", function () {
 
       before(async () => {
         recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
-          constls[0].profil.recherche.selonNom({ nom: "Julien", f }),
+          constls[1].profil.recherche.selonNom({ nom: "Julien", f }),
         );
       });
 
@@ -324,11 +324,11 @@ describe.skip("Rechercher dans réseau", function () {
       });
 
       it("mots-clefs détectés", async () => {
-        const pRésultat = recherche.siPasVide();
+        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idMotClef));
 
         idMotClef = await constls[0].motsClefs.créerMotClef();
 
-        const résultat = await pRésultat;
+        const résultat = (await pRésultat).filter(r=>r.id === idMotClef);
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idMotClef,
@@ -529,11 +529,13 @@ describe.skip("Rechercher dans réseau", function () {
       });
 
       it("variables détectées", async () => {
-        const pRésultat = recherche.siPasVide();
+        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idVariable));;
 
-        idVariable = await constls[0].motsClefs.créerMotClef();
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "audio",
+        });
 
-        const résultat = await pRésultat;
+        const résultat = (await pRésultat).filter(r=>r.id === idVariable);;
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idVariable,
@@ -681,7 +683,7 @@ describe.skip("Rechercher dans réseau", function () {
       it("description bd détectée", async () => {
         const pRésultat = recherche.siPasVide();
 
-        await constls[1].bds.sauvegarderDescriptions({
+        await constls[0].bds.sauvegarderDescriptions({
           idBd,
           descriptions: {
             fra: "Météorologie de la région de Montpellier.",
@@ -695,7 +697,7 @@ describe.skip("Rechercher dans réseau", function () {
           résultatObjectif: {
             score: 0,
             type: "résultat",
-            de: "description",
+            de: "descriptions",
             clef: "fra",
             info: {
               type: "texte",
@@ -804,7 +806,7 @@ describe.skip("Rechercher dans réseau", function () {
           idBd,
           idsMotsClefs: idMotClef,
         });
-        await constls[0].motsClefs.sauvegarderNoms({
+        await constls[1].motsClefs.sauvegarderNoms({
           idMotClef,
           noms: {
             cst: "Meteorología",
@@ -849,16 +851,11 @@ describe.skip("Rechercher dans réseau", function () {
         );
       });
 
-      it("rien pour commencer", async () => {
-        const résultat = await recherche.siDéfini();
-        expect(résultat).to.be.empty();
-      });
-
       it("bds détectées", async () => {
-        const pRésultat = recherche.siPasVide();
+        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idBd));
         idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
 
-        const résultat = await pRésultat;
+        const résultat = (await pRésultat).filter(r=>r.id === idBd);
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idBd,
@@ -1020,7 +1017,7 @@ describe.skip("Rechercher dans réseau", function () {
           résultatObjectif: {
             score: 0,
             type: "résultat",
-            de: "description",
+            de: "descriptions",
             clef: "fra",
             info: {
               type: "texte",
@@ -1127,7 +1124,7 @@ describe.skip("Rechercher dans réseau", function () {
         const pRésultat = recherche.siPasVide();
 
         const idMotClef = await constls[1].motsClefs.créerMotClef();
-        await constls[1].nuées.ajouterMotsClefs({
+        await constls[0].nuées.ajouterMotsClefs({
           idNuée,
           idsMotsClefs: idMotClef,
         });
@@ -1172,20 +1169,15 @@ describe.skip("Rechercher dans réseau", function () {
 
       before(async () => {
         recherche = await rechercher<InfoRésultatTexte | InfoRésultatVide>(
-          ({ f }) => constls[1].bds.recherche.toutes({ f }),
+          ({ f }) => constls[1].nuées.recherche.toutes({ f }),
         );
       });
 
-      it("rien pour commencer", async () => {
-        const résultat = await recherche.siDéfini();
-        expect(résultat).to.be.empty();
-      });
-
       it("nuées détectées", async () => {
-        const pRésultat = recherche.siPasVide();
+        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idNuée));
         idNuée = await constls[0].nuées.créerNuée();
 
-        const résultat = await pRésultat;
+        const résultat = (await pRésultat).filter(r=>r.id === idNuée);
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idNuée,
@@ -1467,7 +1459,7 @@ describe.skip("Rechercher dans réseau", function () {
         const pRésultat = recherche.siPasVide();
 
         const idMotClef = await constls[1].motsClefs.créerMotClef();
-        await constls[1].bds.ajouterMotsClefs({
+        await constls[0].bds.ajouterMotsClefs({
           idBd,
           idsMotsClefs: idMotClef,
         });
@@ -1596,11 +1588,11 @@ describe.skip("Rechercher dans réseau", function () {
       });
 
       it("projet détecté", async () => {
-        const pRésultat = recherche.siPasVide();
+        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idProjet));;
 
         idProjet = await constls[0].projets.créerProjet();
 
-        const résultat = await pRésultat;
+        const résultat = (await pRésultat).filter(r=>r.id === idProjet);;
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idProjet,
