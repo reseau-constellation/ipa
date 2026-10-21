@@ -71,7 +71,7 @@ export const dépunicodifier = (ma: Multiaddr): Multiaddr => {
 };
 
 export const stabiliser =
-  (n = 100) =>
+  (t = 100) =>
   <T>(f: Suivi<T>): Suivi<T> => {
     let déjàAppellée = false;
     let val: T | undefined = undefined;
@@ -95,11 +95,11 @@ export const stabiliser =
         fLancé = true;
         await f(v);
         signaleur.abort();
-      }, n);
+      }, t);
       annulerRebours = () => {
         if (dernierT) {
           const dif = Date.now() - dernierT;
-          n += dif * 0.5;
+          t += dif * 0.5;
         }
         clearTimeout(crono);
         if (!fLancé) signaleur.abort();
