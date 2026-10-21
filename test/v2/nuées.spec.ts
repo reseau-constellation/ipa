@@ -1894,12 +1894,12 @@ describe("Nuées", function () {
     });
 
     it("filtrer données - exclure différences tableaux", async () => {
-      const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+      const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
         constl.nuées.tableaux.suivreDonnées({
           idStructure: idNuée,
           idTableau,
           filtresDonnées: { exclureAvecDifférencesTableaux: ["indexColonne"] },
-          f: siPasVide(),
+          f: si(d=>!!d?.find(x=>x.idBd === idBdPDDL)),
         }),
       );
 
