@@ -63,6 +63,7 @@ import type {
 } from "@/v2/bds/bds.js";
 import type { DonnéesRangéeTableau, InfoColonne } from "@/v2/tableaux.js";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import type { SinonFakeTimers } from "sinon";
 
 describe("Nuées", function () {
   let fermer: Oublier;
@@ -4790,11 +4791,13 @@ describe("Nuées", function () {
 
       let dossier: string;
       let effacer: () => void;
+      let horloge: SinonFakeTimers;
 
       const nomTableauFr = "voici un tableau";
       const nomFichier = "mes données";
 
       before(async () => {
+        horloge = utiliserFauxChronomètres();
         ({ dossier, effacer } = await dossierTempo());
 
         idNuée = await constl.nuées.créerNuée();
@@ -4826,6 +4829,7 @@ describe("Nuées", function () {
 
       after(async () => {
         if (effacer) effacer();
+        horloge?.restore()
       });
 
       it("le fichier zip existe", async () => {
@@ -4884,12 +4888,14 @@ describe("Nuées", function () {
           éléments: [{ [idColonne]: idcIndisponible }],
         });
 
-        await constl.nuées.exporterÀFichier({
+        const attente = constl.nuées.exporterÀFichier({
           idNuée,
           nomFichier: nomFichierTest,
           dossier,
           formatDocu: "ods",
         });
+        await horloge.tickAsync(5000 * 1.5);
+        await attente
 
         const nomZip = join(dossier, nomFichierTest + ".zip");
         zip = await JSZip.loadAsync(readFileSync(nomZip));
