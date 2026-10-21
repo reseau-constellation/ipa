@@ -35,6 +35,7 @@ import {
   créerConstellationsTest,
   créerHéliaÉphémère,
   journalifier,
+  utiliserFauxChronomètres,
 } from "./utils.js";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
