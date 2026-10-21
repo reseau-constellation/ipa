@@ -1,7 +1,7 @@
 import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { cacheRechercheParProfondeur } from "../nébuleuse/cache.js";
 import { moyenne } from "../utils.js";
-import { stabiliser } from "../nébuleuse/utils.js";
+import { dédupliquer, stabiliser } from "../nébuleuse/utils.js";
 import { EstimateurAsymptoteTemps, calculerIntersection } from "./utils.js";
 import {
   COEFFICIENT_ASYMPTOTE_INTERSECTION_Y,
@@ -64,18 +64,19 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
       profondeur: number;
     };
     let résultats: RésultatAvecProfondeur[] = [];
+    let ajusterProfondeurStable: Suivi<number> | undefined = undefined;
 
-    const fFinale = async () => {
+    const fFinale = dédupliquer(25)(async (résultats: RésultatAvecProfondeur[]) => {
       const résultatsOrdonnés = résultats.toSorted(
         (a, b) => b.score - a.score, // Ordre décroissant
       );
       const résultatsTroncés =
         n === undefined ? résultatsOrdonnés : résultatsOrdonnés.slice(0, n);
-      const profondeurDésirée = actualiserEstimateurs(résultatsTroncés);
-      await ajusterProfondeurStable(profondeurDésirée);
-
       await f(résultatsTroncés.map((r) => r.résultat));
-    };
+
+      const profondeurDésirée = actualiserEstimateurs(résultatsTroncés);
+      await ajusterProfondeurStable?.(profondeurDésirée);
+    });
 
     // Estimateur sommes scores sur n éventuelles par profondeur
     const estimateursSommesScores: Map<number, EstimateurAsymptoteTemps> =
@@ -231,16 +232,16 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
         fIdDeBranche: (x) => x.idCompte,
         f: async (x: RésultatAvecProfondeur[]) => {
           résultats = x;
-          await fFinale();
+          await fFinale(résultats);
         },
       });
 
     const stabilité = stabiliser(2000);
-    const ajusterProfondeurStable = stabilité(profondeur);
+    ajusterProfondeurStable = stabilité(profondeur);
 
     const changerN = async (nouveauN: number) => {
       n = nouveauN;
-      await fFinale();
+      await fFinale(résultats);
     };
 
     return { oublier: oublierComptes, n: changerN };

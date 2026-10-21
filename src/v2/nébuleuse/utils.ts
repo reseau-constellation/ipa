@@ -112,6 +112,40 @@ export const stabiliser =
     };
   };
 
+export const dédupliquer =
+  (t = 100) =>
+  <T>(f: Suivi<T>): Suivi<T> => {
+    let déjàAppellée = false;
+    let val: T | undefined = undefined;
+    let annulerRebours: () => void = () => {};
+
+    return async (v: T): Promise<void> => {
+      if (déjàAppellée && deepEqual(v, val)) return;
+
+      let fLancé = false;
+
+      // Un signaleur d'avortement qu'on utilise pour signaler qu'on a complété l'appel
+      const signaleur = new AbortController();
+      if (!déjàAppellée) {
+        déjàAppellée = true;
+        return await f(v)
+      }
+      déjàAppellée = true;
+      annulerRebours();
+      val = v;
+
+      const crono = setTimeout(async () => {
+        fLancé = true;
+        await f(v);
+        signaleur.abort();
+      }, t);
+      annulerRebours = () => {
+        clearTimeout(crono);
+        if (!fLancé) signaleur.abort();
+      };
+    };
+  };
+
 export const estErreurAvortée = (erreur?: Error): boolean => {
   if (erreur instanceof AggregateError) {
     return erreur.errors.some((e) => estErreurAvortée(e));
