@@ -136,7 +136,7 @@ export class Profil extends ServiceDonnéesAppli<
     super({
       clef: "profil",
       services,
-      dépendances: ["favoris", "dispositifs", "orbite", "hélia"],
+      dépendances: ["réseau", "favoris", "dispositifs", "orbite", "hélia"],
       options,
     });
 
