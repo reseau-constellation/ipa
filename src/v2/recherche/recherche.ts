@@ -66,7 +66,9 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
     let résultats: RésultatAvecProfondeur[] = [];
     let ajusterProfondeurStable: Suivi<number> | undefined = undefined;
 
-    const fFinale = dédupliquer(25)(async (résultats: RésultatAvecProfondeur[]) => {
+    const fFinale = dédupliquer(25)(async (
+      résultats: RésultatAvecProfondeur[],
+    ) => {
       const résultatsOrdonnés = résultats.toSorted(
         (a, b) => b.score - a.score, // Ordre décroissant
       );
