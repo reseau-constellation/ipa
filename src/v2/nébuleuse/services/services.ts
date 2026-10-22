@@ -112,10 +112,12 @@ export const brancheBd = <T extends NestedValue, C extends string>({
       } else if (prop === "all") {
         const allBranche = async () => {
           const composantesClef = asSplitKey(clef);
-          let résultat = await target.all()
+          let résultat = await target.all();
           for (const composante of composantesClef) {
             // À faire : meilleure gestion des types
-            résultat = résultat[composante as keyof typeof résultat] as RecursivePartial<Record<C, T>>
+            résultat = résultat[
+              composante as keyof typeof résultat
+            ] as RecursivePartial<Record<C, T>>;
             if (résultat === undefined) break;
           }
           return résultat || {};

@@ -1,4 +1,5 @@
 import path from "path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { isBrowser } from "wherearewe";
 import { créerHéliasTest, dossierTempo } from "@constl/utils-tests";
 
@@ -21,8 +22,12 @@ import * as dagCbor from "@ipld/dag-cbor";
 import * as dagJson from "@ipld/dag-json";
 import * as json from "multiformats/codecs/json";
 import { sha512 } from "multiformats/hashes/sha2";
+import { expect } from "aegir/chai";
+import { readFile as xlsxReadFile, type WorkBook } from "@e965/xlsx";
+import JSZip from "jszip";
 import { créerConstellation } from "@/v2/index.js";
 import { estContrôleurNébuleuse } from "@/v2/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
+import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
 import type { InfoRésultat, RésultatRecherche } from "@/v2/recherche/types.js";
@@ -38,6 +43,7 @@ import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { ServicesLibp2pNébuleuse } from "@/v2/nébuleuse/services/libp2p/libp2p.js";
+import type { ÉlémentDonnéesTableau } from "@/v2/bds/tableaux.js";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,
@@ -132,6 +138,7 @@ export const obtenir = async <T>(
     siNul: () => (x: T) => void;
     siPasVide: () => (x: T | undefined) => void;
     siPasNul: () => (x: T) => void;
+    siLongueurAuMoins: (n: number) => (x: T | undefined) => void;
     tous: () => (x: T) => void;
   }) => Promise<Oublier>,
 ): Promise<T> => {
@@ -177,6 +184,16 @@ export const obtenir = async <T>(
   const siPasNul = (): ((x: T) => void) => {
     return si((x: T | undefined) => !isNull(x));
   };
+
+  const siLongueurAuMoins = (n: number): ((x: T | undefined) => void) => {
+    return si(
+      (x) =>
+        !!x &&
+        ((Array.isArray(x) && x.length >= n) ||
+          (Object.keys(x) && Object.keys(x).length >= n)),
+    );
+  };
+
   const tous = (): ((x: T) => void) => {
     return si(() => true);
   };
@@ -200,6 +217,7 @@ export const obtenir = async <T>(
     siNul,
     siPasVide,
     siPasNul,
+    siLongueurAuMoins,
     tous,
   });
   afterEach(async () => {
@@ -522,4 +540,82 @@ export const utiliserFauxChronomètres = () => {
   });
   after(() => horloge.reset());
   return horloge;
+};
+
+// Tests données
+export const vérifierDonnéesTableau = (
+  doc: string | WorkBook,
+  tableau: string,
+  données: ÉlémentDonnéesTableau[],
+): void => {
+  if (typeof doc === "string") {
+    expect(existsSync(doc)).to.be.true();
+    doc = xlsxReadFile(doc, {});
+  }
+  const importateur = new ImportateurFeuilleCalcul(doc);
+
+  const cols = importateur.obtColsTableau(tableau);
+  const donnéesFichier = importateur.obtDonnées(tableau, cols);
+
+  expect(donnéesFichier).to.have.deep.members(données);
+};
+
+export const vérifierDonnéesBd = (
+  doc: string | WorkBook,
+  données: { [tableau: string]: ÉlémentDonnéesTableau[] },
+): void => {
+  if (typeof doc === "string") {
+    expect(existsSync(doc));
+    doc = xlsxReadFile(doc);
+  }
+  for (const tableau of Object.keys(données)) {
+    vérifierDonnéesTableau(doc, tableau, données[tableau]);
+  }
+};
+
+export const vérifierDonnéesProjet = async (
+  doc: string,
+  données: {
+    [bd: string]: { [tableau: string]: ÉlémentDonnéesTableau[] };
+  },
+): Promise<void> => {
+  // Il faut essayer plusieurs fois parce que le fichier ZIP peut
+  // être créé avant la fin de l'écriture du fichier (ce qui cause
+  // une erreur de lecture).
+
+  const zip = await new Promise<JSZip>((compléter) => {
+    const interval = setInterval(async () => {
+      let zip_: JSZip;
+      try {
+        const donnéesFichier = readFileSync(doc);
+        zip_ = await JSZip.loadAsync(donnéesFichier);
+        clearInterval(interval);
+        compléter(zip_);
+      } catch {
+        // Réessayer
+      }
+    }, 100);
+  });
+
+  const { dossier: dossierFichierExtrait, effacer } = await dossierTempo();
+  await Promise.allSettled(
+    Object.entries(zip.files).map(async ([adresseRelative, élémentZip]) => {
+      const adresseAbsolue = path.join(dossierFichierExtrait, adresseRelative);
+      if (élémentZip.dir) {
+        mkdirSync(adresseAbsolue);
+      } else {
+        const contenu = await élémentZip.async("nodebuffer");
+        writeFileSync(adresseAbsolue, contenu);
+      }
+    }),
+  );
+
+  for (const fichierBd of Object.keys(données)) {
+    vérifierDonnéesBd(
+      path.join(dossierFichierExtrait, fichierBd),
+      données[fichierBd],
+    );
+  }
+
+  effacer();
 };

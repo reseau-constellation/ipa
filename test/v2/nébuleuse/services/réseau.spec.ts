@@ -501,9 +501,9 @@ describe("Réseau", function () {
     });
 
     it("confiance transitive", async () => {
-      const comptes = await obtenir<CompteRéseau[]>(({ si }) =>
+      const comptes = await obtenir<CompteRéseau[]>(({ siLongueurAuMoins }) =>
         nébuleuses[0].réseau.suivreComptes({
-          f: si((x) => !!x && x.length >= 3),
+          f: siLongueurAuMoins(3),
         }),
       );
 

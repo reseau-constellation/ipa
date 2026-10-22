@@ -128,7 +128,7 @@ export const dédupliquer =
       const signaleur = new AbortController();
       if (!déjàAppellée) {
         déjàAppellée = true;
-        return await f(v)
+        return await f(v);
       }
       déjàAppellée = true;
       annulerRebours();

@@ -324,11 +324,13 @@ describe("Rechercher dans réseau", function () {
       });
 
       it("mots-clefs détectés", async () => {
-        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idMotClef));
+        const pRésultat = recherche.si(
+          (r) => !!r?.find((x) => x.id === idMotClef),
+        );
 
         idMotClef = await constls[0].motsClefs.créerMotClef();
 
-        const résultat = (await pRésultat).filter(r=>r.id === idMotClef);
+        const résultat = (await pRésultat).filter((r) => r.id === idMotClef);
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idMotClef,
@@ -529,13 +531,15 @@ describe("Rechercher dans réseau", function () {
       });
 
       it("variables détectées", async () => {
-        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idVariable));;
+        const pRésultat = recherche.si(
+          (r) => !!r?.find((x) => x.id === idVariable),
+        );
 
         idVariable = await constls[0].variables.créerVariable({
           catégorie: "audio",
         });
 
-        const résultat = (await pRésultat).filter(r=>r.id === idVariable);;
+        const résultat = (await pRésultat).filter((r) => r.id === idVariable);
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idVariable,
@@ -852,10 +856,10 @@ describe("Rechercher dans réseau", function () {
       });
 
       it("bds détectées", async () => {
-        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idBd));
+        const pRésultat = recherche.si((r) => !!r?.find((x) => x.id === idBd));
         idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
 
-        const résultat = (await pRésultat).filter(r=>r.id === idBd);
+        const résultat = (await pRésultat).filter((r) => r.id === idBd);
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idBd,
@@ -1174,10 +1178,12 @@ describe("Rechercher dans réseau", function () {
       });
 
       it("nuées détectées", async () => {
-        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idNuée));
+        const pRésultat = recherche.si(
+          (r) => !!r?.find((x) => x.id === idNuée),
+        );
         idNuée = await constls[0].nuées.créerNuée();
 
-        const résultat = (await pRésultat).filter(r=>r.id === idNuée);
+        const résultat = (await pRésultat).filter((r) => r.id === idNuée);
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idNuée,
@@ -1588,11 +1594,13 @@ describe("Rechercher dans réseau", function () {
       });
 
       it("projet détecté", async () => {
-        const pRésultat = recherche.si(r=>!!r?.find(x=>x.id === idProjet));;
+        const pRésultat = recherche.si(
+          (r) => !!r?.find((x) => x.id === idProjet),
+        );
 
         idProjet = await constls[0].projets.créerProjet();
 
-        const résultat = (await pRésultat).filter(r=>r.id === idProjet);;
+        const résultat = (await pRésultat).filter((r) => r.id === idProjet);
 
         const réf: RésultatRecherche<InfoRésultatVide> = {
           id: idProjet,

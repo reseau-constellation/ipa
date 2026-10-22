@@ -111,11 +111,11 @@ describe("tableaux", function () {
           हिं: "वर्णमाला",
         },
       });
-      const noms = await obtenir<TraducsTexte>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ siLongueurAuMoins }) =>
         constl.bds.tableaux.suivreNoms({
           idStructure: idBd,
           idTableau,
-          f: si((x) => !!x && Object.keys(x).length >= 3),
+          f: siLongueurAuMoins(3),
         }),
       );
 

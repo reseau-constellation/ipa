@@ -2121,12 +2121,13 @@ describe("Bases de données", function () {
 
       const réf: DonnéesRangéeTableau[] = [...éléments, ...élémentsBd2];
 
-      const données = await obtenir<DonnéesRangéeTableauAvecId[]>(({ si }) =>
-        constl.bds.suivreDonnéesBdUnique({
-          schéma,
-          idTableau,
-          f: si((x) => !!x && x.length >= réf.length),
-        }),
+      const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
+        ({ siLongueurAuMoins }) =>
+          constl.bds.suivreDonnéesBdUnique({
+            schéma,
+            idTableau,
+            f: siLongueurAuMoins(réf.length),
+          }),
       );
 
       expect(données.map((d) => d.données)).to.have.deep.members(réf);

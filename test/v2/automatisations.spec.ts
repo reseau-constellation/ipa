@@ -27,23 +27,20 @@ import { v4 as uuidv4 } from "uuid";
 import { attendreStabilité, uneFois } from "@constl/utils-ipa";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
-import {
-  readFile as xlsxReadFile,
-  writeFile as xlsxWriteFile,
-  utils,
-} from "@e965/xlsx";
+import { writeFile as xlsxWriteFile, utils } from "@e965/xlsx";
 import { stabiliser } from "@/v2/nébuleuse/utils.js";
 import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/v2/automatisations/utils.js";
 import { enleverPréfixesEtOrbite } from "@/v2/utils.js";
-import { ImportateurFeuilleCalcul } from "@/v2/importateur/feuille.js";
 import {
   créerConstellationsTest,
   obtenir,
   utiliserFauxChronomètres,
+  vérifierDonnéesBd,
+  vérifierDonnéesProjet,
+  vérifierDonnéesTableau,
 } from "./utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
-import type { WorkBook } from "@e965/xlsx";
 import type {
   ConversionColonne,
   ÉlémentDonnéesTableau,
@@ -180,83 +177,6 @@ const obtEmpreinte = async ({
   return await uneFois((f) => constl.bds.suivreEmpreinteTête({ idBd, f }), {
     condition: attendreStabilité(100),
   });
-};
-
-const vérifierDonnéesTableau = (
-  doc: string | WorkBook,
-  tableau: string,
-  données: ÉlémentDonnéesTableau[],
-): void => {
-  if (typeof doc === "string") {
-    expect(existsSync(doc)).to.be.true();
-    doc = xlsxReadFile(doc, {});
-  }
-  const importateur = new ImportateurFeuilleCalcul(doc);
-
-  const cols = importateur.obtColsTableau(tableau);
-  const donnéesFichier = importateur.obtDonnées(tableau, cols);
-
-  expect(donnéesFichier).to.have.deep.members(données);
-};
-
-const vérifierDonnéesBd = (
-  doc: string | WorkBook,
-  données: { [tableau: string]: ÉlémentDonnéesTableau[] },
-): void => {
-  if (typeof doc === "string") {
-    expect(existsSync(doc));
-    doc = xlsxReadFile(doc);
-  }
-  for (const tableau of Object.keys(données)) {
-    vérifierDonnéesTableau(doc, tableau, données[tableau]);
-  }
-};
-
-const vérifierDonnéesProjet = async (
-  doc: string,
-  données: {
-    [bd: string]: { [tableau: string]: ÉlémentDonnéesTableau[] };
-  },
-): Promise<void> => {
-  // Il faut essayer plusieurs fois parce que le fichier ZIP peut
-  // être créé avant la fin de l'écriture du fichier (ce qui cause
-  // une erreur de lecture).
-
-  const zip = await new Promise<JSZip>((compléter) => {
-    const interval = setInterval(async () => {
-      let zip_: JSZip;
-      try {
-        const donnéesFichier = readFileSync(doc);
-        zip_ = await JSZip.loadAsync(donnéesFichier);
-        clearInterval(interval);
-        compléter(zip_);
-      } catch {
-        // Réessayer
-      }
-    }, 100);
-  });
-
-  const { dossier: dossierFichierExtrait, effacer } = await dossierTempo();
-  await Promise.allSettled(
-    Object.entries(zip.files).map(async ([adresseRelative, élémentZip]) => {
-      const adresseAbsolue = path.join(dossierFichierExtrait, adresseRelative);
-      if (élémentZip.dir) {
-        mkdirSync(adresseAbsolue);
-      } else {
-        const contenu = await élémentZip.async("nodebuffer");
-        writeFileSync(adresseAbsolue, contenu);
-      }
-    }),
-  );
-
-  for (const fichierBd of Object.keys(données)) {
-    vérifierDonnéesBd(
-      path.join(dossierFichierExtrait, fichierBd),
-      données[fichierBd],
-    );
-  }
-
-  effacer();
 };
 
 describe("Automatisations", function () {
@@ -548,11 +468,11 @@ describe("Automatisations", function () {
           const stabilité = stabiliser();
           const données = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
-          >(({ si }) =>
+          >(({ siLongueurAuMoins }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabilité(si((x) => !!x && x?.length >= 2)),
+              f: stabilité(siLongueurAuMoins(2)),
             }),
           );
 
@@ -645,11 +565,11 @@ describe("Automatisations", function () {
           const stabilité = stabiliser();
           const donnéesTableau = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
-          >(({ si }) =>
+          >(({ siLongueurAuMoins }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabilité(si((x) => !!x && x.length >= 3)),
+              f: stabilité(siLongueurAuMoins(3)),
             }),
           );
 
@@ -729,11 +649,11 @@ describe("Automatisations", function () {
           const stabilité = stabiliser();
           const données = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
-          >(({ si }) =>
+          >(({ siLongueurAuMoins }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabilité(si((x) => !!x && x?.length >= 2)),
+              f: stabilité(siLongueurAuMoins(2)),
             }),
           );
 
@@ -915,11 +835,11 @@ describe("Automatisations", function () {
         it("importation initiale", async () => {
           // Vérifier données importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 2),
+                f: siLongueurAuMoins(2),
               }),
           );
 
@@ -964,11 +884,11 @@ describe("Automatisations", function () {
 
           // Données mises à jour
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
 
@@ -992,11 +912,11 @@ describe("Automatisations", function () {
 
           // Données mises à jour
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 4),
+                f: siLongueurAuMoins(4),
               }),
           );
 
@@ -1085,11 +1005,11 @@ describe("Automatisations", function () {
 
           // Vérifier données importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 2),
+                f: siLongueurAuMoins(2),
               }),
           );
 
@@ -1120,11 +1040,11 @@ describe("Automatisations", function () {
 
           // Vérifier données modifiées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
 
@@ -1136,11 +1056,11 @@ describe("Automatisations", function () {
         it("réimportation lorsque relancée", async () => {
           // Modifier données dans la bd
           const donnéesAvant = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
           await constl.bds.tableaux.effacerÉlément({
@@ -1154,11 +1074,11 @@ describe("Automatisations", function () {
 
           // Données bien réimportées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
 
@@ -1267,11 +1187,11 @@ describe("Automatisations", function () {
 
           // Données importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 2),
+                f: siLongueurAuMoins(2),
               }),
           );
           expect(données.map((d) => d.données)).to.have.deep.members(
@@ -1314,11 +1234,11 @@ describe("Automatisations", function () {
 
           // Données mises à jour
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
           expect(données.map((d) => d.données)).to.have.deep.members(
@@ -1453,11 +1373,11 @@ describe("Automatisations", function () {
           const stabilité = stabiliser();
           const données = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
-          >(({ si }) =>
+          >(({ siLongueurAuMoins }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabilité(si((x) => !!x && x.length >= 2)),
+              f: stabilité(siLongueurAuMoins(2)),
             }),
           );
 
@@ -1518,11 +1438,11 @@ describe("Automatisations", function () {
           const stabilité = stabiliser();
           const donnéesTableau = await obtenir<
             DonnéesRangéeTableauAvecId<DonnéesRangéeTableau>[]
-          >(({ si }) =>
+          >(({ siLongueurAuMoins }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: stabilité(si((x) => !!x && x.length >= 2)),
+              f: stabilité(siLongueurAuMoins(2)),
             }),
           );
 
@@ -1751,11 +1671,11 @@ describe("Automatisations", function () {
         it("importation initiale", async () => {
           // Vérifier données importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 2),
+                f: siLongueurAuMoins(2),
               }),
           );
 
@@ -1806,11 +1726,11 @@ describe("Automatisations", function () {
 
           // Données mises à jour
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
 
@@ -1822,11 +1742,11 @@ describe("Automatisations", function () {
         it("réimportées si relancée", async () => {
           // Modifier données dans la bd
           const donnéesAvant = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
           await constl.bds.tableaux.effacerÉlément({
@@ -1840,11 +1760,11 @@ describe("Automatisations", function () {
 
           // Données mises à jour
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
 
@@ -2013,11 +1933,11 @@ describe("Automatisations", function () {
 
           // Données bien importées
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 2),
+                f: siLongueurAuMoins(2),
               }),
           );
           expect(données.map((d) => d.données)).to.have.deep.members(
@@ -2061,11 +1981,11 @@ describe("Automatisations", function () {
 
           // Données mises à jour
           const données = await obtenir<DonnéesRangéeTableauAvecId[]>(
-            ({ si }) =>
+            ({ siLongueurAuMoins }) =>
               constl.bds.tableaux.suivreDonnées({
                 idStructure: idBd,
                 idTableau,
-                f: si((x) => !!x && x.length >= 3),
+                f: siLongueurAuMoins(3),
               }),
           );
           expect(données.map((d) => d.données)).to.have.deep.members(
@@ -2155,11 +2075,11 @@ describe("Automatisations", function () {
         });
 
         const donnéesTableau = await obtenir<DonnéesRangéeTableauAvecId[]>(
-          ({ si }) =>
+          ({ siLongueurAuMoins }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: si((x) => !!x && x.length >= 3),
+              f: siLongueurAuMoins(3),
             }),
         );
 
@@ -2211,11 +2131,11 @@ describe("Automatisations", function () {
         });
 
         const donnéesTableau = await obtenir<DonnéesRangéeTableauAvecId[]>(
-          ({ si }) =>
+          ({ siLongueurAuMoins }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: si((x) => !!(x && x.length >= 10)),
+              f: siLongueurAuMoins(10),
             }),
         );
 
@@ -2271,11 +2191,11 @@ describe("Automatisations", function () {
           },
         });
         const donnéesTableau = await obtenir<DonnéesRangéeTableauAvecId[]>(
-          ({ si }) =>
+          ({ siLongueurAuMoins }) =>
             constl.bds.tableaux.suivreDonnées({
               idStructure: idBd,
               idTableau,
-              f: si((x) => !!x && x.length >= 8),
+              f: siLongueurAuMoins(8),
             }),
         );
 

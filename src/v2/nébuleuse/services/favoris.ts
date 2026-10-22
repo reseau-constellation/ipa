@@ -345,7 +345,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     if (!résolveur) {
       this.service("journal").écrire({
         // eslint-disable-next-line no-irregular-whitespace
-        message: `Erreur : résolvveur ${clef} non inscrit.`,
+        message: `Erreur : résolveur ${clef} non inscrit.`,
       });
       return;
     }

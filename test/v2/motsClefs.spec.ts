@@ -162,10 +162,10 @@ describe("Mots-clefs", function () {
           हिं: "जल विज्ञान",
         },
       });
-      const noms = await obtenir<TraducsTexte>(({ si }) =>
+      const noms = await obtenir<TraducsTexte>(({ siLongueurAuMoins }) =>
         constl.motsClefs.suivreNoms({
           idMotClef,
-          f: si((x) => !!x && Object.keys(x).length >= 3),
+          f: siLongueurAuMoins(3),
         }),
       );
 
@@ -253,11 +253,12 @@ describe("Mots-clefs", function () {
           हिं: "जल विज्ञान से संबंधित आँकड़ों के लिये",
         },
       });
-      const descriptions = await obtenir<TraducsTexte>(({ si }) =>
-        constl.motsClefs.suivreDescriptions({
-          idMotClef,
-          f: si((x) => !!x && Object.keys(x).length >= 3),
-        }),
+      const descriptions = await obtenir<TraducsTexte>(
+        ({ siLongueurAuMoins }) =>
+          constl.motsClefs.suivreDescriptions({
+            idMotClef,
+            f: siLongueurAuMoins(3),
+          }),
       );
 
       expect(descriptions).to.deep.equal({

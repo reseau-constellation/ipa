@@ -34,10 +34,9 @@ import {
   obtenir,
   créerConstellationsTest,
   créerHéliaÉphémère,
-  journalifier,
   utiliserFauxChronomètres,
+  vérifierDonnéesBd,
 } from "./utils.js";
-import { créerNébuleusesTest } from "./nébuleuse/utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import type {
   AutorisationNuée,
@@ -1264,29 +1263,28 @@ describe("Nuées", function () {
         idDonnéesTableau,
       ]);
 
-      const résolutionSansTableaux = await obtenir<Set<string>>(
-        ({ si }) =>
-          constl.nuées.suivreRésolutionÉpingle({
+      const résolutionSansTableaux = await obtenir<Set<string>>(({ si }) =>
+        constl.nuées.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idNuée,
             épingle: {
-              idObjet: idNuée,
+              type: "nuées",
               épingle: {
-                type: "nuées",
-                épingle: {
-                  base: true,
-                  bds: {
-                    type: "bds",
-                    épingle: {
-                      base: true,
-                      données: {
-                        tableaux: false,
-                      },
+                base: true,
+                bds: {
+                  type: "bds",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: false,
                     },
                   },
                 },
               },
             },
-            f: si((x) => !!x && x.size > 1),
-          }),
+          },
+          f: si((x) => !!x && x.size > 1),
+        }),
       );
       expect([...résolutionSansTableaux]).to.have.members([
         enleverPréfixes(idNuée),
@@ -1354,7 +1352,7 @@ describe("Nuées", function () {
               },
             },
           },
-          f: si(x=>!!x && x.size >= 4),
+          f: si((x) => !!x && x.size >= 4),
         }),
       );
       expect([...résolution]).to.have.members([
@@ -1385,7 +1383,7 @@ describe("Nuées", function () {
               },
             },
           },
-          f: si(x=>!!x && x.size >= 3),
+          f: si((x) => !!x && x.size >= 3),
         }),
       );
       expect([...résolutionSansFichers]).to.have.members([
@@ -1412,7 +1410,7 @@ describe("Nuées", function () {
                 },
               },
             },
-            f: si(x=>!!x && x.size >= 2),
+            f: si((x) => !!x && x.size >= 2),
           }),
       );
       expect([...résolutionSansFichersOuTableaux]).to.have.members([
@@ -1869,12 +1867,13 @@ describe("Nuées", function () {
     it("donnnées autorisées", async () => {
       const réf = [...élémentsNuées, ...élémentsNuéesPDDL];
 
-      const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
-        constl.nuées.tableaux.suivreDonnées({
-          idStructure: idNuée,
-          idTableau,
-          f: si((x) => !!x && x.length >= réf.length),
-        }),
+      const données = await obtenir<DonnéesRangéeNuée[]>(
+        ({ siLongueurAuMoins }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuée,
+            idTableau,
+            f: siLongueurAuMoins(réf.length),
+          }),
       );
 
       expect(données).to.have.deep.members(réf);
@@ -1899,7 +1898,7 @@ describe("Nuées", function () {
           idStructure: idNuée,
           idTableau,
           filtresDonnées: { exclureAvecDifférencesTableaux: ["indexColonne"] },
-          f: si(d=>!!d?.find(x=>x.idBd === idBdPDDL)),
+          f: si((d) => !d?.find(x=>x.idBd === idBd) && (d?.filter((x) => x.idBd === idBdPDDL).length ?? 0) >= élémentsNuéesPDDL.length),
         }),
       );
 
@@ -1919,7 +1918,7 @@ describe("Nuées", function () {
           idStructure: idNuée,
           idTableau,
           filtresDonnées: { exclureAvecErreursDonnées: true },
-          f: si((x) => !!x && x.length >= réf.length),
+          f: si((x) => !!x && x.length >= réf.length && !x.find(r=>(r.données.données[idColonne] as number)< 0)),
         }),
       );
 
@@ -1940,13 +1939,14 @@ describe("Nuées", function () {
         },
       }));
 
-      const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
-        constl.nuées.tableaux.suivreDonnées({
-          idStructure: idNuée,
-          idTableau,
-          clefsSelonVariables: true,
-          f: si((x) => !!x && x.length >= réf.length),
-        }),
+      const données = await obtenir<DonnéesRangéeNuée[]>(
+        ({ siLongueurAuMoins }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuée,
+            idTableau,
+            clefsSelonVariables: true,
+            f: siLongueurAuMoins(réf.length),
+          }),
       );
 
       expect(données).to.have.deep.members(réf);
@@ -1959,15 +1959,13 @@ describe("Nuées", function () {
 
       expect(bds).to.have.members([idBd]);
 
-      const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
-        constl.nuées.tableaux.suivreDonnées({
-          idStructure: idNuéeIndisponible,
-          idTableau,
-          f: journalifier(
-            si((x) => !!x && x.length >= élémentsNuées.length),
-            "ici",
-          ),
-        }),
+      const données = await obtenir<DonnéesRangéeNuée[]>(
+        ({ siLongueurAuMoins }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuéeIndisponible,
+            idTableau,
+            f: siLongueurAuMoins(élémentsNuées.length),
+          }),
       );
 
       // Uniquement les données locales
@@ -1976,13 +1974,14 @@ describe("Nuées", function () {
 
     it("données réseau sans vérification autorisation même si nuée non disponible", async () => {
       const réf = [...élémentsNuéesPDDL, ...élémentsNuées];
-      const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
-        constl.nuées.tableaux.suivreDonnées({
-          idStructure: idNuéeIndisponible,
-          idTableau,
-          filtresBds: { ignorerAutorisation: true },
-          f: si((x) => !!x && x.length >= réf.length),
-        }),
+      const données = await obtenir<DonnéesRangéeNuée[]>(
+        ({ siLongueurAuMoins }) =>
+          constl.nuées.tableaux.suivreDonnées({
+            idStructure: idNuéeIndisponible,
+            idTableau,
+            filtresBds: { ignorerAutorisation: true },
+            f: siLongueurAuMoins(réf.length),
+          }),
       );
 
       // Données locales et réseau
@@ -1990,148 +1989,213 @@ describe("Nuées", function () {
     });
   });
 
-  describe.skip("propagation données sur le réseau", function () {
+  describe.skip("données sur le réseau", function () {
     let fermerConstlTest: Oublier;
     let constlsTest: Constellation[];
 
-    beforeEach(async () => {
-      ({ fermer: fermerConstlTest, constls: constlsTest } =
+    before(async () => {
+      ({ constls: constlsTest, fermer: fermerConstlTest } =
         await créerConstellationsTest({
           n: 2,
+          persistante: true,
         }));
     });
 
-    afterEach(async () => {
+    after(async () => {
       if (fermerConstlTest) await fermerConstlTest();
     });
 
-    let idNuée: string;
-    let idBd: string;
-    let idTableau: string;
-    let idVariable: string;
+    describe("persistance données", function () {
+      let idNuée: string;
+      let idBd: string;
+      let idTableau: string;
+      let idVariable: string;
 
-    const idColonne = "précipitation";
-    const éléments: DonnéesRangéeTableau[] = [
-      { [idColonne]: 12 },
-      { [idColonne]: -1 },
-      { [idColonne]: 3 },
-    ];
+      const idColonne = "précipitation";
+      const éléments: DonnéesRangéeTableau[] = [
+        { [idColonne]: 12 },
+        { [idColonne]: -1 },
+        { [idColonne]: 3 },
+      ];
 
-    let idsÉléments: string[];
+      let réf: DonnéesRangéeNuée[];
 
-    before(async () => {
-      idNuée = await constl.nuées.créerNuée();
-      idTableau = await constl.nuées.ajouterTableau({ idNuée });
-      idVariable = await constl.variables.créerVariable({
-        catégorie: "numérique",
-      });
-      await constl.nuées.tableaux.ajouterColonne({
-        idStructure: idNuée,
-        idTableau,
-        idColonne,
-        idVariable,
-      });
+      before(async () => {
+        // Créer nuée sur compte 1
+        idNuée = await constlsTest[0].nuées.créerNuée();
 
-      await constl.nuées.tableaux.ajouterRègle({
-        idStructure: idNuée,
-        idTableau,
-        idColonne,
-        règle: {
-          type: "bornes",
-          détails: {
-            type: "fixe",
-            op: ">=",
-            val: 0,
-          },
-        },
-      });
-
-      const schéma = await constl.nuées.créerSchémaDeNuée({
-        idNuée,
-        licence: "ODbl-1_0",
-      });
-      idBd = await constl.bds.créerBdDeSchéma({ schéma });
-
-      // Créer une différence avec les colonnes d'origine
-      await constl.bds.tableaux.modifierIndexColonne({
-        idStructure: idBd,
-        idTableau,
-        idColonne,
-        index: true,
-      });
-
-      idsÉléments = await constl.bds.tableaux.ajouterÉléments({
-        idStructure: idBd,
-        idTableau,
-        éléments,
-      });
-
-      élémentsNuées = éléments.map((élément, i) => ({
-        idBd,
-        données: { id: idsÉléments[i], données: élément },
-      }));
-    });
-
-    it("persistance données", async () => {
-      // Créer nuée sur compte 1
-      idNuée = await constlsTest[0].nuées.créerNuée();
-
-      // Compte 2 contribue des données
-      idBd = await constlsTest[1].bds.créerBd({ licence: "ODBl-1_0" });
-
-      // Compte 2 ferme
-      await constlsTest[1].fermer();
-
-      // Donnés de compte 2 toujours présentes sur compte 1
-      const donnéesAprèsFermeture = await obtenir(({ si }) =>
-        nébuleuses[0].nuées.suivreDonnées({}),
-      );
-      expect(donnéesAprèsFermeture).to.have.deep.members(réf);
-
-      // Compte 1 redémarre
-      const dossier = await constlsTest[0].services.dossier.dossier();
-      await constlsTest[0].fermer();
-      const constlRéouverte = créerConstellation<ServicesLibp2pNébuleuse>({
-        services: {
-          dossier: { dossier },
-          hélia: {
-            hélia: créerHéliaÉphémère,
-            libp2p: obtenirOptionsLibp2pTest(),
-          },
-        },
-      });
-
-      // Donnés de compte 2 toujours présentes sur compte 1
-      const donnéesAprèsRéouverture = await obtenir(({ si }) =>
-        constlRéouverte.nuées.tableaux.suivreDonnées({
+        idTableau = await constlsTest[0].nuées.ajouterTableau({ idNuée });
+        idVariable = await constlsTest[0].variables.créerVariable({
+          catégorie: "numérique",
+        });
+        await constlsTest[0].nuées.tableaux.ajouterColonne({
           idStructure: idNuée,
           idTableau,
-          f: si(),
-        }),
-      );
-      expect(donnéesAprèsRéouverture).to.have.deep.members(réf);
+          idColonne,
+          idVariable,
+        });
+
+        const schéma = await constlsTest[0].nuées.créerSchémaDeNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+
+        // Compte 2 contribue des données
+        idBd = await constlsTest[1].bds.créerBdDeSchéma({ schéma });
+        const idsÉléments = await constlsTest[1].bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments,
+        });
+
+        réf = éléments.map((élément, i) => ({
+          idBd,
+          données: { id: idsÉléments[i], données: élément },
+        }));
+      });
+
+      it("persistance après fermeture compte bd", async () => {
+        // Compte 2 ferme
+        await constlsTest[1].fermer();
+
+        // Donnés de compte 2 toujours présentes sur compte 1
+        const donnéesAprèsFermeture = await obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constlsTest[0].nuées.tableaux.suivreDonnées({
+              idStructure: idNuée,
+              idTableau,
+              f: siLongueurAuMoins(réf.length),
+            }),
+        );
+        expect(donnéesAprèsFermeture).to.have.deep.members(réf);
+      });
+
+      it("persistance après réouverture compte nuée", async () => {
+        // Compte 1 redémarre
+        const dossier = await constlsTest[0].services.dossier.dossier();
+        await constlsTest[0].fermer();
+
+        const constlRéouverte = créerConstellation<ServicesLibp2pNébuleuse>({
+          services: {
+            dossier: { dossier },
+            hélia: {
+              hélia: créerHéliaÉphémère,
+              libp2p: obtenirOptionsLibp2pTest(),
+            },
+          },
+        });
+
+        // Donnés de compte 2 toujours présentes sur compte 1
+        const donnéesAprèsRéouverture = await obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constlRéouverte.nuées.tableaux.suivreDonnées({
+              idStructure: idNuée,
+              idTableau,
+              f: siLongueurAuMoins(réf.length),
+            }),
+        );
+
+        await constlRéouverte.fermer();
+        expect(donnéesAprèsRéouverture).to.have.deep.members(réf);
+      });
     });
 
-    it.skip("transmission données", async () => {
-      // Créer nuéee sur compte 1
-      idNuée = await nébuleuses[0].nuées.créerNuée();
+    describe.skip("transmission données", function () {
+      let idNuée: string;
+      let idBd: string;
+      let idTableau: string;
+      let idVariable: string;
 
-      // Compte 2 contribue des données
-      idBd = await nébuleuses[1].bds.créerBd();
+      const idColonne = "précipitation";
+      const éléments: DonnéesRangéeTableau[] = [
+        { [idColonne]: 12 },
+        { [idColonne]: -1 },
+        { [idColonne]: 3 },
+      ];
 
-      // Compte 2 ferme
-      await nébuleuses[1].fermer();
+      let réf: DonnéesRangéeNuée[];
 
-      // Compte 3 se connecte
-      const compte3 = créerNébuleusesTest({});
+      let dossierCompte3: string;
+      let effacerDossierCompte3: () => void;
 
-      // Compte 3 accède aux données de compte 2
-      const donnéesSurCompte3 = await obtenir(({ si }) =>
-        compte3.nuées.suivreDonnées({}),
-      );
-      await fermerCompte3();
+      before(async () => {
+        // Créer nuée sur compte 1
+        idNuée = await constlsTest[0].nuées.créerNuée();
 
-      expect(donnéesSurCompte3).to.have.deep.members(réf);
+        idTableau = await constlsTest[0].nuées.ajouterTableau({ idNuée });
+        idVariable = await constlsTest[0].variables.créerVariable({
+          catégorie: "numérique",
+        });
+        await constlsTest[0].nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
+          idTableau,
+          idColonne,
+          idVariable,
+        });
+
+        const schéma = await constlsTest[0].nuées.créerSchémaDeNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+
+        // Compte 2 contribue des données
+        idBd = await constlsTest[1].bds.créerBdDeSchéma({ schéma });
+        const idsÉléments = await constlsTest[1].bds.tableaux.ajouterÉléments({
+          idStructure: idBd,
+          idTableau,
+          éléments,
+        });
+
+        réf = éléments.map((élément, i) => ({
+          idBd,
+          données: { id: idsÉléments[i], données: élément },
+        }));
+      });
+
+      after(() => {
+        if (effacerDossierCompte3) effacerDossierCompte3();
+      });
+
+      it("transmission données", async () => {
+        // Attendre que les données du compte 2 soient bien syncronisées sur le compte 1
+        await obtenir<DonnéesRangéeNuée[]>(({ siLongueurAuMoins }) =>
+          constlsTest[0].nuées.tableaux.suivreDonnées({
+            idStructure: idNuée,
+            idTableau,
+            f: siLongueurAuMoins(réf.length),
+          }),
+        );
+
+        // Compte 2 ferme
+        await constlsTest[1].fermer();
+
+        // Compte 3 se connecte
+        ({ dossier: dossierCompte3, effacer: effacerDossierCompte3 } =
+          await dossierTempo());
+
+        const compte3 = créerConstellation<ServicesLibp2pNébuleuse>({
+          services: {
+            dossier: { dossier: dossierCompte3 },
+            hélia: {
+              hélia: créerHéliaÉphémère,
+              libp2p: obtenirOptionsLibp2pTest(),
+            },
+          },
+        });
+
+        // Compte 3 accède aux données de compte 2
+        const donnéesSurCompte3 = obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            compte3.nuées.tableaux.suivreDonnées({
+              idStructure: idNuée,
+              idTableau,
+              f: siLongueurAuMoins(réf.length),
+            }),
+        );
+        await compte3.fermer();
+
+        expect(donnéesSurCompte3).to.have.deep.members(réf);
+      });
     });
   });
 
@@ -2648,10 +2712,10 @@ describe("Nuées", function () {
         idNuéeParent: idNuée,
       });
 
-      const ascendants = await obtenir<string[]>(({ si }) =>
+      const ascendants = await obtenir<string[]>(({ siLongueurAuMoins }) =>
         constl.nuées.suivreAscendants({
           idNuée,
-          f: si((x) => !!x && x.length >= 3),
+          f: siLongueurAuMoins(3),
         }),
       );
 
@@ -2692,10 +2756,10 @@ describe("Nuées", function () {
         parent: idNuéeEnfant,
       });
 
-      const descendants = await obtenir<string[]>(({ si }) =>
+      const descendants = await obtenir<string[]>(({ siLongueurAuMoins }) =>
         constl.nuées.suivreDescendants({
           idNuée,
-          f: si((x) => !!x && x.length >= 2),
+          f: siLongueurAuMoins(2),
         }),
       );
       expect(descendants).to.have.members([idNuéeEnfant, idPetitEnfant]);
@@ -2705,10 +2769,10 @@ describe("Nuées", function () {
       const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
       await constl.nuées.créerNuée({ parent: idNuéeEnfant });
 
-      await obtenir<string[]>(({ si }) =>
+      await obtenir<string[]>(({ siLongueurAuMoins }) =>
         constl.nuées.suivreDescendants({
           idNuée,
-          f: si((x) => !!x && x.length >= 2),
+          f: siLongueurAuMoins(2),
         }),
       );
 
@@ -2731,10 +2795,10 @@ describe("Nuées", function () {
         idNuéeParent: idPetitEnfant,
       });
 
-      const descendants = await obtenir<string[]>(({ si }) =>
+      const descendants = await obtenir<string[]>(({ siLongueurAuMoins }) =>
         constl.nuées.suivreDescendants({
           idNuée,
-          f: si((x) => !!x && x.length >= 3),
+          f: siLongueurAuMoins(3),
         }),
       );
       expect(descendants).to.have.members([
@@ -2943,11 +3007,12 @@ describe("Nuées", function () {
           idsMotsClefs: [idMotClefHydrologie],
         });
 
-        const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ si }) =>
-          constl.nuées.suivreMotsClefs({
-            idNuée,
-            f: si((x) => !!x && x.length >= 2),
-          }),
+        const motsClefs = await obtenir<ValeurAscendance<string>[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.suivreMotsClefs({
+              idNuée,
+              f: siLongueurAuMoins(2),
+            }),
         );
 
         const réf: ValeurAscendance<string>[] = [
@@ -2963,11 +3028,12 @@ describe("Nuées", function () {
           idsMotsClefs: [idMotClefPotamologie],
         });
 
-        const motsClefs = await obtenir<ValeurAscendance<string>[]>(({ si }) =>
-          constl.nuées.suivreMotsClefs({
-            idNuée,
-            f: si((x) => !!x && x.length >= 3),
-          }),
+        const motsClefs = await obtenir<ValeurAscendance<string>[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.suivreMotsClefs({
+              idNuée,
+              f: siLongueurAuMoins(3),
+            }),
         );
 
         const réf: ValeurAscendance<string>[] = [
@@ -3084,11 +3150,12 @@ describe("Nuées", function () {
           idNuée: idNuéeParent,
         });
 
-        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
-          constl.nuées.suivreTableaux({
-            idNuée,
-            f: si((x) => !!x && x.length >= 2),
-          }),
+        const tableaux = await obtenir<InfoTableauNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.suivreTableaux({
+              idNuée,
+              f: siLongueurAuMoins(2),
+            }),
         );
 
         const réf: InfoTableauNuée[] = [
@@ -3128,11 +3195,12 @@ describe("Nuées", function () {
           idNuée,
         });
 
-        const tableaux = await obtenir<InfoTableauNuée[]>(({ si }) =>
-          constl.nuées.suivreTableaux({
-            idNuée,
-            f: si((x) => !!x && x.length >= 3),
-          }),
+        const tableaux = await obtenir<InfoTableauNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.suivreTableaux({
+              idNuée,
+              f: siLongueurAuMoins(3),
+            }),
         );
 
         const réf: InfoTableauNuée[] = [
@@ -3226,11 +3294,11 @@ describe("Nuées", function () {
           idTableau,
         });
 
-        const colonnes = await obtenir<InfoColonne[]>(({ si }) =>
+        const colonnes = await obtenir<InfoColonne[]>(({ siLongueurAuMoins }) =>
           constl.nuées.tableaux.suivreColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si((x) => !!x && x.length >= 3),
+            f: siLongueurAuMoins(3),
           }),
         );
 
@@ -3243,11 +3311,11 @@ describe("Nuées", function () {
 
         const colonnesAvecSource = await obtenir<
           ValeurAscendance<InfoColonne>[]
-        >(({ si }) =>
+        >(({ siLongueurAuMoins }) =>
           constl.nuées.tableaux.suivreSourceColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si((x) => !!x && x.length >= 2),
+            f: siLongueurAuMoins(2),
           }),
         );
 
@@ -3292,11 +3360,11 @@ describe("Nuées", function () {
 
         const colonnesAvecSource = await obtenir<
           ValeurAscendance<InfoColonne>[]
-        >(({ si }) =>
+        >(({ siLongueurAuMoins }) =>
           constl.nuées.tableaux.suivreSourceColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si((x) => !!x && x.length >= 3),
+            f: siLongueurAuMoins(3),
           }),
         );
 
@@ -3341,11 +3409,11 @@ describe("Nuées", function () {
 
         const colonnesAvecSource = await obtenir<
           ValeurAscendance<InfoColonne>[]
-        >(({ si }) =>
+        >(({ siLongueurAuMoins }) =>
           constl.nuées.tableaux.suivreSourceColonnes({
             idStructure: idNuée,
             idTableau,
-            f: si((x) => !!x && x.length >= 4),
+            f: siLongueurAuMoins(4),
           }),
         );
 
@@ -3467,11 +3535,11 @@ describe("Nuées", function () {
           règle: règleParent,
         });
 
-        const règles = await obtenir<RègleColonne[]>(({ si }) =>
+        const règles = await obtenir<RègleColonne[]>(({ siLongueurAuMoins }) =>
           constl.nuées.tableaux.suivreRègles({
             idStructure: idNuée,
             idTableau,
-            f: si((x) => !!x && x.length >= 2),
+            f: siLongueurAuMoins(2),
           }),
         );
 
@@ -3502,11 +3570,11 @@ describe("Nuées", function () {
           règle: règleNuée,
         });
 
-        const règles = await obtenir<RègleColonne[]>(({ si }) =>
+        const règles = await obtenir<RègleColonne[]>(({ siLongueurAuMoins }) =>
           constl.nuées.tableaux.suivreRègles({
             idStructure: idNuée,
             idTableau,
-            f: si((x) => !!x && x.length >= 3),
+            f: siLongueurAuMoins(3),
           }),
         );
 
@@ -3860,10 +3928,10 @@ describe("Nuées", function () {
       });
 
       it("ascendance", async () => {
-        const bds = await obtenir<string[]>(({ si }) =>
+        const bds = await obtenir<string[]>(({ siLongueurAuMoins }) =>
           constl.nuées.suivreBds({
             idNuée,
-            f: si((x) => !!x && x.length >= 3),
+            f: siLongueurAuMoins(3),
             héritage: { ascendance: true },
           }),
         );
@@ -3876,20 +3944,20 @@ describe("Nuées", function () {
       });
 
       it("descendance", async () => {
-        const bds = await obtenir<string[]>(({ si }) =>
+        const bds = await obtenir<string[]>(({ siLongueurAuMoins }) =>
           constl.nuées.suivreBds({
             idNuée,
-            f: si((x) => !!x && x.length >= 2),
+            f: siLongueurAuMoins(2),
             héritage: { descendance: true },
           }),
         );
 
         expect(bds).to.have.members([idBdNuée, idBdNuéeEnfant]);
 
-        const bdsNuéeParent = await obtenir<string[]>(({ si }) =>
+        const bdsNuéeParent = await obtenir<string[]>(({ siLongueurAuMoins }) =>
           constl.nuées.suivreBds({
             idNuée: idNuéeParent,
-            f: si((x) => !!x && x.length >= 4),
+            f: siLongueurAuMoins(4),
             héritage: { descendance: true },
           }),
         );
@@ -3903,10 +3971,10 @@ describe("Nuées", function () {
       });
 
       it("ascendance et descendance", async () => {
-        const bds = await obtenir<string[]>(({ si }) =>
+        const bds = await obtenir<string[]>(({ siLongueurAuMoins }) =>
           constl.nuées.suivreBds({
             idNuée,
-            f: si((x) => !!x && x.length >= 4),
+            f: siLongueurAuMoins(4),
             héritage: { ascendance: true, descendance: true },
           }),
         );
@@ -4051,13 +4119,14 @@ describe("Nuées", function () {
           ...élémentsPourNuéeParent,
         ];
 
-        const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
-          constl.nuées.tableaux.suivreDonnées({
-            idStructure: idNuée,
-            idTableau,
-            héritage: { ascendance: true },
-            f: si((x) => !!x && x.length >= réf.length),
-          }),
+        const données = await obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.tableaux.suivreDonnées({
+              idStructure: idNuée,
+              idTableau,
+              héritage: { ascendance: true },
+              f: siLongueurAuMoins(réf.length),
+            }),
         );
 
         expect(données).to.have.deep.members(réf);
@@ -4069,13 +4138,14 @@ describe("Nuées", function () {
           ...élémentsPourNuéeEnfant,
         ];
 
-        const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
-          constl.nuées.tableaux.suivreDonnées({
-            idStructure: idNuée,
-            idTableau,
-            héritage: { descendance: true },
-            f: si((x) => !!x && x.length >= réf.length),
-          }),
+        const données = await obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.tableaux.suivreDonnées({
+              idStructure: idNuée,
+              idTableau,
+              héritage: { descendance: true },
+              f: siLongueurAuMoins(réf.length),
+            }),
         );
 
         expect(données).to.have.deep.members(réf);
@@ -4088,13 +4158,14 @@ describe("Nuées", function () {
           ...élémentsPourNuéeEnfant,
         ];
 
-        const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
-          constl.nuées.tableaux.suivreDonnées({
-            idStructure: idNuée,
-            idTableau,
-            héritage: { descendance: true, ascendance: true },
-            f: si((x) => !!x && x.length >= réf.length),
-          }),
+        const données = await obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.tableaux.suivreDonnées({
+              idStructure: idNuée,
+              idTableau,
+              héritage: { descendance: true, ascendance: true },
+              f: siLongueurAuMoins(réf.length),
+            }),
         );
 
         expect(données).to.have.deep.members(réf);
@@ -4114,13 +4185,14 @@ describe("Nuées", function () {
           ...élémentsPourNuéeEnfant,
         ];
 
-        const données = await obtenir<DonnéesRangéeNuée[]>(({ si }) =>
-          constl.nuées.tableaux.suivreDonnées({
-            idStructure: idNuéeParent,
-            idTableau,
-            héritage: { descendance: true, ascendance: true },
-            f: si((x) => !!x && x.length >= réf.length),
-          }),
+        const données = await obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.tableaux.suivreDonnées({
+              idStructure: idNuéeParent,
+              idTableau,
+              héritage: { descendance: true, ascendance: true },
+              f: siLongueurAuMoins(réf.length),
+            }),
         );
         expect(données).to.have.deep.members(réf);
       });
@@ -4667,6 +4739,8 @@ describe("Nuées", function () {
 
       let idColonneFichier: string;
       let idColonneNumérique: string;
+      let éléments: ÉlémentDonnéesTableau[];
+      let idsÉléments: string[];
 
       let données: DonnéesFichierBdExportées;
 
@@ -4692,7 +4766,7 @@ describe("Nuées", function () {
 
         idColonneNumérique = await constl.nuées.tableaux.ajouterColonne({
           idStructure: idNuée,
-          idTableau: idTableau2,
+          idTableau: idTableau1,
         });
 
         const schéma = await constl.nuées.créerSchémaDeNuée({
@@ -4701,10 +4775,11 @@ describe("Nuées", function () {
         });
         idBd = await constl.bds.créerBdDeSchéma({ schéma });
 
-        await constl.bds.tableaux.ajouterÉléments({
+        éléments = [{ [idColonneFichier]: idc, [idColonneNumérique]: 123 }];
+        idsÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
           idTableau: idTableau1,
-          éléments: [{ [idColonneFichier]: idc, [idColonneNumérique]: 123 }],
+          éléments,
         });
 
         données = await constl.nuées.exporterDonnées({ idNuée });
@@ -4728,6 +4803,16 @@ describe("Nuées", function () {
           nomTableau1,
           idTableau2.slice(0, 30),
         ]);
+      });
+
+      it("données - éléments tableaux", async () => {
+        vérifierDonnéesBd(données.docu, {
+          [nomTableau1]: éléments.map((rangée, i) => ({
+            ...rangée,
+            idBd,
+            id: idsÉléments[i],
+          })),
+        });
       });
 
       it("données - fichiers SFIP", async () => {
@@ -4830,7 +4915,7 @@ describe("Nuées", function () {
 
       after(async () => {
         if (effacer) effacer();
-        horloge?.restore()
+        horloge?.restore();
       });
 
       it("le fichier zip existe", async () => {
@@ -4896,7 +4981,7 @@ describe("Nuées", function () {
           formatDocu: "ods",
         });
         await horloge.tickAsync(5000 * 1.5);
-        await attente
+        await attente;
 
         const nomZip = join(dossier, nomFichierTest + ".zip");
         zip = await JSZip.loadAsync(readFileSync(nomZip));

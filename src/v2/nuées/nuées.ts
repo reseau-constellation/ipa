@@ -859,7 +859,7 @@ export class Nuées extends ObjetConstellation<
                   épingle: épingleBds.épingle,
                 },
               },
-              f: async bds => await fSuivreBranche([...bds]),
+              f: async (bds) => await fSuivreBranche([...bds]),
             });
           else return faisRien;
         },
