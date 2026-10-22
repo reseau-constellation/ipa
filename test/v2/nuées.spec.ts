@@ -1989,23 +1989,23 @@ describe("Nuées", function () {
     });
   });
 
-  describe.skip("données sur le réseau", function () {
-    let fermerConstlTest: Oublier;
-    let constlsTest: Constellation[];
-
-    before(async () => {
-      ({ constls: constlsTest, fermer: fermerConstlTest } =
-        await créerConstellationsTest({
-          n: 2,
-          persistante: true,
-        }));
-    });
-
-    after(async () => {
-      if (fermerConstlTest) await fermerConstlTest();
-    });
-
+  describe("données sur le réseau", function () {
     describe("persistance données", function () {
+      let fermerConstlTest: Oublier;
+      let constlsTest: Constellation[];
+  
+      before(async () => {
+        ({ constls: constlsTest, fermer: fermerConstlTest } =
+          await créerConstellationsTest({
+            n: 2,
+            persistante: true,
+          }));
+      });
+  
+      after(async () => {
+        if (fermerConstlTest) await fermerConstlTest();
+      });
+
       let idNuée: string;
       let idBd: string;
       let idTableau: string;
@@ -2055,6 +2055,15 @@ describe("Nuées", function () {
       });
 
       it("persistance après fermeture compte bd", async () => {
+        // Données détectées sur le compte 1
+        await obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constlsTest[0].nuées.tableaux.suivreDonnées({
+              idStructure: idNuée,
+              idTableau,
+              f: siLongueurAuMoins(réf.length),
+            }),
+        );
         // Compte 2 ferme
         await constlsTest[1].fermer();
 
@@ -2100,7 +2109,22 @@ describe("Nuées", function () {
       });
     });
 
-    describe.skip("transmission données", function () {
+    describe("transmission données", function () {
+      let fermerConstlTest: Oublier;
+      let constlsTest: Constellation[];
+  
+      before(async () => {
+        ({ constls: constlsTest, fermer: fermerConstlTest } =
+          await créerConstellationsTest({
+            n: 2,
+            persistante: true,
+          }));
+      });
+  
+      after(async () => {
+        if (fermerConstlTest) await fermerConstlTest();
+      });
+
       let idNuée: string;
       let idBd: string;
       let idTableau: string;
@@ -2156,7 +2180,7 @@ describe("Nuées", function () {
         if (effacerDossierCompte3) effacerDossierCompte3();
       });
 
-      it("transmission données", async () => {
+      it.skip("transmission données", async () => {
         // Attendre que les données du compte 2 soient bien syncronisées sur le compte 1
         await obtenir<DonnéesRangéeNuée[]>(({ siLongueurAuMoins }) =>
           constlsTest[0].nuées.tableaux.suivreDonnées({
@@ -2184,7 +2208,7 @@ describe("Nuées", function () {
         });
 
         // Compte 3 accède aux données de compte 2
-        const donnéesSurCompte3 = obtenir<DonnéesRangéeNuée[]>(
+        const donnéesSurCompte3 = await obtenir<DonnéesRangéeNuée[]>(
           ({ siLongueurAuMoins }) =>
             compte3.nuées.tableaux.suivreDonnées({
               idStructure: idNuée,
