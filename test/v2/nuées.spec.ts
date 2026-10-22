@@ -4943,22 +4943,16 @@ describe("Nuées", function () {
       });
 
       it("le fichier zip existe", async () => {
+        const promesseExporter = constl.nuées.exporterÀFichier({
+          idNuée,
+          nomFichier,
+          dossier,
+          formatDocu: "ods",
+        })
         if (isBrowser || isElectronRenderer) {
-          await expect(
-            constl.nuées.exporterÀFichier({
-              idNuée,
-              nomFichier,
-              dossier,
-              formatDocu: "ods",
-            }),
-          ).to.eventually.be.rejectedWith("showSaveFilePicker");
+          await expect(promesseExporter).to.eventually.be.rejectedWith("showSaveFilePicker");
         } else {
-          await constl.nuées.exporterÀFichier({
-            idNuée,
-            nomFichier,
-            dossier,
-            formatDocu: "ods",
-          });
+          await promesseExporter;
 
           const nomZip = join(dossier, nomFichier + ".zip");
           expect(existsSync(nomZip)).to.be.true();
