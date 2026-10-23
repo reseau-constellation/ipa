@@ -409,7 +409,7 @@ export class Nuées extends ObjetConstellation<
       autorisation: {
         type: autorisation,
       },
-      parent,
+      parent: parent ? enleverPréfixesEtOrbite(parent) : undefined,
     });
 
     await this.ajouterÀMesNuées({ idNuée, épingler });
