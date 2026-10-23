@@ -219,14 +219,11 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
         }): Promise<{ fOublier: Oublier; profondeur: (p: number) => void }> => {
           const { oublier, profondeur: changerProfondeur } =
             await réseau.suivreComptes({
-              f: (liste) => {
-                fSuivreRacine(
+              f: (liste) => fSuivreRacine(
                   liste
                     // On ignore les membres bloqués directement ou avec un score négatif
-                    .filter(({ confiance }) => confiance >= 0),
-                );
-              },
-              profondeur: PROFONDEUR_MINIMALE_RECHERCHE,
+                    .filter(({ confiance }) => confiance >= 0).map(({ profondeur, idCompte })=>({ profondeur, idCompte })),
+                ),
             });
           return { profondeur: changerProfondeur, fOublier: oublier };
         },
