@@ -196,7 +196,7 @@ export class CacheSuivi {
         `Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`,
       );
 
-    const codeCache = await this.générerCodeCache({
+    const codeCache = this.générerCodeCache({
       adresseFonction,
       idInstance,
       argsClefs: argsSansFOuTaille,
