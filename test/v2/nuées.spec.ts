@@ -4140,16 +4140,17 @@ describe("Nuées", function () {
       });
 
       it("données nuée", async () => {
-        const données = await obtenir<DonnéesRangéeNuée[]>(({ siPasVide }) =>
+        const réf: DonnéesRangéeNuée[] = élémentsPourNuée;
+
+        const données = await obtenir<DonnéesRangéeNuée[]>(({ siLongueurAuMoins }) =>
           constl.nuées.tableaux.suivreDonnées({
             idStructure: idNuée,
             idTableau,
             héritage: {},
-            f: siPasVide(),
+            f: siLongueurAuMoins(réf.length),
           }),
         );
 
-        const réf: DonnéesRangéeNuée[] = élémentsPourNuée;
         expect(données).to.have.deep.members(réf);
       });
 
