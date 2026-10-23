@@ -13,7 +13,7 @@ export class CacheSuivi {
     string,
     {
       val?: unknown;
-      requêtes: { [clef: string]: Suivi<unknown> };
+      requêtes: Map<string, Suivi<unknown>>;
       oublier?: Oublier;
     }
   >;
@@ -22,9 +22,7 @@ export class CacheSuivi {
     {
       val?: unknown[];
       taillePrésente: number;
-      requêtes: {
-        [clef: string]: { f: Suivi<unknown>; taille: number };
-      };
+      requêtes: Map<string, { f: Suivi<unknown>; taille: number }>;
       fs?: RetourRecherche;
     }
   >;
@@ -112,45 +110,56 @@ export class CacheSuivi {
     });
     const idRequête = uuidv4();
 
-    await this.verrou.acquire(codeCache);
+    const ajouterAuSuivi = (suiviExistant: Exclude<ReturnType<CacheSuivi["suivis"]["get"]>, undefined>) => {
+      suiviExistant.requêtes.set(idRequête, f);
+      if (Object.keys(suiviExistant).includes("val")) f(suiviExistant.val); // Différentier `val` absent de `val === undefined`
+    }
 
     // Vérifier si déjà en cache
-    const suivi = this.suivis.get(codeCache);
+    let suivi = this.suivis.get(codeCache);
     if (suivi) {
-      this.verrou.release(codeCache);
-
       // Ajouter f à la liste de fonctions de rappel
-      suivi.requêtes[idRequête] = f;
-      if (Object.keys(suivi).includes("val")) f(suivi.val); // Différentier `val` absent de `val === undefined`
+        ajouterAuSuivi(suivi)
     } else {
       try {
-        // Si pas en cache, générer
-        this.suivis.set(codeCache, {
-          requêtes: { [idRequête]: f },
-        });
-
-        const fFinale = async (x: unknown) => {
-          const suivi = this.suivis.get(codeCache);
-          if (!suivi) return; // Si on a déjà annulé la requête
-
-          if (Object.keys(suivi).includes("val") && deepEqual(suivi.val, x))
-            return; // Ignorer si c'est la même valeur qu'avant
-
-          suivi.val = x;
-          const fsSuivis = Object.values(suivi.requêtes);
-          await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
-        };
-        const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
-        this.suivis.get(codeCache)!.oublier = await fOriginale.apply(
-          ceciOriginal,
-          [argsAvecF],
-        );
+        await this.verrou.acquire(codeCache);
+        suivi = this.suivis.get(codeCache);
+        if (suivi) {
+          ajouterAuSuivi(suivi)
+        } else {
+          // Si pas en cache, générer
+          const requêtes = new Map()
+          requêtes.set(idRequête, f)
+          this.suivis.set(codeCache, {
+            requêtes,
+          });
+  
+          const fFinale = async (x: unknown) => {
+            const suivi = this.suivis.get(codeCache);
+            if (!suivi) return; // Si on a déjà annulé la requête
+  
+            if (Object.keys(suivi).includes("val") && deepEqual(suivi.val, x))
+              return; // Ignorer si c'est la même valeur qu'avant
+  
+            suivi.val = x;
+            const fsSuivis = suivi.requêtes.values();
+            await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
+          };
+          const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
+          this.suivis.get(codeCache)!.oublier = await fOriginale.apply(
+            ceciOriginal,
+            [argsAvecF],
+          );
+        }
       } finally {
         this.verrou.release(codeCache);
       }
     }
 
+    let oublié = false
     const oublierRequête = async () => {
+      if (oublié) throw new Error("oublié en double" + idRequête + codeCache)
+      oublié = true
       await this.oublierSuivi({ codeCache, idRequête });
     };
 
@@ -207,7 +216,8 @@ export class CacheSuivi {
       const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
       recherche.val = val;
-      const infoRequêtes = Object.values(recherche.requêtes);
+      const infoRequêtes = recherche.requêtes.values();
+
       await Promise.allSettled(
         infoRequêtes.map(
           async (info) => await info.f(sélection(info.taille, val)),
@@ -215,12 +225,12 @@ export class CacheSuivi {
       );
     };
 
-    const actualiserTaille = async () => {
+    const actualiserTaille = () => {
       const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
 
       const maxTaille = Math.max(
-        ...Object.values(recherche.requêtes).map((r) => r.taille),
+        ...recherche.requêtes.values().map((r) => r.taille),
       );
       const taille = recherche.fs![nomArgTaille];
 
@@ -234,49 +244,59 @@ export class CacheSuivi {
       const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
 
-      const tailleAvant = recherche.requêtes[idRequête].taille;
+      const requête = recherche.requêtes.get(idRequête)
+      if (!requête) throw new Error(`Recherche déjà annulée.`)
+
+      const tailleAvant = requête.taille;
 
       if (taille === tailleAvant) return;
-      recherche.requêtes[idRequête].taille = taille;
+      requête.taille = taille;
       const { val } = recherche;
       if (val) await fFinale(val as R[]);
       actualiserTaille();
     };
 
-    await this.verrou.acquire(codeCache);
+    const ajouterAuSuiviRecherche = (suiviExistant: Exclude<ReturnType<CacheSuivi["recherches"]["get"]>, undefined>) => {
+      suiviExistant.requêtes.set(idRequête, { f, taille });
+      actualiserTaille();
+      if (Object.keys(suiviExistant).includes("val")) fFinale(suiviExistant.val as R[]);
+    }
 
-    try {
-      const recherche = this.recherches.get(codeCache);
-      // Vérifier si déjà en cache
-      if (!recherche) {
-        // Si pas en cache, générer
-        this.recherches.set(codeCache, {
-          requêtes: { [idRequête]: { f, taille } },
-          taillePrésente: taille,
-        });
+    let recherche = this.recherches.get(codeCache);
+    
+    // Vérifier si déjà en cache
+    if (recherche) {
+      // Si présent, ajouter f à la liste de fonctions de rappel
+      ajouterAuSuiviRecherche(recherche)
+    } else {
+      await this.verrou.acquire(codeCache);
+      recherche = this.recherches.get(codeCache)
+      try {
+        if (recherche) {
+          ajouterAuSuiviRecherche(recherche)
+        } else {
+          // Si pas en cache, générer
+          const requêtes = new Map();
+          requêtes.set(idRequête, { f, taille });
+          this.recherches.set(codeCache, {
+            requêtes,
+            taillePrésente: taille,
+          });
 
-        const argsComplets = {
-          ...argsSansFOuTaille,
-          [nomArgFonction]: fFinale,
-          [nomArgTaille]: taille,
-        };
+          const argsComplets = {
+            ...argsSansFOuTaille,
+            [nomArgFonction]: fFinale,
+            [nomArgTaille]: taille,
+          };
 
-        this.recherches.get(codeCache)!.fs = await fOriginale.apply(
-          ceciOriginal,
-          [argsComplets],
-        );
-      } else {
-        // Sinon, ajouter f à la liste de fonctions de rappel
-        recherche.requêtes[idRequête] = { f, taille };
-        if (Object.keys(recherche).includes("val")) {
-          await actualiserTaille();
-          const { val } = recherche;
-
-          if (val) await fFinale(val as R[]);
+          this.recherches.get(codeCache)!.fs = await fOriginale.apply(
+            ceciOriginal,
+            [argsComplets],
+          );
         }
+      } finally {
+        this.verrou.release(codeCache);
       }
-    } finally {
-      this.verrou.release(codeCache);
     }
 
     const oublierRequête = async () => {
@@ -297,12 +317,12 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     const { requêtes, oublier } = this.suivis.get(codeCache)!;
-    delete requêtes[idRequête];
-    
-    if (!Object.keys(requêtes).length) {
+    requêtes.delete(idRequête);
+
+    if (!requêtes.size) {
       try {
         await this.verrou.acquire(codeCache);
-        if (!Object.keys(requêtes).length) {
+        if (!requêtes.size) {
           await oublier?.();
           this.suivis.delete(codeCache);
         }
@@ -320,12 +340,12 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     const { requêtes, fs } = this.recherches.get(codeCache)!;
-    delete requêtes[idRequête];
+    requêtes.delete(idRequête);
     
-    if (!Object.keys(requêtes).length) {
+    if (!requêtes.size) {
       try {
         await this.verrou.acquire(codeCache);
-        if (!Object.keys(requêtes).length) {
+        if (!requêtes.size) {
           await fs?.oublier();
           this.recherches.delete(codeCache);
         }
@@ -346,6 +366,7 @@ export class CacheSuivi {
   }): string {
     const texte =
       adresseFonction + "-" + idInstance + "-" + JSON.stringify(argsClefs);
+      return texte
     return base64.fromString(sha256(texte), true);
   }
 }
@@ -388,12 +409,12 @@ export const cacheRechercheParProfondeur = <T>(
 
 const map = new WeakMap();
 
-const idUnique = (object: WeakKey) => {
-  if (!map.has(object)) {
-    map.set(object, uuidv4());
+const idUnique = (objet: WeakKey) => {
+  if (!map.has(objet)) {
+    map.set(objet, uuidv4());
   }
 
-  return map.get(object);
+  return map.get(objet);
 };
 
 export const envelopper = <T>({
