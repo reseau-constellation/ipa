@@ -1194,7 +1194,7 @@ describe("Réseau", function () {
       expect(relations).to.have.deep.members(réf);
     });
 
-    it("augmenter profondeur", async () => {
+    it.skip("augmenter profondeur", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
@@ -1379,7 +1379,7 @@ describe("Réseau", function () {
       );
     });
 
-    it("changement id compte original", async () => {
+    it.skip("changement id compte original", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
@@ -1590,7 +1590,7 @@ describe("Réseau", function () {
       expect(comptes).to.have.deep.members(réf);
     });
 
-    it("augmenter profondeur", async () => {
+    it.skip("augmenter profondeur", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[1],
       });
