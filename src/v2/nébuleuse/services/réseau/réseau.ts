@@ -793,7 +793,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     };
   }
 
-  // @cacheRechercheParProfondeur
+  @cacheRechercheParProfondeur
   async suivreComptes({
     f,
     profondeur: profonfeurInitiale,
@@ -807,7 +807,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       comptes: CompteRéseau[];
       monCompte: string;
     } = { pairs: [], comptes: [], monCompte: await compte.obtIdCompte() };
-
+    
     const fFinale = async () => {
       const comptes: CompteRéseau[] = [
         {

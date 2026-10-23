@@ -1128,7 +1128,6 @@ describe("Nuées", function () {
   });
 
   describe("épingles", function () {
-
     it("épinglée par défaut", async () => {
       const idNuée = await constl.nuées.créerNuée();
 

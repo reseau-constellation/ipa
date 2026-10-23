@@ -86,6 +86,7 @@ export const appelerLorsque = <
   const listeÉvénements = Array.isArray(événement) ? événement : [événement];
 
   listeÉvénements.forEach((é) => émetteur.on(é, fFinale as L[U]));
+
   return async () => {
     listeÉvénements.forEach((é) => émetteur.off(é, fFinale as L[U]));
     await Promise.allSettled(promesses);
