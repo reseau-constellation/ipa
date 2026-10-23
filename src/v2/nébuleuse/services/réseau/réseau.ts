@@ -1251,7 +1251,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           // Oublier les comptes trop profonds (en raison de déconnexion de lien de confiance ou bien de changement de profondeur)
           const ceuxDontOnVeutOublierLesRelations = Object.keys(
             relationsImmédiates,
-          ).filter((id) => !ceuxDontOnVeutSuivreLesRelations.includes(id));
+          ).filter((id) => !ceuxDontOnVeutSuivreLesRelations.includes(id) && id !== idCompte);
           await Promise.all(
             ceuxDontOnVeutOublierLesRelations.map((id) =>
               relationsImmédiates[id].oublier?.(),
