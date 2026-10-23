@@ -2460,7 +2460,7 @@ describe("Automatisations", function () {
           vérifierDonnéesTableau(fichier, nomTableauFra, éléments);
         });
 
-        it("fichiers exportés", async () => {
+        it("fichiers exportées", async () => {
           const dossierTest = join(dossier, uuidv4());
           const fichierZip = join(dossierTest, nomTableauFra + ".zip");
 
@@ -2522,7 +2522,7 @@ describe("Automatisations", function () {
           vérifierDonnéesBd(fichier, { [nomTableauFra]: éléments });
         });
 
-        it("fichiers exportés", async () => {
+        it("fichiers exportées", async () => {
           const dossierTest = join(dossier, uuidv4());
           const fichierZip = join(dossierTest, nomBdத + ".zip");
 
@@ -2610,7 +2610,7 @@ describe("Automatisations", function () {
           });
         });
 
-        it("fichiers exportés", async () => {
+        it("fichiers exportées", async () => {
           const dossierTest = join(dossier, uuidv4());
           const fichierZip = join(dossierTest, nomNuée + ".zip");
 
@@ -2701,7 +2701,7 @@ describe("Automatisations", function () {
           });
         });
 
-        it("fichiers exportés", async () => {
+        it("fichiers exportées", async () => {
           const dossierTest = join(dossier, uuidv4());
           const fichierZip = join(dossierTest, nomProjet + ".zip");
 
