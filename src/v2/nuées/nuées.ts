@@ -1784,7 +1784,7 @@ export class Nuées extends ObjetConstellation<
     };
 
     const suivreAscendants = async ({
-      idNuée,
+      idNuée: idNuéeASuivre,
       f,
       ascendance = [],
     }: {
@@ -1795,15 +1795,16 @@ export class Nuées extends ObjetConstellation<
       return suivreFonctionImbriquée({
         fRacine: async ({ fSuivreRacine }) =>
           await suivreParent({
-            idNuée,
+            idNuée: idNuéeASuivre,
             f: async (parent) => {
               // Briser circulairités éventuelles
               return await fSuivreRacine(
-                parent && !ascendance.includes(parent) ? parent : undefined,
+                parent && !ascendance.includes(parent) || parent === idNuée ? parent : undefined,
               );
             },
           }),
         fSuivre: async ({ id: idParent, fSuivre }) => {
+          await fSuivre([idParent])
           return await suivreAscendants({
             idNuée: idParent,
             f: (ascendants) => fSuivre([idParent, ...ascendants]),
