@@ -2830,6 +2830,23 @@ describe("Nuées", function () {
         idNuée,
       ]);
     });
+
+    it("résolution même si ascendance indisponible", async () => {
+      const idNuéeEnfant = await constl.nuées.créerNuée({ parent: idNuée });
+      const idPetitEnfant = await constl.nuées.créerNuée({
+        parent: idNuéeEnfant,
+      });
+      const idNuéeIndisponible = "/constl/nuées/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      await constl.nuées.préciserParent({ idNuée, idNuéeParent: idNuéeIndisponible })
+
+      const descendants = await obtenir<string[]>(({ siLongueurAuMoins }) =>
+        constl.nuées.suivreDescendants({
+          idNuée,
+          f: siLongueurAuMoins(2),
+        }),
+      );
+      expect(descendants).to.have.members([idNuéeEnfant, idPetitEnfant]);
+    });
   });
 
   describe("héritage", function () {
