@@ -1292,31 +1292,24 @@ describe("Nuées", function () {
     });
 
     it("résoudre épingle - fichiers", async () => {
-      console.log("ici 0")
       const idNuée = await constl.nuées.créerNuée();
-      console.log("ici 1")
-      
+
       const idTableau = await constl.nuées.ajouterTableau({ idNuée });
-      console.log("ici 2")
       const idVariable = await constl.variables.créerVariable({
         catégorie: "fichier",
       });
-      console.log("ici 3")
       const idColonne = await constl.nuées.tableaux.ajouterColonne({
         idStructure: idNuée,
         idTableau,
         idVariable,
       });
-      console.log("ici 4")
-      
+
       const schéma = await constl.nuées.créerSchémaDeNuée({
         idNuée,
         licence: "ODbl-1_0",
       });
-      
-      console.log("ici 5")
+
       const idBd = await constl.bds.créerBdDeSchéma({ schéma });
-      console.log("ici 6")
 
       const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4";
       await constl.bds.tableaux.ajouterÉléments({
@@ -1324,12 +1317,12 @@ describe("Nuées", function () {
         idTableau,
         éléments: [{ [idColonne]: idc }],
       });
-      console.log("ici hmm")
+
       const idDonnéesTableau = await constl.bds.tableaux.obtIdDonnées({
         idStructure: idBd,
         idTableau,
       });
-      console.log({idDonnéesTableau})
+
       const résolution = await obtenir<Set<string>>(({ si }) =>
         constl.nuées.suivreRésolutionÉpingle({
           épingle: {
