@@ -334,7 +334,7 @@ export class Bds extends ObjetConstellation<
       }),
     );
 
-    await Promise.all(
+    await Promise.allSettled(
       tableaux.map(
         async (idTableau) =>
           await this.tableaux.effacerTableau({ idStructure: idBd, idTableau }),
