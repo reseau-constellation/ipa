@@ -624,7 +624,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       },
     });
     return async () => {
-      await Promise.all([oublierIdDispositif(), oublierConnexionsLibp2p()]);
+      await Promise.allSettled([oublierIdDispositif(), oublierConnexionsLibp2p()]);
     };
   }
 
@@ -684,7 +684,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     );
 
     return async () => {
-      await Promise.all([
+      await Promise.allSettled([
         oublierConnexionsPairs(),
         oublierConnexionsDispositifs(),
       ]);
@@ -1252,7 +1252,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           const ceuxDontOnVeutOublierLesRelations = Object.keys(
             relationsImmédiates,
           ).filter((id) => !ceuxDontOnVeutSuivreLesRelations.includes(id) && id !== idCompte);
-          await Promise.all(
+          await Promise.allSettled(
             ceuxDontOnVeutOublierLesRelations.map((id) =>
               relationsImmédiates[id].oublier?.(),
             ),
