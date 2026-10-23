@@ -2045,8 +2045,7 @@ export class Nuées extends ObjetConstellation<
       àOublierObjectif.push(oublierAuteurs);
 
       return async () => {
-        await Promise.allSettled(àOublierObjectif.map((f) => f()));
-        await oublierIdCompte();
+        await Promise.allSettled([...àOublierObjectif.map((f) => f()), oublierIdCompte()]);
       };
     };
 
