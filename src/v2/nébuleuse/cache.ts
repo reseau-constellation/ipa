@@ -296,22 +296,19 @@ export class CacheSuivi {
     codeCache: string;
     idRequête: string;
   }) {
-    await this.verrou.acquire(codeCache);
-
-    if (!this.suivis.has(codeCache)) {
-      this.verrou.release(codeCache);
-      return;
-    }
-    try {
-      const { requêtes, oublier } = this.suivis.get(codeCache)!;
-      delete requêtes[idRequête];
-
-      if (!Object.keys(requêtes).length) {
-        await oublier?.();
-        this.suivis.delete(codeCache);
+    const { requêtes, oublier } = this.suivis.get(codeCache)!;
+    delete requêtes[idRequête];
+    
+    if (!Object.keys(requêtes).length) {
+      try {
+        await this.verrou.acquire(codeCache);
+        if (!Object.keys(requêtes).length) {
+          await oublier?.();
+          this.suivis.delete(codeCache);
+        }
+      } finally {
+        this.verrou.release(codeCache);
       }
-    } finally {
-      this.verrou.release(codeCache);
     }
   }
 
@@ -322,21 +319,19 @@ export class CacheSuivi {
     codeCache: string;
     idRequête: string;
   }) {
-    await this.verrou.acquire(codeCache);
-    if (!this.recherches.has(codeCache)) {
-      this.verrou.release(codeCache);
-      return;
-    }
-    try {
-      const { requêtes, fs } = this.recherches.get(codeCache)!;
-      delete requêtes[idRequête];
-
-      if (!Object.keys(requêtes).length) {
-        await fs?.oublier();
-        this.recherches.delete(codeCache);
+    const { requêtes, fs } = this.recherches.get(codeCache)!;
+    delete requêtes[idRequête];
+    
+    if (!Object.keys(requêtes).length) {
+      try {
+        await this.verrou.acquire(codeCache);
+        if (!Object.keys(requêtes).length) {
+          await fs?.oublier();
+          this.recherches.delete(codeCache);
+        }
+      } finally {
+        this.verrou.release(codeCache);
       }
-    } finally {
-      this.verrou.release(codeCache);
     }
   }
 
