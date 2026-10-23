@@ -1678,6 +1678,7 @@ describe("Nuées", function () {
 
     it("bd exclue si pas autorisée", async () => {
       await constl.bds.rejoindreNuée({ idBd, idNuée });
+
       await obtenir(({ siPasVide }) =>
         constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
       );
