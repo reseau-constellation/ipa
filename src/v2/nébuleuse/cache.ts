@@ -232,26 +232,28 @@ export class CacheSuivi {
       const maxTaille = Math.max(
         ...recherche.requêtes.values().map((r) => r.taille),
       );
-      const taille = recherche.fs![nomArgTaille];
 
       if (maxTaille !== recherche.taillePrésente) {
         recherche.taillePrésente = maxTaille;
+        const taille = recherche.fs![nomArgTaille];
         taille(maxTaille);
       }
     };
 
     const fChangerTailleRequête = async (taille: number) => {
+      
       const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
 
       const requête = recherche.requêtes.get(idRequête)
-      if (!requête) throw new Error(`Recherche déjà annulée.`)
+      if (!requête) return
 
       const tailleAvant = requête.taille;
 
       if (taille === tailleAvant) return;
       requête.taille = taille;
       const { val } = recherche;
+
       if (val) await fFinale(val as R[]);
       actualiserTaille();
     };
