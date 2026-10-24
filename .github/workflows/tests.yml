@@ -1,4 +1,7 @@
 name: Tests IPA
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -32,13 +35,11 @@ jobs:
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       - name: Préparation de Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22.16.0"
+          node-version: "24.4.1"
           cache: 'pnpm'
 
       - name: Installer
@@ -58,6 +59,7 @@ jobs:
   test-ipa-navig:
     name: IPA sur le navigateur
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
@@ -68,13 +70,11 @@ jobs:
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       - name: Préparation de Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22.16.0"
+          node-version: "24.4.1"
           cache: 'pnpm'
 
       - name: Installer
@@ -95,6 +95,7 @@ jobs:
     name: IPA sur Électron principal
     needs: test-ipa-nodejs
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -105,13 +106,11 @@ jobs:
 
       - name: Installer pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: latest
 
       - name: Préparation de Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "22.16.0"
+          node-version: "24.4.1"
           cache: 'pnpm'
 
       - name: Installer
@@ -127,6 +126,41 @@ jobs:
 
       - run: pnpm run test:électron-principal
         if: matrix.os != 'ubuntu-latest'
+
+      - name: Envoyer couverture à Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+  
+  test-ipa-deno:
+    name: IPA sur Déno
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      
+      - name: Ouvrir la branche
+        uses: actions/checkout@v6
+
+      - name: Installer pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Préparation de Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24.4.1"
+          cache: 'pnpm'
+
+      - name: Installer
+        run: pnpm install
+
+      - name: Installer playwright
+        run: npx playwright install
+
+      - name: Vérifier les tests
+        run: pnpm run test:déno
 
       - name: Envoyer couverture à Codecov
         uses: codecov/codecov-action@v6
