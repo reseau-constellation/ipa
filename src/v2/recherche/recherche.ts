@@ -116,7 +116,7 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
       });
 
       return Math.max(
-        estiméProfondeurNécessaire ?? 0,
+        estiméProfondeurNécessaire ?? Infinity,
         PROFONDEUR_MINIMALE_RECHERCHE,
       );
     };
