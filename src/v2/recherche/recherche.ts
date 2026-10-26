@@ -371,7 +371,7 @@ export abstract class RechercheObjets<
     }
   }
 
-  @cacheRechercheParProfondeur
+  @cacheSuivi
   async suivreConfianceAuteurs({
     idObjet,
     f,
