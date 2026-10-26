@@ -6,6 +6,7 @@ import { base64 } from "@hexagon/base64";
 
 import { sha256 } from "js-sha256";
 import type { Oublier, RetourRecherche, Suivi } from "./types.js";
+import { estUnePromesse } from "./services/utils.js";
 
 export class CacheSuivi {
   verrou: Semaphore;
@@ -13,7 +14,7 @@ export class CacheSuivi {
     string,
     {
       val?: unknown;
-      requêtes: Map<string, Suivi<unknown>>;
+      requêtes: Map<string, { f: Suivi<unknown>, promesses: Set<Promise<unknown>> }>;
       oublier?: Oublier;
     }
   >;
@@ -109,10 +110,17 @@ export class CacheSuivi {
       argsClefs: argsSansF,
     });
     const idRequête = uuidv4();
-
+    
     const ajouterAuSuivi = (suiviExistant: Exclude<ReturnType<CacheSuivi["suivis"]["get"]>, undefined>) => {
-      suiviExistant.requêtes.set(idRequête, f);
-      if (Object.keys(suiviExistant).includes("val")) f(suiviExistant.val); // Différentier `val` absent de `val === undefined`
+      const promessesF: Set<Promise<unknown>> = new Set();
+
+      suiviExistant.requêtes.set(idRequête, { f, promesses: promessesF });
+
+      if (Object.keys(suiviExistant).includes("val")) {
+        // Différentier `val` absent de `val === undefined`}
+        const p = f(suiviExistant.val)
+        if (estUnePromesse(p)) promessesF.add(p.finally(() => promessesF.delete(p)))
+      };
     }
 
     // Vérifier si déjà en cache
@@ -129,7 +137,7 @@ export class CacheSuivi {
         } else {
           // Si pas en cache, générer
           const requêtes = new Map()
-          requêtes.set(idRequête, f)
+          requêtes.set(idRequête, {f, promesses: new Set() })
           this.suivis.set(codeCache, {
             requêtes,
           });
@@ -143,7 +151,11 @@ export class CacheSuivi {
   
             suivi.val = x;
             const fsSuivis = suivi.requêtes.values();
-            await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
+
+            await Promise.allSettled(fsSuivis.map(({f: f_, promesses }) => {
+              const p = f_(x)
+              if (estUnePromesse(p)) promesses.add(p.finally(() => promesses.delete(p)))
+            }));
           };
           const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
           this.suivis.get(codeCache)!.oublier = await fOriginale.apply(
@@ -319,7 +331,9 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     const { requêtes, oublier } = this.suivis.get(codeCache)!;
+    const { promesses } = requêtes.get(idRequête) || {};
     requêtes.delete(idRequête);
+    if (promesses) await Promise.allSettled(promesses)
 
     if (!requêtes.size) {
       try {
