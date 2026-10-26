@@ -14,7 +14,7 @@ export class CacheSuivi {
     string,
     {
       val?: unknown;
-      requêtes: Map<string, { f: Suivi<unknown>, promesses: Set<Promise<unknown>> }>;
+      requêtes: Map<string, { f: Suivi<unknown>; promesses: Set<Promise<unknown>> }>;
       oublier?: Oublier;
     }
   >;
@@ -23,7 +23,7 @@ export class CacheSuivi {
     {
       val?: unknown[];
       taillePrésente: number;
-      requêtes: Map<string, { f: Suivi<unknown>; taille: number }>;
+      requêtes: Map<string, { f: Suivi<unknown>; taille: number; promesses: Set<Promise<unknown>> }>;
       fs?: RetourRecherche;
     }
   >;
@@ -155,6 +155,7 @@ export class CacheSuivi {
             await Promise.allSettled(fsSuivis.map(({f: f_, promesses }) => {
               const p = f_(x)
               if (estUnePromesse(p)) promesses.add(p.finally(() => promesses.delete(p)))
+              return p
             }));
           };
           const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
@@ -229,12 +230,13 @@ export class CacheSuivi {
       if (!recherche) return; // Si on a déjà annulé la requête
       recherche.val = val;
       const infoRequêtes = recherche.requêtes.values();
-
-      await Promise.allSettled(
-        infoRequêtes.map(
-          async (info) => await info.f(sélection(info.taille, val)),
-        ),
-      );
+      await Promise.allSettled(      infoRequêtes.map(
+        (info) => {
+          const p = info.f(sélection(info.taille, val))
+          if (estUnePromesse(p)) info.promesses.add(p.finally(()=>info.promesses.delete(p)))
+          return p
+        },
+      ));
     };
 
     const actualiserTaille = () => {
@@ -271,9 +273,13 @@ export class CacheSuivi {
     };
 
     const ajouterAuSuiviRecherche = (suiviExistant: Exclude<ReturnType<CacheSuivi["recherches"]["get"]>, undefined>) => {
-      suiviExistant.requêtes.set(idRequête, { f, taille });
+      const promesses: Set<Promise<unknown>> = new Set();
+      suiviExistant.requêtes.set(idRequête, { f, taille, promesses });
       actualiserTaille();
-      if (Object.keys(suiviExistant).includes("val")) fFinale(suiviExistant.val as R[]);
+      if (Object.keys(suiviExistant).includes("val")) {
+        const p = f(sélection(taille, suiviExistant.val as R[]))
+        if (estUnePromesse(p)) promesses.add(p.finally(()=>promesses.delete(p)))
+      };
     }
 
     let recherche = this.recherches.get(codeCache);
@@ -291,7 +297,8 @@ export class CacheSuivi {
         } else {
           // Si pas en cache, générer
           const requêtes = new Map();
-          requêtes.set(idRequête, { f, taille });
+          const promesses = new Set();
+          requêtes.set(idRequête, { f, taille, promesses });
           this.recherches.set(codeCache, {
             requêtes,
             taillePrésente: taille,
@@ -356,7 +363,9 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     const { requêtes, fs } = this.recherches.get(codeCache)!;
+    const { promesses } = requêtes.get(idRequête) || {};
     requêtes.delete(idRequête);
+    if (promesses) await Promise.allSettled(promesses)
     
     if (!requêtes.size) {
       try {
