@@ -494,7 +494,12 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     return await suivreDeFonctionListe({
       fListe: async ({ fSuivreRacine }) =>
         // À faire : utiliser l'option de changement de profondeur ?
-        (await réseau.suivreComptes({ f: async (comptes) => await fSuivreRacine(comptes.map(({idCompte})=>idCompte)) })).oublier,
+        (
+          await réseau.suivreComptes({
+            f: async (comptes) =>
+              await fSuivreRacine(comptes.map(({ idCompte }) => idCompte)),
+          })
+        ).oublier,
       fBranche: async ({ id: idCompte, fSuivreBranche }) =>
         await this.suivreFavoris({
           idCompte,
