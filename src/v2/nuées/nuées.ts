@@ -1799,12 +1799,14 @@ export class Nuées extends ObjetConstellation<
             f: async (parent) => {
               // Briser circulairités éventuelles
               return await fSuivreRacine(
-                parent && !ascendance.includes(parent) || parent === idNuée ? parent : undefined,
+                (parent && !ascendance.includes(parent)) || parent === idNuée
+                  ? parent
+                  : undefined,
               );
             },
           }),
         fSuivre: async ({ id: idParent, fSuivre }) => {
-          await fSuivre([idParent])
+          await fSuivre([idParent]);
           return await suivreAscendants({
             idNuée: idParent,
             f: (ascendants) => fSuivre([idParent, ...ascendants]),
@@ -2045,7 +2047,10 @@ export class Nuées extends ObjetConstellation<
       àOublierObjectif.push(oublierAuteurs);
 
       return async () => {
-        await Promise.allSettled([...àOublierObjectif.map((f) => f()), oublierIdCompte()]);
+        await Promise.allSettled([
+          ...àOublierObjectif.map((f) => f()),
+          oublierIdCompte(),
+        ]);
       };
     };
 
@@ -2205,9 +2210,11 @@ export class Nuées extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierAutorisation();
-      await oublierAuteurs();
-      await oublierAuteursNuée();
+      await Promise.allSettled([
+        oublierAutorisation(),
+        oublierAuteurs(),
+        oublierAuteursNuée(),
+      ]);
     };
   }
 
