@@ -1,0 +1,70 @@
+diff --git a/dist/fonctions.js b/dist/fonctions.js
+index ad8c88f4f7dcde2b7a8140c96a0b1f2aa7b9fc1b..410d004b1885c0031fcc7d8c461e6d24eecc9154 100644
+--- a/dist/fonctions.js
++++ b/dist/fonctions.js
+@@ -2,6 +2,10 @@ import PQueue from "p-queue";
+ import deepEqual from "fast-deep-equal";
+ import { TypedEmitter } from "tiny-typed-emitter";
+ import { AbortError } from "p-retry";
++
++export const estUnePromesse = (x) => {
++    return !!x && !!(x).then && !!(x).finally;
++  };
+ const ignorerErreurAvorté = (f) => {
+     return async (args) => {
+         try {
+@@ -197,17 +201,11 @@ export const suivreDeFonctionListe = async ({ fListe, f, fBranche, fIdDeBranche
+                 .map((é) => é[0]);
+             nouveaux.push(...changés);
+             nouveaux = [...new Set(nouveaux)];
+-            await Promise.allSettled(changés.map(async (c) => {
+-                if (arbre[c]) {
+-                    await arbre[c].fOublier?.();
+-                    delete arbre[c];
+-                }
+-            }));
+-            await Promise.allSettled(disparus.map(async (d) => {
+-                await arbre[d].fOublier?.();
+-                delete arbre[d];
+-            }));
+-            await Promise.all(nouveaux.map(async (n) => {
++            await Promise.allSettled(changés.map(async (c) => await arbre[c].fOublier()));
++
++            await Promise.allSettled(disparus.map(async (d) => await arbre[d].fOublier()));
++
++            await Promise.allSettled(nouveaux.map(async (n) => {
+                 arbre[n] = {
+                     déjàÉvaluée: false,
+                 };
+@@ -220,11 +218,17 @@ export const suivreDeFonctionListe = async ({ fListe, f, fBranche, fIdDeBranche
+                     await fFinale();
+                 };
+                 // Ignorer les erreurs d'avortement avant de passer au journal
+-                arbre[n].fOublier = await avecJournal(ignorerErreurAvorté(fBranche), journal)({
++                const oublierBranche = await avecJournal(ignorerErreurAvorté(fBranche), journal)({
+                     id: idBranche,
+                     fSuivreBranche,
+                     branche: élément,
+-                });
++                })
++                arbre[n].fOublier = async () => {
++                    const pOublier = oublierBranche()
++                    arbre[n].fOublier = pOublier
++                    await pOublier;
++                    delete arbre[n]
++                };
+             }));
+             if (pFinaleIntiale)
+                 await pFinaleIntiale;
+@@ -239,9 +243,9 @@ export const suivreDeFonctionListe = async ({ fListe, f, fBranche, fIdDeBranche
+     const fOublier = async () => {
+         await oublierRacine();
+         await queue.onIdle();
++        await pFinaleIntiale;
+         await Promise.allSettled([
+-            pFinaleIntiale,
+-            ...Object.values(arbre).map(async (x) => await x.fOublier?.()),
++            ...Object.values(arbre).map(async (x) => await (estUnePromesse(x.fOublier) ? x.fOublier : x.fOublier())),
+         ]);
+     };
+     if (typeof retourRacine === "function") {

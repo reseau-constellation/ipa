@@ -167,6 +167,7 @@ overrides:
   multiformats: 14.0.5
 
 patchedDependencies:
+  '@constl/utils-ipa': b646b1859f4c10c8f69b55a356556034def6f9df53aca1c98e64e9606da8cd14
   '@libp2p/gossipsub': e30a1c3529f881bbafb052b5951233c6310d8d9284165bf13c0ef0faad6d501b
   '@orbitdb/core': 9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053
 
@@ -191,7 +192,7 @@ importers:
         version: 3.1.2
       '@constl/utils-ipa':
         specifier: 3.1.0
-        version: 3.1.0
+        version: 3.1.0(patch_hash=b646b1859f4c10c8f69b55a356556034def6f9df53aca1c98e64e9606da8cd14)
       '@e965/xlsx':
         specifier: ^0.20.3
         version: 0.20.3
@@ -9372,7 +9373,7 @@ snapshots:
       tiny-typed-emitter: 2.1.0
       uuid: 11.1.1
 
-  '@constl/utils-ipa@3.1.0':
+  '@constl/utils-ipa@3.1.0(patch_hash=b646b1859f4c10c8f69b55a356556034def6f9df53aca1c98e64e9606da8cd14)':
     dependencies:
       browser-fs-access: 0.38.0
       events: 3.3.0
