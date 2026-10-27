@@ -199,5 +199,5 @@
     "uuid": "^14.0.3",
     "wherearewe": "^2.0.1"
   },
-  "packageManager": "pnpm@12.11.2"
+  "packageManager": "pnpm@12.15.0"
 }
