@@ -1,7 +1,7 @@
 import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { moyenne } from "../utils.js";
 import { dédupliquer, stabiliser } from "../nébuleuse/utils.js";
-import { cacheRechercheParProfondeur } from "../nébuleuse/cache.js";
+import { cacheSuivi } from "../nébuleuse/cache.js";
 import { EstimateurAsymptoteTemps, calculerIntersection } from "./utils.js";
 import {
   COEFFICIENT_ASYMPTOTE_INTERSECTION_Y,
@@ -201,9 +201,11 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
             },
           });
           return async () => {
-            await oublierObjectif();
-            await oublierConfiance();
-            await oublierQualité();
+            await Promise.allSettled([
+              oublierObjectif(),
+              oublierConfiance(),
+              oublierQualité(),
+            ]);
           };
         },
         f: fSuivreBranche,
@@ -354,8 +356,7 @@ export abstract class RechercheObjets<
           },
         });
         return async () => {
-          await oublierRecherche();
-          await oublierFavoris();
+          await Promise.all([oublierRecherche(), oublierFavoris()]);
         };
       };
 
