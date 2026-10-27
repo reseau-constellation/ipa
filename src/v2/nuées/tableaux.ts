@@ -5,6 +5,7 @@ import {
   traduire,
 } from "@constl/utils-ipa";
 import { Tableaux } from "../tableaux.js";
+import { cacheSuivi } from "../nébuleuse/cache.js";
 import type { AccesseurService } from "../recherche/types.js";
 import type {
   DonnéesRangéeTableauAvecId,
@@ -178,6 +179,7 @@ export class TableauxNuées extends Tableaux {
 
   // Données
 
+  @cacheSuivi
   async suivreDonnées({
     idStructure,
     idTableau,
