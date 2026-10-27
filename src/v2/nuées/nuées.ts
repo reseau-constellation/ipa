@@ -2509,7 +2509,7 @@ export class Nuées extends ObjetConstellation<
     filtresBds,
     filtresDonnées,
     idsTableaux,
-    patience = 500,
+    patience = 1500,
   }: {
     idNuée: string;
     langues?: string[] | false;
@@ -2521,7 +2521,7 @@ export class Nuées extends ObjetConstellation<
     patience?: number;
   }): Promise<DonnéesFichierBdExportées> {
     const docu = xlsxUtils.book_new();
-
+    const stable = attendreStabilité(patience);
     const données = await uneFois(
       async (fSuivi: Suivi<DonnéesBdExportées>): Promise<Oublier> => {
         return await this.suivreDonnéesExportation({
@@ -2534,7 +2534,7 @@ export class Nuées extends ObjetConstellation<
           f: fSuivi,
         });
       },
-      { condition: attendreStabilité(patience) },
+      { condition: stable },
     );
 
     nomFichier = nomFichier || données.nomBd;
