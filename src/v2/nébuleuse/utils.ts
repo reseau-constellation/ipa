@@ -1,5 +1,4 @@
 import { toUnicode } from "punycode-esm";
-import { AbortError } from "p-retry";
 import { multiaddr } from "@multiformats/multiaddr";
 import deepEqual from "fast-deep-equal";
 import type { Suivi } from "./types.js";
@@ -18,11 +17,11 @@ const attendre = (t: number, signal: AbortSignal): Promise<void> => {
 };
 
 export const pSignal = async (signal: AbortSignal): Promise<never> => {
-  if (signal.aborted) throw new AbortError(Error("Signal déjà avorté"));
+  if (signal.aborted) throw new Error("AbortError: Signal déjà avorté");
   return new Promise<never>((_compléter, rompre) => {
     const lorsquAvorté = () => {
       signal.removeEventListener("abort", lorsquAvorté);
-      rompre(new AbortError("Signal avorté"));
+      rompre(new Error("AbortError: Signal avorté"));
     };
     signal.addEventListener("abort", lorsquAvorté);
   });
@@ -45,14 +44,14 @@ export const réessayer = async <T>(
       return await Promise.race([f(), pSignal(signal)]);
     } catch (e) {
       if (signal.aborted || estErreurAvortée(e as Error))
-        throw new AbortError(Error("Signal avorté"));
+        throw new Error("AbortError: Signal avorté");
       n++;
       const maintenant = Date.now();
       const tempsÀAttendre = n * 1000 + (maintenant - avant);
       if (tempsÀAttendre > 0) {
         await attendre(tempsÀAttendre, signal);
 
-        if (signal.aborted) throw new AbortError(Error("Signal avorté"));
+        if (signal.aborted) throw new Error("AbortError: Signal avorté");
       }
       return await _interne({ f, n });
     }
