@@ -1291,7 +1291,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               relationsImmédiates[id].oublier = async () => {
                 delete relationsImmédiates[id];
                 await oublierSuivi();
-                
               };
             }),
           );
