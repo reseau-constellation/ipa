@@ -624,7 +624,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       },
     });
     return async () => {
-      await Promise.allSettled([oublierIdDispositif(), oublierConnexionsLibp2p()]);
+      await Promise.allSettled([
+        oublierIdDispositif(),
+        oublierConnexionsLibp2p(),
+      ]);
     };
   }
 
