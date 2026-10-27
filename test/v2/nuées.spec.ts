@@ -1891,7 +1891,12 @@ describe("Nuées", function () {
           idStructure: idNuée,
           idTableau,
           filtresDonnées: { exclureAvecDifférencesTableaux: ["indexColonne"] },
-          f: si((d) => !d?.find(x=>x.idBd === idBd) && (d?.filter((x) => x.idBd === idBdPDDL).length ?? 0) >= élémentsNuéesPDDL.length),
+          f: si(
+            (d) =>
+              !d?.find((x) => x.idBd === idBd) &&
+              (d?.filter((x) => x.idBd === idBdPDDL).length ?? 0) >=
+                élémentsNuéesPDDL.length,
+          ),
         }),
       );
 
@@ -1911,7 +1916,12 @@ describe("Nuées", function () {
           idStructure: idNuée,
           idTableau,
           filtresDonnées: { exclureAvecErreursDonnées: true },
-          f: si((x) => !!x && x.length >= réf.length && !x.find(r=>(r.données.données[idColonne] as number)< 0)),
+          f: si(
+            (x) =>
+              !!x &&
+              x.length >= réf.length &&
+              !x.find((r) => (r.données.données[idColonne] as number) < 0),
+          ),
         }),
       );
 
@@ -1986,7 +1996,7 @@ describe("Nuées", function () {
     describe("persistance données", function () {
       let fermerConstlTest: Oublier;
       let constlsTest: Constellation[];
-  
+
       before(async () => {
         ({ constls: constlsTest, fermer: fermerConstlTest } =
           await créerConstellationsTest({
@@ -1994,7 +2004,7 @@ describe("Nuées", function () {
             persistante: true,
           }));
       });
-  
+
       after(async () => {
         if (fermerConstlTest) await fermerConstlTest();
       });
@@ -2049,13 +2059,12 @@ describe("Nuées", function () {
 
       it("persistance après fermeture compte bd", async () => {
         // Données détectées sur le compte 1
-        await obtenir<DonnéesRangéeNuée[]>(
-          ({ siLongueurAuMoins }) =>
-            constlsTest[0].nuées.tableaux.suivreDonnées({
-              idStructure: idNuée,
-              idTableau,
-              f: siLongueurAuMoins(réf.length),
-            }),
+        await obtenir<DonnéesRangéeNuée[]>(({ siLongueurAuMoins }) =>
+          constlsTest[0].nuées.tableaux.suivreDonnées({
+            idStructure: idNuée,
+            idTableau,
+            f: siLongueurAuMoins(réf.length),
+          }),
         );
         // Compte 2 ferme
         await constlsTest[1].fermer();
@@ -2105,7 +2114,7 @@ describe("Nuées", function () {
     describe("transmission données", function () {
       let fermerConstlTest: Oublier;
       let constlsTest: Constellation[];
-  
+
       before(async () => {
         ({ constls: constlsTest, fermer: fermerConstlTest } =
           await créerConstellationsTest({
@@ -2113,7 +2122,7 @@ describe("Nuées", function () {
             persistante: true,
           }));
       });
-  
+
       after(async () => {
         if (fermerConstlTest) await fermerConstlTest();
       });
@@ -2745,14 +2754,15 @@ describe("Nuées", function () {
 
     it("résolution même si ascendance partiellement indisponible", async () => {
       const idNuéeParent = await constl.nuées.créerNuée();
-      const idNuéeIndisponible = "/constl/nuées/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      const idNuéeIndisponible =
+        "/constl/nuées/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
 
       await constl.nuées.préciserParent({ idNuée, idNuéeParent });
       await constl.nuées.préciserParent({
         idNuée: idNuéeParent,
         idNuéeParent: idNuéeIndisponible,
       });
-      
+
       const ascendants = await obtenir<string[]>(({ siLongueurAuMoins }) =>
         constl.nuées.suivreAscendants({
           idNuée,
@@ -2853,8 +2863,12 @@ describe("Nuées", function () {
       const idPetitEnfant = await constl.nuées.créerNuée({
         parent: idNuéeEnfant,
       });
-      const idNuéeIndisponible = "/constl/nuées/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
-      await constl.nuées.préciserParent({ idNuée, idNuéeParent: idNuéeIndisponible })
+      const idNuéeIndisponible =
+        "/constl/nuées/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+      await constl.nuées.préciserParent({
+        idNuée,
+        idNuéeParent: idNuéeIndisponible,
+      });
 
       const descendants = await obtenir<string[]>(({ siLongueurAuMoins }) =>
         constl.nuées.suivreDescendants({
@@ -4159,13 +4173,14 @@ describe("Nuées", function () {
       it("données nuée", async () => {
         const réf: DonnéesRangéeNuée[] = élémentsPourNuée;
 
-        const données = await obtenir<DonnéesRangéeNuée[]>(({ siLongueurAuMoins }) =>
-          constl.nuées.tableaux.suivreDonnées({
-            idStructure: idNuée,
-            idTableau,
-            héritage: {},
-            f: siLongueurAuMoins(réf.length),
-          }),
+        const données = await obtenir<DonnéesRangéeNuée[]>(
+          ({ siLongueurAuMoins }) =>
+            constl.nuées.tableaux.suivreDonnées({
+              idStructure: idNuée,
+              idTableau,
+              héritage: {},
+              f: siLongueurAuMoins(réf.length),
+            }),
         );
 
         expect(données).to.have.deep.members(réf);
