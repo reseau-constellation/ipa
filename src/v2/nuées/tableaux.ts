@@ -468,7 +468,7 @@ export class TableauxNuées extends Tableaux {
     fsOublier.push(oublierDonnées);
 
     return async () => {
-      Promise.allSettled(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 }

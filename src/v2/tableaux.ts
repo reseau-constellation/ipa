@@ -945,13 +945,13 @@ export class Tableaux {
     });
 
     // Tout oublier
-    const oublier = async () => {
-      await oublierColonnes();
-      await oublierRèglesTableau();
-      await oublierRèglesVariable();
+    return async () => {
+      await Promise.allSettled([
+        oublierColonnes(),
+        oublierRèglesTableau(),
+        oublierRèglesVariable(),
+      ]);
     };
-
-    return oublier;
   }
 
   // Validation
