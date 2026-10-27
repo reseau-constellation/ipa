@@ -1169,7 +1169,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       profondeur?: number;
       idCompte: string;
     }): Promise<RetourRechercheProfondeur> => {
-      let annulé = false;
+      const contrôleurSignal = new AbortController();
 
       const relationsImmédiates: {
         [idCompte: string]: {
@@ -1260,6 +1260,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               relationsImmédiates[id].oublier?.(),
             ),
           );
+          if (this.signaleurArrêt.signal.aborted) return;
 
           // Ajouter les nouveaux comptes à suivre
           const àSuivre = [
@@ -1297,7 +1298,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           await fFinale();
         };
 
-        if (!annulé) queue.add(tâche);
+        if (!contrôleurSignal.signal.aborted) queue.add(tâche);
       };
 
       const oublierRelationsInitiale = await this.suivreRelationsImmédiates({
@@ -1311,9 +1312,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       relationsImmédiates[idCompte].oublier = oublierRelationsInitiale;
 
       const oublier = async () => {
-        annulé = true;
-        await queue.onIdle();
-        await Promise.all(
+        contrôleurSignal.abort();
+        queue.clear();
+        if (queue.pending) await queue.onIdle();
+        await Promise.allSettled(
           Object.values(relationsImmédiates).map((r) => r.oublier()),
         );
       };
@@ -1461,7 +1463,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       return async () => {
         await oublierBloqués();
         await oublierFiables();
-        await Promise.all(oublierConfiances.map((f) => f()));
+        await Promise.allSettled(oublierConfiances.map((f) => f()));
       };
     };
 
