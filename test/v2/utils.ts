@@ -143,6 +143,8 @@ export const obtenir = async <T>(
   }) => Promise<Oublier>,
 ): Promise<T> => {
   const événements = new TypedEmitter<{ résolu: (x: T) => void }>();
+  let résultat: { val: T } | undefined = undefined;
+
   const si = (
     fTest: (x: T | undefined) => boolean | Promise<boolean>,
   ): ((x: T | undefined) => void) => {
@@ -150,6 +152,7 @@ export const obtenir = async <T>(
       const passe = await fTest(x);
       if (passe) {
         événements.emit("résolu", x as T);
+        résultat = { val: x as T };
       }
     };
   };
@@ -198,18 +201,7 @@ export const obtenir = async <T>(
     return si(() => true);
   };
 
-  let fOublier: Oublier | undefined = undefined;
-
-  const promesse = new Promise<T>((compléter) =>
-    événements.once("résolu", async (x) => {
-      if (fOublier) {
-        await fOublier();
-        fOublier = undefined;
-      }
-      compléter(x);
-    }),
-  );
-  fOublier = await f({
+  const fOublier = await f({
     si,
     siDéfini,
     siNonDéfini,
@@ -220,9 +212,17 @@ export const obtenir = async <T>(
     siLongueurAuMoins,
     tous,
   });
-  afterEach(async () => {
-    if (fOublier) await fOublier();
-    fOublier = undefined;
+
+  const promesse = new Promise<T>((compléter) => {
+    if (résultat) {
+      const résultatExistant = résultat;
+      fOublier().then(() => compléter(résultatExistant.val));
+    } else {
+      événements.once("résolu", async (x) => {
+        await fOublier();
+        compléter(x);
+      });
+    }
   });
 
   return promesse;
