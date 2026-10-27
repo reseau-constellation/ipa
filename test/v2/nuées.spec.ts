@@ -1684,6 +1684,28 @@ describe("Nuées", function () {
       expect(bds).to.be.empty();
     });
 
+    it("mes données toujours autorisées par défaut", async () => {
+      const idBdConstl2 = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+      await constls[1].bds.rejoindreNuée({ idBd: idBdConstl2, idNuée });
+
+      await obtenir(({ siPasVide }) =>
+        constls[1].nuées.suivreBds({ idNuée, f: siPasVide() }),
+      );
+
+      await constl.nuées.modifierTypeAutorisation({
+        idNuée,
+        type: "par invitation",
+      });
+      const bds = await obtenir<string[]>(({ siPasVide }) =>
+        constls[1].nuées.suivreBds({
+          idNuée,
+          f: siPasVide(),
+        }),
+      );
+
+      expect(bds).to.have.members([idBdConstl2]);
+    });
+
     it("filtres - par licence", async () => {
       await constl.bds.rejoindreNuée({ idBd, idNuée });
       await obtenir(({ siPasVide }) =>
@@ -1726,18 +1748,21 @@ describe("Nuées", function () {
       expect(bds).to.have.members([idBd]);
     });
 
-    it.skip("filtres - ne pas ignorer l'autorisation même pour mes données", async () => {
-      await constl.bds.rejoindreNuée({ idBd, idNuée });
-      await obtenir(({ siPasVide }) =>
-        constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
-      );
+    it("filtres - ne pas ignorer l'autorisation même pour mes données", async () => {
+      const idBdConstl2 = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+      await constls[1].bds.rejoindreNuée({ idBd: idBdConstl2, idNuée });
 
       await constl.nuées.modifierTypeAutorisation({
         idNuée,
         type: "par invitation",
       });
+
+      await obtenir(({ siPasVide }) =>
+        constls[1].nuées.suivreBds({ idNuée, f: siPasVide() }),
+      );
+
       const bds = await obtenir<string[]>(({ siVide }) =>
-        constl.nuées.suivreBds({
+        constls[1].nuées.suivreBds({
           idNuée,
           f: siVide(),
           filtres: { ignorerAutorisation: false },
