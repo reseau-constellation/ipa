@@ -807,7 +807,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       comptes: CompteRéseau[];
       monCompte: string;
     } = { pairs: [], comptes: [], monCompte: await compte.obtIdCompte() };
-    
+
     const fFinale = async () => {
       const comptes: CompteRéseau[] = [
         {
@@ -1251,7 +1251,10 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           // Oublier les comptes trop profonds (en raison de déconnexion de lien de confiance ou bien de changement de profondeur)
           const ceuxDontOnVeutOublierLesRelations = Object.keys(
             relationsImmédiates,
-          ).filter((id) => !ceuxDontOnVeutSuivreLesRelations.includes(id) && id !== idCompte);
+          ).filter(
+            (id) =>
+              !ceuxDontOnVeutSuivreLesRelations.includes(id) && id !== idCompte,
+          );
           await Promise.allSettled(
             ceuxDontOnVeutOublierLesRelations.map((id) =>
               relationsImmédiates[id].oublier?.(),
