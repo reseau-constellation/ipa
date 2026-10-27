@@ -4920,23 +4920,31 @@ describe("Nuées", function () {
         schéma.nuées = [idNuéeNExistePas];
 
         idBd = await constl.bds.créerBdDeSchéma({ schéma });
-        await constl.bds.tableaux.ajouterÉléments({
+        éléments = [
+          {
+            [idColonneNumérique]: 456,
+          },
+        ];
+        idsÉléments = await constl.bds.tableaux.ajouterÉléments({
           idStructure: idBd,
-          idTableau: idTableau2,
-          éléments: [
-            {
-              [idColonneNumérique]: 123,
-            },
-          ],
+          idTableau: idTableau1,
+          éléments,
         });
 
         const { docu, nomFichier } = await constl.nuées.exporterDonnées({
           idNuée: idNuéeNExistePas,
           langues: ["fra"],
-          idsTableaux: [idTableau2],
+          idsTableaux: [idTableau1],
         });
-        expect(docu.SheetNames).to.have.members([idTableau2.slice(0, 30)]);
+        expect(docu.SheetNames).to.have.members([idTableau1.slice(0, 30)]);
         expect(nomFichier).to.eq(enleverPréfixesEtOrbite(idNuéeNExistePas));
+        vérifierDonnéesBd(docu, {
+          [idTableau1.slice(0, 30)]: éléments.map((rangée, i) => ({
+            ...rangée,
+            idBd,
+            id: idsÉléments[i],
+          })),
+        });
       });
     });
 
