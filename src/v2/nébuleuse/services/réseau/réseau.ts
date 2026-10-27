@@ -103,8 +103,8 @@ export type CompteRéseau = {
 
 export type InfosPair = {
   idPair: string;
-  idDispositif: string;
-  idCompte: string;
+  idDispositif?: string;
+  idCompte?: string;
 };
 
 // Constantes
@@ -819,8 +819,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           confiance: 1,
         },
         ...info.pairs
-          .filter(({ idCompte }) => idCompte)
-          .map(({ idCompte }) => ({
+          .map(({ idCompte }) => idCompte)
+          .filter((idCompte): idCompte is string => !!idCompte)
+          .map((idCompte) => ({
             idCompte,
             confiance: 0,
             profondeur: Infinity,
