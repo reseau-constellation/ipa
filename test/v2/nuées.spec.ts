@@ -5005,9 +5005,11 @@ describe("Nuées", function () {
           nomFichier,
           dossier,
           formatDocu: "ods",
-        })
+        });
         if (isBrowser || isElectronRenderer) {
-          await expect(promesseExporter).to.eventually.be.rejectedWith("showSaveFilePicker");
+          await expect(promesseExporter).to.eventually.be.rejectedWith(
+            "showSaveFilePicker",
+          );
         } else {
           await promesseExporter;
 
