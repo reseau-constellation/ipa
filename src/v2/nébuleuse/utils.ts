@@ -92,8 +92,11 @@ export const stabiliser =
 
       const crono = setTimeout(async () => {
         fLancé = true;
-        await f(v);
-        signaleur.abort();
+        try {
+          await f(v);
+        } finally {
+          signaleur.abort();
+        }
       }, t);
       annulerRebours = () => {
         if (dernierT) {
