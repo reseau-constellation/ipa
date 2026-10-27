@@ -2,11 +2,8 @@ import { Semaphore } from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 
 import deepEqual from "fast-deep-equal";
-import { base64 } from "@hexagon/base64";
-
-import { sha256 } from "js-sha256";
-import type { Oublier, RetourRecherche, Suivi } from "./types.js";
 import { estUnePromesse } from "./services/utils.js";
+import type { Oublier, RetourRecherche, Suivi } from "./types.js";
 
 export class CacheSuivi {
   verrou: Semaphore;
@@ -14,7 +11,10 @@ export class CacheSuivi {
     string,
     {
       val?: unknown;
-      requêtes: Map<string, { f: Suivi<unknown>; promesses: Set<Promise<unknown>> }>;
+      requêtes: Map<
+        string,
+        { f: Suivi<unknown>; promesses: Set<Promise<unknown>> }
+      >;
       oublier?: Oublier;
     }
   >;
@@ -23,7 +23,10 @@ export class CacheSuivi {
     {
       val?: unknown[];
       taillePrésente: number;
-      requêtes: Map<string, { f: Suivi<unknown>; taille: number; promesses: Set<Promise<unknown>> }>;
+      requêtes: Map<
+        string,
+        { f: Suivi<unknown>; taille: number; promesses: Set<Promise<unknown>> }
+      >;
       fs?: RetourRecherche;
     }
   >;
@@ -110,53 +113,61 @@ export class CacheSuivi {
       argsClefs: argsSansF,
     });
     const idRequête = uuidv4();
-    
-    const ajouterAuSuivi = (suiviExistant: Exclude<ReturnType<CacheSuivi["suivis"]["get"]>, undefined>) => {
-      const promessesF: Set<Promise<unknown>> = new Set();
+    const promessesF: Set<Promise<unknown>> = new Set();
 
+    const ajouterAuSuivi = (
+      suiviExistant: Exclude<
+        ReturnType<CacheSuivi["suivis"]["get"]>,
+        undefined
+      >,
+    ) => {
       suiviExistant.requêtes.set(idRequête, { f, promesses: promessesF });
 
       if (Object.keys(suiviExistant).includes("val")) {
         // Différentier `val` absent de `val === undefined`}
-        const p = f(suiviExistant.val)
-        if (estUnePromesse(p)) promessesF.add(p.finally(() => promessesF.delete(p)))
-      };
-    }
+        const p = f(suiviExistant.val);
+        if (estUnePromesse(p))
+          promessesF.add(p.finally(() => promessesF.delete(p)));
+      }
+    };
 
     // Vérifier si déjà en cache
     let suivi = this.suivis.get(codeCache);
     if (suivi) {
       // Ajouter f à la liste de fonctions de rappel
-        ajouterAuSuivi(suivi)
+      ajouterAuSuivi(suivi);
     } else {
       try {
         await this.verrou.acquire(codeCache);
         suivi = this.suivis.get(codeCache);
         if (suivi) {
-          ajouterAuSuivi(suivi)
+          ajouterAuSuivi(suivi);
         } else {
           // Si pas en cache, générer
-          const requêtes = new Map()
-          requêtes.set(idRequête, {f, promesses: new Set() })
+          const requêtes = new Map();
+          requêtes.set(idRequête, { f, promesses: promessesF });
           this.suivis.set(codeCache, {
             requêtes,
           });
-  
+
           const fFinale = async (x: unknown) => {
             const suivi = this.suivis.get(codeCache);
             if (!suivi) return; // Si on a déjà annulé la requête
-  
+
             if (Object.keys(suivi).includes("val") && deepEqual(suivi.val, x))
               return; // Ignorer si c'est la même valeur qu'avant
-  
+
             suivi.val = x;
             const fsSuivis = suivi.requêtes.values();
 
-            await Promise.allSettled(fsSuivis.map(({f: f_, promesses }) => {
-              const p = f_(x)
-              if (estUnePromesse(p)) promesses.add(p.finally(() => promesses.delete(p)))
-              return p
-            }));
+            await Promise.allSettled(
+              fsSuivis.map(({ f: f_, promesses }) => {
+                const p = f_(x);
+                if (estUnePromesse(p))
+                  promesses.add(p.finally(() => promesses.delete(p)));
+                return p;
+              }),
+            );
           };
           const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
           this.suivis.get(codeCache)!.oublier = await fOriginale.apply(
@@ -169,10 +180,13 @@ export class CacheSuivi {
       }
     }
 
-    let oublié = false
+    let oublié = false;
     const oublierRequête = async () => {
-      if (oublié) throw new Error("oublié en double" + idRequête + codeCache)
-      oublié = true
+      if (oublié) {
+        console.log("oublié en double dans cache", { codeCache, idRequête });
+        throw new Error("oublié en double dans cache" + idRequête + codeCache);
+      }
+      oublié = true;
       await this.oublierSuivi({ codeCache, idRequête });
     };
 
@@ -230,13 +244,14 @@ export class CacheSuivi {
       if (!recherche) return; // Si on a déjà annulé la requête
       recherche.val = val;
       const infoRequêtes = recherche.requêtes.values();
-      await Promise.allSettled(      infoRequêtes.map(
-        (info) => {
-          const p = info.f(sélection(info.taille, val))
-          if (estUnePromesse(p)) info.promesses.add(p.finally(()=>info.promesses.delete(p)))
-          return p
-        },
-      ));
+      await Promise.allSettled(
+        infoRequêtes.map((info) => {
+          const p = info.f(sélection(info.taille, val));
+          if (estUnePromesse(p))
+            info.promesses.add(p.finally(() => info.promesses.delete(p)));
+          return p;
+        }),
+      );
     };
 
     const actualiserTaille = () => {
@@ -255,12 +270,11 @@ export class CacheSuivi {
     };
 
     const fChangerTailleRequête = async (taille: number) => {
-      
       const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
 
-      const requête = recherche.requêtes.get(idRequête)
-      if (!requête) return
+      const requête = recherche.requêtes.get(idRequête);
+      if (!requête) return;
 
       const tailleAvant = requête.taille;
 
@@ -272,28 +286,34 @@ export class CacheSuivi {
       actualiserTaille();
     };
 
-    const ajouterAuSuiviRecherche = (suiviExistant: Exclude<ReturnType<CacheSuivi["recherches"]["get"]>, undefined>) => {
+    const ajouterAuSuiviRecherche = (
+      suiviExistant: Exclude<
+        ReturnType<CacheSuivi["recherches"]["get"]>,
+        undefined
+      >,
+    ) => {
       const promesses: Set<Promise<unknown>> = new Set();
       suiviExistant.requêtes.set(idRequête, { f, taille, promesses });
       actualiserTaille();
       if (Object.keys(suiviExistant).includes("val")) {
-        const p = f(sélection(taille, suiviExistant.val as R[]))
-        if (estUnePromesse(p)) promesses.add(p.finally(()=>promesses.delete(p)))
-      };
-    }
+        const p = f(sélection(taille, suiviExistant.val as R[]));
+        if (estUnePromesse(p))
+          promesses.add(p.finally(() => promesses.delete(p)));
+      }
+    };
 
     let recherche = this.recherches.get(codeCache);
-    
+
     // Vérifier si déjà en cache
     if (recherche) {
       // Si présent, ajouter f à la liste de fonctions de rappel
-      ajouterAuSuiviRecherche(recherche)
+      ajouterAuSuiviRecherche(recherche);
     } else {
       await this.verrou.acquire(codeCache);
-      recherche = this.recherches.get(codeCache)
+      recherche = this.recherches.get(codeCache);
       try {
         if (recherche) {
-          ajouterAuSuiviRecherche(recherche)
+          ajouterAuSuiviRecherche(recherche);
         } else {
           // Si pas en cache, générer
           const requêtes = new Map();
@@ -320,9 +340,8 @@ export class CacheSuivi {
       }
     }
 
-    const oublierRequête = async () => {
+    const oublierRequête = async () =>
       await this.oublierRecherche({ codeCache, idRequête });
-    };
 
     return {
       oublier: oublierRequête,
@@ -339,19 +358,24 @@ export class CacheSuivi {
   }) {
     const { requêtes, oublier } = this.suivis.get(codeCache)!;
     const { promesses } = requêtes.get(idRequête) || {};
-    requêtes.delete(idRequête);
-    if (promesses) await Promise.allSettled(promesses)
 
-    if (!requêtes.size) {
+    if (promesses) await Promise.allSettled(promesses);
+
+    if (requêtes.size === 1) {
       try {
         await this.verrou.acquire(codeCache);
+        requêtes.delete(idRequête);
         if (!requêtes.size) {
-          await oublier?.();
           this.suivis.delete(codeCache);
+          await oublier();
         }
+      } catch (e) {
+        console.log("ahah une erreur !!!", { codeCache }, e);
       } finally {
         this.verrou.release(codeCache);
       }
+    } else {
+      requêtes.delete(idRequête);
     }
   }
 
@@ -364,19 +388,21 @@ export class CacheSuivi {
   }) {
     const { requêtes, fs } = this.recherches.get(codeCache)!;
     const { promesses } = requêtes.get(idRequête) || {};
-    requêtes.delete(idRequête);
-    if (promesses) await Promise.allSettled(promesses)
-    
-    if (!requêtes.size) {
+
+    if (promesses) await Promise.allSettled(promesses);
+    if (requêtes.size === 1) {
       try {
         await this.verrou.acquire(codeCache);
+        requêtes.delete(idRequête);
         if (!requêtes.size) {
-          await fs?.oublier();
           this.recherches.delete(codeCache);
+          await fs.oublier();
         }
       } finally {
         this.verrou.release(codeCache);
       }
+    } else {
+      requêtes.delete(idRequête);
     }
   }
 
@@ -389,10 +415,7 @@ export class CacheSuivi {
     idInstance: string;
     argsClefs: { [clef: string]: unknown };
   }): string {
-    const texte =
-      adresseFonction + "-" + idInstance + "-" + JSON.stringify(argsClefs);
-      return texte
-    return base64.fromString(sha256(texte), true);
+    return adresseFonction + "-" + idInstance + "-" + JSON.stringify(argsClefs);
   }
 }
 
