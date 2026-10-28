@@ -1131,14 +1131,11 @@ describe("Réseau", function () {
       });
     });
 
-    it.skip("envoyer message à un autre membre qui a plusieurs dispositifs", async () => {
-      const { promesseBienReçu, messageÀEnvoyer } = await messageReçu({
-        de: idsDispositifs[0],
-        à: [nébuleuses[1], nébuleuses[2]],
-      });
+    it("envoyer message à un autre membre qui a plusieurs dispositifs", async () => {
       const invitation =
         await nébuleuses[1].réseau.générerInvitationRejoindreCompte();
       await nébuleuses[2].réseau.rejoindreCompteParInvitation({ invitation });
+      
       await uneFois(
         async (fSuivi: Suivi<DispositifCompte[]>) => {
           return await nébuleuses[0].réseau.suivreDispositifsCompte({
@@ -1149,16 +1146,15 @@ describe("Réseau", function () {
         { condition: (ids) => !!ids && ids.length > 1 },
       );
 
-      await nébuleuses[0].réseau.envoyerMessageAuCompte({
-        message: {
-          type: "texte",
-          message: messageÀEnvoyer,
-        },
-        idCompte: idsComptes[1],
+      await vérifierEnvoieMessage({
+        expéditeur: idsLibp2p[0],
+        destinataires: [nébuleuses[1], nébuleuses[2]],
+        envoie: async (message) =>
+          await nébuleuses[0].réseau.envoyerMessageAuCompte({
+            message,
+            idCompte: idsComptes[1],
+          }),
       });
-
-      const bienReçu = await promesseBienReçu;
-      expect(bienReçu).to.be.true();
     });
 
     it.skip("message envoyé au compte non envoyé à dispositif non autorisé", async () => {
