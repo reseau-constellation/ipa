@@ -38,6 +38,7 @@ import {
   vérifierDonnéesBd,
 } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
+import { connecterNébuleuses } from "./nébuleuse/utils.js";
 import type {
   AutorisationNuée,
   InfoTableauNuée,
