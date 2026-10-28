@@ -9,7 +9,11 @@ import { anySignal } from "any-signal";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { lpStream, type LengthPrefixedStream } from "@libp2p/utils";
 import { peerSet } from "@libp2p/peer-collections";
-import { ajouterPréfixes, enleverPréfixesEtOrbite } from "@/v2/utils.js";
+import {
+  ajouterPréfixes,
+  enleverPréfixes,
+  enleverPréfixesEtOrbite,
+} from "@/v2/utils.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.js";
 import {
   PROTOCOLE_NÉBULEUSE,
@@ -55,7 +59,11 @@ import type { ServiceAppli } from "../../appli/services.js";
 
 // Types connexions
 
-export type ConnexionLibp2p = { pair: string; adresses: string[] };
+export type ConnexionLibp2p = {
+  pair: string;
+  adresses: string[];
+  depuis: number;
+};
 
 export type ConnexionDispositif = {
   idDispositif: string;
@@ -549,14 +557,16 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const pairs = libp2p.getPeers();
       const connexions = libp2p.getConnections();
 
-      const pairsEtConnexions = pairs.map((p) => {
+      const pairsEtConnexions: ConnexionLibp2p[] = pairs.map((p) => {
         const pair = p.toString();
-        const adresses = connexions
-          .filter(
-            (c) => c.remotePeer.toString() === pair && c.status !== "closed",
-          )
-          .map((a) => a.remoteAddr.toString());
-        return { pair, adresses };
+        const connexionsAuPair = connexions.filter(
+          (c) => c.remotePeer.toString() === pair && c.status !== "closed",
+        );
+        const adresses = connexionsAuPair.map((c) => c.remoteAddr.toString());
+        const depuis = Math.min(
+          ...connexionsAuPair.map((c) => c.timeline.open),
+        );
+        return { pair, adresses, depuis };
       });
       return await f(pairsEtConnexions);
     };
