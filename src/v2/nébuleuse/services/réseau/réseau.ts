@@ -712,13 +712,25 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     f: Suivi<DispositifCompte[]>;
     idCompte?: string;
   }): Promise<Oublier> {
+    const compte = this.service("compte");
     const orbite = this.service("orbite");
 
     const info: {
       autorisés: string[];
-      infos: statutDispositif[];
+      infos: InfosPair[];
       idCompte?: string;
     } = { autorisés: [], infos: [] };
+
+    const monPair: InfosPair = {
+      idPair: await compte.obtIdLibp2p(),
+      idDispositif: await compte.obtIdDispositif(),
+    };
+    const oublierMonCompte = await compte.suivreIdCompte({
+      f: async (idCompte) => {
+        monPair.idCompte = idCompte;
+        await fFinale();
+      },
+    });
 
     const fSuivi = async ({
       id,
@@ -727,12 +739,13 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       id: string;
       fSuivre: Suivi<string[] | undefined>;
     }): Promise<Oublier> => {
+      // Enlever les préfixes après avoir sauvegardé dans `info.idCompte`.
       info.idCompte = id;
+      id = enleverPréfixes(id);
 
       // Suivre les dispositifs autorisés sur ce compte
       const { bd, oublier } = await orbite.ouvrirBd({
         id,
-        type: "keyvalue",
         signal: this.signaleurArrêt.signal,
       });
       const accès = bd.access;
@@ -760,17 +773,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         info.autorisés.map((idDispositif) => ({
           idDispositif,
           statut:
-            info.infos
-              .map((i) => i.infoDispositif)
-              .find((i) => i.idDispositif === idDispositif)?.idCompte ===
-            info.idCompte
+            info.infos.find((i) => i.idDispositif === idDispositif)
+              ?.idCompte === info.idCompte
               ? "accepté"
               : "invité",
         })),
       );
     };
 
-    const compte = this.service("compte");
     const oublierDispositifsAutorisés = await suivreFonctionImbriquée({
       fRacine: async ({
         fSuivreRacine,
@@ -791,15 +801,16 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       fSuivre: fSuivi,
     });
 
-    const oublierInfosDispositifs = await this.suivreConnexionsDispositifs({
+    const oublierInfosDispositifs = await this.suivreInfosPairs({
       f: async (x) => {
-        info.infos = x;
+        info.infos = [...x, monPair];
         return await fFinale();
       },
     });
 
     return async () => {
       await Promise.allSettled([
+        oublierMonCompte(),
         oublierDispositifsAutorisés(),
         oublierInfosDispositifs(),
       ]);

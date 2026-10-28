@@ -156,6 +156,112 @@ describe("Réseau", function () {
     });
   });
 
+  describe("suivre dispositifs", function () {
+    let nébuleuses: NébuleuseTest<Record<string, never>, ServicesAppli>[];
+    let fermer: Oublier;
+
+    let idsDispositifs: string[];
+    let idsComptes: string[];
+
+    before(async () => {
+      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
+
+      idsDispositifs = await Promise.all(
+        nébuleuses.map((c) => c.compte.obtIdDispositif()),
+      );
+      idsComptes = await Promise.all(
+        nébuleuses.map((c) => c.compte.obtIdCompte()),
+      );
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    it("un dispositif sur mon compte", async () => {
+      const dispositifs = await obtenir<DispositifCompte[]>(({ si }) =>
+        nébuleuses[0].réseau.suivreDispositifsCompte({
+          f: si((x) => !!x?.length && x[0].statut === "accepté"),
+        }),
+      );
+
+      const réf: DispositifCompte[] = [
+        {
+          idDispositif: idsDispositifs[0],
+          statut: "accepté",
+        },
+      ];
+      expect(dispositifs).to.have.deep.members(réf);
+    });
+
+    it("un dispositif sur autre compte", async () => {
+      const dispositifs = await obtenir<DispositifCompte[]>(({ si }) =>
+        nébuleuses[0].réseau.suivreDispositifsCompte({
+          f: si((x) => !!x?.length && x[0].statut === "accepté"),
+          idCompte: idsComptes[1],
+        }),
+      );
+      const réf: DispositifCompte[] = [
+        {
+          idDispositif: idsDispositifs[1],
+          statut: "accepté",
+        },
+      ];
+      expect(dispositifs).to.have.deep.members(réf);
+    });
+
+    it("ajout dispositif - invité", async () => {
+      const réf: DispositifCompte[] = [
+        {
+          idDispositif: idsDispositifs[1],
+          statut: "accepté",
+        },
+        {
+          idDispositif: idsDispositifs[2],
+          statut: "invité",
+        },
+      ];
+      await nébuleuses[1].compte.ajouterDispositif({
+        idDispositif: idsDispositifs[2],
+      });
+      const dispositifs = await obtenir<DispositifCompte[]>(
+        ({ siLongueurAuMoins }) =>
+          nébuleuses[0].réseau.suivreDispositifsCompte({
+            idCompte: idsComptes[1],
+            f: siLongueurAuMoins(réf.length),
+          }),
+      );
+
+      expect(dispositifs).to.have.deep.members(réf);
+    });
+
+    it("ajout dispositif - accepté", async () => {
+      const réf: DispositifCompte[] = [
+        {
+          idDispositif: idsDispositifs[1],
+          statut: "accepté",
+        },
+        {
+          idDispositif: idsDispositifs[2],
+          statut: "accepté",
+        },
+      ];
+      await nébuleuses[2].compte.rejoindreCompte({ idCompte: idsComptes[1] });
+      await nébuleuses[2].réseau.annoncerIdCompte();
+
+      const dispositifs = await obtenir<DispositifCompte[]>(({ si }) =>
+        nébuleuses[0].réseau.suivreDispositifsCompte({
+          idCompte: idsComptes[1],
+          f: si(
+            (x) =>
+              !!x && x?.length >= 2 && x.every((d) => d.statut === "accepté"),
+          ),
+        }),
+      );
+      expect(dispositifs).to.have.deep.members(réf);
+    });
+  });
+
   describe("confiance - manuelle", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
@@ -655,7 +761,7 @@ describe("Réseau", function () {
         expect(données).to.equal(1);
       });
 
-      it("changement de compte propagé sur le réseau", async () => {
+      it("changement de compte propagé sur le réseau - suivi connexions comptes", async () => {
         const connexionCompte0 = await uneFois<ConnexionCompte>(
           async (fSuivi) =>
             nébuleuses[2].réseau.suivreConnexionsComptes({
@@ -676,6 +782,23 @@ describe("Réseau", function () {
         expect(
           connexionCompte0.dispositifs.map((d) => d.idDispositif),
         ).to.have.members([idsDispositifs[0], idsDispositifs[1]]);
+      });
+
+      it("changement de compte propagé sur le réseau - suivi dispositifs compte", async () => {
+        const réf: DispositifCompte[] = [
+          { idDispositif: idsDispositifs[0], statut: "accepté" },
+          { idDispositif: idsDispositifs[1], statut: "accepté" },
+        ];
+        const dispositifsCompte1 = await obtenir<DispositifCompte[]>(({ si }) =>
+          nébuleuses[2].réseau.suivreDispositifsCompte({
+            f: si(
+              (x) =>
+                !!x && x.length >= 2 && x.every((d) => d.statut === "accepté"),
+            ),
+            idCompte: idsComptes[0],
+          }),
+        );
+        expect(dispositifsCompte1).to.have.deep.members(réf);
       });
     });
 
