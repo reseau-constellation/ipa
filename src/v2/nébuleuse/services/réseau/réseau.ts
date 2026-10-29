@@ -1779,8 +1779,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     await compte.rejoindreCompte({ idCompte });
     await this.annoncerIdCompte();
   }
-
-  // Réseautage
 }
 
 export const serviceRéseau =
