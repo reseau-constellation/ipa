@@ -357,7 +357,10 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     const { requêtes, oublier } = this.suivis.get(codeCache) || {};
-    if (!requêtes || !oublier) throw new Error(`Erreur de syncronisation dans oublie de cache pour ${codeCache}.`)
+    if (!requêtes || !oublier)
+      throw new Error(
+        `Erreur de syncronisation dans oublie de cache pour ${codeCache}.`,
+      );
 
     const { promesses } = requêtes.get(idRequête) || {};
 
@@ -389,7 +392,10 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     const { requêtes, fs } = this.recherches.get(codeCache) || {};
-    if (!requêtes || !fs) throw new Error(`Erreur de syncronisation dans oublie de cache pour ${codeCache}.`)
+    if (!requêtes || !fs)
+      throw new Error(
+        `Erreur de syncronisation dans oublie de cache pour ${codeCache}.`,
+      );
 
     const { promesses } = requêtes.get(idRequête) || {};
 
