@@ -16,6 +16,7 @@ import {
   type ConnexionDispositif,
   type ConnexionLibp2p,
   type DispositifCompte,
+  type InfosPair,
   type RelationImmédiate,
   type RelationRéseau,
 } from "@/v2/nébuleuse/services/réseau/réseau.js";
@@ -929,24 +930,6 @@ describe("Réseau", function () {
     let idsDispositifs: string[];
     let idsComptes: string[];
 
-    before(async () => {
-      ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
-
-      idsLibp2p = await Promise.all(
-        nébuleuses.map(async (c) => await c.compte.obtIdLibp2p()),
-      );
-      idsDispositifs = await Promise.all(
-        nébuleuses.map(async (c) => await c.compte.obtIdDispositif()),
-      );
-      idsComptes = await Promise.all(
-        nébuleuses.map(async (c) => await c.compte.obtIdCompte()),
-      );
-    });
-
-    after(async () => {
-      await fermer?.();
-    });
-
     const messageReçu = async ({
       de,
       à,
@@ -1041,6 +1024,9 @@ describe("Réseau", function () {
       const idsLibp2pDestinataires: string[] = await Promise.all(
         destinataires.map((d) => d.compte.obtIdLibp2p()),
       );
+      const idsLibp2pNonDestinataires = idsLibp2p.filter(
+        (id) => !idsLibp2pDestinataires.includes(id),
+      );
 
       // Expéditeur
       const { réception, message } = await messageReçu({
@@ -1055,140 +1041,258 @@ describe("Réseau", function () {
       expect(résultat).to.deep.equal(
         Object.fromEntries([
           ...idsLibp2pDestinataires.map((id) => [id, true]),
-          ...idsLibp2p
-            .filter((id) => !idsLibp2pDestinataires.includes(id))
-            .map((id) => [id, false]),
+          ...idsLibp2pNonDestinataires.map((id) => [id, false]),
         ]),
       );
     };
 
-    it("envoyer message à une adresse libp2p", async () => {
-      await vérifierEnvoieMessage({
-        expéditeur: idsLibp2p[1],
-        destinataires: [nébuleuses[0]],
-        envoie: async (message) =>
-          await nébuleuses[1].réseau.envoyerMessageAuPair({
-            message,
-            idPair: idsLibp2p[0],
+    describe("envoie simple", function () {
+      before(async () => {
+        ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
+
+        idsLibp2p = await Promise.all(
+          nébuleuses.map(async (c) => await c.compte.obtIdLibp2p()),
+        );
+        idsDispositifs = await Promise.all(
+          nébuleuses.map(async (c) => await c.compte.obtIdDispositif()),
+        );
+        idsComptes = await Promise.all(
+          nébuleuses.map(async (c) => await c.compte.obtIdCompte()),
+        );
+      });
+
+      after(async () => {
+        await fermer?.();
+      });
+      it("envoyer message à une adresse libp2p", async () => {
+        await vérifierEnvoieMessage({
+          expéditeur: idsLibp2p[1],
+          destinataires: [nébuleuses[0]],
+          envoie: async (message) =>
+            await nébuleuses[1].réseau.envoyerMessageAuPair({
+              message,
+              idPair: idsLibp2p[0],
+            }),
+        });
+      });
+
+      it("envoyer message à une adresse libp2p - retour", async () => {
+        await vérifierEnvoieMessage({
+          expéditeur: idsLibp2p[1],
+          destinataires: [nébuleuses[0]],
+          envoie: async (message) =>
+            await nébuleuses[1].réseau.envoyerMessageAuPair({
+              message,
+              idPair: idsLibp2p[0],
+            }),
+        });
+      });
+
+      it("envoyer message à un autre dispositif", async () => {
+        // Attendre que les dispositifs soient bien connectés
+        await uneFois<ConnexionDispositif[]>(
+          (fSuivi) =>
+            nébuleuses[0].réseau.suivreConnexionsDispositifs({ f: fSuivi }),
+          {
+            condition: (connexions) =>
+              !!connexions?.find((c) => c.idDispositif === idsDispositifs[1]),
+          },
+        );
+
+        // Là on envoie le message
+        await vérifierEnvoieMessage({
+          expéditeur: idsLibp2p[0],
+          destinataires: [nébuleuses[1]],
+          envoie: async (message) =>
+            await nébuleuses[0].réseau.envoyerMessageAuDispositif({
+              message,
+              idDispositif: idsDispositifs[1],
+            }),
+        });
+      });
+
+      it("envoyer message à un autre membre", async () => {
+        // Attendre que les comptes soient bien connectés
+        await uneFois<ConnexionCompte[]>(
+          (fSuivi) =>
+            nébuleuses[0].réseau.suivreConnexionsComptes({ f: fSuivi }),
+          {
+            condition: (connexions) =>
+              !!connexions?.find((c) => c.idCompte === idsComptes[1]),
+          },
+        );
+
+        // Là on envoie le message
+        await vérifierEnvoieMessage({
+          expéditeur: idsLibp2p[0],
+          destinataires: [nébuleuses[1]],
+          envoie: async (message) =>
+            await nébuleuses[0].réseau.envoyerMessageAuCompte({
+              message,
+              idCompte: idsComptes[1],
+            }),
+        });
+      });
+
+      it("erreur si envoyé à dispositif sans pair libp2p connu", async () => {
+        const idDispositifInexistant =
+          "0202548f5921db9415349015f331a0aa23d92087f98d9461252f5bb9430841caa9";
+
+        await expect(
+          vérifierEnvoieMessage({
+            expéditeur: idsLibp2p[0],
+            destinataires: [nébuleuses[1]],
+            envoie: async (message) =>
+              await nébuleuses[0].réseau.envoyerMessageAuDispositif({
+                message,
+                idDispositif: idDispositifInexistant,
+              }),
           }),
+        ).to.eventually.be.rejectedWith(
+          `Le dispositif ${idDispositifInexistant} n'a pas été vu en ligne.`,
+        );
+      });
+
+      it("envoyer après reconnexion", async () => {
+        const idLibp2pCompte2 = peerIdFromString(idsLibp2p[1]);
+        const libp2pCompte1 = await nébuleuses[0].services["libp2p"].libp2p();
+
+        await libp2pCompte1.hangUp(idLibp2pCompte2);
+        await libp2pCompte1.dial(idLibp2pCompte2);
+
+        await vérifierEnvoieMessage({
+          expéditeur: idsLibp2p[0],
+          destinataires: [nébuleuses[1]],
+          envoie: async (message) =>
+            await nébuleuses[0].réseau.envoyerMessageAuDispositif({
+              message,
+              idDispositif: idsDispositifs[1],
+            }),
+        });
       });
     });
 
-    it("envoyer message à une adresse libp2p - retour", async () => {
-      await vérifierEnvoieMessage({
-        expéditeur: idsLibp2p[1],
-        destinataires: [nébuleuses[0]],
-        envoie: async (message) =>
-          await nébuleuses[1].réseau.envoyerMessageAuPair({
-            message,
-            idPair: idsLibp2p[0],
+    describe("envoie dispositifs multiples", async () => {
+      beforeEach(async () => {
+        ({ nébuleuses, fermer } = await créerNébuleusesTest({ n: 3 }));
+
+        idsLibp2p = await Promise.all(
+          nébuleuses.map(async (c) => await c.compte.obtIdLibp2p()),
+        );
+        idsDispositifs = await Promise.all(
+          nébuleuses.map(async (c) => await c.compte.obtIdDispositif()),
+        );
+        idsComptes = await Promise.all(
+          nébuleuses.map(async (c) => await c.compte.obtIdCompte()),
+        );
+      });
+
+      afterEach(async () => {
+        await fermer?.();
+      });
+
+      it("envoyer message à un autre membre qui a plusieurs dispositifs", async () => {
+        const invitation =
+          await nébuleuses[1].réseau.générerInvitationRejoindreCompte();
+        await nébuleuses[2].réseau.rejoindreCompteParInvitation({ invitation });
+
+        await uneFois(
+          async (fSuivi: Suivi<DispositifCompte[]>) => {
+            return await nébuleuses[0].réseau.suivreDispositifsCompte({
+              idCompte: idsComptes[1],
+              f: fSuivi,
+            });
+          },
+          {
+            condition: (dispositifs) =>
+              !!dispositifs &&
+              dispositifs.length > 1 &&
+              dispositifs.every(({ statut }) => statut === "accepté"),
+          },
+        );
+
+        await vérifierEnvoieMessage({
+          expéditeur: idsLibp2p[0],
+          destinataires: [nébuleuses[1], nébuleuses[2]],
+          envoie: async (message) =>
+            await nébuleuses[0].réseau.envoyerMessageAuCompte({
+              message,
+              idCompte: idsComptes[1],
+            }),
+        });
+      });
+
+      it("message envoyé au compte non envoyé à dispositif non autorisé", async () => {
+        // Attendre que les comptes soient bien connectés
+        await uneFois<ConnexionCompte[]>(
+          (fSuivi) =>
+            nébuleuses[0].réseau.suivreConnexionsComptes({ f: fSuivi }),
+          {
+            condition: (connexions) =>
+              !!connexions?.find((c) => c.idCompte === idsComptes[1]),
+          },
+        );
+
+        // Annoncer une association frauduleuse
+        // @ts-expect-error On n'est pas supposé de faire ça...
+        nébuleuses[2].compte.estDémarré = {
+          ...nébuleuses[2].compte.estDémarré,
+          idCompte: idsComptes[1],
+        };
+        await nébuleuses[2].réseau.annoncerIdCompte();
+
+        // Attendre que la fausse association au compte soit reçue
+        await uneFois(
+          async (fSuivi: Suivi<InfosPair[]>) => {
+            return await nébuleuses[0].réseau.suivreInfosPairs({
+              f: fSuivi,
+            });
+          },
+          {
+            condition: (pairs) =>
+              !!pairs &&
+              pairs.find((p) => p.idDispositif === idsDispositifs[2])
+                ?.idCompte === idsComptes[1],
+          },
+        );
+
+        // Attendre que les comptes soient bien connectés eux aussi
+        await uneFois<ConnexionCompte[]>(
+          (fSuivi) =>
+            nébuleuses[0].réseau.suivreConnexionsComptes({ f: fSuivi }),
+          {
+            condition: (connexions) =>
+              !!connexions?.find((c) => c.idCompte === idsComptes[1]),
+          },
+        );
+
+        await vérifierEnvoieMessage({
+          expéditeur: idsLibp2p[0],
+          destinataires: [nébuleuses[1]],
+          envoie: async (message) =>
+            await nébuleuses[0].réseau.envoyerMessageAuCompte({
+              message,
+              idCompte: idsComptes[1],
+            }),
+        });
+      });
+
+      it("erreur si envoyé à compte sans aucun dispositif en ligne", async () => {
+        await nébuleuses[1].fermer();
+        await expect(
+          vérifierEnvoieMessage({
+            expéditeur: idsLibp2p[0],
+            destinataires: [nébuleuses[1]],
+            envoie: async (message) =>
+              await nébuleuses[0].réseau.envoyerMessageAuCompte({
+                message,
+                idCompte: idsComptes[1],
+              }),
           }),
+        ).to.eventually.be.rejectedWith(
+          `Le message n'a pu être envoyé à aucun des dispositifs du compte ${idsComptes[1]}.`,
+        );
       });
-    });
-
-    it("envoyer message à un autre dispositif", async () => {
-      // Attendre que les dispositifs soient bien connectés
-      await uneFois<ConnexionDispositif[]>(
-        (fSuivi) =>
-          nébuleuses[0].réseau.suivreConnexionsDispositifs({ f: fSuivi }),
-        {
-          condition: (connexions) =>
-            !!connexions?.find((c) => c.idDispositif === idsDispositifs[1]),
-        },
-      );
-
-      // Là on envoie le message
-      await vérifierEnvoieMessage({
-        expéditeur: idsLibp2p[0],
-        destinataires: [nébuleuses[1]],
-        envoie: async (message) =>
-          await nébuleuses[0].réseau.envoyerMessageAuDispositif({
-            message,
-            idDispositif: idsDispositifs[1],
-          }),
-      });
-    });
-
-    it("envoyer message à un autre membre", async () => {
-      // Attendre que les comptes soient bien connectés
-      await uneFois<ConnexionCompte[]>(
-        (fSuivi) => nébuleuses[0].réseau.suivreConnexionsComptes({ f: fSuivi }),
-        {
-          condition: (connexions) =>
-            !!connexions?.find((c) => c.idCompte === idsComptes[1]),
-        },
-      );
-
-      // Là on envoie le message
-      await vérifierEnvoieMessage({
-        expéditeur: idsLibp2p[0],
-        destinataires: [nébuleuses[1]],
-        envoie: async (message) =>
-          await nébuleuses[0].réseau.envoyerMessageAuCompte({
-            message,
-            idCompte: idsComptes[1],
-          }),
-      });
-    });
-
-    it("envoyer message à un autre membre qui a plusieurs dispositifs", async () => {
-      const invitation =
-        await nébuleuses[1].réseau.générerInvitationRejoindreCompte();
-      await nébuleuses[2].réseau.rejoindreCompteParInvitation({ invitation });
-      
-      await uneFois(
-        async (fSuivi: Suivi<DispositifCompte[]>) => {
-          return await nébuleuses[0].réseau.suivreDispositifsCompte({
-            idCompte: idsComptes[1],
-            f: fSuivi,
-          });
-        },
-        { condition: (ids) => !!ids && ids.length > 1 },
-      );
-
-      await vérifierEnvoieMessage({
-        expéditeur: idsLibp2p[0],
-        destinataires: [nébuleuses[1], nébuleuses[2]],
-        envoie: async (message) =>
-          await nébuleuses[0].réseau.envoyerMessageAuCompte({
-            message,
-            idCompte: idsComptes[1],
-          }),
-      });
-    });
-
-    it.skip("message envoyé au compte non envoyé à dispositif non autorisé", async () => {
-      throw new Error("à faire !!");
-    });
-
-    it.skip("erreur si envoyé à compte sans aucun dispositif connu", async () => {
-      throw new Error("à faire !!");
-    });
-
-    it.skip("erreur si envoyé à dispositif sans pair libp2p connu", async () => {
-      throw new Error("à faire !!");
-    });
-
-    it.skip("envoyer après reconnexion", async () => {
-      const { promesseBienReçu, messageÀEnvoyer } = await messageReçu({
-        de: idsDispositifs[0],
-        à: nébuleuses[1],
-      });
-      const idLibp2pCompte2 = peerIdFromString(idsLibp2p[1]);
-      const libp2pCompte1 = await nébuleuses[0].services["libp2p"].libp2p();
-
-      await libp2pCompte1.hangUp(idLibp2pCompte2);
-      await libp2pCompte1.dial(idLibp2pCompte2);
-
-      await nébuleuses[0].réseau.envoyerMessageAuDispositif({
-        message: {
-          type: "texte",
-          message: messageÀEnvoyer,
-        },
-        idDispositif: idsDispositifs[1],
-      });
-      const bienReçu = await promesseBienReçu;
-      expect(bienReçu).to.be.true();
     });
   });
 
