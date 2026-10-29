@@ -1621,7 +1621,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const compte = this.service("compte");
     const journal = this.service("journal");
 
-    const idsDispositifs = await compte.obtDispositifsAutorisés({ idCompte });
+    const idsDispositifs = await compte.obtDispositifsAutorisés({
+      idCompte,
+      signal,
+    });
+
     if (!idsDispositifs.length)
       throw new Error(
         `Le compte ${idCompte} n'a pas été retrouvé sur le réseau.`,
