@@ -1636,9 +1636,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         this.envoyerMessageAuDispositif({ idDispositif, message, signal }),
       ),
     );
-    if (résultats.some((r) => r.status === "rejected"))
+
+    const échecs = résultats.filter((r) => r.status === "rejected");
+    if (échecs.length)
       journal.écrire({
-        message: `Le message n'a pas pu être délivré à tous les dispositifs du compte ${idCompte}`,
+        message: `Le message n'a pas pu être délivré à tous les dispositifs du compte ${idCompte}. Détails: ${échecs.map((é) => é.reason)}`,
       });
 
     if (!résultats.some((r) => r.status === "fulfilled"))
