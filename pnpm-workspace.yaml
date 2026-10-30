@@ -1,0 +1,26 @@
+allowBuilds:
+  classic-level: true
+  core-js: true
+  deno: true
+  electron: true
+  esbuild: true
+  iso-constants: true
+  node-datachannel: true
+  unrs-resolver: true
+  iso-constants@https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f: true
+  bun: true
+
+packages: []
+
+minimumReleaseAgeExclude:
+  - "@constl/utils-tests@2.2.3 || 2.2.4 || 2.2.6 || 2.2.7 || 2.2.8"
+  - "@constl/utils-ipa@3.1.0"
+
+overrides:
+  p-queue: "^8.1.1"
+  multiformats: "14.0.5"
+
+patchedDependencies:
+  '@constl/utils-ipa': patches/@constl__utils-ipa.patch
+  '@libp2p/gossipsub': patches/@libp2p__gossipsub.patch
+  '@orbitdb/core': patches/@orbitdb__core.patch
