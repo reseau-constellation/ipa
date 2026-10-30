@@ -2225,7 +2225,7 @@ describe("Nuées", function () {
         ({ dossier: dossierCompte3, effacer: effacerDossierCompte3 } =
           await dossierTempo());
 
-        const compte3 = créerConstellation<ServicesLibp2pNébuleuse>({
+        const constl3 = créerConstellation<ServicesLibp2pNébuleuse>({
           services: {
             dossier: { dossier: dossierCompte3 },
             hélia: {
@@ -2234,19 +2234,20 @@ describe("Nuées", function () {
             },
           },
         });
+        await connecterNébuleuses([constlsTest[0], constl3]);
 
         // Compte 3 accède aux données de compte 2
-        const donnéesSurCompte3 = await obtenir<DonnéesRangéeNuée[]>(
+        const donnéesSurConstl3 = await obtenir<DonnéesRangéeNuée[]>(
           ({ siLongueurAuMoins }) =>
-            compte3.nuées.tableaux.suivreDonnées({
+            constl3.nuées.tableaux.suivreDonnées({
               idStructure: idNuée,
               idTableau,
               f: siLongueurAuMoins(réf.length),
             }),
         );
-        await compte3.fermer();
+        await constl3.fermer();
 
-        expect(donnéesSurCompte3).to.have.deep.members(réf);
+        expect(donnéesSurConstl3).to.have.deep.members(réf);
       });
     });
   });
