@@ -260,6 +260,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     }) => {
       const { idCompte, signature, idDispositif } = message;
 
+      // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
       const signatureValide = await orbite.vérifierSignature({
         signature,
         message: idDispositif,
@@ -1300,7 +1301,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             ),
           ].filter((id) => !relationsImmédiates[id]);
 
-          await Promise.all(
+          await Promise.allSettled(
             àSuivre.map(async (id) => {
               relationsImmédiates[id] = {
                 relations: [],
