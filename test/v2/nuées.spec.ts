@@ -2208,7 +2208,7 @@ describe("Nuées", function () {
         if (effacerDossierCompte3) effacerDossierCompte3();
       });
 
-      it.skip("transmission données", async () => {
+      it("transmission données", async () => {
         // Attendre que les données du compte 2 soient bien syncronisées sur le compte 1
         await obtenir<DonnéesRangéeNuée[]>(({ siLongueurAuMoins }) =>
           constlsTest[0].nuées.tableaux.suivreDonnées({
