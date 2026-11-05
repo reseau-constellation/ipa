@@ -1994,6 +1994,7 @@ export class Nuées extends ObjetConstellation<
           await fFinale();
         },
       });
+      àOublierObjectif.push(oublierIdCompte);
 
       // Suivre les changements de parentée
       const oublierRéactionParentée = appelerLorsque({
@@ -2047,10 +2048,7 @@ export class Nuées extends ObjetConstellation<
       àOublierObjectif.push(oublierAuteurs);
 
       return async () => {
-        await Promise.allSettled([
-          ...àOublierObjectif.map((f) => f()),
-          oublierIdCompte(),
-        ]);
+        await Promise.allSettled(àOublierObjectif.map((f) => f()));
       };
     };
 
