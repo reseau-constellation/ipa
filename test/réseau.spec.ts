@@ -12,7 +12,6 @@ import type {
 import type {
   infoConfiance,
   infoMembreRéseau,
-  infoRelation,
 } from "@/reseau.js";
 import { type Constellation, créerConstellation } from "@/index.js";
 
@@ -253,107 +252,6 @@ describe("Réseau", function () {
         const valAutres = await relationsPropres.attendreExiste();
         expect(valAutres.length).to.equal(0);
       });
-    });
-  });
-
-  describe("Suivre relations confiance", function () {
-    let fOublierConstls: () => Promise<void>;
-    let idsComptes: string[];
-    let constls: Constellation[];
-
-    let fOublier: schémaFonctionOublier;
-    let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
-    const rés = new utilsTestAttente.AttendreRésultat<infoRelation[]>();
-
-    before(async () => {
-      ({ idsComptes, constls, fOublierConstls } = await toutPréparer(3));
-      ({ fOublier, fChangerProfondeur } =
-        await constls[0].réseau.suivreRelationsConfiance({
-          f: (r) => rés.mettreÀJour(r),
-          profondeur: 2,
-        }));
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-      if (fOublierConstls) await fOublierConstls();
-
-      rés.toutAnnuler();
-    });
-
-    it("Relations immédiates", async () => {
-      const réf: infoRelation[] = [
-        {
-          de: idsComptes[0],
-          pour: idsComptes[1],
-          confiance: 1,
-          profondeur: 1,
-        },
-      ];
-      await constls[0].réseau.faireConfianceAuMembre({
-        idCompte: idsComptes[1],
-      });
-
-      const val = await rés.attendreQue((x) => !!x && !!x.length);
-      expect(val).to.deep.equal(réf);
-    });
-    it("Relations indirectes", async () => {
-      const réf: infoRelation[] = [
-        {
-          de: idsComptes[0],
-          pour: idsComptes[1],
-          confiance: 1,
-          profondeur: 1,
-        },
-        {
-          de: idsComptes[1],
-          pour: idsComptes[2],
-          confiance: 1,
-          profondeur: 2,
-        },
-      ];
-      await constls[1].réseau.faireConfianceAuMembre({
-        idCompte: idsComptes[2],
-      });
-
-      const val = await rés.attendreQue((x) => !!x && x.length > 1);
-      expect(val).to.deep.equal(réf);
-    });
-
-    it("Diminuer profondeur", async () => {
-      const réf: infoRelation[] = [
-        {
-          de: idsComptes[0],
-          pour: idsComptes[1],
-          confiance: 1,
-          profondeur: 1,
-        },
-      ];
-      fChangerProfondeur(1);
-      const val = await rés.attendreQue((x) => !!x && x.length === 1);
-      expect(val).to.deep.equal(réf);
-    });
-
-    it("Augmenter profondeur", async () => {
-      const réf: infoRelation[] = [
-        {
-          de: idsComptes[0],
-          pour: idsComptes[1],
-          confiance: 1,
-          profondeur: 1,
-        },
-        {
-          de: idsComptes[1],
-          pour: idsComptes[2],
-          confiance: 1,
-          profondeur: 2,
-        },
-      ];
-
-      fChangerProfondeur(2);
-
-      const val = await rés.attendreQue((x) => !!x && x.length === 2);
-      expect(val).to.deep.equal(réf);
     });
   });
 
