@@ -1792,7 +1792,7 @@ export class Nuées extends ObjetConstellation<
       f: Suivi<string[]>;
       ascendance?: string[];
     }): Promise<Oublier> => {
-      return suivreFonctionImbriquée({
+      return await suivreFonctionImbriquée({
         fRacine: async ({ fSuivreRacine }) =>
           await suivreParent({
             idNuée: idNuéeASuivre,
