@@ -726,12 +726,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       idPair: await compte.obtIdLibp2p(),
       idDispositif: await compte.obtIdDispositif(),
     };
-    const oublierMonCompte = await compte.suivreIdCompte({
-      f: async (idCompte) => {
-        monPair.idCompte = idCompte;
-        await fFinale();
-      },
-    });
 
     const fSuivi = async ({
       id,
@@ -781,6 +775,13 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         })),
       );
     };
+
+    const oublierMonCompte = await compte.suivreIdCompte({
+      f: async (idCompte) => {
+        monPair.idCompte = idCompte;
+        await fFinale();
+      },
+    });
 
     const oublierDispositifsAutorisés = await suivreFonctionImbriquée({
       fRacine: async ({
