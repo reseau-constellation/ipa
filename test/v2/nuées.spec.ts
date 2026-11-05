@@ -2083,7 +2083,7 @@ describe("Nuées", function () {
         }));
       });
 
-      it("persistance après fermeture compte bd", async () => {
+      it("persistance après fermeture compte contributeur", async () => {
         // Données détectées sur le compte 1
         await obtenir<DonnéesRangéeNuée[]>(({ siLongueurAuMoins }) =>
           constlsTest[0].nuées.tableaux.suivreDonnées({
