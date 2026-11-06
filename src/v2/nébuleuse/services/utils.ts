@@ -161,18 +161,21 @@ export const générerRésolveur = <T, S>(
 
     await Promise.allSettled([...oublis.values()].map((f) => f()));
   };
+
   const fFinale = async (...args: Parameters<FonctionRésolveur<T, S>>) => {
     if (fermé) return faisRien;
     n++;
     const oublier = await f(...args);
-    oublis.add(oublier);
+    oublis.add(async () => {
+      if (oublis.has(oublier)) {
+        oublis.delete(oublier);
+        await oublier();
+      }
+    });
     n--;
     événements.emit("terminé", n);
 
-    return async () => {
-      oublier();
-      oublis.delete(oublier);
-    };
+    return oublier;
   };
   return Object.assign(fFinale, { fermer });
 };
