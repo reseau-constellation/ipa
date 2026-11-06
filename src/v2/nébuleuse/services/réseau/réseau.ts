@@ -28,6 +28,7 @@ import {
   générerCodeSecret,
   générerRésolveur,
   obtEmpreinteCode,
+  oublierOuAttendreOublie,
   vérifierProfondeur,
   type FonctionRésolveur,
   type Résolveur,
@@ -1198,17 +1199,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     }): Promise<RetourRechercheProfondeur> => {
       const contrôleurSignal = new AbortController();
 
-      const relationsImmédiates: {
-        [idCompte: string]: {
-          relations: RelationImmédiate[];
-          oublier?: Oublier;
-        };
-      } = {
-        [idCompte]: {
-          relations: [],
-        },
-      };
-
       const queue = new PQueue({ concurrency: 1 });
 
       const fFinale = async () => {
@@ -1283,9 +1273,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               !ceuxDontOnVeutSuivreLesRelations.includes(id) && id !== idCompte,
           );
           await Promise.allSettled(
-            ceuxDontOnVeutOublierLesRelations.map((id) =>
-              relationsImmédiates[id].oublier?.(),
-            ),
+            ceuxDontOnVeutOublierLesRelations.map((id) => oublierOuAttendreOublie(relationsImmédiates[id].oublier)),
           );
           if (this.signaleurArrêt.signal.aborted) return;
 
@@ -1306,8 +1294,18 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             àSuivre.map(async (id) => {
               relationsImmédiates[id] = {
                 relations: [],
+                oublier: async () => {
+                  const pOublier = new Promise<void>(résoudre => {
+                      pOublierRelations.then(oublier => oublier?.()).then(() => {
+                          delete relationsImmédiates[id];
+                          résoudre();
+                      });
+                  });
+                  relationsImmédiates[id].oublier = pOublier;
+                  await pOublier;
+              }
               };
-              const oublierSuivi = await this.suivreRelationsImmédiates({
+              const pOublierRelations = this.suivreRelationsImmédiates({
                 idCompte: id,
                 f: async (relations) => {
                   relationsImmédiates[id].relations = relations;
@@ -1315,10 +1313,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
                   await fFinale();
                 },
               });
-              relationsImmédiates[id].oublier = async () => {
-                delete relationsImmédiates[id];
-                await oublierSuivi();
-              };
             }),
           );
           await fFinale();
@@ -1327,7 +1321,28 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         if (!contrôleurSignal.signal.aborted) queue.add(tâche);
       };
 
-      const oublierRelationsInitiale = await this.suivreRelationsImmédiates({
+      const relationsImmédiates: {
+        [idCompte: string]: {
+          relations: RelationImmédiate[];
+          oublier: Oublier | Promise<void>;
+        };
+      } = {
+        [idCompte]: {
+          relations: [],
+          oublier: async () => {
+            const pOublier = new Promise<void>(résoudre => {
+              pOublierRelationsInitiale.then(oublier => oublier?.()).then(() => {
+                    delete relationsImmédiates[idCompte];
+                    résoudre();
+                });
+            });
+            relationsImmédiates[idCompte].oublier = pOublier;
+            await pOublier;
+        }
+        },
+      };
+
+      const pOublierRelationsInitiale = this.suivreRelationsImmédiates({
         idCompte,
         f: async (relations) => {
           relationsImmédiates[idCompte].relations = relations;
@@ -1335,14 +1350,13 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           await fFinale();
         },
       });
-      relationsImmédiates[idCompte].oublier = oublierRelationsInitiale;
 
       const oublier = async () => {
         contrôleurSignal.abort();
         queue.clear();
         if (queue.pending) await queue.onIdle();
         await Promise.allSettled(
-          Object.values(relationsImmédiates).map((r) => r.oublier()),
+          Object.values(relationsImmédiates).map((r) => oublierOuAttendreOublie(r.oublier)),
         );
       };
 

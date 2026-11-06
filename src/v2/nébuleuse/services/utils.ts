@@ -179,3 +179,7 @@ export const générerRésolveur = <T, S>(
   };
   return Object.assign(fFinale, { fermer });
 };
+
+export const oublierOuAttendreOublie = async (x: Promise<void> | Oublier) => {
+  return await (estUnePromesse(x) ? x : x());
+};
