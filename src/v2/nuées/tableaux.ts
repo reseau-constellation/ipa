@@ -278,19 +278,22 @@ export class TableauxNuées extends Tableaux {
             }
           }
         };
-
+        const àOublier: Oublier[] = [];
         if (filtresDonnées?.exclureAvecErreursDonnées) {
-          await this.suivreValidateursDonnées({
-            idStructure,
-            idTableau,
-            f: async (règles) => {
-              info.règles = règles;
-              await fFinale();
+          const oublierValidateursDonnées = await this.suivreValidateursDonnées(
+            {
+              idStructure,
+              idTableau,
+              f: async (règles) => {
+                info.règles = règles;
+                await fFinale();
+              },
+              résolveurDonnéesCatégorie: bds.tableaux.suivreDonnées.bind(
+                bds.tableaux,
+              ),
             },
-            résolveurDonnéesCatégorie: bds.tableaux.suivreDonnées.bind(
-              bds.tableaux,
-            ),
-          });
+          );
+          àOublier.push(oublierValidateursDonnées);
         }
 
         const oublierDonnées = await bds.tableaux.suivreDonnées({
@@ -302,8 +305,10 @@ export class TableauxNuées extends Tableaux {
           },
           clefsSelonVariables,
         });
+        àOublier.push(oublierDonnées);
+
         return async () => {
-          await oublierDonnées();
+          await Promise.allSettled(àOublier.map((f) => f()));
         };
       },
       f,
