@@ -1360,7 +1360,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         queue.clear();
         await queue.onIdle();
         await Promise.allSettled(
-          Object.values(relationsImmédiates).map((r) => oublierOuAttendreOublie(r.oublier)),
+          Object.values(relationsImmédiates).map((r) =>
+            oublierOuAttendreOublie(r.oublier),
+          ),
         );
       };
 
