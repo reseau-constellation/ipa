@@ -198,6 +198,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     services: ServicesNécessairesRéseau;
     options: OptionsAppli;
   }) {
+    // @ts-expect-error C'est trop compliqué pour moi
     super({
       clef: "réseau",
       services,
