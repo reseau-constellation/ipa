@@ -44,14 +44,15 @@ export const réessayer = async <T>(
       return await Promise.race([f(), pSignal(signal)]);
     } catch (e) {
       if (signal.aborted || estErreurAvortée(e as Error))
-        throw new Error("AbortError: Signal avorté");
+        throw new Error("AbortError: Signal avorté", { cause: e });
       n++;
       const maintenant = Date.now();
       const tempsÀAttendre = n * 1000 + (maintenant - avant);
       if (tempsÀAttendre > 0) {
         await attendre(tempsÀAttendre, signal);
 
-        if (signal.aborted) throw new Error("AbortError: Signal avorté");
+        if (signal.aborted)
+          throw new Error("AbortError: Signal avorté", { cause: e });
       }
       return await _interne({ f, n });
     }
