@@ -646,15 +646,16 @@ describe("Réseau", function () {
       await nébuleuses[1].réseau.débloquerCompte({ idCompte: idsComptes[2] });
     });
 
-    it.skip("changer profondeur", async () => {
+    it("changer profondeur", async () => {
       await recherche.p(0);
       const comptes = await recherche.si(
         (comptes) =>
-          (comptes?.find((c) => c.idCompte === idsComptes[2])?.confiance ??
-            NaN) === 0,
+          !!comptes && !comptes?.find((c) => c.idCompte === idsComptes[2]),
       );
 
-      expect(comptes.find((c) => c.idCompte === idsComptes[2])).to.equal(0);
+      expect(
+        comptes.find((c) => c.idCompte === idsComptes[2]),
+      ).to.be.undefined();
       expect(
         comptes.find((c) => c.idCompte === idsComptes[1]),
       ).to.be.greaterThan(0);
