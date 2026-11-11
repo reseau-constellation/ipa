@@ -374,8 +374,6 @@ export class CacheSuivi {
           this.suivis.delete(codeCache);
           await oublier();
         }
-      } catch (e) {
-        console.log("ahah une erreur !!!", { codeCache }, e);
       } finally {
         this.verrou.release(codeCache);
       }
