@@ -3,8 +3,9 @@ import { MEMBRE } from "@/v2/nébuleuse/services/compte/accès/consts.js";
 import { créerConstellationsTest, obtenir } from "./utils.js";
 import type { Constellation } from "@/v2/index.js";
 import type { Oublier } from "@/v2/nébuleuse/types.js";
+import type { RelationImmédiate } from "@/v2/nébuleuse/services/réseau/réseau.js";
 
-describe.skip("Réseau Constellation", async () => {
+describe("Réseau Constellation", async () => {
   let constls: Constellation[];
   let fermer: Oublier;
 
@@ -58,6 +59,40 @@ describe.skip("Réseau Constellation", async () => {
       );
 
       expect(confiance).to.be.greaterThan(0);
+    });
+
+    it("favoris", async () => {
+      const pConfiance = obtenir<number>(({ si }) =>
+        constls[2].réseau
+          .suivreConfianceCompte({
+            idCompte: idsComptes[0],
+            f: si((x) => !!x && x !== 0),
+          })
+          .then(({ oublier }) => oublier),
+      );
+      await constls[2].motsClefs.épingler({
+        idMotClef,
+      });
+      const confiance = await pConfiance;
+
+      expect(confiance).to.be.greaterThan(0);
+    });
+
+    it("enlever favori", async () => {
+      const pRelations = obtenir<RelationImmédiate[]>(({ si }) =>
+        constls[2].réseau
+          .suivreRelationsImmédiates({
+            f: si((x) => !!x && !x.find(r=>r.idCompte === idsComptes[0])),
+          }),
+      );
+
+      await constls[2].motsClefs.désépingler({
+        idMotClef,
+      });
+      
+      const relations = await pRelations;
+
+      expect(relations).to.be.empty();
     });
   });
 });
