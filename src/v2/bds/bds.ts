@@ -1449,8 +1449,7 @@ export class Bds extends ObjetConstellation<
           },
         });
         return async () => {
-          await oublierTableaux();
-          await oublierTableauxRéf();
+          await Promise.allSettled([oublierTableaux(), oublierTableauxRéf()]);
         };
       },
       fBranche: async ({ id: tableau, fSuivreBranche }) => {
@@ -1818,9 +1817,11 @@ export class Bds extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierEmpreintesTableaux();
-      await oublierEmpreinteVariables();
-      await oublierEmpreinteBd();
+      await Promise.allSettled([
+        oublierEmpreintesTableaux(),
+        oublierEmpreinteVariables(),
+        oublierEmpreinteBd(),
+      ]);
     };
   }
 
@@ -2043,9 +2044,11 @@ export class Bds extends ObjetConstellation<
       });
 
       return async () => {
-        await oublierDonnées();
-        await oublierErreurs();
-        await oublierColonnes();
+        await Promise.allSettled([
+          oublierDonnées(),
+          oublierErreurs(),
+          oublierColonnes(),
+        ]);
       };
     };
 
@@ -2138,11 +2141,13 @@ export class Bds extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierAccès();
-      await oublierCouverture();
-      await oublierValide();
-      await oublierInfos();
-      await oublierLicence();
+      await Promise.allSettled([
+        oublierAccès(),
+        oublierCouverture(),
+        oublierValide(),
+        oublierInfos(),
+        oublierLicence(),
+      ]);
     };
   }
 

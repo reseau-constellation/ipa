@@ -371,8 +371,10 @@ export class Nuées extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierConfianceAutorat();
-      await oublierConfianceAutorisations();
+      await Promise.allSettled([
+        oublierConfianceAutorat(),
+        oublierConfianceAutorisations(),
+      ]);
     };
   }
 
@@ -1717,8 +1719,10 @@ export class Nuées extends ObjetConstellation<
           },
         });
         return async () => {
-          await oublierTableauxNuée();
-          await oublierTableauxBd();
+          await Promise.allSettled([
+            oublierTableauxNuée(),
+            oublierTableauxBd(),
+          ]);
         };
       },
       fBranche: async ({ id: tableau, fSuivreBranche }) => {
@@ -2133,9 +2137,11 @@ export class Nuées extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierEmpreintesBds();
-      await oublierEmpreinteVariables();
-      await oublierEmpreinteNuée();
+      await Promise.allSettled([
+        oublierEmpreintesBds(),
+        oublierEmpreinteVariables(),
+        oublierEmpreinteNuée(),
+      ]);
     };
   }
 
@@ -2272,8 +2278,7 @@ export class Nuées extends ObjetConstellation<
     });
 
     const oublier = async () => {
-      await oublierNoms();
-      await oublierDescr();
+      await Promise.allSettled([oublierNoms(), oublierDescr()]);
     };
 
     return oublier;
@@ -2383,9 +2388,11 @@ export class Nuées extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierAccès();
-      await oublierCouverture();
-      await oublierInfos();
+      await Promise.allSettled([
+        oublierAccès(),
+        oublierCouverture(),
+        oublierInfos(),
+      ]);
     };
   }
 

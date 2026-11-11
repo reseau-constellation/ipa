@@ -361,7 +361,7 @@ export abstract class RechercheObjets<
           },
         });
         return async () => {
-          await Promise.all([oublierRecherche(), oublierFavoris()]);
+          await Promise.allSettled([oublierRecherche(), oublierFavoris()]);
         };
       };
 

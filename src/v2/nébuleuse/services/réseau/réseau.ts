@@ -757,8 +757,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         },
       );
       return async () => {
-        await oublierAutorisés();
-        await oublier();
+        await Promise.allSettled([oublierAutorisés(), oublier()]);
       };
     };
 
@@ -1082,8 +1081,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     });
 
     return async () => {
-      await oublierPubliques();
-      await oublierPrivés();
+      await Promise.allSettled([oublierPubliques(), oublierPrivés()]);
     };
   }
 
@@ -1501,9 +1499,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       });
 
       return async () => {
-        await oublierBloqués();
-        await oublierFiables();
-        await Promise.allSettled(oublierConfiances.map((f) => f()));
+        await Promise.allSettled([
+          oublierBloqués(),
+          oublierFiables(),
+          ...oublierConfiances.map((f) => f()),
+        ]);
       };
     };
 

@@ -247,8 +247,7 @@ export class BaseServiceCompte<
             (x) => fSuivre(x.map((d) => d.idDispositif)),
           );
           return async () => {
-            await oublierSuivi();
-            await oublier();
+            await Promise.allSettled([oublierSuivi(), oublier()]);
           };
         } else
           throw new Error(

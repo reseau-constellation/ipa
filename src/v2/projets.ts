@@ -820,8 +820,10 @@ export class Projets extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierMotsClefsPropres();
-      await oublierMotsClefsBds();
+      await Promise.allSettled([
+        oublierMotsClefsPropres(),
+        oublierMotsClefsBds(),
+      ]);
     };
   }
 
@@ -1018,9 +1020,11 @@ export class Projets extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierEmpreintesBds();
-      await oublierEmpreinteVariables();
-      await oublierEmpreinteProjet();
+      await Promise.allSettled([
+        oublierEmpreintesBds(),
+        oublierEmpreinteVariables(),
+        oublierEmpreinteProjet(),
+      ]);
     };
   }
 

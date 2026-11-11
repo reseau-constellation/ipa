@@ -554,8 +554,7 @@ export class TableauxBds extends Tableaux {
     });
 
     return async () => {
-      await oublierDonnées();
-      await oublierColonnes();
+      await Promise.allSettled([oublierDonnées(), oublierColonnes()]);
     };
   }
 

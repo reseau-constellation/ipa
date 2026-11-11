@@ -734,8 +734,7 @@ export class Variables extends ObjetConstellation<
     });
 
     return async () => {
-      await oublierCatégorie();
-      await oublierRèglesPropres();
+      await Promise.allSettled([oublierCatégorie(), oublierRèglesPropres()]);
     };
   }
 

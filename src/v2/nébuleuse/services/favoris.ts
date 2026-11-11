@@ -476,8 +476,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     });
 
     return async () => {
-      await oublierMonCompte();
-      await oublierFavoris();
+      await Promise.allSettled([oublierMonCompte(), oublierFavoris()]);
     };
   }
 

@@ -1543,8 +1543,7 @@ export class Tableaux {
     });
 
     return async () => {
-      await oublierColonnes();
-      await oublierRègles();
+      await Promise.allSettled([oublierColonnes(), oublierRègles()]);
     };
   }
 }
