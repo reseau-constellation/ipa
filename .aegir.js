@@ -38,7 +38,6 @@ const générerServeurRessourcesTests = async (opts) => {
       const racine = path.join(
         url.fileURLToPath(new URL(".", import.meta.url)),
         "test",
-        "v2",
         "ressources",
       );
 
