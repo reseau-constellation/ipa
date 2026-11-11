@@ -213,7 +213,7 @@ export const obtenir = async <T>(
     tous,
   });
 
-  const promesse = new Promise<T>((compléter) => {
+  return new Promise<T>((compléter) => {
     if (résultat) {
       const résultatExistant = résultat;
       fOublier().then(() => compléter(résultatExistant.val));
@@ -225,7 +225,6 @@ export const obtenir = async <T>(
     }
   });
 
-  return promesse;
 };
 
 export type ObtRecherche<T extends InfoRésultat = InfoRésultat> = {
