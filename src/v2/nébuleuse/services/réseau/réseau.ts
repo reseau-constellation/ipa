@@ -1271,7 +1271,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               !ceuxDontOnVeutSuivreLesRelations.includes(id) && id !== idCompte,
           );
           await Promise.allSettled(
-            ceuxDontOnVeutOublierLesRelations.map((id) => oublierOuAttendreOublie(relationsImmédiates[id].oublier)),
+            ceuxDontOnVeutOublierLesRelations.map((id) =>
+              oublierOuAttendreOublie(relationsImmédiates[id].oublier),
+            ),
           );
           if (this.signaleurArrêt.signal.aborted) return;
 
@@ -1293,15 +1295,17 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               relationsImmédiates[id] = {
                 relations: [],
                 oublier: async () => {
-                  const pOublier = new Promise<void>(résoudre => {
-                      pOublierRelations.then(oublier => oublier?.()).then(() => {
-                          delete relationsImmédiates[id];
-                          résoudre();
+                  const pOublier = new Promise<void>((résoudre) => {
+                    pOublierRelations
+                      .then((oublier) => oublier?.())
+                      .then(() => {
+                        delete relationsImmédiates[id];
+                        résoudre();
                       });
                   });
                   relationsImmédiates[id].oublier = pOublier;
                   await pOublier;
-              }
+                },
               };
               const pOublierRelations = this.suivreRelationsImmédiates({
                 idCompte: id,
@@ -1328,15 +1332,17 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         [idCompte]: {
           relations: [],
           oublier: async () => {
-            const pOublier = new Promise<void>(résoudre => {
-              pOublierRelationsInitiale.then(oublier => oublier?.()).then(() => {
-                    delete relationsImmédiates[idCompte];
-                    résoudre();
+            const pOublier = new Promise<void>((résoudre) => {
+              pOublierRelationsInitiale
+                .then((oublier) => oublier?.())
+                .then(() => {
+                  delete relationsImmédiates[idCompte];
+                  résoudre();
                 });
             });
             relationsImmédiates[idCompte].oublier = pOublier;
             await pOublier;
-        }
+          },
         },
       };
 
