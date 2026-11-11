@@ -22,10 +22,7 @@ import { dossierTempoPropre, utiliserFauxChronomètres } from "../utils.js";
 import { créerNébuleusesTest, NébuleuseTest } from "./utils.js";
 import type sinon from "sinon";
 import type { ServicesNécessairesDonnées } from "@/nébuleuse/services/services.js";
-import type {
-  OptionsAppli,
-  ServicesAppli,
-} from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "@/nébuleuse/services/libp2p/libp2p.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";

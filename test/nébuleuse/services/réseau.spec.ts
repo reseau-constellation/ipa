@@ -31,10 +31,7 @@ import { obtEmpreinteCode } from "@/nébuleuse/services/utils.js";
 import { obtenir, rechercherProfondeur } from "../../utils.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ObtRechercheProfondeur } from "../../utils.js";
-import type {
-  OptionsAppli,
-  ServicesAppli,
-} from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/nébuleuse/nébuleuse.js";
@@ -650,7 +647,8 @@ describe("Réseau", function () {
       await recherche.p(0);
       const comptes = await recherche.si(
         (comptes) =>
-          ((comptes?.length ?? NaN) >= 2) && !comptes?.find((c) => c.idCompte === idsComptes[2]),
+          (comptes?.length ?? NaN) >= 2 &&
+          !comptes?.find((c) => c.idCompte === idsComptes[2]),
       );
 
       expect(

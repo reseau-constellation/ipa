@@ -19,10 +19,7 @@ import {
   moyenne,
   type DonnéesFichierBdExportées,
 } from "@/utils.js";
-import {
-  CONFIANCE_INVITÉ,
-  PÉNALITÉ_CONFIANCE_BLOQUÉ,
-} from "@/nuées/nuées.js";
+import { CONFIANCE_INVITÉ, PÉNALITÉ_CONFIANCE_BLOQUÉ } from "@/nuées/nuées.js";
 import { CONFIANCE_DE_COAUTEUR } from "@/nébuleuse/services/consts.js";
 import {
   RÉSOLVEUR_CONFIANCE,
@@ -57,11 +54,7 @@ import type {
   TraducsTexte,
 } from "@/types.js";
 import type { Oublier } from "@/nébuleuse/types.js";
-import type {
-  DifférenceBds,
-  DonnéesBdExportées,
-  SchémaBd,
-} from "@/bds/bds.js";
+import type { DifférenceBds, DonnéesBdExportées, SchémaBd } from "@/bds/bds.js";
 import type { DonnéesRangéeTableau, InfoColonne } from "@/tableaux.js";
 import type { ServicesLibp2pNébuleuse } from "@/nébuleuse/services/libp2p/libp2p.js";
 import type { SinonFakeTimers } from "sinon";

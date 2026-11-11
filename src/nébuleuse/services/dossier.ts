@@ -5,10 +5,7 @@ import { ServiceAppli } from "@/nébuleuse/appli/services.js";
 import { STATUTS } from "../appli/consts.js";
 import type TypeFs from "fs";
 import type { Jsonifiable, Oublier } from "../types.js";
-import type {
-  OptionsAppli,
-  ServicesAppli,
-} from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 
 export const FICHIER_VERROU = "VERROU";
 export const INTERVALE_VERROU = 5000; // 5 millisecondes

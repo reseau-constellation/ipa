@@ -224,7 +224,6 @@ export const obtenir = async <T>(
       });
     }
   });
-
 };
 
 export type ObtRecherche<T extends InfoRésultat = InfoRésultat> = {

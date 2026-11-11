@@ -17,10 +17,7 @@ import type {
   RecursivePartial,
 } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
-import type {
-  OptionsAppli,
-  ServicesAppli,
-} from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 
 import type { PartielRécursif } from "@/types.js";
 import type { Oublier, Suivi } from "../types.js";

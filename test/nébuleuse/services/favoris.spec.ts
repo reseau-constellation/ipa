@@ -18,10 +18,7 @@ import { créerNébuleusesTest } from "../utils.js";
 import type { ContenuÉpingleProfil } from "@/nébuleuse/services/profil.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/nébuleuse/types.js";
-import type {
-  OptionsAppli,
-  ServicesAppli,
-} from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 
 describe("Favoris", function () {
   let nébuleuses: NébuleuseTest[];

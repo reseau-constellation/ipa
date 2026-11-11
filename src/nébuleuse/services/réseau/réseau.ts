@@ -50,10 +50,7 @@ import type {
 import type { ServicesNécessairesDonnées } from "../services.js";
 import type { Libp2pEvents, Stream } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
-import type {
-  OptionsAppli,
-  ServicesAppli,
-} from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 import type { ServiceAppli } from "../../appli/services.js";

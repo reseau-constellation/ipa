@@ -14,11 +14,7 @@ import {
   MODÉRATRICE,
 } from "@/nébuleuse/services/compte/accès/consts.js";
 import { créerConstellation, type Constellation } from "@/index.js";
-import {
-  enleverPréfixes,
-  enleverPréfixesEtOrbite,
-  moyenne,
-} from "@/utils.js";
+import { enleverPréfixes, enleverPréfixesEtOrbite, moyenne } from "@/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import {
   créerConstellationsTest,

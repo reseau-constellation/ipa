@@ -80,16 +80,15 @@ describe("Réseau Constellation", async () => {
 
     it("enlever favori", async () => {
       const pRelations = obtenir<RelationImmédiate[]>(({ si }) =>
-        constls[2].réseau
-          .suivreRelationsImmédiates({
-            f: si((x) => !!x && !x.find(r=>r.idCompte === idsComptes[0])),
-          }),
+        constls[2].réseau.suivreRelationsImmédiates({
+          f: si((x) => !!x && !x.find((r) => r.idCompte === idsComptes[0])),
+        }),
       );
 
       await constls[2].motsClefs.désépingler({
         idMotClef,
       });
-      
+
       const relations = await pRelations;
 
       expect(relations).to.be.empty();
