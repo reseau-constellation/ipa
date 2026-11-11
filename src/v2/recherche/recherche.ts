@@ -2,7 +2,11 @@ import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { moyenne } from "../utils.js";
 import { dédupliquer, stabiliser } from "../nébuleuse/utils.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
-import { EstimateurAsymptoteTemps, calculerIntersection } from "./utils.js";
+import {
+  EstimateurAsymptoteTemps,
+  calculerIntersection,
+  suivreSi,
+} from "./utils.js";
 import {
   COEFFICIENT_ASYMPTOTE_INTERSECTION_Y,
   MÉMOIRE_ESTIMATEUR_ASYMPTOTE,
@@ -77,7 +81,9 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
       await f(résultatsTroncés.map((r) => r.résultat));
 
       const profondeurDésirée = actualiserEstimateurs(résultatsTroncés);
-      await ajusterProfondeurStable?.(profondeurDésirée);
+      // Ne PAS utiliser `await` ci-dessous. Ça bloque le retour pour 2 secondes en raison
+      // de la fonction stabilisée
+      ajusterProfondeurStable?.(profondeurDésirée);
     });
 
     // Estimateur sommes scores sur n éventuelles par profondeur
@@ -182,35 +188,41 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
             // Nécessaire si jamais le résultat change et devient `undefined`
             else await fSuivreBranche(undefined);
           };
-          const oublierObjectif = await fObjectif({
-            services: this.service,
-            idObjet,
-            f: async (résultat) => {
-              info.résultat = résultat;
-              await fFinaleBranche();
+
+          const oublierObjectif = await suivreSi({
+            fRacine: async ({ fSuivreRacine }) =>
+              await fObjectif({
+                services: this.service,
+                idObjet,
+                f: async (résultat) => {
+                  info.résultat = résultat;
+                  await fFinaleBranche();
+                  fSuivreRacine(
+                    résultat?.score !== undefined && résultat.score > 0,
+                  );
+                },
+              }),
+            fSuivi: async () => {
+              const oublierConfiance = await fConfiance({
+                idObjet,
+                f: async (confiance) => {
+                  info.confiance = confiance;
+                  await fFinaleBranche();
+                },
+              });
+              const oublierQualité = await fQualité({
+                idObjet,
+                f: async (qualité) => {
+                  info.qualité = qualité;
+                  await fFinaleBranche();
+                },
+              });
+              return async () => {
+                Promise.allSettled([oublierConfiance(), oublierQualité()]);
+              };
             },
           });
-          const oublierConfiance = await fConfiance({
-            idObjet,
-            f: async (confiance) => {
-              info.confiance = confiance;
-              await fFinaleBranche();
-            },
-          });
-          const oublierQualité = await fQualité({
-            idObjet,
-            f: async (qualité) => {
-              info.qualité = qualité;
-              await fFinaleBranche();
-            },
-          });
-          return async () => {
-            await Promise.allSettled([
-              oublierObjectif(),
-              oublierConfiance(),
-              oublierQualité(),
-            ]);
-          };
+          return oublierObjectif;
         },
         f: fSuivreBranche,
       });
