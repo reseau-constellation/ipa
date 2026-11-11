@@ -650,14 +650,14 @@ describe("Réseau", function () {
       await recherche.p(0);
       const comptes = await recherche.si(
         (comptes) =>
-          !!comptes && !comptes?.find((c) => c.idCompte === idsComptes[2]),
+          ((comptes?.length ?? NaN) >= 2) && !comptes?.find((c) => c.idCompte === idsComptes[2]),
       );
 
       expect(
         comptes.find((c) => c.idCompte === idsComptes[2]),
       ).to.be.undefined();
       expect(
-        comptes.find((c) => c.idCompte === idsComptes[1]),
+        comptes.find((c) => c.idCompte === idsComptes[1])?.confiance,
       ).to.be.greaterThan(0);
       await recherche.p(5);
     });
