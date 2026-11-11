@@ -541,7 +541,7 @@ describe("Réseau", function () {
     });
   });
 
-  describe.only("confiance - automatique", function () {
+  describe("confiance - automatique", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
