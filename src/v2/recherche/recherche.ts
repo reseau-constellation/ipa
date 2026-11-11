@@ -131,11 +131,15 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
       qualité?: number;
     }): number => {
       const POIDS_RESTANT = (1 - POIDS_SCORE_RÉSULTAT) * 3;
-      return moyenne([
-        résultat * POIDS_SCORE_RÉSULTAT * 3,
-        (confiance * POIDS_RESTANT) / 2,
-        (qualité * POIDS_RESTANT) / 2,
-      ]);
+      return (
+        résultat *
+        POIDS_SCORE_RÉSULTAT *
+        3 *
+        moyenne([
+          (confiance * POIDS_RESTANT) / 2,
+          (qualité * POIDS_RESTANT) / 2,
+        ])
+      );
     };
 
     const fSuivreCompte = async ({
