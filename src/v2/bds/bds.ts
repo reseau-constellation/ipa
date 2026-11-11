@@ -1641,6 +1641,7 @@ export class Bds extends ObjetConstellation<
 
     return async () => {
       await oublier();
+      queue.clear();
       await queue.onIdle();
     };
   }

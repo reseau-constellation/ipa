@@ -185,6 +185,7 @@ export class ServiceÉpingles extends ServiceAppli<
     this.statut = STATUTS.FERMETURE_EN_COURS;
 
     this.signaleurArrêt.abort();
+    this.queue.clear();
     await this.queue.onIdle();
 
     await Promise.allSettled(

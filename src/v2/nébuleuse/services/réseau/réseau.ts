@@ -1352,7 +1352,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const oublier = async () => {
         contrôleurSignal.abort();
         queue.clear();
-        if (queue.pending) await queue.onIdle();
+        await queue.onIdle();
         await Promise.allSettled(
           Object.values(relationsImmédiates).map((r) => oublierOuAttendreOublie(r.oublier)),
         );

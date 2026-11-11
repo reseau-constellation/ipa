@@ -119,6 +119,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     });
     const oublier = async () => {
       await oublierBd();
+      this.queue.clear();
       await this.queue.onIdle();
     };
     this.estDémarré = { oublier };
@@ -133,6 +134,7 @@ export class Automatisations extends ServiceDonnéesAppli<
     await oublier();
 
     // Attendre que toutes les automatisations en cours soient ajoutées
+    this.queue.clear();
     await this.queue.onIdle();
 
     // Fermer toutes les automatisations actives

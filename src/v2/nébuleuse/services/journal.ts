@@ -67,6 +67,7 @@ export class ServiceJournal extends ServiceAppli<
     await this.démarrer();
     this.statut = STATUTS.FERMETURE_EN_COURS;
 
+    this.queue.clear();
     await this.queue.onIdle();
     await super.fermer();
   }
