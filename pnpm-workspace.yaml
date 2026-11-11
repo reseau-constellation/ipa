@@ -19,6 +19,7 @@ minimumReleaseAgeExclude:
 overrides:
   p-queue: "^8.1.1"
   multiformats: "14.0.5"
+  playwright-core: "1.65.0"
 
 patchedDependencies:
   '@constl/utils-ipa': patches/@constl__utils-ipa.patch
