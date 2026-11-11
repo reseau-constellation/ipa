@@ -286,7 +286,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         PROTOCOLE_NÉBULEUSE,
         async (flux, connexion) => {
           const idPair = connexion.remotePeer.toString();
-          console.log(`handle ${idPair} reçu par ${libp2p.peerId.toString()}`);
+
           const fluxPl = lpStream(flux);
           this.flux.intrants.set(idPair, { soujacent: flux, flux: fluxPl });
           flux.addEventListener("close", () =>
@@ -302,7 +302,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               const message = JSON.parse(
                 new TextDecoder().decode(octets.slice()),
               ) as MessageRéseau;
-              console.log({ message });
+
               if (message.type === IDENTITÉ_COMPTE) {
                 await traiterIdentitéCompte({ message, idPair });
               }
@@ -338,29 +338,14 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       .register(
         PROTOCOLE_NÉBULEUSE,
         {
-          async onConnect(peerId, conn) {
-            console.log(
-              `onConnect - ${peerId.toString()} connecté à ${libp2p.peerId.toString()} sur ${conn.remoteAddr.toString()}`,
-            );
+          async onConnect(peerId) {
             if (salués.has(peerId)) return;
 
             salués.add(peerId);
 
-            conn.addEventListener("remoteCloseWrite", () =>
-              console.log("✘ remoteCloseWrite", peerId.toString()),
-            );
-            conn.addEventListener("close", () =>
-              console.log("✘ close", peerId.toString()),
-            );
             await envoyerMesIdentifiants({
               idPair: peerId.toString(),
             });
-          },
-          async onDisconnect(peerId) {
-            console.log(
-              `✘ pair ${peerId.toString()} déconnecté de ${libp2p.peerId.toString()}`,
-            );
-            // this.lorsqueDispositifDéconnecté(peerId);
           },
           notifyOnLimitedConnection: true,
         },
@@ -1559,17 +1544,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     const fluxExistant = this.flux.sortants.get(idPair);
 
     if (fluxExistant) {
-      console.log(
-        `✨ flux existant vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`,
-        fluxExistant?.soujacent.status,
-        fluxExistant?.soujacent.readStatus,
-        fluxExistant?.soujacent.writeStatus,
-        fluxExistant?.soujacent.remoteReadStatus,
-        fluxExistant?.soujacent.remoteWriteStatus,
-      );
       return fluxExistant;
     } else {
-      // console.log(`✨ nouveau flux vers ${idPair} pour ${await this.service("compte").obtIdLibp2p()}`)
       const libp2p = await this.service("libp2p").libp2p();
       const signalCombiné = anySignal([
         this.signaleurArrêt.signal,
@@ -1585,7 +1561,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         const fluxPl = lpStream(flux);
         this.flux.sortants.set(idPair, { soujacent: flux, flux: fluxPl });
         flux.addEventListener("close", () => this.flux.sortants.delete(idPair));
-        // flux.addEventListener("remoteCloseWrite", () => flux.close());
 
         return { soujacent: flux, flux: fluxPl };
       } finally {
