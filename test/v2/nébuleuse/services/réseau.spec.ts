@@ -541,11 +541,13 @@ describe("Réseau", function () {
     });
   });
 
-  describe.skip("confiance - automatique", function () {
+  describe.only("confiance - automatique", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
     let idsComptes: string[];
+
+    let recherche: ObtRechercheProfondeur<CompteRéseau>;
 
     class ServiceConfianceTest extends ServiceAppli<
       "confianceTest",
@@ -601,6 +603,11 @@ describe("Réseau", function () {
       idsComptes = await Promise.all(
         nébuleuses.map((c) => c.compte.obtIdCompte()),
       );
+      recherche = await rechercherProfondeur<CompteRéseau>(({ f }) =>
+        nébuleuses[0].réseau.suivreComptes({
+          f,
+        }),
+      );
     });
 
     after(async () => {
@@ -608,59 +615,112 @@ describe("Réseau", function () {
     });
 
     it("confiance transitive", async () => {
-      const comptes = await obtenir<CompteRéseau[]>(({ siLongueurAuMoins }) =>
-        nébuleuses[0].réseau.suivreComptes({
-          f: siLongueurAuMoins(3),
-        }),
-      );
+      const comptes = await recherche.siAuMoins(3);
 
-      expect(comptes.map((c) => c.idCompte)).to.have.members([
-        idsComptes[1],
-        idsComptes[2],
-      ]);
+      expect(comptes.map((c) => c.idCompte)).to.have.members(idsComptes);
 
       const confianceCompte1 = comptes.find(
         (c) => c.idCompte === idsComptes[1],
-      ).confiance;
+      )?.confiance;
       expect(confianceCompte1).to.be.greaterThan(0);
 
       const confianceCompte2 = comptes.find(
         (c) => c.idCompte === idsComptes[2],
-      ).confiance;
+      )?.confiance;
       expect(confianceCompte2)
         .to.be.greaterThan(0)
-        .and.lessThan(confianceCompte1);
+        .and.lessThan(confianceCompte1 as number);
     });
 
     it("confiance bloquée transitive", async () => {
       await nébuleuses[1].réseau.bloquerCompte({ idCompte: idsComptes[2] });
-      const confianceCompte2 = await obtenir(({}) =>
-        nébuleuses[0].réseau.suivreConfianceCompte({
-          idCompte: idsComptes[2],
-          f,
-        }),
+      const comptes = await recherche.si(
+        (comptes) =>
+          (comptes?.find((c) => c.idCompte === idsComptes[2])?.confiance ??
+            NaN) <= 0,
       );
 
-      expect(confianceCompte2).to.be.lessThan(0);
+      expect(
+        comptes.find((c) => c.idCompte === idsComptes[2])?.confiance,
+      ).to.be.lessThan(0);
+      await nébuleuses[1].réseau.débloquerCompte({ idCompte: idsComptes[2] });
     });
 
-    it("changer profondeur");
+    it.skip("changer profondeur", async () => {
+      await recherche.p(0);
+      const comptes = await recherche.si(
+        (comptes) =>
+          (comptes?.find((c) => c.idCompte === idsComptes[2])?.confiance ??
+            NaN) === 0,
+      );
+
+      expect(comptes.find((c) => c.idCompte === idsComptes[2])).to.equal(0);
+      expect(
+        comptes.find((c) => c.idCompte === idsComptes[1]),
+      ).to.be.greaterThan(0);
+      await recherche.p(5);
+    });
 
     it("priorité confiance manuelle personnelle", async () => {
       await nébuleuses[0].réseau.faireConfianceAuCompte({
         idCompte: idsComptes[2],
       });
-      const comptes = await nébuleuses[0].réseau.suivreComptes();
+      const comptes = await recherche.si(
+        (comptes) =>
+          (comptes?.find((c) => c.idCompte === idsComptes[2])?.confiance ??
+            NaN) >= 0.5,
+      );
 
-      const confianceCompte2 = comptes.find(
-        (c) => c.idCompte === idsComptes[2],
-      ).confiance;
-      expect(confianceCompte2).to.equal(1);
+      expect(
+        comptes.find((c) => c.idCompte === idsComptes[2])?.confiance,
+      ).to.equal(1);
+
+      await nébuleuses[0].réseau.nePlusFaireConfianceAuCompte({
+        idCompte: idsComptes[2],
+      });
     });
 
-    it("relations immédiates");
-    it("relations réseau");
-    it("comptes par profondeur");
+    it("relations immédiates", async () => {
+      const relationsCompte1 = await obtenir<RelationImmédiate[]>(
+        ({ siPasVide }) =>
+          nébuleuses[0].réseau.suivreRelationsImmédiates({ f: siPasVide() }),
+      );
+
+      const réf: RelationImmédiate[] = [
+        {
+          idCompte: idsComptes[1],
+          confiance: 0.5,
+        },
+      ];
+
+      expect(relationsCompte1).to.have.deep.members(réf);
+    });
+
+    it("relations réseau", async () => {
+      const réf: RelationRéseau[] = [
+        {
+          de: idsComptes[0],
+          pour: idsComptes[1],
+          confiance: 0.5,
+          profondeur: 0,
+        },
+        {
+          de: idsComptes[1],
+          pour: idsComptes[2],
+          confiance: 0.5,
+          profondeur: 1,
+        },
+      ];
+
+      const relationsRéseau = await obtenir<RelationRéseau[]>(
+        ({ siLongueurAuMoins }) =>
+          nébuleuses[0].réseau
+            .suivreRelationsRéseau({ f: siLongueurAuMoins(réf.length) })
+            .then(({ oublier }) => oublier),
+      );
+
+      expect(relationsRéseau).to.have.deep.members(réf);
+    });
   });
 
   describe.skip("connexion", function () {
@@ -1844,5 +1904,11 @@ describe("Réseau", function () {
       ];
       expect(comptes).to.have.deep.members(réf);
     });
+  });
+
+  describe("suivre comptes - réseau et en ligne", function () {
+    it("comptes en ligne détectés");
+    it("priorité aux infos des comptes de mon réseau");
+    it("changer profondeur");
   });
 });
