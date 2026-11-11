@@ -1,3 +1,6 @@
+import PQueue from "p-queue";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
+
 const MIN_POINTS = 5;
 
 export class EstimateurAsymptoteTemps {
@@ -121,5 +124,48 @@ const régressionAsymptotique = (x: number[], y: number[]) => {
     a: paramètres[0] * σ_y,
     b: paramètres[1] * σ_y,
     c: paramètres[2] * σ_x,
+  };
+};
+
+export const suivreSi = async ({
+  fRacine,
+  fSuivi,
+}: {
+  fRacine: ({
+    fSuivreRacine,
+  }: {
+    fSuivreRacine: Suivi<boolean>;
+  }) => Promise<Oublier>;
+  fSuivi: () => Promise<Oublier>;
+}): Promise<Oublier> => {
+  let oublierSuivi: Oublier | undefined = undefined;
+  const dernièreValeur: boolean | undefined = undefined;
+
+  const queue = new PQueue({ concurrency: 1 });
+
+  const fSuivreRacine = async (condition: boolean) => {
+    const tâche = async () => {
+      if (dernièreValeur === condition) return;
+      await oublierSuivi?.();
+      oublierSuivi = condition ? await fSuivi() : undefined;
+    };
+    queue.add(tâche);
+  };
+  const oublierRacine = await fRacine({ fSuivreRacine });
+
+  return async () => {
+    await oublierRacine();
+    queue.clear();
+    await queue.onIdle();
+    await oublierSuivi?.();
+  };
+};
+
+export const chronomètrer = (f: Oublier, étiquette: string) => {
+  const id = Math.floor(Math.random() * 10000).toString();
+  return async () => {
+    console.time(étiquette + " " + id);
+    await f();
+    console.timeEnd(étiquette + " " + id);
   };
 };
