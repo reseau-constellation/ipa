@@ -1,7 +1,7 @@
 import path from "path";
 import url from "url";
 import { realpathSync } from "fs";
-import { générerConfigÆgir } from "@constl/utils-tests";
+import { générerConfigÆgir, lancerRelai } from "@constl/utils-tests";
 import cors from "cors";
 import express from "express";
 
@@ -60,20 +60,27 @@ const générerServeurRessourcesTests = async (opts) => {
 const avantTest = async (opts) => {
   // Pour pouvoir accéder les fichiers test dans le navigateur
   const fermerServeurLocal = await générerServeurRessourcesTests(opts);
-
-  return {
+  const retour = {
     fermerServeurLocal,
   };
+  if (!opts.target.includes("browser")) {
+    retour.relai = await lancerRelai({
+      sujetsRelai: ["constellation._peer-discovery._p2p._pubsub"],
+    });
+  }
+
+  return retour;
 };
 
 const aprèsTest = async (_, avant) => {
   await avant?.fermerServeurLocal();
+  await avant.relai?.();
 };
 
 const générerConfigÆgirFinal = async () => {
   const configÆgir = await générerConfigÆgir();
   configÆgir.test.browser.config.buildConfig.external.push(
-    "@constl/serveur",
+    "quibble",
     "@lassi-js/kili",
   );
   const avantTestDéfaut = configÆgir.test.before;
@@ -96,7 +103,6 @@ const générerConfigÆgirFinal = async () => {
     };
   };
 
-  configÆgir.test.browser.config.buildConfig.external.push("quibble");
   configÆgir.build.config.external.push("quibble");
   return configÆgir;
 };

@@ -58,10 +58,11 @@ export class Reconnecteur implements Startable {
   }
 
   start(): void | Promise<void> {
-    this.intervale = setInterval(() => {
+    if (this.isStarted()) return;
+
+    const reconnecter = () => {
       const connectionsPairs =
         this.components.connectionManager.getConnectionsMap();
-      if (connectionsPairs.size > 0) return;
 
       for (const pair of this.liste) {
         if (connectionsPairs.has(pair.id)) continue;
@@ -71,7 +72,13 @@ export class Reconnecteur implements Startable {
             this.log.error("Erreur de connexion au pair %p", pair.id, err);
           });
       }
-    }, this.fréquence);
+    };
+    this.intervale = setInterval(reconnecter, this.fréquence);
+    reconnecter();
+  }
+
+  isStarted(): boolean {
+    return Boolean(this.intervale);
   }
 
   stop(): void {

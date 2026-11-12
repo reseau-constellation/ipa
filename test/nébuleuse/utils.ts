@@ -7,8 +7,14 @@ import {
 import { merge } from "ts-deepmerge";
 import { Nébuleuse } from "@/nébuleuse/nébuleuse.js";
 import { dossierTempoPropre } from "../utils.js";
-import { serviceHéliaTest } from "./services/utils.js";
-import type { ServiceHéliaTest } from "./services/utils.js";
+import {
+  obtenirOptionsLibp2pLocal,
+  serviceHéliaTest,
+} from "./services/utils.js";
+import type {
+  ServiceHéliaTest,
+  ServicesLibp2pNébuleuseLocale,
+} from "./services/utils.js";
 import type { Libp2p } from "libp2p";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
@@ -121,6 +127,64 @@ export const créerNébuleusesTest = async <
   await Promise.all(nébuleuses.map((c) => c.démarrer()));
 
   await connecterNébuleuses(nébuleuses);
+
+  const fermer = async () => {
+    await Promise.allSettled(nébuleuses.map((c) => c.fermer()));
+    effacer?.();
+  };
+
+  return {
+    nébuleuses,
+    fermer,
+  };
+};
+
+export const créerNébuleusesLocales = async <
+  T extends { [clef: string]: NestedValue } = Record<string, never>,
+>({
+  n,
+  options,
+}: {
+  n: number;
+  options?:
+    | Omit<OptionsNébuleuse<T, ServicesLibp2pNébuleuseLocale>, "libp2p">
+    | undefined;
+}): Promise<{
+  nébuleuses: Nébuleuse<T, ServicesAppli, ServicesLibp2pNébuleuseLocale>[];
+  fermer: Oublier;
+}> => {
+  options ??= {};
+  options.services ??= {};
+
+  let dossierBase: string;
+  let effacer: () => void;
+  if (!options.services.dossier?.dossier) {
+    ({ dossier: dossierBase, effacer } = await dossierTempoPropre());
+  } else {
+    dossierBase = options.services.dossier.dossier;
+    effacer = () => {};
+  }
+
+  const nébuleuses: Nébuleuse<
+    T,
+    ServicesAppli,
+    ServicesLibp2pNébuleuseLocale
+  >[] = [];
+
+  for (const i in [...Array(n).entries()]) {
+    const dossier = path.join(dossierBase, String(i));
+    const nébuleuse = new Nébuleuse({
+      options: merge({}, options, {
+        services: {
+          dossier: { dossier },
+          hélia: { libp2p: obtenirOptionsLibp2pLocal() },
+        },
+      }),
+    });
+    nébuleuses.push(nébuleuse);
+  }
+
+  await Promise.all(nébuleuses.map((c) => c.démarrer()));
 
   const fermer = async () => {
     await Promise.allSettled(nébuleuses.map((c) => c.fermer()));

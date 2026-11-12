@@ -72,7 +72,7 @@ export class ServiceLibp2p<
       for (const connu of pairsConnus) {
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           try {
-            // await libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
+            await libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
           } catch {
             // Tant pis...
           }
@@ -80,21 +80,13 @@ export class ServiceLibp2p<
       }
     }, 3000);
 
-    const idLibp2p = libp2p.peerId.toString();
+    /* const idLibp2p = libp2p.peerId.toString();
     libp2p.addEventListener("peer:connect", (x) => {
       console.log(
         "✔ peer:connect",
         "de",
         idLibp2p.slice(-10),
         x.detail.toString(),
-      );
-    });
-    libp2p.addEventListener("connection:open", (x) => {
-      console.log(
-        "✔ connection:open",
-        "de",
-        idLibp2p.slice(-10),
-        x.detail.remoteAddr.toString(),
       );
     });
     libp2p.addEventListener("connection:close", async (x) => {
@@ -105,7 +97,7 @@ export class ServiceLibp2p<
         x.detail.remoteAddr.toString(),
         x.detail.streams.map((s) => s.protocol),
       );
-    });
+    });*/
     libp2p.addEventListener("peer:update", async (x) => {
       const anciennesAdresses = JSON.stringify(
         x.detail.peer.addresses.map((a) => a.multiaddr.toString()),
@@ -113,21 +105,24 @@ export class ServiceLibp2p<
       const nouvellesAdresses = JSON.stringify(
         x.detail.previous?.addresses.map((a) => a.multiaddr.toString()),
       );
-      if (anciennesAdresses !== nouvellesAdresses)
-        console.log(
-          "peer:update",
-          "de",
-          idLibp2p.slice(-10),
-          x.detail.peer.addresses.map((a) => a.multiaddr.toString()),
-        );
+      if (anciennesAdresses !== nouvellesAdresses) {
+        /**
+         console.log(
+           "peer:update",
+           "de",
+           idLibp2p.slice(-10),
+           x.detail.peer.addresses.map((a) => a.multiaddr.toString()),
+         );
+         */
+      }
     });
     libp2p.addEventListener("peer:disconnect", async ({ detail: idPair }) => {
-      console.log(
+      /*console.log(
         "✘ peer:disconnect",
         "de",
         idLibp2p.slice(-10),
         idPair.toString(),
-      );
+      );*/
       const connexions = libp2p
         .getConnections()
         .filter(

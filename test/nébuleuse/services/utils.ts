@@ -10,14 +10,48 @@ import type {
   ServicesNécessairesLibp2p,
 } from "@/nébuleuse/services/libp2p/libp2p.js";
 import type { OptionsAppli } from "@/nébuleuse/appli/appli.js";
-import type { ConfigLibp2p } from "@/nébuleuse/services/libp2p/config/config.js";
+import type {
+  ConfigLibp2p,
+  GénérateurOptionsLibp2p,
+} from "@/nébuleuse/services/libp2p/config/config.js";
 import type { OptionsServiceHélia } from "@/nébuleuse/services/hélia.js";
+import type { Reconnecteur } from "@/nébuleuse/services/libp2p/services/reconnecteur.js";
+import type { Keychain } from "helia";
 
+export type ServicesLibp2pNébuleuseLocale = ServicesLibp2pNébuleuse & {
+  keychain: Keychain;
+  reconnecteur: Reconnecteur;
+};
+
+const nonLocales = ["http", "delegatedPeerRouting", "delegatedContentRouting"];
 export const obtenirOptionsLibp2pLocal = (config: ConfigLibp2p = {}) => {
-  return obtenirOptionsLibp2p({
+  const générateurOptions = obtenirOptionsLibp2p({
     ...config,
     pairsParDéfaut: [obtenirAdresseRelai()],
   });
+  const générateurLocal: GénérateurOptionsLibp2p<
+    ServicesLibp2pNébuleuseLocale
+  > = async ({
+    dossier,
+    clefPrivée,
+    mode,
+  }: {
+    dossier: string;
+    clefPrivée?: PrivateKey;
+    mode: "dév" | "prod";
+  }) => {
+    const options = await générateurOptions({ dossier, clefPrivée, mode });
+    const optionsLocales: Libp2pOptions<ServicesLibp2pNébuleuseLocale> = {
+      ...options,
+      services: Object.fromEntries(
+        Object.entries(options.services || {}).filter(
+          ([c, _v]) => !nonLocales.includes(c),
+        ),
+      ) as unknown as Libp2pOptions<ServicesLibp2pNébuleuseLocale>["services"],
+    };
+    return optionsLocales;
+  };
+  return générateurLocal;
 };
 
 export const obtenirOptionsLibp2pTest = (

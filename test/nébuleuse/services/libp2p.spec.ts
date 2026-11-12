@@ -26,6 +26,7 @@ import {
   obtenirOptionsLibp2pLocal,
   obtenirOptionsLibp2pTest,
   serviceHéliaTest,
+  type ServicesLibp2pNébuleuseLocale,
 } from "./utils.js";
 import type {
   ServiceLibp2p,
@@ -33,7 +34,6 @@ import type {
   ServicesNécessairesLibp2p,
 } from "@/nébuleuse/services/libp2p/libp2p.js";
 import type { ServicesAppli } from "@/nébuleuse/appli/appli.js";
-import type { ServicesLibp2pNébuleuseDéfaut } from "@/nébuleuse/services/libp2p/config/utils.js";
 import type { Libp2p, PrivateKey } from "@libp2p/interface";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
@@ -243,8 +243,8 @@ describe("Service Libp2p", function () {
 
       let appli: Appli<
         (
-          | (ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
-              libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
+          | (ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseLocale> & {
+              libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseLocale>;
             })
           | (ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseAvecServiceTest> & {
               libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseAvecServiceTest>;
@@ -267,14 +267,14 @@ describe("Service Libp2p", function () {
       it("dossier dans options appli", async () => {
         const dossierAppli = join(dossier, "mon", "dossier");
         appli = new Appli<
-          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
-            libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
+          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseLocale> & {
+            libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseLocale>;
           }
         >({
           services: {
             dossier: serviceDossier({ dossier: dossierAppli }),
             stockage: serviceStockage(),
-            hélia: serviceHélia<ServicesLibp2pNébuleuseDéfaut>({
+            hélia: serviceHélia<ServicesLibp2pNébuleuseLocale>({
               libp2p: obtenirOptionsLibp2pLocal(),
               hélia: créerHéliaÉphémère,
             }),
@@ -302,15 +302,15 @@ describe("Service Libp2p", function () {
         });
 
         appli = new Appli<
-          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
-            libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
+          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseLocale> & {
+            libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseLocale>;
           }
         >({
           services: {
             dossier: serviceDossier({ dossier: dossierAppli }),
             stockage: serviceStockage(),
             libp2p: serviceLibp2p(),
-            hélia: serviceHélia<ServicesLibp2pNébuleuseDéfaut>({
+            hélia: serviceHélia<ServicesLibp2pNébuleuseLocale>({
               libp2p: optionsLibp2p,
               hélia: créerHéliaÉphémère,
             }),
@@ -403,20 +403,20 @@ describe("Service Libp2p", function () {
       it("configuration externe - pairs par défaut", async () => {
         const pairParDéfaut =
           "/dns4/mon.relai.libp2p.ca/tcp/443/wss/p2p/12D3KooWGVYEgCLYwMSa1hDFW93fiCxhN2V2QUuMGCEfmG5ZuM9m";
-        const optionsLibp2p = obtenirOptionsLibp2p({
+        const optionsLibp2p = obtenirOptionsLibp2pLocal({
           pairsParDéfaut: [pairParDéfaut],
         });
 
         appli = new Appli<
-          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseDéfaut> & {
-            libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseDéfaut>;
+          ServicesNécessairesLibp2p<ServicesLibp2pNébuleuseLocale> & {
+            libp2p: ServiceLibp2p<ServicesLibp2pNébuleuseLocale>;
           }
         >({
           services: {
             dossier: serviceDossier({ dossier }),
             stockage: serviceStockage(),
             // On n'a pas besoin de ServiceHéliaTest parce que `pairParDéfaut` est spécifié
-            hélia: serviceHélia<ServicesLibp2pNébuleuseDéfaut>({
+            hélia: serviceHélia<ServicesLibp2pNébuleuseLocale>({
               libp2p: optionsLibp2p,
               hélia: créerHéliaÉphémère,
             }),
@@ -426,7 +426,7 @@ describe("Service Libp2p", function () {
         await appli.démarrer();
 
         const libp2p =
-          (await appli.services.libp2p.libp2p()) as Libp2p<ServicesLibp2pNébuleuseDéfaut>;
+          (await appli.services.libp2p.libp2p()) as Libp2p<ServicesLibp2pNébuleuseLocale>;
         const pairsÀReconnecter = libp2p.services.reconnecteur["liste"];
 
         expect(

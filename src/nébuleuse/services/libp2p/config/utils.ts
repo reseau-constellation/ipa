@@ -4,7 +4,7 @@ import { gossipsub } from "@libp2p/gossipsub";
 import { autoNAT } from "@libp2p/autonat";
 import { dcutr } from "@libp2p/dcutr";
 import { keychain } from "@libp2p/keychain";
-import { http } from "@libp2p/http";
+import { http, type HTTP } from "@libp2p/http";
 import { identify, identifyPush } from "@libp2p/identify";
 import { ping } from "@libp2p/ping";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
@@ -15,14 +15,16 @@ import {
 } from "@helia/delegated-routing-v1-http-api-client";
 import { delegatedHTTPRoutingDefaults } from "@helia/delegated-routing-client";
 import { reconnecteur } from "../services/reconnecteur.js";
-import type { HTTP } from "@libp2p/http";
 import type { Keychain } from "@libp2p/keychain";
 import type { Reconnecteur } from "../services/reconnecteur.js";
-import type { GossipSub, GossipSubComponents } from "@libp2p/gossipsub";
 import type { Libp2pOptions, ServiceFactoryMap } from "libp2p";
 import type { Multiaddr } from "@multiformats/multiaddr";
 import type { ServicesLibp2pNébuleuse } from "../libp2p.js";
-import type { PrivateKey } from "@libp2p/interface";
+import type {
+  ContentRouting,
+  PeerRouting,
+  PrivateKey,
+} from "@libp2p/interface";
 import type { AddrInfo } from "@libp2p/gossipsub/types";
 
 export interface ConfigOptionsLibp2p {
@@ -76,6 +78,8 @@ const optionsIdentify = {
 
 export type ServicesLibp2pNébuleuseDéfaut = ServicesLibp2pNébuleuse & {
   http: HTTP;
+  delegatedPeerRouting: PeerRouting;
+  delegatedContentRouting: ContentRouting;
   keychain: Keychain;
   reconnecteur: Reconnecteur;
 };
@@ -113,7 +117,7 @@ export const servicesDéfaut = ({
       scoreThresholds: {
         acceptPXThreshold: 100,
       },
-    }) as (components: GossipSubComponents) => GossipSub, // Erreur de type dans @chainsafe/pubsub
+    }),
   };
   return services;
 };

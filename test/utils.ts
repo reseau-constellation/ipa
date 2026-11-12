@@ -30,6 +30,10 @@ import { estContrôleurNébuleuse } from "@/nébuleuse/services/compte/accès/co
 import { ImportateurFeuilleCalcul } from "@/importateur/feuille.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
+import {
+  obtenirOptionsLibp2pLocal,
+  type ServicesLibp2pNébuleuseLocale,
+} from "./nébuleuse/services/utils.js";
 import type { InfoRésultat, RésultatRecherche } from "@/recherche/types.js";
 import type { Constellation } from "@/index.js";
 import type { Constellation as ConstructeurConstellation } from "@/constellation.js";
@@ -454,11 +458,21 @@ export const rechercherProfondeur = async <T>(
 type CréerConstellationsTest<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
-  (args: { n: number; persistante?: boolean; avecMandataire: false }): Promise<{
+  (args: {
+    n: number;
+    persistante?: boolean;
+    avecMandataire: false;
+    mode?: "dév" | "prod";
+  }): Promise<{
     constls: ConstructeurConstellation<L>[];
     fermer: Oublier;
   }>;
-  (args: { n: number; persistante?: boolean; avecMandataire?: true }): Promise<{
+  (args: {
+    n: number;
+    persistante?: boolean;
+    avecMandataire?: true;
+    mode?: "dév" | "prod";
+  }): Promise<{
     constls: Constellation<L>[];
     fermer: Oublier;
   }>;
@@ -466,6 +480,7 @@ type CréerConstellationsTest<
     n: number;
     persistante?: boolean;
     avecMandataire?: boolean;
+    mode?: "dév" | "prod";
   }): Promise<{
     constls: (Constellation<L> | ConstructeurConstellation<L>)[];
     fermer: Oublier;
@@ -529,6 +544,40 @@ export const créerHéliaÉphémère = <
       opts?.libp2p || {},
     ),
   );
+
+export const créerConstellationsLocales: CréerConstellationsTest<
+  ServicesLibp2pNébuleuseLocale
+> = async ({ n, mode = "dév" }) => {
+  const { dossier, effacer } = await dossierTempoPropre();
+
+  const constls: (
+    | Constellation<ServicesLibp2pNébuleuseLocale>
+    | ConstructeurConstellation<ServicesLibp2pNébuleuseLocale>
+  )[] = [];
+
+  for (const i in [...Array(n).entries()]) {
+    const constl = créerConstellation<ServicesLibp2pNébuleuseLocale>({
+      options: { mode },
+      services: {
+        dossier: { dossier: path.join(dossier, i) },
+        hélia: {
+          libp2p: obtenirOptionsLibp2pLocal(),
+        },
+      },
+    });
+    constls.push(constl);
+  }
+
+  const fermer = async () => {
+    await Promise.allSettled(constls.map((c) => c.fermer()));
+    effacer();
+  };
+
+  return {
+    constls,
+    fermer,
+  };
+};
 
 export const utiliserFauxChronomètres = () => {
   const horloge = useFakeTimers({

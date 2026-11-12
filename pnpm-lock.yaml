@@ -469,8 +469,8 @@ importers:
         version: 2.0.1
     devDependencies:
       '@constl/utils-tests':
-        specifier: ^2.2.8
-        version: 2.2.8(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
+        specifier: ^2.2.10
+        version: 2.2.10(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@9.39.5(supports-color@10.2.2))
@@ -547,8 +547,8 @@ importers:
         specifier: ^3.12.1
         version: 3.12.1
       electron:
-        specifier: ^44.10.2
-        version: 44.10.2(supports-color@10.2.2)
+        specifier: ^44.11.1
+        version: 44.11.1(supports-color@10.2.2)
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -1098,8 +1098,8 @@ packages:
     resolution: {integrity: sha512-GEV9inMqdwesGe1RSnrbBMSergwVq2ODqGclHMnToYkNzkfLMS8499IkOBcGbSsw4ehLheHlYZ1PAXJ/ZVXkPw==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@2.2.8':
-    resolution: {integrity: sha512-/gwfiG7P/IV0+JeNXwusIDPIuE8aDL8wFWqb35RgbreBqlrSR0vgYO/Hhmh67n9GlYtkpspQiw2p8/JFxKTORw==}
+  '@constl/utils-tests@2.2.10':
+    resolution: {integrity: sha512-fNfUH4qLNbmrNzbr9u+UVN5SIGn453qDSA9eV7SMQJdETELVZz8UHbnYfgfKNr44CB9Pl47ME9qvoALQZIe6EQ==}
     engines: {node: '>=20'}
 
   '@cspell/cspell-bundled-dicts@10.4.1':
@@ -3353,8 +3353,8 @@ packages:
     resolution: {integrity: sha512-TO9xmyXTZ9HUHI8M1OnvExxYB0eYVS/1e5s7IDMTAoIcwUd+aNcFODs6Xk83mobk0velyHFQgA1yIrvYc6wclw==}
     engines: {node: '>=20'}
 
-  caniuse-lite@1.0.30001823:
-    resolution: {integrity: sha512-TQ5s/djDjNk1axreUW+4rULH+BmdCMLiJkhaXnO5wqivG7tITkSUj4ItIdzqdZHKaXcHAV8dhH3JxOM7/7bwqw==}
+  caniuse-lite@1.0.30001826:
+    resolution: {integrity: sha512-wTB+9tIbLro/BCXwLuNV1meHE4L9dS6dArMDwgYfNBPMYScqClHyGunhkCSDtHhe/69Xl0sHlKgBVZ+fNsYtWA==}
 
   cborg@5.1.11:
     resolution: {integrity: sha512-oc6Pzg/gkTobxHZNgMmny+G99dOeBMbAmnGHcZWMKtolxZBIVwfi0Pj0khxEtNU8HMFdbT5sK0HmtgecDUPP0A==}
@@ -4015,14 +4015,14 @@ packages:
     engines: {node: '>= 16.0.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.479:
-    resolution: {integrity: sha512-uAJdJQ7vHa4TvPfzt1TOqoRgHmav5gwmqHMPLxBH6m8Cbj5R9/z/rygTOQiZ8pe5g0ZAEogga1bP6HoKcOzx/Q==}
+  electron-to-chromium@1.5.481:
+    resolution: {integrity: sha512-dNUsbAP6E2S1dHIYEuN3cQ0dViThjMtpVRheGdvv5HgHFtzLi4Cu4Mbzms85YggP3Eh2VVZTl5+XxEN8ofCbmQ==}
 
   electron-window@0.8.1:
     resolution: {integrity: sha512-W1i9LfnZJozk3MXE8VgsL2E5wOUHSgyCvcg1H2vQQjj+gqhO9lVudgY3z3SF7LJAmi+0vy3CJkbMqsynWB49EA==}
 
-  electron@44.10.2:
-    resolution: {integrity: sha512-Bz+GV+9Xj++3RW95NYfzp5Wgivf61BgWTPBxYTOUETytVB1uLUAOdSM39Dn/V3PGYeGTE6LYeCTR5SCiu3BR2A==}
+  electron@44.11.1:
+    resolution: {integrity: sha512-pQdp3+NanyxVQxBxdHqnZ/Kj9gKBs8oeSGsmCb2R1yaFWuT91vbibR19o4pZdpkmBYDMl890+Ezt7qT/9zZjAA==}
     engines: {node: '>= 22.12.0'}
     hasBin: true
 
@@ -6311,8 +6311,8 @@ packages:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
     engines: {node: 18 || 20 || >=22}
 
-  minimatch@11.0.5:
-    resolution: {integrity: sha512-snPlVppFcYWfLLFQGhDxUyBcHNtMlWmn3jtj7pEaO+DP8pqL0IvAzXhMYmn1z9ASNtgmwLBdFxSf4tMUB0OTKA==}
+  minimatch@11.0.7:
+    resolution: {integrity: sha512-Tnk+M9mPjqKDZlUd77eMSjPjhnlBIa1mABOwetMryIshUwi1YmOBdGFfQnHgn4Z8A66eLT8ENzJrxwYmKfqrZg==}
     engines: {node: 20 || >=22}
 
   minimatch@3.1.5:
@@ -9381,7 +9381,7 @@ snapshots:
       uint8arrays: 6.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@2.2.8(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)':
+  '@constl/utils-tests@2.2.10(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
       '@helia/bitswap': 4.0.20(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
       '@helia/libp2p': 2.1.5(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
@@ -12321,8 +12321,8 @@ snapshots:
   browserslist@4.29.5:
     dependencies:
       baseline-browser-mapping: 2.11.35
-      caniuse-lite: 1.0.30001823
-      electron-to-chromium: 1.5.479
+      caniuse-lite: 1.0.30001826
+      electron-to-chromium: 1.5.481
       node-releases: 2.0.63
       update-browserslist-db: 1.3.4(browserslist@4.29.5)
 
@@ -12447,7 +12447,7 @@ snapshots:
 
   camelcase@9.0.0: {}
 
-  caniuse-lite@1.0.30001823: {}
+  caniuse-lite@1.0.30001826: {}
 
   cborg@5.1.11: {}
 
@@ -13222,13 +13222,13 @@ snapshots:
       which: 5.0.0
       yargs: 17.7.3
 
-  electron-to-chromium@1.5.479: {}
+  electron-to-chromium@1.5.481: {}
 
   electron-window@0.8.1:
     dependencies:
       is-electron-renderer: 2.0.1
 
-  electron@44.10.2(supports-color@10.2.2):
+  electron@44.11.1(supports-color@10.2.2):
     dependencies:
       '@electron-internal/extract-zip': 1.0.8
       '@electron/get': 5.1.0(supports-color@10.2.2)
@@ -14298,7 +14298,7 @@ snapshots:
 
   glob@14.0.4:
     dependencies:
-      minimatch: 11.0.5
+      minimatch: 11.0.7
       minipass: 7.1.3
       path-scurry: 3.0.0
 
@@ -16278,7 +16278,7 @@ snapshots:
     dependencies:
       brace-expansion: 5.0.12
 
-  minimatch@11.0.5:
+  minimatch@11.0.7:
     dependencies:
       '@isaacs/nonrecursive-glob-match': 1.1.0
       brace-expansion: 5.0.12

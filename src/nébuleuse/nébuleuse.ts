@@ -116,7 +116,7 @@ export type OptionsNébuleuse<
   T extends { [clef: string]: NestedValue },
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = {
-  options?: OptionsAppli;
+  options?: Partial<OptionsAppli>;
   services?: {
     journal?: OptionsServiceJournal;
     dossier?: OptionsServiceDossier;

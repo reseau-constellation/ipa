@@ -1,6 +1,6 @@
 import { expect } from "aegir/chai";
 import { faisRien, uneFois } from "@constl/utils-ipa";
-import { obtenirAdresseRelai } from "@constl/utils-tests";
+import { ID_DÉFAUT_RELAI, obtenirAdresseRelai } from "@constl/utils-tests";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceAppli } from "@/nébuleuse/appli/services.js";
@@ -29,7 +29,7 @@ import {
 } from "@/nébuleuse/services/réseau/messages.js";
 import { obtEmpreinteCode } from "@/nébuleuse/services/utils.js";
 import { obtenir, rechercherProfondeur } from "../../utils.js";
-import { créerNébuleusesTest } from "../utils.js";
+import { créerNébuleusesLocales, créerNébuleusesTest } from "../utils.js";
 import type { ObtRechercheProfondeur } from "../../utils.js";
 import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
@@ -722,8 +722,60 @@ describe("Réseau", function () {
     });
   });
 
-  describe.skip("connexion", function () {
-    it("");
+  describe("connexion", function () {
+    let nébuleuses: NébuleuseTest[];
+    let fermer: Oublier;
+
+    let idsComptes: string[];
+    let idsLibp2p: string[];
+
+    before(async () => {
+      ({ nébuleuses, fermer } = await créerNébuleusesLocales({ n: 3 }));
+      idsComptes = await Promise.all(
+        nébuleuses.map((c) => c.compte.obtIdCompte()),
+      );
+      idsLibp2p = await Promise.all(
+        nébuleuses.map((c) => c.compte.obtIdLibp2p()),
+      );
+    });
+
+    after(async () => {
+      await fermer?.();
+    });
+
+    it("les nébuleuses se connectent", async () => {
+      for (const nébuleuse of nébuleuses) {
+        const monId = await nébuleuse.compte.obtIdLibp2p();
+
+        const réf = [
+          ...idsLibp2p.filter((id) => id !== monId),
+          ID_DÉFAUT_RELAI,
+        ];
+        const connexions = await obtenir<ConnexionLibp2p[]>(
+          ({ siLongueurAuMoins }) =>
+            nébuleuse.réseau.suivreConnexionsLibp2p({
+              f: siLongueurAuMoins(réf.length),
+            }),
+        );
+
+        expect(connexions.map((c) => c.pair)).to.have.members(réf);
+      }
+    });
+
+    it("les nébuleuses découvrent les autres comptes", async () => {
+      for (const nébuleuse of nébuleuses) {
+        const comptes = await obtenir<ConnexionCompte[]>(
+          ({ siLongueurAuMoins }) =>
+            nébuleuse.réseau.suivreConnexionsComptes({
+              f: siLongueurAuMoins(2),
+            }),
+        );
+        const monId = await nébuleuse.compte.obtIdCompte();
+        expect(comptes.map((c) => c.idCompte)).to.have.deep.members(
+          idsComptes.filter((id) => id !== monId),
+        );
+      }
+    });
   });
 
   describe.skip("reconnexion après réouverture", function () {});
