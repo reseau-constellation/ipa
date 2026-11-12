@@ -167,7 +167,7 @@ export class ServiceLibp2p<
     const { libp2p, oublierReconnecteur } = await this.démarré();
     this.statut = STATUTS.FERMETURE_EN_COURS;
 
-    this.signaleurArrêt.abort();
+    this.signaleurArrêt.abort("Fermeture");
 
     oublierReconnecteur?.();
     // Uniquement fermer libp2p s'il n'a pas été fourni dans les options
