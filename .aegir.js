@@ -60,25 +60,19 @@ const générerServeurRessourcesTests = async (opts) => {
 const avantTest = async (opts) => {
   // Pour pouvoir accéder les fichiers test dans le navigateur
   const fermerServeurLocal = await générerServeurRessourcesTests(opts);
-  const retour = {
+  return {
     fermerServeurLocal,
-  };
-  if (!opts.target.includes("browser")) {
-    retour.relai = await lancerRelai({
-      sujetsRelai: ["constellation._peer-discovery._p2p._pubsub"],
-    });
-  }
-
-  return retour;
+  };;
 };
 
 const aprèsTest = async (_, avant) => {
   await avant?.fermerServeurLocal();
-  await avant.relai?.();
 };
 
 const générerConfigÆgirFinal = async () => {
-  const configÆgir = await générerConfigÆgir();
+  const configÆgir = await générerConfigÆgir({
+    sujetsRelai: ["constellation._peer-discovery._p2p._pubsub"]
+  });
   configÆgir.test.browser.config.buildConfig.external.push(
     "quibble",
     "@lassi-js/kili",

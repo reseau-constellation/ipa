@@ -469,8 +469,8 @@ importers:
         version: 2.0.1
     devDependencies:
       '@constl/utils-tests':
-        specifier: ^2.2.10
-        version: 2.2.10(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
+        specifier: ^2.2.11
+        version: 2.2.11(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@9.39.5(supports-color@10.2.2))
@@ -1098,8 +1098,8 @@ packages:
     resolution: {integrity: sha512-GEV9inMqdwesGe1RSnrbBMSergwVq2ODqGclHMnToYkNzkfLMS8499IkOBcGbSsw4ehLheHlYZ1PAXJ/ZVXkPw==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@2.2.10':
-    resolution: {integrity: sha512-fNfUH4qLNbmrNzbr9u+UVN5SIGn453qDSA9eV7SMQJdETELVZz8UHbnYfgfKNr44CB9Pl47ME9qvoALQZIe6EQ==}
+  '@constl/utils-tests@2.2.11':
+    resolution: {integrity: sha512-19y0uG0KRJln7/L2HdFfRSQ90KCqgFrXMBn7/PeeRATYa+eLLpbXcAaksXZEmy8UuK39HKNAJ32/UXJY8RQbdw==}
     engines: {node: '>=20'}
 
   '@cspell/cspell-bundled-dicts@10.4.1':
@@ -9381,7 +9381,7 @@ snapshots:
       uint8arrays: 6.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@2.2.10(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)':
+  '@constl/utils-tests@2.2.11(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
       '@helia/bitswap': 4.0.20(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
       '@helia/libp2p': 2.1.5(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)

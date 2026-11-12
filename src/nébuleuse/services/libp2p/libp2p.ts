@@ -66,19 +66,21 @@ export class ServiceLibp2p<
     const libp2p = (await this.service("hélia").hélia()).libp2p;
 
     // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
-    const chrono = setInterval(async () => {
+    const reconnecter = async () => {
       const pairsConnus = await libp2p.peerStore.all();
       const connexions = libp2p.getPeers().map((p) => p.toString());
       for (const connu of pairsConnus) {
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           try {
-            await libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
+            libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
           } catch {
             // Tant pis...
           }
         }
       }
-    }, 3000);
+    }
+    const chrono = setInterval(reconnecter, 3000);
+    reconnecter();
 
     /* const idLibp2p = libp2p.peerId.toString();
     libp2p.addEventListener("peer:connect", (x) => {
