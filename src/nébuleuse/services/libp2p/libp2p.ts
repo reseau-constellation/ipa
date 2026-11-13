@@ -78,7 +78,7 @@ export class ServiceLibp2p<
           }
         }
       }
-    }
+    };
     const chrono = setInterval(reconnecter, 3000);
     reconnecter();
 
