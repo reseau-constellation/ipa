@@ -328,7 +328,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             idDispositif,
             idPair,
           });
-        } catch {}
+        } catch {
+          continue
+        }
       }
     };
 
