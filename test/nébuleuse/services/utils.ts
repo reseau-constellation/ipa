@@ -27,7 +27,7 @@ const nonLocales = ["http", "delegatedPeerRouting", "delegatedContentRouting"];
 export const obtenirOptionsLibp2pLocal = (config: ConfigLibp2p = {}) => {
   const générateurOptions = obtenirOptionsLibp2p({
     ...config,
-    pairsParDéfaut: [obtenirAdresseRelai(), ...config.pairsParDéfaut ?? []],
+    pairsParDéfaut: [obtenirAdresseRelai(), ...(config.pairsParDéfaut ?? [])],
   });
   const générateurLocal: GénérateurOptionsLibp2p<
     ServicesLibp2pNébuleuseLocale
