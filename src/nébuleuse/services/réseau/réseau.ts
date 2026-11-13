@@ -57,6 +57,7 @@ import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 import type { PartielRécursif } from "@/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 import type { ServiceAppli } from "../../appli/services.js";
+import type { Signature } from "../orbite/orbite.js";
 
 // Types connexions
 
@@ -112,15 +113,18 @@ export type CompteRéseau = {
 
 export type InfosPair = {
   idPair: string;
-  idDispositif?: string;
-  idCompte?: string;
+  infos?: {
+    idDispositif: string;
+    idCompte: string;
+    signature: Signature;
+  };
 };
 
 export type InfosComplètesPair = Required<InfosPair>;
 
 export const estInfosComplètesPair = (
   pair: InfosPair,
-): pair is InfosComplètesPair => Boolean(pair.idCompte && pair.idDispositif);
+): pair is InfosComplètesPair => Boolean(pair.infos);
 
 // Constantes
 
@@ -266,19 +270,21 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       message: MessageIdentitéCompte;
       idPair: string;
     }) => {
-      const { idCompte, signature, idDispositif } = message;
+      const { identité, signature } = message;
 
       // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
       const signatureValide = await orbite.vérifierSignature({
         signature,
-        message: idDispositif,
+        message: JSON.stringify(identité),
       });
       if (!signatureValide) return;
+      const { idDispositif, idCompte } = identité;
 
       await libp2p.peerStore.merge(peerIdFromString(idPair), {
         metadata: {
           idDispositif: new TextEncoder().encode(idDispositif),
           idCompte: new TextEncoder().encode(idCompte),
+          signature: new TextEncoder().encode(JSON.stringify(signature)),
         },
       });
 
@@ -297,21 +303,32 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       message: MessageInfosPairs;
     }) => {
       for (const info of message.pairs) {
-        const { idPair, idDispositif, idCompte } = info;
+        try {
+          const {
+            idPair,
+            infos: { idDispositif, idCompte, signature },
+          } = info;
+          const signatureValide = await orbite.vérifierSignature({
+            signature,
+            message: JSON.stringify({ idPair, idDispositif, idCompte }),
+          });
+          if (!signatureValide) continue;
 
-        await libp2p.peerStore.merge(peerIdFromString(idPair), {
-          metadata: {
-            idDispositif: new TextEncoder().encode(idDispositif),
-            idCompte: new TextEncoder().encode(idCompte),
-          },
-        });
-        // libp2p.addEventListener("peer:update") ne semble pas fonctionner pour une modification locale
-        // ...donc on utilise notre propre gestionnaire d'événements
-        this.événements.emit(ÉVÉNEMENTS.IDENTIFICATION_COMPTE, {
-          idCompte,
-          idDispositif,
-          idPair,
-        });
+          await libp2p.peerStore.merge(peerIdFromString(idPair), {
+            metadata: {
+              idDispositif: new TextEncoder().encode(idDispositif),
+              idCompte: new TextEncoder().encode(idCompte),
+              signature: new TextEncoder().encode(JSON.stringify(signature)),
+            },
+          });
+          // libp2p.addEventListener("peer:update") ne semble pas fonctionner pour une modification locale
+          // ...donc on utilise notre propre gestionnaire d'événements
+          this.événements.emit(ÉVÉNEMENTS.IDENTIFICATION_COMPTE, {
+            idCompte,
+            idDispositif,
+            idPair,
+          });
+        } catch {}
       }
     };
 
@@ -504,23 +521,31 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
   async suivreInfosPairs({ f }: { f: Suivi<InfosPair[]> }): Promise<Oublier> {
     const libp2p = await this.service("libp2p").libp2p();
-    const fFinale = async () => {
-      const infos: {
-        idPair: string;
-        idDispositif?: string;
-        idCompte?: string;
-      }[] = [];
-      for (const pair of await libp2p.peerStore.all()) {
-        const idDispositif = pair.metadata.get("idDispositif");
-        const idCompte = pair.metadata.get("idCompte");
+    const journal = this.service("journal");
 
-        infos.push({
-          idPair: pair.id.toString(),
-          idDispositif: idDispositif
-            ? new TextDecoder().decode(idDispositif)
-            : undefined,
-          idCompte: idCompte ? new TextDecoder().decode(idCompte) : undefined,
-        });
+    const fFinale = async () => {
+      const infos: InfosPair[] = [];
+      for (const pair of await libp2p.peerStore.all()) {
+        try {
+          const idDispositif = pair.metadata.get("idDispositif");
+          const idCompte = pair.metadata.get("idCompte");
+          const signature = pair.metadata.get("signature");
+
+          const infoPair: InfosPair = {
+            idPair: pair.id.toString(),
+          };
+
+          if (idDispositif && idCompte && signature) {
+            infoPair.infos = {
+              idDispositif: new TextDecoder().decode(idDispositif),
+              idCompte: new TextDecoder().decode(idCompte),
+              signature: JSON.parse(new TextDecoder().decode(signature)),
+            };
+          }
+          infos.push(infoPair);
+        } catch (e) {
+          await journal.écrire(e);
+        }
       }
       await f(infos);
     };
@@ -552,12 +577,17 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const idCompte = await compte.obtIdCompte();
     const idDispositif = await compte.obtIdDispositif();
+    const monIdPair = await compte.obtIdLibp2p();
 
+    const monIdentité = {
+      idPair: monIdPair,
+      idDispositif,
+      idCompte,
+    };
     const identifiantsCompte: MessageIdentitéCompte = {
       type: IDENTITÉ_COMPTE,
-      idCompte,
-      idDispositif,
-      signature: await orbite.signer({ message: idDispositif }),
+      identité: monIdentité,
+      signature: await orbite.signer({ message: JSON.stringify(monIdentité) }),
     };
 
     await this.envoyerMessageAuPair({
@@ -576,7 +606,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const comptesHorsLigne = pairs
       .filter((p) => estInfosComplètesPair(p))
-      .filter((p) => !connexions.find((c) => c.idCompte === p.idCompte));
+      .filter((p) => !connexions.find((c) => c.idCompte === p.infos.idCompte));
+
     const infosPairs: MessageInfosPairs = {
       type: INFO_PAIRS,
       pairs: comptesHorsLigne,
@@ -702,9 +733,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       const connexions: ConnexionCompte[] = [];
       if (connexionsDispositifs && pairs) {
         for (const connexionDispositif of connexionsDispositifs) {
-          const { idCompte } =
+          const { infos: { idCompte } = {} } =
             pairs.find(
-              ({ idDispositif }) =>
+              ({ infos: { idDispositif } = {} }) =>
                 idDispositif === connexionDispositif.idDispositif,
             ) || {};
           if (idCompte) {
@@ -766,10 +797,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       idCompte?: string;
     } = { autorisés: [], infos: [] };
 
-    const monPair: InfosPair = {
-      idPair: await compte.obtIdLibp2p(),
-      idDispositif: await compte.obtIdDispositif(),
-    };
+    let monPair: InfosComplètesPair = await compte.obtInfosCompte();
 
     const fSuivi = async ({
       id,
@@ -811,17 +839,17 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         info.autorisés.map((idDispositif) => ({
           idDispositif,
           statut:
-            info.infos.find((i) => i.idDispositif === idDispositif)
-              ?.idCompte === info.idCompte
+            info.infos.find(({ infos }) => infos?.idDispositif === idDispositif)
+              ?.infos?.idCompte === info.idCompte
               ? "accepté"
               : "invité",
         })),
       );
     };
 
-    const oublierMonCompte = await compte.suivreIdCompte({
-      f: async (idCompte) => {
-        monPair.idCompte = idCompte;
+    const oublierMonCompte = await compte.suivreInfosCompte({
+      f: async (infos) => {
+        monPair = infos;
         await fFinale();
       },
     });
@@ -885,7 +913,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           confiance: 1,
         },
         ...info.pairs
-          .map(({ idCompte }) => idCompte)
+          .map(({ infos: { idCompte } = {} }) => idCompte)
           .filter((idCompte): idCompte is string => !!idCompte)
           .map((idCompte) => ({
             idCompte,

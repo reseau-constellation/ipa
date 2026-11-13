@@ -16,9 +16,12 @@ export type MessageRéseau =
 export const IDENTITÉ_COMPTE = "identité compte";
 export type MessageIdentitéCompte = {
   type: typeof IDENTITÉ_COMPTE;
-  idDispositif: string;
-  idCompte: string;
   signature: Signature;
+  identité: {
+    idDispositif: string;
+    idCompte: string;
+    idPair: string;
+  };
 };
 
 export const INFO_PAIRS = "infos pairs";

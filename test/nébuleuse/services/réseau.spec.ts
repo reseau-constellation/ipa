@@ -1362,8 +1362,8 @@ describe("Réseau", function () {
           {
             condition: (pairs) =>
               !!pairs &&
-              pairs.find((p) => p.idDispositif === idsDispositifs[2])
-                ?.idCompte === idsComptes[1],
+              pairs.find((p) => p.infos?.idDispositif === idsDispositifs[2])
+                ?.infos?.idCompte === idsComptes[1],
           },
         );
 

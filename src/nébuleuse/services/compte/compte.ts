@@ -44,6 +44,7 @@ import type {
 import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
+import type { InfosComplètesPair } from "../réseau/réseau.js";
 
 export type MesDispositifs = {
   idDispositif: string;
@@ -189,6 +190,51 @@ export class BaseServiceCompte<
   async obtIdDispositif(): Promise<string> {
     // L'identifiant du dispositif est déterminé par l'instance d'OrbitDB
     return await this.service("orbite").obtIdDispositif();
+  }
+
+  async obtInfosCompte(): Promise<InfosComplètesPair> {
+    const orbite = this.service("orbite");
+
+    const idPair = await this.obtIdLibp2p();
+    const idDispositif = await this.obtIdDispositif();
+    const idCompte = await this.obtIdCompte();
+
+    const signature = await orbite.signer({
+      message: JSON.stringify({ idPair, idDispositif, idCompte }),
+    });
+    return {
+      idPair,
+      infos: {
+        idDispositif,
+        idCompte,
+        signature,
+      },
+    };
+  }
+
+  async suivreInfosCompte({
+    f,
+  }: {
+    f: Suivi<InfosComplètesPair>;
+  }): Promise<Oublier> {
+    const orbite = this.service("orbite");
+
+    const idPair = await this.obtIdLibp2p();
+    const idDispositif = await this.obtIdDispositif();
+
+    return await this.suivreIdCompte({
+      f: async (idCompte) => {
+        const signature = await orbite.signer({
+          message: JSON.stringify({ idPair, idDispositif, idCompte }),
+        });
+        const infos: InfosComplètesPair = {
+          idPair,
+          infos: { idDispositif, idCompte, signature },
+        };
+
+        await f(infos);
+      },
+    });
   }
 
   @cacheSuivi
