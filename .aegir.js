@@ -1,7 +1,7 @@
 import path from "path";
 import url from "url";
 import { realpathSync } from "fs";
-import { générerConfigÆgir, lancerRelai } from "@constl/utils-tests";
+import { générerConfigÆgir } from "@constl/utils-tests";
 import cors from "cors";
 import express from "express";
 
@@ -62,7 +62,7 @@ const avantTest = async (opts) => {
   const fermerServeurLocal = await générerServeurRessourcesTests(opts);
   return {
     fermerServeurLocal,
-  };;
+  };
 };
 
 const aprèsTest = async (_, avant) => {
@@ -71,7 +71,7 @@ const aprèsTest = async (_, avant) => {
 
 const générerConfigÆgirFinal = async () => {
   const configÆgir = await générerConfigÆgir({
-    sujetsRelai: ["constellation._peer-discovery._p2p._pubsub"]
+    sujetsRelai: ["constellation._peer-discovery._p2p._pubsub"],
   });
   configÆgir.test.browser.config.buildConfig.external.push(
     "quibble",
