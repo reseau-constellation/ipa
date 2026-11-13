@@ -1,88 +1,97 @@
-import { JSONSchemaType } from "ajv";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
+import { faisRien } from "@constl/utils-ipa";
+import { cacheSuivi } from "./nébuleuse/cache.js";
 import {
-  type schémaFonctionOublier,
-  type schémaFonctionSuivi,
-  schémaStructureBdNoms,
-  RecursivePartial,
-} from "@/types.js";
-
-import { Constellation } from "@/client.js";
-
-import { ComposanteClientListe } from "@/composanteClient.js";
-import { cacheSuivi } from "@/décorateursCache.js";
-
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import {
-  TOUS,
+  TOUS_DISPOSITIFS,
   résoudreDéfauts,
+} from "./nébuleuse/services/favoris.js";
+import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
+import { RechercheMotsClefs } from "./recherche/motsClefs.js";
+import { ObjetConstellation } from "./objets.js";
+import { définis } from "./utils.js";
+import type { AccesseurService } from "./recherche/types.js";
+import type { ServicesNécessairesRechercheMotsClefs } from "./recherche/fonctions/motsClefs.js";
+import type { ServicesNécessairesObjet } from "./objets.js";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
+import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
+import type {
+  BaseÉpingleFavoris,
   ÉpingleFavorisAvecId,
-  ÉpingleMotClef,
-} from "./favoris.js";
-import type { objRôles } from "@/accès/types.js";
+  ÉpingleFavorisBooléenniséeAvecId,
+} from "./nébuleuse/services/favoris.js";
+import type {
+  InfoAuteur,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "./types.js";
+import type { Oublier, Suivi } from "./nébuleuse/types.js";
+import type { JSONSchemaType } from "ajv";
+import type { TypedNested } from "@constl/bohr-db";
 
-type ContrôleurConstellation = Awaited<
-  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
->;
+// Types structure
 
-const schémaBdPrincipale: JSONSchemaType<string> = { type: "string" };
-
-type structureBdMotClef = {
-  type: string;
-  noms: string;
-  descriptions: string;
-};
-const schémaBdMotClef: JSONSchemaType<Partial<structureBdMotClef>> = {
-  type: "object",
-  properties: {
-    type: { type: "string", nullable: true },
-    noms: { type: "string", nullable: true },
-    descriptions: { type: "string", nullable: true },
-  },
-  required: [],
+export type StructureMotClef = {
+  type: "mot-clef";
+  noms: TraducsTexte;
+  descriptions: TraducsTexte;
+  statut: StatutDonnées;
 };
 
-export class MotsClefs extends ComposanteClientListe<string> {
-  constructor({ client }: { client: Constellation }) {
-    super({ client, clef: "motsClefs", schémaBdPrincipale });
-  }
+export const schémaMotClef: JSONSchemaType<PartielRécursif<StructureMotClef>> =
+  {
+    type: "object",
+    properties: {
+      type: { type: "string", nullable: true },
+      noms: schémaTraducsTexte,
+      descriptions: schémaTraducsTexte,
+      statut: schémaStatutDonnées,
+    },
+    required: [],
+  };
 
-  async suivreRésolutionÉpingle({
-    épingle,
-    f,
+// Types épingles
+
+export type ÉpingleMotClef = {
+  type: "motsClefs";
+  épingle: ContenuÉpingleMotClef;
+};
+
+export type ContenuÉpingleMotClef = BaseÉpingleFavoris;
+
+export type ServicesNécessairesMotsClefs =
+  ServicesNécessairesObjet<"motsClefs">;
+
+export class MotsClefs extends ObjetConstellation<
+  "motsClefs",
+  StructureMotClef,
+  ServicesNécessairesMotsClefs
+> {
+  recherche: RechercheMotsClefs;
+
+  schémaObjet = schémaMotClef;
+
+  constructor({
+    services,
+    options,
   }: {
-    épingle: ÉpingleFavorisAvecId<ÉpingleMotClef>;
-    f: schémaFonctionSuivi<Set<string>>;
-  }): Promise<schémaFonctionOublier> {
-    const épinglerMétaDonnées =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.base || "TOUS",
-      });
-
-    const fOublier = await this.client.suivreBd({
-      id: épingle.idObjet,
-      type: "keyvalue",
-      schéma: schémaBdMotClef,
-      f: async (bd) => {
-        try {
-          const contenuBd = await bd.allAsJSON();
-          return await f(
-            new Set(
-              épinglerMétaDonnées
-                ? ([
-                    épingle.idObjet,
-                    contenuBd.descriptions,
-                    contenuBd.noms,
-                  ].filter((x) => !!x) as string[])
-                : [],
-            ),
-          );
-        } catch {
-          return; // Si la structure n'est pas valide.
-        }
-      },
+    services: ServicesNécessairesMotsClefs;
+    options: OptionsAppli;
+  }) {
+    super({
+      clef: "motsClefs",
+      services,
+      dépendances: ["favoris", "réseau", "compte", "orbite"],
+      options,
     });
-    return fOublier;
+
+    this.recherche = new RechercheMotsClefs({
+      service: ((clef) =>
+        clef === "motsClefs"
+          ? this
+          : this.service(
+              clef,
+            )) as AccesseurService<ServicesNécessairesRechercheMotsClefs>,
+    });
   }
 
   @cacheSuivi
@@ -90,63 +99,80 @@ export class MotsClefs extends ComposanteClientListe<string> {
     f,
     idCompte,
   }: {
-    f: schémaFonctionSuivi<string[]>;
+    f: Suivi<string[] | undefined>;
     idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    return await this.suivreBdPrincipale({ idCompte, f });
+  }): Promise<Oublier> {
+    return await this.suivreObjets({ f, idCompte });
   }
 
   async créerMotClef({
     épingler = true,
   }: { épingler?: boolean } = {}): Promise<string> {
-    const idMotClef = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès: {
-        address: undefined,
-        write: await this.client.obtIdCompte(),
-      },
+    const compte = this.service("compte");
+    const { bd, oublier: oublierBd } = await compte.créerObjet({
+      type: "nested",
+    });
+    const idMotClef = this.ajouterProtocole(bd.address);
+
+    const { motClef, oublier } = await this.ouvrirMotClef({ idMotClef });
+
+    await this.ajouterÀMesMotsClefs({ idMotClef, épingler });
+
+    await motClef.insert({
+      type: "mot-clef",
+      statut: { statut: "active" },
     });
 
-    await this.ajouterÀMesMotsClefs({ idMotClef });
+    await oublierBd();
+    await oublier();
+    return idMotClef;
+  }
 
-    if (épingler) await this.épinglerMotClef({ idMotClef });
+  async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
+    const { motClef, oublier } = await this.ouvrirMotClef({ idMotClef });
+    const idNouveauMotClef = await this.créerMotClef();
 
-    const { bd: bdMotClef, fOublier: fOublierMotClef } =
-      await this.client.ouvrirBdTypée({
-        id: idMotClef,
-        type: "keyvalue",
-        schéma: schémaBdMotClef,
+    const noms = await motClef.get("noms");
+    if (noms) await this.sauvegarderNoms({ idMotClef: idNouveauMotClef, noms });
+
+    const descriptions = await motClef.get("descriptions");
+    if (descriptions)
+      await this.sauvegarderDescriptions({
+        idMotClef: idNouveauMotClef,
+        descriptions,
       });
 
-    const accès = bdMotClef.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { write: accès.address };
-
-    await bdMotClef.set("type", "motClef");
-
-    const idBdNoms = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
+    const statut = (await motClef.get("statut")) || {
+      statut: "active",
+    };
+    await this.sauvegarderStatut({
+      idMotClef: idNouveauMotClef,
+      statut,
     });
-    await bdMotClef.set("noms", idBdNoms);
 
-    const idBdDescriptions = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdMotClef.set("descriptions", idBdDescriptions);
+    await oublier();
+    return idNouveauMotClef;
+  }
 
-    await fOublierMotClef();
-    return idMotClef;
+  async effacerMotClef({ idMotClef }: { idMotClef: string }): Promise<void> {
+    // Effacer l'entrée dans notre liste de mots-clefs
+    await this.enleverDeMesMotsClefs({ idMotClef });
+
+    await this.désépingler({ idMotClef });
+
+    // Effacer le mot-clef lui-même
+    await this.service("orbite").effacerBd({ id: this.àIdOrbite(idMotClef) });
   }
 
   async ajouterÀMesMotsClefs({
     idMotClef,
+    épingler = true,
   }: {
     idMotClef: string;
+    épingler?: boolean;
   }): Promise<void> {
-    const { bd, fOublier } = await this.obtBd();
-    await bd.add(idMotClef);
-    await fOublier();
+    if (épingler) await this.épingler({ idMotClef });
+    return await this.ajouterÀMesObjets({ idObjet: idMotClef });
   }
 
   async enleverDeMesMotsClefs({
@@ -154,140 +180,151 @@ export class MotsClefs extends ComposanteClientListe<string> {
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.obtBd();
-    await bdRacine.del(idMotClef);
-    await fOublier();
+    return await this.enleverDeMesObjets({ idObjet: idMotClef });
   }
 
-  async épinglerMotClef({
+  async ouvrirMotClef({
     idMotClef,
-    options = {},
   }: {
     idMotClef: string;
-    options?: RecursivePartial<ÉpingleMotClef>;
-  }) {
-    const épingle: ÉpingleMotClef = résoudreDéfauts(options, {
-      type: "motClef",
-      base: TOUS,
+  }): Promise<{ motClef: TypedNested<StructureMotClef>; oublier: Oublier }> {
+    const { objet: motClef, oublier } = await this.ouvrirObjet({
+      idObjet: idMotClef,
     });
-    await this.client.favoris.épinglerFavori({ idObjet: idMotClef, épingle });
+    return { motClef, oublier };
   }
 
-  async suivreÉpingleMotClef({
+  // Accèss
+
+  async inviterAuteur({
+    idMotClef,
+    idCompte,
+    rôle,
+  }: {
+    idMotClef: string;
+    idCompte: string;
+    rôle: Rôle;
+  }): Promise<void> {
+    return await this.donnerAccèsObjet({
+      idObjet: idMotClef,
+      identité: idCompte,
+      rôle,
+    });
+  }
+
+  @cacheSuivi
+  async suivreAuteurs({
     idMotClef,
     f,
-    idCompte,
   }: {
     idMotClef: string;
-    f: schémaFonctionSuivi<ÉpingleMotClef | undefined>;
-    idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.favoris.suivreÉtatFavori({
-      idObjet: idMotClef,
-      f: async (épingle) => {
-        if (épingle?.type === "motClef") await f(épingle);
-        else await f(undefined);
-      },
-      idCompte,
-    });
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier> {
+    return await this.suivreAuteursObjet({ idObjet: idMotClef, f });
   }
 
-  async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
-    const { bd: bdBase, fOublier: fOublierBase } =
-      await this.client.ouvrirBdTypée({
-        id: idMotClef,
-        type: "keyvalue",
-        schéma: schémaBdMotClef,
-      });
-
-    const idNouveauMotClef = await this.créerMotClef();
-
-    const idBdNoms = await bdBase.get("noms");
-    if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierNoms } =
-        await this.client.ouvrirBdTypée({
-          id: idBdNoms,
-          type: "keyvalue",
-          schéma: schémaStructureBdNoms,
-        });
-      const noms = await bdNoms.allAsJSON();
-      await this.sauvegarderNomsMotClef({ idMotClef: idNouveauMotClef, noms });
-      await fOublierNoms();
-    }
-
-    const idBdDescriptions = await bdBase.get("descriptions");
-    if (idBdDescriptions) {
-      const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
-        await this.client.ouvrirBdTypée({
-          id: idBdDescriptions,
-          type: "keyvalue",
-          schéma: schémaStructureBdNoms,
-        });
-      const descriptions = await bdDescriptions.allAsJSON();
-      await this.sauvegarderDescriptionsMotClef({
-        idMotClef: idNouveauMotClef,
-        descriptions,
-      });
-      await fOublierDescriptions();
-    }
-
-    await fOublierBase();
-    return idNouveauMotClef;
-  }
-
-  async _confirmerPermission({
+  async confirmerPermission({
     idMotClef,
   }: {
     idMotClef: string;
   }): Promise<void> {
-    if (!(await this.client.permission({ idObjet: idMotClef })))
+    const compte = this.service("compte");
+
+    if (!(await compte.permission({ idObjet: this.àIdOrbite(idMotClef) })))
       throw new Error(
         `Permission de modification refusée pour le mot-clef ${idMotClef}.`,
       );
   }
 
-  async inviterAuteur({
+  // Épingler
+
+  async épingler({
     idMotClef,
-    idCompteAuteur,
-    rôle,
+    options = {},
   }: {
     idMotClef: string;
-    idCompteAuteur: string;
-    rôle: keyof objRôles;
-  }): Promise<void> {
-    await this.client.donnerAccès({
-      idBd: idMotClef,
-      identité: idCompteAuteur,
-      rôle,
+    options?: PartielRécursif<ContenuÉpingleMotClef>;
+  }) {
+    const épingle: ContenuÉpingleMotClef = résoudreDéfauts(options, {
+      base: TOUS_DISPOSITIFS,
+    });
+
+    const favoris = this.service("favoris");
+    await favoris.épinglerFavori({
+      idObjet: idMotClef,
+      épingle: { type: this.clef, épingle },
     });
   }
 
-  async sauvegarderNomsMotClef({
+  async suivreÉpingle({
+    idMotClef,
+    f,
+    idCompte,
+  }: {
+    idMotClef: string;
+    f: Suivi<ÉpingleMotClef | undefined>;
+    idCompte?: string;
+  }): Promise<Oublier> {
+    const favoris = this.service("favoris");
+
+    return await favoris.suivreFavoris({
+      idCompte,
+      f: async (épingles) => {
+        const épingleMotClef = épingles?.find(({ idObjet, épingle }) => {
+          return idObjet === idMotClef && épingle.type === this.clef
+            ? épingle
+            : undefined;
+        }) as ÉpingleFavorisAvecId<ContenuÉpingleMotClef> | undefined;
+        await f(épingleMotClef?.épingle as ÉpingleMotClef);
+      },
+    });
+  }
+
+  async désépingler({ idMotClef }: { idMotClef: string }): Promise<void> {
+    const favoris = this.service("favoris");
+
+    await favoris.désépinglerFavori({ idObjet: idMotClef });
+  }
+
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleMotClef>;
+    f: Suivi<Set<string>>;
+  }): Promise<Oublier> {
+    await f(
+      new Set(
+        épingle.épingle.épingle.base ? [this.àIdOrbite(épingle.idObjet)] : [],
+      ),
+    );
+
+    return faisRien;
+  }
+
+  // Noms
+
+  async sauvegarderNoms({
     idMotClef,
     noms,
   }: {
     idMotClef: string;
-    noms: { [key: string]: string };
+    noms: TraducsTexte;
   }): Promise<void> {
-    await this._confirmerPermission({ idMotClef });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idMotClef,
-      type: "keyvalue",
+    await this.confirmerPermission({ idMotClef });
+
+    const { motClef, oublier } = await this.ouvrirMotClef({
+      idMotClef,
     });
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
     for (const lng in noms) {
-      await bdNoms.set(lng, noms[lng]);
+      await motClef.insert(`noms/${lng}`, noms[lng]);
     }
-    await fOublier();
+
+    await oublier();
   }
 
-  async sauvegarderNomMotClef({
+  async sauvegarderNom({
     idMotClef,
     langue,
     nom,
@@ -296,87 +333,64 @@ export class MotsClefs extends ComposanteClientListe<string> {
     langue: string;
     nom: string;
   }): Promise<void> {
-    await this._confirmerPermission({ idMotClef });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idMotClef,
-      type: "keyvalue",
+    await this.confirmerPermission({ idMotClef });
+
+    const { motClef, oublier } = await this.ouvrirMotClef({
+      idMotClef,
     });
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    await bdNoms.set(langue, nom);
-    await fOublier();
+    await motClef.insert(`noms/${langue}`, nom);
+    await oublier();
   }
 
-  async effacerNomMotClef({
+  async effacerNom({
     idMotClef,
     langue,
   }: {
     idMotClef: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({ idMotClef });
-    const idBdNoms = await this.client.obtIdBd({
-      nom: "noms",
-      racine: idMotClef,
-      type: "keyvalue",
+    await this.confirmerPermission({ idMotClef });
+    const { motClef, oublier } = await this.ouvrirMotClef({
+      idMotClef,
     });
+    await motClef.del(`noms/${langue}`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    await bdNoms.del(langue);
-    await fOublier();
+    await oublier();
   }
 
   @cacheSuivi
-  async suivreNomsMotClef({
+  async suivreNoms({
     idMotClef,
     f,
   }: {
     idMotClef: string;
-    f: schémaFonctionSuivi<{ [key: string]: string }>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
-      id: idMotClef,
-      clef: "noms",
-      schéma: schémaStructureBdNoms,
-      f,
+    f: Suivi<TraducsTexte>;
+  }): Promise<Oublier> {
+    return await this.suivreObjet({
+      idObjet: idMotClef,
+      f: (motClef) => f(définis(motClef.noms || {})),
     });
   }
 
-  async sauvegarderDescriptionsMotClef({
+  // Descriptions
+
+  async sauvegarderDescriptions({
     idMotClef,
     descriptions,
   }: {
     idMotClef: string;
-    descriptions: { [key: string]: string };
+    descriptions: TraducsTexte;
   }): Promise<void> {
-    await this._confirmerPermission({ idMotClef });
-    const idBdDescriptions = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idMotClef,
-      type: "keyvalue",
+    await this.confirmerPermission({ idMotClef });
+    const { motClef, oublier } = await this.ouvrirMotClef({
+      idMotClef,
     });
-
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescriptions,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    for (const lng in descriptions) {
-      await bdDescriptions.set(lng, descriptions[lng]);
-    }
-    await fOublier();
+    await motClef.insert(`descriptions`, descriptions);
+    await oublier();
   }
 
-  async sauvegarderDescriptionMotClef({
+  async sauvegarderDescription({
     idMotClef,
     langue,
     description,
@@ -385,92 +399,84 @@ export class MotsClefs extends ComposanteClientListe<string> {
     langue: string;
     description: string;
   }): Promise<void> {
-    await this._confirmerPermission({ idMotClef });
-    const idBdDescriptions = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idMotClef,
-      type: "keyvalue",
+    await this.confirmerPermission({ idMotClef });
+    const { motClef, oublier } = await this.ouvrirMotClef({
+      idMotClef,
     });
-
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescriptions,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    await bdDescriptions.set(langue, description);
-    await fOublier();
+    await motClef.insert(`descriptions/${langue}`, description);
+    await oublier();
   }
 
-  async effacerDescriptionMotClef({
+  async effacerDescription({
     idMotClef,
     langue,
   }: {
     idMotClef: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({ idMotClef });
-    const idBdDescriptions = await this.client.obtIdBd({
-      nom: "descriptions",
-      racine: idMotClef,
-      type: "keyvalue",
-    });
-
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdDescriptions,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    await bdDescriptions.del(langue);
-    await fOublier();
-  }
-
-  @cacheSuivi
-  async suivreDescriptionsMotClef({
-    idMotClef,
-    f,
-  }: {
-    idMotClef: string;
-    f: schémaFonctionSuivi<{ [key: string]: string }>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
-      id: idMotClef,
-      clef: "descriptions",
-      schéma: schémaStructureBdNoms,
-      f,
-    });
-  }
-
-  async effacerMotClef({ idMotClef }: { idMotClef: string }): Promise<void> {
-    // Effacer l'entrée dans notre liste de mots clefs
-    await this.enleverDeMesMotsClefs({ idMotClef });
-    await this.client.favoris.désépinglerFavori({ idObjet: idMotClef });
-
-    // Effacer le mot-clef lui-même
-    const { bd: bdMotClef, fOublier } = await this.client.ouvrirBdTypée({
-      id: idMotClef,
-      type: "keyvalue",
-      schéma: schémaBdMotClef,
-    });
-    const contenuBd = await bdMotClef.all();
-    for (const item of contenuBd) {
-      if (item.value && adresseOrbiteValide(item.value))
-        await this.client.effacerBd({ id: item.value });
-    }
-    await fOublier();
-    await this.client.effacerBd({ id: idMotClef });
-  }
-
-  @cacheSuivi
-  async suivreQualitéMotClef({
-    idMotClef,
-    f,
-  }: {
-    idMotClef: string;
-    f: schémaFonctionSuivi<number>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.suivreNomsMotClef({
+    await this.confirmerPermission({ idMotClef });
+    const { motClef, oublier } = await this.ouvrirMotClef({
       idMotClef,
-      f: (noms) => f(Object.keys(noms).length ? 1 : 0),
+    });
+    await motClef.del(`descriptions/${langue}`);
+    await oublier();
+  }
+
+  @cacheSuivi
+  async suivreDescriptions({
+    idMotClef,
+    f,
+  }: {
+    idMotClef: string;
+    f: Suivi<TraducsTexte>;
+  }): Promise<Oublier> {
+    return await this.suivreObjet({
+      idObjet: idMotClef,
+      f: (motClef) => f(définis(motClef.descriptions || {})),
+    });
+  }
+
+  // Statut
+
+  async sauvegarderStatut({
+    idMotClef,
+    statut,
+  }: {
+    idMotClef: string;
+    statut: StatutDonnées;
+  }): Promise<void> {
+    const { motClef, oublier } = await this.ouvrirMotClef({ idMotClef });
+    await motClef.set("statut", statut);
+
+    await oublier();
+  }
+
+  async suivreStatut({
+    idMotClef,
+    f,
+  }: {
+    idMotClef: string;
+    f: Suivi<PartielRécursif<StatutDonnées> | undefined>;
+  }): Promise<Oublier> {
+    return await this.suivreObjet({
+      idObjet: idMotClef,
+      f: async (motClef) => await f(motClef.statut),
+    });
+  }
+
+  // Qualité
+
+  @cacheSuivi
+  async suivreScoreQualité({
+    idMotClef,
+    f,
+  }: {
+    idMotClef: string;
+    f: Suivi<number>;
+  }): Promise<Oublier> {
+    return await this.suivreNoms({
+      idMotClef,
+      f: (noms) => f(noms && Object.keys(noms).length ? 1 : 0),
     });
   }
 }

@@ -1,21 +1,13 @@
-export type valsJSON =
-  | number
-  | string
-  | boolean
-  | valsJSON[]
-  | { [key: string]: valsJSON };
+export type ClefsExtractionNonNul = (string | number)[];
+export type ClefsExtraction = (string | number | -1)[];
 
-export type élémentDic = { [key: string]: valsJSON };
-export type élémentListe = valsJSON[];
-export type élément = élémentDic | élémentListe;
-export type DonnéesJSON = élément | élément[];
+export type ValsJSON =
+  number | string | boolean | ValsJSON[] | { [key: string]: ValsJSON };
 
-export type clefsExtractionNonNul = (string | number)[];
-export type clefsExtraction = (string | number | -1)[];
-
-const copieProfonde = (données: DonnéesJSON) => {
-  return JSON.parse(JSON.stringify(données));
-};
+export type ÉlémentDicJSON = { [key: string]: ValsJSON };
+export type ÉlémentListeJSON = ValsJSON[];
+export type ÉlémentJSON = ÉlémentDicJSON | ÉlémentListeJSON;
+export type DonnéesJSON = ÉlémentJSON | ÉlémentJSON[];
 
 const estUnDic = (x: unknown): boolean =>
   typeof x === "object" && !Array.isArray(x);
@@ -23,14 +15,14 @@ const estUneListe = (x: unknown): boolean => Array.isArray(x);
 
 const extraireBranches = (
   données: DonnéesJSON,
-  clefs: clefsExtractionNonNul,
+  clefs: ClefsExtractionNonNul,
 ) => {
-  let branches: élémentListe;
+  let branches: ÉlémentListeJSON;
 
   if (!clefs.length) {
     branches = estUnDic(données)
       ? Object.values(données)
-      : (données as élémentListe);
+      : (données as ÉlémentListeJSON);
     return { base: {}, branches };
   }
   const avantDernière = extraireDonnées(
@@ -38,23 +30,23 @@ const extraireBranches = (
     clefs.slice(0, clefs.length - 1),
   );
   const dernièreClef = clefs[clefs.length - 1];
-  let conteneurBranches: élément;
+  let conteneurBranches: ÉlémentJSON;
 
   if (typeof dernièreClef === "number") {
     if (estUneListe(avantDernière)) {
-      const x = (avantDernière as élémentListe)[dernièreClef];
+      const x = (avantDernière as ÉlémentListeJSON)[dernièreClef];
       if (typeof x !== "object") throw new Error(x.toString());
       conteneurBranches = x;
-      delete (avantDernière as élémentListe)[dernièreClef];
+      delete (avantDernière as ÉlémentListeJSON)[dernièreClef];
     } else {
       throw new Error(`${dernièreClef} ne peut pas indexer une liste.`);
     }
   } else if (typeof dernièreClef === "string") {
     if (estUnDic(avantDernière)) {
-      const x = (avantDernière as élémentDic)[dernièreClef];
+      const x = (avantDernière as ÉlémentDicJSON)[dernièreClef];
       if (typeof x !== "object") throw new Error(x.toString());
       conteneurBranches = x;
-      delete (avantDernière as élémentDic)[dernièreClef];
+      delete (avantDernière as ÉlémentDicJSON)[dernièreClef];
     } else {
       throw new Error(`${dernièreClef} ne peut pas indexer un objet.`);
     }
@@ -65,7 +57,7 @@ const extraireBranches = (
   if (estUnDic(conteneurBranches)) {
     branches = Object.values(conteneurBranches);
   } else if (estUneListe(conteneurBranches)) {
-    branches = conteneurBranches as élémentListe;
+    branches = conteneurBranches as ÉlémentListeJSON;
   } else {
     throw Error(JSON.stringify(conteneurBranches));
   }
@@ -74,9 +66,9 @@ const extraireBranches = (
 };
 
 const injecterBranche = (
-  base: élément,
-  clefs: clefsExtractionNonNul,
-  branche: valsJSON,
+  base: ÉlémentJSON,
+  clefs: ClefsExtractionNonNul,
+  branche: ValsJSON,
 ) => {
   if (!clefs.length) {
     Object.assign(base, branche);
@@ -87,13 +79,13 @@ const injecterBranche = (
 
     if (typeof dernièreClef === "number") {
       if (estUneListe(avantDernière)) {
-        (avantDernière as élémentListe)[dernièreClef] = branche;
+        (avantDernière as ÉlémentListeJSON)[dernièreClef] = branche;
       } else {
         throw new Error(`${dernièreClef} ne peut pas indexer une liste.`);
       }
     } else if (typeof dernièreClef === "string") {
       if (estUnDic(avantDernière)) {
-        (avantDernière as élémentDic)[dernièreClef] = branche;
+        (avantDernière as ÉlémentDicJSON)[dernièreClef] = branche;
       } else {
         throw new Error(`${dernièreClef} ne peut pas indexer un objet.`);
       }
@@ -105,10 +97,10 @@ const injecterBranche = (
 
 export const aplatirDonnées = (
   données: DonnéesJSON,
-  clefs: clefsExtraction = [],
+  clefs: ClefsExtraction = [],
   _base?: DonnéesJSON,
-  _élémentsFinaux: élément[] = [],
-): élément[] => {
+  _élémentsFinaux: ÉlémentJSON[] = [],
+): ÉlémentJSON[] => {
   if (clefs[clefs.length - 1] !== -1) clefs.push(-1);
 
   const iNull = clefs.indexOf(-1);
@@ -117,14 +109,14 @@ export const aplatirDonnées = (
 
   const { base, branches } = extraireBranches(
     données,
-    clefsAvant as clefsExtractionNonNul,
+    clefsAvant as ClefsExtractionNonNul,
   );
 
   for (const branche of branches) {
     if (typeof branche !== "object") throw new Error(branche.toString());
 
-    const copieBase = copieProfonde(base);
-    injecterBranche(copieBase, clefsAvant as clefsExtractionNonNul, branche);
+    const copieBase = structuredClone(base);
+    injecterBranche(copieBase, clefsAvant as ClefsExtractionNonNul, branche);
     if (clefsAprès.length) {
       aplatirDonnées(branche, clefsAprès, copieBase, _élémentsFinaux);
     } else {
@@ -136,19 +128,19 @@ export const aplatirDonnées = (
 
 export const extraireDonnées = (
   données: DonnéesJSON,
-  clefs: clefsExtraction,
-): valsJSON => {
-  let donnéesFinales: valsJSON = données;
+  clefs: ClefsExtraction,
+): ValsJSON => {
+  let donnéesFinales: ValsJSON = données;
   for (const c of clefs) {
     if (typeof c === "number") {
       if (estUneListe(donnéesFinales)) {
-        donnéesFinales = (donnéesFinales as élémentListe)[c];
+        donnéesFinales = (donnéesFinales as ÉlémentListeJSON)[c];
       } else {
         throw new Error(`${c} ne peut pas indexer une liste.`);
       }
     } else if (typeof c === "string") {
       if (estUnDic(donnéesFinales)) {
-        donnéesFinales = (donnéesFinales as élémentDic)[c];
+        donnéesFinales = (donnéesFinales as ÉlémentDicJSON)[c];
       } else {
         throw new Error(`${c} ne peut pas indexer un objet.`);
       }
@@ -168,32 +160,32 @@ export class ImportateurDonnéesJSON {
   }
 
   obtDonnées(
-    clefsRacine: clefsExtraction,
-    clefsÉléments: clefsExtraction,
-    cols: { [key: string]: clefsExtraction },
-  ): élémentDic[] {
-    let données: élémentDic[] = [];
+    clefsRacine: ClefsExtraction,
+    clefsÉléments: ClefsExtraction,
+    cols: { [key: string]: ClefsExtraction },
+  ): ÉlémentDicJSON[] {
+    let données: ÉlémentDicJSON[] = [];
 
     let racineDonnéesJSON = extraireDonnées(this.donnéesJSON, clefsRacine);
     if (typeof racineDonnéesJSON !== "object") {
       throw new Error(
-        `Type de données erroné : ${racineDonnéesJSON.toString()}`, // eslint-disable-line no-irregular-whitespace
+        `Type de données erroné : ${racineDonnéesJSON}`, // eslint-disable-line no-irregular-whitespace
       );
     }
 
     racineDonnéesJSON = aplatirDonnées(
-      racineDonnéesJSON as élémentListe | élémentDic,
+      racineDonnéesJSON as ÉlémentListeJSON | ÉlémentDicJSON,
       clefsÉléments,
     );
 
     for (const élémentJSON of racineDonnéesJSON) {
       if (typeof élémentJSON !== "object")
-        throw new Error(`Élément de type non supporté : ${élémentJSON}`); // eslint-disable-line no-irregular-whitespace
-      const élément = Object.fromEntries(
+        throw new Error(`ÉlémentJSON de type non supporté : ${élémentJSON}`); // eslint-disable-line no-irregular-whitespace
+      const ÉlémentJSON = Object.fromEntries(
         Object.keys(cols)
           .map((c) => {
             const clefs = cols[c];
-            let val: valsJSON | undefined;
+            let val: ValsJSON | undefined;
             try {
               val = extraireDonnées(élémentJSON, clefs);
             } catch {
@@ -204,7 +196,7 @@ export class ImportateurDonnéesJSON {
           })
           .filter((x) => x[1] !== undefined),
       );
-      données = [élément, ...données];
+      données = [ÉlémentJSON, ...données];
     }
 
     return données;

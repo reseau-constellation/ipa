@@ -1,25 +1,21 @@
-import {
-  attente as utilsTestAttente,
-  constellation as utilsTestConstellation,
-} from "@constl/utils-tests";
 import { expect } from "aegir/chai";
-import { isElectronMain, isNode } from "wherearewe";
-import { créerConstellation, type Constellation } from "@/index.js";
-import type { statutMembre } from "@/reseau.js";
+import { enleverPréfixesEtOrbite } from "@/utils.js";
+import { créerConstellationsTest, rechercher } from "../utils.js";
+import type { ObtRecherche } from "../utils.js";
+import type { Oublier } from "@/nébuleuse/types.js";
+import type { Constellation } from "@/index.js";
 import type {
-  infoRésultat,
-  infoRésultatRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
-  résultatRecherche,
-  schémaFonctionOublier,
-} from "@/types.js";
+  InfoRésultat,
+  InfoRésultatRecherche,
+  InfoRésultatTexte,
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
+  RésultatRecherche,
+} from "@/recherche/types.js";
 
-const { créerConstellationsTest } = utilsTestConstellation;
 const vérifierRecherche = (
-  résultats: résultatRecherche<infoRésultat>[],
-  réf: résultatRecherche<infoRésultat>[],
+  résultats: RésultatRecherche<InfoRésultat>[],
+  réf: RésultatRecherche<InfoRésultat>[],
   scores: { [key: string]: (x: number) => void } = {},
 ) => {
   const scoresRésultat = Object.fromEntries(
@@ -28,12 +24,12 @@ const vérifierRecherche = (
   const résultatsSansScore = résultats.map((r) => {
     const sansScore: {
       id: string;
-      résultatObjectif: Omit<résultatObjectifRecherche<infoRésultat>, "score">;
+      résultatObjectif: Omit<RésultatObjectifRecherche<InfoRésultat>, "score">;
     } = {
       id: r.id,
       résultatObjectif: Object.fromEntries(
         Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score"),
-      ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">,
+      ) as Omit<RésultatObjectifRecherche<InfoRésultat>, "score">,
     };
     return sansScore;
   });
@@ -41,18 +37,18 @@ const vérifierRecherche = (
   const réfSansScore = réf.map((r) => {
     const sansScore: {
       id: string;
-      résultatObjectif: Omit<résultatObjectifRecherche<infoRésultat>, "score">;
+      résultatObjectif: Omit<RésultatObjectifRecherche<InfoRésultat>, "score">;
     } = {
       id: r.id,
       résultatObjectif: Object.fromEntries(
         Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score"),
-      ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">,
+      ) as Omit<RésultatObjectifRecherche<InfoRésultat>, "score">,
     };
     return sansScore;
   });
 
   expect(résultatsSansScore).to.have.deep.members(réfSansScore);
-  expect(résultatsSansScore.length).to.eq(réfSansScore.length);
+
   for (const clef of Object.keys(scoresRésultat)) {
     const rés = scoresRésultat[clef];
     (
@@ -65,290 +61,187 @@ const vérifierRecherche = (
   }
 };
 
-if (isElectronMain || isNode) {
-  describe("Rechercher dans réseau", function () {
-    describe("Profil", function () {
-      let fOublierClients: () => Promise<void>;
-      let clients: Constellation[];
-      let idsComptes: string[];
+describe("Rechercher dans réseau", function () {
+  describe("profil", function () {
+    let fermer: Oublier;
+    let constls: Constellation[];
+    let idsComptes: string[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 2,
+      }));
+
+      idsComptes = await Promise.all(
+        constls.map(async (c) => await c.compte.obtIdCompte()),
+      );
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    describe("selon id", () => {
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
-          {
-            n: 3,
-            créerConstellation,
-          },
-        ));
-
-        idsComptes = await Promise.all(
-          clients.map(async (c) => await c.obtIdCompte()),
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].profil.recherche.selonId({
+            idCompte: idsComptes[0],
+            f,
+          }),
         );
       });
 
-      after(async () => {
-        if (fOublierClients) await fOublierClients();
+      it("id membre détecté", async () => {
+        const résultat = await recherche.siPasVide();
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idsComptes[0],
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "id",
+            info: {
+              type: "texte",
+              texte: enleverPréfixesEtOrbite(idsComptes[0]),
+              début: 0,
+              fin: enleverPréfixesEtOrbite(idsComptes[0]).length,
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon nom", function () {
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].profil.recherche.selonNom({ nom: "Julien", f }),
+        );
       });
 
-      describe("selon nom", function () {
-        let fOublier: schémaFonctionOublier;
-        let fChangerN: (n: number) => Promise<void>;
-
-        let fOublier2: schémaFonctionOublier;
-        let fChangerN2: (n: number) => Promise<void>;
-
-        let réfClient2: résultatRecherche<infoRésultatTexte>;
-        let réfClient3: résultatRecherche<infoRésultatTexte>;
-
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-        const rés2 = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier, fChangerN } =
-            await clients[0].recherche.rechercherProfilsSelonNom({
-              nom: "Julien",
-              f: (membres) => rés.mettreÀJour(membres),
-              nRésultatsDésirés: 2,
-            }));
-
-          ({ fOublier: fOublier2, fChangerN: fChangerN2 } =
-            await clients[0].recherche.rechercherProfilsSelonNom({
-              nom: "Julien",
-              f: (membres) => rés2.mettreÀJour(membres),
-              nRésultatsDésirés: 1,
-            }));
-
-          réfClient2 = {
-            id: idsComptes[1],
-            résultatObjectif: {
-              score: 4 / 9,
-              type: "résultat",
-              de: "nom",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "Julien",
-                début: 0,
-                fin: 6,
-              },
-            },
-          };
-          réfClient3 = {
-            id: idsComptes[2],
-            résultatObjectif: {
-              score: 4 / 9,
-              type: "résultat",
-              de: "nom",
-              clef: "cst",
-              info: {
-                type: "texte",
-                texte: "Julián",
-                début: 0,
-                fin: 6,
-              },
-            },
-          };
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          if (fOublier2) await fOublier2();
-          rés.toutAnnuler();
-          rés2.toutAnnuler();
-        });
-
-        it("Moins de résultats que demandé s'il n'y a vraiment rien", async () => {
-          await clients[1].profil.sauvegarderNom({
-            langue: "fr",
-            nom: "Julien",
-          });
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réfClient2]);
-        });
-
-        it("On suit les changements", async () => {
-          await clients[2].profil.sauvegarderNom({
-            langue: "cst",
-            nom: "Julián",
-          });
-
-          const val = await rés.attendreQue((x) => !!x && x.length > 1);
-          vérifierRecherche(val, [réfClient2, réfClient3]);
-        });
-
-        it("Diminuer N désiré", async () => {
-          await fChangerN(1);
-
-          const val = await rés.attendreQue((x) => !!x && x.length === 1);
-          vérifierRecherche(val, [réfClient2]);
-        });
-
-        it("Augmenter N désiré", async () => {
-          await fChangerN(2);
-
-          const val = await rés.attendreQue((x) => !!x && x.length > 1);
-          vérifierRecherche(val, [réfClient2, réfClient3]);
-        });
-
-        it("Augmenter N désiré d'abord", async () => {
-          await fChangerN2(2);
-
-          const val = await rés2.attendreQue((x) => !!x && x.length > 1);
-          vérifierRecherche(val, [réfClient2, réfClient3]);
-        });
-
-        it("Et ensuite diminuer N désiré", async () => {
-          await fChangerN2(1);
-
-          const val = await rés2.attendreQue((x) => !!x && x.length === 1);
-          vérifierRecherche(val, [réfClient2]);
-        });
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
       });
 
-      describe("selon courriel", function () {
-        let fOublier: schémaFonctionOublier;
-        let réfClient2: résultatRecherche<infoRésultatTexte>;
+      it("noms détectés", async () => {
+        const pRésultat = recherche.siPasVide();
 
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
+        await constls[0].profil.sauvegarderNom({
+          langue: "fra",
+          nom: "Julien",
+        });
 
-        before(async () => {
-          ({ fOublier } =
-            await clients[0].recherche.rechercherProfilsSelonCourriel({
-              courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-              f: (membres) => rés.mettreÀJour(membres),
-              nRésultatsDésirés: 2,
-            }));
-          réfClient2 = {
-            id: idsComptes[1],
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "courriel",
-              info: {
-                type: "texte",
-                texte: "தொடர்பு@லஸ்ஸி.இந்தியா",
-                début: 0,
-                fin: 21,
-              },
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idsComptes[0],
+          résultatObjectif: {
+            score: 4 / 9,
+            type: "résultat",
+            de: "nom",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "Julien",
+              début: 0,
+              fin: 6,
             },
-          };
-        });
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Rien pour commencer détecté", async () => {
-          const val = await rés.attendreExiste();
-          expect(val).to.be.empty();
-        });
-
-        it("Ajout détecté", async () => {
-          await clients[1].profil.sauvegarderCourriel({
+    describe("selon courriel", function () {
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].profil.recherche.selonCourriel({
             courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-          });
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réfClient2]);
-        });
-
-        it("Changements détectés", async () => {
-          await clients[1].profil.effacerCourriel();
-          await clients[1].profil.sauvegarderCourriel({
-            courriel: "julien.malard@mail.mcgill.ca",
-          });
-
-          const val = await rés.attendreQue((x) => !x.length);
-          expect(val.length).to.equal(0);
-        });
+            f,
+          }),
+        );
       });
 
-      describe("selon id", () => {
-        let fOublier: schémaFonctionOublier;
-        let réfClient2: résultatRecherche<infoRésultatTexte>;
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
 
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
+      it("ajout détecté", async () => {
+        const pRésultat = recherche.siPasVide();
 
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherProfilsSelonId({
-            idCompte: await clients[1].obtIdCompte(),
-            f: (membres) => rés.mettreÀJour(membres),
-            nRésultatsDésirés: 2,
-          }));
-          réfClient2 = {
-            id: idsComptes[1],
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "id",
-              info: {
-                type: "texte",
-                texte: idsComptes[1],
-                début: 0,
-                fin: idsComptes[1].length,
-              },
+        await constls[0].profil.sauvegarderCourriel({
+          courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idsComptes[0],
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "courriel",
+            info: {
+              type: "texte",
+              texte: "தொடர்பு@லஸ்ஸி.இந்தியா",
+              début: 0,
+              fin: 21,
             },
-          };
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+
+      it("changements détectés", async () => {
+        await constls[0].profil.effacerCourriel();
+        await constls[0].profil.sauvegarderCourriel({
+          courriel: "julien.malard@mail.mcgill.ca",
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Membre détecté", async () => {
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réfClient2]);
-        });
+        const résultat = await recherche.siVide();
+        expect(résultat).to.be.empty();
       });
     });
+  });
 
-    describe("Mots-clefs", () => {
-      let fOublierClients: () => Promise<void>;
-      let clients: Constellation[];
+  describe("mots-clefs", () => {
+    let fermer: Oublier;
+    let constls: Constellation[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 2,
+      }));
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    describe("selon id", () => {
+      let idMotClef: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+        idMotClef = await constls[0].motsClefs.créerMotClef();
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].motsClefs.recherche.selonId({ idMotClef, f }),
+        );
+      });
+
+      it("id mot-clef détecté", async () => {
+        const résultat = await recherche.siPasVide();
+
+        const réf: RésultatRecherche<InfoRésultatTexte>[] = [
           {
-            n: 2,
-            créerConstellation,
-          },
-        ));
-      });
-
-      after(async () => {
-        if (fOublierClients) await fOublierClients();
-      });
-
-      describe("selon id", () => {
-        let fOublier: schémaFonctionOublier;
-        let réfClient2: résultatRecherche<infoRésultatTexte>;
-
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          const idMotClef = await clients[1].motsClefs.créerMotClef();
-
-          ({ fOublier } = await clients[0].recherche.rechercherMotsClefsSelonId(
-            {
-              idMotClef,
-              f: (motsClefs) => rés.mettreÀJour(motsClefs),
-              nRésultatsDésirés: 2,
-            },
-          ));
-
-          réfClient2 = {
             id: idMotClef,
             résultatObjectif: {
               score: 0,
@@ -356,499 +249,518 @@ if (isElectronMain || isNode) {
               de: "id",
               info: {
                 type: "texte",
-                texte: idMotClef,
+                texte: enleverPréfixesEtOrbite(idMotClef),
                 début: 0,
-                fin: idMotClef.length,
+                fin: enleverPréfixesEtOrbite(idMotClef).length,
               },
             },
-          };
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Mot-clef détecté", async () => {
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réfClient2]);
-        });
-      });
-
-      describe("selon nom", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } =
-            await clients[0].recherche.rechercherMotsClefsSelonNom({
-              nomMotClef: "hydro",
-              f: (motsClefs) => rés.mettreÀJour(motsClefs),
-              nRésultatsDésirés: 2,
-            }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Rien pour commencer", async () => {
-          const val = await rés.attendreExiste();
-          expect(val.length).to.equal(0);
-        });
-
-        it("Nouveau mot-clef détecté", async () => {
-          const idMotClef = await clients[1].motsClefs.créerMotClef();
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idMotClef,
-            résultatObjectif: {
-              score: 0.5,
-              type: "résultat",
-              de: "nom",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "hydrologie",
-                début: 0,
-                fin: 5,
-              },
-            },
-          };
-
-          await clients[1].motsClefs.sauvegarderNomsMotClef({
-            idMotClef,
-            noms: {
-              fr: "hydrologie",
-            },
-          });
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
-      });
-
-      describe("tous", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherMotsClefs({
-            f: (motsClefs) => rés.mettreÀJour(motsClefs),
-            nRésultatsDésirés: 2,
-          }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Mots-clefs détectés", async () => {
-          await rés.attendreQue((x) => x.length > 0);
-        });
+          },
+        ];
+        vérifierRecherche(résultat, réf);
       });
     });
 
-    describe("Variables", () => {
-      let fOublierClients: () => Promise<void>;
-      let clients: Constellation[];
+    describe("selon nom", () => {
+      let idMotClef: string;
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
-          {
-            n: 2,
-            créerConstellation,
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].motsClefs.recherche.selonNom({ nomMotClef: "hydro", f }),
+        );
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de nom", async () => {
+        idMotClef = await constls[0].motsClefs.créerMotClef();
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nom mot-clef détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].motsClefs.sauvegarderNoms({
+          idMotClef,
+          noms: {
+            fra: "hydrologie",
           },
-        ));
-      });
+        });
 
-      after(async () => {
-        if (fOublierClients) await fOublierClients();
-      });
+        const résultat = await pRésultat;
 
-      describe("selon id", () => {
-        let fOublier: schémaFonctionOublier;
-        let réfClient2: résultatRecherche<infoRésultatTexte>;
-
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          const idVariable = await clients[1].variables.créerVariable({
-            catégorie: "numérique",
-          });
-
-          ({ fOublier } = await clients[0].recherche.rechercherVariablesSelonId(
-            {
-              idVariable,
-              f: (motsClefs) => rés.mettreÀJour(motsClefs),
-              nRésultatsDésirés: 2,
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idMotClef,
+          résultatObjectif: {
+            score: 0.5,
+            type: "résultat",
+            de: "nom",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "hydrologie",
+              début: 0,
+              fin: 5,
             },
-          ));
-
-          réfClient2 = {
-            id: idVariable,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "id",
-              info: {
-                type: "texte",
-                texte: idVariable,
-                début: 0,
-                fin: idVariable.length,
-              },
-            },
-          };
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Variable détecté", async () => {
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réfClient2]);
-        });
-      });
-
-      describe("selon nom", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } =
-            await clients[0].recherche.rechercherVariablesSelonNom({
-              nomVariable: "précip",
-              f: (variables) => rés.mettreÀJour(variables),
-              nRésultatsDésirés: 2,
-            }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Rien pour commencer", async () => {
-          const val = await rés.attendreExiste();
-          expect(val.length).to.equal(0);
-        });
-
-        it("Nouvelle variable détectée", async () => {
-          const idVariable = await clients[1].variables.créerVariable({
-            catégorie: "numérique",
-          });
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idVariable,
-            résultatObjectif: {
-              score: 0.5,
-              type: "résultat",
-              de: "nom",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "précipitation",
-                début: 0,
-                fin: 6,
-              },
-            },
-          };
-
-          await clients[1].variables.sauvegarderNomsVariable({
-            idVariable,
-            noms: {
-              fr: "précipitation",
-            },
-          });
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
-      });
-
-      describe("selon descr", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } =
-            await clients[0].recherche.rechercherVariablesSelonDescr({
-              descrVariable: "précip",
-              f: (variables) => rés.mettreÀJour(variables),
-              nRésultatsDésirés: 2,
-            }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Rien pour commencer", async () => {
-          const val = await rés.attendreExiste();
-          expect(val.length).to.equal(0);
-        });
-
-        it("Nouvelle variable détectée", async () => {
-          const idVariable = await clients[1].variables.créerVariable({
-            catégorie: "numérique",
-          });
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idVariable,
-            résultatObjectif: {
-              score: 0.5,
-              type: "résultat",
-              de: "descr",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "précipitation",
-                début: 0,
-                fin: 6,
-              },
-            },
-          };
-
-          await clients[1].variables.sauvegarderDescriptionsVariable({
-            idVariable,
-            descriptions: {
-              fr: "précipitation",
-            },
-          });
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
-      });
-
-      describe("tous", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherVariables({
-            f: (variables) => rés.mettreÀJour(variables),
-            nRésultatsDésirés: 2,
-          }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Variables détectées", async () => {
-          await rés.attendreQue((x) => x.length > 0);
-        });
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
-    describe("Bds", () => {
+    describe("tous", () => {
+      let idMotClef: string;
+      let recherche: ObtRecherche<InfoRésultatVide>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatVide>(({ f }) =>
+          constls[1].motsClefs.recherche.tous({ f }),
+        );
+      });
+
+      it("mots-clefs détectés", async () => {
+        const pRésultat = recherche.si(
+          (r) => !!r?.find((x) => x.id === idMotClef),
+        );
+
+        idMotClef = await constls[0].motsClefs.créerMotClef();
+
+        const résultat = (await pRésultat).filter((r) => r.id === idMotClef);
+
+        const réf: RésultatRecherche<InfoRésultatVide> = {
+          id: idMotClef,
+          résultatObjectif: {
+            score: 1,
+            type: "résultat",
+            de: "*",
+            info: {
+              type: "vide",
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+  });
+
+  describe("variables", () => {
+    let fermer: Oublier;
+    let constls: Constellation[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 2,
+      }));
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    describe("selon id", () => {
+      let idVariable: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "horoDatage",
+        });
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].variables.recherche.selonId({ idVariable, f }),
+        );
+      });
+
+      it("id variable détecté", async () => {
+        const résultat = await recherche.siPasVide();
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idVariable,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "id",
+            info: {
+              type: "texte",
+              texte: enleverPréfixesEtOrbite(idVariable),
+              début: 0,
+              fin: enleverPréfixesEtOrbite(idVariable).length,
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon nom", () => {
+      let idVariable: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].variables.recherche.selonNom({
+            nomVariable: "précip",
+            f,
+          }),
+        );
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de nom", async () => {
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "audio",
+        });
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nom variable détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].variables.sauvegarderNoms({
+          idVariable,
+          noms: {
+            fra: "précipitation",
+          },
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idVariable,
+          résultatObjectif: {
+            score: 0.5,
+            type: "résultat",
+            de: "nom",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "précipitation",
+              début: 0,
+              fin: 6,
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon descriptions", () => {
+      let idVariable: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].variables.recherche.selonDescription({
+            descriptionVariable: "précip",
+            f,
+          }),
+        );
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de nom", async () => {
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "audio",
+        });
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("description variable détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "numérique",
+        });
+
+        await constls[0].variables.sauvegarderDescriptions({
+          idVariable,
+          descriptions: {
+            fra: "précipitation",
+          },
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idVariable,
+          résultatObjectif: {
+            score: 0.5,
+            type: "résultat",
+            de: "descriptions",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "précipitation",
+              début: 0,
+              fin: 6,
+            },
+          },
+        };
+
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("toutes", () => {
+      let idVariable: string;
+      let recherche: ObtRecherche<InfoRésultatVide>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatVide>(({ f }) =>
+          constls[1].variables.recherche.toutes({ f }),
+        );
+      });
+
+      it("variables détectées", async () => {
+        const pRésultat = recherche.si(
+          (r) => !!r?.find((x) => x.id === idVariable),
+        );
+
+        idVariable = await constls[0].variables.créerVariable({
+          catégorie: "audio",
+        });
+
+        const résultat = (await pRésultat).filter((r) => r.id === idVariable);
+
+        const réf: RésultatRecherche<InfoRésultatVide> = {
+          id: idVariable,
+          résultatObjectif: {
+            score: 1,
+            type: "résultat",
+            de: "*",
+            info: {
+              type: "vide",
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+  });
+
+  describe("bds", () => {
+    let fermer: Oublier;
+    let constls: Constellation[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 2,
+      }));
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    describe("selon id", () => {
       let idBd: string;
 
-      let fOublierClients: () => Promise<void>;
-      let clients: Constellation[];
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
-          {
-            n: 2,
-            créerConstellation,
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].bds.recherche.selonId({ idBd, f }),
+        );
+      });
+
+      it("id bd détecté", async () => {
+        const résultat = await recherche.siPasVide();
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idBd,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "id",
+            info: {
+              type: "texte",
+              texte: enleverPréfixesEtOrbite(idBd),
+              début: 0,
+              fin: enleverPréfixesEtOrbite(idBd).length,
+            },
           },
-        ));
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon nom", () => {
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].bds.recherche.selonNom({ nomBd: "météo", f }),
+        );
       });
 
-      after(async () => {
-        if (fOublierClients) await fOublierClients();
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
       });
 
-      describe("selon id", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
+      it("rien si pas de nom", async () => {
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
 
-        before(async () => {
-          idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
 
-          ({ fOublier } = await clients[0].recherche.rechercherBdsSelonId({
-            idBd,
-            f: (bds) => rés.mettreÀJour(bds),
-            nRésultatsDésirés: 2,
-          }));
+      it("nom bd détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].bds.sauvegarderNoms({
+          idBd,
+          noms: {
+            fra: "météorologie",
+          },
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = await pRésultat;
 
-        it("Bd détectée", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idBd,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "id",
-              info: {
-                type: "texte",
-                texte: idBd,
-                début: 0,
-                fin: idBd.length,
-              },
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idBd,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "nom",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "météorologie",
+              début: 0,
+              fin: 5,
             },
-          };
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon descriptions", () => {
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].bds.recherche.selonDescription({
+            descriptionBd: "météo",
+            f,
+          }),
+        );
       });
 
-      describe("selon nom", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherBdsSelonNom({
-            nomBd: "météo",
-            f: (bds) => rés.mettreÀJour(bds),
-            nRésultatsDésirés: 2,
-          }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Bd détectée", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idBd,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "nom",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "météorologie",
-                début: 0,
-                fin: 5,
-              },
-            },
-          };
-          await clients[1].bds.sauvegarderNomsBd({
-            idBd,
-            noms: { fr: "météorologie" },
-          });
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
       });
 
-      describe("selon descr", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
+      it("rien si pas de description", async () => {
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
 
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherBdsSelonDescr({
-            descrBd: "météo",
-            f: (bds) => rés.mettreÀJour(bds),
-            nRésultatsDésirés: 2,
-          }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Bd détectée", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idBd,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "descr",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "Météorologie de la région de Montpellier.",
-                début: 0,
-                fin: 5,
-              },
-            },
-          };
-          await clients[1].bds.sauvegarderDescriptionsBd({
-            idBd,
-            descriptions: {
-              fr: "Météorologie de la région de Montpellier.",
-            },
-          });
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
       });
 
-      describe("selon variables", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-        >();
+      it("description bd détectée", async () => {
+        const pRésultat = recherche.siPasVide();
 
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherBdsSelonVariable(
-            {
+        await constls[0].bds.sauvegarderDescriptions({
+          idBd,
+          descriptions: {
+            fra: "Météorologie de la région de Montpellier.",
+          },
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idBd,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "descriptions",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "Météorologie de la région de Montpellier.",
+              début: 0,
+              fin: 5,
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon variables", () => {
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatRecherche<InfoRésultatTexte>>(
+          ({ f }) =>
+            constls[1].bds.recherche.selonVariable({
               texte: "précipitation",
-              f: (bds) => rés.mettreÀJour(bds),
-              nRésultatsDésirés: 2,
-            },
-          ));
+              f,
+            }),
+        );
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nouvelle variable détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        const idVariable = await constls[0].variables.créerVariable({
+          catégorie: "numérique",
+        });
+        const idTableau = await constls[0].bds.ajouterTableau({
+          idBd,
+        });
+        await constls[0].bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+          idVariable,
+        });
+        await constls[0].variables.sauvegarderNoms({
+          idVariable,
+          noms: {
+            fra: "Précipitation",
+          },
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = await pRésultat;
 
-        it("Nouvelle variable détectée", async () => {
-          const idVariable = await clients[1].variables.créerVariable({
-            catégorie: "numérique",
-          });
-          const idTableau = await clients[1].bds.ajouterTableauBd({
-            idBd,
-          });
-          await clients[1].tableaux.ajouterColonneTableau({
-            idTableau,
-            idVariable,
-          });
-          await clients[1].variables.sauvegarderNomsVariable({
-            idVariable,
-            noms: {
-              fr: "Précipitation",
-            },
-          });
-
-          const réf: résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
-          > = {
+        const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
+          {
             id: idBd,
             résultatObjectif: {
               score: 0,
@@ -858,7 +770,7 @@ if (isElectronMain || isNode) {
               info: {
                 type: "résultat",
                 de: "nom",
-                clef: "fr",
+                clef: "fra",
                 info: {
                   type: "texte",
                   texte: "Précipitation",
@@ -868,47 +780,47 @@ if (isElectronMain || isNode) {
               },
             },
           };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
 
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+    describe("selon mots-clefs", () => {
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatRecherche<InfoRésultatTexte>>(
+          ({ f }) =>
+            constls[1].bds.recherche.selonMotClef({ texte: "meteorología", f }),
+        );
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
       });
 
-      describe("selon mots-clefs", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-        >();
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
 
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherBdsSelonMotClef({
-            texte: "meteorología",
-            f: (bds) => rés.mettreÀJour(bds),
-            nRésultatsDésirés: 2,
-          }));
+      it("nouveau mot-clef détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        const idMotClef = await constls[1].motsClefs.créerMotClef();
+        await constls[0].bds.ajouterMotsClefs({
+          idBd,
+          idsMotsClefs: idMotClef,
+        });
+        await constls[1].motsClefs.sauvegarderNoms({
+          idMotClef,
+          noms: {
+            cst: "Meteorología",
+          },
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = await pRésultat;
 
-        it("Nouveau mot-clef détecté", async () => {
-          const idMotClef = await clients[1].motsClefs.créerMotClef();
-          await clients[1].bds.ajouterMotsClefsBd({
-            idBd,
-            idsMotsClefs: idMotClef,
-          });
-          await clients[1].motsClefs.sauvegarderNomsMotClef({
-            idMotClef,
-            noms: {
-              cst: "Meteorología",
-            },
-          });
-
-          const réf: résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
-          > = {
+        const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
+          {
             id: idBd,
             résultatObjectif: {
               score: 0,
@@ -928,244 +840,246 @@ if (isElectronMain || isNode) {
               },
             },
           };
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
-      });
-
-      describe("tous", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherBds({
-            f: (bds) => rés.mettreÀJour(bds),
-            nRésultatsDésirés: 2,
-          }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Bd détectée", async () => {
-          const réf: résultatRecherche<infoRésultatVide> = {
-            id: idBd,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "*",
-              info: {
-                type: "vide",
-              },
-            },
-          };
-          await clients[1].bds.sauvegarderNomsBd({
-            idBd,
-            noms: {
-              fr: "Météorologie de la région de Montpellier.",
-            },
-          });
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
-    describe("Nuées", () => {
+    describe("toutes", () => {
+      let idBd: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte | InfoRésultatVide>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte | InfoRésultatVide>(
+          ({ f }) => constls[1].bds.recherche.toutes({ f }),
+        );
+      });
+
+      it("bds détectées", async () => {
+        const pRésultat = recherche.si((r) => !!r?.find((x) => x.id === idBd));
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+
+        const résultat = (await pRésultat).filter((r) => r.id === idBd);
+
+        const réf: RésultatRecherche<InfoRésultatVide> = {
+          id: idBd,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "*",
+            info: {
+              type: "vide",
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+  });
+
+  describe("nuées", () => {
+    let fermer: Oublier;
+    let constls: Constellation[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 2,
+      }));
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    describe("selon id", () => {
       let idNuée: string;
 
-      let fOublierClients: () => Promise<void>;
-      let clients: Constellation[];
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
-          {
-            n: 2,
-            créerConstellation,
+        idNuée = await constls[0].nuées.créerNuée();
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].nuées.recherche.selonId({ idNuée, f }),
+        );
+      });
+
+      it("id nuée détecté", async () => {
+        const résultat = await recherche.siPasVide();
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idNuée,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "id",
+            info: {
+              type: "texte",
+              texte: enleverPréfixesEtOrbite(idNuée),
+              début: 0,
+              fin: enleverPréfixesEtOrbite(idNuée).length,
+            },
           },
-        ));
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon nom", () => {
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].nuées.recherche.selonNom({ nomNuée: "météo", f }),
+        );
       });
 
-      after(async () => {
-        if (fOublierClients) await fOublierClients();
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
       });
 
-      describe("selon id", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
+      it("rien si pas de nom", async () => {
+        idNuée = await constls[0].nuées.créerNuée();
 
-        before(async () => {
-          idNuée = await clients[1].nuées.créerNuée();
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
 
-          ({ fOublier } = await clients[0].recherche.rechercherNuéesSelonId({
-            idNuée,
-            f: (nuées) => rés.mettreÀJour(nuées),
-            nRésultatsDésirés: 2,
-          }));
+      it("nom nuée détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].nuées.sauvegarderNoms({
+          idNuée,
+          noms: {
+            fra: "météorologie",
+          },
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = await pRésultat;
 
-        it("Nuée détectée", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idNuée,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "id",
-              info: {
-                type: "texte",
-                texte: idNuée,
-                début: 0,
-                fin: idNuée.length,
-              },
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idNuée,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "nom",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "météorologie",
+              début: 0,
+              fin: 5,
             },
-          };
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
       });
-      describe("selon nom", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
+    });
 
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherNuéesSelonNom({
-            nomNuée: "météo",
-            f: (nuées) => rés.mettreÀJour(nuées),
-            nRésultatsDésirés: 2,
-          }));
-        });
+    describe("selon description", () => {
+      let idNuée: string;
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+      let recherche: ObtRecherche<InfoRésultatTexte>;
 
-        it("Nuée détectée", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idNuée,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "nom",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "météorologie",
-                début: 0,
-                fin: 5,
-              },
-            },
-          };
-          await clients[1].nuées.sauvegarderNomsNuée({
-            idNuée,
-            noms: { fr: "météorologie" },
-          });
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].nuées.recherche.selonDescription({
+            descriptionNuée: "météo",
+            f,
+          }),
+        );
       });
 
-      describe("selon descr", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherNuéesSelonDescr({
-            descrNuée: "météo",
-            f: (nuées) => rés.mettreÀJour(nuées),
-            nRésultatsDésirés: 2,
-          }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Nuée détectée", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idNuée,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "descr",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "Météorologie de la région de Montpellier.",
-                début: 0,
-                fin: 5,
-              },
-            },
-          };
-          await clients[1].nuées.sauvegarderDescriptionsNuée({
-            idNuée,
-            descriptions: {
-              fr: "Météorologie de la région de Montpellier.",
-            },
-          });
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
       });
 
-      describe("selon variables", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-        >();
+      it("rien si pas de description", async () => {
+        idNuée = await constls[0].nuées.créerNuée();
 
-        before(async () => {
-          ({ fOublier } =
-            await clients[0].recherche.rechercherNuéesSelonVariable({
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("description nuée détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].nuées.sauvegarderDescriptions({
+          idNuée,
+          descriptions: {
+            fra: "Météorologie de la région de Montpellier.",
+          },
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idNuée,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "descriptions",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "Météorologie de la région de Montpellier.",
+              début: 0,
+              fin: 5,
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon variables", () => {
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatRecherche<InfoRésultatTexte>>(
+          ({ f }) =>
+            constls[1].nuées.recherche.selonVariable({
               texte: "précipitation",
-              f: (nuées) => rés.mettreÀJour(nuées),
-              nRésultatsDésirés: 2,
-            }));
+              f,
+            }),
+        );
+        idNuée = await constls[0].nuées.créerNuée();
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nouvelle variable détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        const idVariable = await constls[0].variables.créerVariable({
+          catégorie: "numérique",
         });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
+        const idTableau = await constls[0].nuées.ajouterTableau({
+          idNuée,
         });
+        await constls[0].nuées.tableaux.ajouterColonne({
+          idStructure: idNuée,
+          idTableau,
+          idVariable,
+        });
+        await constls[0].variables.sauvegarderNoms({
+          idVariable,
+          noms: {
+            fra: "Précipitation",
+          },
+        });
+        const résultat = await pRésultat;
 
-        it("Nouvelle variable détectée", async () => {
-          const idVariable = await clients[1].variables.créerVariable({
-            catégorie: "numérique",
-          });
-          const idTableau = await clients[1].nuées.ajouterTableauNuée({
-            idNuée,
-          });
-          await clients[1].nuées.ajouterColonneTableauNuée({
-            idTableau,
-            idVariable,
-          });
-          await clients[1].variables.sauvegarderNomsVariable({
-            idVariable,
-            noms: {
-              fr: "Précipitation",
-            },
-          });
-
-          const réf: résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
-          > = {
+        const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
+          {
             id: idNuée,
             résultatObjectif: {
               score: 0,
@@ -1175,7 +1089,7 @@ if (isElectronMain || isNode) {
               info: {
                 type: "résultat",
                 de: "nom",
-                clef: "fr",
+                clef: "fra",
                 info: {
                   type: "texte",
                   texte: "Précipitation",
@@ -1185,48 +1099,50 @@ if (isElectronMain || isNode) {
               },
             },
           };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
 
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+    describe("selon mots-clefs", () => {
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatRecherche<InfoRésultatTexte>>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatRecherche<InfoRésultatTexte>>(
+          ({ f }) =>
+            constls[1].nuées.recherche.selonMotClef({
+              texte: "meteorología",
+              f,
+            }),
+        );
+        idNuée = await constls[0].nuées.créerNuée();
       });
 
-      describe("selon mots-clefs", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-        >();
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
 
-        before(async () => {
-          ({ fOublier } =
-            await clients[0].recherche.rechercherNuéesSelonMotClef({
-              texte: "meteorología",
-              f: (nuées) => rés.mettreÀJour(nuées),
-              nRésultatsDésirés: 2,
-            }));
+      it("nouveau mot-clef détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        const idMotClef = await constls[1].motsClefs.créerMotClef();
+        await constls[0].nuées.ajouterMotsClefs({
+          idNuée,
+          idsMotsClefs: idMotClef,
+        });
+        await constls[1].motsClefs.sauvegarderNoms({
+          idMotClef,
+          noms: {
+            cst: "Meteorología",
+          },
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = await pRésultat;
 
-        it("Nouveau mot-clef détecté", async () => {
-          const idMotClef = await clients[1].motsClefs.créerMotClef();
-          await clients[1].nuées.ajouterMotsClefsNuée({
-            idNuée,
-            idsMotsClefs: idMotClef,
-          });
-          await clients[1].motsClefs.sauvegarderNomsMotClef({
-            idMotClef,
-            noms: {
-              cst: "Meteorología",
-            },
-          });
-
-          const réf: résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
-          > = {
+        const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
+          {
             id: idNuée,
             résultatObjectif: {
               score: 0,
@@ -1246,256 +1162,255 @@ if (isElectronMain || isNode) {
               },
             },
           };
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
-      });
-
-      describe("tous", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherNuées({
-            f: (nuées) => rés.mettreÀJour(nuées),
-            nRésultatsDésirés: 2,
-          }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Nuée détectée", async () => {
-          const réf: résultatRecherche<infoRésultatVide> = {
-            id: idNuée,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "*",
-              info: {
-                type: "vide",
-              },
-            },
-          };
-          await clients[1].nuées.sauvegarderNomsNuée({
-            idNuée,
-            noms: {
-              fr: "Météorologie de la région de Montpellier.",
-            },
-          });
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+        vérifierRecherche(résultat, [réf]);
       });
     });
 
-    describe("Projets", () => {
+    describe("toutes", () => {
+      let idNuée: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte | InfoRésultatVide>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte | InfoRésultatVide>(
+          ({ f }) => constls[1].nuées.recherche.toutes({ f }),
+        );
+      });
+
+      it("nuées détectées", async () => {
+        const pRésultat = recherche.si(
+          (r) => !!r?.find((x) => x.id === idNuée),
+        );
+        idNuée = await constls[0].nuées.créerNuée();
+
+        const résultat = (await pRésultat).filter((r) => r.id === idNuée);
+
+        const réf: RésultatRecherche<InfoRésultatVide> = {
+          id: idNuée,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "*",
+            info: {
+              type: "vide",
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+  });
+
+  describe("projets", () => {
+    let fermer: Oublier;
+    let constls: Constellation[];
+
+    before(async () => {
+      ({ fermer, constls } = await créerConstellationsTest({
+        n: 2,
+      }));
+    });
+
+    after(async () => {
+      if (fermer) await fermer();
+    });
+
+    describe("selon id", () => {
+      let idProjet: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        idProjet = await constls[0].projets.créerProjet();
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].projets.recherche.selonId({ idProjet, f }),
+        );
+      });
+
+      it("id projet détecté", async () => {
+        const résultat = await recherche.siPasVide();
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idProjet,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "id",
+            info: {
+              type: "texte",
+              texte: enleverPréfixesEtOrbite(idProjet),
+              début: 0,
+              fin: enleverPréfixesEtOrbite(idProjet).length,
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon nom", () => {
+      let idProjet: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].projets.recherche.selonNom({ nomProjet: "météo", f }),
+        );
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de nom", async () => {
+        idProjet = await constls[0].projets.créerProjet();
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nom projet détecté", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].projets.sauvegarderNoms({
+          idProjet,
+          noms: {
+            fra: "météorologie",
+          },
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idProjet,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "nom",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "météorologie",
+              début: 0,
+              fin: 5,
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon descriptions", () => {
+      let idProjet: string;
+
+      let recherche: ObtRecherche<InfoRésultatTexte>;
+
+      before(async () => {
+        recherche = await rechercher<InfoRésultatTexte>(({ f }) =>
+          constls[1].projets.recherche.selonDescription({
+            descriptionProjet: "météo",
+            f,
+          }),
+        );
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("rien si pas de description", async () => {
+        idProjet = await constls[0].projets.créerProjet();
+
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("description projet détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        await constls[0].projets.sauvegarderDescriptions({
+          idProjet,
+          descriptions: {
+            fra: "météorologie",
+          },
+        });
+
+        const résultat = await pRésultat;
+
+        const réf: RésultatRecherche<InfoRésultatTexte> = {
+          id: idProjet,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "descriptions",
+            clef: "fra",
+            info: {
+              type: "texte",
+              texte: "météorologie",
+              début: 0,
+              fin: 5,
+            },
+          },
+        };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
+
+    describe("selon variables", () => {
       let idProjet: string;
       let idBd: string;
 
-      let fOublierClients: () => Promise<void>;
-      let clients: Constellation[];
+      let recherche: ObtRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+      >;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
-          {
-            n: 2,
-            créerConstellation,
+        recherche = await rechercher<
+          InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+        >(({ f }) =>
+          constls[1].projets.recherche.selonVariable({
+            texte: "précip",
+            f,
+          }),
+        );
+        idProjet = await constls[0].projets.créerProjet();
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+        await constls[0].projets.ajouterBds({ idProjet, idsBds: idBd });
+      });
+
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
+
+      it("nouvelle variable détectée", async () => {
+        const pRésultat = recherche.siPasVide();
+
+        const idVariable = await constls[0].variables.créerVariable({
+          catégorie: "numérique",
+        });
+        const idTableau = await constls[0].bds.ajouterTableau({
+          idBd,
+        });
+        await constls[0].bds.tableaux.ajouterColonne({
+          idStructure: idBd,
+          idTableau,
+          idVariable,
+        });
+        await constls[0].variables.sauvegarderNoms({
+          idVariable,
+          noms: {
+            fra: "Précipitation",
           },
-        ));
-      });
-
-      after(async () => {
-        if (fOublierClients) await fOublierClients();
-      });
-
-      describe("selon id", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          idProjet = await clients[1].projets.créerProjet();
-
-          ({ fOublier } = await clients[0].recherche.rechercherProjetsSelonId({
-            idProjet,
-            f: (x) => rés.mettreÀJour(x),
-            nRésultatsDésirés: 2,
-          }));
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = await pRésultat;
 
-        it("Projet détecté", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idProjet,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "id",
-              info: {
-                type: "texte",
-                texte: idProjet,
-                début: 0,
-                fin: idProjet.length,
-              },
-            },
-          };
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
-      });
-
-      describe("selon nom", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherProjetsSelonNom({
-            nomProjet: "météo",
-            f: (projets) => rés.mettreÀJour(projets),
-            nRésultatsDésirés: 2,
-          }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Projet détecté", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idProjet,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "nom",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "météorologie",
-                début: 0,
-                fin: 5,
-              },
-            },
-          };
-          await clients[1].projets.sauvegarderNomsProjet({
-            idProjet,
-            noms: {
-              fr: "météorologie",
-            },
-          });
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
-      });
-
-      describe("selon descr", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
-
-        before(async () => {
-          ({ fOublier } =
-            await clients[0].recherche.rechercherProjetsSelonDescr({
-              descrProjet: "météo",
-              f: (projets) => rés.mettreÀJour(projets),
-              nRésultatsDésirés: 2,
-            }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Projet détecté", async () => {
-          const réf: résultatRecherche<infoRésultatTexte> = {
-            id: idProjet,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "descr",
-              clef: "fr",
-              info: {
-                type: "texte",
-                texte: "Météorologie de la région de Montpellier.",
-                début: 0,
-                fin: 5,
-              },
-            },
-          };
-          await clients[1].projets.sauvegarderDescriptionsProjet({
-            idProjet,
-            descriptions: {
-              fr: "Météorologie de la région de Montpellier.",
-            },
-          });
-
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
-      });
-
-      describe("selon variables", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-          >[]
-        >();
-
-        before(async () => {
-          idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
-          await clients[1].projets.ajouterBdProjet({ idProjet, idBd });
-
-          ({ fOublier } =
-            await clients[0].recherche.rechercherProjetsSelonVariable({
-              texte: "précip",
-              f: (bds) => rés.mettreÀJour(bds),
-              nRésultatsDésirés: 2,
-            }));
-        });
-
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
-
-        it("Nouvelle variable détectée", async () => {
-          const idVariable = await clients[1].variables.créerVariable({
-            catégorie: "numérique",
-          });
-          const idTableau = await clients[1].bds.ajouterTableauBd({
-            idBd,
-          });
-          await clients[1].tableaux.ajouterColonneTableau({
-            idTableau,
-            idVariable,
-          });
-          await clients[1].variables.sauvegarderNomsVariable({
-            idVariable,
-            noms: {
-              fr: "Précipitation",
-            },
-          });
-
-          const réf: résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
-          > = {
+        const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
+          {
             id: idProjet,
             résultatObjectif: {
               score: 0,
@@ -1505,7 +1420,7 @@ if (isElectronMain || isNode) {
               info: {
                 type: "résultat",
                 de: "nom",
-                clef: "fr",
+                clef: "fra",
                 info: {
                   type: "texte",
                   texte: "Précipitation",
@@ -1515,53 +1430,56 @@ if (isElectronMain || isNode) {
               },
             },
           };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
 
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+    describe("selon mots-clefs", () => {
+      let idProjet: string;
+      let idBd: string;
+
+      let recherche: ObtRecherche<
+        InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+      >;
+
+      before(async () => {
+        recherche = await rechercher<
+          InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+        >(({ f }) =>
+          constls[1].projets.recherche.selonMotClef({
+            texte: "meteorología",
+            f,
+          }),
+        );
+        idProjet = await constls[0].projets.créerProjet();
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+        await constls[0].projets.ajouterBds({ idProjet, idsBds: idBd });
       });
 
-      describe("selon mots-clefs", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-          >[]
-        >();
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
 
-        before(async () => {
-          idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
-          await clients[1].projets.ajouterBdProjet({ idProjet, idBd });
+      it("nouveau mot-clef sur la bd détecté", async () => {
+        const pRésultat = recherche.siPasVide();
 
-          ({ fOublier } =
-            await clients[0].recherche.rechercherProjetsSelonMotClef({
-              texte: "meteorología",
-              f: (projets) => rés.mettreÀJour(projets),
-              nRésultatsDésirés: 2,
-            }));
+        const idMotClef = await constls[1].motsClefs.créerMotClef();
+        await constls[0].bds.ajouterMotsClefs({
+          idBd,
+          idsMotsClefs: idMotClef,
+        });
+        await constls[1].motsClefs.sauvegarderNoms({
+          idMotClef,
+          noms: {
+            cst: "Meteorología",
+          },
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = await pRésultat;
 
-        it("Nouveau mot-clef sur la bd détecté", async () => {
-          const idMotClef = await clients[1].motsClefs.créerMotClef();
-          await clients[1].bds.ajouterMotsClefsBd({
-            idBd,
-            idsMotsClefs: idMotClef,
-          });
-          await clients[1].motsClefs.sauvegarderNomsMotClef({
-            idMotClef,
-            noms: {
-              cst: "Meteorología",
-            },
-          });
-
-          const réf: résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
-          > = {
+        const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
+          {
             id: idProjet,
             résultatObjectif: {
               score: 0,
@@ -1581,44 +1499,56 @@ if (isElectronMain || isNode) {
               },
             },
           };
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
 
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+    describe("selon bd", () => {
+      let idProjet: string;
+      let idBd: string;
+
+      type TypeRecherche =
+        | InfoRésultatRecherche<
+            | InfoRésultatTexte
+            | InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+            | InfoRésultatVide
+          >
+        | InfoRésultatVide;
+
+      let recherche: ObtRecherche<TypeRecherche>;
+
+      const nouveauNom = "Mi base de datos meteorológicos";
+
+      before(async () => {
+        recherche = await rechercher<TypeRecherche>(({ f }) =>
+          constls[1].projets.recherche.selonBd({
+            texte: nouveauNom,
+            f,
+          }),
+        );
+
+        idProjet = await constls[0].projets.créerProjet();
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+        await constls[0].projets.ajouterBds({ idProjet, idsBds: idBd });
       });
 
-      describe("selon bd", () => {
-        let fOublier: schémaFonctionOublier;
+      it("rien pour commencer", async () => {
+        const résultat = await recherche.siDéfini();
+        expect(résultat).to.be.empty();
+      });
 
-        const nouveauNom = "Mi base de datos meteorológicos";
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<
-            | infoRésultatRecherche<
-                | infoRésultatTexte
-                | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-                | infoRésultatVide
-              >
-            | infoRésultatVide
-          >[]
-        >();
+      it("changement nom bd détecté", async () => {
+        const pRésultat = recherche.siPasVide();
 
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherProjetsSelonBd({
-            texte: nouveauNom,
-            f: (projets) => rés.mettreÀJour(projets),
-            nRésultatsDésirés: 2,
-          }));
+        await constls[0].bds.sauvegarderNoms({
+          idBd,
+          noms: { cst: "Mi base de datos meteorológicos" },
         });
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = await pRésultat;
 
-        it("Changement nom bd détecté", async () => {
-          const réf: résultatRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
-          > = {
+        const réf: RésultatRecherche<InfoRésultatRecherche<InfoRésultatTexte>> =
+          {
             id: idProjet,
             résultatObjectif: {
               score: 0,
@@ -1638,295 +1568,176 @@ if (isElectronMain || isNode) {
               },
             },
           };
-          await clients[1].bds.sauvegarderNomsBd({
-            idBd,
-            noms: { cst: "Mi base de datos meteorológicos" },
-          });
+        vérifierRecherche(résultat, [réf]);
+      });
+    });
 
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+    describe("tous", () => {
+      let idProjet: string;
+
+      type TypeRecherche =
+        | InfoRésultatRecherche<
+            | InfoRésultatTexte
+            | InfoRésultatRecherche<InfoRésultatTexte | InfoRésultatVide>
+            | InfoRésultatVide
+          >
+        | InfoRésultatVide;
+
+      let recherche: ObtRecherche<TypeRecherche>;
+
+      before(async () => {
+        recherche = await rechercher<TypeRecherche>(({ f }) =>
+          constls[1].projets.recherche.tous({
+            f,
+          }),
+        );
       });
 
-      describe("tous", () => {
-        let fOublier: schémaFonctionOublier;
-        const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatTexte>[]
-        >();
+      it("projet détecté", async () => {
+        const pRésultat = recherche.si(
+          (r) => !!r?.find((x) => x.id === idProjet),
+        );
 
-        before(async () => {
-          ({ fOublier } = await clients[0].recherche.rechercherProjets({
-            f: (projets) => rés.mettreÀJour(projets),
-            nRésultatsDésirés: 2,
-          }));
-        });
+        idProjet = await constls[0].projets.créerProjet();
 
-        after(async () => {
-          if (fOublier) await fOublier();
-          rés.toutAnnuler();
-        });
+        const résultat = (await pRésultat).filter((r) => r.id === idProjet);
 
-        it("Projet détecté", async () => {
-          const réf: résultatRecherche<infoRésultatVide> = {
-            id: idProjet,
-            résultatObjectif: {
-              score: 0,
-              type: "résultat",
-              de: "*",
-              info: {
-                type: "vide",
-              },
+        const réf: RésultatRecherche<InfoRésultatVide> = {
+          id: idProjet,
+          résultatObjectif: {
+            score: 0,
+            type: "résultat",
+            de: "*",
+            info: {
+              type: "vide",
             },
-          };
-          await clients[1].projets.sauvegarderNomsProjet({
-            idProjet,
-            noms: {
-              fr: "Météorologie de la région de Montpellier.",
-            },
-          });
+          },
+        };
 
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
-        });
+        vérifierRecherche(résultat, [réf]);
       });
     });
   });
-}
+});
 
-describe.skip("Test fonctionnalités recherche", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let client: Constellation;
-  const idsComptes: string[] = [];
+describe.skip("Recherche réseau complexe", function () {
+  let fermer: Oublier;
+  let constls: Constellation[];
+  let constl: Constellation;
+  let idsComptes: string[];
+
+  const idsMotsClefsOrdonnés: string[] = [];
+
+  let recherche: ObtRecherche<InfoRésultat>;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
+    ({ fermer, constls } = await créerConstellationsTest({
       n: 5,
-      créerConstellation,
     }));
-    client = clients[0];
-    for (const [i, c] of clients.entries()) {
-      idsComptes.push(await c.obtIdCompte());
-      if (i < clients.length - 1) {
-        await c.réseau.faireConfianceAuMembre({
-          idCompte: await clients[i + 1].obtIdCompte(),
+    constl = constls[0];
+    idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
+
+    recherche = await rechercher(({ f }) =>
+      constl.motsClefs.recherche.selonNom({ nomMotClef: "ភ្លៀង", f }),
+    );
+
+    for (const [i, c] of constls.entries()) {
+      const idMotClef = await c.motsClefs.créerMotClef();
+      await c.motsClefs.sauvegarderNoms({
+        idMotClef,
+        noms: {
+          ខ្មែរ: "ភ្លៀង",
+        },
+      });
+      idsMotsClefsOrdonnés.push(idMotClef);
+
+      if (i < constls.length - 1) {
+        await c.réseau.faireConfianceAuCompte({
+          idCompte: idsComptes[i + 1],
         });
       }
     }
   });
 
   after(async () => {
-    if (fOublierClients) await fOublierClients();
+    if (fermer) await fermer();
   });
 
-  describe("Rechercher de réseau", () => {
-    let fOublierRecherche: schémaFonctionOublier;
-    let fChangerN: (x: number) => Promise<void>;
+  it("tous les objets correspondants détectés", async () => {
+    const résultats = await recherche.siAuMoins(5);
 
-    const résMembresEnLigne = new utilsTestAttente.AttendreRésultat<
-      statutMembre[]
-    >();
-    const résMotsClefs = new utilsTestAttente.AttendreRésultat<
-      résultatRecherche<infoRésultatTexte>[]
-    >();
-
-    const fsOublier: schémaFonctionOublier[] = [];
-    const motsClefs: { [key: string]: string } = {};
-
-    before(async () => {
-      fsOublier.push(
-        await client.réseau.suivreConnexionsMembres({
-          f: (m) => résMembresEnLigne.mettreÀJour(m),
-        }),
-      );
-      await résMembresEnLigne.attendreQue((x) => !!x && x.length === 5);
-
-      for (const c of clients) {
-        const idMotClef = await c.motsClefs.créerMotClef();
-        const idCompte = await c.obtIdCompte();
-        motsClefs[idCompte] = idMotClef;
-
-        c.réseau.recevoirSalut = async () => {
-          // Désactiver
-        };
-        c.réseau.dispositifsEnLigne = {};
-        c.réseau.événements.emit("membreVu");
-      }
-
-      await résMembresEnLigne.attendreQue((x) => !!x && !x.length);
-
-      ({ fOublier: fOublierRecherche, fChangerN } =
-        await client.recherche.rechercherMotsClefsSelonNom({
-          nomMotClef: "ភ្លៀង",
-          f: (r) => résMotsClefs.mettreÀJour(r),
-          nRésultatsDésirés: 5,
-        }));
-      fsOublier.push(fOublierRecherche);
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-      résMembresEnLigne.toutAnnuler();
-      résMotsClefs.toutAnnuler();
-    });
-
-    it("Mes objets sont détectés", async () => {
-      const idMotClef = motsClefs[idsComptes[0]];
-      const réf: résultatRecherche<infoRésultatTexte>[] = [
-        {
-          id: idMotClef,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
+    const réf: RésultatRecherche<InfoRésultat>[] = idsMotsClefsOrdonnés.map(
+      (idMotClef) => ({
+        id: idMotClef,
+        résultatObjectif: {
+          score: 1,
+          type: "résultat",
+          de: "nom",
+          clef: "ខ្មែរ",
+          info: {
+            type: "texte",
+            texte: "ភ្លៀង",
+            début: 0,
+            fin: 5,
           },
         },
-      ];
+      }),
+    );
+    vérifierRecherche(résultats, réf);
+  });
 
-      await client.motsClefs.sauvegarderNomsMotClef({
-        idMotClef,
-        noms: {
-          ខ្មែរ: "ភ្លៀង",
-        },
-      });
+  it("les scores des résultats suivent la chaîne de confiance", async () => {
+    const résultats = await recherche.siAuMoins(5);
 
-      const val = await résMotsClefs.attendreQue((x) => x.length > 0);
-      vérifierRecherche(val, réf);
-    });
+    // Ordonner avec le meilleur score en premier
+    const résultatsOrdonnés = résultats
+      .toSorted((a, b) => b.résultatObjectif.score - a.résultatObjectif.score)
+      .map((r) => r.id);
 
-    it("Objet devient intéressant", async () => {
-      const réf: résultatRecherche<infoRésultatTexte>[] = [];
+    expect(résultatsOrdonnés).to.have.ordered.members(idsMotsClefsOrdonnés);
+  });
 
-      for (const c of clients) {
-        const idCompte = await c.obtIdCompte();
-        const idMotClef = motsClefs[idCompte];
-        réf.push({
-          id: idMotClef,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
-          },
-        });
-        if (c === client) continue;
+  it("diminuer et puis augmenter n", async () => {
+    const rechercheTest = await rechercher(({ f }) =>
+      constl.motsClefs.recherche.selonNom({ nomMotClef: "ភ្លៀង", f, n: 5 }),
+    );
 
-        await c.motsClefs.sauvegarderNomsMotClef({
-          idMotClef,
-          noms: {
-            ខ្មែរ: "ភ្លៀង",
-          },
-        });
-      }
+    let résultat = await rechercheTest.siAuMoins(5);
+    expect(résultat.map((r) => r.id)).to.have.members(idsMotsClefsOrdonnés);
 
-      const val = await résMotsClefs.attendreQue((x) => !!x && x.length >= 5);
-      vérifierRecherche(val, réf);
-    });
+    await rechercheTest.n(2);
 
-    it("Objet ne correspond plus", async () => {
-      const idMotClef = motsClefs[idsComptes[4]];
-      await clients[4].motsClefs.effacerNomMotClef({
-        idMotClef,
-        langue: "ខ្មែរ",
-      });
+    résultat = await rechercheTest.siPasPlusQue(2);
+    expect(résultat.map((r) => r.id)).to.have.members(
+      idsMotsClefsOrdonnés.slice(0, 2),
+    );
 
-      const réf: résultatRecherche<infoRésultatTexte>[] = [];
-      for (const c of clients) {
-        const idCompte = await c.obtIdCompte();
-        const idMC = motsClefs[idCompte];
-        if (idMC === idMotClef) continue;
-        réf.push({
-          id: idMC,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
-          },
-        });
-      }
+    await rechercheTest.n(10);
 
-      const val = await résMotsClefs.attendreQue(
-        (x) => x.length > 0 && x.length <= 4,
-      );
-      vérifierRecherche(val, réf);
-    });
+    résultat = await rechercheTest.siAuMoins(5);
+    expect(résultat.map((r) => r.id)).to.have.members(idsMotsClefsOrdonnés);
+  });
 
-    it("Diminuer N", async () => {
-      await fChangerN(3);
+  it("augmenter et puis diminuer n", async () => {
+    const rechercheTest = await rechercher(({ f }) =>
+      constl.motsClefs.recherche.selonNom({ nomMotClef: "ភ្លៀង", f, n: 2 }),
+    );
 
-      const réf: résultatRecherche<infoRésultatTexte>[] = [];
-      for (const c of clients.slice(0, 3)) {
-        const idCompte = await c.obtIdCompte();
-        const idMC = motsClefs[idCompte];
-        réf.push({
-          id: idMC,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
-          },
-        });
-      }
+    let résultat = await rechercheTest.siAuMoins(2);
+    expect(résultat.map((r) => r.id)).to.have.members(
+      idsMotsClefsOrdonnés.slice(0, 2),
+    );
 
-      const val = await résMotsClefs.attendreQue((x) => !!x && x.length <= 3);
-      vérifierRecherche(val, réf);
-    });
+    await rechercheTest.n(10);
 
-    it.skip("Objet correspond mieux");
+    résultat = await rechercheTest.siAuMoins(5);
+    expect(résultat.map((r) => r.id)).to.have.members(idsMotsClefsOrdonnés);
 
-    it("Augmenter N", async () => {
-      await fChangerN(10);
+    await rechercheTest.n(3);
 
-      const réf: résultatRecherche<infoRésultatTexte>[] = [];
-      for (const c of clients.slice(0, 4)) {
-        const idCompte = await c.obtIdCompte();
-        const idMC = motsClefs[idCompte];
-        réf.push({
-          id: idMC,
-          résultatObjectif: {
-            score: 1,
-            type: "résultat",
-            de: "nom",
-            clef: "ខ្មែរ",
-            info: {
-              type: "texte",
-              texte: "ភ្លៀង",
-              début: 0,
-              fin: 5,
-            },
-          },
-        });
-      }
-
-      const val = await résMotsClefs.attendreQue((x) => !!x && x.length >= 4);
-      vérifierRecherche(val, réf);
-    });
+    résultat = await rechercheTest.siPasPlusQue(3);
+    expect(résultat.map((r) => r.id)).to.have.members(
+      idsMotsClefsOrdonnés.slice(0, 3),
+    );
   });
 });

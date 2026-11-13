@@ -1,284 +1,171 @@
-import correspTexte from "approx-string-match";
-import ssim from "ssim";
+import PQueue from "p-queue";
+import type { Oublier, Suivi } from "../nébuleuse/types.js";
 
-import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
-import type { Constellation } from "@/client.js";
-import type {
-  infoRésultat,
-  infoRésultatRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
-  schémaFonctionOublier,
-  schémaFonctionSuiviRecherche,
-  schémaFonctionSuivreObjectifRecherche,
-} from "@/types.js";
+const MIN_POINTS = 5;
 
-export const rechercherDansTexte = (
-  schéma: string,
-  texte: string,
-): { type: "texte"; score: number; début: number; fin: number } | undefined => {
-  // Une alternative - https://www.npmjs.com/package/js-levenshtein
-  const correspondances = correspTexte(
-    texte,
-    schéma,
-    Math.ceil(schéma.length / 4),
-  );
-  const meilleure = correspondances.sort((a, b) =>
-    a.errors > b.errors ? 1 : -1,
-  )[0];
-  if (meilleure) {
-    const score = 1 / (meilleure.errors + 1);
-    return { type: "texte", score, début: meilleure.start, fin: meilleure.end };
+export class EstimateurAsymptoteTemps {
+  début: number;
+  mémoire: number;
+
+  points: [number, number][];
+
+  constructor({ mémoire }: { mémoire: number }) {
+    this.début = new Date().getTime();
+    this.mémoire = Math.max(mémoire, MIN_POINTS);
+
+    this.points = [];
   }
-  return undefined;
+
+  ajouter(val: number) {
+    const maintenant = new Date().getTime();
+    this.points.push([maintenant, val]);
+
+    if (this.points.length > this.mémoire) {
+      this.points = this.points.slice(this.points.length - this.mémoire);
+    }
+  }
+
+  asymptote(): number | undefined {
+    if (this.points.length < MIN_POINTS) return undefined;
+
+    const x = this.points.map((point) => point[0]);
+    const y = this.points.map((point) => point[1]);
+
+    const { a } = régressionAsymptotique(x, y);
+    return a;
+  }
+}
+
+export const calculerIntersection = ({
+  p,
+  points,
+}: {
+  p: number;
+  points: [number, number][];
+}): number | undefined => {
+  if (points.length < MIN_POINTS) return undefined;
+
+  const x = points.map((point) => point[0]);
+  const y = points.map((point) => point[1]);
+
+  const { a, b, c } = régressionAsymptotique(x, y);
+
+  return Math.log((-a * (p - 1)) / (a - b)) / -c;
 };
 
-export const similTexte = (
-  texte: string,
-  possibilités: { [key: string]: string } | string[],
-): { score: number; clef: string; info: infoRésultatTexte } | undefined => {
-  if (Array.isArray(possibilités)) {
-    possibilités = Object.fromEntries(possibilités.map((x) => [x, x]));
-  }
-  const similairités = Object.entries(possibilités).map(([clef, val]) => {
-    const corresp = rechercherDansTexte(texte, val);
-    if (corresp) {
-      const { score, début, fin } = corresp;
-      return {
-        type: "résultat",
-        score,
-        clef,
-        info: { type: "texte", texte: val, début, fin } as infoRésultatTexte,
-      };
+const écartType = (array: number[]): number => {
+  // https://stackoverflow.com/questions/7343890/standard-deviation-javascript#53577159
+  const n = array.length;
+  const mean = array.reduce((a, b) => a + b) / n;
+  return Math.sqrt(
+    array.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / (n - 1),
+  );
+};
+
+const régressionNonLinéaire = ({
+  f,
+  x,
+  y,
+  p0,
+}: {
+  f: (x: number[], p: number[]) => number[];
+  x: number[];
+  y: number[];
+  p0: number[];
+}): number[] => {
+  // Licence MIT Jonas Almeida https://github.com/jonasalmeida/fminsearch
+  const maxItér = 1000;
+  const pas = p0.map((p) => (p === 0 ? 1 : p) / 100);
+
+  const fObj = (y: number[], y_p: number[]) =>
+    y.map((y_i, i) => Math.pow(y_i - y_p[i], 2)).reduce((a, b) => a + b); // SSD
+
+  p0 = p0.slice();
+  let p1: number[];
+
+  const objP = (p: number[]) => fObj(y, f(x, p)); // la fonction à minimiser
+  for (let i = 0; i < maxItér; i++) {
+    for (let j = 0; j < p0.length; j++) {
+      // un pas par paramètre
+      p1 = p0.slice();
+      p1[j] += pas[j];
+      // si on s'en va dans la bonne direction
+      if (objP(p1) < objP(p0)) {
+        pas[j] = 1.2 * pas[j]; // alors on accélère
+        p0 = p1.slice();
+      } else {
+        pas[j] = -(0.5 * pas[j]); // sinon, on ralenti et on change de direction
+      }
     }
-    return undefined;
+  }
+  return p0;
+};
+
+const régressionAsymptotique = (x: number[], y: number[]) => {
+  // y = a−(a-b) * e^(−c*x); a = asymptote ; b = intercepte y
+  // de https://www.statforbiology.com/nonlinearregression/usefulequations
+  const σ_x = écartType(x);
+  const σ_y = écartType(y);
+
+  const f = (x: number[], p: number[]) => {
+    const [a, b, c] = p;
+    const e = 2.71818;
+    return x.map((x_i) => a - (a - b) * e ** (-c * x_i));
+  };
+
+  const paramètres = régressionNonLinéaire({
+    f,
+    x: x.map((z) => z / σ_x),
+    y: y.map((z) => z / σ_y),
+    p0: [Math.max(...y), Math.max(...y) / 2, 0.1],
   });
 
-  const meilleure = similairités
-    .filter((x) => x)
-    .sort((a, b) => (a!.score > b!.score ? -1 : 1))[0];
-  return meilleure;
-};
-
-export const similImages = (
-  image: Uint8Array,
-  imageRef: Uint8Array | null,
-): number => {
-  if (!imageRef) {
-    return 0;
-  }
-  const { mssim } = ssim(image, imageRef);
-  return mssim;
-};
-
-export const combinerRecherches = async <T extends infoRésultat>(
-  fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche<T> },
-  client: Constellation,
-  id: string,
-  fSuivreRecherche: schémaFonctionSuiviRecherche<T>,
-): Promise<schémaFonctionOublier> => {
-  const fsOublier: schémaFonctionOublier[] = [];
-
-  const résultats: { [key: string]: résultatObjectifRecherche<T> | undefined } =
-    Object.fromEntries(Object.keys(fsRecherche).map((x) => [x, undefined]));
-
-  const fSuivreFinale = (): void => {
-    const résultat = Object.values(résultats)
-      .filter((x) => x)
-      .sort((a, b) => (aMieuxQueB(a!, b!) ? -1 : 1))[0];
-    fSuivreRecherche(résultat);
-  };
-
-  await Promise.allSettled(
-    Object.entries(fsRecherche).map(async ([clef, fRecherche]) => {
-      const fSuivre = async (résultat?: résultatObjectifRecherche<T>) => {
-        résultats[clef] = résultat;
-        fSuivreFinale();
-      };
-      fsOublier.push(await fRecherche(client, id, fSuivre));
-    }),
-  );
-
-  return async () => {
-    await Promise.allSettled(fsOublier.map((f) => f()));
+  return {
+    a: paramètres[0] * σ_y,
+    b: paramètres[1] * σ_y,
+    c: paramètres[2] * σ_x,
   };
 };
 
-export const sousRecherche = async <T extends infoRésultat>(
-  de: string,
-  fListe: ({
+export const suivreSi = async ({
+  fRacine,
+  fSuivi,
+}: {
+  fRacine: ({
     fSuivreRacine,
   }: {
-    fSuivreRacine: (ids: string[]) => void;
-  }) => Promise<schémaFonctionOublier>,
-  fRechercher: schémaFonctionSuivreObjectifRecherche<T>,
-  client: Constellation,
-  fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<T>>,
-): Promise<schémaFonctionOublier> => {
-  const fBranche = async ({
-    id: idBd,
-    fSuivreBranche,
-  }: {
-    id: string;
-    fSuivreBranche: (x: {
-      id: string;
-      résultat: résultatObjectifRecherche<T>;
-    }) => void;
-  }): Promise<schémaFonctionOublier> => {
-    return await fRechercher(
-      client,
-      idBd,
-      async (résultat?: résultatObjectifRecherche<T>) => {
-        if (résultat) fSuivreBranche({ id: idBd, résultat });
-      },
-    );
-  };
-  const fFinale = async (
-    résultats: {
-      id: string;
-      résultat: résultatObjectifRecherche<T>;
-    }[],
-  ) => {
-    const meilleur = meilleurRésultat<T>(résultats);
+    fSuivreRacine: Suivi<boolean>;
+  }) => Promise<Oublier>;
+  fSuivi: () => Promise<Oublier>;
+}): Promise<Oublier> => {
+  let oublierSuivi: Oublier | undefined = undefined;
+  const dernièreValeur: boolean | undefined = undefined;
 
-    if (meilleur) {
-      const résultat: résultatObjectifRecherche<infoRésultatRecherche<T>> = {
-        type: "résultat",
-        de,
-        clef: meilleur.id,
-        score: meilleur.résultat.score,
-        info: {
-          type: "résultat",
-          de: meilleur.résultat.de,
-          info: meilleur.résultat.info,
-        },
-      };
-      if (meilleur.résultat.clef) {
-        résultat.info.clef = meilleur.résultat.clef;
-      }
-      await fSuivreRecherche(résultat);
-    }
-  };
+  const queue = new PQueue({ concurrency: 1 });
 
-  const fOublier = await suivreDeFonctionListe({
-    fListe,
-    f: fFinale,
-    fBranche,
-  });
-  return fOublier;
-};
-
-const aMieuxQueB = <T extends infoRésultat>(
-  a: résultatObjectifRecherche<T>,
-  b: résultatObjectifRecherche<T>,
-): boolean => {
-  const xPlusImportantQueY = (x: infoRésultat, y: infoRésultat): boolean => {
-    while (x.type === "résultat") x = x.info;
-    while (y.type === "résultat") y = y.info;
-
-    const ordreImportanceCroissante: infoRésultat["type"][] = ["vide", "texte"];
-    const iX = ordreImportanceCroissante.indexOf(x.type);
-    const iY = ordreImportanceCroissante.indexOf(y.type);
-
-    return iX > iY;
-  };
-  const xPlusLongQueY = (x: infoRésultat, y: infoRésultat): boolean => {
-    while (x.type === "résultat") x = x.info;
-    while (y.type === "résultat") y = y.info;
-
-    switch (x.type) {
-      case "texte":
-        if (y.type === "texte") {
-          return x.fin - x.début > y.fin - y.début;
-        } else {
-          return false;
-        }
-      default:
-        return false;
-    }
-  };
-
-  return a.score > b.score
-    ? true
-    : a.score < b.score
-      ? false
-      : xPlusLongQueY(a.info, b.info)
-        ? true
-        : xPlusImportantQueY(a.info, b.info);
-};
-
-const meilleurRésultat = <T extends infoRésultat>(
-  résultats: { id: string; résultat: résultatObjectifRecherche<T> }[],
-): { id: string; résultat: résultatObjectifRecherche<T> } | undefined => {
-  const meilleur = Object.values(résultats)
-    .filter((x) => x)
-    .sort((a, b) => (aMieuxQueB(a.résultat, b.résultat) ? -1 : 1))[0];
-  return meilleur;
-};
-
-export const rechercherSelonId = (
-  idRecherché: string,
-): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
-  return async (
-    _client: Constellation,
-    id: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
-  ): Promise<schémaFonctionOublier> => {
-    const résultat = rechercherDansTexte(idRecherché, id);
-    if (résultat) {
-      const { score, début, fin } = résultat;
-      await fSuivreRecherche({
-        score,
-        type: "résultat",
-        de: "id",
-        info: {
-          type: "texte",
-          début,
-          fin,
-          texte: id,
-        },
-      });
-    } else {
-      await fSuivreRecherche();
-    }
-
-    return faisRien;
-  };
-};
-
-export const rechercherTous =
-  (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
-    return async (
-      _client: Constellation,
-      _id: string,
-      fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
-    ): Promise<schémaFonctionOublier> => {
-      await fSuivreRecherche({
-        type: "résultat",
-        score: 1,
-        de: "*",
-        info: { type: "vide" },
-      });
-      return faisRien;
+  const fSuivreRacine = async (condition: boolean) => {
+    const tâche = async () => {
+      if (dernièreValeur === condition) return;
+      await oublierSuivi?.();
+      oublierSuivi = condition ? await fSuivi() : undefined;
     };
+    queue.add(tâche);
   };
+  const oublierRacine = await fRacine({ fSuivreRacine });
 
-export const rechercherTousSiVide = (
-  texte: string,
-): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
-  return async (
-    _client: Constellation,
-    _id: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
-  ): Promise<schémaFonctionOublier> => {
-    if (texte === "")
-      await fSuivreRecherche({
-        type: "résultat",
-        score: 1,
-        de: "*",
-        info: { type: "vide" },
-      });
-    return faisRien;
+  return async () => {
+    await oublierRacine();
+    queue.clear();
+    await queue.onIdle();
+    await oublierSuivi?.();
+  };
+};
+
+export const chronomètrer = (f: Oublier, étiquette: string) => {
+  const id = Math.floor(Math.random() * 10000).toString();
+  return async () => {
+    console.time(étiquette + " " + id);
+    await f();
+    console.timeEnd(étiquette + " " + id);
   };
 };

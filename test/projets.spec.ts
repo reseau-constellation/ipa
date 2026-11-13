@@ -1,386 +1,908 @@
-import JSZip from "jszip";
-import { isElectronMain, isNode } from "wherearewe";
-
-import { isValidAddress } from "@orbitdb/core";
-
-import {
-  attente,
-  dossiers,
-  attente as utilsTestAttente,
-  constellation as utilsTestConstellation,
-} from "@constl/utils-tests";
-
+import { join } from "path";
+import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
-import { schémaFonctionOublier } from "@/types.js";
-import { type Constellation, créerConstellation } from "@/index.js";
+import { dossierTempo } from "@constl/utils-tests";
+import JSZip from "jszip";
+import { isBrowser, isElectronRenderer } from "wherearewe";
+import {
+  MEMBRE,
+  MODÉRATRICE,
+} from "@/nébuleuse/services/compte/accès/index.js";
+import {
+  TOUS_DISPOSITIFS,
+  DISPOSITIFS_INSTALLÉS,
+} from "@/nébuleuse/services/favoris.js";
+import { enleverPréfixes, enleverPréfixesEtOrbite } from "@/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import type xlsx from "xlsx";
-
-const { créerConstellationsTest } = utilsTestConstellation;
+import {
+  obtenir,
+  créerConstellationsTest,
+  utiliserFauxChronomètres,
+} from "./utils.js";
+import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
+import type {
+  InfoAuteur,
+  Métadonnées,
+  StatutDonnées,
+  TraducsTexte,
+  PartielRécursif,
+} from "@/types.js";
+import type { Constellation } from "@/index.js";
+import type { Oublier } from "@/nébuleuse/types.js";
+import type {
+  DonnéesFichierProjetExportées,
+  DonnéesProjetExportées,
+  MotClefProjet,
+  ÉpingleProjet,
+} from "@/projets.js";
+import type { SinonFakeTimers } from "sinon";
 
 describe("Projets", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let client: Constellation;
+  let fermer: Oublier;
+  let constls: Constellation[];
+  let constl: Constellation;
 
-  let idProjet: string;
+  let idsComptes: string[];
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
-      n: 1,
-      créerConstellation,
+    ({ fermer, constls } = await créerConstellationsTest({
+      n: 2,
     }));
-    client = clients[0];
+    constl = constls[0];
+    idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
   });
 
   after(async () => {
-    if (fOublierClients) await fOublierClients();
+    if (fermer) await fermer();
   });
 
-  it("Création", async () => {
-    idProjet = await client.projets.créerProjet();
-    expect(isValidAddress(idProjet)).to.be.true();
+  describe("création projets", function () {
+    let idProjet: string;
+
+    it("pas de projets pour commencer", async () => {
+      const projets = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreProjets({
+          f: siDéfini(),
+        }),
+      );
+      expect(projets).to.be.an.empty("array");
+    });
+
+    it("création", async () => {
+      idProjet = await constl.projets.créerProjet();
+      expect(
+        await constl.projets.identifiantValide({ identifiant: idProjet }),
+      ).to.be.true();
+    });
+
+    it("accès", async () => {
+      const permission = await obtenir(({ siDéfini }) =>
+        constl.projets.suivrePermission({
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
+      );
+      expect(permission).to.equal(MODÉRATRICE);
+    });
+
+    it("automatiquement ajoutée à mes projets", async () => {
+      const mesProjets = await obtenir<string[]>(({ siPasVide }) =>
+        constl.projets.suivreProjets({
+          f: siPasVide(),
+        }),
+      );
+      expect(mesProjets).to.be.an("array").and.to.contain(idProjet);
+    });
+
+    it("détectée sur un autre compte", async () => {
+      const sesProjets = await obtenir<string[]>(({ siPasVide }) =>
+        constls[1].projets.suivreProjets({
+          f: siPasVide(),
+          idCompte: idsComptes[0],
+        }),
+      );
+      expect(sesProjets).have.members([idProjet]);
+    });
+
+    it("enlever de mes projets", async () => {
+      await constl.projets.enleverDeMesProjets({ idProjet });
+      const mesProjets = await obtenir<string[] | undefined>(({ siVide }) =>
+        constl.projets.suivreProjets({
+          f: siVide(),
+        }),
+      );
+      expect(mesProjets).to.be.an.empty("array");
+    });
+
+    it("ajouter manuellement à mes projets", async () => {
+      await constl.projets.ajouterÀMesProjets({ idProjet });
+      const mesProjets = await obtenir<string[]>(({ siPasVide }) =>
+        constl.projets.suivreProjets({
+          f: siPasVide(),
+        }),
+      );
+      expect(mesProjets).to.have.members([idProjet]);
+    });
+
+    it("effacer projet", async () => {
+      const pÉpinglés = obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        constl.favoris.suivreFavoris({
+          f: si((x) => !!x && !x.find((fav) => fav.idObjet === idProjet)),
+        }),
+      );
+
+      await constl.projets.effacerProjet({ idProjet });
+      const mesProjets = await obtenir<string[] | undefined>(({ siVide }) =>
+        constl.projets.suivreProjets({
+          f: siVide(),
+        }),
+      );
+      expect(mesProjets).to.be.empty();
+
+      const épinglés = await pÉpinglés;
+      expect(épinglés.map((é) => é.idObjet)).to.not.include(idProjet);
+    });
   });
 
-  describe("Mes projets", function () {
-    let idNouveauProjet: string;
-    let fOublier: schémaFonctionOublier;
+  describe("noms", function () {
+    let idProjet: string;
 
-    const mesProjets = new attente.AttendreRésultat<string[]>();
     before(async () => {
-      idNouveauProjet = await client.projets.créerProjet();
-      fOublier = await client.projets.suivreProjets({
-        f: (ps) => mesProjets.mettreÀJour(ps),
-      });
+      idProjet = await constl.projets.créerProjet();
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-      mesProjets.toutAnnuler();
-    });
-
-    it("Le projet est déjà ajouté", async () => {
-      const val = await mesProjets.attendreQue((x) =>
-        x.includes(idNouveauProjet),
+    it("pas de noms pour commencer", async () => {
+      const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
+        constl.projets.suivreNoms({ idProjet, f: siDéfini() }),
       );
-      expect(val).to.contain(idNouveauProjet);
+      expect(Object.keys(noms).length).to.equal(0);
     });
 
-    it("Enlever de mes projets", async () => {
-      await client.projets.enleverDeMesProjets({
-        idProjet: idNouveauProjet,
-      });
-      const val = await mesProjets.attendreQue(
-        (x) => !x.includes(idNouveauProjet),
-      );
-      expect(val).not.to.contain(idNouveauProjet);
-    });
-
-    it("Ajouter à mes projets", async () => {
-      await client.projets.ajouterÀMesProjets({
-        idProjet: idNouveauProjet,
-      });
-      const val = await mesProjets.attendreQue((x) =>
-        x.includes(idNouveauProjet),
-      );
-      expect(val).to.contain(idNouveauProjet);
-    });
-
-    it("On peut aussi l'effacer", async () => {
-      await client.projets.effacerProjet({ idProjet: idNouveauProjet });
-
-      const val = await mesProjets.attendreQue(
-        (x) => !x.includes(idNouveauProjet),
-      );
-      expect(val).not.to.contain(idNouveauProjet);
-    });
-  });
-
-  describe("Noms", function () {
-    let fOublier: schémaFonctionOublier;
-
-    const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
-    before(async () => {
-      fOublier = await client.projets.suivreNomsProjet({
+    it("ajouter un nom", async () => {
+      await constl.projets.sauvegarderNom({
         idProjet,
-        f: (n) => noms.mettreÀJour(n),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
-
-    it("Pas de noms pour commencer", async () => {
-      const val = await noms.attendreExiste();
-      expect(Object.keys(val).length).to.equal(0);
-    });
-
-    it("Ajouter un nom", async () => {
-      await client.projets.sauvegarderNomProjet({
-        idProjet,
-        langue: "fr",
+        langue: "fra",
         nom: "Alphabets",
       });
-      const val = await noms.attendreQue((x) => !!x["fr"]);
-      expect(val.fr).to.equal("Alphabets");
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.projets.suivreNoms({
+          idProjet,
+          f: si((n) => !!n && Object.keys(n).length > 0),
+        }),
+      );
+      expect(noms.fra).to.equal("Alphabets");
     });
 
-    it("Ajouter des noms", async () => {
-      await client.projets.sauvegarderNomsProjet({
+    it("ajouter des noms", async () => {
+      await constl.projets.sauvegarderNoms({
         idProjet,
         noms: {
           த: "எழுத்துகள்",
           हिं: "वर्णमाला",
         },
       });
-      const val = await noms.attendreQue((x) => Object.keys(x).length > 2);
-      expect(val).to.deep.equal({
-        fr: "Alphabets",
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.projets.suivreNoms({
+          idProjet,
+          f: si((n) => !!n && Object.keys(n).length > 2),
+        }),
+      );
+      expect(noms).to.deep.equal({
+        fra: "Alphabets",
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
       });
     });
 
-    it("Changer un nom", async () => {
-      await client.projets.sauvegarderNomProjet({
+    it("changer un nom", async () => {
+      await constl.projets.sauvegarderNom({
         idProjet,
-        langue: "fr",
+        langue: "fra",
         nom: "Systèmes d'écriture",
       });
-      const val = await noms.attendreQue((x) => x.fr !== "Alphabets");
-      expect(val.fr).to.equal("Systèmes d'écriture");
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.projets.suivreNoms({
+          idProjet,
+          f: si((n) => n?.["fra"] !== "Alphabets"),
+        }),
+      );
+
+      expect(noms?.fra).to.equal("Systèmes d'écriture");
     });
 
-    it("Effacer un nom", async () => {
-      await client.projets.effacerNomProjet({
-        idProjet,
-        langue: "fr",
-      });
-      const val = await noms.attendreQue((x) => !x["fr"]);
-      expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+    it("effacer un nom", async () => {
+      await constl.projets.effacerNom({ idProjet, langue: "fra" });
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.projets.suivreNoms({ idProjet, f: si((n) => !!n && !n["fra"]) }),
+      );
+      expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
   });
 
-  describe("Descriptions", function () {
-    let fOublier: schémaFonctionOublier;
+  describe("descriptions", function () {
+    let idProjet: string;
 
-    const descrs = new attente.AttendreRésultat<{
-      [key: string]: string;
-    }>();
     before(async () => {
-      fOublier = await client.projets.suivreDescriptionsProjet({
+      idProjet = await constl.projets.créerProjet();
+    });
+
+    it("aucune description pour commencer", async () => {
+      const descrs = await obtenir<TraducsTexte>(({ siDéfini }) =>
+        constl.projets.suivreDescriptions({ idProjet, f: siDéfini() }),
+      );
+      expect(Object.keys(descrs).length).to.equal(0);
+    });
+
+    it("ajouter une description", async () => {
+      await constl.projets.sauvegarderDescription({
         idProjet,
-        f: (d) => descrs.mettreÀJour(d),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
-
-    it("Aucune description pour commencer", async () => {
-      const vals = await descrs.attendreExiste();
-      expect(Object.keys(vals).length).to.equal(0);
-    });
-
-    it("Ajouter une description", async () => {
-      await client.projets.sauvegarderDescriptionProjet({
-        idProjet,
-        langue: "fr",
+        langue: "fra",
         description: "Alphabets",
       });
-      const val = await descrs.attendreQue((x) => !!x["fr"]);
-      expect(val.fr).to.equal("Alphabets");
+
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.projets.suivreDescriptions({
+          idProjet,
+          f: si((x) => !!x?.["fra"]),
+        }),
+      );
+      expect(descrs.fra).to.equal("Alphabets");
     });
 
-    it("Ajouter des descriptions", async () => {
-      await client.projets.sauvegarderDescriptionsProjet({
+    it("ajouter des descriptions", async () => {
+      await constl.projets.sauvegarderDescriptions({
         idProjet,
         descriptions: {
           த: "எழுத்துகள்",
           हिं: "वर्णमाला",
         },
       });
-      const val = await descrs.attendreQue((x) => Object.keys(x).length > 2);
-      expect(val).to.deep.equal({
-        fr: "Alphabets",
+
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.projets.suivreDescriptions({
+          idProjet,
+          f: si((x) => !!x && Object.keys(x).length > 2),
+        }),
+      );
+      expect(descrs).to.deep.equal({
+        fra: "Alphabets",
         த: "எழுத்துகள்",
         हिं: "वर्णमाला",
       });
     });
 
-    it("Changer une description", async () => {
-      await client.projets.sauvegarderDescriptionProjet({
+    it("changer une description", async () => {
+      await constl.projets.sauvegarderDescription({
         idProjet,
-        langue: "fr",
+        langue: "fra",
         description: "Systèmes d'écriture",
       });
-      const val = await descrs.attendreQue((x) => x.fr !== "Alphabets");
-      expect(val.fr).to.equal("Systèmes d'écriture");
+
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.projets.suivreDescriptions({
+          idProjet,
+          f: si((x) => x?.["fra"] !== "Alphabets"),
+        }),
+      );
+      expect(descrs?.fra).to.equal("Systèmes d'écriture");
     });
 
-    it("Effacer une description", async () => {
-      await client.projets.effacerDescriptionProjet({
-        idProjet,
-        langue: "fr",
-      });
-      const val = await descrs.attendreQue((x) => !x["fr"]);
-      expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+    it("effacer une description", async () => {
+      await constl.projets.effacerDescription({ idProjet, langue: "fra" });
+
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.projets.suivreDescriptions({
+          idProjet,
+          f: si((x) => !!x && !x["fra"]),
+        }),
+      );
+      expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
     });
   });
 
-  describe("Mots-clefs", function () {
-    let fOublier: schémaFonctionOublier;
-    let idMotClef: string;
+  describe("métadonnées", function () {
+    let idProjet: string;
 
-    const motsClefs = new attente.AttendreRésultat<
-      { source: "projet" | "bds"; idMotClef: string }[]
-    >();
     before(async () => {
-      fOublier = await client.projets.suivreMotsClefsProjet({
-        idProjet: idProjet,
-        f: (m) => motsClefs.mettreÀJour(m),
-      });
+      idProjet = await constl.projets.créerProjet();
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
+    it("pas de métadonnées pour commencer", async () => {
+      const métadonnées = await obtenir<Métadonnées>(({ siDéfini }) =>
+        constl.projets.suivreMétadonnées({ idProjet, f: siDéfini() }),
+      );
+      expect(Object.keys(métadonnées).length).to.equal(0);
     });
-    it("Pas de mots-clefs pour commencer", async () => {
-      const val = await motsClefs.attendreExiste();
-      expect(val).to.be.an.empty("array");
-    });
-    it("Ajout d'un mot-clef", async () => {
-      idMotClef = await client.motsClefs.créerMotClef();
-      await client.projets.ajouterMotsClefsProjet({
+
+    it("ajouter une métadonnée", async () => {
+      await constl.projets.sauvegarderMétadonnée({
         idProjet,
-        idsMotsClefs: idMotClef,
+        clef: "clef1",
+        valeur: true,
       });
-      const val = await motsClefs.attendreQue((x) => x.length > 0);
-      expect(val).to.be.an("array").with.lengthOf(1);
+      const métadonnées = await obtenir<Métadonnées>(({ si }) =>
+        constl.projets.suivreMétadonnées({
+          idProjet,
+          f: si((n) => !!n && Object.keys(n).length > 0),
+        }),
+      );
+      expect(métadonnées.clef1).to.be.true();
     });
-    it("Effacer un mot-clef", async () => {
-      await client.projets.effacerMotClefProjet({ idProjet, idMotClef });
 
-      const val = await motsClefs.attendreQue((x) => x.length === 0);
-      expect(val).to.be.an.empty("array");
+    it("ajouter des métadonnées", async () => {
+      await constl.projets.sauvegarderMétadonnées({
+        idProjet,
+        métadonnées: {
+          clef2: 123,
+          clef3: "du texte",
+        },
+      });
+      const métadonnées = await obtenir<Métadonnées>(({ si }) =>
+        constl.projets.suivreMétadonnées({
+          idProjet,
+          f: si((n) => !!n && Object.keys(n).length > 2),
+        }),
+      );
+      expect(métadonnées).to.deep.equal({
+        clef1: true,
+        clef2: 123,
+        clef3: "du texte",
+      });
+    });
+
+    it("changer un métadonnée", async () => {
+      await constl.projets.sauvegarderMétadonnée({
+        idProjet,
+        clef: "clef1",
+        valeur: false,
+      });
+      const métadonnées = await obtenir<Métadonnées>(({ si }) =>
+        constl.projets.suivreMétadonnées({
+          idProjet,
+          f: si((n) => n?.["clef1"] !== true),
+        }),
+      );
+
+      expect(métadonnées?.clef1).to.be.false();
+    });
+
+    it("effacer une métadonnée", async () => {
+      await constl.projets.effacerMétadonnée({ idProjet, clef: "clef1" });
+      const métadonnées = await obtenir<Métadonnées>(({ si }) =>
+        constl.projets.suivreMétadonnées({
+          idProjet,
+          f: si((n) => !!n && !Object.keys(n).includes("clef1")),
+        }),
+      );
+      expect(métadonnées).to.deep.equal({ clef2: 123, clef3: "du texte" });
     });
   });
 
-  describe("Statut projet", function () {
-    it.skip("À faire");
+  describe("image", function () {
+    let IMAGE: Uint8Array;
+    let idProjet: string;
+
+    before(async () => {
+      IMAGE = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+
+      idProjet = await constl.projets.créerProjet();
+    });
+
+    it("aucune image pour commencer", async () => {
+      const image = await obtenir(({ siNul }) =>
+        constl.projets.suivreImage({ idProjet, f: siNul() }),
+      );
+      expect(image).to.be.null();
+    });
+
+    it("ajouter image", async () => {
+      const idImage = await constl.projets.sauvegarderImage({
+        idProjet,
+        image: { contenu: IMAGE, nomFichier: "logo.svg" },
+      });
+      expect(idImage).to.endWith("logo.svg");
+
+      const image = await obtenir<{
+        image: Uint8Array;
+        idImage: string;
+      } | null>(({ siPasNul }) =>
+        constl.projets.suivreImage({ idProjet, f: siPasNul() }),
+      );
+
+      const réf = { idImage, image: IMAGE };
+      expect(image).to.deep.equal(réf);
+    });
+
+    it("effacer image", async () => {
+      await constl.projets.effacerImage({ idProjet });
+      const image = await obtenir(({ siNul }) =>
+        constl.projets.suivreImage({ idProjet, f: siNul() }),
+      );
+      expect(image).to.be.null();
+    });
   });
 
-  describe("BDs", function () {
+  describe("statut", function () {
+    let idProjet: string;
+
+    it("statut actif par défaut", async () => {
+      idProjet = await constl.projets.créerProjet();
+      const statut = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreStatut({
+          idProjet,
+          f: siDéfini(),
+        }),
+      );
+
+      const réf: StatutDonnées = {
+        statut: "active",
+      };
+      expect(statut).to.deep.equal(réf);
+    });
+
+    it("changer statut", async () => {
+      const nouveauStatut: StatutDonnées = {
+        statut: "obsolète",
+        // Pour une vraie application, utiliser un identifiant valide, bien entendu.
+        idNouvelle: "constl/projet/orbitdb/unAutreProjet",
+      };
+      await constl.projets.sauvegarderStatut({
+        idProjet,
+        statut: nouveauStatut,
+      });
+
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | undefined>(
+        ({ si }) =>
+          constl.projets.suivreStatut({
+            idProjet,
+            f: si((x) => x?.statut !== "active"),
+          }),
+      );
+
+      expect(statut).to.deep.equal(nouveauStatut);
+    });
+  });
+
+  describe("bds", function () {
+    let idProjet: string;
     let idBd: string;
 
-    const bds = new attente.AttendreRésultat<string[]>();
-    const variables = new attente.AttendreRésultat<string[]>();
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+    });
 
-    const motsClefs = new utilsTestAttente.AttendreRésultat<
-      { source: "projet" | "bds"; idMotClef: string }[]
-    >();
+    it("pas de bds pour commencer", async () => {
+      const bds = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreBds({ idProjet, f: siDéfini() }),
+      );
+      expect(bds).to.be.empty();
+    });
 
-    const fsOublier: schémaFonctionOublier[] = [];
+    it("ajout d'une bd", async () => {
+      await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
+
+      const bds = await obtenir(({ siPasVide }) =>
+        constl.projets.suivreBds({ idProjet, f: siPasVide() }),
+      );
+      expect(bds).to.have.members([idBd]);
+    });
+
+    it("effacer une bd", async () => {
+      await constl.projets.enleverBd({ idProjet, idBd });
+
+      const bds = await obtenir(({ siVide }) =>
+        constl.projets.suivreBds({ idProjet, f: siVide() }),
+      );
+      expect(bds).to.be.empty();
+    });
+  });
+
+  describe("mots-clefs", function () {
+    let idProjet: string;
+    let idBd: string;
+
+    let idMotClef: string;
+    let idMotClefBd: string;
 
     before(async () => {
-      fsOublier.push(
-        await client.projets.suivreBdsProjet({
-          idProjet,
-          f: (b) => bds.mettreÀJour(b),
-        }),
+      idProjet = await constl.projets.créerProjet();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idMotClef = await constl.motsClefs.créerMotClef();
+    });
+
+    it("rien pour commencer", async () => {
+      const motsClefs = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreMotsClefs({ idProjet, f: siDéfini() }),
       );
-      fsOublier.push(
-        await client.projets.suivreMotsClefsProjet({
-          idProjet,
-          f: (m) => motsClefs.mettreÀJour(m),
-        }),
+      expect(motsClefs).to.be.empty();
+    });
+
+    it("ajouter mot-clef propre", async () => {
+      await constl.projets.ajouterMotsClefs({
+        idProjet,
+        idsMotsClefs: [idMotClef],
+      });
+      const motsClefs = await obtenir<MotClefProjet[]>(({ siPasVide }) =>
+        constl.projets.suivreMotsClefs({ idProjet, f: siPasVide() }),
       );
-      fsOublier.push(
-        await client.projets.suivreVariablesProjet({
-          idProjet,
-          f: (v) => variables.mettreÀJour(v),
-        }),
-      );
+
+      const réf: MotClefProjet[] = [{ idMotClef, source: "projet" }];
+      expect(motsClefs).to.have.deep.members(réf);
     });
 
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-      variables.toutAnnuler();
-      bds.toutAnnuler();
-      motsClefs.toutAnnuler();
-    });
-
-    it("Pas de BDs pour commencer", async () => {
-      const val = await bds.attendreExiste();
-      expect(val).to.be.an.empty("array");
-    });
-
-    it("Ajout d'une BD", async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      await client.projets.ajouterBdProjet({ idProjet, idBd });
-
-      const val = await bds.attendreQue((x) => x.length > 0);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(1);
-      expect(val[0]).to.equal(idBd);
-    });
-
-    it("Mots-clefs BD détectés", async () => {
-      const idMotClef = await client.motsClefs.créerMotClef();
-      await client.bds.ajouterMotsClefsBd({
+    it("mots-clefs bd détectés", async () => {
+      idMotClefBd = await constl.motsClefs.créerMotClef();
+      await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
+      await constl.bds.ajouterMotsClefs({
         idBd,
-        idsMotsClefs: idMotClef,
+        idsMotsClefs: idMotClefBd,
       });
 
-      const val = await motsClefs.attendreQue((x) => !!x && x.length > 0);
-      expect(val).to.have.deep.members([{ source: "bds", idMotClef }]);
+      const motsClefs = await obtenir<MotClefProjet[]>(({ si }) =>
+        constl.projets.suivreMotsClefs({
+          idProjet,
+          f: si((x) => !!x && x.length > 1),
+        }),
+      );
+
+      const réf: MotClefProjet[] = [
+        { idMotClef, source: "projet" },
+        { idMotClef: idMotClefBd, source: "bds" },
+      ];
+      expect(motsClefs).to.have.deep.members(réf);
     });
 
-    it("Variables BD détectées", async () => {
-      let val = await variables.attendreExiste();
-      expect(val).to.be.an.empty("array");
-
-      const idVariable = await client.variables.créerVariable({
-        catégorie: "numérique",
+    it("enlever mot-clef propre", async () => {
+      await constl.projets.effacerMotClef({
+        idProjet,
+        idMotClef,
       });
-      const idTableau = await client.bds.ajouterTableauBd({ idBd });
 
-      await client.tableaux.ajouterColonneTableau({
+      const motsClefs = await obtenir<MotClefProjet[]>(({ si }) =>
+        constl.projets.suivreMotsClefs({
+          idProjet,
+          f: si((x) => !!x && 0 < x.length && x.length <= 1),
+        }),
+      );
+
+      const réf: MotClefProjet[] = [{ idMotClef: idMotClefBd, source: "bds" }];
+      expect(motsClefs).to.have.deep.members(réf);
+    });
+  });
+
+  describe("variables", function () {
+    let idProjet: string;
+    let idBd: string;
+
+    let idVariable: string;
+
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "horoDatage",
+      });
+    });
+
+    it("rien pour commencer", async () => {
+      const variables = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreVariables({ idProjet, f: siDéfini() }),
+      );
+      expect(variables).to.be.empty();
+    });
+
+    it("ajouter bd et variable", async () => {
+      await constl.projets.ajouterBds({ idProjet, idsBds: [idBd] });
+      const idTableau = await constl.bds.ajouterTableau({ idBd });
+      await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idVariable,
+      });
+      const variables = await obtenir<string[]>(({ siPasVide }) =>
+        constl.projets.suivreVariables({ idProjet, f: siPasVide() }),
+      );
+
+      expect(variables).to.have.members([idVariable]);
+    });
+
+    it("enlever bd et variable", async () => {
+      await constl.projets.enleverBd({
+        idProjet,
+        idBd,
+      });
+
+      const variables = await obtenir(({ siVide }) =>
+        constl.projets.suivreVariables({ idProjet, f: siVide() }),
+      );
+      expect(variables).to.be.empty();
+    });
+  });
+
+  describe("épingles", function () {
+    let idProjet: string;
+
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+    });
+
+    it("épinglé par défaut", async () => {
+      const épingle = await obtenir<ÉpingleProjet>(({ siDéfini }) =>
+        constl.projets.suivreÉpingle({ idProjet, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleProjet = {
+        type: "projets",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          bds: {
+            type: "bds",
+            épingle: {
+              base: TOUS_DISPOSITIFS,
+              données: {
+                tableaux: TOUS_DISPOSITIFS,
+                fichiers: DISPOSITIFS_INSTALLÉS,
+              },
+            },
+          },
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
+    it("désépingler projet", async () => {
+      await constl.projets.désépingler({ idProjet });
+
+      const épingle = await obtenir(({ siNonDéfini }) =>
+        constl.projets.suivreÉpingle({
+          idProjet,
+          f: siNonDéfini(),
+        }),
+      );
+      expect(épingle).to.be.undefined();
+    });
+
+    it("épingler projet", async () => {
+      await constl.projets.épingler({ idProjet });
+
+      const épingle = await obtenir(({ siDéfini }) =>
+        constl.projets.suivreÉpingle({ idProjet, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleProjet = {
+        type: "projets",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+          bds: {
+            type: "bds",
+            épingle: {
+              base: TOUS_DISPOSITIFS,
+              données: {
+                tableaux: TOUS_DISPOSITIFS,
+                fichiers: DISPOSITIFS_INSTALLÉS,
+              },
+            },
+          },
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
+    it("résoudre épingle - base", async () => {
+      const idProjet = await constl.projets.créerProjet();
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        constl.projets.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idProjet,
+            épingle: {
+              type: "projets",
+              épingle: { base: true },
+            },
+          },
+          f: siDéfini(),
+        }),
+      );
+      expect([...résolution]).to.have.members([enleverPréfixes(idProjet)]);
+    });
+
+    it("résoudre épingle - bds", async () => {
+      const idProjet = await constl.projets.créerProjet();
+
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      const idTableau = await constl.bds.ajouterTableau({ idBd });
+
+      await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
+
+      const idDonnéesTableau = await constl.bds.tableaux.obtIdDonnées({
+        idStructure: idBd,
+        idTableau,
+      });
+
+      const résolution = await obtenir<Set<string>>(({ si }) =>
+        constl.projets.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idProjet,
+            épingle: {
+              type: "projets",
+              épingle: {
+                base: true,
+                bds: {
+                  type: "bds",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          f: si((x) => !!x && x.size > 2),
+        }),
+      );
+      expect([...résolution]).to.have.members([
+        enleverPréfixes(idProjet),
+        enleverPréfixes(idBd),
+        enleverPréfixes(idDonnéesTableau),
+      ]);
+
+      const résolutionSansTableaux = await obtenir<Set<string>>(({ si }) =>
+        constl.projets.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idProjet,
+            épingle: {
+              type: "projets",
+              épingle: {
+                base: true,
+                bds: {
+                  type: "bds",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: false,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          f: si((x) => !!x && x.size > 1),
+        }),
+      );
+      expect([...résolutionSansTableaux]).to.have.members([
+        enleverPréfixes(idProjet),
+        enleverPréfixes(idBd),
+      ]);
+    });
+
+    it("résoudre épingle - fichiers", async () => {
+      const idProjet = await constl.projets.créerProjet();
+
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      await constl.projets.ajouterBds({ idProjet, idsBds: idBd });
+
+      const idTableau = await constl.bds.ajouterTableau({ idBd });
+      const idVariable = await constl.variables.créerVariable({
+        catégorie: "fichier",
+      });
+      const idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
         idTableau,
         idVariable,
       });
 
-      val = await variables.attendreQue((x) => x.length > 0);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(1);
-      expect(val[0]).to.equal(idVariable);
-    });
+      const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ/fichier.mp4";
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
+        idTableau,
+        éléments: [{ [idColonne]: idc }],
+      });
 
-    it("Effacer une BD", async () => {
-      await client.projets.effacerBdProjet({ idProjet, idBd });
+      const idDonnéesTableau = await constl.bds.tableaux.obtIdDonnées({
+        idStructure: idBd,
+        idTableau,
+      });
 
-      const val = await bds.attendreQue((x) => !x.length);
-      expect(val).to.be.an.empty("array");
+      const résolution = await obtenir<Set<string>>(({ si }) =>
+        constl.projets.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idProjet,
+            épingle: {
+              type: "projets",
+              épingle: {
+                base: true,
+                bds: {
+                  type: "bds",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: true,
+                      fichiers: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          f: si((x) => !!x && x.size > 3),
+        }),
+      );
+      expect([...résolution]).to.have.members([
+        enleverPréfixes(idProjet),
+        enleverPréfixes(idBd),
+        enleverPréfixes(idDonnéesTableau),
+        idc,
+      ]);
+
+      const résolutionSansFichers = await obtenir<Set<string>>(({ si }) =>
+        constl.projets.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idProjet,
+            épingle: {
+              type: "projets",
+              épingle: {
+                base: true,
+                bds: {
+                  type: "bds",
+                  épingle: {
+                    base: true,
+                    données: {
+                      tableaux: true,
+                      fichiers: false,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          f: si((x) => !!x && x.size > 1),
+        }),
+      );
+      expect([...résolutionSansFichers]).to.have.members([
+        enleverPréfixes(idProjet),
+        enleverPréfixes(idBd),
+      ]);
+
+      const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(
+        ({ si }) =>
+          constl.projets.suivreRésolutionÉpingle({
+            épingle: {
+              idObjet: idProjet,
+              épingle: {
+                type: "projets",
+                épingle: {
+                  base: true,
+                  bds: {
+                    type: "bds",
+                    épingle: {
+                      base: true,
+                    },
+                  },
+                },
+              },
+            },
+            f: si((x) => !!x && x.size > 0),
+          }),
+      );
+      expect([...résolutionSansFichersOuTableaux]).to.have.members([
+        enleverPréfixes(idProjet),
+      ]);
     });
   });
 
-  describe("Copier projet", function () {
+  describe("copier", function () {
     let idProjetOrig: string;
     let idProjetCopie: string;
 
     let idMotClef: string;
     let idBd: string;
 
-    const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
-    const descrs = new attente.AttendreRésultat<{
-      [key: string]: string;
-    }>();
-    const motsClefs = new attente.AttendreRésultat<
-      { source: "projet" | "bds"; idMotClef: string }[]
-    >();
-    const bds = new attente.AttendreRésultat<string[]>();
+    let IMAGE: Uint8Array;
+    let idImage: string;
 
     const réfNoms = {
       த: "மழை",
@@ -390,226 +912,768 @@ describe("Projets", function () {
       த: "தினசரி மழை",
       हिं: "दैनिक बारिश",
     };
+    const réfMétadonnées = { clef: true };
 
-    const fsOublier: schémaFonctionOublier[] = [];
+    const réfStatut: StatutDonnées = { statut: "interne" };
 
     before(async () => {
-      idProjetOrig = await client.projets.créerProjet();
+      IMAGE = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
 
-      await client.projets.sauvegarderNomsProjet({
+      idProjetOrig = await constl.projets.créerProjet();
+      idMotClef = await constl.motsClefs.créerMotClef();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+
+      await constl.projets.sauvegarderNoms({
         idProjet: idProjetOrig,
         noms: réfNoms,
       });
-      await client.projets.sauvegarderDescriptionsProjet({
+      await constl.projets.sauvegarderDescriptions({
         idProjet: idProjetOrig,
         descriptions: réfDescrs,
       });
-
-      idMotClef = await client.motsClefs.créerMotClef();
-      await client.projets.ajouterMotsClefsProjet({
+      await constl.projets.ajouterMotsClefs({
         idProjet: idProjetOrig,
         idsMotsClefs: idMotClef,
       });
-
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      await client.projets.ajouterBdProjet({
+      await constl.projets.sauvegarderMétadonnées({
         idProjet: idProjetOrig,
-        idBd,
+        métadonnées: réfMétadonnées,
+      });
+      idImage = await constl.projets.sauvegarderImage({
+        idProjet: idProjetOrig,
+        image: { contenu: IMAGE, nomFichier: "logo.svg" },
+      });
+      await constl.projets.sauvegarderStatut({
+        idProjet: idProjetOrig,
+        statut: réfStatut,
       });
 
-      idProjetCopie = await client.projets.copierProjet({
+      await constl.projets.ajouterBds({
+        idProjet: idProjetOrig,
+        idsBds: [idBd],
+      });
+    });
+
+    it("copier le projet", async () => {
+      idProjetCopie = await constl.projets.copierProjet({
         idProjet: idProjetOrig,
       });
-
-      fsOublier.push(
-        await client.projets.suivreNomsProjet({
-          idProjet: idProjetCopie,
-          f: (x) => noms.mettreÀJour(x),
-        }),
-      );
-      fsOublier.push(
-        await client.projets.suivreDescriptionsProjet({
-          idProjet: idProjetCopie,
-          f: (x) => descrs.mettreÀJour(x),
-        }),
-      );
-      fsOublier.push(
-        await client.projets.suivreMotsClefsProjet({
-          idProjet: idProjetCopie,
-          f: (x) => motsClefs.mettreÀJour(x),
-        }),
-      );
-      fsOublier.push(
-        await client.projets.suivreBdsProjet({
-          idProjet: idProjetCopie,
-          f: (x) => bds.mettreÀJour(x),
-        }),
-      );
+      expect(
+        await constl.projets.identifiantValide({ identifiant: idProjetCopie }),
+      ).to.be.true();
     });
 
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-      noms.toutAnnuler();
-      descrs.toutAnnuler();
-      motsClefs.toutAnnuler();
-      bds.toutAnnuler();
+    it("le projet est ajouté à mes projets", async () => {
+      const projets = await obtenir<string[]>(({ si }) =>
+        constl.projets.suivreProjets({
+          f: si((x) => !!x?.includes(idProjetCopie)),
+        }),
+      );
+      expect(projets).to.include.members([idProjetOrig, idProjetCopie]);
     });
 
-    it("Les noms sont copiés", async () => {
-      const val = await noms.attendreExiste();
-      expect(val).to.deep.equal(réfNoms);
+    it("les noms sont copiés", async () => {
+      const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
+        constl.projets.suivreNoms({ idProjet: idProjetCopie, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal(réfNoms);
     });
-    it("Les descriptions sont copiées", async () => {
-      const val = await descrs.attendreExiste();
-      expect(val).to.deep.equal(réfDescrs);
+
+    it("les descriptions sont copiées", async () => {
+      const descrs = await obtenir<TraducsTexte>(({ siPasVide }) =>
+        constl.projets.suivreDescriptions({
+          idProjet: idProjetCopie,
+          f: siPasVide(),
+        }),
+      );
+      expect(descrs).to.deep.equal(réfDescrs);
     });
-    it("Les mots-clefs sont copiés", async () => {
-      const val = await motsClefs.attendreExiste();
-      expect(val).to.have.deep.members([{ source: "projet", idMotClef }]);
+
+    it("les métadonnées sont copiées", async () => {
+      const métadonnées = await obtenir<Métadonnées>(({ siPasVide }) =>
+        constl.projets.suivreMétadonnées({
+          idProjet: idProjetCopie,
+          f: siPasVide(),
+        }),
+      );
+      expect(métadonnées).to.deep.equal(réfMétadonnées);
     });
-    it("Les BDs sont copiées", async () => {
-      const val = await bds.attendreQue((x) => x.length > 0);
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(1);
+
+    it("les mots-clefs sont copiés", async () => {
+      const motsClefs = await obtenir<MotClefProjet[]>(({ siPasVide }) =>
+        constl.projets.suivreMotsClefs({
+          idProjet: idProjetCopie,
+          f: siPasVide(),
+        }),
+      );
+      expect(motsClefs).to.have.deep.members([{ idMotClef, source: "projet" }]);
+    });
+
+    it("le statut est copié", async () => {
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | undefined>(
+        ({ siDéfini }) =>
+          constl.projets.suivreStatut({
+            idProjet: idProjetCopie,
+            f: siDéfini(),
+          }),
+      );
+      expect(statut).to.deep.equal(réfStatut);
+    });
+
+    it("l'image est copiée", async () => {
+      const image = await obtenir<{
+        image: Uint8Array;
+        idImage: string;
+      } | null>(({ siDéfini }) =>
+        constl.projets.suivreImage({ idProjet: idProjetCopie, f: siDéfini() }),
+      );
+      expect(image).to.deep.equal({ idImage, image: IMAGE });
+    });
+
+    it("les bds sont copiées", async () => {
+      const bds = await obtenir<string[]>(({ siPasVide }) =>
+        constl.projets.suivreBds({ idProjet: idProjetCopie, f: siPasVide() }),
+      );
+      expect(bds).to.have.members([idBd]);
+    });
+
+    it("source copie établie", async () => {
+      const copiéeDe = await obtenir<{ id?: string }>(({ siDéfini }) =>
+        constl.projets.suivreSource({ idProjet: idProjetCopie, f: siDéfini() }),
+      );
+      expect(copiéeDe).to.deep.equal({ id: idProjetOrig });
     });
   });
 
-  describe("Exporter données", function () {
+  describe("empreinte", function () {
     let idProjet: string;
-    let docs: { doc: xlsx.WorkBook; nom: string }[];
-    let fichiersSFIP: Set<string>;
-    let nomFichier: string;
+    let idBd: string;
+    let idTableau: string;
+    let idVariable: string;
+    let idColonne: string;
 
-    let cid: string;
-
-    const nomTableau1 = "Tableau 1";
-    const nomTableau2 = "Tableau 2";
+    let empreinte: string;
 
     before(async () => {
-      idProjet = await client.projets.créerProjet();
-      const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      await client.bds.sauvegarderNomsBd({
-        idBd,
-        noms: { fr: "Ma BD" },
-      });
-      await client.projets.ajouterBdProjet({ idProjet, idBd });
-
-      const idTableau1 = await client.bds.ajouterTableauBd({ idBd });
-      const idTableau2 = await client.bds.ajouterTableauBd({ idBd });
-
-      const idVarNum = await client.variables.créerVariable({
+      idProjet = await constl.projets.créerProjet();
+      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      const idVarFichier = await client.variables.créerVariable({
-        catégorie: "fichier",
-      });
-      await client.tableaux.ajouterColonneTableau({
-        idTableau: idTableau1,
-        idVariable: idVarNum,
-      });
-      const idColFichier = await client.tableaux.ajouterColonneTableau({
-        idTableau: idTableau2,
-        idVariable: idVarFichier,
-      });
 
-      const OCTETS = await obtRessourceTest({
-        nomFichier: "logo.svg",
+      idTableau = await constl.bds.ajouterTableau({ idBd });
+      idColonne = await constl.bds.tableaux.ajouterColonne({
+        idStructure: idBd,
+        idTableau,
+        idVariable,
       });
-      cid = await client.ajouterÀSFIP({
-        contenu: OCTETS,
-        nomFichier: "logo.svg",
-      });
+    });
 
-      await client.tableaux.ajouterÉlément({
-        idTableau: idTableau2,
-        vals: {
-          [idColFichier]: cid,
-        },
-      });
-
-      await client.tableaux.sauvegarderNomsTableau({
-        idTableau: idTableau1,
-        noms: {
-          fr: nomTableau1,
-        },
-      });
-      await client.tableaux.sauvegarderNomsTableau({
-        idTableau: idTableau2,
-        noms: {
-          fr: nomTableau2,
-        },
-      });
-
-      ({ docs, fichiersSFIP, nomFichier } =
-        await client.projets.exporterDonnées({
+    it("sans bds", async () => {
+      empreinte = await obtenir<string>(({ siDéfini }) =>
+        constl.projets.suivreEmpreinteTête({
           idProjet,
-          langues: ["fr"],
-        }));
+          f: siDéfini(),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
     });
 
-    it("Doc créé avec toutes les bds", () => {
-      expect(Array.isArray(docs)).to.be.true();
-      expect(docs.length).to.equal(1);
-      expect(Array.isArray(docs[0].doc.SheetNames)).to.be.true();
-      expect(docs[0].doc.SheetNames).to.have.members([
-        nomTableau1,
-        nomTableau2,
-      ]);
-      expect(docs[0].nom).to.equal("Ma BD");
+    it("ajout bds", async () => {
+      await constl.projets.ajouterBds({
+        idProjet,
+        idsBds: idBd,
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
     });
 
-    it("Fichiers SFIP retrouvés de tous les tableaux", () => {
-      expect(fichiersSFIP.size).to.equal(1);
-      expect([...fichiersSFIP]).to.have.deep.members([cid]);
+    it("changement nom bds détecté", async () => {
+      await constl.bds.sauvegarderNom({
+        idBd,
+        langue: "fra",
+        nom: "Insectes de Montréal",
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
     });
 
-    if (isElectronMain || isNode) {
-      describe("Exporter document projet", function () {
-        let dossierZip: string;
-        let fEffacer: () => void;
+    it("changement nom projet détecté", async () => {
+      await constl.projets.sauvegarderNom({
+        idProjet,
+        langue: "fra",
+        nom: "Science citoyenne",
+      });
 
-        let nomZip: string;
-        let zip: JSZip;
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
 
-        before(async () => {
-          const path = await import("path");
+    it("changement données bds détecté", async () => {
+      await constl.bds.tableaux.ajouterÉléments({
+        idStructure: idBd,
+        idTableau,
+        éléments: [{ [idColonne]: 2 }],
+      });
 
-          ({ dossier: dossierZip, fEffacer } = await dossiers.dossierTempo());
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
 
-          await client.projets.documentDonnéesÀFichier({
-            données: { docs, fichiersSFIP, nomFichier },
-            formatDoc: "ods",
-            dossier: dossierZip,
-            inclureDocuments: true,
-          });
-          nomZip = path.join(dossierZip, nomFichier + ".zip");
+    it("changement noms variable détecté", async () => {
+      await constl.variables.sauvegarderNom({
+        idVariable,
+        langue: "fra",
+        nom: "Population observée",
+      });
+
+      empreinte = await obtenir<string>(({ si }) =>
+        constl.projets.suivreEmpreinteTête({
+          idProjet,
+          f: si((x) => x !== empreinte),
+        }),
+      );
+      expect(empreinte).to.be.a.not.empty("string");
+    });
+  });
+
+  describe("auteurs", function () {
+    let idProjet: string;
+
+    const accepté = (idCompte: string) => (auteurs?: InfoAuteur[]) =>
+      !!auteurs?.find((a) => a.idCompte === idCompte && a.accepté);
+    let compte1Accepté: (auteurs?: InfoAuteur[]) => boolean;
+    let compte2Accepté: (auteurs?: InfoAuteur[]) => boolean;
+
+    before(async () => {
+      idProjet = await constl.projets.créerProjet();
+
+      compte1Accepté = accepté(idsComptes[0]);
+      compte2Accepté = accepté(idsComptes[1]);
+    });
+
+    it("compte créateur autorisé pour commencer", async () => {
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.projets.suivreAuteurs({
+          idProjet,
+          f: si(compte1Accepté),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("confirmer permission", async () => {
+      await constl.projets.confirmerPermission({ idProjet });
+    });
+
+    it("confirmer permission - compte non autorisé", async () => {
+      await expect(
+        constls[1].projets.confirmerPermission({ idProjet }),
+      ).to.eventually.be.rejectedWith("Permission de modification refusée");
+    });
+
+    it("inviter compte", async () => {
+      await constl.projets.inviterAuteur({
+        idProjet,
+        idCompte: idsComptes[1],
+        rôle: MEMBRE,
+      });
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.projets.suivreAuteurs({
+          idProjet,
+          f: si((x) => !!x && x.length > 1 && compte1Accepté(x)),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: false,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("acceptation invitation", async () => {
+      await constls[1].projets.ajouterÀMesProjets({ idProjet });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.projets.suivreAuteurs({
+          idProjet,
+          f: si((x) => compte1Accepté(x) && compte2Accepté(x)),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("modification par le nouvel auteur", async () => {
+      await obtenir(({ siDéfini }) =>
+        constls[1].projets.suivrePermission({
+          idObjet: idProjet,
+          f: siDéfini(),
+        }),
+      );
+
+      // Modification du projet
+      await constls[1].projets.sauvegarderNom({
+        idProjet,
+        langue: "fra",
+        nom: "Pédologie",
+      });
+      const noms = await obtenir(({ siPasVide }) =>
+        constls[0].projets.suivreNoms({ idProjet, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal({ fra: "Pédologie" });
+    });
+
+    it("promotion à modératrice", async () => {
+      await constl.projets.inviterAuteur({
+        idProjet,
+        idCompte: idsComptes[1],
+        rôle: MODÉRATRICE,
+      });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.projets.suivreAuteurs({
+          idProjet,
+          f: si(
+            (x) =>
+              !!x &&
+              x.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+                MODÉRATRICE &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
+          ),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("inviter compte hors ligne", async () => {
+      const compteHorsLigne =
+        "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      await constl.projets.inviterAuteur({
+        idProjet,
+        idCompte: compteHorsLigne,
+        rôle: MEMBRE,
+      });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.projets.suivreAuteurs({
+          idProjet,
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === compteHorsLigne) &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
+          ),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: compteHorsLigne,
+          accepté: false,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+  });
+
+  describe("exportation", function () {
+    let idc: string;
+
+    const idcIndisponible =
+      "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n/fichier.mp4";
+    const idBdIndisponible =
+      "/constl/bds/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+
+    before(async () => {
+      const octets = await obtRessourceTest({
+        nomFichier: "logo.svg",
+      });
+      idc = await constl.services["hélia"].ajouterFichierÀSFIP({
+        contenu: octets,
+        nomFichier: "logo.svg",
+      });
+    });
+
+    describe("suivi données exportation", function () {
+      let idProjet: string;
+      let idBd1: string;
+      let idBd2: string;
+
+      const nomProjetFr = "mon projet de science citoyenne";
+
+      before(async () => {
+        idProjet = await constl.projets.créerProjet();
+
+        idBd1 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idBd2 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+      });
+
+      it("nom projet", async () => {
+        const pDonnées = obtenir<DonnéesProjetExportées>(({ si }) =>
+          constl.projets.suivreDonnéesExportation({
+            idProjet,
+            langues: ["fra"],
+            f: si((x) => !!x && !idProjet.includes(x.nomProjet)),
+          }),
+        );
+
+        await constl.projets.sauvegarderNom({
+          idProjet,
+          langue: "fra",
+          nom: nomProjetFr,
         });
 
-        after(() => {
-          if (fEffacer) fEffacer();
+        const données = await pDonnées;
+        expect(données.nomProjet).to.equal(nomProjetFr);
+      });
+
+      it("bds", async () => {
+        const pDonnées = obtenir<DonnéesProjetExportées>(({ si }) =>
+          constl.projets.suivreDonnéesExportation({
+            idProjet,
+            langues: ["fra"],
+            f: si((x) => !!x && x.bds.length >= 2),
+          }),
+        );
+
+        await constl.projets.ajouterBds({
+          idProjet,
+          idsBds: [idBd1, idBd2],
         });
 
-        it("Le fichier zip existe", async () => {
-          const fs = await import("fs");
-          expect(fs.existsSync(nomZip)).to.be.true();
-          zip = await JSZip.loadAsync(fs.readFileSync(nomZip));
+        const données = await pDonnées;
+        expect(données.bds.map((bd) => bd.nomBd)).to.have.members(
+          [idBd1, idBd2].map((idBd) => idBd.split("/").pop()),
+        );
+      });
+
+      it("bd indisponible", async () => {
+        await constl.projets.ajouterBds({
+          idProjet,
+          idsBds: [idBdIndisponible],
         });
 
-        it("Les données sont exportées", async () => {
-          const contenu = zip.files["Ma BD.ods"];
-          expect(contenu).to.exist();
+        const données = await obtenir<DonnéesProjetExportées>(({ si }) =>
+          constl.projets.suivreDonnéesExportation({
+            idProjet,
+            langues: ["fra"],
+            f: si((x) => !!x && x.bds.length >= 2),
+          }),
+        );
+
+        // Les bds indisponibles n'apparaissent pas dans les résultats
+        expect(données.bds.map((bd) => bd.nomBd)).to.have.members(
+          [idBd1, idBd2].map((idBd) => idBd.split("/").pop()),
+        );
+      });
+    });
+
+    describe("à document", function () {
+      let idProjet: string;
+      let idBd1: string;
+      let idBd2: string;
+
+      let idTableau: string;
+      let idColonneFichier: string;
+
+      let données: DonnéesFichierProjetExportées;
+
+      before(async () => {
+        idProjet = await constl.projets.créerProjet();
+
+        idBd1 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idBd2 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        await constl.projets.ajouterBds({ idProjet, idsBds: [idBd1, idBd2] });
+
+        idTableau = await constl.bds.ajouterTableau({ idBd: idBd1 });
+        idColonneFichier = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd1,
+          idTableau,
         });
 
-        it("Le dossier pour les données SFIP existe", () => {
-          const contenu = zip.files["sfip/"];
-          expect(contenu?.dir).to.be.true();
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd1,
+          idTableau,
+          éléments: [{ [idColonneFichier]: idc }],
         });
 
-        it("Les fichiers SFIP existent", async () => {
-          const contenu = zip.files[["sfip", cid.replace("/", "-")].join("/")];
-          expect(contenu).to.exist();
+        données = await constl.projets.exporterDonnées({
+          idProjet,
+          langues: ["fra"],
         });
       });
-    }
+
+      it("nom document - spécifié", async () => {
+        const donnéesAvecNom = await constl.projets.exporterDonnées({
+          idProjet,
+          nomFichier: "mon fichier",
+        });
+        expect(donnéesAvecNom.nomFichier).to.equal("mon fichier");
+      });
+
+      it("nom document - non spécifié", async () => {
+        expect(données.nomFichier).to.equal(enleverPréfixesEtOrbite(idProjet));
+      });
+
+      it("bds", async () => {
+        expect(données.docus.map((d) => d.nom)).to.have.members(
+          [idBd1, idBd2].map(enleverPréfixesEtOrbite),
+        );
+      });
+
+      it("fichiers de toutes les bds", async () => {
+        expect([...données.documentsMédias]).to.have.members([idc]);
+      });
+
+      it("exportable même si fichier indisponible", async () => {
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd1,
+          idTableau,
+          éléments: [
+            {
+              [idColonneFichier]: idcIndisponible,
+            },
+          ],
+        });
+
+        const { documentsMédias } = await constl.projets.exporterDonnées({
+          idProjet,
+          langues: ["fra"],
+        });
+        expect([...documentsMédias]).to.have.members([idc, idcIndisponible]);
+      });
+
+      it("exportable même si bd indisponible", async () => {
+        const idProjetTest = await constl.projets.créerProjet();
+        await constl.projets.ajouterBds({
+          idProjet: idProjetTest,
+          idsBds: [idBd1, idBdIndisponible],
+        });
+        const { docus, documentsMédias } = await constl.projets.exporterDonnées(
+          {
+            idProjet: idProjetTest,
+            langues: ["fra"],
+          },
+        );
+
+        expect(docus.map((d) => d.nom)).to.have.members([
+          enleverPréfixesEtOrbite(idBd1),
+        ]);
+        expect([...documentsMédias]).to.have.members([idc, idcIndisponible]);
+      });
+    });
+
+    describe("à fichier", function () {
+      let idProjet: string;
+      let idBd1: string;
+      let idBd2: string;
+      let idTableau: string;
+      let idColonne: string;
+
+      let zip: JSZip;
+
+      const nomFichier = "mes données";
+      const nomBd1 = "Ma BD";
+
+      let dossier: string;
+      let effacer: () => void;
+      let horloge: SinonFakeTimers;
+
+      before(async () => {
+        horloge = utiliserFauxChronomètres();
+        ({ dossier, effacer } = await dossierTempo());
+
+        idProjet = await constl.projets.créerProjet();
+
+        idBd1 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+        idBd2 = await constl.bds.créerBd({ licence: "ODbl-1_0" });
+
+        idTableau = await constl.bds.ajouterTableau({ idBd: idBd1 });
+        await constl.bds.ajouterTableau({ idBd: idBd2 });
+
+        idColonne = await constl.bds.tableaux.ajouterColonne({
+          idStructure: idBd1,
+          idTableau,
+        });
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd1,
+          idTableau,
+          éléments: [{ [idColonne]: idc }],
+        });
+
+        await constl.bds.sauvegarderNoms({
+          idBd: idBd1,
+          noms: { fra: nomBd1 },
+        });
+
+        await constl.projets.ajouterBds({ idProjet, idsBds: [idBd1, idBd2] });
+      });
+
+      after(async () => {
+        if (effacer) effacer();
+      });
+
+      it("le fichier zip existe", async () => {
+        if (isBrowser || isElectronRenderer) {
+          await expect(
+            constl.projets.exporterÀFichier({
+              idProjet,
+              nomFichier,
+              dossier,
+              formatDocu: "ods",
+              langues: ["fra"],
+            }),
+          ).to.eventually.be.rejectedWith("showSaveFilePicker");
+        } else {
+          await constl.projets.exporterÀFichier({
+            idProjet,
+            nomFichier,
+            dossier,
+            formatDocu: "ods",
+            langues: ["fra"],
+          });
+
+          const nomZip = join(dossier, nomFichier + ".zip");
+          expect(existsSync(nomZip)).to.be.true();
+          zip = await JSZip.loadAsync(readFileSync(nomZip));
+        }
+      });
+
+      it("les bds sont exportées", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
+        const contenuBd1 = zip.files[`${nomBd1}.ods`];
+        expect(contenuBd1).to.exist();
+
+        const contenuBd2 = zip.files[`${enleverPréfixesEtOrbite(idBd2)}.ods`];
+        expect(contenuBd2).to.exist();
+      });
+
+      it("le dossier pour les médias existe", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
+        const contenu = zip.files["médias/"];
+        expect(contenu?.dir).to.be.true();
+      });
+
+      it("les fichiers existent", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
+        const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
+        expect(contenu).to.exist();
+
+        const contenuFichier =
+          zip.files[["médias", idc.replace("/", "-")].join("/")];
+        expect(contenuFichier).to.exist();
+      });
+
+      it("exportable même si fichier indisponible", async () => {
+        if (isBrowser || isElectronRenderer) return;
+
+        const nomFichierTest = "projet avec documents indisponibles";
+
+        await constl.bds.tableaux.ajouterÉléments({
+          idStructure: idBd1,
+          idTableau,
+          éléments: [{ [idColonne]: idcIndisponible }],
+        });
+
+        const attendreExporté = constl.projets.exporterÀFichier({
+          idProjet,
+          nomFichier: nomFichierTest,
+          dossier,
+          formatDocu: "ods",
+          langues: ["fra"],
+        });
+
+        // Avancer temps
+        await horloge.tickAsync(5000 * 1.5);
+        await attendreExporté;
+        const nomZip = join(dossier, nomFichierTest + ".zip");
+        zip = await JSZip.loadAsync(readFileSync(nomZip));
+
+        const contenu = zip.files[["médias", idc.replace("/", "-")].join("/")];
+        expect(contenu).to.exist();
+
+        const contenuIndisponible =
+          zip.files[["médias", idcIndisponible.replace("/", "-")].join("/")];
+        expect(contenuIndisponible).to.not.exist();
+      });
+    });
   });
 });

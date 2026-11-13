@@ -1,79 +1,106 @@
-import { attente as utilsTestAttente } from "@constl/utils-tests";
-
 import { expect } from "aegir/chai";
+
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
-} from "@/recherche/motClef.js";
-import { générerClientsInternes } from "../ressources/utils.js";
+} from "@/recherche/fonctions/motsClefs.js";
+import { enleverPréfixesEtOrbite } from "@/utils.js";
+import { créerConstellationsTest, obtenir } from "../utils.js";
+import type { ServicesNécessairesRechercheMotsClefs } from "@/recherche/fonctions/motsClefs.js";
+import type { Oublier } from "@/nébuleuse/types.js";
+import type { Constellation } from "@/constellation.js";
 import type {
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatObjectifRecherche,
-  schémaFonctionOublier,
-} from "@/types.js";
-import type { Constellation } from "@/client.js";
+  InfoRésultatTexte,
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
+  SuivreObjectifRecherche,
+} from "@/recherche/types.js";
 
-describe("Rechercher mots clefs", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let client: Constellation;
+describe("Rechercher mots-clefs", function () {
+  let fermer: Oublier;
+  let constls: Constellation[];
+  let constl: Constellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+    ({ fermer, constls } = await créerConstellationsTest({
       n: 1,
+      avecMandataire: false,
     }));
-    client = clients[0];
+    constl = constls[0];
   });
 
   after(async () => {
-    if (fOublierClients) await fOublierClients();
+    if (fermer) await fermer();
   });
 
-  describe("Selon nom", function () {
+  describe("selon nom", function () {
     let idMotClef: string;
-    let fOublier: schémaFonctionOublier;
-    const résultat = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
-    >();
+    let recherche: SuivreObjectifRecherche<
+      InfoRésultatTexte,
+      ServicesNécessairesRechercheMotsClefs
+    >;
 
     before(async () => {
-      idMotClef = await client.motsClefs.créerMotClef();
+      idMotClef = await constl.motsClefs.créerMotClef();
 
-      const fRecherche = rechercherMotsClefsSelonNom("hydrologie");
-      fOublier = await fRecherche(client, idMotClef, async (r) =>
-        résultat.mettreÀJour(r),
+      recherche = rechercherMotsClefsSelonNom("hydrologie");
+    });
+
+    it("pas de résultats quand le mot-clef n'a pas de nom", async () => {
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ siNonDéfini }) =>
+        recherche({
+          services: (clef) => constl.services[clef],
+          idObjet: idMotClef,
+          f: siNonDéfini(),
+        }),
       );
+      expect(résultat).to.be.undefined();
     });
 
-    after(async () => {
-      if (fOublier) await fOublier();
-    });
-
-    it("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
-      expect(résultat.val).to.be.undefined();
-    });
-    it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-      await client.motsClefs.sauvegarderNomsMotClef({
+    it("pas de résultats si le mot-clef n'a vraiment rien à voir", async () => {
+      await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
           த: "நீரியல்",
         },
       });
-      expect(résultat.val).to.be.undefined();
+
+      const résultat = await obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ siNonDéfini }) =>
+        recherche({
+          services: (clef) => constl.services[clef],
+          idObjet: idMotClef,
+          f: siNonDéfini(),
+        }),
+      );
+      expect(résultat).to.be.undefined();
     });
-    it("Résultat si le mot-clef est presque exacte", async () => {
-      await client.motsClefs.sauvegarderNomsMotClef({
+
+    it("résultat si le mot-clef est presque exacte", async () => {
+      const pRésultat = obtenir<RésultatObjectifRecherche<InfoRésultatTexte>>(
+        ({ siDéfini }) =>
+          recherche({
+            services: (clef) => constl.services[clef],
+            idObjet: idMotClef,
+            f: siDéfini(),
+          }),
+      );
+
+      await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "Sciences hydrologiques",
+          fra: "Sciences hydrologiques",
         },
       });
 
-      const val = await résultat.attendreExiste();
-      expect(val).to.deep.equal({
+      const résultat = await pRésultat;
+
+      expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -84,18 +111,30 @@ describe("Rechercher mots clefs", function () {
         score: 0.5,
       });
     });
-    it("Résultat si le mot-clef est exacte", async () => {
-      await client.motsClefs.sauvegarderNomsMotClef({
+
+    it("résultat si le mot-clef est exacte", async () => {
+      const pRésultat = obtenir<
+        RésultatObjectifRecherche<InfoRésultatTexte> | undefined
+      >(({ si }) =>
+        recherche({
+          services: (clef) => constl.services[clef],
+          idObjet: idMotClef,
+          f: si((x) => x !== undefined && x.score > 0.5),
+        }),
+      );
+
+      await constl.motsClefs.sauvegarderNoms({
         idMotClef,
         noms: {
-          fr: "hydrologie",
+          fra: "hydrologie",
         },
       });
 
-      const val = await résultat.attendreQue((x) => x.score > 0.5);
-      expect(val).to.deep.equal({
+      const résultat = await pRésultat;
+
+      expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -108,53 +147,82 @@ describe("Rechercher mots clefs", function () {
     });
   });
 
-  describe("Selon texte", function () {
+  describe("selon texte", function () {
     let idMotClef: string;
-    const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
-    >();
-    const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
-    >();
 
-    const fsOublier: schémaFonctionOublier[] = [];
+    type TypeRésultat = InfoRésultatTexte | InfoRésultatVide;
+    let rechercheId: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheMotsClefs
+    >;
+    let rechercheNom: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheMotsClefs
+    >;
+    let rechercheDescription: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheMotsClefs
+    >;
+    let rechercheVide: SuivreObjectifRecherche<
+      TypeRésultat,
+      ServicesNécessairesRechercheMotsClefs
+    >;
 
     before(async () => {
-      idMotClef = await client.motsClefs.créerMotClef();
+      idMotClef = await constl.motsClefs.créerMotClef();
 
-      const fRechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
-      fsOublier.push(
-        await fRechercheNom(client, idMotClef, async (r) =>
-          résultatNom.mettreÀJour(r),
-        ),
+      rechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
+      rechercheDescription = rechercherMotsClefsSelonTexte("domaine de l'eau");
+      rechercheId = rechercherMotsClefsSelonTexte(
+        enleverPréfixesEtOrbite(idMotClef).slice(0, 15),
+      );
+      rechercheVide = rechercherMotsClefsSelonTexte("");
+    });
+
+    it("résultat id détecté", async () => {
+      const résultatId = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheId({
+            services: (clef) => constl.services[clef],
+            idObjet: idMotClef,
+            f: siDéfini(),
+          }),
       );
 
-      const fRechercheId = rechercherMotsClefsSelonTexte(
-        idMotClef.slice(0, 15),
-      );
-      fsOublier.push(
-        await fRechercheId(client, idMotClef, async (r) =>
-          résultatId.mettreÀJour(r),
-        ),
-      );
-
-      await client.motsClefs.sauvegarderNomsMotClef({
-        idMotClef,
-        noms: {
-          fr: "hydrologie",
+      expect(résultatId).to.deep.equal({
+        type: "résultat",
+        de: "id",
+        info: {
+          type: "texte",
+          début: 0,
+          fin: 15,
+          texte: enleverPréfixesEtOrbite(idMotClef),
         },
+        score: 1,
       });
     });
 
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
-    });
+    it("résultat nom détecté", async () => {
+      const pRésultatNom = obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheNom({
+            services: (clef) => constl.services[clef],
+            idObjet: idMotClef,
+            f: siDéfini(),
+          }),
+      );
 
-    it("Résultat nom détecté", async () => {
-      const val = await résultatNom.attendreExiste();
-      expect(val).to.deep.equal({
+      await constl.motsClefs.sauvegarderNoms({
+        idMotClef,
+        noms: {
+          fra: "hydrologie",
+        },
+      });
+      const résultatNom = await pRésultatNom;
+
+      expect(résultatNom).to.deep.equal({
         type: "résultat",
-        clef: "fr",
+        clef: "fra",
         de: "nom",
         info: {
           type: "texte",
@@ -165,19 +233,60 @@ describe("Rechercher mots clefs", function () {
         score: 1,
       });
     });
-    it("Résultat id détecté", async () => {
-      const val = await résultatId.attendreExiste();
-      expect(val).to.deep.equal({
+
+    it("résultat description détecté", async () => {
+      const pRésultatDescription = obtenir<
+        RésultatObjectifRecherche<TypeRésultat>
+      >(({ siDéfini }) =>
+        rechercheDescription({
+          services: (clef) => constl.services[clef],
+          idObjet: idMotClef,
+          f: siDéfini(),
+        }),
+      );
+
+      await constl.motsClefs.sauvegarderDescriptions({
+        idMotClef,
+        descriptions: {
+          fra: "un mot-clef pour le domaine de l'eau",
+        },
+      });
+
+      const résultatDescription = await pRésultatDescription;
+
+      expect(résultatDescription).to.deep.equal({
         type: "résultat",
-        de: "id",
+        clef: "fra",
+        de: "descriptions",
         info: {
           type: "texte",
-          début: 0,
-          fin: 15,
-          texte: idMotClef,
+          début: 20,
+          fin: 36,
+          texte: "un mot-clef pour le domaine de l'eau",
         },
         score: 1,
       });
+    });
+
+    it("résultat recherche vide", async () => {
+      const résultat = await obtenir<RésultatObjectifRecherche<TypeRésultat>>(
+        ({ siDéfini }) =>
+          rechercheVide({
+            services: (clef) => constl.services[clef],
+            idObjet: idMotClef,
+            f: siDéfini(),
+          }),
+      );
+
+      const réf: RésultatObjectifRecherche<InfoRésultatVide> = {
+        type: "résultat",
+        de: "*",
+        info: {
+          type: "vide",
+        },
+        score: 1,
+      };
+      expect(résultat).to.deep.equal(réf);
     });
   });
 });

@@ -1,120 +1,150 @@
 import { expect } from "aegir/chai";
-import { constellation as utilsTestConstellation } from "@constl/utils-tests";
-import { obtenir } from "@constl/utils-ipa";
-import { créerConstellation } from "@/index.js";
-import { TraducsNom } from "@/types.js";
-import type { Constellation } from "@/client.js";
+import {
+  MEMBRE,
+  MODÉRATRICE,
+} from "@/nébuleuse/services/compte/accès/consts.js";
+import { TOUS_DISPOSITIFS } from "@/nébuleuse/services/favoris.js";
+import { enleverPréfixes } from "@/utils.js";
+import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
+import type { Constellation } from "@/index.js";
 import type {
-  règleBornes,
-  règleCatégorie,
-  règleVariableAvecId,
-} from "@/valid.js";
-import type { catégorieVariables } from "@/variables.js";
-
-const { créerConstellationsTest } = utilsTestConstellation;
+  InfoAuteur,
+  PartielRécursif,
+  StatutDonnées,
+  TraducsTexte,
+} from "@/types.js";
+import type {
+  CatégorieVariable as CatégorieVariable,
+  ÉpingleVariable,
+} from "@/variables.js";
+import type {
+  RègleBornes,
+  RègleCatégorie,
+  RègleVariableAvecId,
+} from "@/règles.js";
 
 describe("Variables", function () {
-  let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
-  let client: Constellation;
+  let fermer: () => Promise<void>;
+  let constls: Constellation[];
+  let constl: Constellation;
 
-  before("Préparer clients", async () => {
-    ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
-      n: 1,
-      créerConstellation,
+  let idsComptes: string[];
+
+  before("préparer constls", async () => {
+    ({ fermer, constls } = await créerConstellationsTest({
+      n: 2,
     }));
-    client = clients[0];
+    constl = constls[0];
+    idsComptes = await Promise.all(constls.map((c) => c.compte.obtIdCompte()));
   });
 
   after(async () => {
-    if (fOublierClients) await fOublierClients();
+    if (fermer) await fermer();
   });
 
-  describe("Création", function () {
+  describe("création variables", function () {
     let idVariable: string;
 
-    it("Pas de variables pour commencer", async () => {
+    it("pas de variables pour commencer", async () => {
       const variables = await obtenir(({ siDéfini }) =>
-        client.variables.suivreVariables({
+        constl.variables.suivreVariables({
           f: siDéfini(),
         }),
       );
       expect(variables).to.be.an.empty("array");
     });
-    it("Créer des variables", async () => {
-      idVariable = await client.variables.créerVariable({
+
+    it("création", async () => {
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      const variables = await obtenir(({ siPasVide }) =>
-        client.variables.suivreVariables({
+      expect(
+        await constl.variables.identifiantValide({ identifiant: idVariable }),
+      ).to.be.true();
+    });
+
+    it("accès", async () => {
+      const permission = await obtenir(({ siDéfini }) =>
+        constl.variables.suivrePermission({
+          idObjet: idVariable,
+          f: siDéfini(),
+        }),
+      );
+      expect(permission).to.equal(MODÉRATRICE);
+    });
+
+    it("automatiquement ajoutée à mes variables", async () => {
+      const mesVariables = await obtenir<string[]>(({ siPasVide }) =>
+        constl.variables.suivreVariables({
           f: siPasVide(),
         }),
       );
-      expect(variables).to.deep.equal([idVariable]);
+      expect(mesVariables).to.be.an("array").and.to.contain(idVariable);
     });
 
-    it("Effacer une variable", async () => {
-      await client.variables.effacerVariable({ idVariable });
-      const variables = await obtenir(({ siVide }) =>
-        client.variables.suivreVariables({
+    it("détectée sur un autre compte", async () => {
+      const sesVariables = await obtenir<string[]>(({ siPasVide }) =>
+        constls[1].variables.suivreVariables({
+          f: siPasVide(),
+          idCompte: idsComptes[0],
+        }),
+      );
+      expect(sesVariables).have.members([idVariable]);
+    });
+
+    it("enlever de mes variables", async () => {
+      await constl.variables.enleverDeMesVariables({ idVariable });
+      const mesVariables = await obtenir<string[] | undefined>(({ siVide }) =>
+        constl.variables.suivreVariables({
           f: siVide(),
         }),
       );
-      expect(variables).to.be.an.empty("array");
-    });
-  });
-
-  describe("Mes variables", function () {
-    let idVariable: string;
-
-    before("Créer variable", async () => {
-      idVariable = await client.variables.créerVariable({
-        catégorie: "numérique",
-      });
+      expect(mesVariables).to.be.an.empty("array");
     });
 
-    it("La variable est déjà ajoutée", async () => {
-      const variables = await obtenir(({ siPasVide }) =>
-        client.variables.suivreVariables({
+    it("ajouter manuellement à mes variables", async () => {
+      await constl.variables.ajouterÀMesVariables({ idVariable });
+      const mesVariables = await obtenir<string[]>(({ siPasVide }) =>
+        constl.variables.suivreVariables({
           f: siPasVide(),
         }),
       );
-      expect(variables).to.contain(idVariable);
+      expect(mesVariables).to.have.members([idVariable]);
     });
 
-    it("Enlever de mes variables", async () => {
-      await client.variables.enleverDeMesVariables({ idVariable });
-      const variables = await obtenir(({ siVide }) =>
-        client.variables.suivreVariables({
+    it("effacer variable", async () => {
+      const pÉpinglées = obtenir<ÉpingleFavorisAvecId[]>(({ si }) =>
+        constl.favoris.suivreFavoris({
+          f: si((x) => !!x && !x.find((fav) => fav.idObjet === idVariable)),
+        }),
+      );
+
+      await constl.variables.effacerVariable({ idVariable });
+      const mesVariables = await obtenir<string[] | undefined>(({ siVide }) =>
+        constl.variables.suivreVariables({
           f: siVide(),
         }),
       );
-      expect(variables).not.to.contain(idVariable);
-    });
+      expect(mesVariables).to.be.empty();
 
-    it("Ajouter à mes variables", async () => {
-      await client.variables.ajouterÀMesVariables({ idVariable });
-      const variables = await obtenir(({ siPasVide }) =>
-        client.variables.suivreVariables({
-          f: siPasVide(),
-        }),
-      );
-      expect(variables).to.contain(idVariable);
+      const épinglées = await pÉpinglées;
+      expect(épinglées.map((é) => é.idObjet)).to.not.include(idVariable);
     });
   });
 
-  describe("Noms", function () {
+  describe("noms", function () {
     let idVariable: string;
 
-    before("Suivre noms variable", async () => {
-      idVariable = await client.variables.créerVariable({
+    before("suivre noms variable", async () => {
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
     });
 
-    it("Pas de noms pour commencer", async () => {
-      const noms = await obtenir<TraducsNom>(({ siDéfini }) =>
-        client.variables.suivreNomsVariable({
+    it("pas de noms pour commencer", async () => {
+      const noms = await obtenir<TraducsTexte>(({ siDéfini }) =>
+        constl.variables.suivreNoms({
           idVariable,
           f: siDéfini(),
         }),
@@ -122,84 +152,84 @@ describe("Variables", function () {
       expect(Object.keys(noms)).to.have.lengthOf(0);
     });
 
-    it("Ajouter un nom", async () => {
-      await client.variables.sauvegarderNomVariable({
+    it("ajouter un nom", async () => {
+      await constl.variables.sauvegarderNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         nom: "Précipitation",
       });
-      const noms = await obtenir<TraducsNom>(({ siPasVide }) =>
-        client.variables.suivreNomsVariable({
+      const noms = await obtenir<TraducsTexte>(({ siPasVide }) =>
+        constl.variables.suivreNoms({
           idVariable,
           f: siPasVide(),
         }),
       );
-      expect(noms.fr).to.equal("Précipitation");
+      expect(noms.fra).to.equal("Précipitation");
     });
 
-    it("Ajouter des noms", async () => {
-      await client.variables.sauvegarderNomsVariable({
+    it("ajouter des noms", async () => {
+      await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           த: "மழை",
           हिं: "बारिश",
         },
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreNomsVariable({
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreNoms({
           idVariable,
-          f: si((x) => Object.keys(x).length > 2),
+          f: si((x) => !!x && Object.keys(x).length > 2),
         }),
       );
       expect(noms).to.deep.equal({
         த: "மழை",
         हिं: "बारिश",
-        fr: "Précipitation",
+        fra: "Précipitation",
       });
     });
 
-    it("Changer un nom", async () => {
-      await client.variables.sauvegarderNomVariable({
+    it("changer un nom", async () => {
+      await constl.variables.sauvegarderNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         nom: "précipitation",
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreNomsVariable({
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreNoms({
           idVariable,
-          f: si((x) => !x.fr.startsWith("P")),
+          f: si((x) => !!x?.fra && !x.fra.startsWith("P")),
         }),
       );
-      expect(noms.fr).to.equal("précipitation");
+      expect(noms.fra).to.equal("précipitation");
     });
 
-    it("Effacer un nom", async () => {
-      await client.variables.effacerNomVariable({
+    it("effacer un nom", async () => {
+      await constl.variables.effacerNom({
         idVariable,
-        langue: "fr",
+        langue: "fra",
       });
-      const noms = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreNomsVariable({
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreNoms({
           idVariable,
-          f: si((x) => !x["fr"]),
+          f: si((x) => !x?.["fra"]),
         }),
       );
       expect(noms).to.deep.equal({ த: "மழை", हिं: "बारिश" });
     });
   });
 
-  describe("Descriptions", function () {
+  describe("descriptions", function () {
     let idVariable: string;
 
-    before("Préparer clients", async () => {
-      idVariable = await client.variables.créerVariable({
+    before(async () => {
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
     });
 
-    it("Pas de descriptions pour commencer", async () => {
-      const descrs = await obtenir<TraducsNom>(({ siDéfini }) =>
-        client.variables.suivreDescriptionsVariable({
+    it("pas de descriptions pour commencer", async () => {
+      const descrs = await obtenir<TraducsTexte>(({ siDéfini }) =>
+        constl.variables.suivreDescriptions({
           idVariable,
           f: siDéfini(),
         }),
@@ -207,66 +237,66 @@ describe("Variables", function () {
       expect(Object.keys(descrs)).to.have.lengthOf(0);
     });
 
-    it("Ajouter une description", async () => {
-      await client.variables.sauvegarderDescriptionVariable({
+    it("ajouter une description", async () => {
+      await constl.variables.sauvegarderDescription({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         description: "la quantité de précipitation quotidienne",
       });
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreDescriptionsVariable({
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreDescriptions({
           idVariable,
-          f: si((x) => !!x["fr"]),
+          f: si((x) => !!x?.["fra"]),
         }),
       );
-      expect(descrs.fr).to.equal("la quantité de précipitation quotidienne");
+      expect(descrs.fra).to.equal("la quantité de précipitation quotidienne");
     });
 
-    it("Ajouter des descriptions", async () => {
-      await client.variables.sauvegarderDescriptionsVariable({
+    it("ajouter des descriptions", async () => {
+      await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
           த: "தினசரி மழை",
           हिं: "दैनिक बारिश",
         },
       });
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreDescriptionsVariable({
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreDescriptions({
           idVariable,
-          f: si((x) => Object.keys(x).length > 2),
+          f: si((x) => !!x && Object.keys(x).length > 2),
         }),
       );
       expect(descrs).to.deep.equal({
         த: "தினசரி மழை",
         हिं: "दैनिक बारिश",
-        fr: "la quantité de précipitation quotidienne",
+        fra: "la quantité de précipitation quotidienne",
       });
     });
 
-    it("Changer une description", async () => {
-      await client.variables.sauvegarderDescriptionVariable({
+    it("changer une description", async () => {
+      await constl.variables.sauvegarderDescription({
         idVariable,
-        langue: "fr",
+        langue: "fra",
         description: "La quantité de précipitation quotidienne",
       });
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreDescriptionsVariable({
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreDescriptions({
           idVariable,
-          f: si((x) => x["fr"].startsWith("L")),
+          f: si((x) => !!x?.fra && x["fra"].startsWith("L")),
         }),
       );
-      expect(descrs.fr).to.equal("La quantité de précipitation quotidienne");
+      expect(descrs.fra).to.equal("La quantité de précipitation quotidienne");
     });
 
-    it("Effacer une description", async () => {
-      await client.variables.effacerDescriptionVariable({
+    it("effacer une description", async () => {
+      await constl.variables.effacerDescription({
         idVariable,
-        langue: "fr",
+        langue: "fra",
       });
-      const descrs = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreDescriptionsVariable({
+      const descrs = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreDescriptions({
           idVariable,
-          f: si((x) => !x["fr"]),
+          f: si((x) => !x?.["fra"]),
         }),
       );
 
@@ -277,24 +307,24 @@ describe("Variables", function () {
     });
   });
 
-  describe("Catégorie", function () {
+  describe("catégorie", function () {
     let idVariable: string;
 
-    before("Préparer clients", async () => {
-      idVariable = await client.variables.créerVariable({
+    before(async () => {
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
     });
 
-    it("Changer la catégorie", async () => {
-      await client.variables.sauvegarderCatégorieVariable({
+    it("changer la catégorie", async () => {
+      await constl.variables.sauvegarderCatégorie({
         idVariable,
         catégorie: "chaîne",
       });
-      const catégorie = await obtenir<catégorieVariables>(({ si }) =>
-        client.variables.suivreCatégorieVariable({
+      const catégorie = await obtenir<CatégorieVariable>(({ si }) =>
+        constl.variables.suivreCatégorie({
           idVariable,
-          f: si((x) => x.catégorie !== "numérique"),
+          f: si((x) => x?.catégorie !== "numérique"),
         }),
       );
       expect(catégorie).to.deep.equal({
@@ -304,144 +334,284 @@ describe("Variables", function () {
     });
   });
 
-  describe("Unités", function () {
-    let idVariable: string;
-
-    before("Préparer clients", async () => {
-      idVariable = await client.variables.créerVariable({
-        catégorie: "numérique",
-      });
-    });
-
-    it("Aucune unité pour commencer", async () => {
-      const unités = await obtenir(({ siNul }) =>
-        client.variables.suivreUnitésVariable({
-          idVariable,
-          f: siNul(),
-        }),
-      );
-      expect(unités).to.be.null();
-    });
-
-    it("Changer les unités", async () => {
-      await client.variables.sauvegarderUnitésVariable({
-        idVariable,
-        idUnité: "mm",
-      });
-      const unités = await obtenir(({ siPasNul }) =>
-        client.variables.suivreUnitésVariable({
-          idVariable,
-          f: siPasNul(),
-        }),
-      );
-      expect(unités).to.equal("mm");
-    });
-  });
-
-  describe("Règles", function () {
+  describe("règles", function () {
     let idVariable: string;
     let idRègle: string;
 
-    before("Préparer clients", async () => {
-      idVariable = await client.variables.créerVariable({
+    let idRègleCatégorie: string;
+    const réfRègleCatégorie: RègleCatégorie = {
+      type: "catégorie",
+      détails: {
+        catégorie: {
+          type: "simple",
+          catégorie: "numérique",
+        },
+      },
+    };
+
+    before(async () => {
+      idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
     });
 
-    it("Règle générique de catégorie pour commencer", async () => {
-      const règles = await obtenir<règleVariableAvecId[]>(({ siPasVide }) =>
-        client.variables.suivreRèglesVariable({
+    it("règle générique de catégorie pour commencer", async () => {
+      const règles = await obtenir<RègleVariableAvecId[]>(({ siPasVide }) =>
+        constl.variables.suivreRègles({
           idVariable,
           f: siPasVide(),
         }),
       );
-      expect(Array.isArray(règles)).to.be.true();
-      expect(règles).to.have.lengthOf(1);
-      expect(règles[0].règle.typeRègle).to.equal("catégorie");
+      const réf: RègleCatégorie[] = [
+        {
+          type: "catégorie",
+          détails: {
+            catégorie: {
+              type: "simple",
+              catégorie: "numérique",
+            },
+          },
+        },
+      ];
+
+      expect(règles.map((r) => r.règle)).to.deep.equal(réf);
+      idRègleCatégorie = règles.find((r) => r.règle.type === "catégorie")!.id;
     });
 
-    it("Ajouter une règle", async () => {
-      const règle: règleBornes = {
-        typeRègle: "bornes",
+    it("ajouter une règle", async () => {
+      const règle: RègleBornes = {
+        type: "bornes",
         détails: {
           type: "fixe",
           val: 0,
           op: ">",
         },
       };
-      idRègle = await client.variables.ajouterRègleVariable({
+
+      idRègle = await constl.variables.ajouterRègle({
         idVariable,
         règle,
       });
-      const règles = await obtenir<règleVariableAvecId[]>(({ si }) =>
-        client.variables.suivreRèglesVariable({
+
+      const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
+        constl.variables.suivreRègles({
           idVariable,
-          f: si((x) => x.length > 1),
+          f: si((x) => !!x && x.length > 1),
         }),
       );
-      expect(règles).to.have.lengthOf(2);
-      expect(règles.filter((r) => r.id === idRègle)).to.have.lengthOf(1);
+
+      const réf: RègleVariableAvecId[] = [
+        {
+          id: idRègleCatégorie,
+          règle: réfRègleCatégorie,
+        },
+        {
+          id: idRègle,
+          règle,
+        },
+      ];
+      expect(règles).to.have.deep.members(réf);
     });
 
-    it("Effacer une règle", async () => {
-      await client.variables.effacerRègleVariable({ idVariable, idRègle });
-      const règles = await obtenir<règleVariableAvecId[]>(({ si }) =>
-        client.variables.suivreRèglesVariable({
+    it("modifier une règle", async () => {
+      const règleModifiée: RègleBornes = {
+        type: "bornes",
+        détails: {
+          type: "fixe",
+          val: 0,
+          op: ">=",
+        },
+      };
+
+      await constl.variables.modifierRègle({
+        idVariable,
+        idRègle,
+        règleModifiée,
+      });
+
+      const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
+        constl.variables.suivreRègles({
           idVariable,
-          f: si((x) => x.length < 2),
+          f: si((x) => {
+            const règleBornes = x?.find((r) => r.id === idRègle) as
+              RègleVariableAvecId<RègleBornes> | undefined;
+            return !!x && x.length > 1 && règleBornes?.règle.détails.op !== ">";
+          }),
         }),
       );
-      expect(règles).to.have.lengthOf(1);
+
+      const réf: RègleVariableAvecId[] = [
+        {
+          id: idRègleCatégorie,
+          règle: réfRègleCatégorie,
+        },
+        {
+          id: idRègle,
+          règle: règleModifiée,
+        },
+      ];
+      expect(règles).to.have.deep.members(réf);
     });
 
-    it("On ne peut pas effacer une règle générique de base", async () => {
-      const règles = await obtenir<règleVariableAvecId[]>(({ siPasVide }) =>
-        client.variables.suivreRèglesVariable({
+    it("effacer une règle", async () => {
+      await constl.variables.effacerRègle({ idVariable, idRègle });
+      const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
+        constl.variables.suivreRègles({
+          idVariable,
+          f: si((x) => !!x && x.length < 2),
+        }),
+      );
+
+      const réf: RègleVariableAvecId[] = [
+        {
+          id: idRègleCatégorie,
+          règle: réfRègleCatégorie,
+        },
+      ];
+      expect(règles).to.have.deep.members(réf);
+    });
+
+    it("on ne peut pas effacer une règle générique de base", async () => {
+      await constl.variables.effacerRègle({
+        idVariable,
+        idRègle: idRègleCatégorie,
+      });
+      const règles = await obtenir<RègleVariableAvecId[]>(({ siPasVide }) =>
+        constl.variables.suivreRègles({
           idVariable,
           f: siPasVide(),
         }),
       );
-      const règleDeBase = règles[0];
-      await client.variables.effacerRègleVariable({
-        idVariable,
-        idRègle: règleDeBase.id,
-      });
-      expect(règles[0].id).to.equal(règleDeBase.id);
+
+      const réf: RègleVariableAvecId[] = [
+        {
+          id: idRègleCatégorie,
+          règle: réfRègleCatégorie,
+        },
+      ];
+      expect(règles).to.have.deep.members(réf);
     });
 
-    it("On détecte le changement de catégorie", async () => {
-      await client.variables.sauvegarderCatégorieVariable({
-        idVariable,
-        catégorie: "horoDatage",
-      });
-      const règles = await obtenir<règleVariableAvecId[]>(({ si }) =>
-        client.variables.suivreRèglesVariable({
+    it("on détecte le changement de catégorie", async () => {
+      const pRègles = obtenir<RègleVariableAvecId[]>(({ si }) =>
+        constl.variables.suivreRègles({
           idVariable,
-          f: si((x) =>
-            x.some(
-              (r) =>
-                r.règle.typeRègle === "catégorie" &&
-                r.règle.détails.catégorie.catégorie === "horoDatage",
-            ),
+          f: si(
+            (x) =>
+              !!x?.some(
+                (r) =>
+                  r.règle.type === "catégorie" &&
+                  r.règle.détails.catégorie.catégorie !== "numérique",
+              ),
           ),
         }),
       );
-      const règleCatégorie = règles.find(
-        (r) => r.règle.typeRègle === "catégorie",
-      ) as règleVariableAvecId<règleCatégorie> | undefined;
-      expect(règleCatégorie).to.exist();
-      expect(règleCatégorie?.règle.détails.catégorie).to.deep.equal({
-        type: "simple",
+      await constl.variables.sauvegarderCatégorie({
+        idVariable,
         catégorie: "horoDatage",
       });
+      const règles = await pRègles;
+
+      const réf: RègleVariableAvecId[] = [
+        {
+          id: idRègleCatégorie,
+          règle: {
+            type: "catégorie",
+            détails: {
+              catégorie: {
+                type: "simple",
+                catégorie: "horoDatage",
+              },
+            },
+          },
+        },
+      ];
+      expect(règles).to.have.deep.members(réf);
     });
   });
 
-  describe("Copier variable", function () {
-    let idVariable2: string;
+  describe("unités", function () {
+    let idVariable: string;
 
-    const règle: règleBornes = {
-      typeRègle: "bornes",
+    before(async () => {
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "numérique",
+      });
+    });
+
+    it("aucune unité pour commencer", async () => {
+      const unités = await obtenir(({ siNonDéfini }) =>
+        constl.variables.suivreUnités({
+          idVariable,
+          f: siNonDéfini(),
+        }),
+      );
+      expect(unités).to.be.undefined();
+    });
+
+    it("changer les unités", async () => {
+      await constl.variables.sauvegarderUnités({
+        idVariable,
+        idUnité: "mm",
+      });
+      const unités = await obtenir(({ siDéfini }) =>
+        constl.variables.suivreUnités({
+          idVariable,
+          f: siDéfini(),
+        }),
+      );
+      expect(unités).to.equal("mm");
+    });
+  });
+
+  describe("statut", function () {
+    let idVariable: string;
+
+    it("statut actif par défaut", async () => {
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "booléen",
+      });
+      const statut = await obtenir(({ siDéfini }) =>
+        constl.variables.suivreStatut({
+          idVariable,
+          f: siDéfini(),
+        }),
+      );
+
+      const réf: StatutDonnées = {
+        statut: "active",
+      };
+      expect(statut).to.deep.equal(réf);
+    });
+
+    it("changer statut", async () => {
+      const nouveauStatut: StatutDonnées = {
+        statut: "obsolète",
+        // Pour une vraie application, utiliser un identifiant valide, bien entendu.
+        idNouvelle: "/constl/variable/orbitdb/uneAutreVariable",
+      };
+      await constl.variables.sauvegarderStatut({
+        idVariable,
+        statut: nouveauStatut,
+      });
+
+      const statut = await obtenir<PartielRécursif<StatutDonnées> | undefined>(
+        ({ si }) =>
+          constl.variables.suivreStatut({
+            idVariable,
+            f: si((x) => x?.statut !== "active"),
+          }),
+      );
+
+      expect(statut).to.deep.equal(nouveauStatut);
+    });
+  });
+
+  describe("copier variable", function () {
+    let idVariableCopiée: string;
+
+    const règle: RègleBornes = {
+      type: "bornes",
       détails: {
         type: "fixe",
         val: 0,
@@ -449,60 +619,59 @@ describe("Variables", function () {
       },
     };
 
-    before("Préparer clients", async () => {
-      const idVariable = await client.variables.créerVariable({
+    before(async () => {
+      const idVariable = await constl.variables.créerVariable({
         catégorie: "numérique",
       });
-      await client.variables.sauvegarderNomsVariable({
+      await constl.variables.sauvegarderNoms({
         idVariable,
         noms: {
           த: "மழை",
           हिं: "बारिश",
         },
       });
-      await client.variables.sauvegarderDescriptionsVariable({
+      await constl.variables.sauvegarderDescriptions({
         idVariable,
         descriptions: {
           த: "தினசரி மழை",
           हिं: "दैनिक बारिश",
         },
       });
-      await client.variables.ajouterRègleVariable({ idVariable, règle });
-      await client.variables.sauvegarderUnitésVariable({
+      await constl.variables.ajouterRègle({ idVariable, règle });
+      await constl.variables.sauvegarderUnités({
         idVariable,
         idUnité: "mm",
       });
 
-      idVariable2 = await client.variables.copierVariable({
+      idVariableCopiée = await constl.variables.copierVariable({
         idVariable,
       });
     });
 
-    it("La variable est copiée", async () => {
-      const variables = await obtenir(({ siPasVide }) =>
-        client.variables.suivreVariables({
-          f: siPasVide(),
+    it("la variable est copiée", async () => {
+      const variables = await obtenir<string[]>(({ si }) =>
+        constl.variables.suivreVariables({
+          f: si((x) => !!x && x.includes(idVariableCopiée)),
         }),
       );
-      expect(Array.isArray(variables)).to.be.true();
-      expect(variables).to.contain(idVariable2);
+      expect(variables).to.include(idVariableCopiée);
     });
 
-    it("Les noms sont copiés", async () => {
-      const noms = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreNomsVariable({
-          idVariable: idVariable2,
-          f: si((x) => Object.keys(x).length > 1),
+    it("les noms sont copiés", async () => {
+      const noms = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreNoms({
+          idVariable: idVariableCopiée,
+          f: si((x) => !!x && Object.keys(x).length > 1),
         }),
       );
       expect(noms).to.deep.equal({ த: "மழை", हिं: "बारिश" });
     });
 
-    it("Les descriptions sont copiés", async () => {
-      const descriptions = await obtenir<TraducsNom>(({ si }) =>
-        client.variables.suivreDescriptionsVariable({
-          idVariable: idVariable2,
-          f: si((x) => Object.keys(x).length > 1),
+    it("les descriptions sont copiées", async () => {
+      const descriptions = await obtenir<TraducsTexte>(({ si }) =>
+        constl.variables.suivreDescriptions({
+          idVariable: idVariableCopiée,
+          f: si((x) => !!x && Object.keys(x).length > 1),
         }),
       );
       expect(descriptions).to.deep.equal({
@@ -511,17 +680,30 @@ describe("Variables", function () {
       });
     });
 
-    it("Les règles sont copiés", async () => {
-      const règleCatégorie: règleCatégorie = {
-        typeRègle: "catégorie",
+    it("la catégorie est copiée", async () => {
+      const catégorie = await obtenir(({ siDéfini }) =>
+        constl.variables.suivreCatégorie({
+          idVariable: idVariableCopiée,
+          f: siDéfini(),
+        }),
+      );
+      expect(catégorie).to.deep.equal({
+        type: "simple",
+        catégorie: "numérique",
+      });
+    });
+
+    it("les règles sont copiées", async () => {
+      const règleCatégorie: RègleCatégorie = {
+        type: "catégorie",
         détails: {
           catégorie: { type: "simple", catégorie: "numérique" },
         },
       };
-      const règles = await obtenir<règleVariableAvecId[]>(({ si }) =>
-        client.variables.suivreRèglesVariable({
-          idVariable: idVariable2,
-          f: si((x) => x.length > 1),
+      const règles = await obtenir<RègleVariableAvecId[]>(({ si }) =>
+        constl.variables.suivreRègles({
+          idVariable: idVariableCopiée,
+          f: si((x) => !!x && x.length > 1),
         }),
       );
       expect(règles.map((r) => r.règle)).to.have.deep.members([
@@ -530,27 +712,272 @@ describe("Variables", function () {
       ]);
     });
 
-    it("Les unités sont copiés", async () => {
+    it("les unités sont copiés", async () => {
       const val = await obtenir(({ siDéfini }) =>
-        client.variables.suivreUnitésVariable({
-          idVariable: idVariable2,
+        constl.variables.suivreUnités({
+          idVariable: idVariableCopiée,
           f: siDéfini(),
         }),
       );
       expect(val).to.equal("mm");
     });
+  });
 
-    it("La catégorie est copiée", async () => {
-      const val = await obtenir(({ siDéfini }) =>
-        client.variables.suivreCatégorieVariable({
-          idVariable: idVariable2,
+  describe("épingler", function () {
+    let idVariable: string;
+
+    before(async () => {
+      idVariable = await constl.variables.créerVariable({ catégorie: "image" });
+    });
+
+    it("épinglée par défaut", async () => {
+      const épingle = await obtenir<ÉpingleVariable>(({ siDéfini }) =>
+        constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleVariable = {
+        type: "variables",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
+    it("désépingler", async () => {
+      await constl.variables.désépingler({ idVariable });
+
+      const épingle = await obtenir<PartielRécursif<ÉpingleVariable>>(
+        ({ siNonDéfini }) =>
+          constl.variables.suivreÉpingle({ idVariable, f: siNonDéfini() }),
+      );
+
+      expect(épingle).to.be.undefined();
+    });
+
+    it("épingler", async () => {
+      await constl.variables.épingler({ idVariable });
+
+      const épingle = await obtenir<ÉpingleVariable>(({ siDéfini }) =>
+        constl.variables.suivreÉpingle({ idVariable, f: siDéfini() }),
+      );
+
+      const réf: ÉpingleVariable = {
+        type: "variables",
+        épingle: {
+          base: TOUS_DISPOSITIFS,
+        },
+      };
+      expect(épingle).to.deep.equal(réf);
+    });
+
+    it("résoudre épingle", async () => {
+      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
+        constl.variables.suivreRésolutionÉpingle({
+          épingle: {
+            idObjet: idVariable,
+            épingle: {
+              type: "variables",
+              épingle: {
+                base: true,
+              },
+            },
+          },
           f: siDéfini(),
         }),
       );
-      expect(val).to.deep.equal({
-        type: "simple",
-        catégorie: "numérique",
+      expect([...résolution]).to.have.members([enleverPréfixes(idVariable)]);
+    });
+  });
+
+  describe("auteurs", function () {
+    let idVariable: string;
+
+    const accepté = (idCompte: string) => (auteurs?: InfoAuteur[]) =>
+      !!auteurs?.find((a) => a.idCompte === idCompte && a.accepté);
+    let compte1Accepté: (auteurs?: InfoAuteur[]) => boolean;
+    let compte2Accepté: (auteurs?: InfoAuteur[]) => boolean;
+
+    before(async () => {
+      idVariable = await constl.variables.créerVariable({
+        catégorie: "géojson",
       });
+      compte1Accepté = accepté(idsComptes[0]);
+      compte2Accepté = accepté(idsComptes[1]);
+    });
+
+    it("compte créateur autorisé pour commencer", async () => {
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: si(compte1Accepté),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("confirmer permission", async () => {
+      await constl.variables.confirmerPermission({ idVariable });
+    });
+
+    it("confirmer permission - compte non autorisé", async () => {
+      await expect(
+        constls[1].variables.confirmerPermission({ idVariable }),
+      ).to.eventually.be.rejectedWith("Permission de modification refusée");
+    });
+
+    it("inviter compte", async () => {
+      await constl.variables.inviterAuteur({
+        idVariable,
+        idCompte: idsComptes[1],
+        rôle: MEMBRE,
+      });
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: si((x) => !!x && x.length > 1 && compte1Accepté(x)),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: false,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("acceptation invitation", async () => {
+      await constls[1].variables.ajouterÀMesVariables({ idVariable });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: si((x) => compte1Accepté(x) && compte2Accepté(x)),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("modification par le nouvel auteur", async () => {
+      await obtenir(({ siDéfini }) =>
+        constls[1].variables.suivrePermission({
+          idObjet: idVariable,
+          f: siDéfini(),
+        }),
+      );
+
+      // Modification de la variable
+      await constls[1].variables.sauvegarderNom({
+        idVariable,
+        langue: "fra",
+        nom: "Pédologie",
+      });
+      const noms = await obtenir(({ siPasVide }) =>
+        constls[0].variables.suivreNoms({ idVariable, f: siPasVide() }),
+      );
+      expect(noms).to.deep.equal({ fra: "Pédologie" });
+    });
+
+    it("promotion à modératrice", async () => {
+      await constl.variables.inviterAuteur({
+        idVariable,
+        idCompte: idsComptes[1],
+        rôle: MODÉRATRICE,
+      });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: si(
+            (x) =>
+              !!(
+                x?.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+                MODÉRATRICE
+              ) &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
+          ),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
+    });
+
+    it("inviter compte hors ligne", async () => {
+      const compteHorsLigne =
+        "/nébuleuse/compte/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
+      await constl.variables.inviterAuteur({
+        idVariable,
+        idCompte: compteHorsLigne,
+        rôle: MEMBRE,
+      });
+
+      const auteurs = await obtenir<InfoAuteur[]>(({ si }) =>
+        constl.variables.suivreAuteurs({
+          idVariable,
+          f: si(
+            (x) =>
+              !!x?.find((a) => a.idCompte === compteHorsLigne) &&
+              compte1Accepté(x) &&
+              compte2Accepté(x),
+          ),
+        }),
+      );
+      const réf: InfoAuteur[] = [
+        {
+          idCompte: idsComptes[0],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: idsComptes[1],
+          accepté: true,
+          rôle: MODÉRATRICE,
+        },
+        {
+          idCompte: compteHorsLigne,
+          accepté: false,
+          rôle: MEMBRE,
+        },
+      ];
+      expect(auteurs).to.deep.equal(réf);
     });
   });
 });
