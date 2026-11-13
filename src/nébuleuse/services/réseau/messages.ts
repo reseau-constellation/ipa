@@ -1,4 +1,5 @@
 import type { Signature } from "../orbite/orbite.js";
+import type { InfosComplètesPair } from "./réseau.js";
 
 export type MessageRéseauAvecExpéditeur = {
   message: MessageRéseau;
@@ -9,6 +10,7 @@ export type MessageRéseau =
   | MessageAcceptationRequêteRejoindreCompte
   | MessageAcceptationInvitationRejoindreCompte
   | MessageIdentitéCompte
+  | MessageInfosPairs
   | MessageTexte;
 
 export const IDENTITÉ_COMPTE = "identité compte";
@@ -17,6 +19,12 @@ export type MessageIdentitéCompte = {
   idDispositif: string;
   idCompte: string;
   signature: Signature;
+};
+
+export const INFO_PAIRS = "infos pairs";
+export type MessageInfosPairs = {
+  type: typeof INFO_PAIRS;
+  pairs: InfosComplètesPair[];
 };
 
 export const ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE =

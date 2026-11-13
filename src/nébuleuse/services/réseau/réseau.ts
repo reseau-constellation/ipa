@@ -2,6 +2,7 @@ import {
   faisRien,
   ignorerNonDéfinis,
   suivreFonctionImbriquée,
+  uneFois,
 } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
 import PQueue from "p-queue";
@@ -39,11 +40,13 @@ import {
   ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
   ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE,
   IDENTITÉ_COMPTE,
+  INFO_PAIRS,
 } from "./messages.js";
 import type {
   MessageAcceptationInvitationRejoindreCompte,
   MessageAcceptationRequêteRejoindreCompte,
   MessageIdentitéCompte,
+  MessageInfosPairs,
   MessageRéseau,
   MessageRéseauAvecExpéditeur,
 } from "./messages.js";
@@ -112,6 +115,12 @@ export type InfosPair = {
   idDispositif?: string;
   idCompte?: string;
 };
+
+export type InfosComplètesPair = Required<InfosPair>;
+
+export const estInfosComplètesPair = (
+  pair: InfosPair,
+): pair is InfosComplètesPair => Boolean(pair.idCompte && pair.idDispositif);
 
 // Constantes
 
@@ -282,6 +291,30 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       });
     };
 
+    const traiterInfosPairs = async ({
+      message,
+    }: {
+      message: MessageInfosPairs;
+    }) => {
+      for (const info of message.pairs) {
+        const { idPair, idDispositif, idCompte } = info;
+
+        await libp2p.peerStore.merge(peerIdFromString(idPair), {
+          metadata: {
+            idDispositif: new TextEncoder().encode(idDispositif),
+            idCompte: new TextEncoder().encode(idCompte),
+          },
+        });
+        // libp2p.addEventListener("peer:update") ne semble pas fonctionner pour une modification locale
+        // ...donc on utilise notre propre gestionnaire d'événements
+        this.événements.emit(ÉVÉNEMENTS.IDENTIFICATION_COMPTE, {
+          idCompte,
+          idDispositif,
+          idPair,
+        });
+      }
+    };
+
     await libp2p
       .handle(
         PROTOCOLE_NÉBULEUSE,
@@ -306,6 +339,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
               if (message.type === IDENTITÉ_COMPTE) {
                 await traiterIdentitéCompte({ message, idPair });
+              } else if (message.type === INFO_PAIRS) {
+                await traiterInfosPairs({ message });
               }
               this.événements.emit(ÉVÉNEMENTS.MESSAGE_RÉSEAU, {
                 message,
@@ -332,6 +367,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       });
 
     const envoyerMesIdentifiants = this.envoyerMesIdentifiants.bind(this);
+    const envoyerPairsHorsLigne = this.envoyerPairsHorsLigne.bind(this);
 
     const salués = peerSet();
     // github.com/libp2p/js-libp2p-example-protocol-and-stream-muxing/commit/a9a393336f60a6b093e2d8ec7f9daab9fbdcd693
@@ -347,6 +383,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             await envoyerMesIdentifiants({
               idPair: peerId.toString(),
             });
+
+            await envoyerPairsHorsLigne({ idPair: peerId.toString() });
           },
           notifyOnLimitedConnection: true,
         },
@@ -525,6 +563,28 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     await this.envoyerMessageAuPair({
       idPair,
       message: identifiantsCompte,
+    });
+  }
+
+  async envoyerPairsHorsLigne({ idPair }: { idPair: string }) {
+    const pairs = await uneFois<InfosPair[]>((fSuivi) =>
+      this.suivreInfosPairs({ f: fSuivi }),
+    );
+    const connexions = await uneFois<ConnexionCompte[]>((fSuivi) =>
+      this.suivreConnexionsComptes({ f: fSuivi }),
+    );
+
+    const comptesHorsLigne = pairs
+      .filter((p) => estInfosComplètesPair(p))
+      .filter((p) => !connexions.find((c) => c.idCompte === p.idCompte));
+    const infosPairs: MessageInfosPairs = {
+      type: INFO_PAIRS,
+      pairs: comptesHorsLigne,
+    };
+
+    await this.envoyerMessageAuPair({
+      idPair,
+      message: infosPairs,
     });
   }
 

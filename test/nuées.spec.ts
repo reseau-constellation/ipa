@@ -2130,7 +2130,7 @@ describe("Nuées", function () {
       });
     });
 
-    describe.skip("transmission données", function () {
+    describe("transmission données", function () {
       let fermerConstlTest: Oublier;
       let constlsTest: Constellation[];
 
