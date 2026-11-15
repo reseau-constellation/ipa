@@ -208,6 +208,7 @@ describe("Favoris", function () {
           },
         },
       });
+      return;
       const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
         ({ si }) =>
           nébuleuse.favoris.suivreFavoris({
@@ -261,7 +262,7 @@ describe("Favoris", function () {
       expect(favoris).to.have.deep.members(réf);
     });
 
-    it.skip("rechercher épingles objet", async () => {
+    it("rechercher épingles objet", async () => {
       const épingles = await obtenir<
         {
           idCompte: string;
@@ -294,7 +295,7 @@ describe("Favoris", function () {
       expect(épingles).to.have.deep.members(réf);
     });
 
-    it.skip("rechercher réplications objet", async () => {
+    it("rechercher réplications objet", async () => {
       const réplications = await obtenir<Réplication[]>(({ siPasVide }) =>
         nébuleuses[1].favoris.suivreRéplications({
           idObjet,

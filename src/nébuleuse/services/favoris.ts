@@ -4,7 +4,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
 import { enleverPréfixes } from "@/utils.js";
-import { cacheRechercheParN, cacheSuivi } from "../cache.js";
+import { cacheSuivi } from "../cache.js";
 import { STATUTS } from "../appli/consts.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
@@ -509,19 +509,21 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
             }),
         }),
       f: async (
-        épingles: { idCompte: string; épingle?: ÉpingleFavorisAvecId }[],
+        épingles: { idCompte: string; favoris?: ÉpingleFavorisAvecId }[],
       ) => {
         return await f(
-          épingles.filter(
-            (x): x is { idCompte: string; épingle: ÉpingleFavorisAvecId } =>
-              !!x.épingle,
-          ),
+          épingles
+            .filter(
+              (x): x is { idCompte: string; favoris: ÉpingleFavorisAvecId } =>
+                !!x.favoris,
+            )
+            .map((x) => ({ idCompte: x.idCompte, épingle: x.favoris })),
         );
       },
     });
   }
 
-  @cacheRechercheParN
+  @cacheSuivi
   async suivreRéplications({
     idObjet,
     f,
@@ -544,12 +546,13 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
         fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
           await réseau.suivreDispositifsCompte({
             idCompte,
-            f: async (dispositifs) =>
+            f: async (dispositifs) => {
               await fSuivreRacine(
                 dispositifs
                   .filter((d) => d.statut === "accepté")
                   .map((d) => d.idDispositif),
-              ),
+              );
+            },
           }),
         fBranche: async ({
           id: idDispositif,
@@ -557,15 +560,18 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
         }: {
           id: string;
           fSuivreBranche: Suivi<Réplication | undefined>;
-        }) =>
+        }) => {
           await this.suivreEstÉpingléSurDispositif({
             idObjet,
-            f: async (épingle) =>
+            f: async (épingle) => {
               await fSuivreBranche(
                 épingle ? { idDispositif, épingle } : undefined,
-              ),
+              );
+            },
             idDispositif,
-          }),
+            idCompte,
+          });
+        },
         f,
       });
     };
@@ -587,9 +593,15 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
       }: {
         id: string;
         fSuivreBranche: Suivi<Réplication[] | undefined>;
-      }) =>
-        await suivreÉpinglesCompte({ idCompte, idObjet, f: fSuivreBranche }),
+      }) => {
+        return await suivreÉpinglesCompte({
+          idCompte,
+          idObjet,
+          f: fSuivreBranche,
+        });
+      },
       f,
+      fIdDeBranche: (x) => x.idCompte,
     });
   }
 
@@ -628,14 +640,18 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     idObjet,
     f,
     idDispositif,
+    idCompte,
   }: {
     idObjet: string;
     f: Suivi<BooléenniserÉpingle<ÉpingleFavoris> | undefined>;
-    idDispositif?: string;
+    idDispositif: string;
+    idCompte?: string;
   }): Promise<Oublier> {
     return await this.suivreBd({
       f: async (favoris) => {
-        const favorisObjet = favoris?.[idObjet];
+        const favorisObjet = Object.values(favoris || {}).find(
+          (fav) => fav?.idObjet === idObjet,
+        );
         if (
           typeÉpinglePrésent(favorisObjet?.épingle) &&
           favorisObjet.épingle.épingle
@@ -649,6 +665,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
           });
         else await f(undefined);
       },
+      idCompte,
     });
   }
 

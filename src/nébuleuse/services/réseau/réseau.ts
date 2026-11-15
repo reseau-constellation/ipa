@@ -329,7 +329,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
             idPair,
           });
         } catch {
-          continue
+          continue;
         }
       }
     };
