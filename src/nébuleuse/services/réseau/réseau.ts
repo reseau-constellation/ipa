@@ -670,15 +670,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }): Promise<Oublier> {
     const libp2pÀDispositif = (
       connexionsLibp2p: ConnexionLibp2p[],
-      infosPairs: {
-        idCompte?: string;
-        idDispositif?: string;
-        idPair: string;
-      }[],
+      infosPairs: InfosPair[],
     ): ConnexionDispositif[] => {
       const connexions: ConnexionDispositif[] = [];
       for (const connexionLibp2p of connexionsLibp2p) {
-        const { idDispositif } =
+        const { infos: { idDispositif } = {} } =
           infosPairs.find(({ idPair }) => idPair === connexionLibp2p.pair) ||
           {};
         if (idDispositif)
@@ -688,11 +684,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     };
     const info: {
       connexions?: ConnexionLibp2p[];
-      infosPairs?: {
-        idCompte?: string;
-        idDispositif?: string;
-        idPair: string;
-      }[];
+      infosPairs?: InfosPair[];
     } = {};
     const fFinale = async () => {
       const { infosPairs, connexions } = info;
