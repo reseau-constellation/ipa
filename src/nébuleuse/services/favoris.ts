@@ -649,7 +649,8 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   }): Promise<Oublier> {
     return await this.suivreBd({
       f: async (favoris) => {
-        // À faire : utiliser `filter` à la place et combiner les résultats // eslint-disable-line no-irregular-whitespace
+        // eslint-disable-next-line no-irregular-whitespace
+        // À faire : utiliser `filter` à la place et combiner les résultats
         const favorisObjet = Object.values(favoris || {}).find(
           (fav) => fav?.idObjet === idObjet,
         );
