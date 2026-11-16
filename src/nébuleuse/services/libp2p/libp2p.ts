@@ -100,6 +100,9 @@ export class ServiceLibp2p<
         x.detail.streams.map((s) => s.protocol),
       );
     });*/
+    libp2p.addEventListener("peer:discovery", async ({ detail: { id, multiaddrs } }) => {
+      console.log("découverte pair", id.toString(), multiaddrs.map(m=>m.toString()))
+    })
     libp2p.addEventListener("peer:update", async (x) => {
       const anciennesAdresses = JSON.stringify(
         x.detail.peer.addresses.map((a) => a.multiaddr.toString()),

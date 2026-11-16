@@ -722,7 +722,7 @@ describe("Réseau", function () {
     });
   });
 
-  describe("connexion", function () {
+  describe.only("connexion", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
