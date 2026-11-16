@@ -36,7 +36,7 @@ import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/nébuleuse/nébuleuse.js";
 
-describe.only("Réseau", function () {
+describe("Réseau", function () {
   describe("suivre connexions", function () {
     let nébuleuses: NébuleuseTest<Record<string, never>, ServicesAppli>[];
     let fermer: Oublier;
