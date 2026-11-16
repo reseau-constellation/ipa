@@ -111,14 +111,12 @@ export class ServiceLibp2p<
         x.detail.previous?.addresses.map((a) => a.multiaddr.toString()),
       );
       if (anciennesAdresses !== nouvellesAdresses) {
-        /**
          console.log(
            "peer:update",
            "de",
            idLibp2p.slice(-10),
            x.detail.peer.addresses.map((a) => a.multiaddr.toString()),
          );
-         */
       }
     });
     libp2p.addEventListener("peer:disconnect", async ({ detail: idPair }) => {
