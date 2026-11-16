@@ -73,7 +73,8 @@ export class ServiceLibp2p<
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           try {
             libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
-          } catch {
+          } catch (e) {
+            console.log("erreur libp2p.dial", e)
             // Tant pis...
           }
         }
