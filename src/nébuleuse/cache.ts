@@ -392,7 +392,7 @@ export class CacheSuivi {
     const { requêtes, fs } = this.recherches.get(codeCache) || {};
     if (!requêtes || !fs)
       throw new Error(
-        `Erreur de syncronisation dans oublie de cache pour ${codeCache}.`,
+        `Erreur de syncronisation dans oublie de recherche pour ${codeCache}.`,
       );
 
     const { promesses } = requêtes.get(idRequête) || {};
