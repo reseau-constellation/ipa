@@ -649,7 +649,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
   }): Promise<Oublier> {
     return await this.suivreBd({
       f: async (favoris) => {
-        // À faire : utiliser `filter` à la place et combiner les résultats
+        // À faire : utiliser `filter` à la place et combiner les résultats // eslint-disable-line no-irregular-whitespace
         const favorisObjet = Object.values(favoris || {}).find(
           (fav) => fav?.idObjet === idObjet,
         );
