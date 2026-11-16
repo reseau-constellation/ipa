@@ -36,7 +36,7 @@ import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/nébuleuse/types.js";
 import type { Nébuleuse, ServicesNébuleuse } from "@/nébuleuse/nébuleuse.js";
 
-describe("Réseau", function () {
+describe.only("Réseau", function () {
   describe("suivre connexions", function () {
     let nébuleuses: NébuleuseTest<Record<string, never>, ServicesAppli>[];
     let fermer: Oublier;
@@ -722,7 +722,7 @@ describe("Réseau", function () {
     });
   });
 
-  describe.only("connexion", function () {
+  describe("connexion", function () {
     let nébuleuses: NébuleuseTest[];
     let fermer: Oublier;
 
