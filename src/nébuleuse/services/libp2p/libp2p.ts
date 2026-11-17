@@ -66,10 +66,11 @@ export class ServiceLibp2p<
     const libp2p = (await this.service("hélia").hélia()).libp2p;
 
     // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
+    const monId = libp2p.peerId.toString()
     const reconnecter = async () => {
       const pairsConnus = await libp2p.peerStore.all();
       const connexions = libp2p.getPeers().map((p) => p.toString());
-      console.log({ pairsConnus: pairsConnus.map(p=>p.id.toString()), connexions })
+      console.log({ pairsConnus: pairsConnus.map(p=>p.id.toString()), connexions, monId })
       for (const connu of pairsConnus) {
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           try {
