@@ -69,6 +69,7 @@ export class ServiceLibp2p<
     const reconnecter = async () => {
       const pairsConnus = await libp2p.peerStore.all();
       const connexions = libp2p.getPeers().map((p) => p.toString());
+      console.log({ pairsConnus: pairsConnus.map(p=>p.id.toString()), connexions })
       for (const connu of pairsConnus) {
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           try {
