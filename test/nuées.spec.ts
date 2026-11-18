@@ -1619,11 +1619,9 @@ describe("Nuées", function () {
 
   describe("bds", function () {
     let idNuée: string;
-    let idBd: string;
 
     beforeEach(async () => {
       idNuée = await constl.nuées.créerNuée();
-      idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
     });
 
     it("aucune bd pour commencer", async () => {
@@ -1635,6 +1633,7 @@ describe("Nuées", function () {
     });
 
     it("nouvelle bd détectée", async () => {
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       await constl.bds.rejoindreNuée({ idBd, idNuée });
 
       const bds = await obtenir<string[]>(({ siPasVide }) =>
@@ -1644,7 +1643,8 @@ describe("Nuées", function () {
     });
 
     it("bd exclue si pas autorisée", async () => {
-      await constl.bds.rejoindreNuée({ idBd, idNuée });
+      const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
+      await constls[1].bds.rejoindreNuée({ idBd, idNuée });
 
       await obtenir(({ siPasVide }) =>
         constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
@@ -1681,6 +1681,7 @@ describe("Nuées", function () {
     });
 
     it("filtres - par licence", async () => {
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       await constl.bds.rejoindreNuée({ idBd, idNuée });
       await obtenir(({ siPasVide }) =>
         constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
@@ -1701,6 +1702,7 @@ describe("Nuées", function () {
     });
 
     it("filtres - ignorer autorisation", async () => {
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       await constl.bds.rejoindreNuée({ idBd, idNuée });
       await obtenir(({ siPasVide }) =>
         constl.nuées.suivreBds({ idNuée, f: siPasVide() }),
@@ -1747,6 +1749,7 @@ describe("Nuées", function () {
     });
 
     it("filtres - toujours inclure mes données même avec nuée indisponible", async () => {
+      const idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
       const idNuéeIndisponible =
         "/constl/nuées/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
       await constl.bds.rejoindreNuée({ idBd, idNuée: idNuéeIndisponible });
