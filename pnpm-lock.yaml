@@ -169,7 +169,7 @@ overrides:
 
 patchedDependencies:
   '@constl/utils-ipa': f8a071adf35e3a8f14d2548cc6e3d6fa38d3b9af0fec720ec2ebeb9ca57293a4
-  '@constl/utils-tests': 5e588f6cc0fa3d7acad2d206d767504010aaa50157e07d3aacd227955903594b
+  '@constl/utils-tests': 3a0c97962105a6e46eda0f088a824813c6c697afc463b1a807d214946f31c379
   '@libp2p/gossipsub': e30a1c3529f881bbafb052b5951233c6310d8d9284165bf13c0ef0faad6d501b
   '@orbitdb/core': 9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053
 
@@ -471,7 +471,7 @@ importers:
     devDependencies:
       '@constl/utils-tests':
         specifier: ^2.2.11
-        version: 2.2.11(patch_hash=5e588f6cc0fa3d7acad2d206d767504010aaa50157e07d3aacd227955903594b)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
+        version: 2.2.11(patch_hash=3a0c97962105a6e46eda0f088a824813c6c697afc463b1a807d214946f31c379)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@9.39.5(supports-color@10.2.2))
@@ -9382,7 +9382,7 @@ snapshots:
       uint8arrays: 6.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@2.2.11(patch_hash=5e588f6cc0fa3d7acad2d206d767504010aaa50157e07d3aacd227955903594b)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)':
+  '@constl/utils-tests@2.2.11(patch_hash=3a0c97962105a6e46eda0f088a824813c6c697afc463b1a807d214946f31c379)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
       '@helia/bitswap': 4.0.20(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
       '@helia/libp2p': 2.1.5(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
