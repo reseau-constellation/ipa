@@ -356,14 +356,14 @@ export class CacheSuivi {
     codeCache: string;
     idRequête: string;
   }) {
-    const { requêtes, oublier } = this.suivis.get(codeCache) || {};
-    if (!requêtes || !oublier)
+    const suivis = this.suivis.get(codeCache);
+    if (!suivis?.requêtes)
       throw new Error(
         `Erreur de syncronisation dans oublie de cache pour ${codeCache}.`,
       );
+    const { requêtes } = suivis;
 
     const { promesses } = requêtes.get(idRequête) || {};
-
     if (promesses) await Promise.allSettled(promesses);
 
     if (requêtes.size === 1) {
@@ -371,6 +371,11 @@ export class CacheSuivi {
         await this.verrou.acquire(codeCache);
         requêtes.delete(idRequête);
         if (!requêtes.size) {
+          const { oublier } = suivis;
+          if (!oublier)
+            throw new Error(
+              `Erreur de syncronisation dans oublie de cache pour ${codeCache}.`,
+            );
           this.suivis.delete(codeCache);
           await oublier();
         }
@@ -389,8 +394,8 @@ export class CacheSuivi {
     codeCache: string;
     idRequête: string;
   }) {
-    const { requêtes, fs } = this.recherches.get(codeCache) || {};
-    if (!requêtes || !fs)
+    const { requêtes } = this.recherches.get(codeCache) || {};
+    if (!requêtes)
       throw new Error(
         `Erreur de syncronisation dans oublie de recherche pour ${codeCache}.`,
       );
@@ -403,7 +408,12 @@ export class CacheSuivi {
         await this.verrou.acquire(codeCache);
         requêtes.delete(idRequête);
         if (!requêtes.size) {
+          const { fs } = this.recherches.get(codeCache) || {};
           this.recherches.delete(codeCache);
+          if (!fs)
+            throw new Error(
+              `Erreur de syncronisation dans oublie de recherche pour ${codeCache}.`,
+            );
           await fs.oublier();
         }
       } finally {
