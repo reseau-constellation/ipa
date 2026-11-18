@@ -160,7 +160,6 @@ describe("Favoris", function () {
         }),
       );
       expect([...résolus]).to.have.members([enleverPréfixes(idObjet)]);
-      console.log(JSON.stringify(erreurs, undefined, 2))
       expect(erreurs).to.include(
         "Résolveur pour épingle de type INEXISTANTE non disponible. Cet objet ne sera probablement pas épinglé au complet.\n",
       );
