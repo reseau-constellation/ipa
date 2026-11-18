@@ -225,8 +225,8 @@ export const obtenir = async <T>(
       fOublier().then(() => compléter(résultatExistant.val));
     } else {
       événements.once("résolu", async (x) => {
-        await fOublier();
-        compléter(x);
+        // On rend la valeur retrouvée même si on a eu une erreur dans la fonction d'oubli.
+        await fOublier().finally(() => compléter(x));
       });
     }
   });
