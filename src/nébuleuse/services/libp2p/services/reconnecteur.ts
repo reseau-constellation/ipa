@@ -65,9 +65,7 @@ export class Reconnecteur implements Startable {
         this.components.connectionManager.getConnectionsMap();
 
       for (const pair of this.liste) {
-        console.log("considération de", pair.id.toString())
         if (connectionsPairs.has(pair.id)) continue;
-        console.log("on va se connecter à", pair.id.toString())
         this.components.connectionManager
           .openConnection(pair.id)
           .catch((err) => {

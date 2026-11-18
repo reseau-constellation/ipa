@@ -390,7 +390,6 @@ describe("Service Orbite", function () {
           journal: serviceJournal({
             f: (m) => {
               erreurs.push(m);
-              console.log(m);
             },
           }),
           libp2p: serviceLibp2p(),
