@@ -23,5 +23,6 @@ overrides:
 
 patchedDependencies:
   '@constl/utils-ipa': patches/@constl__utils-ipa.patch
+  '@constl/utils-tests': patches/@constl__utils-tests.patch
   '@libp2p/gossipsub': patches/@libp2p__gossipsub.patch
   '@orbitdb/core': patches/@orbitdb__core.patch
