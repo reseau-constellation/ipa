@@ -48,11 +48,13 @@ export type DispositifsÉpingle =
   | typeof DISPOSITIFS_INSTALLÉS
   | typeof AUCUN_DISPOSITIF;
 
-export type ÉpingleFavoris<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> =
-  {
-    type: string;
-    épingle: PartielRécursif<T>;
-  };
+export type ÉpingleFavoris<
+  T extends BaseÉpingleFavoris = BaseÉpingleFavoris,
+  U extends string = string,
+> = {
+  type: U;
+  épingle: PartielRécursif<T>;
+};
 
 export type BaseÉpingleFavoris = {
   base: DispositifsÉpingle;
@@ -60,9 +62,10 @@ export type BaseÉpingleFavoris = {
 
 export type ÉpingleFavorisAvecId<
   T extends BaseÉpingleFavoris = BaseÉpingleFavoris,
+  U extends string = string,
 > = {
   idObjet: string;
-  épingle: ÉpingleFavoris<T>;
+  épingle: ÉpingleFavoris<T, U>;
 };
 
 export type BooléenniserÉpingle<T extends ÉpingleFavoris> = {
@@ -89,13 +92,24 @@ export type BooléenniserPropriétés<T extends object> = {
     : boolean;
 };
 
+export const estÉpingleDeType = <T extends string>(
+  épingle: ÉpingleFavorisAvecId,
+  type: T,
+): épingle is ÉpingleFavorisAvecId<BaseÉpingleFavoris, T> =>
+  épingle.épingle.type === type;
+
 export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
   épingle: PartielRécursif<T>,
   défauts: T,
 ): T => {
   const copieDéfauts = structuredClone(défauts);
   for (const [clef, val] of Object.entries(épingle)) {
-    if (typeof val === "string" || Array.isArray(val)) {
+    // On permet des épingles originales ou booléennisées
+    if (
+      typeof val === "string" ||
+      Array.isArray(val) ||
+      typeof val === "boolean"
+    ) {
       copieDéfauts[clef as keyof T] = val as T[keyof T];
     } else {
       copieDéfauts[clef as keyof T] = résoudreDéfauts(
@@ -353,12 +367,12 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     this.résolveurs.delete(clef);
   }
 
-  async suivreRésolutionÉpingle({
+  async suivreRésolutionÉpingle<T extends ÉpingleFavorisAvecId>({
     épingle,
     f,
     ignorer,
   }: {
-    épingle: ÉpingleFavorisAvecId;
+    épingle: T;
     f: Suivi<Set<string>>;
     ignorer?: Set<string>;
   }): Promise<Oublier> {
@@ -371,7 +385,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     if (!résolveur) {
       const journal = this.service("journal");
       await journal.écrire({
-        message: `Résolveur pour épingle de type ${épingle.épingle.type} non disponible. Cet objet ne sera probablement pas épinglé.`,
+        message: `Résolveur pour épingle de type ${épingle.épingle.type} non disponible. Cet objet ne sera probablement pas épinglé au complet.`,
       });
 
       // On épingle la racine de l'objet ; c'est tout ce qu'on peut faire dans ce cas.
@@ -413,7 +427,8 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
     };
     const clef = idObjetÀClef(idObjet);
     const existant = await bd.get(clef);
-    if (!deepEqual(existant, épingle)) await bd.put(clef, épingleAvecIdObjet);
+    if (!deepEqual(existant, épingleAvecIdObjet))
+      await bd.put(clef, épingleAvecIdObjet);
   }
 
   async désépinglerFavori({ idObjet }: { idObjet: string }): Promise<void> {

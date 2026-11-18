@@ -9,6 +9,7 @@ import {
   MODÉRATRICE,
 } from "@/nébuleuse/services/compte/accès/index.js";
 import {
+  AUCUN_DISPOSITIF,
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
 } from "@/nébuleuse/services/favoris.js";
@@ -1134,13 +1135,10 @@ describe("Nuées", function () {
         épingle: {
           base: TOUS_DISPOSITIFS,
           bds: {
-            type: "bds",
-            épingle: {
-              base: TOUS_DISPOSITIFS,
-              données: {
-                tableaux: TOUS_DISPOSITIFS,
-                fichiers: DISPOSITIFS_INSTALLÉS,
-              },
+            base: TOUS_DISPOSITIFS,
+            données: {
+              tableaux: TOUS_DISPOSITIFS,
+              fichiers: DISPOSITIFS_INSTALLÉS,
             },
           },
         },
@@ -1181,13 +1179,10 @@ describe("Nuées", function () {
         épingle: {
           base: TOUS_DISPOSITIFS,
           bds: {
-            type: "bds",
-            épingle: {
-              base: TOUS_DISPOSITIFS,
-              données: {
-                tableaux: TOUS_DISPOSITIFS,
-                fichiers: DISPOSITIFS_INSTALLÉS,
-              },
+            base: TOUS_DISPOSITIFS,
+            données: {
+              tableaux: TOUS_DISPOSITIFS,
+              fichiers: DISPOSITIFS_INSTALLÉS,
             },
           },
         },
@@ -1198,12 +1193,12 @@ describe("Nuées", function () {
     it("résoudre épingle - base", async () => {
       const idNuée = await constl.nuées.créerNuée();
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        constl.nuées.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNuée,
             épingle: {
               type: "nuées",
-              épingle: { base: true },
+              épingle: { base: TOUS_DISPOSITIFS },
             },
           },
           f: si((x) => !!x && x.size > 0),
@@ -1227,20 +1222,17 @@ describe("Nuées", function () {
       await constl.bds.rejoindreNuée({ idBd, idNuée });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        constl.nuées.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNuée,
             épingle: {
               type: "nuées",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
                 bds: {
-                  type: "bds",
-                  épingle: {
-                    base: true,
-                    données: {
-                      tableaux: true,
-                    },
+                  base: TOUS_DISPOSITIFS,
+                  données: {
+                    tableaux: TOUS_DISPOSITIFS,
                   },
                 },
               },
@@ -1257,20 +1249,17 @@ describe("Nuées", function () {
       ]);
 
       const résolutionSansTableaux = await obtenir<Set<string>>(({ si }) =>
-        constl.nuées.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNuée,
             épingle: {
               type: "nuées",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
                 bds: {
-                  type: "bds",
-                  épingle: {
-                    base: true,
-                    données: {
-                      tableaux: false,
-                    },
+                  base: TOUS_DISPOSITIFS,
+                  données: {
+                    tableaux: AUCUN_DISPOSITIF,
                   },
                 },
               },
@@ -1318,21 +1307,18 @@ describe("Nuées", function () {
       });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        constl.nuées.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNuée,
             épingle: {
               type: "nuées",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
                 bds: {
-                  type: "bds",
-                  épingle: {
-                    base: true,
-                    données: {
-                      tableaux: true,
-                      fichiers: true,
-                    },
+                  base: TOUS_DISPOSITIFS,
+                  données: {
+                    tableaux: TOUS_DISPOSITIFS,
+                    fichiers: TOUS_DISPOSITIFS,
                   },
                 },
               },
@@ -1349,21 +1335,18 @@ describe("Nuées", function () {
       ]);
 
       const résolutionSansFichers = await obtenir<Set<string>>(({ si }) =>
-        constl.nuées.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNuée,
             épingle: {
               type: "nuées",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
                 bds: {
-                  type: "bds",
-                  épingle: {
-                    base: true,
-                    données: {
-                      tableaux: true,
-                      fichiers: false,
-                    },
+                  base: TOUS_DISPOSITIFS,
+                  données: {
+                    tableaux: TOUS_DISPOSITIFS,
+                    fichiers: AUCUN_DISPOSITIF,
                   },
                 },
               },
@@ -1380,18 +1363,15 @@ describe("Nuées", function () {
 
       const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(
         ({ si }) =>
-          constl.nuées.suivreRésolutionÉpingle({
+          constl.favoris.suivreRésolutionÉpingle({
             épingle: {
               idObjet: idNuée,
               épingle: {
                 type: "nuées",
                 épingle: {
-                  base: true,
+                  base: TOUS_DISPOSITIFS,
                   bds: {
-                    type: "bds",
-                    épingle: {
-                      base: true,
-                    },
+                    base: TOUS_DISPOSITIFS,
                   },
                 },
               },
@@ -1410,12 +1390,12 @@ describe("Nuées", function () {
       const idNuée = await constl.nuées.créerNuée({ parent: idParent });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        constl.nuées.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNuée,
             épingle: {
               type: "nuées",
-              épingle: { base: true },
+              épingle: { base: TOUS_DISPOSITIFS },
             },
           },
           f: si((x) => !!x && x.size > 1),

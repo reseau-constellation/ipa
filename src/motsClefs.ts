@@ -1,7 +1,6 @@
-import { faisRien } from "@constl/utils-ipa";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import {
-  TOUS_DISPOSITIFS,
+  estÉpingleDeType,
   résoudreDéfauts,
 } from "./nébuleuse/services/favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
@@ -13,11 +12,7 @@ import type { ServicesNécessairesRechercheMotsClefs } from "./recherche/fonctio
 import type { ServicesNécessairesObjet } from "./objets.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
-import type {
-  BaseÉpingleFavoris,
-  ÉpingleFavorisAvecId,
-  ÉpingleFavorisBooléenniséeAvecId,
-} from "./nébuleuse/services/favoris.js";
+import type { BaseÉpingleFavoris } from "./nébuleuse/services/favoris.js";
 import type {
   InfoAuteur,
   PartielRécursif,
@@ -245,14 +240,10 @@ export class MotsClefs extends ObjetConstellation<
     idMotClef: string;
     options?: PartielRécursif<ContenuÉpingleMotClef>;
   }) {
-    const épingle: ContenuÉpingleMotClef = résoudreDéfauts(options, {
-      base: TOUS_DISPOSITIFS,
-    });
-
     const favoris = this.service("favoris");
     await favoris.épinglerFavori({
       idObjet: idMotClef,
-      épingle: { type: this.clef, épingle },
+      épingle: { type: this.clef, épingle: options },
     });
   }
 
@@ -270,12 +261,24 @@ export class MotsClefs extends ObjetConstellation<
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleMotClef = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idMotClef && épingle.type === this.clef
-            ? épingle
-            : undefined;
-        }) as ÉpingleFavorisAvecId<ContenuÉpingleMotClef> | undefined;
-        await f(épingleMotClef?.épingle as ÉpingleMotClef);
+        const épingleMotClef = épingles?.find(
+          (épingle) =>
+            estÉpingleDeType(épingle, this.clef) &&
+            épingle.idObjet === idMotClef,
+        );
+
+        if (épingleMotClef) {
+          const avecDéfauts = résoudreDéfauts<ContenuÉpingleMotClef>(
+            épingleMotClef.épingle.épingle || {},
+            this.défautsÉpingle,
+          );
+          await f({
+            type: "motsClefs",
+            épingle: avecDéfauts,
+          });
+        } else {
+          await f(undefined);
+        }
       },
     });
   }
@@ -284,22 +287,6 @@ export class MotsClefs extends ObjetConstellation<
     const favoris = this.service("favoris");
 
     await favoris.désépinglerFavori({ idObjet: idMotClef });
-  }
-
-  async suivreRésolutionÉpingle({
-    épingle,
-    f,
-  }: {
-    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleMotClef>;
-    f: Suivi<Set<string>>;
-  }): Promise<Oublier> {
-    await f(
-      new Set(
-        épingle.épingle.épingle.base ? [this.àIdOrbite(épingle.idObjet)] : [],
-      ),
-    );
-
-    return faisRien;
   }
 
   // Noms

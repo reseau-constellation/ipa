@@ -1,9 +1,8 @@
-import { faisRien } from "@constl/utils-ipa";
 import { v4 as uuidv4 } from "uuid";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import {
-  TOUS_DISPOSITIFS,
+  estÉpingleDeType,
   résoudreDéfauts,
 } from "./nébuleuse/services/favoris.js";
 import { RechercheVariables } from "./recherche/variables.js";
@@ -20,11 +19,7 @@ import type {
   TraducsTexte,
 } from "./types.js";
 import type { Oublier, Suivi } from "./nébuleuse/types.js";
-import type {
-  BaseÉpingleFavoris,
-  ÉpingleFavorisAvecId,
-  ÉpingleFavorisBooléenniséeAvecId,
-} from "./nébuleuse/services/favoris.js";
+import type { BaseÉpingleFavoris } from "./nébuleuse/services/favoris.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type {
@@ -373,13 +368,10 @@ export class Variables extends ObjetConstellation<
     idVariable: string;
     options?: PartielRécursif<ContenuÉpingleVariable>;
   }) {
-    const épingle: ContenuÉpingleVariable = résoudreDéfauts(options, {
-      base: TOUS_DISPOSITIFS,
-    });
     const favoris = this.service("favoris");
     await favoris.épinglerFavori({
       idObjet: idVariable,
-      épingle: { type: "variables", épingle },
+      épingle: { type: "variables", épingle: options },
     });
   }
 
@@ -397,10 +389,24 @@ export class Variables extends ObjetConstellation<
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleVariable = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idVariable && épingle.type === this.clef;
-        }) as ÉpingleFavorisAvecId<ContenuÉpingleVariable> | undefined;
-        await f(épingleVariable?.épingle as ÉpingleVariable);
+        const épingleVariable = épingles?.find(
+          (épingle) =>
+            estÉpingleDeType(épingle, this.clef) &&
+            épingle.idObjet === idVariable,
+        );
+
+        if (épingleVariable) {
+          const avecDéfauts = résoudreDéfauts<ContenuÉpingleVariable>(
+            épingleVariable.épingle.épingle || {},
+            this.défautsÉpingle,
+          );
+          await f({
+            type: "variables",
+            épingle: avecDéfauts,
+          });
+        } else {
+          await f(undefined);
+        }
       },
     });
   }
@@ -409,22 +415,6 @@ export class Variables extends ObjetConstellation<
     const favoris = this.service("favoris");
 
     await favoris.désépinglerFavori({ idObjet: idVariable });
-  }
-
-  async suivreRésolutionÉpingle({
-    épingle,
-    f,
-  }: {
-    épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleVariable>;
-    f: Suivi<Set<string>>;
-  }): Promise<Oublier> {
-    await f(
-      new Set(
-        épingle.épingle.épingle.base ? [this.àIdOrbite(épingle.idObjet)] : [],
-      ),
-    );
-
-    return faisRien;
   }
 
   // Noms

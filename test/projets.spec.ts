@@ -11,6 +11,7 @@ import {
 import {
   TOUS_DISPOSITIFS,
   DISPOSITIFS_INSTALLÉS,
+  AUCUN_DISPOSITIF,
 } from "@/nébuleuse/services/favoris.js";
 import { enleverPréfixes, enleverPréfixesEtOrbite } from "@/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
@@ -639,13 +640,10 @@ describe("Projets", function () {
         épingle: {
           base: TOUS_DISPOSITIFS,
           bds: {
-            type: "bds",
-            épingle: {
-              base: TOUS_DISPOSITIFS,
-              données: {
-                tableaux: TOUS_DISPOSITIFS,
-                fichiers: DISPOSITIFS_INSTALLÉS,
-              },
+            base: TOUS_DISPOSITIFS,
+            données: {
+              tableaux: TOUS_DISPOSITIFS,
+              fichiers: DISPOSITIFS_INSTALLÉS,
             },
           },
         },
@@ -677,13 +675,10 @@ describe("Projets", function () {
         épingle: {
           base: TOUS_DISPOSITIFS,
           bds: {
-            type: "bds",
-            épingle: {
-              base: TOUS_DISPOSITIFS,
-              données: {
-                tableaux: TOUS_DISPOSITIFS,
-                fichiers: DISPOSITIFS_INSTALLÉS,
-              },
+            base: TOUS_DISPOSITIFS,
+            données: {
+              tableaux: TOUS_DISPOSITIFS,
+              fichiers: DISPOSITIFS_INSTALLÉS,
             },
           },
         },
@@ -693,16 +688,16 @@ describe("Projets", function () {
 
     it("résoudre épingle - base", async () => {
       const idProjet = await constl.projets.créerProjet();
-      const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
-        constl.projets.suivreRésolutionÉpingle({
+      const résolution = await obtenir<Set<string>>(({ siPasVide }) =>
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idProjet,
             épingle: {
               type: "projets",
-              épingle: { base: true },
+              épingle: { base: TOUS_DISPOSITIFS },
             },
           },
-          f: siDéfini(),
+          f: siPasVide(),
         }),
       );
       expect([...résolution]).to.have.members([enleverPréfixes(idProjet)]);
@@ -722,20 +717,17 @@ describe("Projets", function () {
       });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        constl.projets.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idProjet,
             épingle: {
               type: "projets",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
                 bds: {
-                  type: "bds",
-                  épingle: {
-                    base: true,
-                    données: {
-                      tableaux: true,
-                    },
+                  base: TOUS_DISPOSITIFS,
+                  données: {
+                    tableaux: TOUS_DISPOSITIFS,
                   },
                 },
               },
@@ -751,20 +743,17 @@ describe("Projets", function () {
       ]);
 
       const résolutionSansTableaux = await obtenir<Set<string>>(({ si }) =>
-        constl.projets.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idProjet,
             épingle: {
               type: "projets",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
                 bds: {
-                  type: "bds",
-                  épingle: {
-                    base: true,
-                    données: {
-                      tableaux: false,
-                    },
+                  base: TOUS_DISPOSITIFS,
+                  données: {
+                    tableaux: AUCUN_DISPOSITIF,
                   },
                 },
               },
@@ -808,21 +797,18 @@ describe("Projets", function () {
       });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        constl.projets.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idProjet,
             épingle: {
               type: "projets",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
                 bds: {
-                  type: "bds",
-                  épingle: {
-                    base: true,
-                    données: {
-                      tableaux: true,
-                      fichiers: true,
-                    },
+                  base: TOUS_DISPOSITIFS,
+                  données: {
+                    tableaux: TOUS_DISPOSITIFS,
+                    fichiers: TOUS_DISPOSITIFS,
                   },
                 },
               },
@@ -839,21 +825,18 @@ describe("Projets", function () {
       ]);
 
       const résolutionSansFichers = await obtenir<Set<string>>(({ si }) =>
-        constl.projets.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idProjet,
             épingle: {
               type: "projets",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
                 bds: {
-                  type: "bds",
-                  épingle: {
-                    base: true,
-                    données: {
-                      tableaux: true,
-                      fichiers: false,
-                    },
+                  base: TOUS_DISPOSITIFS,
+                  données: {
+                    tableaux: TOUS_DISPOSITIFS,
+                    fichiers: AUCUN_DISPOSITIF,
                   },
                 },
               },
@@ -869,18 +852,15 @@ describe("Projets", function () {
 
       const résolutionSansFichersOuTableaux = await obtenir<Set<string>>(
         ({ si }) =>
-          constl.projets.suivreRésolutionÉpingle({
+          constl.favoris.suivreRésolutionÉpingle({
             épingle: {
               idObjet: idProjet,
               épingle: {
                 type: "projets",
                 épingle: {
-                  base: true,
+                  base: TOUS_DISPOSITIFS,
                   bds: {
-                    type: "bds",
-                    épingle: {
-                      base: true,
-                    },
+                    base: TOUS_DISPOSITIFS,
                   },
                 },
               },

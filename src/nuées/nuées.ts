@@ -23,7 +23,9 @@ import {
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import {
   DISPOSITIFS_INSTALLÉS,
+  RÉSOLVEUR_FAVORIS,
   TOUS_DISPOSITIFS,
+  estÉpingleDeType,
   résoudreDéfauts,
 } from "../nébuleuse/services/favoris.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
@@ -76,7 +78,6 @@ import type {
 } from "../tableaux.js";
 import type {
   BaseÉpingleFavoris,
-  ÉpingleFavorisAvecId,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "../nébuleuse/services/favoris.js";
 import type {
@@ -104,7 +105,7 @@ export type ÉpingleNuée = {
 };
 
 export type ContenuÉpingleNuée = BaseÉpingleFavoris & {
-  bds: ÉpingleBd;
+  bds: ÉpingleBd["épingle"];
 };
 
 // Types filtres
@@ -255,6 +256,17 @@ export class Nuées extends ObjetConstellation<
   recherche: RechercheNuées;
 
   schémaObjet: JSONSchemaType<PartielRécursif<StructureNuée>> = schémaNuée;
+
+  défautsÉpingle: ContenuÉpingleNuée = {
+    base: TOUS_DISPOSITIFS,
+    bds: {
+      base: TOUS_DISPOSITIFS,
+      données: {
+        tableaux: TOUS_DISPOSITIFS,
+        fichiers: DISPOSITIFS_INSTALLÉS,
+      },
+    },
+  };
 
   constructor({
     options,
@@ -732,22 +744,9 @@ export class Nuées extends ObjetConstellation<
   }) {
     const favoris = this.service("favoris");
 
-    const épingle: ContenuÉpingleNuée = résoudreDéfauts(options, {
-      base: TOUS_DISPOSITIFS,
-      bds: {
-        type: "bds",
-        épingle: {
-          base: TOUS_DISPOSITIFS,
-          données: {
-            tableaux: TOUS_DISPOSITIFS,
-            fichiers: DISPOSITIFS_INSTALLÉS,
-          },
-        },
-      },
-    });
     await favoris.épinglerFavori({
       idObjet: idNuée,
-      épingle: { type: "nuées", épingle },
+      épingle: { type: "nuées", épingle: options },
     });
   }
 
@@ -771,23 +770,42 @@ export class Nuées extends ObjetConstellation<
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleNuée = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idNuée && épingle.type === this.clef
-            ? épingle
-            : undefined;
-        }) as ÉpingleFavorisAvecId<ContenuÉpingleNuée> | undefined;
-        await f(épingleNuée?.épingle as ÉpingleNuée);
+        const épingleNuée = épingles?.find(
+          (épingle) =>
+            estÉpingleDeType(épingle, this.clef) && épingle.idObjet === idNuée,
+        );
+        if (épingleNuée) {
+          const avecDéfauts = résoudreDéfauts<ContenuÉpingleNuée>(
+            épingleNuée.épingle.épingle || {},
+            this.défautsÉpingle,
+          );
+          await f({
+            type: "nuées",
+            épingle: avecDéfauts,
+          });
+        } else {
+          await f(undefined);
+        }
       },
     });
   }
 
-  async suivreRésolutionÉpingle({
+  async [RÉSOLVEUR_FAVORIS]({
     épingle,
     f,
   }: {
     épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleNuée>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
+    const favoris = this.service("favoris");
+    const défautsSurCeDispositif = await favoris.résoudreÉpinglesSurDispositif({
+      épingle: this.défautsÉpingle,
+    });
+    const épingleAvecDéfauts = résoudreDéfauts(
+      épingle.épingle.épingle,
+      défautsSurCeDispositif,
+    );
+
     const info: {
       base?: (string | undefined)[];
       ascendants?: string[];
@@ -806,7 +824,7 @@ export class Nuées extends ObjetConstellation<
 
     const fsOublier: Oublier[] = [];
 
-    if (épingle.épingle.épingle.base) {
+    if (épingleAvecDéfauts.base) {
       const oublierBase = await this.suivreObjet({
         idObjet: épingle.idObjet,
         f: async (nuée) => {
@@ -831,7 +849,7 @@ export class Nuées extends ObjetConstellation<
     }
 
     // Bds associées
-    const { bds: épingleBds } = épingle.épingle.épingle;
+    const { bds: épingleBds } = épingleAvecDéfauts;
     if (épingleBds) {
       const serviceBds = this.service("bds");
       const oublierTableaux = await suivreDeFonctionListe({
@@ -852,13 +870,13 @@ export class Nuées extends ObjetConstellation<
           id: string;
           fSuivreBranche: Suivi<string[]>;
         }) => {
-          if (épingleBds.épingle)
-            return await serviceBds.suivreRésolutionÉpingle({
+          if (épingleBds)
+            return await serviceBds[RÉSOLVEUR_FAVORIS]({
               épingle: {
                 idObjet: idBd,
                 épingle: {
                   type: "bds",
-                  épingle: épingleBds.épingle,
+                  épingle: épingleBds,
                 },
               },
               f: async (bds) => await fSuivreBranche([...bds]),

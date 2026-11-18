@@ -17,7 +17,9 @@ import { sha256 } from "js-sha256";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import {
   DISPOSITIFS_INSTALLÉS,
+  RÉSOLVEUR_FAVORIS,
   TOUS_DISPOSITIFS,
+  estÉpingleDeType,
   résoudreDéfauts,
 } from "../nébuleuse/services/favoris.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
@@ -53,7 +55,6 @@ import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
-  ÉpingleFavorisAvecId,
   ÉpingleFavorisBooléenniséeAvecId,
 } from "../nébuleuse/services/favoris.js";
 import type {
@@ -237,6 +238,14 @@ export class Bds extends ObjetConstellation<
   recherche: RechercheBds;
 
   schémaObjet: JSONSchemaType<PartielRécursif<StructureBd>> = schémaBd;
+
+  défautsÉpingle: ContenuÉpingleBd = {
+    base: TOUS_DISPOSITIFS,
+    données: {
+      tableaux: TOUS_DISPOSITIFS,
+      fichiers: DISPOSITIFS_INSTALLÉS,
+    },
+  };
 
   constructor({
     services,
@@ -663,17 +672,9 @@ export class Bds extends ObjetConstellation<
   }) {
     const favoris = this.service("favoris");
 
-    const épingle: ContenuÉpingleBd = résoudreDéfauts(options, {
-      base: TOUS_DISPOSITIFS,
-      données: {
-        tableaux: TOUS_DISPOSITIFS,
-        fichiers: DISPOSITIFS_INSTALLÉS,
-      },
-    });
-
     await favoris.épinglerFavori({
       idObjet: idBd,
-      épingle: { type: "bds", épingle },
+      épingle: { type: "bds", épingle: options },
     });
   }
 
@@ -696,23 +697,42 @@ export class Bds extends ObjetConstellation<
     return await favoris.suivreFavoris({
       idCompte,
       f: async (épingles) => {
-        const épingleBd = épingles?.find(({ idObjet, épingle }) => {
-          return idObjet === idBd && épingle.type === this.clef
-            ? épingle
-            : undefined;
-        }) as ÉpingleFavorisAvecId<ContenuÉpingleBd> | undefined;
-        await f(épingleBd?.épingle as ÉpingleBd);
+        const épingleBd = épingles?.find(
+          (épingle) =>
+            estÉpingleDeType(épingle, this.clef) && épingle.idObjet === idBd,
+        );
+        if (épingleBd) {
+          const avecDéfauts = résoudreDéfauts<ContenuÉpingleBd>(
+            épingleBd.épingle.épingle || {},
+            this.défautsÉpingle,
+          );
+          await f({
+            type: this.clef,
+            épingle: avecDéfauts,
+          });
+        } else {
+          await f(undefined);
+        }
       },
     });
   }
 
-  async suivreRésolutionÉpingle({
+  async [RÉSOLVEUR_FAVORIS]({
     épingle,
     f,
   }: {
     épingle: ÉpingleFavorisBooléenniséeAvecId<ÉpingleBd>;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
+    const favoris = this.service("favoris");
+    const défautsSurCeDispositif = await favoris.résoudreÉpinglesSurDispositif({
+      épingle: this.défautsÉpingle,
+    });
+    const épingleAvecDéfauts = résoudreDéfauts(
+      épingle.épingle.épingle,
+      défautsSurCeDispositif,
+    );
+
     const info: {
       base?: (string | undefined)[];
       données?: (string | undefined)[];
@@ -720,17 +740,16 @@ export class Bds extends ObjetConstellation<
     } = {};
 
     const fFinale = async () => {
-      return await f(
-        new Set(
-          Object.values(info)
-            .flat()
-            .filter((x): x is string => !!x),
-        ),
+      const x = new Set(
+        Object.values(info)
+          .flat()
+          .filter((x): x is string => !!x),
       );
+      return await f(x);
     };
 
     const fsOublier: Oublier[] = [];
-    if (épingle.épingle.épingle.base) {
+    if (épingleAvecDéfauts.base) {
       const oublierBase = await this.suivreObjet({
         idObjet: épingle.idObjet,
         f: async (bd) => {
@@ -746,7 +765,7 @@ export class Bds extends ObjetConstellation<
     }
 
     // Données des tableaux
-    if (épingle.épingle.épingle.données?.tableaux) {
+    if (épingleAvecDéfauts.données?.tableaux) {
       const oublierTableaux = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,
@@ -780,7 +799,7 @@ export class Bds extends ObjetConstellation<
     }
 
     // Fichiers présents dans les données
-    if (épingle.épingle.épingle.données?.fichiers) {
+    if (épingleAvecDéfauts.données?.fichiers) {
       const oublierDonnées = await suivreDeFonctionListe({
         fListe: async ({
           fSuivreRacine,

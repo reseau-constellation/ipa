@@ -723,7 +723,7 @@ describe("Variables", function () {
     });
   });
 
-  describe("épingler", function () {
+  describe("épingles", function () {
     let idVariable: string;
 
     before(async () => {
@@ -773,13 +773,13 @@ describe("Variables", function () {
 
     it("résoudre épingle", async () => {
       const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
-        constl.variables.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idVariable,
             épingle: {
               type: "variables",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
               },
             },
           },

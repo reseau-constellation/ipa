@@ -405,7 +405,7 @@ describe("Mots-clefs", function () {
     });
   });
 
-  describe("épingler", function () {
+  describe("épingles", function () {
     let idMotClef: string;
 
     before(async () => {
@@ -459,13 +459,13 @@ describe("Mots-clefs", function () {
       const idNimporte =
         "/constl/motsClefs/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";
       const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
-        constl.motsClefs.suivreRésolutionÉpingle({
+        constl.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idNimporte,
             épingle: {
               type: "motsClefs",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
               },
             },
           },

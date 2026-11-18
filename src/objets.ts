@@ -13,6 +13,9 @@ import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
 import { MEMBRE } from "./nébuleuse/services/compte/accès/consts.js";
 import {
   RÉSOLVEUR_FAVORIS,
+  résoudreDéfauts,
+  TOUS_DISPOSITIFS,
+  type BaseÉpingleFavoris,
   type ServiceFavoris,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
@@ -63,6 +66,9 @@ export abstract class ObjetConstellation<
     ServicesNécessairesObjet<C>,
 > extends ServiceDonnéesAppli<C, StructureServiceObjet, Services> {
   abstract schémaObjet: JSONSchemaType<PartielRécursif<S>>;
+  défautsÉpingle: BaseÉpingleFavoris = {
+    base: TOUS_DISPOSITIFS,
+  };
 
   constructor({
     clef,
@@ -106,10 +112,17 @@ export abstract class ObjetConstellation<
     épingle: ÉpingleFavorisBooléenniséeAvecId;
     f: Suivi<Set<string>>;
   }): Promise<Oublier> {
+    const favoris = this.service("favoris");
+    const défautsSurCeDispositif = await favoris.résoudreÉpinglesSurDispositif({
+      épingle: this.défautsÉpingle,
+    });
+    const épingleAvecDéfauts = résoudreDéfauts(
+      épingle.épingle.épingle,
+      défautsSurCeDispositif,
+    );
+
     await f(
-      new Set(
-        épingle.épingle.épingle.base ? [this.àIdOrbite(épingle.idObjet)] : [],
-      ),
+      new Set(épingleAvecDéfauts.base ? [this.àIdOrbite(épingle.idObjet)] : []),
     );
 
     return faisRien;

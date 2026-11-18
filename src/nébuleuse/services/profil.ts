@@ -3,9 +3,10 @@ import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { RechercheProfils } from "@/recherche/profils.js";
 import {
   AUCUN_DISPOSITIF,
+  estÉpingleDeType,
   RÉSOLVEUR_FAVORIS,
-  TOUS_DISPOSITIFS,
   résoudreDéfauts,
+  TOUS_DISPOSITIFS,
 } from "@/nébuleuse/services/favoris.js";
 import {
   ajouterPréfixeOrbite,
@@ -125,6 +126,11 @@ export class Profil extends ServiceDonnéesAppli<
   undefined
 > {
   recherche: RechercheProfils;
+
+  défautsÉpingle: ContenuÉpingleProfil = {
+    base: TOUS_DISPOSITIFS,
+    favoris: AUCUN_DISPOSITIF,
+  };
 
   constructor({
     services,
@@ -403,14 +409,9 @@ export class Profil extends ServiceDonnéesAppli<
   }) {
     const favoris = this.service("favoris");
 
-    const épingle: ContenuÉpingleProfil = résoudreDéfauts(options, {
-      base: TOUS_DISPOSITIFS,
-      favoris: AUCUN_DISPOSITIF,
-    });
-
     await favoris.épinglerFavori({
       idObjet: idCompte,
-      épingle: { type: "profil", épingle },
+      épingle: { type: "profil", épingle: options },
     });
   }
 
@@ -435,14 +436,25 @@ export class Profil extends ServiceDonnéesAppli<
     return await favoris.suivreFavoris({
       idCompte: idCompteQuiÉpingle,
       f: async (épingles) => {
-        const épingleBd:
-          ÉpingleFavorisAvecId<ContenuÉpingleProfil> | undefined =
-          épingles?.find(({ idObjet, épingle }) => {
-            return idObjet === idCompte && épingle.type === "profil"
-              ? épingle
-              : undefined;
+        const épingleProfil = épingles?.find(
+          (épingle) =>
+            estÉpingleDeType(épingle, this.clef) &&
+            épingle.idObjet === idCompte,
+        );
+
+        if (épingleProfil) {
+          const avecDéfauts = résoudreDéfauts<ContenuÉpingleProfil>(
+            épingleProfil.épingle.épingle || {},
+            this.défautsÉpingle,
+          );
+
+          await f({
+            type: this.clef,
+            épingle: avecDéfauts,
           });
-        await f(épingleBd?.épingle as ÉpingleProfil | undefined);
+        } else {
+          await f(undefined);
+        }
       },
     });
   }
@@ -456,6 +468,15 @@ export class Profil extends ServiceDonnéesAppli<
     f: Suivi<Set<string>>;
     ignorer?: Set<string>;
   }): Promise<Oublier> {
+    const favoris = this.service("favoris");
+    const défautsSurCeDispositif = await favoris.résoudreÉpinglesSurDispositif({
+      épingle: this.défautsÉpingle,
+    });
+    const épingleAvecDéfauts = résoudreDéfauts(
+      épingle.épingle.épingle,
+      défautsSurCeDispositif,
+    );
+
     const info: {
       base?: (string | undefined)[];
       favoris?: (string | undefined)[];
@@ -473,7 +494,7 @@ export class Profil extends ServiceDonnéesAppli<
 
     const fsOublier: Oublier[] = [];
 
-    if (épingle.épingle?.épingle?.base && épingle.idObjet) {
+    if (épingleAvecDéfauts.base && épingle.idObjet) {
       const idCompteSansPréfixes = enleverPréfixesEtOrbite(épingle.idObjet);
 
       // Au cas où la bd ne serait pas immédiatement rejoignable
@@ -494,7 +515,7 @@ export class Profil extends ServiceDonnéesAppli<
       fsOublier.push(oublierBase);
     }
 
-    if (épingle.épingle?.épingle?.favoris) {
+    if (épingleAvecDéfauts.favoris) {
       const serviceFavoris = this.service("favoris");
       const oublierFavoris = await suivreDeFonctionListe({
         fListe: async ({

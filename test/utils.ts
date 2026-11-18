@@ -172,6 +172,7 @@ export const obtenir = async <T>(
   const siVide = (): ((x: T) => void) => {
     return si((x) => {
       if (Array.isArray(x)) return x.length === 0;
+      else if (x instanceof Set) return x.size === 0;
       else if (typeof x === "object" && !isNull(x))
         return Object.keys(x).length === 0;
       else return false;
@@ -183,6 +184,7 @@ export const obtenir = async <T>(
   const siPasVide = (): ((x: T | undefined) => void) => {
     return si((x) => {
       if (Array.isArray(x)) return x.length > 0;
+      else if (x instanceof Set) return x.size > 0;
       else if (typeof x === "object" && !isNull(x))
         return Object.keys(x).length > 0;
       else return false;
