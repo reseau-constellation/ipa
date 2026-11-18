@@ -222,7 +222,8 @@ export const obtenir = async <T>(
   return new Promise<T>((compléter) => {
     if (résultat) {
       const résultatExistant = résultat;
-      fOublier().then(() => compléter(résultatExistant.val));
+      // On rend la valeur retrouvée même si on a eu une erreur dans la fonction d'oubli.
+      fOublier().finally(() => compléter(résultatExistant.val));
     } else {
       événements.once("résolu", async (x) => {
         // On rend la valeur retrouvée même si on a eu une erreur dans la fonction d'oubli.
