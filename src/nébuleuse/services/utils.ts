@@ -50,8 +50,8 @@ export const obtStockageBlocs = async (
   return stockage;
 };
 
-export const estUnePromesse = (x: unknown): x is Promise<void> => {
-  return !!x && !!(x as Promise<void>).then && !!(x as Promise<void>).finally;
+export const estUnePromesse = <T>(x: unknown): x is Promise<T> => {
+  return !!x && !!(x as Promise<T>).then && !!(x as Promise<T>).finally;
 };
 
 export const nulÀObjetVide = <T>(
