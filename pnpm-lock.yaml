@@ -177,7 +177,6 @@ overrides:
   playwright-core: 1.65.0
 
 patchedDependencies:
-  '@constl/utils-ipa': f8a071adf35e3a8f14d2548cc6e3d6fa38d3b9af0fec720ec2ebeb9ca57293a4
   '@constl/utils-tests': f6ec101a05db5d1b291c7e8c827a51100c93942b57df05996531fd65d59595dc
   '@libp2p/gossipsub': e30a1c3529f881bbafb052b5951233c6310d8d9284165bf13c0ef0faad6d501b
   '@orbitdb/core': 9952c8e3d369b56e4d7d90446a08722d16fb45dab67b59a5fe8c9479e6630053
@@ -202,8 +201,8 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2
       '@constl/utils-ipa':
-        specifier: 3.1.1
-        version: 3.1.1(patch_hash=f8a071adf35e3a8f14d2548cc6e3d6fa38d3b9af0fec720ec2ebeb9ca57293a4)
+        specifier: 3.1.3
+        version: 3.1.3
       '@e965/xlsx':
         specifier: ^0.20.3
         version: 0.20.3
@@ -1104,8 +1103,8 @@ packages:
   '@constl/mandataire@3.1.2':
     resolution: {integrity: sha512-L4N87H3ZQy8jYcZ2xxToER/VV2TPNVsbBfCFYtQvTKFHaFh/XGXXJrc0tW0Mr9CLHadaQdqQZvEfKughZmXK+Q==}
 
-  '@constl/utils-ipa@3.1.1':
-    resolution: {integrity: sha512-GEV9inMqdwesGe1RSnrbBMSergwVq2ODqGclHMnToYkNzkfLMS8499IkOBcGbSsw4ehLheHlYZ1PAXJ/ZVXkPw==}
+  '@constl/utils-ipa@3.1.3':
+    resolution: {integrity: sha512-PhaDW3fXjgjIuIETbYIuxEbxI8/Vd7Rf2TRykBgjKKl5RN2JgOFpQVs3H36Ot4V1TVt413msiRYAjvWvsJRl1w==}
     engines: {node: '>=20'}
 
   '@constl/utils-tests@2.2.12':
@@ -9375,7 +9374,7 @@ snapshots:
       tiny-typed-emitter: 2.1.0
       uuid: 11.1.1
 
-  '@constl/utils-ipa@3.1.1(patch_hash=f8a071adf35e3a8f14d2548cc6e3d6fa38d3b9af0fec720ec2ebeb9ca57293a4)':
+  '@constl/utils-ipa@3.1.3':
     dependencies:
       browser-fs-access: 0.38.0
       events: 3.3.0
