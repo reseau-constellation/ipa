@@ -1,1135 +1,450 @@
-import * as bd from "@/recherche/bd.js";
-import * as motClef from "@/recherche/motClef.js";
-import * as nuée from "@/recherche/nuée.js";
-import * as profil from "@/recherche/profil.js";
-import * as projet from "@/recherche/projet.js";
-import * as utils from "@/recherche/utils.js";
-import * as variable from "@/recherche/variable.js";
-
-import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
-import type { Constellation } from "@/client.js";
+import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
+import { moyenne } from "../utils.js";
+import { dédupliquer, stabiliser } from "../nébuleuse/utils.js";
+import { cacheSuivi } from "../nébuleuse/cache.js";
+import {
+  EstimateurAsymptoteTemps,
+  calculerIntersection,
+  suivreSi,
+} from "./utils.js";
+import {
+  COEFFICIENT_ASYMPTOTE_INTERSECTION_Y,
+  MÉMOIRE_ESTIMATEUR_ASYMPTOTE,
+  POIDS_SCORE_RÉSULTAT,
+  PROFONDEUR_MINIMALE_RECHERCHE,
+} from "./consts.js";
+import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
 import type {
-  infoRésultatRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-  résultatRecherche,
-  schémaFonctionSuivi,
-  schémaRetourFonctionRechercheParN,
-} from "@/types.js";
+  InfoRésultat,
+  RésultatObjectifRecherche,
+  RésultatRecherche,
+  SuivreConfianceRecherche,
+  SuivreObjectifRecherche,
+  SuivreQualitéRecherche,
+} from "./types.js";
+import type { InfoAuteur } from "../types.js";
+import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/compte.js";
+import type { ServiceRéseau } from "../nébuleuse/services/réseau/réseau.js";
+import type { ServiceFavoris } from "../nébuleuse/services/favoris.js";
 
-export class Recherche {
-  client: Constellation;
+export type ServicesNécessairesRecherche = ServicesNécessairesCompte & {
+  réseau: ServiceRéseau;
+};
 
-  constructor({ client }: { client: Constellation }) {
-    this.client = client;
-  }
+export class Recherche<S extends ServicesNécessairesRecherche> {
+  service: <C extends keyof S>(service: C) => S[C];
 
-  @cacheRechercheParNRésultats
-  async rechercherVariables({
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
+  constructor({
+    service,
   }: {
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    return await this.client.réseau.rechercherVariables({
-      f,
-      nRésultatsDésirés,
-      toutLeRéseau,
-    });
+    service: <C extends keyof S>(service: C) => S[C];
+  }) {
+    this.service = service;
   }
 
-  @cacheRechercheParNRésultats
-  async rechercherVariablesSelonId({
-    idVariable,
+  async rechercher<T extends InfoRésultat = InfoRésultat>({
     f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
+    n,
+    fRecherche,
+    fObjectif,
+    fConfiance,
+    fQualité,
   }: {
-    idVariable: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = utils.rechercherSelonId(idVariable);
-    return await this.client.réseau.rechercherVariables({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
+    f: Suivi<RésultatRecherche<T>[]>;
+    n?: number;
+    fRecherche: (args: {
+      idCompte: string;
+      f: Suivi<string[] | undefined>;
+    }) => Promise<Oublier>;
+    fObjectif: SuivreObjectifRecherche<T, S>;
+    fConfiance: SuivreConfianceRecherche;
+    fQualité: SuivreQualitéRecherche;
+  }): Promise<RetourRecherche> {
+    const réseau = this.service("réseau");
 
-  @cacheRechercheParNRésultats
-  async rechercherVariablesSelonNom({
-    nomVariable,
+    type RésultatAvecProfondeur = {
+      résultat: RésultatRecherche<T>;
+      score: number;
+      profondeur: number;
+    };
+    let résultats: RésultatAvecProfondeur[] = [];
+    let ajusterProfondeurStable: Suivi<number> | undefined = undefined;
+
+    const fFinale = dédupliquer(25)(async (
+      résultats: RésultatAvecProfondeur[],
+    ) => {
+      const résultatsOrdonnés = résultats.toSorted(
+        (a, b) => b.score - a.score, // Ordre décroissant
+      );
+      const résultatsTroncés =
+        n === undefined ? résultatsOrdonnés : résultatsOrdonnés.slice(0, n);
+      await f(résultatsTroncés.map((r) => r.résultat));
+
+      const profondeurDésirée = actualiserEstimateurs(résultatsTroncés);
+      // Ne PAS utiliser `await` ci-dessous. Ça bloque le retour pour 2 secondes en raison
+      // de la fonction stabilisée
+      ajusterProfondeurStable?.(profondeurDésirée);
+    });
+
+    // Estimateur sommes scores sur n éventuelles par profondeur
+    const estimateursSommesScores: Map<number, EstimateurAsymptoteTemps> =
+      new Map();
+
+    const actualiserEstimateurs = (
+      troncés: RésultatAvecProfondeur[],
+    ): number => {
+      const profondeurActuelle = Math.max(
+        ...résultats.map((r) => r.profondeur),
+      );
+
+      for (let p = 0; p++; p <= profondeurActuelle) {
+        let estimateur = estimateursSommesScores.get(p);
+        if (!estimateur)
+          estimateur = new EstimateurAsymptoteTemps({
+            mémoire: MÉMOIRE_ESTIMATEUR_ASYMPTOTE,
+          });
+        estimateursSommesScores.set(p, estimateur);
+
+        const sommeScoresP = troncés
+          .filter((r) => r.profondeur <= p)
+          .map((r) => r.score)
+          .reduce((a, b) => a + b, 0);
+        estimateur.ajouter(sommeScoresP);
+      }
+
+      // Profondeur nécessaire : p à 95% de l'asymptote profondeur - somme scores sur n
+      const points: [number, number][] = [...estimateursSommesScores.entries()]
+        .map(([p, estim]) => [p, estim.asymptote()])
+        .filter((x): x is [number, number] => x[1] !== undefined);
+      const estiméProfondeurNécessaire = calculerIntersection({
+        p: COEFFICIENT_ASYMPTOTE_INTERSECTION_Y,
+        points,
+      });
+
+      return Math.max(
+        estiméProfondeurNécessaire ?? Infinity,
+        PROFONDEUR_MINIMALE_RECHERCHE,
+      );
+    };
+
+    const résoudreScore = ({
+      résultat,
+      confiance = 0,
+      qualité = 0,
+    }: {
+      résultat: number;
+      confiance?: number;
+      qualité?: number;
+    }): number => {
+      const POIDS_RESTANT = (1 - POIDS_SCORE_RÉSULTAT) * 3;
+      return (
+        résultat *
+        POIDS_SCORE_RÉSULTAT *
+        3 *
+        moyenne([
+          (confiance * POIDS_RESTANT) / 2,
+          (qualité * POIDS_RESTANT) / 2,
+        ])
+      );
+    };
+
+    const fSuivreCompte = async ({
+      id: idCompte,
+      fSuivreBranche,
+      branche,
+    }: {
+      id: string;
+      fSuivreBranche: Suivi<RésultatAvecProfondeur[]>;
+      branche: {
+        idCompte: string;
+        profondeur: number;
+      };
+    }): Promise<Oublier> => {
+      return await suivreDeFonctionListe({
+        fListe: async ({ fSuivreRacine }: { fSuivreRacine: Suivi<string[]> }) =>
+          await fRecherche({ idCompte, f: ignorerNonDéfinis(fSuivreRacine) }),
+        fBranche: async ({
+          id: idObjet,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: Suivi<RésultatAvecProfondeur | undefined>;
+        }) => {
+          const info: {
+            résultat?: RésultatObjectifRecherche<T>;
+            confiance?: number;
+            qualité?: number;
+          } = {};
+          const fFinaleBranche = async () => {
+            if (info.résultat)
+              return await fSuivreBranche({
+                résultat: { id: idObjet, résultatObjectif: info.résultat },
+                score: résoudreScore({
+                  ...info,
+                  résultat: info.résultat.score,
+                }),
+                profondeur: branche.profondeur,
+              });
+            // Nécessaire si jamais le résultat change et devient `undefined`
+            else await fSuivreBranche(undefined);
+          };
+
+          const oublierObjectif = await suivreSi({
+            fRacine: async ({ fSuivreRacine }) =>
+              await fObjectif({
+                services: this.service,
+                idObjet,
+                f: async (résultat) => {
+                  info.résultat = résultat;
+                  await fFinaleBranche();
+                  fSuivreRacine(
+                    résultat?.score !== undefined && résultat.score > 0,
+                  );
+                },
+              }),
+            fSuivi: async () => {
+              const oublierConfiance = await fConfiance({
+                idObjet,
+                f: async (confiance) => {
+                  info.confiance = confiance;
+                  await fFinaleBranche();
+                },
+              });
+              const oublierQualité = await fQualité({
+                idObjet,
+                f: async (qualité) => {
+                  info.qualité = qualité;
+                  await fFinaleBranche();
+                },
+              });
+              return async () => {
+                Promise.allSettled([oublierConfiance(), oublierQualité()]);
+              };
+            },
+          });
+          return oublierObjectif;
+        },
+        f: fSuivreBranche,
+      });
+    };
+
+    const { profondeur, fOublier: oublierComptes } =
+      await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: Suivi<{ idCompte: string; profondeur: number }[]>;
+        }): Promise<{ fOublier: Oublier; profondeur: (p: number) => void }> => {
+          const { oublier, profondeur: changerProfondeur } =
+            await réseau.suivreComptes({
+              f: async (liste) =>
+                await fSuivreRacine(
+                  liste
+                    // On ignore les membres bloqués directement ou avec un score négatif
+                    .filter(({ confiance }) => confiance >= 0)
+                    .map(({ profondeur, idCompte }) => ({
+                      profondeur,
+                      idCompte,
+                    })),
+                ),
+            });
+          return { profondeur: changerProfondeur, fOublier: oublier };
+        },
+        fBranche: fSuivreCompte,
+        fIdDeBranche: (x) => x.idCompte,
+        f: async (x: RésultatAvecProfondeur[]) => {
+          résultats = x;
+          await fFinale(résultats);
+        },
+      });
+
+    const stabilité = stabiliser(2000);
+    ajusterProfondeurStable = stabilité(profondeur);
+
+    const changerN = async (nouveauN: number) => {
+      n = nouveauN;
+      await fFinale(résultats);
+    };
+
+    return { oublier: oublierComptes, n: changerN };
+  }
+}
+
+export type ServicesNécessairesRechercheObjets =
+  ServicesNécessairesRecherche & { favoris: ServiceFavoris };
+
+export abstract class RechercheObjets<
+  S extends ServicesNécessairesRechercheObjets,
+> extends Recherche<S> {
+  abstract suivreAuteursObjet({
+    idObjet,
     f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
   }: {
-    nomVariable: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = variable.rechercherVariablesSelonNom(nomVariable);
-    return await this.client.réseau.rechercherVariables({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
+    idObjet: string;
+    f: Suivi<InfoAuteur[]>;
+  }): Promise<Oublier>;
 
-  @cacheRechercheParNRésultats
-  async rechercherVariablesSelonDescr({
-    descrVariable,
+  abstract identifiantValide({ idObjet }: { idObjet: string }): boolean;
+
+  async rechercherObjets<T extends InfoRésultat = InfoRésultat>({
     f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    descrVariable: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = variable.rechercherVariablesSelonDescr(descrVariable);
-    return await this.client.réseau.rechercherVariables({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherVariablesSelonTexte({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatTexte | infoRésultatVide>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = variable.rechercherVariablesSelonTexte(texte);
-    return await this.client.réseau.rechercherVariables({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherMotsClefs({
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    return await this.client.réseau.rechercherMotsClefs({
-      f,
-      nRésultatsDésirés,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherMotsClefsSelonId({
-    idMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idMotClef: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = utils.rechercherSelonId(idMotClef);
-    return await this.client.réseau.rechercherMotsClefs({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherMotsClefsSelonNom({
-    nomMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomMotClef: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = motClef.rechercherMotsClefsSelonNom(nomMotClef);
-    return await this.client.réseau.rechercherMotsClefs({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherMotsClefsSelonDescr({
-    descrMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    descrMotClef: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = motClef.rechercherMotsClefsSelonDescr(descrMotClef);
-    return await this.client.réseau.rechercherMotsClefs({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherMotsClefsSelonTexte({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatTexte | infoRésultatVide>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = motClef.rechercherMotsClefsSelonTexte(texte);
-    return await this.client.réseau.rechercherMotsClefs({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBds({
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonId({
-    idBd,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idBd: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = utils.rechercherSelonId(idBd);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonNom({
-    nomBd,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomBd: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonNom(nomBd);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonDescr({
-    descrBd,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    descrBd: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonDescr(descrBd);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonIdMotClef({
-    idMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idMotClef: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonIdMotClef(idMotClef);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonIdVariable({
-    idVariable,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idVariable: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonIdVariable(idVariable);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonNomMotClef({
-    nomMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomMotClef: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonNomMotClef(nomMotClef);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonNomVariable({
-    nomVariable,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomVariable: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonNomVariable(nomVariable);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonMotClef({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonMotClef(texte);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonVariable({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonVariable(texte);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherBdsSelonTexte({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<infoRésultatTexte>
-        | infoRésultatVide
-      >[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = bd.rechercherBdsSelonTexte(texte);
-    return await this.client.réseau.rechercherBds({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProfilsSelonId({
+    n,
+    fRecherche,
+    fQualité,
+    fObjectif,
     idCompte,
-    f,
-    nRésultatsDésirés,
   }: {
-    idCompte: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = utils.rechercherSelonId(idCompte);
-    return await this.client.réseau.rechercherMembres({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-    });
+    f: Suivi<RésultatRecherche<T>[]>;
+    n?: number;
+    fRecherche: (args: {
+      idCompte: string;
+      f: Suivi<string[]>;
+    }) => Promise<Oublier>;
+    fQualité: SuivreQualitéRecherche;
+    fObjectif: SuivreObjectifRecherche<T, S>;
+    idCompte?: string;
+  }): Promise<RetourRecherche> {
+    const serviceFavoris = this.service("favoris");
+
+    if (idCompte) {
+      const { fOublier, changerN } = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: Suivi<string[]>;
+        }) => {
+          const fOublier = await fRecherche({
+            idCompte,
+            f: ignorerNonDéfinis(fSuivreRacine),
+          });
+          // À faire : implémenter fChangerN ?
+          const changerN = async (_n: number) => {};
+          return { fOublier, changerN };
+        },
+        fBranche: async ({
+          id,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: Suivi<RésultatRecherche<T>>;
+        }): Promise<Oublier> =>
+          await fObjectif({
+            services: this.service,
+            idObjet: id,
+            f: async (résultat) => {
+              if (résultat)
+                return await fSuivreBranche({
+                  id,
+                  résultatObjectif: résultat,
+                });
+            },
+          }),
+        f,
+      });
+
+      return { oublier: fOublier, n: changerN };
+    } else {
+      const fRechercheAvecFavoris = async ({
+        idCompte,
+        f,
+      }: {
+        idCompte: string;
+        f: Suivi<string[]>;
+      }) => {
+        const résultats: { favoris?: string[]; propres?: string[] } = {};
+        const fFinale = async () => {
+          return await f([
+            ...new Set([
+              ...(résultats.propres || []),
+              ...(résultats.favoris || []),
+            ]),
+          ]);
+        };
+        const oublierRecherche = await fRecherche({
+          idCompte,
+          f: async (propres) => {
+            résultats.propres = propres;
+            await fFinale();
+          },
+        });
+        const oublierFavoris = await serviceFavoris.suivreFavoris({
+          idCompte,
+          f: async (favoris) => {
+            résultats.favoris = favoris
+              ?.map((fav) => fav.idObjet)
+              .filter((idObjet) => this.identifiantValide({ idObjet }));
+            await fFinale();
+          },
+        });
+        return async () => {
+          await Promise.allSettled([oublierRecherche(), oublierFavoris()]);
+        };
+      };
+
+      return await this.rechercher({
+        f,
+        n,
+        fRecherche: fRechercheAvecFavoris,
+        fObjectif,
+        fConfiance: async ({ idObjet, f }) =>
+          await this.suivreConfianceAuteurs({ idObjet, f }),
+        fQualité,
+      });
+    }
   }
 
-  @cacheRechercheParNRésultats
-  async rechercherProfilsSelonNom({
-    nom,
+  @cacheSuivi
+  async suivreConfianceAuteurs({
+    idObjet,
     f,
-    nRésultatsDésirés,
   }: {
-    nom: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = profil.rechercherProfilsSelonNom(nom);
-    return await this.client.réseau.rechercherMembres({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-    });
-  }
+    idObjet: string;
+    f: Suivi<number>;
+  }): Promise<Oublier> {
+    const réseau = this.service("réseau");
 
-  @cacheRechercheParNRésultats
-  async rechercherProfilsSelonImage({
-    image,
-    f,
-    nRésultatsDésirés,
-  }: {
-    image: Uint8Array;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatVide>[]>;
-    nRésultatsDésirés?: number;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = profil.rechercherProfilsSelonImage(image);
-    return await this.client.réseau.rechercherMembres({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-    });
-  }
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: Suivi<string[]>;
+    }): Promise<Oublier> => {
+      return await this.suivreAuteursObjet({
+        idObjet,
+        f: async (auteurs: InfoAuteur[]) => {
+          const idsAuteurs = auteurs
+            .filter((a) => a.accepté)
+            .map((a) => a.idCompte);
+          return await fSuivreRacine(idsAuteurs);
+        },
+      });
+    };
 
-  @cacheRechercheParNRésultats
-  async rechercherProfilsSelonActivité({
-    f,
-    nRésultatsDésirés,
-  }: {
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatVide>[]>;
-    nRésultatsDésirés?: number;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = profil.rechercherProfilsSelonActivité();
-    return await this.client.réseau.rechercherMembres({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-    });
-  }
+    const fBranche = async ({
+      id: idAuteur,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: Suivi<number>;
+    }): Promise<Oublier> => {
+      const { oublier } = await réseau.suivreConfianceCompte({
+        idCompte: idAuteur,
+        f: ignorerNonDéfinis(fSuivreBranche),
+      });
+      return oublier;
+    };
 
-  @cacheRechercheParNRésultats
-  async rechercherProfilsSelonCourriel({
-    courriel,
-    f,
-    nRésultatsDésirés,
-  }: {
-    courriel: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = profil.rechercherProfilsSelonCourriel(courriel);
-    return await this.client.réseau.rechercherMembres({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-    });
-  }
+    const fFinale = async (confiances: number[]) => {
+      const confiance = confiances.reduce((a, b) => a + b, 0);
+      await f(confiance / (confiances.length || 1));
+    };
 
-  @cacheRechercheParNRésultats
-  async rechercherProfilsSelonTexte({
-    texte,
-    f,
-    nRésultatsDésirés,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatTexte | infoRésultatVide>[]
-    >;
-    nRésultatsDésirés?: number;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = profil.rechercherProfilsSelonTexte(texte);
-    return await this.client.réseau.rechercherMembres({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-    });
-  }
+    const fRéduction = (branches: number[]) => branches.flat();
 
-  @cacheRechercheParNRésultats
-  async rechercherProjets({
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonId({
-    idProjet,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idProjet: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = utils.rechercherSelonId(idProjet);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonNom({
-    nomProjet,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomProjet: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonNom(nomProjet);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonDescr({
-    descrProjet,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    descrProjet: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonDescr(descrProjet);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonIdVariable({
-    idVariable,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idVariable: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonIdVariable(idVariable);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonNomVariable({
-    nomVariable,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomVariable: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonNomVariable(nomVariable);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonVariable({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<
-        infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-      >[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonVariable(texte);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonIdMotClef({
-    idMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idMotClef: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonIdMotClef(idMotClef);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonNomMotClef({
-    nomMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomMotClef: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonNomMotClef(nomMotClef);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonMotClef({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<
-        infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-      >[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonMotClef(texte);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonIdBd({
-    idBd,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idBd: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonIdBd(idBd);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonBd({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<
-        infoRésultatRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<infoRésultatTexte>
-          | infoRésultatVide
-        >
-      >[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonBd(texte);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherProjetsSelonTexte({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<
-            | infoRésultatTexte
-            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-            | infoRésultatVide
-          >
-        | infoRésultatVide
-      >[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = projet.rechercherProjetsSelonTexte(texte);
-    return await this.client.réseau.rechercherProjets({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuées({
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonId({
-    idNuée,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idNuée: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = utils.rechercherSelonId(idNuée);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonNom({
-    nomNuée,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomNuée: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonNom(nomNuée);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonDescr({
-    descrNuée,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    descrNuée: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonDescr(descrNuée);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonIdMotClef({
-    idMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idMotClef: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonIdMotClef(idMotClef);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonIdVariable({
-    idVariable,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    idVariable: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonIdVariable(idVariable);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonNomMotClef({
-    nomMotClef,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomMotClef: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonNomMotClef(nomMotClef);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonNomVariable({
-    nomVariable,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    nomVariable: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonNomVariable(nomVariable);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonMotClef({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonMotClef(texte);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonVariable({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonVariable(texte);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
-    });
-  }
-
-  @cacheRechercheParNRésultats
-  async rechercherNuéesSelonTexte({
-    texte,
-    f,
-    nRésultatsDésirés,
-    toutLeRéseau = true,
-  }: {
-    texte: string;
-    f: schémaFonctionSuivi<
-      résultatRecherche<
-        | infoRésultatTexte
-        | infoRésultatRecherche<infoRésultatTexte>
-        | infoRésultatVide
-      >[]
-    >;
-    nRésultatsDésirés?: number;
-    toutLeRéseau?: boolean;
-  }): Promise<schémaRetourFonctionRechercheParN> {
-    const fObjectif = nuée.rechercherNuéesSelonTexte(texte);
-    return await this.client.réseau.rechercherNuées({
-      f,
-      nRésultatsDésirés,
-      fObjectif,
-      toutLeRéseau,
+    return await suivreDeFonctionListe({
+      f: fFinale,
+      fListe,
+      fBranche,
+      fRéduction,
     });
   }
 }

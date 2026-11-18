@@ -5,7 +5,7 @@ import importPlugin from "eslint-plugin-import";
 
 export default [
   {
-    ignores: ["**/dist/**", "**/.vitepress/cache/**"],
+    ignores: ["**/dist/**"],
   },
   importPlugin.flatConfigs.recommended,
   importPlugin.flatConfigs.typescript,
@@ -48,6 +48,7 @@ export default [
     },
     ignores: ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
     rules: {
+      "@typescript-eslint/consistent-type-imports": "warn",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",

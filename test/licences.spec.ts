@@ -1,11 +1,7 @@
-import { constellation as utilsTestConstellation } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
-import { obtenir } from "@constl/utils-ipa";
 import { type InfoLicence, infoLicences, licences } from "@/licences.js";
-import { créerConstellation } from "@/index.js";
-import type { Constellation } from "@/client.js";
-
-const { créerConstellationsTest } = utilsTestConstellation;
+import { créerConstellationsTest, obtenir } from "./utils.js";
+import type { Constellation } from "@/index.js";
 
 describe("Licences", function () {
   it("licences statiques", () => {
@@ -14,27 +10,26 @@ describe("Licences", function () {
   });
 
   describe("licences dynamiques", function () {
-    let fOublierClients: () => Promise<void>;
-    let clients: Constellation[];
-    let client: Constellation;
+    let fermer: () => Promise<void>;
+    let constls: Constellation[];
+    let constl: Constellation;
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
+      ({ fermer, constls } = await créerConstellationsTest({
         n: 1,
-        créerConstellation,
       }));
-      client = clients[0];
+      constl = constls[0];
     });
 
     after(async () => {
-      if (fOublierClients) await fOublierClients();
+      if (fermer) await fermer();
     });
 
     it("licences dynamiques", async () => {
       const licencesDynamiques = await obtenir<{
         [licence: string]: InfoLicence;
       }>(({ siDéfini }) =>
-        client.licences.suivreLicences({
+        constl.licences.suivreLicences({
           f: siDéfini(),
         }),
       );

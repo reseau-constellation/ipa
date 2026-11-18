@@ -1,0 +1,35 @@
+diff --git a/dist/libp2p/utils.js b/dist/libp2p/utils.js
+index d0bcb4bbc410bf90a238d5afd24b1d61fe50609f..70e40d543973aee3d55873e483f36271391312f1 100644
+--- a/dist/libp2p/utils.js
++++ b/dist/libp2p/utils.js
+@@ -21,7 +21,7 @@ export const connecterPairs = async (libp2p1, libp2p2, options) => {
+             const testConnecté = () => {
+                 const adresse = libp2p1
+                     .getMultiaddrs()
+-                    .filter((ma) => WebRTC.matches(ma) && filtre(ma))
++                    .filter((ma) => WebRTC.matches(ma) && filtre(ma) && ma.toString().startsWith("/ip4/127.0.0.1/"))
+                     .pop();
+                 if (adresse != null) {
+                     clearInterval(interval);
+@@ -31,6 +31,7 @@ export const connecterPairs = async (libp2p1, libp2p2, options) => {
+             const interval = setInterval(testConnecté, 100);
+             testConnecté();
+         });
++
+         libp2p2.dial(adresse1);
+         await new Promise((résoudre) => {
+             const testConnecté = () => {
+@@ -46,10 +47,12 @@ export const connecterPairs = async (libp2p1, libp2p2, options) => {
+             const interval = setInterval(testConnecté, 100);
+             testConnecté();
+         });
++
+     }
+     else {
++        const multiaddrs = [libp2p1.getMultiaddrs().filter(filtre)[0]]
+         await libp2p2.peerStore.save(libp2p1.peerId, {
+-            multiaddrs: libp2p1.getMultiaddrs().filter(filtre),
++            multiaddrs,
+         });
+         await libp2p2.dial(libp2p1.peerId);
+         await que(() => !!libp2p1.getPeers().find((p) => p.equals(libp2p2.peerId)));
