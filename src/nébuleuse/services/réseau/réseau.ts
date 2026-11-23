@@ -28,6 +28,7 @@ import {
   combinerConfiances,
   générerCodeSecret,
   générerRésolveur,
+  lorsqueSignalAvorté,
   obtEmpreinteCode,
   oublierOuAttendreOublie,
   vérifierProfondeur,
@@ -342,9 +343,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
           const fluxPl = lpStream(flux);
           this.flux.intrants.set(idPair, { soujacent: flux, flux: fluxPl });
-          flux.addEventListener("close", () =>
-            this.flux.intrants.delete(idPair),
-          );
+
+          const lorsqueFermé = () => this.flux.intrants.delete(idPair);
+          flux.addEventListener("close", lorsqueFermé);
 
           while (true) {
             try {
@@ -375,6 +376,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
               });
             }
           }
+          flux.removeEventListener("close", lorsqueFermé);
         },
         {
           runOnLimitedConnection: true,
@@ -1643,7 +1645,11 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         );
         const fluxPl = lpStream(flux);
         this.flux.sortants.set(idPair, { soujacent: flux, flux: fluxPl });
-        flux.addEventListener("close", () => this.flux.sortants.delete(idPair));
+        const lorsqueFermé = () => {
+          flux.removeEventListener("close", lorsqueFermé)
+          this.flux.sortants.delete(idPair)
+        }
+        flux.addEventListener("close", lorsqueFermé);
 
         return { soujacent: flux, flux: fluxPl };
       } finally {
@@ -1779,7 +1785,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         }
       },
     });
-    signalFinal.addEventListener("abort", () => oublierMessages());
+    lorsqueSignalAvorté(signalFinal, oublierMessages)
 
     return requête;
   }
