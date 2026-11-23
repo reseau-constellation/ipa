@@ -74,6 +74,7 @@ export class ServiceLibp2p<
       for (const connu of pairsConnus) {
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           // À faire : gérer async
+          console.log(connu.id.toString(), connu.addresses.map(a=>a.multiaddr.toString()))
           libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
         }
       }
