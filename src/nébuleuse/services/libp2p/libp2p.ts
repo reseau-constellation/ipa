@@ -68,7 +68,7 @@ export class ServiceLibp2p<
 
     // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
     const reconnecter = async () => {
-      const pairsConnus = await libp2p.peerStore.all();
+      const pairsConnus = (await libp2p.peerStore.all()).filter(p=>p.addresses.length > 0);
       const connexions = libp2p.getPeers().map((p) => p.toString());
 
       for (const connu of pairsConnus) {
