@@ -118,11 +118,7 @@ export class AccèsParComptes {
     this.événements = new TypedEmitter();
     this.oublier = [];
     this.signaleurArrêt = new AbortController();
-    this.signal = anySignal(
-      signal
-        ? [signal, this.signaleurArrêt.signal]
-        : [this.signaleurArrêt.signal],
-    );
+    this.signal = anySignal([signal, this.signaleurArrêt.signal]);
 
     this._comptes = new Map();
     this._dispositifs = new Map();
