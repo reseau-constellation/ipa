@@ -132,7 +132,6 @@ export class CacheSuivi {
           promessesF.add(p.finally(() => promessesF.delete(p)));
       }
     };
-    const signaleur = new AbortController();
 
     // Vérifier si déjà en cache
     let suivi = this.suivis.get(codeCache);
@@ -145,7 +144,7 @@ export class CacheSuivi {
     } else {
       const pVerrou = this.verrou.acquire(codeCache)
       try {
-        await Promise.race([pVerrou, pSignal(signaleur.signal)]);
+        await pVerrou;
         // Le verrou sera relâché dans `finally` ci-dessous
 
         suivi = this.suivis.get(codeCache);
@@ -200,9 +199,9 @@ export class CacheSuivi {
         throw new Error("oublié en double dans cache" + idRequête + codeCache);
       }
       oublié = true;
-      await this.oublierSuivi({ codeCache, idRequête });
-    };
 
+      await oublierSuivi()
+    };
     return oublierRequête;
   }
 
