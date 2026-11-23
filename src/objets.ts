@@ -276,7 +276,7 @@ export abstract class ObjetConstellation<
         return await this.suivreObjets({
           idCompte,
           f: async (objetsCompte) => {
-            return await fSuivreBranche({
+            await fSuivreBranche({
               idCompte,
               accepté: (objetsCompte || []).includes(idObjet),
               rôle: branche.rôle,
