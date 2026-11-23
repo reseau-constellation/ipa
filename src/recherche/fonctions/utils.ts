@@ -256,8 +256,8 @@ const aMieuxQueB = <T extends InfoRésultat>(
     : a.score < b.score
       ? false
       : (xPlusLongQueY(a.info, b.info) ??
-        xPlusImportantQueY(a.info, b.info) ??
-        xMoinsProfondQueY(a.info, b.info));
+        xMoinsProfondQueY(a.info, b.info) ??
+        xPlusImportantQueY(a.info, b.info));
 };
 
 const meilleurRésultat = <T extends InfoRésultat>(
