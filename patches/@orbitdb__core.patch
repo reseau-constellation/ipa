@@ -40,7 +40,7 @@ index 2a6deb1ee3059257d2a68dc1710d181ed8adae97..6627781304c89b2f19f87a91bc804bec
  
    /**
 diff --git a/src/database.js b/src/database.js
-index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..b0340481e408bfb2c4d9eedcafcdf75eaa1af188 100644
+index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..80e0d17e4cff8ab4150ae2911a5bfdc581734189 100644
 --- a/src/database.js
 +++ b/src/database.js
 @@ -10,6 +10,7 @@ import Sync from './sync.js'
@@ -82,9 +82,9 @@ index 6c84ef3c0370e7bae0bc7cafabce015840c36f86..b0340481e408bfb2c4d9eedcafcdf75e
     */
    const close = async () => {
 +    if (status === "closed") return
-+    else if (status === "closing") return new Promise(resolve=>events.once('close', resolve)) 
++    else if (status === "closing") return new Promise(resolve=>events.once('close', resolve))
++    
 +    status = "closing"
-+
 +    localController.abort()
      await sync.stop()
      await queue.onIdle()

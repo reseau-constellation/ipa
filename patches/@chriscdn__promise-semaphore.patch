@@ -1,0 +1,13 @@
+diff --git a/lib/index.js b/lib/index.js
+index 50085ee3698071342130a41509c7471b3e895ca5..07c2a3a73430e7aa0ca67326ffab7222072c7ff8 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -38,7 +38,7 @@ var SemaphoreItem = class {
+ 	}
+ 	release() {
+ 		const resolveFunc = this.queue.shift();
+-		if (resolveFunc) setTimeout(resolveFunc.resolve, 0);
++		if (resolveFunc) resolveFunc.resolve();
+ 		else this.decrementCount();
+ 	}
+ };
