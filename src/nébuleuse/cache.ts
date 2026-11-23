@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import deepEqual from "fast-deep-equal";
 import { estUnePromesse } from "./services/utils.js";
 import type { Oublier, RetourRecherche, Suivi } from "./types.js";
+import { faisRien } from "@constl/utils-ipa";
+import { estErreurAvortée, pSignal } from "./utils.js";
 
 export class CacheSuivi {
   verrou: Semaphore;
@@ -130,15 +132,22 @@ export class CacheSuivi {
           promessesF.add(p.finally(() => promessesF.delete(p)));
       }
     };
+    const signaleur = new AbortController();
 
     // Vérifier si déjà en cache
     let suivi = this.suivis.get(codeCache);
+
+    let oublierSuivi: Oublier;
     if (suivi) {
       // Ajouter f à la liste de fonctions de rappel
       ajouterAuSuivi(suivi);
+      oublierSuivi = async () => await this.oublierSuivi({ codeCache, idRequête });
     } else {
+      const pVerrou = this.verrou.acquire(codeCache)
       try {
-        await this.verrou.acquire(codeCache);
+        await Promise.race([pVerrou, pSignal(signaleur.signal)]);
+        // Le verrou sera relâché dans `finally` ci-dessous
+
         suivi = this.suivis.get(codeCache);
         if (suivi) {
           ajouterAuSuivi(suivi);
@@ -175,8 +184,12 @@ export class CacheSuivi {
             [argsAvecF],
           );
         }
+        oublierSuivi =  async () => await this.oublierSuivi({ codeCache, idRequête });
+      } catch(e) {
+        if (estErreurAvortée(e)) oublierSuivi = faisRien
+        throw e
       } finally {
-        this.verrou.release(codeCache);
+        pVerrou.then(()=>this.verrou.release(codeCache))
       }
     }
 
@@ -363,8 +376,13 @@ export class CacheSuivi {
       );
     const { requêtes } = suivis;
 
-    const { promesses } = requêtes.get(idRequête) || {};
-    if (promesses) await Promise.allSettled(promesses);
+    const requête = requêtes.get(idRequête);
+    if (!requête)
+      throw new Error(
+        `Erreur de syncronisation dans oublie de cache pour ${codeCache}.`,
+      );
+    requête.f = faisRien
+    if (requête.promesses) await Promise.allSettled(requête.promesses);
 
     if (requêtes.size === 1) {
       try {
