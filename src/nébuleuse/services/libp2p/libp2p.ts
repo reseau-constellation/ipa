@@ -4,7 +4,7 @@ import type { Oublier, Suivi } from "../../types.js";
 import type { Libp2p } from "libp2p";
 import type { Identify, IdentifyPush } from "@libp2p/identify";
 import type { GossipSub } from "@libp2p/gossipsub";
-import type { PeerUpdate, ServiceMap } from "@libp2p/interface";
+import type { PeerId, PeerUpdate, ServiceMap } from "@libp2p/interface";
 import type { OptionsAppli } from "../../appli/appli.js";
 import type { Ping } from "@libp2p/ping";
 import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
@@ -29,6 +29,7 @@ export type ServicesNécessairesLibp2p<
 type RetourDémarrageLibp2p<L extends ServicesLibp2pNébuleuse> = {
   libp2p?: Libp2p<L>;
   oublierReconnecteur?: () => void;
+  oublierÉvénements: () => void;
 };
 
 export class ServiceLibp2p<
@@ -80,7 +81,7 @@ export class ServiceLibp2p<
     const chrono = setInterval(reconnecter, 3000);
     reconnecter();
 
-    libp2p.addEventListener("peer:disconnect", async ({ detail: idPair }) => {
+    const déconnecterWebRTC = async ({ detail: idPair }: { detail: PeerId }) => {
       const connexions = libp2p
         .getConnections()
         .filter(
@@ -91,9 +92,17 @@ export class ServiceLibp2p<
             c.remoteAddr.toString().startsWith("/webrtc/p2p/"),
         );
       await Promise.allSettled(connexions.map((c) => c.close()));
-    });
+    }
 
-    if (this.estDémarré === false) this.estDémarré = {};
+    libp2p.addEventListener("peer:disconnect", déconnecterWebRTC);
+
+    const oublierÉvénements = () => {
+      libp2p.removeEventListener("peer:disconnect", déconnecterWebRTC)
+    }
+
+    if (this.estDémarré === false) this.estDémarré = {
+      oublierÉvénements,
+    };
     this.estDémarré.oublierReconnecteur = () => clearInterval(chrono);
 
     return await super.démarrer();
@@ -115,17 +124,20 @@ export class ServiceLibp2p<
       await f(adresses);
     };
 
+    // À faire : implémenter avec appelerLorsque()
     libp2p.addEventListener("self:peer:update", fSuivi);
     return async () => libp2p.removeEventListener("self:peer:update", fSuivi);
   }
 
   async fermer(): Promise<void> {
-    const { libp2p, oublierReconnecteur } = await this.démarré();
+    const { libp2p, oublierReconnecteur, oublierÉvénements } = await this.démarré();
     this.statut = STATUTS.FERMETURE_EN_COURS;
 
     this.signaleurArrêt.abort("Fermeture");
-
+    
+    oublierÉvénements();
     oublierReconnecteur?.();
+
     // Uniquement fermer libp2p s'il n'a pas été fourni dans les options
     if (libp2p) await libp2p.stop();
 
