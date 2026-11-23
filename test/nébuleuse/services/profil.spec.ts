@@ -3,7 +3,6 @@ import { CID } from "multiformats";
 import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "@/nébuleuse/services/consts.js";
 import {
   AUCUN_DISPOSITIF,
-  RÉSOLVEUR_FAVORIS,
   TOUS_DISPOSITIFS,
 } from "@/nébuleuse/services/favoris.js";
 import { enleverPréfixes, idcEtFichierValide } from "@/utils.js";
@@ -309,12 +308,12 @@ describe("Profil", function () {
 
     it("résoudre épingle - base", async () => {
       const résolution = await obtenir<Set<string>>(({ siDéfini }) =>
-        nébuleuse.profil[RÉSOLVEUR_FAVORIS]({
+        nébuleuse.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idsComptes[1],
             épingle: {
               type: "profil",
-              épingle: { base: true },
+              épingle: { base: TOUS_DISPOSITIFS },
             },
           },
           f: siDéfini(),
@@ -326,13 +325,13 @@ describe("Profil", function () {
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
       const résolutionAvecImage = await obtenir<Set<string>>(({ si }) =>
-        nébuleuse.profil[RÉSOLVEUR_FAVORIS]({
+        nébuleuse.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idsComptes[1],
             épingle: {
               type: "profil",
               épingle: {
-                base: true,
+                base: TOUS_DISPOSITIFS,
               },
             },
           },
@@ -348,12 +347,12 @@ describe("Profil", function () {
     it("résoudre épingle - favoris", async () => {
       await nébuleuses[1].profil.épingler({ idCompte: idCompteInexistant });
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        nébuleuse.profil[RÉSOLVEUR_FAVORIS]({
+        nébuleuse.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idsComptes[1],
             épingle: {
               type: "profil",
-              épingle: { base: true, favoris: true },
+              épingle: { base: TOUS_DISPOSITIFS, favoris: TOUS_DISPOSITIFS },
             },
           },
           f: si((x) => !!x && x.size > 2),
@@ -377,12 +376,12 @@ describe("Profil", function () {
       });
 
       const résolution = await obtenir<Set<string>>(({ si }) =>
-        nébuleuse.profil[RÉSOLVEUR_FAVORIS]({
+        nébuleuse.favoris.suivreRésolutionÉpingle({
           épingle: {
             idObjet: idsComptes[1],
             épingle: {
               type: "profil",
-              épingle: { base: true, favoris: true },
+              épingle: { base: TOUS_DISPOSITIFS, favoris: TOUS_DISPOSITIFS },
             },
           },
           f: si((x) => !!x && x.size > 3),
