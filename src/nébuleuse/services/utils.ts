@@ -93,6 +93,15 @@ export const appelerLorsque = <
   };
 };
 
+export const lorsqueSignalAvorté = (signal: AbortSignal, f: ()=>(Promise<void>|void)): void => {
+  if (signal.aborted) {f(); return};
+  const fFinale = async () => {
+    signal.removeEventListener("abort", fFinale)
+    await f()
+  }
+  signal.addEventListener("abort", fFinale)
+}
+
 // De https://advancedweb.hu/how-to-use-async-functions-with-array-filter-in-javascript/https://advancedweb.hu/how-to-use-async-functions-with-array-filter-in-javascript/
 export const filtreAsync = async <T>(
   liste: T[],
