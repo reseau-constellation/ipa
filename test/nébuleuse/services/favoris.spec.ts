@@ -208,7 +208,7 @@ describe("Favoris", function () {
           },
         },
       });
-      return;
+
       const favoris = await obtenir<ÉpingleFavorisAvecId[] | undefined>(
         ({ si }) =>
           nébuleuse.favoris.suivreFavoris({
