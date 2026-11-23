@@ -43,10 +43,7 @@ class AccèsCompte {
 
   async démarrer({ signal }: { signal?: AbortSignal } = {}): Promise<void> {
     try {
-      const signalFinal = anySignal([
-        this.signaleurArrêt.signal,
-        ...(signal ? [signal] : []),
-      ]);
+      const signalFinal = anySignal([this.signaleurArrêt.signal, signal]);
       const bd = await this.orbite
         .open(this.idCompte, { signal: signalFinal })
         .finally(() => signalFinal.clear());
@@ -247,6 +244,8 @@ export class AccèsParComptes {
 
   async fermer(): Promise<void> {
     this.signaleurArrêt.abort();
+    this.queue.clear()
+    await this.àJour();
     await Promise.allSettled(this.oublier.map((f) => f()));
     this.signal.clear();
   }
