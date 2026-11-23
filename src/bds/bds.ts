@@ -324,6 +324,7 @@ export class Bds extends ObjetConstellation<
 
     await oublierBd();
     await oublier();
+
     return idBd;
   }
 
