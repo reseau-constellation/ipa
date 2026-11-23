@@ -271,6 +271,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       message: MessageIdentitéCompte;
       idPair: string;
     }) => {
+      console.log("reçu message identité de", idPair)
       const { identité, signature } = message;
 
       // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
@@ -280,6 +281,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       });
       if (!signatureValide) return;
       const { idDispositif, idCompte } = identité;
+      console.log("traiter identité paire", identité)
 
       await libp2p.peerStore.merge(peerIdFromString(idPair), {
         metadata: {
@@ -754,6 +756,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const oublierConnexionsPairs = await this.suivreInfosPairs({
       f: async (pairs) => {
+        console.log({pairs})
         infos.pairs = pairs;
         await fFinale();
       },
