@@ -96,6 +96,7 @@ import type xlsx from "@e965/xlsx";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
 import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.js";
 import type { MotsClefs } from "../motsClefs.js";
+import { suivreSi } from "@/recherche/utils.js";
 
 // Types épingles
 
@@ -1969,11 +1970,11 @@ export class Nuées extends ObjetConstellation<
     }
 
     const fObjectif: SuivreObjectifRecherche = async ({ idObjet: idBd, f }) => {
-      const àOublierObjectif: Oublier[] = [];
-
+      
       let monCompte: string;
 
       const infoBd: {
+        appartient?: boolean;
         auteurs?: InfoAuteur[];
         autorisée?: boolean;
         licence?: string | null;
@@ -1981,13 +1982,8 @@ export class Nuées extends ObjetConstellation<
       } = {};
 
       const fFinale = async () => {
-        const bonneNuée = infoBd.nuées?.some((nuée) =>
-          [
-            idNuée,
-            ...parentéeNuée.ascendants,
-            ...parentéeNuée.descendants,
-          ].includes(nuée),
-        );
+        const appartient = infoBd.appartient;
+
         const bonneLicence = filtres?.licences
           ? infoBd.licence && filtres.licences.includes(infoBd.licence)
           : true;
@@ -2003,30 +1999,59 @@ export class Nuées extends ObjetConstellation<
           ignorerAutorisation === true ? true : infoBd.autorisée;
 
         await f(
-          bonneNuée && bonneLicence && (bienAutorisée || autoriséeCarLaMienne)
+          appartient && bonneLicence && (bienAutorisée || autoriséeCarLaMienne)
             ? résultatPositif
             : undefined,
         );
       };
 
-      // Suivre mon id compte
-      const oublierIdCompte = await this.service("compte").suivreIdCompte({
-        f: async (idCompte) => {
-          monCompte = idCompte;
-          await fFinale();
+      return await suivreSi({
+        fRacine: async ({fSuivreRacine})=>{
+          const appartientÀNuée = async () => {
+            const appartient = infoBd.nuées?.some((nuée) =>
+              [
+                idNuée,
+                ...parentéeNuée.ascendants,
+                ...parentéeNuée.descendants,
+              ].includes(nuée),
+            );
+            infoBd.appartient = appartient
+            await fFinale();
+            await fSuivreRacine(Boolean(appartient))
+          }
+          // Suivre les changements de parentée
+          const oublierRéactionParentée = appelerLorsque({
+            émetteur: événements,
+            événement: "parentée",
+            f: appartientÀNuée,
+          });
+
+          const oublierNuées = await bds.suivreNuées({
+            idBd,
+            f: async (nuées) => {
+              infoBd.nuées = nuées;
+              await appartientÀNuée();
+            },
+          });
+
+          return async () => {
+            await oublierRéactionParentée()
+            await oublierNuées()
+          };
         },
-      });
-      àOublierObjectif.push(oublierIdCompte);
+        fSuivi: async ()=>{
+          const àOublierObjectif: Oublier[] = [];
 
-      // Suivre les changements de parentée
-      const oublierRéactionParentée = appelerLorsque({
-        émetteur: événements,
-        événement: "parentée",
-        f: fFinale,
-      });
-      àOublierObjectif.push(oublierRéactionParentée);
+          // Suivre mon id compte
+          const oublierIdCompte = await this.service("compte").suivreIdCompte({
+            f: async (idCompte) => {
+              monCompte = idCompte;
+              await fFinale();
+            },
+          });
+          àOublierObjectif.push(oublierIdCompte);
 
-      // Accepter toutes les licences par défaut
+          // Accepter toutes les licences par défaut
       if (filtres?.licences) {
         const oublierLicences = await bds.suivreLicence({
           idBd,
@@ -2051,14 +2076,7 @@ export class Nuées extends ObjetConstellation<
         àOublierObjectif.push(oublierAutorisée);
       }
 
-      const oublierNuées = await bds.suivreNuées({
-        idBd,
-        f: async (nuées) => {
-          infoBd.nuées = nuées;
-          await fFinale();
-        },
-      });
-      àOublierObjectif.push(oublierNuées);
+      
 
       const oublierAuteurs = await bds.suivreAuteurs({
         idBd,
@@ -2072,6 +2090,9 @@ export class Nuées extends ObjetConstellation<
       return async () => {
         await Promise.allSettled(àOublierObjectif.map((f) => f()));
       };
+    }
+    })
+
     };
 
     const { oublier: oublierRecherche } = await bds.recherche.selonObjectif({
@@ -2588,7 +2609,7 @@ export class Nuées extends ObjetConstellation<
     héritage,
     filtresBds,
     filtresDonnées,
-    patience = 500,
+    patience,
     dossier = "",
     inclureDocuments = true,
     dossierMédias,
