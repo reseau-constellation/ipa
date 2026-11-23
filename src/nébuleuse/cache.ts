@@ -2,10 +2,10 @@ import { Semaphore } from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 
 import deepEqual from "fast-deep-equal";
-import { estUnePromesse } from "./services/utils.js";
-import type { Oublier, RetourRecherche, Suivi } from "./types.js";
 import { faisRien } from "@constl/utils-ipa";
+import { estUnePromesse } from "./services/utils.js";
 import { estErreurAvortée } from "./utils.js";
+import type { Oublier, RetourRecherche, Suivi } from "./types.js";
 
 export class CacheSuivi {
   verrou: Semaphore;
@@ -140,9 +140,10 @@ export class CacheSuivi {
     if (suivi) {
       // Ajouter f à la liste de fonctions de rappel
       ajouterAuSuivi(suivi);
-      oublierSuivi = async () => await this.oublierSuivi({ codeCache, idRequête });
+      oublierSuivi = async () =>
+        await this.oublierSuivi({ codeCache, idRequête });
     } else {
-      const pVerrou = this.verrou.acquire(codeCache)
+      const pVerrou = this.verrou.acquire(codeCache);
       try {
         await pVerrou;
         // Le verrou sera relâché dans `finally` ci-dessous
@@ -183,12 +184,13 @@ export class CacheSuivi {
             [argsAvecF],
           );
         }
-        oublierSuivi =  async () => await this.oublierSuivi({ codeCache, idRequête });
-      } catch(e) {
-        if (estErreurAvortée(e)) oublierSuivi = faisRien
-        throw e
+        oublierSuivi = async () =>
+          await this.oublierSuivi({ codeCache, idRequête });
+      } catch (e) {
+        if (estErreurAvortée(e)) oublierSuivi = faisRien;
+        throw e;
       } finally {
-        pVerrou.then(()=>this.verrou.release(codeCache))
+        pVerrou.then(() => this.verrou.release(codeCache));
       }
     }
 
@@ -200,7 +202,7 @@ export class CacheSuivi {
       }
       oublié = true;
 
-      await oublierSuivi()
+      await oublierSuivi();
     };
     return oublierRequête;
   }
@@ -380,7 +382,7 @@ export class CacheSuivi {
       throw new Error(
         `Erreur de syncronisation dans oublie de cache pour ${codeCache}.`,
       );
-    requête.f = faisRien
+    requête.f = faisRien;
     if (requête.promesses) await Promise.allSettled(requête.promesses);
 
     if (requêtes.size === 1) {

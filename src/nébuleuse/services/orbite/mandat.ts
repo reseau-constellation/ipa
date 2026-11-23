@@ -2,8 +2,8 @@ import { Semaphore } from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 import { isValidAddress, type BaseDatabase, type OrbitDB } from "@orbitdb/core";
 import { estErreurAvortée, pSignal } from "../../utils.js";
-import type { ServiceMap } from "@libp2p/interface";
 import { lorsqueSignalAvorté } from "../utils.js";
+import type { ServiceMap } from "@libp2p/interface";
 
 // Un mandataire pour orbite qui évite les conditions de concurrence pour `open`
 
@@ -50,7 +50,6 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 
       if (prop === "open") {
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
-
           const nomOuAdresse = args[0];
           const parAdresse = isValidAddress(nomOuAdresse);
 
@@ -66,13 +65,15 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
             await new Promise((compléter) => setTimeout(compléter, 250));
             if (!ouverte) signaleurLocal.abort();
           };
-          if (signal) lorsqueSignalAvorté(signal, lorsquAvorté)
+          if (signal) lorsqueSignalAvorté(signal, lorsquAvorté);
 
           const promesseVerrou = verrouOrbite.acquire(nomOuAdresse);
 
           try {
-
-            await Promise.race([promesseVerrou, pSignal(signaleurLocal.signal)]);
+            await Promise.race([
+              promesseVerrou,
+              pSignal(signaleurLocal.signal),
+            ]);
             const existante = cacheBdsOrbite.get(nomOuAdresse);
 
             const bd =

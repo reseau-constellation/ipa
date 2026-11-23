@@ -81,7 +81,11 @@ export class ServiceLibp2p<
     const chrono = setInterval(reconnecter, 3000);
     reconnecter();
 
-    const déconnecterWebRTC = async ({ detail: idPair }: { detail: PeerId }) => {
+    const déconnecterWebRTC = async ({
+      detail: idPair,
+    }: {
+      detail: PeerId;
+    }) => {
       const connexions = libp2p
         .getConnections()
         .filter(
@@ -92,17 +96,18 @@ export class ServiceLibp2p<
             c.remoteAddr.toString().startsWith("/webrtc/p2p/"),
         );
       await Promise.allSettled(connexions.map((c) => c.close()));
-    }
+    };
 
     libp2p.addEventListener("peer:disconnect", déconnecterWebRTC);
 
     const oublierÉvénements = () => {
-      libp2p.removeEventListener("peer:disconnect", déconnecterWebRTC)
-    }
-
-    if (this.estDémarré === false) this.estDémarré = {
-      oublierÉvénements,
+      libp2p.removeEventListener("peer:disconnect", déconnecterWebRTC);
     };
+
+    if (this.estDémarré === false)
+      this.estDémarré = {
+        oublierÉvénements,
+      };
     this.estDémarré.oublierReconnecteur = () => clearInterval(chrono);
 
     return await super.démarrer();
@@ -130,11 +135,12 @@ export class ServiceLibp2p<
   }
 
   async fermer(): Promise<void> {
-    const { libp2p, oublierReconnecteur, oublierÉvénements } = await this.démarré();
+    const { libp2p, oublierReconnecteur, oublierÉvénements } =
+      await this.démarré();
     this.statut = STATUTS.FERMETURE_EN_COURS;
 
     this.signaleurArrêt.abort("Fermeture");
-    
+
     oublierÉvénements();
     oublierReconnecteur?.();
 

@@ -244,7 +244,7 @@ export class AccèsParComptes {
 
   async fermer(): Promise<void> {
     this.signaleurArrêt.abort();
-    this.queue.clear()
+    this.queue.clear();
     await this.àJour();
     await Promise.allSettled(this.oublier.map((f) => f()));
     this.signal.clear();

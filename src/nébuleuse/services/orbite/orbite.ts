@@ -22,7 +22,11 @@ import { ServiceAppli } from "../../appli/index.js";
 import { estErreurAvortée, réessayer } from "../../utils.js";
 import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
 import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
-import { appelerLorsque, estUnePromesse, lorsqueSignalAvorté } from "../utils.js";
+import {
+  appelerLorsque,
+  estUnePromesse,
+  lorsqueSignalAvorté,
+} from "../utils.js";
 import { mandatOrbite } from "./mandat.js";
 import type { OptionsAppli } from "../../appli/appli.js";
 import type {
@@ -291,11 +295,15 @@ export class ServiceOrbite<
     let ouverte = false;
 
     const signaleurLocal = new AbortController();
-    const signalFinal = anySignal([this.signaleurArrêt.signal, signaleurLocal.signal]);
+    const signalFinal = anySignal([
+      this.signaleurArrêt.signal,
+      signaleurLocal.signal,
+    ]);
 
-    if (signal) lorsqueSignalAvorté(signal, () => {
-      if (!ouverte) signaleurLocal.abort();
-    })
+    if (signal)
+      lorsqueSignalAvorté(signal, () => {
+        if (!ouverte) signaleurLocal.abort();
+      });
 
     const bd = await réessayer(
       () => orbite.open(id, { signal: signalFinal }),

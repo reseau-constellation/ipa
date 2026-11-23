@@ -1,9 +1,9 @@
 import { toUnicode } from "punycode-esm";
 import { multiaddr } from "@multiformats/multiaddr";
 import deepEqual from "fast-deep-equal";
+import { lorsqueSignalAvorté } from "./services/utils.js";
 import type { Suivi } from "./types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
-import { lorsqueSignalAvorté } from "./services/utils.js";
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {
   return new Promise<void>((compléter) => {
@@ -18,7 +18,6 @@ const attendre = (t: number, signal: AbortSignal): Promise<void> => {
 };
 
 export const pSignal = async (signal: AbortSignal): Promise<never> => {
-  
   return new Promise<never>((_compléter, rompre) => {
     const lorsquAvorté = () => {
       signal.removeEventListener("abort", lorsquAvorté);
@@ -111,7 +110,7 @@ export const stabiliser =
       };
 
       return new Promise<void>((compléter) => {
-        lorsqueSignalAvorté(signaleur.signal, compléter)
+        lorsqueSignalAvorté(signaleur.signal, compléter);
       });
     };
   };

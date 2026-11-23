@@ -12,6 +12,7 @@ import { utils as xlsxUtils } from "@e965/xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
+import { suivreSi } from "@/recherche/utils.js";
 import { schémaTableau } from "../tableaux.js";
 import {
   ajouterPréfixes,
@@ -96,7 +97,6 @@ import type xlsx from "@e965/xlsx";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
 import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.js";
 import type { MotsClefs } from "../motsClefs.js";
-import { suivreSi } from "@/recherche/utils.js";
 
 // Types épingles
 
@@ -1970,7 +1970,6 @@ export class Nuées extends ObjetConstellation<
     }
 
     const fObjectif: SuivreObjectifRecherche = async ({ idObjet: idBd, f }) => {
-      
       let monCompte: string;
 
       const infoBd: {
@@ -2006,7 +2005,7 @@ export class Nuées extends ObjetConstellation<
       };
 
       return await suivreSi({
-        fRacine: async ({fSuivreRacine})=>{
+        fRacine: async ({ fSuivreRacine }) => {
           const appartientÀNuée = async () => {
             const appartient = infoBd.nuées?.some((nuée) =>
               [
@@ -2015,10 +2014,10 @@ export class Nuées extends ObjetConstellation<
                 ...parentéeNuée.descendants,
               ].includes(nuée),
             );
-            infoBd.appartient = appartient
+            infoBd.appartient = appartient;
             await fFinale();
-            await fSuivreRacine(Boolean(appartient))
-          }
+            await fSuivreRacine(Boolean(appartient));
+          };
           // Suivre les changements de parentée
           const oublierRéactionParentée = appelerLorsque({
             émetteur: événements,
@@ -2035,11 +2034,11 @@ export class Nuées extends ObjetConstellation<
           });
 
           return async () => {
-            await oublierRéactionParentée()
-            await oublierNuées()
+            await oublierRéactionParentée();
+            await oublierNuées();
           };
         },
-        fSuivi: async ()=>{
+        fSuivi: async () => {
           const àOublierObjectif: Oublier[] = [];
 
           // Suivre mon id compte
@@ -2052,47 +2051,44 @@ export class Nuées extends ObjetConstellation<
           àOublierObjectif.push(oublierIdCompte);
 
           // Accepter toutes les licences par défaut
-      if (filtres?.licences) {
-        const oublierLicences = await bds.suivreLicence({
-          idBd,
-          f: async (licence) => {
-            infoBd.licence = licence;
-            await fFinale();
-          },
-        });
-        àOublierObjectif.push(oublierLicences);
-      }
+          if (filtres?.licences) {
+            const oublierLicences = await bds.suivreLicence({
+              idBd,
+              f: async (licence) => {
+                infoBd.licence = licence;
+                await fFinale();
+              },
+            });
+            àOublierObjectif.push(oublierLicences);
+          }
 
-      // Enforcer autorisation par défaut
-      if (filtres?.ignorerAutorisation !== true) {
-        const oublierAutorisée = await this.suivreAutorisationBd({
-          idNuée,
-          idBd,
-          f: async (autorisée) => {
-            infoBd.autorisée = autorisée;
-            await fFinale();
-          },
-        });
-        àOublierObjectif.push(oublierAutorisée);
-      }
+          // Enforcer autorisation par défaut
+          if (filtres?.ignorerAutorisation !== true) {
+            const oublierAutorisée = await this.suivreAutorisationBd({
+              idNuée,
+              idBd,
+              f: async (autorisée) => {
+                infoBd.autorisée = autorisée;
+                await fFinale();
+              },
+            });
+            àOublierObjectif.push(oublierAutorisée);
+          }
 
-      
+          const oublierAuteurs = await bds.suivreAuteurs({
+            idBd,
+            f: async (auteurs) => {
+              infoBd.auteurs = auteurs;
+              await fFinale();
+            },
+          });
+          àOublierObjectif.push(oublierAuteurs);
 
-      const oublierAuteurs = await bds.suivreAuteurs({
-        idBd,
-        f: async (auteurs) => {
-          infoBd.auteurs = auteurs;
-          await fFinale();
+          return async () => {
+            await Promise.allSettled(àOublierObjectif.map((f) => f()));
+          };
         },
       });
-      àOublierObjectif.push(oublierAuteurs);
-
-      return async () => {
-        await Promise.allSettled(àOublierObjectif.map((f) => f()));
-      };
-    }
-    })
-
     };
 
     const { oublier: oublierRecherche } = await bds.recherche.selonObjectif({

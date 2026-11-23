@@ -1646,9 +1646,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         const fluxPl = lpStream(flux);
         this.flux.sortants.set(idPair, { soujacent: flux, flux: fluxPl });
         const lorsqueFermé = () => {
-          flux.removeEventListener("close", lorsqueFermé)
-          this.flux.sortants.delete(idPair)
-        }
+          flux.removeEventListener("close", lorsqueFermé);
+          this.flux.sortants.delete(idPair);
+        };
         flux.addEventListener("close", lorsqueFermé);
 
         return { soujacent: flux, flux: fluxPl };
@@ -1785,7 +1785,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         }
       },
     });
-    lorsqueSignalAvorté(signalFinal, oublierMessages)
+    lorsqueSignalAvorté(signalFinal, oublierMessages);
 
     return requête;
   }
