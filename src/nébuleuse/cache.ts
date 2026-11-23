@@ -5,7 +5,7 @@ import deepEqual from "fast-deep-equal";
 import { estUnePromesse } from "./services/utils.js";
 import type { Oublier, RetourRecherche, Suivi } from "./types.js";
 import { faisRien } from "@constl/utils-ipa";
-import { estErreurAvortée, pSignal } from "./utils.js";
+import { estErreurAvortée } from "./utils.js";
 
 export class CacheSuivi {
   verrou: Semaphore;

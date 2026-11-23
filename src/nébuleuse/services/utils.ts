@@ -175,16 +175,17 @@ export const générerRésolveur = <T, S>(
     if (fermé) return faisRien;
     n++;
     const oublier = await f(...args);
-    oublis.add(async () => {
-      if (oublis.has(oublier)) {
-        oublis.delete(oublier);
+    const oublierFinale = async () => {
+      if (oublis.has(oublierFinale)) {
+        oublis.delete(oublierFinale);
         await oublier();
       }
-    });
+    }
+    oublis.add(oublierFinale);
     n--;
     événements.emit("terminé", n);
 
-    return oublier;
+    return oublierFinale;
   };
   return Object.assign(fFinale, { fermer });
 };
