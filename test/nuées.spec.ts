@@ -4819,7 +4819,7 @@ describe("Nuées", function () {
       let idsÉléments: string[];
 
       let données: DonnéesFichierBdExportées;
-
+      
       const nomTableau1 = "Tableau 1";
 
       before(async () => {
