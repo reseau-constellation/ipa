@@ -197,7 +197,7 @@ export class Recherche<S extends ServicesNécessairesRecherche> {
                 f: async (résultat) => {
                   info.résultat = résultat;
                   await fFinaleBranche();
-                  fSuivreRacine(
+                  await fSuivreRacine(
                     résultat?.score !== undefined && résultat.score > 0,
                   );
                 },
