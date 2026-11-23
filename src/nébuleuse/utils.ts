@@ -3,6 +3,7 @@ import { multiaddr } from "@multiformats/multiaddr";
 import deepEqual from "fast-deep-equal";
 import type { Suivi } from "./types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
+import { lorsqueSignalAvorté } from "./services/utils.js";
 
 const attendre = (t: number, signal: AbortSignal): Promise<void> => {
   return new Promise<void>((compléter) => {
@@ -17,13 +18,14 @@ const attendre = (t: number, signal: AbortSignal): Promise<void> => {
 };
 
 export const pSignal = async (signal: AbortSignal): Promise<never> => {
-  if (signal.aborted) throw new Error("AbortError: Signal déjà avorté");
+  
   return new Promise<never>((_compléter, rompre) => {
     const lorsquAvorté = () => {
       signal.removeEventListener("abort", lorsquAvorté);
       rompre(new Error("AbortError: Signal avorté"));
     };
     signal.addEventListener("abort", lorsquAvorté);
+    if (signal.aborted) lorsquAvorté();
   });
 };
 
@@ -109,8 +111,7 @@ export const stabiliser =
       };
 
       return new Promise<void>((compléter) => {
-        if (signaleur.signal.aborted) compléter();
-        signaleur.signal.addEventListener("abort", () => compléter());
+        lorsqueSignalAvorté(signaleur.signal, compléter)
       });
     };
   };
