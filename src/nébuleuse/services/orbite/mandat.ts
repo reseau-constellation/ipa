@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { isValidAddress, type BaseDatabase, type OrbitDB } from "@orbitdb/core";
 import { estErreurAvortée, pSignal } from "../../utils.js";
 import type { ServiceMap } from "@libp2p/interface";
+import { lorsqueSignalAvorté } from "../utils.js";
 
 // Un mandataire pour orbite qui évite les conditions de concurrence pour `open`
 
@@ -49,10 +50,6 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
 
       if (prop === "open") {
         const ouvrirAvecVerrou: OrbitDB["open"] = async (...args) => {
-          // Très bizarre...sans ça, certaines promesses et événements ci-dessous ne fonctionnent plus.
-          await new Promise((compléter) => {
-            setTimeout(compléter, 0);
-          });
 
           const nomOuAdresse = args[0];
           const parAdresse = isValidAddress(nomOuAdresse);
@@ -64,26 +61,25 @@ export const mandatOrbite = <L extends ServiceMap = ServiceMap>(
           const { signal = undefined, ...argsSansSignal } = args[1]
             ? args[1]
             : {};
-          const signalFinal = signaleurLocal.signal;
-          signal?.addEventListener("abort", async () => {
+
+          const lorsquAvorté = async () => {
             await new Promise((compléter) => setTimeout(compléter, 250));
             if (!ouverte) signaleurLocal.abort();
-          });
+          };
+          if (signal) lorsqueSignalAvorté(signal, lorsquAvorté)
 
           const promesseVerrou = verrouOrbite.acquire(nomOuAdresse);
 
           try {
-            if (signalFinal)
-              await Promise.race([promesseVerrou, pSignal(signalFinal)]);
-            else await promesseVerrou;
 
+            await Promise.race([promesseVerrou, pSignal(signaleurLocal.signal)]);
             const existante = cacheBdsOrbite.get(nomOuAdresse);
 
             const bd =
               (parAdresse && existante) ||
               (await target.open(nomOuAdresse, {
                 ...argsSansSignal,
-                signal: signalFinal,
+                signal: signaleurLocal.signal,
               }));
             const adresse = bd.address;
             ouverte = true;
