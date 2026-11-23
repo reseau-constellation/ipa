@@ -103,13 +103,13 @@ const ContrôleurNébuleuse =
     address?: string;
     signal?: AbortSignal;
   }) => {
+    orbitdb = mandatOrbite(orbitdb);
+
     nom = nom || uuidv4();
     stockage ??= await ComposedStorage(
       await LRUStorage({ size: 1000 }),
       await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true }),
     );
-
-    orbitdb = mandatOrbite(orbitdb);
 
     let adresseBdAccès: string;
 
