@@ -368,7 +368,7 @@ export class CacheSuivi {
 
     if (requêtes.size === 1) {
       try {
-        await this.verrou.acquire(codeCache);
+        await this.verrou.acquire({ key: codeCache, priority: -1 });
         requêtes.delete(idRequête);
         if (!requêtes.size) {
           const { oublier } = suivis;
