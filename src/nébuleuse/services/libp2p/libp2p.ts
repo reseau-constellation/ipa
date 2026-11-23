@@ -129,7 +129,7 @@ export class ServiceLibp2p<
       await f(adresses);
     };
 
-    // À faire : implémenter avec appelerLorsque()
+    // À faire : implémenter avec appelerLorsque()
     libp2p.addEventListener("self:peer:update", fSuivi);
     return async () => libp2p.removeEventListener("self:peer:update", fSuivi);
   }
