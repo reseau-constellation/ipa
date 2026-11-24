@@ -1345,6 +1345,14 @@ describe("Réseau", function () {
         );
 
         // Annoncer une association frauduleuse
+        await uneFois<ConnexionCompte[]>(
+          (fSuivi) =>
+            nébuleuses[2].réseau.suivreConnexionsComptes({ f: fSuivi }),
+          {
+            condition: (connexions) =>
+              !!connexions?.find((c) => c.idCompte === idsComptes[0]),
+          },
+        );
         // @ts-expect-error On n'est pas supposé de faire ça...
         nébuleuses[2].compte.estDémarré = {
           ...nébuleuses[2].compte.estDémarré,
