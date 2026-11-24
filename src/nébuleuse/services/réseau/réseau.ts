@@ -1637,10 +1637,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       return fluxExistant;
     } else {
       const libp2p = await this.service("libp2p").libp2p();
-      const signalCombiné = anySignal([
-        this.signaleurArrêt.signal,
-        ...(signal ? [signal] : []),
-      ]);
+      const signalCombiné = anySignal([this.signaleurArrêt.signal, signal]);
 
       try {
         const flux = await libp2p.dialProtocol(
