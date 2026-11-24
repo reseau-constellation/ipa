@@ -564,16 +564,25 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
   }
 
   async annoncerIdCompte() {
-    const libp2p = await this.service("libp2p").libp2p();
-    const pairsConnectés = libp2p.getPeers();
+    const journal = this.service("journal");
+    const pairsConnectés = await uneFois<ConnexionDispositif[]>(
+      async (fSuivi) => this.suivreConnexionsDispositifs({ f: fSuivi }),
+    );
 
     // C'est pas grave si on n'arrive pas à passer le message à tout le monde
-    await Promise.allSettled(
-      pairsConnectés.map(
-        async (p) =>
-          await this.envoyerMesIdentifiants({ idPair: p.toString() }),
-      ),
-    );
+    const nonEnvoyés = (
+      await Promise.allSettled(
+        pairsConnectés.map(
+          async (p) =>
+            await this.envoyerMesIdentifiants({ idPair: p.pair.pair }),
+        ),
+      )
+    ).filter((r) => r.status === "rejected");
+    if (nonEnvoyés.length)
+      journal.écrire({
+        // eslint-disable-next-line no-irregular-whitespace
+        message: `Annonce identifiants n'a pas été envoyée à tous les pairs : ${nonEnvoyés.map((e) => e.reason)}`,
+      });
   }
 
   async envoyerMesIdentifiants({ idPair }: { idPair: string }) {
