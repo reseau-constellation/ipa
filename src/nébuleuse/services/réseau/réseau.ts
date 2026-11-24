@@ -35,7 +35,7 @@ import {
   type FonctionRésolveur,
   type Résolveur,
 } from "../utils.js";
-import { estErreurAvortée } from "../../utils.js";
+import { estErreurAvortée, réessayer } from "../../utils.js";
 import { STATUTS } from "../../appli/consts.js";
 import {
   ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
@@ -1672,10 +1672,18 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
     idPair: string;
     signal?: AbortSignal;
   }) {
-    try {
+    const envoyerAuPair = async () => {
       const { flux } = await this.obtFluxPair({ idPair, signal });
       const messageBinaire = new TextEncoder().encode(JSON.stringify(message));
       await flux.write(messageBinaire, { signal });
+    };
+
+    try {
+      await réessayer(
+        envoyerAuPair,
+        anySignal([signal, this.signaleurArrêt.signal]),
+        3,
+      );
     } catch (e) {
       throw new Error(
         `Impossible de se connecter au pair ${idPair}.` + e.toString(),
