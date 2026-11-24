@@ -8,6 +8,7 @@ import type { PeerId, PeerUpdate, ServiceMap } from "@libp2p/interface";
 import type { OptionsAppli } from "../../appli/appli.js";
 import type { Ping } from "@libp2p/ping";
 import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
+import type { ServiceJournal } from "../journal.js";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;
@@ -24,6 +25,7 @@ export type ServicesNécessairesLibp2p<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > = ServicesNécessairesHélia & {
   hélia: ServiceHélia<L>;
+  journal: ServiceJournal;
 };
 
 type RetourDémarrageLibp2p<L extends ServicesLibp2pNébuleuse> = {
@@ -52,7 +54,7 @@ export class ServiceLibp2p<
     super({
       clef: "libp2p",
       services,
-      dépendances: ["stockage", "dossier", "hélia"],
+      dépendances: ["stockage", "dossier", "hélia", "journal"],
       options,
     });
 
@@ -65,17 +67,25 @@ export class ServiceLibp2p<
       this.signaleurArrêt = new AbortController();
 
     const libp2p = (await this.service("hélia").hélia()).libp2p;
+    const journal = this.service("journal");
 
     // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
     const reconnecter = async () => {
-      const pairsConnus = (await libp2p.peerStore.all()).filter(p=>p.addresses.length > 0);
+      const pairsConnus = (await libp2p.peerStore.all()).filter(
+        (p) => p.addresses.length > 0,
+      );
       const connexions = libp2p.getPeers().map((p) => p.toString());
 
       for (const connu of pairsConnus) {
         if (!connexions.some((id) => id.toString() === connu.id.toString())) {
           // À faire : gérer async
-          console.log(connu.id.toString(), connu.addresses.map(a=>a.multiaddr.toString()))
-          libp2p.dial(connu.id, { signal: this.signaleurArrêt.signal });
+          libp2p
+            .dial(connu.id, { signal: this.signaleurArrêt.signal })
+            .catch((e) =>
+              journal.écrire({
+                message: `Erreur connexion libp2p vers ${connu.id.toString()} : ${e.toString() + e.stack || ""}`, // eslint-disable-line no-irregular-whitespace
+              }),
+            );
         }
       }
     };
