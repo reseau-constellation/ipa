@@ -9,6 +9,7 @@ import type { OptionsAppli } from "../../appli/appli.js";
 import type { Ping } from "@libp2p/ping";
 import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
 import type { ServiceJournal } from "../journal.js";
+import { faisRien } from "@constl/utils-ipa";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;
@@ -81,11 +82,7 @@ export class ServiceLibp2p<
           // À faire : gérer async
           libp2p
             .dial(connu.id, { signal: this.signaleurArrêt.signal })
-            .catch((e) =>
-              journal.écrire({
-                message: `Erreur connexion libp2p vers ${connu.id.toString()} : ${e.toString() + e.stack || ""}`, // eslint-disable-line no-irregular-whitespace
-              }),
-            );
+            .catch(faisRien);
         }
       }
     };
