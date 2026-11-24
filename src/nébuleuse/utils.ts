@@ -31,8 +31,10 @@ export const pSignal = async (signal: AbortSignal): Promise<never> => {
 export const réessayer = async <T>(
   f: () => Promise<T>,
   signal: AbortSignal,
+  max = Infinity,
 ): Promise<T> => {
   let avant = Date.now();
+
   const _interne = async ({
     f,
     n,
@@ -47,6 +49,8 @@ export const réessayer = async <T>(
       if (signal.aborted || estErreurAvortée(e as Error))
         throw new Error("AbortError: Signal avorté", { cause: e });
       n++;
+      if (n > max) throw e;
+
       const maintenant = Date.now();
       const tempsÀAttendre = n * 1000 + (maintenant - avant);
       if (tempsÀAttendre > 0) {
