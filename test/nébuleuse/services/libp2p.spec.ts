@@ -62,6 +62,7 @@ describe("Service Libp2p", function () {
           stockage: serviceStockage(),
           libp2p: serviceLibp2p(),
           hélia: serviceHéliaTest(),
+          journal: serviceJournal(),
         },
       });
       await appli.démarrer();
@@ -80,6 +81,7 @@ describe("Service Libp2p", function () {
           stockage: serviceStockage(),
           libp2p: serviceLibp2p(),
           hélia: serviceHéliaTest(),
+          journal: serviceJournal(),
         },
       });
       await appli.démarrer();
@@ -94,6 +96,7 @@ describe("Service Libp2p", function () {
           stockage: serviceStockage(),
           libp2p: serviceLibp2p(),
           hélia: serviceHéliaTest(),
+          journal: serviceJournal(),
         },
       });
       await appli.démarrer();
@@ -280,6 +283,7 @@ describe("Service Libp2p", function () {
               hélia: créerHéliaÉphémère,
             }),
             libp2p: serviceLibp2p(),
+            journal: serviceJournal(),
           },
         });
 
@@ -315,6 +319,7 @@ describe("Service Libp2p", function () {
               libp2p: optionsLibp2p,
               hélia: créerHéliaÉphémère,
             }),
+            journal: serviceJournal(),
           },
         });
 
@@ -390,6 +395,7 @@ describe("Service Libp2p", function () {
               libp2p: optionsLibp2p,
               hélia: créerHéliaÉphémère,
             }),
+            journal: serviceJournal(),
           },
         });
         await appli.démarrer();
@@ -422,6 +428,7 @@ describe("Service Libp2p", function () {
               hélia: créerHéliaÉphémère,
             }),
             libp2p: serviceLibp2p(),
+            journal: serviceJournal(),
           },
         });
         await appli.démarrer();
@@ -453,6 +460,7 @@ describe("Service Libp2p", function () {
           libp2p: serviceLibp2p(),
           hélia: serviceHéliaTest(),
           stockage: serviceStockage(),
+          journal: serviceJournal(),
         },
       });
       await appli.démarrer();
