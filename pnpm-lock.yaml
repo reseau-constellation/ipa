@@ -178,7 +178,7 @@ overrides:
 
 patchedDependencies:
   '@chriscdn/promise-semaphore': 56485bc386c17e3fae3c8aaf1873f0bc0a508314079e3eb955fe37f8747068d8
-  '@constl/utils-tests': f6ec101a05db5d1b291c7e8c827a51100c93942b57df05996531fd65d59595dc
+  '@constl/utils-tests': 2079447e88c9a5752ee3c03e5b8d78675a33b55ca7d760124b1d326cd57f366b
   '@libp2p/gossipsub': e30a1c3529f881bbafb052b5951233c6310d8d9284165bf13c0ef0faad6d501b
   '@orbitdb/core': 1d8fa5b53f06229e9716077fd5801aeba91ce661647ac4af37540fe05f8d047e
 
@@ -480,7 +480,7 @@ importers:
     devDependencies:
       '@constl/utils-tests':
         specifier: ^2.2.12
-        version: 2.2.12(patch_hash=f6ec101a05db5d1b291c7e8c827a51100c93942b57df05996531fd65d59595dc)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
+        version: 2.2.12(patch_hash=2079447e88c9a5752ee3c03e5b8d78675a33b55ca7d760124b1d326cd57f366b)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@9.39.5(supports-color@10.2.2))
@@ -9412,7 +9412,7 @@ snapshots:
       uint8arrays: 6.1.1
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@2.2.12(patch_hash=f6ec101a05db5d1b291c7e8c827a51100c93942b57df05996531fd65d59595dc)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)':
+  '@constl/utils-tests@2.2.12(patch_hash=2079447e88c9a5752ee3c03e5b8d78675a33b55ca7d760124b1d326cd57f366b)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)':
     dependencies:
       '@helia/bitswap': 4.0.20(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
       '@helia/libp2p': 2.1.5(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2))(supports-color@10.2.2)
