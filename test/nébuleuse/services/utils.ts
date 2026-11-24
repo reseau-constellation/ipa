@@ -7,14 +7,16 @@ import type { Libp2pOptions } from "libp2p";
 import type {
   OptionsServiceLibp2p,
   ServicesLibp2pNébuleuse,
-  ServicesNécessairesLibp2p,
 } from "@/nébuleuse/services/libp2p/libp2p.js";
 import type { OptionsAppli } from "@/nébuleuse/appli/appli.js";
 import type {
   ConfigLibp2p,
   GénérateurOptionsLibp2p,
 } from "@/nébuleuse/services/libp2p/config/config.js";
-import type { OptionsServiceHélia } from "@/nébuleuse/services/hélia.js";
+import type {
+  OptionsServiceHélia,
+  ServicesNécessairesHélia,
+} from "@/nébuleuse/services/hélia.js";
 import type { Reconnecteur } from "@/nébuleuse/services/libp2p/services/reconnecteur.js";
 import type { Keychain } from "helia";
 
@@ -78,7 +80,7 @@ export class ServiceHéliaTest extends ServiceHélia<ServicesLibp2pNébuleuse> {
     services,
     options,
   }: {
-    services: ServicesNécessairesLibp2p<ServicesLibp2pNébuleuse>;
+    services: ServicesNécessairesHélia;
     options: OptionsServiceLibp2p & OptionsAppli;
   }) {
     super({
@@ -102,7 +104,7 @@ export const serviceHéliaTest =
     services,
   }: {
     options: OptionsAppli;
-    services: ServicesNécessairesLibp2p;
+    services: ServicesNécessairesHélia;
   }) => {
     return new ServiceHéliaTest({
       options: { ...optionsHélia, ...options },
