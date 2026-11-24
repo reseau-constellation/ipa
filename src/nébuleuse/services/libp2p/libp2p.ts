@@ -68,7 +68,6 @@ export class ServiceLibp2p<
       this.signaleurArrêt = new AbortController();
 
     const libp2p = (await this.service("hélia").hélia()).libp2p;
-    const journal = this.service("journal");
 
     // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
     const reconnecter = async () => {
