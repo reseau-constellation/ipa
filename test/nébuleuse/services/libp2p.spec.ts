@@ -17,6 +17,7 @@ import { Appli } from "@/nébuleuse/appli/appli.js";
 import { serviceDossier } from "@/nébuleuse/services/dossier.js";
 import { serviceStockage } from "@/nébuleuse/services/stockage.js";
 import { serviceHélia } from "@/nébuleuse/services/hélia.js";
+import { serviceJournal } from "@/nébuleuse/services/journal.js";
 import {
   créerHéliaÉphémère,
   dossierTempoPropre,
