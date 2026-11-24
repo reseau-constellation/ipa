@@ -261,7 +261,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
 
     const libp2p = await this.service("libp2p").libp2p();
     const orbite = this.service("orbite");
-    const monIdPair = libp2p.peerId.toString();
 
     const signal = this.signaleurArrêt.signal;
 
@@ -272,7 +271,6 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       message: MessageIdentitéCompte;
       idPair: string;
     }) => {
-      console.log(monIdPair, "reçu message identité de", idPair)
       const { identité, signature } = message;
 
       // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
@@ -280,10 +278,9 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         signature,
         message: JSON.stringify(identité),
       });
-      console.log({monIdPair, signatureValide })
+
       if (!signatureValide) return;
       const { idDispositif, idCompte } = identité;
-      console.log(monIdPair, "traiter identité paire", identité)
 
       await libp2p.peerStore.merge(peerIdFromString(idPair), {
         metadata: {
@@ -755,10 +752,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       }
       await f(connexions);
     };
-    const monIdPair = await this.service("compte").obtIdLibp2p()
     const oublierConnexionsPairs = await this.suivreInfosPairs({
       f: async (pairs) => {
-        console.log(monIdPair, {pairs})
         infos.pairs = pairs;
         await fFinale();
       },
