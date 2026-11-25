@@ -575,7 +575,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
         }: {
           id: string;
           fSuivreBranche: Suivi<Réplication | undefined>;
-        }) => {
+        }) =>
           await this.suivreEstÉpingléSurDispositif({
             idObjet,
             f: async (épingle) => {
@@ -585,8 +585,7 @@ export class ServiceFavoris extends ServiceDonnéesAppli<
             },
             idDispositif,
             idCompte,
-          });
-        },
+          }),
         f,
       });
     };
