@@ -5,15 +5,15 @@ import { lorsqueSignalAvorté } from "./services/utils.js";
 import type { Suivi } from "./types.js";
 import type { Multiaddr } from "@multiformats/multiaddr";
 
-const attendre = (t: number, signal: AbortSignal): Promise<void> => {
+const attendre = (t: number, signal?: AbortSignal): Promise<void> => {
   return new Promise<void>((compléter) => {
     const terminer = () => {
       clearInterval(chrono);
-      signal.removeEventListener("abort", terminer);
+      signal?.removeEventListener("abort", terminer);
       compléter();
     };
     const chrono = setTimeout(terminer, t);
-    signal.addEventListener("abort", terminer);
+    signal?.addEventListener("abort", terminer);
   });
 };
 
@@ -30,7 +30,7 @@ export const pSignal = async (signal: AbortSignal): Promise<never> => {
 
 export const réessayer = async <T>(
   f: () => Promise<T>,
-  signal: AbortSignal,
+  signal?: AbortSignal,
   max = Infinity,
 ): Promise<T> => {
   let avant = Date.now();
@@ -44,9 +44,9 @@ export const réessayer = async <T>(
   }): Promise<T> => {
     try {
       avant = Date.now();
-      return await Promise.race([f(), pSignal(signal)]);
+      return await (signal ? Promise.race([f(), pSignal(signal)]) : f());
     } catch (e) {
-      if (signal.aborted || estErreurAvortée(e as Error))
+      if (signal?.aborted || estErreurAvortée(e as Error))
         throw new Error("AbortError: Signal avorté", { cause: e });
       n++;
       if (n > max) throw e;
@@ -56,7 +56,7 @@ export const réessayer = async <T>(
       if (tempsÀAttendre > 0) {
         await attendre(tempsÀAttendre, signal);
 
-        if (signal.aborted)
+        if (signal?.aborted)
           throw new Error("AbortError: Signal avorté", { cause: e });
       }
       return await _interne({ f, n });
