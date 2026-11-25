@@ -8,6 +8,7 @@ import {
 } from "@/nébuleuse/services/compte/accès/index.js";
 import { préparerOrbite } from "@/nébuleuse/services/orbite/orbite.js";
 import { mandatOrbite } from "@/nébuleuse/services/orbite/mandat.js";
+import { réessayer } from "@/nébuleuse/utils.js";
 import { attendreQue } from "../../../appli/utils/fonctions.js";
 import { attendreInvité, obtenir, peutÉcrire } from "../../../utils.js";
 import type { Oublier } from "@/nébuleuse/types.js";
@@ -82,7 +83,11 @@ describe("Accès", function () {
       expect(modératrice).to.be.false();
 
       // Effectué sur l'instance ajoutée
-      const bdSurOrbite2 = (await orbite2.open(bd.address)) as KeyValueDatabase;
+      const bdSurOrbite2 = (await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      )) as KeyValueDatabase;
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
 
       await attendreInvité(bdSurOrbite2, orbite2.identity.id);
@@ -114,7 +119,11 @@ describe("Accès", function () {
       expect(modératrice).to.be.true();
 
       // Effectué sur l'instance ajoutée
-      const bdSurOrbite2 = (await orbite2.open(bd.address)) as KeyValueDatabase;
+      const bdSurOrbite2 = (await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      )) as KeyValueDatabase;
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
 
       await attendreInvité(bdSurOrbite2, orbite2.identity.id);
@@ -130,7 +139,11 @@ describe("Accès", function () {
 
     it("erreur - un membre ne peut pas inviter d'autres membres", async () => {
       await accès.autoriser(MEMBRE, orbite2.identity.id);
-      const bdSurOrbite2 = await orbite2.open(bd.address);
+      const bdSurOrbite2 = await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      );
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
 
       await expect(
@@ -143,13 +156,21 @@ describe("Accès", function () {
     it("une modératrice peut ajouter un membre", async () => {
       await accès.autoriser(MODÉRATRICE, orbite2.identity.id);
 
-      const bdSurOrbite2 = await orbite2.open(bd.address);
+      const bdSurOrbite2 = await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      );
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
       await attendreQue(() => accès2.estUneModératrice(orbite2.identity.id));
 
       await accès2.autoriser(MEMBRE, orbite3.identity.id);
 
-      const bdSurOrbite3 = (await orbite3.open(bd.address)) as KeyValueDatabase;
+      const bdSurOrbite3 = (await réessayer(
+        () => orbite3.open(bd.address),
+        undefined,
+        2,
+      )) as KeyValueDatabase;
       await attendreInvité(bdSurOrbite3, orbite3.identity.id);
 
       const autorisé = await peutÉcrire(bdSurOrbite3);
@@ -159,13 +180,21 @@ describe("Accès", function () {
     it("une modératrice peut ajouter une autre modératrice", async () => {
       await accès.autoriser(MODÉRATRICE, orbite2.identity.id);
 
-      const bdSurOrbite2 = await orbite2.open(bd.address);
+      const bdSurOrbite2 = await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      );
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
       await attendreQue(() => accès2.estUneModératrice(orbite2.identity.id));
 
       await accès2.autoriser(MODÉRATRICE, orbite3.identity.id);
 
-      const bdSurOrbite3 = (await orbite3.open(bd.address)) as KeyValueDatabase;
+      const bdSurOrbite3 = (await réessayer(
+        () => orbite3.open(bd.address),
+        undefined,
+        2,
+      )) as KeyValueDatabase;
 
       await attendreInvité(bdSurOrbite3, orbite3.identity.id);
 
@@ -245,7 +274,11 @@ describe("Accès", function () {
     });
 
     it("erreur d'ajout si utilisateur non autorisé", async () => {
-      const bdSurOrbite2 = await orbite2.open(bd.address);
+      const bdSurOrbite2 = await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      );
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
 
       await expect(
@@ -273,8 +306,10 @@ describe("Accès", function () {
         orbite2.identity.id,
       );
 
-      const bd2SurOrbite2 = (await orbite2.open(
-        bd2.address,
+      const bd2SurOrbite2 = (await réessayer(
+        () => orbite2.open(bd2.address),
+        undefined,
+        2,
       )) as KeyValueDatabase;
 
       // On attend que les permissions se propagent
@@ -288,7 +323,11 @@ describe("Accès", function () {
     it("invitations transitives après fermeture de la bd", async () => {
       let dernière = orbite1;
       for (const orbite of [orbite2, orbite3, orbite4]) {
-        const bdLocale = await dernière.open(bd.address);
+        const bdLocale = await réessayer(
+          () => dernière.open(bd.address),
+          undefined,
+          2,
+        );
         const accèsLocal = bdLocale.access as InstanceContrôleurNébuleuse;
         await attendreQue(() =>
           accèsLocal.estUneModératrice(dernière.identity.id),
@@ -325,7 +364,11 @@ describe("Accès", function () {
       let accès = bd.access as InstanceContrôleurNébuleuse;
       accès.autoriser(MODÉRATRICE, orbite2.identity.id);
 
-      const bdSurOrbite2 = await orbite2.open(bd.address);
+      const bdSurOrbite2 = await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      );
       const accèsSurOrbite2 =
         bdSurOrbite2.access as InstanceContrôleurNébuleuse;
       await attendreQue(() =>
@@ -429,7 +472,11 @@ describe("Accès", function () {
       expect(modératrice).to.be.false();
 
       // Effectué sur l'instance ajoutée
-      const bdSurOrbite2 = (await orbite2.open(bd.address)) as KeyValueDatabase;
+      const bdSurOrbite2 = (await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      )) as KeyValueDatabase;
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
       await attendreInvité(bdSurOrbite2, idCompte2);
 
@@ -458,7 +505,11 @@ describe("Accès", function () {
       expect(modératrice).to.be.true();
 
       // Effectué sur l'instance ajoutée
-      const bdSurOrbite2 = (await orbite2.open(bd.address)) as KeyValueDatabase;
+      const bdSurOrbite2 = (await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      )) as KeyValueDatabase;
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
 
       await attendreInvité(bdSurOrbite2, idCompte2);
@@ -474,7 +525,11 @@ describe("Accès", function () {
     it("erreur - un membre ne peut pas inviter d'autres membres", async () => {
       await accès.autoriser(MEMBRE, idCompte2);
 
-      const bdSurOrbite2 = await orbite2.open(bd.address);
+      const bdSurOrbite2 = await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      );
       await attendreInvité(bdSurOrbite2, idCompte2);
 
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
@@ -489,12 +544,20 @@ describe("Accès", function () {
     it("une modératrice peut ajouter un membre", async () => {
       await accès.autoriser(MODÉRATRICE, idCompte2);
 
-      const bdSurOrbite2 = await orbite2.open(bd.address);
+      const bdSurOrbite2 = await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      );
       const accès2 = bdSurOrbite2.access as InstanceContrôleurNébuleuse;
       await attendreQue(() => accès2.estUneModératrice(orbite2.identity.id));
 
       await accès2.autoriser(MEMBRE, orbite3.identity.id);
-      const bdSurOrbite3 = (await orbite3.open(bd.address)) as KeyValueDatabase;
+      const bdSurOrbite3 = (await réessayer(
+        () => orbite3.open(bd.address),
+        undefined,
+        2,
+      )) as KeyValueDatabase;
       await attendreInvité(bdSurOrbite3, orbite3.identity.id);
 
       const autorisé = await peutÉcrire(bdSurOrbite3);
@@ -504,14 +567,22 @@ describe("Accès", function () {
     it("un membre peut ajouter son propre dispositif", async () => {
       await accès.autoriser(MEMBRE, idCompte2);
 
-      const bdSurOrbite2 = await orbite2.open(bd.address);
+      const bdSurOrbite2 = await réessayer(
+        () => orbite2.open(bd.address),
+        undefined,
+        2,
+      );
       await attendreInvité(bdSurOrbite2, orbite2.identity.id);
 
       const compte2 = await orbite2.open(idCompte2);
       const accèsCompte2 = compte2.access as InstanceContrôleurNébuleuse;
       await accèsCompte2.autoriser(MODÉRATRICE, orbite3.identity.id);
 
-      const bdSurOrbite3 = (await orbite3.open(bd.address)) as KeyValueDatabase;
+      const bdSurOrbite3 = (await réessayer(
+        () => orbite3.open(bd.address),
+        undefined,
+        2,
+      )) as KeyValueDatabase;
       await attendreInvité(bdSurOrbite3, orbite3.identity.id);
 
       const autorisé = await peutÉcrire(bdSurOrbite3);
