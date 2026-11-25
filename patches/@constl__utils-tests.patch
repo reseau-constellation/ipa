@@ -1,9 +1,11 @@
 diff --git a/dist/libp2p/utils.js b/dist/libp2p/utils.js
-index d0bcb4bbc410bf90a238d5afd24b1d61fe50609f..d2099f1f5a890bffb9325c87194cef4bcd7a1265 100644
+index d0bcb4bbc410bf90a238d5afd24b1d61fe50609f..289f938d2ef583a25b6c3c022fc50e46704712cb 100644
 --- a/dist/libp2p/utils.js
 +++ b/dist/libp2p/utils.js
-@@ -1,8 +1,7 @@
+@@ -1,8 +1,9 @@
 -import { WebRTC } from "@multiformats/multiaddr-matcher";
++import { WebRTC } from '@multiformats/multiaddr-matcher'
++ 
  import { multiaddr } from "@multiformats/multiaddr";
  import { isBrowser, isElectronRenderer } from "wherearewe";
  import { que } from "../attente.js";
@@ -12,7 +14,7 @@ index d0bcb4bbc410bf90a238d5afd24b1d61fe50609f..d2099f1f5a890bffb9325c87194cef4b
  export const connecterPairs = async (libp2p1, libp2p2, options) => {
      const filtre = options.filtre ?? filtreParDéfaut;
      if (libp2p1.getPeers().some((idPair) => idPair.equals(libp2p2.peerId)))
-@@ -11,36 +10,27 @@ export const connecterPairs = async (libp2p1, libp2p2, options) => {
+@@ -11,36 +12,27 @@ export const connecterPairs = async (libp2p1, libp2p2, options) => {
      const idPairRelai = adresseRelai
          .getComponents()
          .find((c) => c.name === "p2p")?.value;
@@ -41,7 +43,7 @@ index d0bcb4bbc410bf90a238d5afd24b1d61fe50609f..d2099f1f5a890bffb9325c87194cef4b
 -                    .filter((ma) => WebRTC.matches(ma) && filtre(ma))
 -                    .pop();
 -                if (adresse != null) {
-+                    .filter(filtre);
++                    .filter(x=>filtre(x) && !WebRTC.matches(x));
 +                if (adresses.length) {
                      clearInterval(interval);
 -                    résoudre(adresse);
@@ -64,7 +66,7 @@ index d0bcb4bbc410bf90a238d5afd24b1d61fe50609f..d2099f1f5a890bffb9325c87194cef4b
                  }
              };
              const interval = setInterval(testConnecté, 100);
-@@ -48,12 +38,14 @@ export const connecterPairs = async (libp2p1, libp2p2, options) => {
+@@ -48,12 +40,14 @@ export const connecterPairs = async (libp2p1, libp2p2, options) => {
          });
      }
      else {
