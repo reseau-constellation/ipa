@@ -557,7 +557,7 @@ export class BaseServiceCompte<
         if (!estErreurAvortée(e))
           journal.écrire({
             // eslint-disable-next-line no-irregular-whitespace
-            message: `Erreur ouverture données Orbite dans suivi autorisations pour ${idObjet} : ${e.toString()}`,
+            message: `Erreur ouverture données Orbite dans suivi autorisations pour ${idObjet} : ${e.toString() + e.stack || ""}`,
           });
       });
 
