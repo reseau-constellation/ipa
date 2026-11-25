@@ -186,7 +186,7 @@ export const générerRésolveur = <T, S>(
         oublis.delete(oublierFinale);
         const pOublier = oublier();
         oublis.add(pOublier)
-        await pOublier
+        await pOublier.then(()=>oublis.delete(oublier))
       }
     };
     oublis.add(oublierFinale);
