@@ -1,3 +1,4 @@
+import { faisRien } from "@constl/utils-ipa";
 import { ServiceAppli } from "../../appli/index.js";
 import { STATUTS } from "../../appli/consts.js";
 import type { Oublier, Suivi } from "../../types.js";
@@ -9,7 +10,6 @@ import type { OptionsAppli } from "../../appli/appli.js";
 import type { Ping } from "@libp2p/ping";
 import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
 import type { ServiceJournal } from "../journal.js";
-import { faisRien } from "@constl/utils-ipa";
 
 export type ServicesLibp2pNébuleuse = {
   identify: Identify;
