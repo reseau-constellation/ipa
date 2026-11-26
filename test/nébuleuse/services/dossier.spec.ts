@@ -2,6 +2,7 @@ import fs from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
+import { dossierTempoPropre } from "@constl/utils-tests";
 import { Appli } from "@/nébuleuse/appli/appli.js";
 
 import {
@@ -14,7 +15,6 @@ import { utiliserFauxChronomètres } from "../../utils.js";
 import { Déno } from "./utils.js";
 import type { SinonFakeTimers } from "sinon";
 import type Quibble from "quibble";
-import { dossierTempoPropre } from "@constl/utils-tests";
 
 (Déno ? describe.skip : describe)("Dossier", function () {
   let horloge: SinonFakeTimers;

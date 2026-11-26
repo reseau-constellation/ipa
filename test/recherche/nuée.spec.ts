@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-tests";
 import {
   rechercherNuéesSelonNom,
   rechercherNuéesSelonNomMotClef,
@@ -22,7 +23,6 @@ import type {
   InfoRésultatRecherche,
   InfoRésultatVide,
 } from "@constl/interface";
-import { obtenir } from "@constl/utils-tests";
 
 describe("Rechercher nuées", function () {
   let fermer: Oublier;

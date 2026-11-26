@@ -8,6 +8,7 @@ import {
 } from "@constl/utils-tests";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { v4 as uuidv4 } from "uuid";
+import { obtenir } from "@constl/utils-tests";
 import { ServiceAppli } from "@/nébuleuse/appli/services.js";
 import {
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
@@ -33,7 +34,6 @@ import {
   type MessageRéseauAvecExpéditeur,
 } from "@/nébuleuse/services/réseau/messages.js";
 import { obtEmpreinteCode } from "@/nébuleuse/services/utils.js";
-import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesLocales, créerNébuleusesTest } from "../utils.js";
 import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";

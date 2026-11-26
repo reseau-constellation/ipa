@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-tests";
 import {
   rechercherVariablesSelonDescription,
   rechercherVariablesSelonNom,
@@ -6,7 +7,6 @@ import {
 } from "@/recherche/fonctions/variables.js";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
 import { créerConstellationsTest } from "../utils.js";
-import { obtenir } from "@constl/utils-tests";
 import type { ServicesNécessairesRechercheVariables } from "@/recherche/fonctions/variables.js";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type { Constellation } from "@/constellation.js";

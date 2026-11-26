@@ -3,7 +3,7 @@ import {
   créerOrbitesTest,
   que,
   dossierTempoPropre,
-} from "@constl/utils-tests";
+ obtenir } from "@constl/utils-tests";
 import {
   IPFSAccessController,
   createOrbitDB,
@@ -29,7 +29,6 @@ import {
 } from "@/nébuleuse/services/libp2p/libp2p.js";
 import { serviceStockage } from "@/nébuleuse/services/stockage.js";
 import { créerHéliaÉphémère } from "../../utils.js";
-import { obtenir } from "@constl/utils-tests";
 
 import { attendreQue } from "../../appli/utils/fonctions.js";
 import { serviceHéliaTest } from "./utils.js";

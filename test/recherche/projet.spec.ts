@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-tests";
 import {
   rechercherProjetsSelonBd,
   rechercherProjetsSelonDescription,
@@ -18,7 +19,6 @@ import type { ServicesNécessairesRechercheProjets } from "@/recherche/fonctions
 import type { Constellation } from "@/constellation.js";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type { SuivreObjectifRecherche } from "@/recherche/types.js";
-import { obtenir } from "@constl/utils-tests";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,

@@ -1,7 +1,7 @@
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-tests";
 import { MEMBRE } from "@/nébuleuse/services/compte/accès/consts.js";
 import { créerConstellationsTest } from "./utils.js";
-import { obtenir } from "@constl/utils-tests";
 import type { Constellation } from "@/index.js";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type { RelationImmédiate } from "@/nébuleuse/services/réseau/réseau.js";

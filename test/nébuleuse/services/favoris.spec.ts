@@ -1,6 +1,7 @@
 import { expect } from "aegir/chai";
 import { isNode, isElectronMain } from "wherearewe";
 import { faisRien } from "@constl/utils-ipa";
+import { obtenir } from "@constl/utils-tests";
 import {
   AUCUN_DISPOSITIF,
   RÉSOLVEUR_FAVORIS,
@@ -13,7 +14,6 @@ import {
 } from "@/nébuleuse/services/favoris.js";
 import { enleverPréfixes } from "@/utils.js";
 import { ServiceAppli } from "@/nébuleuse/appli/services.js";
-import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ContenuÉpingleProfil } from "@/nébuleuse/services/profil.js";
 import type { NébuleuseTest } from "../utils.js";

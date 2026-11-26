@@ -2,7 +2,7 @@ import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
-import { dossierTempo } from "@constl/utils-tests";
+import { dossierTempo , obtenir } from "@constl/utils-tests";
 import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   MEMBRE,
@@ -58,7 +58,6 @@ import type { DifférenceBds, DonnéesBdExportées, SchémaBd } from "@/bds/bds.
 import type { DonnéesRangéeTableau, InfoColonne } from "@/tableaux.js";
 import type { ServicesLibp2pNébuleuse } from "@/nébuleuse/services/libp2p/libp2p.js";
 import type { SinonFakeTimers } from "sinon";
-import { obtenir } from "@constl/utils-tests";
 
 describe("Nuées", function () {
   let fermer: Oublier;

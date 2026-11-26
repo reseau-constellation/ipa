@@ -1,12 +1,12 @@
 import path from "path";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
+import { dossierTempoPropre } from "@constl/utils-tests";
 import { Appli } from "@/nébuleuse/appli/appli.js";
 import { serviceStockage } from "@/nébuleuse/services/stockage.js";
 import { serviceDossier } from "@/nébuleuse/services/dossier.js";
 import type { ServiceStockage } from "@/nébuleuse/index.js";
 import type { ServicesNécessairesStockage } from "@/nébuleuse/services/stockage.js";
-import { dossierTempoPropre } from "@constl/utils-tests";
 
 describe("Stockage", function () {
   let appli: Appli<ServicesNécessairesStockage & { stockage: ServiceStockage }>;

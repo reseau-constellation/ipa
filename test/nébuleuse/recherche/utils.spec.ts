@@ -1,5 +1,6 @@
 import { expect } from "aegir/chai";
 import { faisRien } from "@constl/utils-ipa";
+import { obtenir } from "@constl/utils-tests";
 import {
   combinerRecherches,
   rechercherDansTexte,
@@ -10,7 +11,6 @@ import {
   sousRecherche,
 } from "@/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
-import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier } from "@/nébuleuse/types.js";

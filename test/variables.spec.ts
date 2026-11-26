@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-tests";
 import {
   MEMBRE,
   MODÉRATRICE,
@@ -6,7 +7,6 @@ import {
 import { TOUS_DISPOSITIFS } from "@/nébuleuse/services/favoris.js";
 import { enleverPréfixes } from "@/utils.js";
 import { créerConstellationsTest } from "./utils.js";
-import { obtenir } from "@constl/utils-tests";
 import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
 import type { Constellation } from "@/index.js";
 import type {

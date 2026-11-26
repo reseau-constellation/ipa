@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-tests";
 import { TOUS_DISPOSITIFS } from "@/nébuleuse/services/favoris.js";
 import {
   MEMBRE,
@@ -14,7 +15,6 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "@/types.js";
-import { obtenir } from "@constl/utils-tests";
 
 describe("Mots-clefs", function () {
   let fermer: () => Promise<void>;

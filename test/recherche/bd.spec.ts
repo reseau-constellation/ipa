@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-tests";
 import {
   rechercherBdsSelonDescription,
   rechercherBdsSelonIdMotClef,
@@ -14,7 +15,6 @@ import { enleverPréfixesEtOrbite } from "@/utils.js";
 import { créerConstellationsTest } from "../utils.js";
 import type { ServicesNécessairesRechercheBds } from "@/recherche/fonctions/bds.js";
 import type { Oublier } from "@/nébuleuse/types.js";
-import { obtenir } from "@constl/utils-tests";
 
 import type { SuivreObjectifRecherche } from "@/recherche/types.js";
 import type { Constellation as ConstructeurConstellation } from "@/constellation.js";

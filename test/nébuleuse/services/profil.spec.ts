@@ -1,12 +1,12 @@
 import { expect } from "aegir/chai";
 import { CID } from "multiformats";
+import { obtenir } from "@constl/utils-tests";
 import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "@/nébuleuse/services/consts.js";
 import {
   AUCUN_DISPOSITIF,
   TOUS_DISPOSITIFS,
 } from "@/nébuleuse/services/favoris.js";
 import { enleverPréfixes, idcEtFichierValide } from "@/utils.js";
-import { obtenir } from "@constl/utils-tests";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ÉpingleProfil } from "@/nébuleuse/services/profil.js";

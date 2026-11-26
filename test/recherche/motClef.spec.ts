@@ -1,5 +1,6 @@
 import { expect } from "aegir/chai";
 
+import { obtenir } from "@constl/utils-tests";
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
@@ -10,7 +11,6 @@ import type { ServicesNécessairesRechercheMotsClefs } from "@/recherche/fonctio
 import type { Oublier } from "@/nébuleuse/types.js";
 import type { Constellation } from "@/constellation.js";
 import type { SuivreObjectifRecherche } from "@/recherche/types.js";
-import { obtenir } from "@constl/utils-tests";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,

@@ -1,10 +1,10 @@
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
+import { dossierTempoPropre } from "@constl/utils-tests";
 import { Appli } from "@/nébuleuse/appli/appli.js";
 import { serviceJournal } from "@/nébuleuse/services/journal.js";
 import type { ServiceJournal } from "@/nébuleuse/services/journal.js";
-import { dossierTempoPropre } from "@constl/utils-tests";
 
 describe("Journal", function () {
   if (isNode || isElectronMain)

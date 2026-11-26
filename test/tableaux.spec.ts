@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
-import { dossierTempo } from "@constl/utils-tests";
+import { dossierTempo , obtenir } from "@constl/utils-tests";
 import JSZip from "jszip";
 import {
   isBrowser,
@@ -15,7 +15,6 @@ import axios from "axios";
 import { MEMBRE } from "@/nébuleuse/services/compte/accès/consts.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { créerConstellationsTest } from "./utils.js";
-import { obtenir } from "@constl/utils-tests";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { Rôle } from "@/nébuleuse/services/compte/accès/types.js";
 import type { Constellation } from "@/index.js";

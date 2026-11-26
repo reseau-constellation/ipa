@@ -1,5 +1,6 @@
 import { expect } from "aegir/chai";
 import { isValidAddress } from "@orbitdb/core";
+import { obtenir } from "@constl/utils-tests";
 import {
   MEMBRE,
   MODÉRATRICE,
@@ -11,7 +12,6 @@ import {
   RÉSOLVEUR_CONFIANCE,
   type RelationImmédiate,
 } from "@/nébuleuse/services/réseau/réseau.js";
-import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
 import type { Rôle } from "@/nébuleuse/services/compte/accès/index.js";
 import type {

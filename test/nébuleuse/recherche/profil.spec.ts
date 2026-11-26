@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { obtenir } from "@constl/utils-tests";
 import {
   rechercherProfilsSelonActivité,
   rechercherProfilsSelonNom,
@@ -7,7 +8,6 @@ import {
 } from "@/recherche/fonctions/profils.js";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
-import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { ServicesNécessairesRechercheProfils } from "@/recherche/fonctions/profils.js";

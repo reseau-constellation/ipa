@@ -1,4 +1,5 @@
 import { expect } from "aegir/chai";
+import { rechercher, type ObtRecherche } from "@constl/utils-tests";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
 import { créerConstellationsTest } from "../utils.js";
 import type { Oublier } from "@/nébuleuse/types.js";
@@ -11,7 +12,6 @@ import type {
   RésultatObjectifRecherche,
   RésultatRecherche,
 } from "@constl/interface";
-import { rechercher, type ObtRecherche } from "@constl/utils-tests";
 
 const vérifierRecherche = (
   résultats: RésultatRecherche<InfoRésultat>[],
