@@ -3,6 +3,10 @@
   "extends": ["config:recommended"],
   "packageRules": [
     {
+      "matchDatasources": ["npm"],
+      "minimumReleaseAge": "1 day"
+    },
+    {
       "matchDepTypes": ["devDependencies"],
       "automerge": true
     },
