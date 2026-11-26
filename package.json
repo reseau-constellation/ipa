@@ -26,7 +26,7 @@
     "test": "pnpm compiler && pnpm test:node:sans-compiler && pnpm test:navig:sans-compiler",
     "perfo": "pnpm compiler &&  benchmark 'dist/test/perfo/**/*.perfo.js'",
     "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint . --fix",
-    "publier": "pnpm compiler:prod && (git commit -a -m 'version' || true) && pnpm publish",
+    "publier": "pnpm compiler:prod && (git commit -a -m 'version' || true) && pnpm stage publish",
     "versioner": "pnpm genversion  --es6 --semi src/version.ts"
   },
   "watch": {

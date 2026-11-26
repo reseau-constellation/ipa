@@ -159,7 +159,7 @@ export type Résolveur<T, S> = FonctionRésolveur<T, S> & {
 export const générerRésolveur = <T, S>(
   f: FonctionRésolveur<T, S>,
 ): Résolveur<T, S> => {
-  const oublis = new Set<Oublier|Promise<void>>();
+  const oublis = new Set<Oublier | Promise<void>>();
 
   let fermé = false;
   let n = 0;
@@ -174,7 +174,9 @@ export const générerRésolveur = <T, S>(
       if (n === 0) compléter();
     });
 
-    await Promise.allSettled([...oublis.values()].map((f) => estUnePromesse(f) ? f : f()));
+    await Promise.allSettled(
+      [...oublis.values()].map((f) => (estUnePromesse(f) ? f : f())),
+    );
   };
 
   const fFinale = async (...args: Parameters<FonctionRésolveur<T, S>>) => {
@@ -185,8 +187,8 @@ export const générerRésolveur = <T, S>(
       if (oublis.has(oublierFinale)) {
         oublis.delete(oublierFinale);
         const pOublier = oublier();
-        oublis.add(pOublier)
-        await pOublier.then(()=>oublis.delete(oublier))
+        oublis.add(pOublier);
+        await pOublier.then(() => oublis.delete(oublier));
       }
     };
     oublis.add(oublierFinale);
