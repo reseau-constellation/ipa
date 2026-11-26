@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "esModuleInterop": true,
-    "incremental": true,
+    "incremental": false,
     "importHelpers": true,
     "importsNotUsedAsValues": "remove",
     "jsx": "react",

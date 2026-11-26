@@ -7,7 +7,6 @@ node_modules
 /.nyc_output
 /.vscode
 
-docu/src/.vitepress/dist
-docu/src/.vitepress/cache
+tsconfig.build.tsbuildinfo
 
 .npmrc
