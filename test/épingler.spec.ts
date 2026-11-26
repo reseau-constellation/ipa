@@ -1,1 +1,0 @@
-describe("Épingles", function () {});

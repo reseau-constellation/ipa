@@ -1,7 +1,7 @@
-import { read as xlsxRead } from "xlsx";
+import { read as xlsxRead } from "@e965/xlsx";
 
 import { expect } from "aegir/chai";
-import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
+import { ImportateurFeuilleCalcul } from "@/importateur/feuille.js";
 import { obtRessourceTest } from "../ressources/index.js";
 
 describe("xlsx", function () {
