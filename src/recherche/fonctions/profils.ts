@@ -12,12 +12,14 @@ import type { TraducsTexte } from "@/types.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 import type {
   SuivreObjectifRecherche,
-  InfoRésultatVide,
   SuiviRecherche,
-  InfoRésultatTexte,
-  RésultatObjectifRecherche,
   AccesseurService,
 } from "../types.js";
+import type {
+  InfoRésultatTexte,
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
+} from "@constl/interface";
 import type { Oublier } from "@/nébuleuse/types.js";
 
 export type ServicesNécessairesRechercheProfils =

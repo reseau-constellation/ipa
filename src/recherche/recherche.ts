@@ -14,14 +14,14 @@ import {
   PROFONDEUR_MINIMALE_RECHERCHE,
 } from "./consts.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+import type { SuivreObjectifRecherche } from "./types.js";
 import type {
-  InfoRésultat,
-  RésultatObjectifRecherche,
   RésultatRecherche,
+  InfoRésultat,
   SuivreConfianceRecherche,
-  SuivreObjectifRecherche,
   SuivreQualitéRecherche,
-} from "./types.js";
+  RésultatObjectifRecherche,
+} from "@constl/interface";
 import type { InfoAuteur } from "../types.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/compte.js";
 import type { ServiceRéseau } from "../nébuleuse/services/réseau/réseau.js";

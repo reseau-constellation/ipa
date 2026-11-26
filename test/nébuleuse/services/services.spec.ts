@@ -8,7 +8,7 @@ import {
 } from "@/nébuleuse/services/services.js";
 import { ServiceAppli } from "@/nébuleuse/appli/services.js";
 import { créerNébuleusesTest } from "../utils.js";
-import { obtenir } from "../../utils.js";
+import { obtenir } from "@constl/utils-tests";
 import type { NébuleuseTest } from "../utils.js";
 import type { JSONSchemaType } from "ajv";
 import type { ServicesNécessairesDonnées } from "@/nébuleuse/services/services.js";

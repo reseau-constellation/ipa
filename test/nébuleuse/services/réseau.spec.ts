@@ -1,6 +1,11 @@
 import { expect } from "aegir/chai";
 import { faisRien, uneFois } from "@constl/utils-ipa";
-import { ID_DÉFAUT_RELAI, obtenirAdresseRelai } from "@constl/utils-tests";
+import {
+  ID_DÉFAUT_RELAI,
+  obtenirAdresseRelai,
+  rechercherProfondeur,
+  type ObtRechercheProfondeur,
+} from "@constl/utils-tests";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { v4 as uuidv4 } from "uuid";
 import { ServiceAppli } from "@/nébuleuse/appli/services.js";
@@ -28,9 +33,8 @@ import {
   type MessageRéseauAvecExpéditeur,
 } from "@/nébuleuse/services/réseau/messages.js";
 import { obtEmpreinteCode } from "@/nébuleuse/services/utils.js";
-import { obtenir, rechercherProfondeur } from "../../utils.js";
+import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesLocales, créerNébuleusesTest } from "../utils.js";
-import type { ObtRechercheProfondeur } from "../../utils.js";
 import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier, Suivi } from "@/nébuleuse/types.js";

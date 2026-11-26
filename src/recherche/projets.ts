@@ -18,15 +18,14 @@ import {
 import type { ServicesNécessairesRechercheProjets } from "./fonctions/projets.js";
 import type { InfoAuteur } from "../types.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+import type { SuivreObjectifRecherche, AccesseurService } from "./types.js";
 import type {
-  InfoRésultat,
-  InfoRésultatTexte,
-  InfoRésultatVide,
-  SuivreObjectifRecherche,
   RésultatRecherche,
+  InfoRésultatTexte,
   InfoRésultatRecherche,
-  AccesseurService,
-} from "./types.js";
+  InfoRésultatVide,
+  InfoRésultat,
+} from "@constl/interface";
 
 export class RechercheProjets extends RechercheObjets<ServicesNécessairesRechercheProjets> {
   constructor({

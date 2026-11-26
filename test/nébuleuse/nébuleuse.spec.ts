@@ -1,7 +1,11 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
-import { créerOrbitesTest, optionsDéfautLibp2p } from "@constl/utils-tests";
+import {
+  créerOrbitesTest,
+  dossierTempoPropre,
+  optionsDéfautLibp2p,
+} from "@constl/utils-tests";
 import {
   isBrowser,
   isElectronMain,
@@ -18,7 +22,7 @@ import {
   INTERVALE_VERROU,
 } from "@/nébuleuse/services/dossier.js";
 import { ServiceAppli } from "@/nébuleuse/appli/index.js";
-import { dossierTempoPropre, utiliserFauxChronomètres } from "../utils.js";
+import { utiliserFauxChronomètres } from "../utils.js";
 import { créerNébuleusesTest, NébuleuseTest } from "./utils.js";
 import type sinon from "sinon";
 import type { ServicesNécessairesDonnées } from "@/nébuleuse/services/services.js";

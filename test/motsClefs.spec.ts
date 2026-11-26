@@ -4,7 +4,7 @@ import {
   MEMBRE,
   MODÉRATRICE,
 } from "@/nébuleuse/services/compte/accès/index.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
+import { créerConstellationsTest } from "./utils.js";
 import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
 import type { ÉpingleMotClef } from "@/motsClefs.js";
 import type { Constellation } from "@/index.js";
@@ -14,6 +14,7 @@ import type {
   StatutDonnées,
   TraducsTexte,
 } from "@/types.js";
+import { obtenir } from "@constl/utils-tests";
 
 describe("Mots-clefs", function () {
   let fermer: () => Promise<void>;

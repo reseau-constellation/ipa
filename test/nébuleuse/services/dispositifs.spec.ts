@@ -15,7 +15,7 @@ import {
   serviceLibp2p,
   type ServicesLibp2pNébuleuse,
 } from "@/nébuleuse/services/libp2p/libp2p.js";
-import { dossierTempoPropre, obtenir } from "../../utils.js";
+import { dossierTempoPropre, obtenir } from "@constl/utils-tests";
 import { serviceHéliaTest } from "./utils.js";
 import type { StructureNébuleuse } from "@/nébuleuse/nébuleuse.js";
 import type {

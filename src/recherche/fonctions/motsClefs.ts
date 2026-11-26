@@ -10,11 +10,10 @@ import type { TraducsTexte } from "@/types.js";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type {
   AccesseurService,
-  InfoRésultatTexte,
-  InfoRésultatVide,
   SuiviRecherche,
   SuivreObjectifRecherche,
 } from "../types.js";
+import type { InfoRésultatTexte, InfoRésultatVide } from "@constl/interface";
 import type { MotsClefs } from "@/motsClefs.js";
 
 export type ServicesNécessairesRechercheMotsClefs =

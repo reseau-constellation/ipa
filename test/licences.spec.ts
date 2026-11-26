@@ -1,7 +1,8 @@
 import { expect } from "aegir/chai";
 import { type InfoLicence, infoLicences, licences } from "@/licences.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
+import { créerConstellationsTest } from "./utils.js";
 import type { Constellation } from "@/index.js";
+import { obtenir } from "@constl/utils-tests";
 
 describe("Licences", function () {
   it("licences statiques", () => {

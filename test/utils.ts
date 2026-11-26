@@ -1,10 +1,12 @@
 import path from "path";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { isBrowser } from "wherearewe";
-import { créerHéliasTest, dossierTempo } from "@constl/utils-tests";
+import {
+  créerHéliasTest,
+  dossierTempo,
+  dossierTempoPropre,
+  que,
+} from "@constl/utils-tests";
 
-import { TypedEmitter } from "tiny-typed-emitter";
-import { isNull } from "lodash-es";
 import { useFakeTimers } from "sinon";
 import {
   isValidAddress,
@@ -28,21 +30,14 @@ import JSZip from "jszip";
 import { créerConstellation } from "@/index.js";
 import { estContrôleurNébuleuse } from "@/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
 import { ImportateurFeuilleCalcul } from "@/importateur/feuille.js";
-import { attendreQue } from "./appli/utils/fonctions.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
 import {
   obtenirOptionsLibp2pLocal,
   type ServicesLibp2pNébuleuseLocale,
 } from "./nébuleuse/services/utils.js";
-import type { InfoRésultat, RésultatRecherche } from "@/recherche/types.js";
 import type { Constellation } from "@/index.js";
 import type { Constellation as ConstructeurConstellation } from "@/constellation.js";
-import type {
-  Oublier,
-  RetourRecherche,
-  RetourRechercheProfondeur,
-  Suivi,
-} from "@/nébuleuse/types.js";
+import type { Oublier } from "@/nébuleuse/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
@@ -72,7 +67,7 @@ export const attendreInvité = async (
       ? !!accès.accès.utilisateurs.find((u) => u.idCompte === idInvité)
       : !!accès.accès.dispositifs.find((d) => d.idDispositif === idInvité);
   };
-  return await attendreQue(estInvité);
+  return await que(estInvité);
 };
 
 export const peutÉcrire = async (
@@ -124,338 +119,6 @@ export const peutÉcrire = async (
     }
     throw e;
   }
-};
-
-export const dossierTempoPropre = () => {
-  if (isBrowser) window.localStorage.clear();
-  return dossierTempo();
-};
-
-export const obtenir = async <T>(
-  f: (args: {
-    si: (
-      f: (x: T | undefined) => boolean | Promise<boolean>,
-    ) => (x: T | undefined) => void;
-    siDéfini: () => (x: T | undefined) => void;
-    siNonDéfini: () => (x: T | undefined) => void;
-    siVide: () => (x: T) => void;
-    siNul: () => (x: T) => void;
-    siPasVide: () => (x: T | undefined) => void;
-    siPasNul: () => (x: T) => void;
-    siLongueurAuMoins: (n: number) => (x: T | undefined) => void;
-    tous: () => (x: T) => void;
-  }) => Promise<Oublier>,
-): Promise<T> => {
-  const événements = new TypedEmitter<{ résolu: (x: T) => void }>();
-  let résultat: { val: T } | undefined = undefined;
-
-  const si = (
-    fTest: (x: T | undefined) => boolean | Promise<boolean>,
-  ): ((x: T | undefined) => void) => {
-    return async (x: T | undefined) => {
-      const passe = await fTest(x);
-      if (passe) {
-        événements.emit("résolu", x as T);
-        résultat = { val: x as T };
-      }
-    };
-  };
-
-  const siDéfini = (): ((x: T | undefined) => void) => {
-    return si((x: T | undefined): x is T => x !== undefined);
-  };
-
-  const siNonDéfini = (): ((x: T | undefined) => void) => {
-    return si((x: T | undefined) => x === undefined);
-  };
-
-  const siVide = (): ((x: T) => void) => {
-    return si((x) => {
-      if (Array.isArray(x)) return x.length === 0;
-      else if (x instanceof Set) return x.size === 0;
-      else if (typeof x === "object" && !isNull(x))
-        return Object.keys(x).length === 0;
-      else return false;
-    });
-  };
-  const siNul = (): ((x: T) => void) => {
-    return si((x: T | undefined) => isNull(x));
-  };
-  const siPasVide = (): ((x: T | undefined) => void) => {
-    return si((x) => {
-      if (Array.isArray(x)) return x.length > 0;
-      else if (x instanceof Set) return x.size > 0;
-      else if (typeof x === "object" && !isNull(x))
-        return Object.keys(x).length > 0;
-      else return false;
-    });
-  };
-  const siPasNul = (): ((x: T) => void) => {
-    return si((x: T | undefined) => !isNull(x));
-  };
-
-  const siLongueurAuMoins = (n: number): ((x: T | undefined) => void) => {
-    return si(
-      (x) =>
-        !!x &&
-        ((Array.isArray(x) && x.length >= n) ||
-          (Object.keys(x) && Object.keys(x).length >= n)),
-    );
-  };
-
-  const tous = (): ((x: T) => void) => {
-    return si(() => true);
-  };
-
-  const fOublier = await f({
-    si,
-    siDéfini,
-    siNonDéfini,
-    siVide,
-    siNul,
-    siPasVide,
-    siPasNul,
-    siLongueurAuMoins,
-    tous,
-  });
-
-  return new Promise<T>((compléter) => {
-    if (résultat) {
-      const résultatExistant = résultat;
-      // On rend la valeur retrouvée même si on a eu une erreur dans la fonction d'oubli.
-      fOublier().finally(() => compléter(résultatExistant.val));
-    } else {
-      événements.once("résolu", async (x) => {
-        // On rend la valeur retrouvée même si on a eu une erreur dans la fonction d'oubli.
-        await fOublier().finally(() => compléter(x));
-      });
-    }
-  });
-};
-
-export type ObtRecherche<T extends InfoRésultat = InfoRésultat> = {
-  si(
-    f: (x?: RésultatRecherche<T>[]) => boolean | Promise<boolean>,
-  ): Promise<RésultatRecherche<T>[]>;
-  siDéfini: () => Promise<RésultatRecherche<T>[]>;
-  siNonDéfini: () => Promise<RésultatRecherche<T>[]>;
-  siVide: () => Promise<RésultatRecherche<T>[]>;
-  siNul: () => Promise<RésultatRecherche<T>[]>;
-  siPasVide: () => Promise<RésultatRecherche<T>[]>;
-  siPasNul: () => Promise<RésultatRecherche<T>[]>;
-  siAuMoins: (n: number) => Promise<RésultatRecherche<T>[]>;
-  siPasPlusQue: (n: number) => Promise<RésultatRecherche<T>[]>;
-  tous: () => Promise<RésultatRecherche<T>[]>;
-
-  n: (n: number) => Promise<void>;
-};
-
-export const rechercher = async <T extends InfoRésultat = InfoRésultat>(
-  f: (args: { f: Suivi<RésultatRecherche<T>[]> }) => Promise<RetourRecherche>,
-): Promise<ObtRecherche<T>> => {
-  const événements = new TypedEmitter<{
-    trouvé: (x: RésultatRecherche<T>[]) => void;
-  }>();
-
-  let val: RésultatRecherche<T>[];
-  let déjàÉvalué = false;
-
-  const si = (
-    fTest: (
-      x: RésultatRecherche<T>[] | undefined,
-    ) => boolean | Promise<boolean>,
-  ): Promise<RésultatRecherche<T>[]> => {
-    return new Promise<RésultatRecherche<T>[]>((compléter) => {
-      const fTrouvé = async (x: RésultatRecherche<T>[]) => {
-        if (await fTest(x)) {
-          événements.off("trouvé", fTrouvé);
-          compléter(x);
-        }
-      };
-      événements.on("trouvé", fTrouvé);
-      if (déjàÉvalué) fTrouvé(val);
-    });
-  };
-
-  const siDéfini = (): Promise<RésultatRecherche<T>[]> => {
-    return si((x): x is RésultatRecherche<T>[] => x !== undefined);
-  };
-
-  const siNonDéfini = (): Promise<RésultatRecherche<T>[]> => {
-    return si((x) => x === undefined);
-  };
-
-  const siVide = (): Promise<RésultatRecherche<T>[]> => {
-    return si((x) => {
-      if (Array.isArray(x)) return x.length === 0;
-      else if (typeof x === "object" && !isNull(x))
-        return Object.keys(x).length === 0;
-      else return false;
-    });
-  };
-
-  const siNul = (): Promise<RésultatRecherche<T>[]> => {
-    return si((x) => isNull(x));
-  };
-
-  const siPasVide = (): Promise<RésultatRecherche<T>[]> => {
-    return si((x) => {
-      if (Array.isArray(x)) return x.length > 0;
-      else if (typeof x === "object" && !isNull(x))
-        return Object.keys(x).length > 0;
-      else return false;
-    });
-  };
-
-  const siPasNul = (): Promise<RésultatRecherche<T>[]> => {
-    return si((x) => !isNull(x));
-  };
-
-  const siAuMoins = (n: number): Promise<RésultatRecherche<T>[]> => {
-    return si((x) => !!x && x.length >= n);
-  };
-
-  const siPasPlusQue = (n: number): Promise<RésultatRecherche<T>[]> => {
-    return si((x) => !!x && x.length <= n);
-  };
-
-  const tous = (): Promise<RésultatRecherche<T>[]> => {
-    return si(() => true);
-  };
-
-  const { oublier, n: changerN } = await f({
-    f: (x) => {
-      déjàÉvalué = true;
-      val = x;
-      événements.emit("trouvé", x);
-    },
-  });
-  after(async () => await oublier());
-
-  return {
-    si,
-    siDéfini,
-    siNonDéfini,
-    siVide,
-    siNul,
-    siPasVide,
-    siPasNul,
-    tous,
-    siAuMoins,
-    siPasPlusQue,
-    n: changerN,
-  };
-};
-
-export type ObtRechercheProfondeur<T> = {
-  si(f: (x?: T[]) => boolean | Promise<boolean>): Promise<T[]>;
-  siDéfini: () => Promise<T[]>;
-  siNonDéfini: () => Promise<T[]>;
-  siVide: () => Promise<T[]>;
-  siNul: () => Promise<T[]>;
-  siPasVide: () => Promise<T[]>;
-  siPasNul: () => Promise<T[]>;
-  siAuMoins: (n: number) => Promise<T[]>;
-  siPasPlusQue: (n: number) => Promise<T[]>;
-  tous: () => Promise<T[]>;
-
-  p: (p: number) => Promise<void>;
-};
-
-export const rechercherProfondeur = async <T>(
-  f: (args: { f: Suivi<T[]> }) => Promise<RetourRechercheProfondeur>,
-): Promise<ObtRechercheProfondeur<T>> => {
-  const événements = new TypedEmitter<{
-    trouvé: (x: T[]) => void;
-  }>();
-
-  let val: T[];
-  let déjàÉvalué = false;
-
-  const si = (
-    fTest: (x: T[] | undefined) => boolean | Promise<boolean>,
-  ): Promise<T[]> => {
-    return new Promise<T[]>((compléter) => {
-      const fTrouvé = async (x: T[]) => {
-        if (await fTest(x)) {
-          événements.off("trouvé", fTrouvé);
-          compléter(x);
-        }
-      };
-      if (déjàÉvalué) fTrouvé(val);
-      événements.on("trouvé", fTrouvé);
-    });
-  };
-
-  const siDéfini = (): Promise<T[]> => {
-    return si((x): x is T[] => x !== undefined);
-  };
-
-  const siNonDéfini = (): Promise<T[]> => {
-    return si((x) => x === undefined);
-  };
-
-  const siVide = (): Promise<T[]> => {
-    return si((x) => {
-      if (Array.isArray(x)) return x.length === 0;
-      else if (typeof x === "object" && !isNull(x))
-        return Object.keys(x).length === 0;
-      else return false;
-    });
-  };
-
-  const siNul = (): Promise<T[]> => {
-    return si((x) => isNull(x));
-  };
-
-  const siPasVide = (): Promise<T[]> => {
-    return si((x) => {
-      if (Array.isArray(x)) return x.length > 0;
-      else if (typeof x === "object" && !isNull(x))
-        return Object.keys(x).length > 0;
-      else return false;
-    });
-  };
-
-  const siPasNul = (): Promise<T[]> => {
-    return si((x) => !isNull(x));
-  };
-
-  const siAuMoins = (n: number): Promise<T[]> => {
-    return si((x) => !!x && x.length >= n);
-  };
-
-  const siPasPlusQue = (n: number): Promise<T[]> => {
-    return si((x) => !!x && x.length <= n);
-  };
-
-  const tous = (): Promise<T[]> => {
-    return si(() => true);
-  };
-
-  const { oublier, profondeur: changerProfondeur } = await f({
-    f: (x) => {
-      déjàÉvalué = true;
-      val = x;
-      événements.emit("trouvé", x);
-    },
-  });
-
-  after(async () => await oublier());
-
-  return {
-    si,
-    siDéfini,
-    siNonDéfini,
-    siVide,
-    siNul,
-    siPasVide,
-    siPasNul,
-    tous,
-    siAuMoins,
-    siPasPlusQue,
-    p: changerProfondeur,
-  };
 };
 
 type CréerConstellationsTest<

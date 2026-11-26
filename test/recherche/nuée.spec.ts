@@ -11,17 +11,18 @@ import {
   rechercherNuéesSelonDescription,
 } from "@/recherche/fonctions/nuées.js";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
-import { créerConstellationsTest, obtenir } from "../utils.js";
+import { créerConstellationsTest } from "../utils.js";
 import type { ServicesNécessairesRechercheNuées } from "@/recherche/fonctions/nuées.js";
 import type { Oublier } from "@/nébuleuse/types.js";
+import type { SuivreObjectifRecherche } from "@/recherche/types.js";
+import type { Constellation } from "@/constellation.js";
 import type {
-  RésultatObjectifRecherche,
   InfoRésultatTexte,
+  RésultatObjectifRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-  SuivreObjectifRecherche,
-} from "@/recherche/types.js";
-import type { Constellation } from "@/constellation.js";
+} from "@constl/interface";
+import { obtenir } from "@constl/utils-tests";
 
 describe("Rechercher nuées", function () {
   let fermer: Oublier;

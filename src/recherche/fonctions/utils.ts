@@ -5,15 +5,17 @@ import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
 import type { ServicesNécessairesRecherche } from "../recherche.js";
 import type {
-  InfoRésultat,
-  InfoRésultatRecherche,
-  InfoRésultatTexte,
-  InfoRésultatVide,
-  RésultatObjectifRecherche,
   SuivreObjectifRecherche,
   SuiviRecherche,
   AccesseurService,
 } from "../types.js";
+import type {
+  InfoRésultatTexte,
+  InfoRésultatRecherche,
+  InfoRésultatVide,
+  InfoRésultat,
+  RésultatObjectifRecherche,
+} from "@constl/interface";
 import type { Oublier } from "../../nébuleuse/types.js";
 import type { TraducsTexte } from "@/types.js";
 

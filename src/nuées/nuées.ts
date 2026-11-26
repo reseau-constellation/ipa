@@ -60,9 +60,6 @@ import type { DonnéesFichierBdExportées } from "../utils.js";
 import type { DonnéesTableauExportées } from "../bds/tableaux.js";
 import type {
   AccesseurService,
-  InfoRésultatVide,
-  RésultatObjectifRecherche,
-  RésultatRecherche,
   SuivreObjectifRecherche,
 } from "../recherche/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
@@ -97,6 +94,11 @@ import type xlsx from "@e965/xlsx";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
 import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.js";
 import type { MotsClefs } from "../motsClefs.js";
+import type {
+  RésultatObjectifRecherche,
+  InfoRésultatVide,
+  RésultatRecherche,
+} from "@constl/interface";
 
 // Types épingles
 

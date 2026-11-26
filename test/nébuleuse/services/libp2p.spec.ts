@@ -2,7 +2,7 @@ import fs from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { isLibp2p } from "libp2p";
-import { obtenirAdresseRelai } from "@constl/utils-tests";
+import { dossierTempoPropre, obtenirAdresseRelai } from "@constl/utils-tests";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import {
   fromString as uint8ArrayFromString,
@@ -18,11 +18,8 @@ import { serviceDossier } from "@/nébuleuse/services/dossier.js";
 import { serviceStockage } from "@/nébuleuse/services/stockage.js";
 import { serviceHélia } from "@/nébuleuse/services/hélia.js";
 import { serviceJournal } from "@/nébuleuse/services/journal.js";
-import {
-  créerHéliaÉphémère,
-  dossierTempoPropre,
-  obtenir,
-} from "../../utils.js";
+import { créerHéliaÉphémère } from "../../utils.js";
+import { obtenir } from "@constl/utils-tests";
 import {
   obtenirOptionsLibp2pLocal,
   obtenirOptionsLibp2pTest,

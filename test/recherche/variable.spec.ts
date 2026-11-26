@@ -5,16 +5,17 @@ import {
   rechercherVariablesSelonTexte,
 } from "@/recherche/fonctions/variables.js";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
-import { créerConstellationsTest, obtenir } from "../utils.js";
+import { créerConstellationsTest } from "../utils.js";
+import { obtenir } from "@constl/utils-tests";
 import type { ServicesNécessairesRechercheVariables } from "@/recherche/fonctions/variables.js";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type { Constellation } from "@/constellation.js";
+import type { SuivreObjectifRecherche } from "@/recherche/types.js";
 import type {
   InfoRésultatTexte,
-  InfoRésultatVide,
   RésultatObjectifRecherche,
-  SuivreObjectifRecherche,
-} from "@/recherche/types.js";
+  InfoRésultatVide,
+} from "@constl/interface";
 
 describe("Rechercher variables", function () {
   let fermer: Oublier;

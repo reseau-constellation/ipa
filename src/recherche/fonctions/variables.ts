@@ -8,11 +8,10 @@ import {
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 import type {
   AccesseurService,
-  InfoRésultatTexte,
-  InfoRésultatVide,
   SuiviRecherche,
   SuivreObjectifRecherche,
 } from "../types.js";
+import type { InfoRésultatTexte, InfoRésultatVide } from "@constl/interface";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type { Variables } from "@/variables.js";
 import type { TraducsTexte } from "@/types.js";

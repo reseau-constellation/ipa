@@ -15,16 +15,15 @@ import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { RechercheObjets } from "./recherche.js";
 import type { ServicesNécessairesRechercheBds } from "./fonctions/bds.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+import type { SuivreObjectifRecherche, AccesseurService } from "./types.js";
+import type { InfoAuteur } from "../types.js";
 import type {
   RésultatRecherche,
   InfoRésultatTexte,
   InfoRésultatRecherche,
   InfoRésultatVide,
   InfoRésultat,
-  SuivreObjectifRecherche,
-  AccesseurService,
-} from "./types.js";
-import type { InfoAuteur } from "../types.js";
+} from "@constl/interface";
 
 export class RechercheBds extends RechercheObjets<ServicesNécessairesRechercheBds> {
   constructor({

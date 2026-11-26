@@ -20,12 +20,14 @@ import type { Variables } from "@/variables.js";
 import type { Projets } from "@/projets.js";
 import type {
   SuivreObjectifRecherche,
-  InfoRésultatTexte,
   SuiviRecherche,
-  InfoRésultatRecherche,
-  InfoRésultatVide,
   AccesseurService,
 } from "../types.js";
+import type {
+  InfoRésultatTexte,
+  InfoRésultatRecherche,
+  InfoRésultatVide,
+} from "@constl/interface";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 import type { TraducsTexte } from "@/types.js";

@@ -7,17 +7,17 @@ import {
 } from "@/recherche/fonctions/profils.js";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
-import { obtenir } from "../../utils.js";
+import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { ServicesNécessairesRechercheProfils } from "@/recherche/fonctions/profils.js";
-import type {
-  RésultatObjectifRecherche,
-  InfoRésultatVide,
-  InfoRésultatTexte,
-  SuivreObjectifRecherche,
-} from "@/recherche/types.js";
+import type { SuivreObjectifRecherche } from "@/recherche/types.js";
 import type { Oublier } from "@/nébuleuse/types.js";
+import type {
+  InfoRésultatVide,
+  RésultatObjectifRecherche,
+  InfoRésultatTexte,
+} from "@constl/interface";
 
 describe("Rechercher profil", function () {
   describe("selon activité", function () {

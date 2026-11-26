@@ -1,12 +1,12 @@
 import path from "path";
 import {
   créerHéliasTest,
+  dossierTempoPropre,
   obtenirAdresseRelai,
   toutesConnectées,
 } from "@constl/utils-tests";
 import { merge } from "ts-deepmerge";
 import { Nébuleuse } from "@/nébuleuse/nébuleuse.js";
-import { dossierTempoPropre } from "../utils.js";
 import {
   obtenirOptionsLibp2pLocal,
   serviceHéliaTest,

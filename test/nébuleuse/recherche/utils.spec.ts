@@ -10,17 +10,17 @@ import {
   sousRecherche,
 } from "@/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
-import { obtenir } from "../../utils.js";
+import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { Oublier } from "@/nébuleuse/types.js";
+import type { SuivreObjectifRecherche } from "@/recherche/types.js";
 import type {
-  InfoRésultatRecherche,
   InfoRésultatTexte,
-  InfoRésultatVide,
   RésultatObjectifRecherche,
-  SuivreObjectifRecherche,
-} from "@/recherche/types.js";
+  InfoRésultatRecherche,
+  InfoRésultatVide,
+} from "@constl/interface";
 
 describe("Utils recherche", function () {
   let fermer: Oublier;

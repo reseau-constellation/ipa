@@ -40,7 +40,8 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/utils-tests": "^2.3.0",
+    "@constl/interface": "1.0.1",
+    "@constl/utils-tests": "^2.3.4",
     "@eslint/js": "^10.0.1",
     "@libp2p/interface": "^3.4.0",
     "@libp2p/interface-internal": "^3.2.3",

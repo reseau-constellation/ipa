@@ -1,4 +1,4 @@
-import { optionsDéfautLibp2p } from "@constl/utils-tests";
+import { dossierTempoPropre, optionsDéfautLibp2p } from "@constl/utils-tests";
 
 import { expect } from "aegir/chai";
 
@@ -9,7 +9,7 @@ import { serviceHélia } from "@/nébuleuse/services/hélia.js";
 import { Appli } from "@/nébuleuse/appli/appli.js";
 import { serviceDossier } from "@/nébuleuse/services/dossier.js";
 import { serviceStockage } from "@/nébuleuse/services/stockage.js";
-import { créerHéliaÉphémère, dossierTempoPropre } from "../../utils.js";
+import { créerHéliaÉphémère } from "../../utils.js";
 import { serviceHéliaTest } from "./utils.js";
 import type { ServiceHéliaTest } from "./utils.js";
 import type { ServiceStockage } from "@/nébuleuse/index.js";

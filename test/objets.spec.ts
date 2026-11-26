@@ -11,7 +11,7 @@ import {
   RÉSOLVEUR_CONFIANCE,
   type RelationImmédiate,
 } from "@/nébuleuse/services/réseau/réseau.js";
-import { obtenir } from "./utils.js";
+import { obtenir } from "@constl/utils-tests";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
 import type { Rôle } from "@/nébuleuse/services/compte/accès/index.js";
 import type {

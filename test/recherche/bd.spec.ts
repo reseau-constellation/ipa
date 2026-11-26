@@ -11,18 +11,19 @@ import {
   rechercherBdsSelonVariable,
 } from "@/recherche/fonctions/bds.js";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
-import { créerConstellationsTest, obtenir } from "../utils.js";
+import { créerConstellationsTest } from "../utils.js";
 import type { ServicesNécessairesRechercheBds } from "@/recherche/fonctions/bds.js";
 import type { Oublier } from "@/nébuleuse/types.js";
+import { obtenir } from "@constl/utils-tests";
 
-import type {
-  InfoRésultatRecherche,
-  InfoRésultatTexte,
-  InfoRésultatVide,
-  RésultatObjectifRecherche,
-  SuivreObjectifRecherche,
-} from "@/recherche/types.js";
+import type { SuivreObjectifRecherche } from "@/recherche/types.js";
 import type { Constellation as ConstructeurConstellation } from "@/constellation.js";
+import type {
+  InfoRésultatTexte,
+  RésultatObjectifRecherche,
+  InfoRésultatRecherche,
+  InfoRésultatVide,
+} from "@constl/interface";
 
 describe("Rechercher bds", function () {
   let fermer: Oublier;

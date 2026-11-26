@@ -15,11 +15,8 @@ import {
 } from "@/nébuleuse/services/favoris.js";
 import { enleverPréfixes, enleverPréfixesEtOrbite } from "@/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
-import {
-  obtenir,
-  créerConstellationsTest,
-  utiliserFauxChronomètres,
-} from "./utils.js";
+import { obtenir } from "@constl/utils-tests";
+import { créerConstellationsTest, utiliserFauxChronomètres } from "./utils.js";
 import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
 import type {
   InfoAuteur,

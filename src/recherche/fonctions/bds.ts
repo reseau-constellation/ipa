@@ -14,12 +14,14 @@ import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type {
   AccesseurService,
-  InfoRésultatRecherche,
-  InfoRésultatTexte,
-  InfoRésultatVide,
   SuiviRecherche,
   SuivreObjectifRecherche,
 } from "@/recherche/types.js";
+import type {
+  InfoRésultatTexte,
+  InfoRésultatRecherche,
+  InfoRésultatVide,
+} from "@constl/interface";
 import type { TraducsTexte } from "@/types.js";
 import type { Bds } from "@/bds/bds.js";
 import type { MotsClefs } from "@/motsClefs.js";

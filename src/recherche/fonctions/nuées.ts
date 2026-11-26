@@ -12,15 +12,17 @@ import type { Nuées } from "@/nuées/nuées.js";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type {
   SuivreObjectifRecherche,
-  InfoRésultatTexte,
   SuiviRecherche,
-  InfoRésultatRecherche,
-  InfoRésultatVide,
   AccesseurService,
 } from "../types.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 import type { TraducsTexte } from "@/types.js";
 import type { MotsClefs } from "@/motsClefs.js";
+import type {
+  InfoRésultatTexte,
+  InfoRésultatRecherche,
+  InfoRésultatVide,
+} from "@constl/interface";
 
 export type ServicesNécessairesRechercheNuées =
   ServicesNécessairesRechercheObjets & {

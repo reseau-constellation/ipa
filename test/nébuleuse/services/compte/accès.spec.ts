@@ -1,6 +1,6 @@
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
-import { créerOrbitesTest } from "@constl/utils-tests";
+import { créerOrbitesTest, obtenir } from "@constl/utils-tests";
 import {
   ContrôleurNébuleuse,
   MEMBRE,
@@ -10,7 +10,7 @@ import { préparerOrbite } from "@/nébuleuse/services/orbite/orbite.js";
 import { mandatOrbite } from "@/nébuleuse/services/orbite/mandat.js";
 import { réessayer } from "@/nébuleuse/utils.js";
 import { attendreQue } from "../../../appli/utils/fonctions.js";
-import { attendreInvité, obtenir, peutÉcrire } from "../../../utils.js";
+import { attendreInvité, peutÉcrire } from "../../../utils.js";
 import type { Oublier } from "@/nébuleuse/types.js";
 import type {
   AccèsDispositif,

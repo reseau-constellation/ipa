@@ -10,14 +10,13 @@ import {
 import type { ServicesNécessairesRechercheMotsClefs } from "./fonctions/motsClefs.js";
 import type { InfoAuteur } from "../types.js";
 import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+import type { SuivreObjectifRecherche, AccesseurService } from "./types.js";
 import type {
-  InfoRésultat,
+  RésultatRecherche,
   InfoRésultatTexte,
   InfoRésultatVide,
-  SuivreObjectifRecherche,
-  RésultatRecherche,
-  AccesseurService,
-} from "./types.js";
+  InfoRésultat,
+} from "@constl/interface";
 
 export class RechercheMotsClefs extends RechercheObjets<ServicesNécessairesRechercheMotsClefs> {
   constructor({

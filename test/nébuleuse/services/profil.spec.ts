@@ -6,7 +6,7 @@ import {
   TOUS_DISPOSITIFS,
 } from "@/nébuleuse/services/favoris.js";
 import { enleverPréfixes, idcEtFichierValide } from "@/utils.js";
-import { obtenir } from "../../utils.js";
+import { obtenir } from "@constl/utils-tests";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { ÉpingleProfil } from "@/nébuleuse/services/profil.js";

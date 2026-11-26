@@ -13,17 +13,18 @@ import {
   rechercherProjetsSelonVariable,
 } from "@/recherche/fonctions/projets.js";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
-import { créerConstellationsTest, obtenir } from "../utils.js";
+import { créerConstellationsTest } from "../utils.js";
 import type { ServicesNécessairesRechercheProjets } from "@/recherche/fonctions/projets.js";
 import type { Constellation } from "@/constellation.js";
 import type { Oublier } from "@/nébuleuse/types.js";
+import type { SuivreObjectifRecherche } from "@/recherche/types.js";
+import { obtenir } from "@constl/utils-tests";
 import type {
-  RésultatObjectifRecherche,
   InfoRésultatTexte,
+  RésultatObjectifRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-  SuivreObjectifRecherche,
-} from "@/recherche/types.js";
+} from "@constl/interface";
 
 describe("Rechercher projets", function () {
   let constls: Constellation[];

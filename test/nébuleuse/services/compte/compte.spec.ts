@@ -1,7 +1,12 @@
 import path from "path";
 import { expect } from "aegir/chai";
 import { isValidAddress } from "@orbitdb/core";
-import { obtenirAdresseRelai, toutesConnectées } from "@constl/utils-tests";
+import {
+  dossierTempoPropre,
+  obtenir,
+  obtenirAdresseRelai,
+  toutesConnectées,
+} from "@constl/utils-tests";
 import { merge } from "lodash-es";
 import { serviceCompte } from "@/nébuleuse/services/compte/compte.js";
 import { Appli } from "@/nébuleuse/appli/appli.js";
@@ -18,7 +23,7 @@ import {
   type StructureNébuleuse,
 } from "@/nébuleuse/nébuleuse.js";
 import { enleverPréfixes } from "@/utils.js";
-import { obtenir, attendreInvité, dossierTempoPropre } from "../../../utils.js";
+import { attendreInvité } from "../../../utils.js";
 import { serviceHéliaTest } from "../utils.js";
 import type { KeyValueDatabase } from "@orbitdb/core";
 import type { ServiceCompte } from "@/nébuleuse/index.js";

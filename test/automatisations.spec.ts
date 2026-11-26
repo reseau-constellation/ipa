@@ -14,6 +14,7 @@ import {
   attendreFichierExiste,
   attendreFichierModifié,
   dossierTempo,
+  obtenir,
 } from "@constl/utils-tests";
 import {
   isBrowser,
@@ -33,7 +34,6 @@ import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/automatisations/utils.js";
 import { enleverPréfixesEtOrbite } from "@/utils.js";
 import {
   créerConstellationsTest,
-  obtenir,
   utiliserFauxChronomètres,
   vérifierDonnéesBd,
   vérifierDonnéesProjet,

@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
-import { dossierTempo } from "@constl/utils-tests";
+import { dossierTempo, obtenir } from "@constl/utils-tests";
 import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   DISPOSITIFS_INSTALLÉS,
@@ -19,7 +19,6 @@ import { obtRessourceTest } from "./ressources/index.js";
 import {
   créerConstellationsTest,
   créerHéliaÉphémère,
-  obtenir,
   utiliserFauxChronomètres,
 } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";

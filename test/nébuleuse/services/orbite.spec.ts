@@ -2,6 +2,7 @@ import {
   optionsDéfautLibp2p,
   créerOrbitesTest,
   que,
+  dossierTempoPropre,
 } from "@constl/utils-tests";
 import {
   IPFSAccessController,
@@ -27,11 +28,9 @@ import {
   type ServicesLibp2pNébuleuse,
 } from "@/nébuleuse/services/libp2p/libp2p.js";
 import { serviceStockage } from "@/nébuleuse/services/stockage.js";
-import {
-  obtenir,
-  dossierTempoPropre,
-  créerHéliaÉphémère,
-} from "../../utils.js";
+import { créerHéliaÉphémère } from "../../utils.js";
+import { obtenir } from "@constl/utils-tests";
+
 import { attendreQue } from "../../appli/utils/fonctions.js";
 import { serviceHéliaTest } from "./utils.js";
 import type { PartielRécursif } from "@/types.js";

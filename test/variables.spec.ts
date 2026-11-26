@@ -5,7 +5,8 @@ import {
 } from "@/nébuleuse/services/compte/accès/consts.js";
 import { TOUS_DISPOSITIFS } from "@/nébuleuse/services/favoris.js";
 import { enleverPréfixes } from "@/utils.js";
-import { créerConstellationsTest, obtenir } from "./utils.js";
+import { créerConstellationsTest } from "./utils.js";
+import { obtenir } from "@constl/utils-tests";
 import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
 import type { Constellation } from "@/index.js";
 import type {

@@ -1,16 +1,12 @@
 import path from "path";
 import { expect } from "aegir/chai";
-import { que } from "@constl/utils-tests";
+import { dossierTempoPropre, obtenir, que } from "@constl/utils-tests";
 import {
   MEMBRE,
   MODÉRATRICE,
 } from "@/nébuleuse/services/compte/accès/consts.js";
 import { créerConstellation } from "@/index.js";
-import {
-  créerConstellationsTest,
-  dossierTempoPropre,
-  obtenir,
-} from "./utils.js";
+import { créerConstellationsTest } from "./utils.js";
 import type { KeyValueDatabase } from "@orbitdb/core";
 import type { Constellation } from "@/index.js";
 import type { TraducsTexte } from "@/types.js";
