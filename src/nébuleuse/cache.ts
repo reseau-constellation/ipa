@@ -187,7 +187,7 @@ export class CacheSuivi {
         oublierSuivi = async () =>
           await this.oublierSuivi({ codeCache, idRequête });
       } catch (e) {
-        if (estErreurAvortée(e)) oublierSuivi = faisRien;
+        if (estErreurAvortée(e as Error)) oublierSuivi = faisRien;
         throw e;
       } finally {
         pVerrou.then(() => this.verrou.release(codeCache));
