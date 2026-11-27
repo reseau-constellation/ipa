@@ -1,5 +1,4 @@
-import { générerMandataire, Mandatairifiable } from "@constl/mandataire";
-import { EnveloppeNébuleuse } from "./enveloppe.js";
+import { générerMandataire, Mandatairifiable , EnveloppeAppli } from "@constl/mandataire";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   MandataireConstellation,
@@ -7,7 +6,6 @@ import type {
   MessageErreurDIpa,
   MessagePourIpa,
 } from "@constl/mandataire";
-
 import type { Nébuleuse } from "../index.js";
 import type { ServicesAppli } from "../appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
@@ -17,12 +15,12 @@ export class MandataireProc<
   S extends ServicesAppli = ServicesAppli,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 > extends Mandatairifiable {
-  nébuleuse: EnveloppeNébuleuse<T, S, L>;
+  nébuleuse: EnveloppeAppli<Nébuleuse<T, S, L>>;
 
-  constructor(créerNébuleuse: () => Promise<Nébuleuse<T, S, L>>) {
+  constructor(créerNébuleuse: () => Nébuleuse<T, S, L>) {
     super();
 
-    this.nébuleuse = new EnveloppeNébuleuse<T, S, L>(
+    this.nébuleuse = new EnveloppeAppli<Nébuleuse<T, S, L>>(
       (m: MessageDIpa) => this.recevoirMessageDIpa(m),
       ({
         erreur,
@@ -55,7 +53,7 @@ export const générerMandataireProcessus = <
   S extends ServicesAppli = ServicesAppli,
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,
 >(
-  créerNébuleuse: () => Promise<Nébuleuse<T, S, L>>,
+  créerNébuleuse: () => Nébuleuse<T, S, L>,
 ): MandataireConstellation<Nébuleuse<T, S, L>> => {
   return générerMandataire(new MandataireProc<T, S, L>(créerNébuleuse));
 };

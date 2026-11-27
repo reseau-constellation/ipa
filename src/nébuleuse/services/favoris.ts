@@ -125,7 +125,7 @@ const typeÉpinglePrésent = (
   return épingle?.type !== undefined;
 };
 
-const estÉpingleAvecId = (x: unknown): x is ÉpingleFavorisAvecId => {
+export const estÉpingleAvecId = (x: unknown): x is ÉpingleFavorisAvecId => {
   const épingle = x as ÉpingleFavorisAvecId;
   return !!(épingle.idObjet && épingle.épingle.type);
 };

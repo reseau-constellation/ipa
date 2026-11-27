@@ -42,6 +42,7 @@ import type {
   ContenuÉpingleProfil,
   ÉpingleProfil,
 } from "@constl/interface/profil";
+
 // Types structure
 
 export type StructureProfil = {

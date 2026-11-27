@@ -1,11 +1,12 @@
 export {
-  nomType,
+  nomType as typeContrôleurNébuleuse,
   type OptionsContrôleurNébuleuse,
   ContrôleurNébuleuse,
   estContrôleurNébuleuse,
   type InstanceContrôleurNébuleuse,
 } from "./contrôleurNébuleuse.js";
 
-export { ContrôleurAccès } from "./contrôleurModératrices.js";
-
-export { AccèsParComptes } from "./compte.js";
+export {
+  ContrôleurAccès,
+  nomType as typeContrôleurAccès,
+} from "./contrôleurAccès.ts";

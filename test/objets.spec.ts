@@ -15,9 +15,8 @@ import type {
 import type { Nébuleuse } from "../src/nébuleuse/index.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
-import type { Oublier } from "@constl/interface";
+import type { Oublier, PartielRécursif } from "@constl/interface";
 import type { OptionsAppli } from "../src/nébuleuse/appli/appli.js";
-import type { PartielRécursif } from "@constl/interface";
 import type { InfoAuteur } from "@constl/interface/objets";
 import type { RelationImmédiate } from "@constl/interface/réseau";
 

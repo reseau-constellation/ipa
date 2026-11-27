@@ -13,6 +13,7 @@ export const INTERVALE_VERROU = 5000; // 5 millisecondes
 
 export type OptionsServiceDossier = {
   dossier?: string;
+  intervaleVerrou?: number;
 };
 
 type RetourDémarrageDossier = { dossier: string; déverrouiller: Oublier };
@@ -23,12 +24,15 @@ export class ServiceDossier extends ServiceAppli<
   RetourDémarrageDossier,
   OptionsServiceDossier
 > {
+  intervale_verrou: number;
+
   constructor({ options }: { options: OptionsServiceDossier & OptionsAppli }) {
     super({
       clef: "dossier",
       services: {},
       options,
     });
+    this.intervale_verrou = options.intervaleVerrou ?? INTERVALE_VERROU;
   }
 
   async démarrer() {
@@ -162,7 +166,7 @@ export class ServiceDossier extends ServiceAppli<
 
         if (
           maintenant.getTime() - dernièreModificationVerrou() >
-          INTERVALE_VERROU
+          this.intervale_verrou
         ) {
           verrouiller("");
         } else {
@@ -180,7 +184,7 @@ export class ServiceDossier extends ServiceAppli<
       } catch {
         // Si le verrou existe, on lui donne une chance de périmer
         await new Promise((compléter) =>
-          setTimeout(compléter, INTERVALE_VERROU * 1.2),
+          setTimeout(compléter, this.intervale_verrou * 1.2),
         );
         verifierSiVieux();
       }
@@ -188,7 +192,7 @@ export class ServiceDossier extends ServiceAppli<
 
     const intervale = setInterval(() => {
       actualiserVerrou();
-    }, INTERVALE_VERROU);
+    }, this.intervale_verrou);
 
     return async () => {
       clearInterval(intervale);

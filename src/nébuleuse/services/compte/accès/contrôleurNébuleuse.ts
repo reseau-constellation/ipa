@@ -41,7 +41,7 @@ import {
 import { estErreurAvortée } from "../../../../../src/nébuleuse/utils.js";
 import { mandatOrbite } from "../../orbite/mandat.js";
 import { appelerLorsque } from "../../utils.js";
-import { ContrôleurAccès } from "./contrôleurModératrices.js";
+import { ContrôleurAccès } from "./contrôleurAccès.ts";
 import { AccèsParComptes } from "./compte.js";
 import type {
   DagCborEncodable,

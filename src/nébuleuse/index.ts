@@ -1,8 +1,3 @@
+export * from "./appli/index.ts";
 export { Nébuleuse } from "./nébuleuse.js";
-export {
-  ServiceHélia,
-  ServiceLibp2p,
-  ServiceOrbite,
-  type ServiceCompte,
-  ServiceStockage,
-} from "./services/index.js";
+export * from "./services/index.js";

@@ -8,6 +8,7 @@ import {
   toutesConnectées,
 } from "@constl/utils-tests";
 import { merge } from "lodash-es";
+import { MODÉRATRICE, type Rôle } from "@constl/interface/accès";
 import { serviceCompte } from "../../../../src/nébuleuse/services/compte/compte.js";
 import { Appli } from "../../../../src/nébuleuse/appli/appli.js";
 import { ServiceDonnéesAppli } from "../../../../src/nébuleuse/services/services.js";
@@ -38,7 +39,6 @@ import type { JSONSchemaType } from "ajv";
 import type { Libp2p } from "@libp2p/interface";
 import type { ServicesLibp2pNébuleuse } from "../../../../src/nébuleuse/services/libp2p/libp2p.js";
 import type { NestedValue } from "@orbitdb/nested-db";
-import { MODÉRATRICE, type Rôle } from "@constl/interface/accès";
 
 const créerApplisTest = async <
   T extends { [clef: string]: NestedValue },

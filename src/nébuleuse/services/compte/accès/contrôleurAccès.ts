@@ -13,10 +13,10 @@ import { base58btc } from "multiformats/bases/base58";
 import { sha256 } from "multiformats/hashes/sha2";
 import * as dagCbor from "@ipld/dag-cbor";
 import { MODÉRATRICE, type Rôle, rôles } from "@constl/interface/accès";
-import { mandatOrbite } from "../../orbite/mandat.js";
-import { AccèsParComptes } from "./compte.js";
+import { mandatOrbite } from "../../orbite/mandat.ts";
+import { AccèsParComptes } from "./compte.ts";
 
-const nomType = "contrôleur-accès-nébuleuse";
+export const nomType = "contrôleur-accès-nébuleuse";
 
 const codec = dagCbor;
 const hasher = sha256;

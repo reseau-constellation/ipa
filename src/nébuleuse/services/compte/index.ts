@@ -2,4 +2,5 @@ export type {
   ServiceCompte,
   OptionsServiceCompte,
   ServicesNécessairesCompte,
-} from "./compte.js";
+} from "./compte.ts";
+export * from "./accès/index.ts";

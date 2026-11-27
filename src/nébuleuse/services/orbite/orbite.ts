@@ -20,7 +20,7 @@ import { STATUTS } from "../../../../src/nébuleuse/appli/consts.js";
 import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../appli/index.js";
 import { estErreurAvortée, réessayer } from "../../utils.js";
-import { ContrôleurAccès } from "../compte/accès/contrôleurModératrices.js";
+import { ContrôleurAccès } from "../compte/accès/contrôleurAccès.ts";
 import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
 import {
   appelerLorsque,

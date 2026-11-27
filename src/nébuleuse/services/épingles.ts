@@ -10,7 +10,6 @@ import { estErreurAvortée } from "../utils.js";
 import { STATUTS } from "../appli/consts.js";
 import { filtreAsync } from "./utils.js";
 import type { OptionsAppli } from "../appli/appli.js";
-
 import type {
   ServiceOrbite,
   ServicesNécessairesOrbite,

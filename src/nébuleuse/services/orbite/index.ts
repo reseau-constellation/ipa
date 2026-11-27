@@ -1,1 +1,1 @@
-export { ServiceOrbite } from "./orbite.js";
+export { ServiceOrbite, type OptionsServiceOrbite } from "./orbite.ts";
