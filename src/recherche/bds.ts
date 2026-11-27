@@ -1,5 +1,5 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
-import { cacheRechercheParN, cacheSuivi } from "../nébuleuse/cache.js";
+import { cacheRechercheParN, cacheSuivi } from "../nébuleuse/cache.ts";
 import {
   rechercherBdsSelonDescription,
   rechercherBdsSelonIdMotClef,
@@ -10,12 +10,12 @@ import {
   rechercherBdsSelonNomVariable,
   rechercherBdsSelonTexte,
   rechercherBdsSelonVariable,
-} from "./fonctions/bds.js";
-import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
-import { RechercheObjets } from "./recherche.js";
-import type { ServicesNécessairesRechercheBds } from "./fonctions/bds.js";
+} from "./fonctions/bds.ts";
+import { rechercherSelonId, rechercherTous } from "./fonctions/utils.ts";
+import { RechercheObjets } from "./recherche.ts";
+import type { ServicesNécessairesRechercheBds } from "./fonctions/bds.ts";
 import type { Oublier, RetourRecherche, Suivi } from "@constl/interface";
-import type { SuivreObjectifRecherche, AccesseurService } from "./types.js";
+import type { SuivreObjectifRecherche, AccesseurService } from "./types.ts";
 import type { InfoAuteur } from "@constl/interface/objets";
 import type {
   RésultatRecherche,

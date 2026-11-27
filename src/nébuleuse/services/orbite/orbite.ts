@@ -16,19 +16,19 @@ import { CID } from "multiformats";
 import { faisRien } from "@constl/utils-ipa";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { STATUTS } from "../../../../src/nébuleuse/appli/consts.js";
-import { cacheSuivi } from "../../cache.js";
-import { ServiceAppli } from "../../appli/index.js";
-import { estErreurAvortée, réessayer } from "../../utils.js";
+import { STATUTS } from "../../../../src/nébuleuse/appli/consts.ts";
+import { cacheSuivi } from "../../cache.ts";
+import { ServiceAppli } from "../../appli/index.ts";
+import { estErreurAvortée, réessayer } from "../../utils.ts";
 import { ContrôleurAccès } from "../compte/accès/contrôleurAccès.ts";
-import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.js";
+import { ContrôleurNébuleuse } from "../compte/accès/contrôleurNébuleuse.ts";
 import {
   appelerLorsque,
   estUnePromesse,
   lorsqueSignalAvorté,
-} from "../utils.js";
-import { mandatOrbite } from "./mandat.js";
-import type { OptionsAppli } from "../../appli/appli.js";
+} from "../utils.ts";
+import { mandatOrbite } from "./mandat.ts";
+import type { OptionsAppli } from "../../appli/appli.ts";
 import type {
   OrbitDB,
   BaseDatabase,
@@ -37,7 +37,7 @@ import type {
   DagCborEncodable,
   LogEntry,
 } from "@orbitdb/core";
-import type { ServiceJournal } from "../journal.js";
+import type { ServiceJournal } from "../journal.ts";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
@@ -48,7 +48,7 @@ import type {
   ServiceLibp2p,
   ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,
-} from "../libp2p/libp2p.js";
+} from "../libp2p/libp2p.ts";
 import type { HeliaWithLibp2p } from "@helia/libp2p";
 import type { Oublier, PartielRécursif, Suivi } from "@constl/interface";
 import type { Signature } from "@constl/interface/orbite";

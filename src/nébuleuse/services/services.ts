@@ -4,7 +4,7 @@ import {
   joinKey,
   splitKey,
 } from "@orbitdb/nested-db";
-import { ServiceAppli } from "../../../src/nébuleuse/appli/index.js";
+import { ServiceAppli } from "../../../src/nébuleuse/appli/index.ts";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { NestedValue, NestedValueWithUndefined } from "@orbitdb/nested-db";
 import type {
@@ -20,11 +20,11 @@ import type { JSONSchemaType } from "ajv";
 import type {
   OptionsAppli,
   ServicesAppli,
-} from "../../../src/nébuleuse/appli/appli.js";
+} from "../../../src/nébuleuse/appli/appli.ts";
 import type {
   ServiceCompte,
   ServicesNécessairesCompte,
-} from "./compte/compte.js";
+} from "./compte/compte.ts";
 import type { Oublier, PartielRécursif, Suivi } from "@constl/interface";
 
 export type ClefDeBranche<T extends NestedValue> = keyof {

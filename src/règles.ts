@@ -1,5 +1,5 @@
 import { validerCatégorieVal } from "@constl/utils-ipa";
-import { obtIdIndex } from "./utils.js";
+import { obtIdIndex } from "./utils.ts";
 
 import type { JSONSchemaType } from "ajv";
 import type { DagCborEncodable } from "@orbitdb/core";

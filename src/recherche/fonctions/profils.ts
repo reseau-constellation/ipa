@@ -6,11 +6,11 @@ import {
   rechercherTousSiVide,
   similImages,
   similTexte,
-} from "../../../src/recherche/fonctions/utils.js";
-import type { Profil } from "../../../src/nébuleuse/services/profil.js";
+} from "../../../src/recherche/fonctions/utils.ts";
+import type { Profil } from "../../../src/nébuleuse/services/profil.ts";
 
-import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
-import type { SuivreObjectifRecherche, AccesseurService } from "../types.js";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
+import type { SuivreObjectifRecherche, AccesseurService } from "../types.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatVide,

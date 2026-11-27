@@ -15,15 +15,15 @@ import {
   ajouterPréfixes,
   enleverPréfixes,
   enleverPréfixesEtOrbite,
-} from "../../../../src/utils.js";
-import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.js";
+} from "../../../../src/utils.ts";
+import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.ts";
 import {
   PROTOCOLE_NÉBULEUSE,
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
   FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
-} from "../consts.js";
-import { ServiceDonnéesAppli } from "../services.js";
-import { estContrôleurNébuleuse } from "../compte/accès/index.js";
+} from "../consts.ts";
+import { ServiceDonnéesAppli } from "../services.ts";
+import { estContrôleurNébuleuse } from "../compte/accès/index.ts";
 import {
   appelerLorsque,
   combinerConfiances,
@@ -33,15 +33,15 @@ import {
   obtEmpreinteCode,
   oublierOuAttendreOublie,
   vérifierProfondeur,
-} from "../utils.js";
-import { estErreurAvortée, réessayer } from "../../utils.js";
-import { STATUTS } from "../../appli/consts.js";
+} from "../utils.ts";
+import { estErreurAvortée, réessayer } from "../../utils.ts";
+import { STATUTS } from "../../appli/consts.ts";
 import {
   ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
   ACCEPTATION_REQUÊTE_REJOINDRE_COMPTE,
   IDENTITÉ_COMPTE,
   INFO_PAIRS,
-} from "./messages.js";
+} from "./messages.ts";
 import type {
   MessageAcceptationInvitationRejoindreCompte,
   MessageAcceptationRequêteRejoindreCompte,
@@ -49,16 +49,16 @@ import type {
   MessageInfosPairs,
   MessageRéseau,
   MessageRéseauAvecExpéditeur,
-} from "./messages.js";
-import type { ServicesNécessairesDonnées } from "../services.js";
+} from "./messages.ts";
+import type { ServicesNécessairesDonnées } from "../services.ts";
 import type { Libp2pEvents, Stream } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
 import type {
   OptionsAppli,
   ServicesAppli,
-} from "../../../../src/nébuleuse/appli/appli.js";
+} from "../../../../src/nébuleuse/appli/appli.ts";
 
-import type { ServiceAppli } from "../../appli/services.js";
+import type { ServiceAppli } from "../../appli/services.ts";
 import type {
   Oublier,
   PartielRécursif,

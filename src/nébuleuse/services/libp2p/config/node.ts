@@ -13,12 +13,12 @@ import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { uPnPNAT } from "@libp2p/upnp-nat";
 import { kadDHT } from "@libp2p/kad-dht";
-import { obtStockageDonnées } from "../../utils.js";
-import { découvertePairs, servicesDéfaut } from "./utils.js";
+import { obtStockageDonnées } from "../../utils.ts";
+import { découvertePairs, servicesDéfaut } from "./utils.ts";
 import type {
   ConfigOptionsLibp2p,
   ServicesLibp2pNébuleuseDéfaut,
-} from "./utils.js";
+} from "./utils.ts";
 import type { UPnPNAT } from "@libp2p/upnp-nat";
 import type { CircuitRelayService } from "@libp2p/circuit-relay-v2";
 import type { Libp2pOptions } from "libp2p";

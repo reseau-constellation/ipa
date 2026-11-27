@@ -27,21 +27,21 @@ import { sha512 } from "multiformats/hashes/sha2";
 import { expect } from "aegir/chai";
 import { readFile as xlsxReadFile, type WorkBook } from "@e965/xlsx";
 import JSZip from "jszip";
-import { créerConstellation } from "../src/index.js";
-import { estContrôleurNébuleuse } from "../src/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
-import { ImportateurFeuilleCalcul } from "../src/importateur/feuille.js";
-import { connecterNébuleuses } from "./nébuleuse/utils.js";
+import { créerConstellation } from "../src/index.ts";
+import { estContrôleurNébuleuse } from "../src/nébuleuse/services/compte/accès/contrôleurNébuleuse.ts";
+import { ImportateurFeuilleCalcul } from "../src/importateur/feuille.ts";
+import { connecterNébuleuses } from "./nébuleuse/utils.ts";
 import {
   obtenirOptionsLibp2pLocal,
   type ServicesLibp2pNébuleuseLocale,
-} from "./nébuleuse/services/utils.js";
-import type { Constellation } from "../src/index.js";
-import type { Constellation as ConstructeurConstellation } from "../src/constellation.js";
+} from "./nébuleuse/services/utils.ts";
+import type { Constellation } from "../src/index.ts";
+import type { Constellation as ConstructeurConstellation } from "../src/constellation.ts";
 import type { Oublier } from "@constl/interface";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
-import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.ts";
 import type { ÉlémentDonnéesTableau } from "@constl/interface/tableaux";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(

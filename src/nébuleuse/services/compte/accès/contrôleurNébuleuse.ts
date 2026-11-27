@@ -38,11 +38,11 @@ import {
   type AccèsUtilisateur,
   type AccèsDispositif,
 } from "@constl/interface/accès";
-import { estErreurAvortée } from "../../../../../src/nébuleuse/utils.js";
-import { mandatOrbite } from "../../orbite/mandat.js";
-import { appelerLorsque } from "../../utils.js";
+import { estErreurAvortée } from "../../../../../src/nébuleuse/utils.ts";
+import { mandatOrbite } from "../../orbite/mandat.ts";
+import { appelerLorsque } from "../../utils.ts";
 import { ContrôleurAccès } from "./contrôleurAccès.ts";
-import { AccèsParComptes } from "./compte.js";
+import { AccèsParComptes } from "./compte.ts";
 import type {
   DagCborEncodable,
   KeyValueDatabase,

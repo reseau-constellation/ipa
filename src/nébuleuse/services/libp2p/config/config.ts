@@ -8,17 +8,17 @@ import {
 import {
   ADRESSES_NŒUDS_RELAI_WS,
   SUJETS_PUBSUB_DÉCOUVERTE_PAIRS,
-} from "./const.js";
-import { obtOptionsLibp2pNavigateur } from "./navigateur.js";
-import { obtOptionsLibp2pNode } from "./node.js";
+} from "./const.ts";
+import { obtOptionsLibp2pNavigateur } from "./navigateur.ts";
+import { obtOptionsLibp2pNode } from "./node.ts";
 import {
   obtOptionsLibp2pTravailleur,
   obtOptionsLibp2pÉlectronPrincipal,
-} from "./index.js";
+} from "./index.ts";
 import type {
   ConfigOptionsLibp2p,
   ServicesLibp2pNébuleuseDéfaut,
-} from "./utils.js";
+} from "./utils.ts";
 import type { Libp2pOptions } from "libp2p";
 import type { PrivateKey } from "@libp2p/interface";
 import type {

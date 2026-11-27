@@ -2,12 +2,12 @@ import { expect } from "aegir/chai";
 import { CID } from "multiformats";
 import { obtenir } from "@constl/utils-tests";
 import { AUCUN_DISPOSITIF, TOUS_DISPOSITIFS } from "@constl/interface/favoris";
-import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "../../../src/nébuleuse/services/consts.js";
-import { enleverPréfixes, idcEtFichierValide } from "../../../src/utils.js";
-import { obtRessourceTest } from "../../ressources/index.js";
-import { créerNébuleusesTest } from "../utils.js";
-import type { ServiceCompte } from "../../../src/nébuleuse/index.js";
-import type { NébuleuseTest } from "../utils.js";
+import { MAX_TAILLE_IMAGE_SAUVEGARDER } from "../../../src/nébuleuse/services/consts.ts";
+import { enleverPréfixes, idcEtFichierValide } from "../../../src/utils.ts";
+import { obtRessourceTest } from "../../ressources/index.ts";
+import { créerNébuleusesTest } from "../utils.ts";
+import type { ServiceCompte } from "../../../src/nébuleuse/index.ts";
+import type { NébuleuseTest } from "../utils.ts";
 import type { TraducsTexte } from "@constl/interface";
 import type { ÉpingleProfil } from "@constl/interface/profil";
 

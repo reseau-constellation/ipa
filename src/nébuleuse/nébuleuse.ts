@@ -1,60 +1,60 @@
 import { merge } from "ts-deepmerge";
 import { isBrowser, isElectronRenderer } from "wherearewe";
-import { Appli } from "../../src/nébuleuse/appli/appli.js";
-import { serviceJournal } from "./services/journal.js";
-import { serviceDossier } from "./services/dossier.js";
+import { Appli } from "../../src/nébuleuse/appli/appli.ts";
+import { serviceJournal } from "./services/journal.ts";
+import { serviceDossier } from "./services/dossier.ts";
 import {
   serviceLibp2p,
   type OptionsServiceLibp2p,
   type ServicesLibp2pNébuleuse,
-} from "./services/libp2p/libp2p.js";
-import { serviceHélia } from "./services/hélia.js";
-import { serviceStockage } from "./services/stockage.js";
+} from "./services/libp2p/libp2p.ts";
+import { serviceHélia } from "./services/hélia.ts";
+import { serviceStockage } from "./services/stockage.ts";
 import {
   serviceOrbite,
   type OptionsServiceOrbite,
-} from "./services/orbite/orbite.js";
+} from "./services/orbite/orbite.ts";
 import {
   type OptionsServiceCompte,
   serviceCompte,
   type ServicesNécessairesCompte,
-} from "./services/compte/compte.js";
+} from "./services/compte/compte.ts";
 import {
   schémaDispositifs,
   serviceDispositifs,
   type ServiceDispositifs,
   type StructureDispositifs,
-} from "./services/dispositifs.js";
+} from "./services/dispositifs.ts";
 import {
   schémaProfil,
   type Profil,
   type StructureProfil,
-} from "./services/profil.js";
+} from "./services/profil.ts";
 import {
   schémaRéseau,
   serviceRéseau,
   type ServiceRéseau,
   type StructureRéseau,
-} from "./services/réseau/réseau.js";
-import { serviceProfil } from "./services/profil.js";
-import { serviceÉpingles, type ServiceÉpingles } from "./services/épingles.js";
-import { schémaServiceFavoris, serviceFavoris } from "./services/favoris.js";
+} from "./services/réseau/réseau.ts";
+import { serviceProfil } from "./services/profil.ts";
+import { serviceÉpingles, type ServiceÉpingles } from "./services/épingles.ts";
+import { schémaServiceFavoris, serviceFavoris } from "./services/favoris.ts";
 import type {
   ServiceFavoris,
   StructureServiceFavoris,
-} from "./services/favoris.js";
-import type { ServiceOrbite, ServiceCompte } from "./services/index.js";
+} from "./services/favoris.ts";
+import type { ServiceOrbite, ServiceCompte } from "./services/index.ts";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsServiceJournal } from "./services/journal.js";
+import type { OptionsServiceJournal } from "./services/journal.ts";
 
-import type { OptionsServiceDossier } from "./services/dossier.js";
+import type { OptionsServiceDossier } from "./services/dossier.ts";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   ConstructeursServicesAppli,
   OptionsAppli,
   ServicesAppli,
-} from "../../src/nébuleuse/appli/appli.js";
-import type { OptionsServiceHélia } from "./services/hélia.js";
+} from "../../src/nébuleuse/appli/appli.ts";
+import type { OptionsServiceHélia } from "./services/hélia.ts";
 import type { PartielRécursif } from "@constl/interface";
 
 export type StructureNébuleuse = {

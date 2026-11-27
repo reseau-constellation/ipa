@@ -19,15 +19,15 @@ import {
   DISPOSITIFS_INSTALLÉS,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "@constl/interface/favoris";
-import { cacheSuivi } from "../nébuleuse/cache.js";
+import { cacheSuivi } from "../nébuleuse/cache.ts";
 import {
   RÉSOLVEUR_FAVORIS,
   estÉpingleDeType,
   résoudreDéfauts,
-} from "../nébuleuse/services/favoris.js";
-import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
-import { schémaTableau } from "../tableaux.js";
-import { estErreurAvortée, stabiliser } from "../nébuleuse/utils.js";
+} from "../nébuleuse/services/favoris.ts";
+import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.ts";
+import { schémaTableau } from "../tableaux.ts";
+import { estErreurAvortée, stabiliser } from "../nébuleuse/utils.ts";
 import {
   ajouterPréfixes,
   définis,
@@ -37,13 +37,13 @@ import {
   moyenne,
   sauvegarderDonnéesExportées,
   statutComplet,
-} from "../utils.js";
-import { RechercheBds } from "../recherche/bds.js";
-import { ObjetConstellation } from "../objets.js";
-import { TableauxBds } from "./tableaux.js";
-import type { ServicesNécessairesObjet } from "../objets.js";
-import type { Variables } from "../variables.js";
-import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
+} from "../utils.ts";
+import { RechercheBds } from "../recherche/bds.ts";
+import { ObjetConstellation } from "../objets.ts";
+import { TableauxBds } from "./tableaux.ts";
+import type { ServicesNécessairesObjet } from "../objets.ts";
+import type { Variables } from "../variables.ts";
+import type { OptionsAppli } from "../nébuleuse/appli/appli.ts";
 import type xlsx from "@e965/xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
@@ -56,12 +56,12 @@ import type {
 import type {
   StructureTableau,
   ServicesNécessairesTableaux,
-} from "../tableaux.js";
+} from "../tableaux.ts";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
-import type { MotsClefs } from "../motsClefs.js";
-import type { AccesseurService } from "../recherche/types.js";
-import type { ServicesNécessairesRechercheBds } from "../recherche/fonctions/bds.js";
+import type { MotsClefs } from "../motsClefs.ts";
+import type { AccesseurService } from "../recherche/types.ts";
+import type { ServicesNécessairesRechercheBds } from "../recherche/fonctions/bds.ts";
 import type { Rôle } from "@constl/interface/accès";
 import type {
   ContenuÉpingleBd,

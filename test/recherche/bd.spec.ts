@@ -10,13 +10,13 @@ import {
   rechercherBdsSelonNomVariable,
   rechercherBdsSelonTexte,
   rechercherBdsSelonVariable,
-} from "../../src/recherche/fonctions/bds.js";
-import { enleverPréfixesEtOrbite } from "../../src/utils.js";
-import { créerConstellationsTest } from "../utils.js";
-import type { ServicesNécessairesRechercheBds } from "../../src/recherche/fonctions/bds.js";
+} from "../../src/recherche/fonctions/bds.ts";
+import { enleverPréfixesEtOrbite } from "../../src/utils.ts";
+import { créerConstellationsTest } from "../utils.ts";
+import type { ServicesNécessairesRechercheBds } from "../../src/recherche/fonctions/bds.ts";
 
-import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
-import type { Constellation as ConstructeurConstellation } from "../../src/constellation.js";
+import type { SuivreObjectifRecherche } from "../../src/recherche/types.ts";
+import type { Constellation as ConstructeurConstellation } from "../../src/constellation.ts";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,

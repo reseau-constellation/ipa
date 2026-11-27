@@ -2,11 +2,11 @@ import path from "path";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import { dossierTempoPropre } from "@constl/utils-tests";
-import { Appli } from "../../../src/nébuleuse/appli/appli.js";
-import { serviceStockage } from "../../../src/nébuleuse/services/stockage.js";
-import { serviceDossier } from "../../../src/nébuleuse/services/dossier.js";
-import type { ServiceStockage } from "../../../src/nébuleuse/index.js";
-import type { ServicesNécessairesStockage } from "../../../src/nébuleuse/services/stockage.js";
+import { Appli } from "../../../src/nébuleuse/appli/appli.ts";
+import { serviceStockage } from "../../../src/nébuleuse/services/stockage.ts";
+import { serviceDossier } from "../../../src/nébuleuse/services/dossier.ts";
+import type { ServiceStockage } from "../../../src/nébuleuse/index.ts";
+import type { ServicesNécessairesStockage } from "../../../src/nébuleuse/services/stockage.ts";
 
 describe("Stockage", function () {
   let appli: Appli<ServicesNécessairesStockage & { stockage: ServiceStockage }>;

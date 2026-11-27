@@ -1,15 +1,15 @@
 import { faisRien } from "@constl/utils-ipa";
-import { ServiceAppli } from "../../appli/index.js";
-import { STATUTS } from "../../appli/consts.js";
+import { ServiceAppli } from "../../appli/index.ts";
+import { STATUTS } from "../../appli/consts.ts";
 
 import type { Libp2p } from "libp2p";
 import type { Identify, IdentifyPush } from "@libp2p/identify";
 import type { GossipSub } from "@libp2p/gossipsub";
 import type { PeerId, PeerUpdate, ServiceMap } from "@libp2p/interface";
-import type { OptionsAppli } from "../../appli/appli.js";
+import type { OptionsAppli } from "../../appli/appli.ts";
 import type { Ping } from "@libp2p/ping";
-import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.js";
-import type { ServiceJournal } from "../journal.js";
+import type { ServiceHélia, ServicesNécessairesHélia } from "../hélia.ts";
+import type { ServiceJournal } from "../journal.ts";
 import type { Suivi, Oublier } from "@constl/interface";
 
 export type ServicesLibp2pNébuleuse = {

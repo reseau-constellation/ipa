@@ -1,23 +1,23 @@
-import { rechercherBdsSelonTexte } from "./bds.js";
+import { rechercherBdsSelonTexte } from "./bds.ts";
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
-} from "./motsClefs.js";
+} from "./motsClefs.ts";
 import {
   similTexte,
   rechercherSelonId,
   sousRecherche,
   rechercherTousSiVide,
   combinerRecherches,
-} from "./utils.js";
+} from "./utils.ts";
 import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
-} from "./variables.js";
-import type { Bds } from "../../../src/bds/bds.js";
-import type { MotsClefs } from "../../../src/motsClefs.js";
-import type { Variables } from "../../../src/variables.js";
-import type { Projets } from "../../../src/projets.js";
+} from "./variables.ts";
+import type { Bds } from "../../../src/bds/bds.ts";
+import type { MotsClefs } from "../../../src/motsClefs.ts";
+import type { Variables } from "../../../src/variables.ts";
+import type { Projets } from "../../../src/projets.ts";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {

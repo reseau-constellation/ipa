@@ -1,8 +1,8 @@
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-tests";
-import { infoLicences, licences } from "../src/licences.js";
-import { créerConstellationsTest } from "./utils.js";
-import type { Constellation } from "../src/index.js";
+import { infoLicences, licences } from "../src/licences.ts";
+import { créerConstellationsTest } from "./utils.ts";
+import type { Constellation } from "../src/index.ts";
 import type { InfoLicence } from "@constl/interface/licences";
 
 describe("Licences", function () {

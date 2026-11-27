@@ -1,2 +1,2 @@
-export { Appli, type OptionsAppli, type ServicesAppli } from "./appli.js";
-export { ServiceAppli } from "./services.js";
+export { Appli, type OptionsAppli, type ServicesAppli } from "./appli.ts";
+export { ServiceAppli } from "./services.ts";

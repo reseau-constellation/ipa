@@ -1,1 +1,1 @@
-export { MandataireProc, générerMandataireProcessus } from "./ipaProc.js";
+export { MandataireProc, générerMandataireProcessus } from "./ipaProc.ts";

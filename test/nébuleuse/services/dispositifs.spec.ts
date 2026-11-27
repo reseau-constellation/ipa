@@ -4,24 +4,24 @@ import { dossierTempoPropre, obtenir } from "@constl/utils-tests";
 import {
   détecterTypeDispositif,
   serviceDispositifs,
-} from "../../../src/nébuleuse/services/dispositifs.js";
-import { Appli } from "../../../src/nébuleuse/appli/index.js";
-import { serviceJournal } from "../../../src/nébuleuse/services/journal.js";
-import { serviceDossier } from "../../../src/nébuleuse/services/dossier.js";
-import { serviceCompte } from "../../../src/nébuleuse/services/compte/compte.js";
-import { serviceOrbite } from "../../../src/nébuleuse/services/orbite/orbite.js";
-import { serviceStockage } from "../../../src/nébuleuse/services/stockage.js";
-import { schémaNébuleuse } from "../../../src/nébuleuse/nébuleuse.js";
+} from "../../../src/nébuleuse/services/dispositifs.ts";
+import { Appli } from "../../../src/nébuleuse/appli/index.ts";
+import { serviceJournal } from "../../../src/nébuleuse/services/journal.ts";
+import { serviceDossier } from "../../../src/nébuleuse/services/dossier.ts";
+import { serviceCompte } from "../../../src/nébuleuse/services/compte/compte.ts";
+import { serviceOrbite } from "../../../src/nébuleuse/services/orbite/orbite.ts";
+import { serviceStockage } from "../../../src/nébuleuse/services/stockage.ts";
+import { schémaNébuleuse } from "../../../src/nébuleuse/nébuleuse.ts";
 import {
   serviceLibp2p,
   type ServicesLibp2pNébuleuse,
-} from "../../../src/nébuleuse/services/libp2p/libp2p.js";
-import { serviceHéliaTest } from "./utils.js";
-import type { StructureNébuleuse } from "../../../src/nébuleuse/nébuleuse.js";
+} from "../../../src/nébuleuse/services/libp2p/libp2p.ts";
+import { serviceHéliaTest } from "./utils.ts";
+import type { StructureNébuleuse } from "../../../src/nébuleuse/nébuleuse.ts";
 import type {
   ServicesNécessairesDispositifs,
   ServiceDispositifs,
-} from "../../../src/nébuleuse/services/dispositifs.js";
+} from "../../../src/nébuleuse/services/dispositifs.ts";
 
 describe("Dispositifs", function () {
   describe("infos dispositifs", function () {

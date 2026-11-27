@@ -9,9 +9,9 @@ import {
   type AccèsUtilisateur,
   type AccèsDispositif,
 } from "@constl/interface/accès";
-import { estErreurAvortée } from "../../../utils.js";
-import { appelerLorsque } from "../../utils.js";
-import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
+import { estErreurAvortée } from "../../../utils.ts";
+import { appelerLorsque } from "../../utils.ts";
+import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.ts";
 import type { OrbitDB } from "@orbitdb/core";
 import type { Oublier } from "@constl/interface";
 

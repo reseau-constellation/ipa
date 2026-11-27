@@ -1,11 +1,11 @@
 import { join } from "path";
 import { isElectronMain, isNode } from "wherearewe";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
-import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
-import { STATUTS } from "../appli/consts.js";
+import { ServiceAppli } from "../../../src/nébuleuse/appli/services.ts";
+import { STATUTS } from "../appli/consts.ts";
 import type TypeFs from "fs";
-import type { Jsonifiable } from "../types.js";
-import type { OptionsAppli, ServicesAppli } from "../appli/appli.js";
+import type { Jsonifiable } from "../types.ts";
+import type { OptionsAppli, ServicesAppli } from "../appli/appli.ts";
 import type { Oublier } from "@constl/interface";
 
 export const FICHIER_VERROU = "VERROU";

@@ -3,10 +3,10 @@ import { expect } from "aegir/chai";
 import { dossierTempoPropre, obtenir, que } from "@constl/utils-tests";
 
 import { type Rôle, MEMBRE, MODÉRATRICE } from "@constl/interface/accès";
-import { créerConstellation } from "../src/index.js";
-import { créerConstellationsTest } from "./utils.js";
+import { créerConstellation } from "../src/index.ts";
+import { créerConstellationsTest } from "./utils.ts";
 import type { KeyValueDatabase } from "@orbitdb/core";
-import type { Constellation } from "../src/index.js";
+import type { Constellation } from "../src/index.ts";
 import type { TraducsTexte } from "@constl/interface";
 
 describe("Constellation", function () {

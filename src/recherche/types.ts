@@ -1,5 +1,5 @@
-import type { ServicesNécessairesRecherche } from "./recherche.js";
-import type { ServicesAppli } from "../nébuleuse/appli/appli.js";
+import type { ServicesNécessairesRecherche } from "./recherche.ts";
+import type { ServicesAppli } from "../nébuleuse/appli/appli.ts";
 import type { InfoRésultat, SuiviRecherche } from "@constl/interface/recherche";
 import type { Oublier } from "@constl/interface";
 

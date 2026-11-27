@@ -1,6 +1,6 @@
 import { TypedEmitter } from "tiny-typed-emitter";
-import { STATUTS } from "./consts.js";
-import type { OptionsAppli, ServicesAppli } from "./appli.js";
+import { STATUTS } from "./consts.ts";
+import type { OptionsAppli, ServicesAppli } from "./appli.ts";
 
 type ÉvénementsServiceAppli<Démarré = true> = {
   démarré: (args: Démarré) => void;

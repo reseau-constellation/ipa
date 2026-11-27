@@ -5,13 +5,13 @@ import {
   rechercherProfilsSelonNom,
   rechercherProfilsSelonCourriel,
   rechercherProfilsSelonTexte,
-} from "../../../src/recherche/fonctions/profils.js";
-import { enleverPréfixesEtOrbite } from "../../../src/utils.js";
-import { obtRessourceTest } from "../../ressources/index.js";
-import { créerNébuleusesTest } from "../utils.js";
-import type { NébuleuseTest } from "../utils.js";
-import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.js";
-import type { SuivreObjectifRecherche } from "../../../src/recherche/types.js";
+} from "../../../src/recherche/fonctions/profils.ts";
+import { enleverPréfixesEtOrbite } from "../../../src/utils.ts";
+import { obtRessourceTest } from "../../ressources/index.ts";
+import { créerNébuleusesTest } from "../utils.ts";
+import type { NébuleuseTest } from "../utils.ts";
+import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.ts";
+import type { SuivreObjectifRecherche } from "../../../src/recherche/types.ts";
 
 import type {
   InfoRésultatVide,

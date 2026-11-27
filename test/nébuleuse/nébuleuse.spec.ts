@@ -12,25 +12,25 @@ import {
   isElectronRenderer,
   isNode,
 } from "wherearewe";
-import { ServiceDonnéesAppli } from "../../src/nébuleuse/services/services.js";
+import { ServiceDonnéesAppli } from "../../src/nébuleuse/services/services.ts";
 import {
   ERREUR_DUPLIQUÉS,
   extraireOptionsHélia,
-} from "../../src/nébuleuse/nébuleuse.js";
+} from "../../src/nébuleuse/nébuleuse.ts";
 import {
   FICHIER_VERROU,
   INTERVALE_VERROU,
-} from "../../src/nébuleuse/services/dossier.js";
-import { ServiceAppli } from "../../src/nébuleuse/appli/index.js";
-import { utiliserFauxChronomètres } from "../utils.js";
-import { créerNébuleusesTest, NébuleuseTest } from "./utils.js";
+} from "../../src/nébuleuse/services/dossier.ts";
+import { ServiceAppli } from "../../src/nébuleuse/appli/index.ts";
+import { utiliserFauxChronomètres } from "../utils.ts";
+import { créerNébuleusesTest, NébuleuseTest } from "./utils.ts";
 import type sinon from "sinon";
-import type { ServicesNécessairesDonnées } from "../../src/nébuleuse/services/services.js";
+import type { ServicesNécessairesDonnées } from "../../src/nébuleuse/services/services.ts";
 import type {
   OptionsAppli,
   ServicesAppli,
-} from "../../src/nébuleuse/appli/appli.js";
-import type { ServicesLibp2pNébuleuse } from "../../src/nébuleuse/services/libp2p/libp2p.js";
+} from "../../src/nébuleuse/appli/appli.ts";
+import type { ServicesLibp2pNébuleuse } from "../../src/nébuleuse/services/libp2p/libp2p.ts";
 import type { OrbitDB } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
 import type { HeliaWithLibp2p } from "@helia/libp2p";

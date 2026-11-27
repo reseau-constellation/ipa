@@ -1,8 +1,8 @@
 import { expect } from "aegir/chai";
 import { rechercher, type ObtRecherche } from "@constl/utils-tests";
-import { enleverPréfixesEtOrbite } from "../../src/utils.js";
-import { créerConstellationsTest } from "../utils.js";
-import type { Constellation } from "../../src/index.js";
+import { enleverPréfixesEtOrbite } from "../../src/utils.ts";
+import { créerConstellationsTest } from "../utils.ts";
+import type { Constellation } from "../../src/index.ts";
 import type { Oublier } from "@constl/interface";
 import type {
   RésultatRecherche,

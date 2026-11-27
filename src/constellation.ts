@@ -1,25 +1,25 @@
 import { merge } from "ts-deepmerge";
 import { isWebWorker, isElectronRenderer } from "wherearewe";
-import { Variables } from "./variables.js";
-import { MotsClefs } from "./motsClefs.js";
-import { Nébuleuse } from "./nébuleuse/nébuleuse.js";
-import { Bds } from "./bds/bds.js";
-import { Nuées } from "./nuées/nuées.js";
-import { Licences } from "./licences.js";
-import { Projets } from "./projets.js";
-import { Automatisations } from "./automatisations/automatisations.js";
-import { schémaServiceObjet, type StructureServiceObjet } from "./objets.js";
-import { schémaServiceAutomatisations } from "./automatisations/types.js";
-import { générerMandataireProcessus } from "./nébuleuse/mandataire/ipaProc.js";
-import type { ServiceÉpingles } from "./nébuleuse/services/épingles.js";
-import type { ServiceFavoris } from "./nébuleuse/services/favoris.js";
-import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.js";
+import { Variables } from "./variables.ts";
+import { MotsClefs } from "./motsClefs.ts";
+import { Nébuleuse } from "./nébuleuse/nébuleuse.ts";
+import { Bds } from "./bds/bds.ts";
+import { Nuées } from "./nuées/nuées.ts";
+import { Licences } from "./licences.ts";
+import { Projets } from "./projets.ts";
+import { Automatisations } from "./automatisations/automatisations.ts";
+import { schémaServiceObjet, type StructureServiceObjet } from "./objets.ts";
+import { schémaServiceAutomatisations } from "./automatisations/types.ts";
+import { générerMandataireProcessus } from "./nébuleuse/mandataire/ipaProc.ts";
+import type { ServiceÉpingles } from "./nébuleuse/services/épingles.ts";
+import type { ServiceFavoris } from "./nébuleuse/services/favoris.ts";
+import type { ServicesLibp2pNébuleuse } from "./nébuleuse/services/libp2p/libp2p.ts";
 import type {
   OptionsNébuleuse,
   ServicesNébuleuse,
   StructureNébuleuse,
-} from "./nébuleuse/nébuleuse.js";
-import type { StructureServiceAutomatisations } from "./automatisations/types.js";
+} from "./nébuleuse/nébuleuse.ts";
+import type { StructureServiceAutomatisations } from "./automatisations/types.ts";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "@constl/interface";
 

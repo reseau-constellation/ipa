@@ -6,28 +6,28 @@ import {
   toutesConnectées,
 } from "@constl/utils-tests";
 import { merge } from "ts-deepmerge";
-import { Nébuleuse } from "../../src/nébuleuse/nébuleuse.js";
+import { Nébuleuse } from "../../src/nébuleuse/nébuleuse.ts";
 import {
   obtenirOptionsLibp2pLocal,
   serviceHéliaTest,
-} from "./services/utils.js";
+} from "./services/utils.ts";
 import type {
   ServiceHéliaTest,
   ServicesLibp2pNébuleuseLocale,
-} from "./services/utils.js";
+} from "./services/utils.ts";
 import type { Libp2p } from "libp2p";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   OptionsNébuleuse,
   ServicesNébuleuse,
   StructureNébuleuse,
-} from "../../src/nébuleuse/nébuleuse.js";
+} from "../../src/nébuleuse/nébuleuse.ts";
 import type {
   ConstructeursServicesAppli,
   ServicesAppli,
-} from "../../src/nébuleuse/appli/appli.js";
+} from "../../src/nébuleuse/appli/appli.ts";
 
-import type { ServicesLibp2pNébuleuse } from "../../src/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../../src/nébuleuse/services/libp2p/libp2p.ts";
 import type { Oublier } from "@constl/interface";
 
 export class NébuleuseTest<

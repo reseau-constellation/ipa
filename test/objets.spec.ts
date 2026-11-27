@@ -4,19 +4,19 @@ import { obtenir } from "@constl/utils-tests";
 
 import { MEMBRE, MODÉRATRICE, type Rôle } from "@constl/interface/accès";
 import { TOUS_DISPOSITIFS } from "@constl/interface/favoris";
-import { ObjetConstellation, schémaServiceObjet } from "../src/objets.js";
-import { CONFIANCE_DE_COAUTEUR } from "../src/nébuleuse/services/consts.js";
-import { RÉSOLVEUR_CONFIANCE } from "../src/nébuleuse/services/réseau/réseau.js";
-import { créerNébuleusesTest } from "./nébuleuse/utils.js";
+import { ObjetConstellation, schémaServiceObjet } from "../src/objets.ts";
+import { CONFIANCE_DE_COAUTEUR } from "../src/nébuleuse/services/consts.ts";
+import { RÉSOLVEUR_CONFIANCE } from "../src/nébuleuse/services/réseau/réseau.ts";
+import { créerNébuleusesTest } from "./nébuleuse/utils.ts";
 import type {
   ServicesNécessairesObjet,
   StructureServiceObjet,
-} from "../src/objets.js";
-import type { Nébuleuse } from "../src/nébuleuse/index.js";
+} from "../src/objets.ts";
+import type { Nébuleuse } from "../src/nébuleuse/index.ts";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier, PartielRécursif } from "@constl/interface";
-import type { OptionsAppli } from "../src/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "../src/nébuleuse/appli/appli.ts";
 import type { InfoAuteur } from "@constl/interface/objets";
 import type { RelationImmédiate } from "@constl/interface/réseau";
 

@@ -3,23 +3,23 @@ import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "@e965/xlsx";
 import { faisRien, uneFois } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { ImportateurFeuilleCalcul } from "../importateur/feuille.js";
-import { appelerLorsque } from "../nébuleuse/services/utils.js";
+import { ImportateurFeuilleCalcul } from "../importateur/feuille.ts";
+import { appelerLorsque } from "../nébuleuse/services/utils.ts";
 import {
   enleverPréfixesEtOrbite,
   sauvegarderDonnéesExportées,
-} from "../utils.js";
-import { ImportateurDonnéesJSON } from "../importateur/json.js";
+} from "../utils.ts";
+import { ImportateurDonnéesJSON } from "../importateur/json.ts";
 import {
   importerFeuilleCalculDURL,
   importerJSONdURL,
-} from "../importateur/urls.js";
-import { stabiliser } from "../nébuleuse/utils.js";
-import type { ServicesNécessairesAutomatisations } from "./automatisations.js";
+} from "../importateur/urls.ts";
+import { stabiliser } from "../nébuleuse/utils.ts";
+import type { ServicesNécessairesAutomatisations } from "./automatisations.ts";
 import type { FSWatcherEventMap } from "chokidar";
 import type { Oublier, Suivi } from "@constl/interface";
 
-import type { AccesseurService } from "../recherche/types.js";
+import type { AccesseurService } from "../recherche/types.ts";
 import type {
   SpécificationAutomatisation,
   SpécificationImporter,

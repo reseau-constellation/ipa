@@ -17,8 +17,8 @@ import {
   TOUS_DISPOSITIFS,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "@constl/interface/favoris";
-import { suivreSi } from "../../src/recherche/utils.js";
-import { schémaTableau } from "../tableaux.js";
+import { suivreSi } from "../../src/recherche/utils.ts";
+import { schémaTableau } from "../tableaux.ts";
 import {
   ajouterPréfixes,
   définis,
@@ -26,29 +26,29 @@ import {
   moyenne,
   sauvegarderDonnéesExportées,
   statutComplet,
-} from "../utils.js";
-import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
+} from "../utils.ts";
+import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.ts";
 import {
   RÉSOLVEUR_FAVORIS,
   estÉpingleDeType,
   résoudreDéfauts,
-} from "../nébuleuse/services/favoris.js";
-import { cacheSuivi } from "../nébuleuse/cache.js";
-import { RechercheNuées } from "../recherche/nuées.js";
+} from "../nébuleuse/services/favoris.ts";
+import { cacheSuivi } from "../nébuleuse/cache.ts";
+import { RechercheNuées } from "../recherche/nuées.ts";
 import {
   appelerLorsque,
   combinerConfiances,
-} from "../nébuleuse/services/utils.js";
-import { ObjetConstellation } from "../objets.js";
-import { RÉSOLVEUR_CONFIANCE } from "../nébuleuse/services/réseau/réseau.js";
-import { TableauxNuées } from "./tableaux.js";
-import type { Variables } from "../variables.js";
-import type { ServicesNécessairesObjet } from "../objets.js";
-import type { ServicesNécessairesTableauxNuées } from "./tableaux.js";
+} from "../nébuleuse/services/utils.ts";
+import { ObjetConstellation } from "../objets.ts";
+import { RÉSOLVEUR_CONFIANCE } from "../nébuleuse/services/réseau/réseau.ts";
+import { TableauxNuées } from "./tableaux.ts";
+import type { Variables } from "../variables.ts";
+import type { ServicesNécessairesObjet } from "../objets.ts";
+import type { ServicesNécessairesTableauxNuées } from "./tableaux.ts";
 import type {
   AccesseurService,
   SuivreObjectifRecherche,
-} from "../recherche/types.js";
+} from "../recherche/types.ts";
 import type { DagCborEncodable } from "@orbitdb/core";
 
 import type { TypedNested } from "@constl/bohr-db";
@@ -58,14 +58,14 @@ import type {
   TraducsTexte,
   PartielRécursif,
 } from "@constl/interface";
-import type { StructureTableau } from "../tableaux.js";
+import type { StructureTableau } from "../tableaux.ts";
 
-import type { Bds } from "../bds/bds.js";
+import type { Bds } from "../bds/bds.ts";
 import type { JSONSchemaType } from "ajv";
 import type xlsx from "@e965/xlsx";
-import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
-import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.js";
-import type { MotsClefs } from "../motsClefs.js";
+import type { OptionsAppli } from "../nébuleuse/appli/appli.ts";
+import type { ServicesNécessairesRechercheNuées } from "../recherche/fonctions/nuées.ts";
+import type { MotsClefs } from "../motsClefs.ts";
 import type {
   RésultatObjectifRecherche,
   InfoRésultatVide,

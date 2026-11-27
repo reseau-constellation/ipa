@@ -1,16 +1,16 @@
-import { cacheSuivi } from "./nébuleuse/cache.js";
+import { cacheSuivi } from "./nébuleuse/cache.ts";
 import {
   estÉpingleDeType,
   résoudreDéfauts,
-} from "./nébuleuse/services/favoris.js";
-import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
-import { RechercheMotsClefs } from "./recherche/motsClefs.js";
-import { ObjetConstellation } from "./objets.js";
-import { définis } from "./utils.js";
-import type { AccesseurService } from "./recherche/types.js";
-import type { ServicesNécessairesRechercheMotsClefs } from "./recherche/fonctions/motsClefs.js";
-import type { ServicesNécessairesObjet } from "./objets.js";
-import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
+} from "./nébuleuse/services/favoris.ts";
+import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.ts";
+import { RechercheMotsClefs } from "./recherche/motsClefs.ts";
+import { ObjetConstellation } from "./objets.ts";
+import { définis } from "./utils.ts";
+import type { AccesseurService } from "./recherche/types.ts";
+import type { ServicesNécessairesRechercheMotsClefs } from "./recherche/fonctions/motsClefs.ts";
+import type { ServicesNécessairesObjet } from "./objets.ts";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.ts";
 import type {
   Oublier,
   Suivi,

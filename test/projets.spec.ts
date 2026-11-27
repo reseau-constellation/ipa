@@ -11,11 +11,11 @@ import {
   type ÉpingleFavorisAvecId,
   DISPOSITIFS_INSTALLÉS,
 } from "@constl/interface/favoris";
-import { enleverPréfixes, enleverPréfixesEtOrbite } from "../src/utils.js";
-import { obtRessourceTest } from "./ressources/index.js";
-import { créerConstellationsTest, utiliserFauxChronomètres } from "./utils.js";
+import { enleverPréfixes, enleverPréfixesEtOrbite } from "../src/utils.ts";
+import { obtRessourceTest } from "./ressources/index.ts";
+import { créerConstellationsTest, utiliserFauxChronomètres } from "./utils.ts";
 
-import type { Constellation } from "../src/index.js";
+import type { Constellation } from "../src/index.ts";
 
 import type { SinonFakeTimers } from "sinon";
 import type { TraducsTexte, PartielRécursif, Oublier } from "@constl/interface";

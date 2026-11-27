@@ -4,12 +4,12 @@ import {
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
-} from "./utils.js";
-import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
+} from "./utils.ts";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
 
-import type { AccesseurService, SuivreObjectifRecherche } from "../types.js";
+import type { AccesseurService, SuivreObjectifRecherche } from "../types.ts";
 
-import type { MotsClefs } from "../../../src/motsClefs.js";
+import type { MotsClefs } from "../../../src/motsClefs.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,

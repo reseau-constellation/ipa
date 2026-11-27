@@ -1,6 +1,6 @@
 import { multiaddr } from "@multiformats/multiaddr";
 import { expect } from "aegir/chai";
-import { dépunicodifier } from "../../src/nébuleuse/utils.js";
+import { dépunicodifier } from "../../src/nébuleuse/utils.ts";
 
 describe("utils", function () {
   describe("dépunycodifier", function () {

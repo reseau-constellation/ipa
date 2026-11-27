@@ -6,9 +6,9 @@ import {
   limitations,
   type InfoLicence,
 } from "@constl/interface/licences";
-import { ServiceAppli } from "./nébuleuse/appli/services.js";
-import { cacheSuivi } from "./nébuleuse/cache.js";
-import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
+import { ServiceAppli } from "./nébuleuse/appli/services.ts";
+import { cacheSuivi } from "./nébuleuse/cache.ts";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.ts";
 import type { Oublier, Suivi } from "@constl/interface";
 // Données de https://github.com/github/choosealicense.com
 

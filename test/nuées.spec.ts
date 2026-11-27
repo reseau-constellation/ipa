@@ -11,30 +11,30 @@ import {
   type ÉpingleFavorisAvecId,
   TOUS_DISPOSITIFS,
 } from "@constl/interface/favoris";
-import { stabiliser } from "../src/nébuleuse/utils.js";
+import { stabiliser } from "../src/nébuleuse/utils.ts";
 import {
   enleverPréfixes,
   enleverPréfixesEtOrbite,
   moyenne,
-} from "../src/utils.js";
+} from "../src/utils.ts";
 import {
   CONFIANCE_INVITÉ,
   PÉNALITÉ_CONFIANCE_BLOQUÉ,
-} from "../src/nuées/nuées.js";
-import { CONFIANCE_DE_COAUTEUR } from "../src/nébuleuse/services/consts.js";
-import { RÉSOLVEUR_CONFIANCE } from "../src/nébuleuse/services/réseau/réseau.js";
-import { créerConstellation, type Constellation } from "../src/index.js";
-import { obtRessourceTest } from "./ressources/index.js";
+} from "../src/nuées/nuées.ts";
+import { CONFIANCE_DE_COAUTEUR } from "../src/nébuleuse/services/consts.ts";
+import { RÉSOLVEUR_CONFIANCE } from "../src/nébuleuse/services/réseau/réseau.ts";
+import { créerConstellation, type Constellation } from "../src/index.ts";
+import { obtRessourceTest } from "./ressources/index.ts";
 import {
   créerConstellationsTest,
   créerHéliaÉphémère,
   utiliserFauxChronomètres,
   vérifierDonnéesBd,
-} from "./utils.js";
-import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
-import { connecterNébuleuses } from "./nébuleuse/utils.js";
+} from "./utils.ts";
+import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.ts";
+import { connecterNébuleuses } from "./nébuleuse/utils.ts";
 
-import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.ts";
 import type { SinonFakeTimers } from "sinon";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {

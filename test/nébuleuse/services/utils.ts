@@ -1,19 +1,19 @@
 import { optionsDéfautLibp2p, obtenirAdresseRelai } from "@constl/utils-tests";
-import { ServiceHélia } from "../../../src/nébuleuse/index.js";
-import { obtenirOptionsLibp2p } from "../../../src/nébuleuse/services/libp2p/config/config.js";
-import { créerHéliaÉphémère } from "../../utils.js";
+import { ServiceHélia } from "../../../src/nébuleuse/index.ts";
+import { obtenirOptionsLibp2p } from "../../../src/nébuleuse/services/libp2p/config/config.ts";
+import { créerHéliaÉphémère } from "../../utils.ts";
 import type { PrivateKey } from "@libp2p/interface";
 import type { Libp2pOptions } from "libp2p";
 import type {
   OptionsServiceLibp2p,
   ServicesLibp2pNébuleuse,
-} from "../../../src/nébuleuse/services/libp2p/libp2p.js";
-import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
+} from "../../../src/nébuleuse/services/libp2p/libp2p.ts";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.ts";
 import type {
   OptionsServiceHélia,
   ServicesNécessairesHélia,
-} from "../../../src/nébuleuse/services/hélia.js";
-import type { Reconnecteur } from "../../../src/nébuleuse/services/libp2p/services/reconnecteur.js";
+} from "../../../src/nébuleuse/services/hélia.ts";
+import type { Reconnecteur } from "../../../src/nébuleuse/services/libp2p/services/reconnecteur.ts";
 import type { Keychain } from "helia";
 import type {
   ConfigLibp2p,

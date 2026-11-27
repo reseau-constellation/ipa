@@ -3,8 +3,8 @@ import {
   ImportateurDonnéesJSON,
   aplatirDonnées,
   extraireDonnées,
-} from "../../src/importateur/json.js";
-import { obtRessourceTest } from "../ressources/index.js";
+} from "../../src/importateur/json.ts";
+import { obtRessourceTest } from "../ressources/index.ts";
 import type { ÉlémentJSON } from "@constl/interface/importateur";
 
 describe("JSON", function () {

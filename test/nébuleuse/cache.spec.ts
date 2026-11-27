@@ -3,9 +3,9 @@ import {
   cacheRechercheParN,
   cacheRechercheParProfondeur,
   cacheSuivi,
-} from "../../src/nébuleuse/cache.js";
-import { attendreQue } from "../appli/utils/fonctions.js";
-import type { RésultatProfondeur } from "../../src/nébuleuse/cache.js";
+} from "../../src/nébuleuse/cache.ts";
+import { attendreQue } from "../appli/utils/fonctions.ts";
+import type { RésultatProfondeur } from "../../src/nébuleuse/cache.ts";
 import type {
   Oublier,
   Suivi,

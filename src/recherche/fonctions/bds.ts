@@ -1,22 +1,22 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
-import { rechercherVariablesSelonNom } from "../../../src/recherche/fonctions/variables.js";
+import { rechercherVariablesSelonNom } from "../../../src/recherche/fonctions/variables.ts";
 import {
   combinerRecherches,
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
   sousRecherche,
-} from "../../../src/recherche/fonctions/utils.js";
-import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
-import type { Variables } from "../../../src/variables.js";
-import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
+} from "../../../src/recherche/fonctions/utils.ts";
+import { rechercherMotsClefsSelonNom } from "./motsClefs.ts";
+import type { Variables } from "../../../src/variables.ts";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
 
 import type {
   AccesseurService,
   SuivreObjectifRecherche,
-} from "../../../src/recherche/types.js";
-import type { Bds } from "../../../src/bds/bds.js";
-import type { MotsClefs } from "../../../src/motsClefs.js";
+} from "../../../src/recherche/types.ts";
+import type { Bds } from "../../../src/bds/bds.ts";
+import type { MotsClefs } from "../../../src/motsClefs.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,

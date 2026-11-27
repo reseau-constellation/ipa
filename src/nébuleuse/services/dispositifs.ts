@@ -1,10 +1,10 @@
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import plateforme from "platform";
-import { cacheSuivi } from "../cache.js";
-import { ServiceDonnéesAppli } from "./services.js";
-import type { ServicesNécessairesDonnées } from "./services.js";
+import { cacheSuivi } from "../cache.ts";
+import { ServiceDonnéesAppli } from "./services.ts";
+import type { ServicesNécessairesDonnées } from "./services.ts";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.ts";
 import type { PartielRécursif, Suivi } from "@constl/interface";
 
 export type StructureDispositifs = {

@@ -6,32 +6,32 @@ import {
   type ÉpingleFavorisBooléenniséeAvecId,
   type ÉpingleFavorisAvecId,
 } from "@constl/interface/favoris";
-import { RechercheProfils } from "../../../src/recherche/profils.js";
+import { RechercheProfils } from "../../../src/recherche/profils.ts";
 import {
   estÉpingleDeType,
   RÉSOLVEUR_FAVORIS,
   résoudreDéfauts,
-} from "../../../src/nébuleuse/services/favoris.js";
+} from "../../../src/nébuleuse/services/favoris.ts";
 import {
   ajouterPréfixeOrbite,
   définis,
   enleverPréfixesEtOrbite,
   idcEtFichierValide,
-} from "../../../src/utils.js";
-import { cacheSuivi } from "../cache.js";
-import { ServiceDonnéesAppli } from "./services.js";
-import type { ServiceFavoris } from "../../../src/nébuleuse/services/favoris.js";
-import type { ServiceRéseau } from "./réseau/réseau.js";
-import type { AccesseurService } from "../../../src/recherche/types.js";
-import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.js";
+} from "../../../src/utils.ts";
+import { cacheSuivi } from "../cache.ts";
+import { ServiceDonnéesAppli } from "./services.ts";
+import type { ServiceFavoris } from "../../../src/nébuleuse/services/favoris.ts";
+import type { ServiceRéseau } from "./réseau/réseau.ts";
+import type { AccesseurService } from "../../../src/recherche/types.ts";
+import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.ts";
 
 import type { JSONSchemaType } from "ajv";
-import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.ts";
 import type {
   ServiceCompte,
   ServicesNécessairesCompte,
-} from "./compte/compte.js";
-import type { ServiceDispositifs } from "./dispositifs.js";
+} from "./compte/compte.ts";
+import type { ServiceDispositifs } from "./dispositifs.ts";
 import type {
   TraducsTexte,
   PartielRécursif,

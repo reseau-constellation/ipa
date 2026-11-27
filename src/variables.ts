@@ -1,16 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
-import { cacheSuivi } from "./nébuleuse/cache.js";
-import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
+import { cacheSuivi } from "./nébuleuse/cache.ts";
+import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.ts";
 import {
   estÉpingleDeType,
   résoudreDéfauts,
-} from "./nébuleuse/services/favoris.js";
-import { RechercheVariables } from "./recherche/variables.js";
-import { ObjetConstellation } from "./objets.js";
-import { définis, enleverPréfixesEtOrbite } from "./utils.js";
-import type { ServicesNécessairesRechercheVariables } from "./recherche/fonctions/variables.js";
-import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
-import type { ServicesNécessairesObjet } from "./objets.js";
+} from "./nébuleuse/services/favoris.ts";
+import { RechercheVariables } from "./recherche/variables.ts";
+import { ObjetConstellation } from "./objets.ts";
+import { définis, enleverPréfixesEtOrbite } from "./utils.ts";
+import type { ServicesNécessairesRechercheVariables } from "./recherche/fonctions/variables.ts";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.ts";
+import type { ServicesNécessairesObjet } from "./objets.ts";
 
 import type {
   Oublier,
@@ -21,7 +21,7 @@ import type {
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 
-import type { AccesseurService } from "./recherche/types.js";
+import type { AccesseurService } from "./recherche/types.ts";
 import type { Rôle } from "@constl/interface/accès";
 import type { StatutDonnées, InfoAuteur } from "@constl/interface/objets";
 import type {

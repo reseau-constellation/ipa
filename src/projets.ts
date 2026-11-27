@@ -22,29 +22,29 @@ import {
   conversionsTypes,
   type DonnéesBdExportées,
 } from "@constl/interface/bds";
-import { cacheSuivi } from "./nébuleuse/cache.js";
-import { définis } from "./utils.js";
-import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
-import { RechercheProjets } from "./recherche/projets.js";
+import { cacheSuivi } from "./nébuleuse/cache.ts";
+import { définis } from "./utils.ts";
+import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.ts";
+import { RechercheProjets } from "./recherche/projets.ts";
 import {
   RÉSOLVEUR_FAVORIS,
   estÉpingleDeType,
   résoudreDéfauts,
-} from "./nébuleuse/services/favoris.js";
-import { ObjetConstellation } from "./objets.js";
-import type { Variables } from "./variables.js";
-import type { MotsClefs } from "./motsClefs.js";
-import type { ServicesNécessairesObjet } from "./objets.js";
+} from "./nébuleuse/services/favoris.ts";
+import { ObjetConstellation } from "./objets.ts";
+import type { Variables } from "./variables.ts";
+import type { MotsClefs } from "./motsClefs.ts";
+import type { ServicesNécessairesObjet } from "./objets.ts";
 import type { BookType } from "@e965/xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
 
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 
-import type { Bds } from "./bds/bds.js";
-import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
-import type { ServicesNécessairesRechercheProjets } from "./recherche/fonctions/projets.js";
-import type { AccesseurService } from "./recherche/types.js";
+import type { Bds } from "./bds/bds.ts";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.ts";
+import type { ServicesNécessairesRechercheProjets } from "./recherche/fonctions/projets.ts";
+import type { AccesseurService } from "./recherche/types.ts";
 import type {
   TraducsTexte,
   PartielRécursif,

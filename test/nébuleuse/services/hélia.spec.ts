@@ -5,19 +5,19 @@ import { expect } from "aegir/chai";
 import { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
 import { type HeliaWithLibp2p } from "@helia/libp2p";
-import { serviceHélia } from "../../../src/nébuleuse/services/hélia.js";
-import { Appli } from "../../../src/nébuleuse/appli/appli.js";
-import { serviceDossier } from "../../../src/nébuleuse/services/dossier.js";
-import { serviceStockage } from "../../../src/nébuleuse/services/stockage.js";
-import { créerHéliaÉphémère } from "../../utils.js";
-import { serviceHéliaTest } from "./utils.js";
-import type { ServiceHéliaTest } from "./utils.js";
-import type { ServiceStockage } from "../../../src/nébuleuse/index.js";
+import { serviceHélia } from "../../../src/nébuleuse/services/hélia.ts";
+import { Appli } from "../../../src/nébuleuse/appli/appli.ts";
+import { serviceDossier } from "../../../src/nébuleuse/services/dossier.ts";
+import { serviceStockage } from "../../../src/nébuleuse/services/stockage.ts";
+import { créerHéliaÉphémère } from "../../utils.ts";
+import { serviceHéliaTest } from "./utils.ts";
+import type { ServiceHéliaTest } from "./utils.ts";
+import type { ServiceStockage } from "../../../src/nébuleuse/index.ts";
 import type {
   ServicesNécessairesHélia,
   ServiceHélia,
-} from "../../../src/nébuleuse/services/hélia.js";
-import type { ServicesLibp2pNébuleuse } from "../../../src/nébuleuse/services/libp2p/libp2p.js";
+} from "../../../src/nébuleuse/services/hélia.ts";
+import type { ServicesLibp2pNébuleuse } from "../../../src/nébuleuse/services/libp2p/libp2p.ts";
 
 describe("Service Hélia", function () {
   describe("demarrage", function () {

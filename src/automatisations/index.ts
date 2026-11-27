@@ -1,1 +1,1 @@
-export { Automatisations } from "./automatisations.js";
+export { Automatisations } from "./automatisations.ts";

@@ -3,9 +3,9 @@ import { v4 as uuidv4 } from "uuid";
 
 import { expect } from "aegir/chai";
 
-import { générerFonctionValidation } from "../src/règles.js";
+import { générerFonctionValidation } from "../src/règles.ts";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { FonctionValidation } from "../src/règles.js";
+import type { FonctionValidation } from "../src/règles.ts";
 import type { CatégorieBaseVariables } from "@constl/interface/variables";
 import type {
   RègleColonne,

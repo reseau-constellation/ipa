@@ -15,20 +15,20 @@ import {
   type AccèsUtilisateur,
   type Rôle,
 } from "@constl/interface/accès";
-import { ServiceAppli } from "../../../../src/nébuleuse/appli/index.js";
-import { ajouterPréfixes, enleverPréfixes } from "../../../../src/utils.js";
-import { cacheSuivi } from "../../cache.js";
+import { ServiceAppli } from "../../../../src/nébuleuse/appli/index.ts";
+import { ajouterPréfixes, enleverPréfixes } from "../../../../src/utils.ts";
+import { cacheSuivi } from "../../cache.ts";
 import {
   CLEF_ID_COMPTE,
   CLEF_N_CHANGEMENT_COMPTES,
   MAX_TAILLE_IMAGE_SAUVEGARDER,
   MAX_TAILLE_IMAGE_VISUALISER,
-} from "../consts.js";
-import { appelerLorsque } from "../utils.js";
-import { estErreurAvortée } from "../../utils.js";
-import { STATUTS } from "../../appli/consts.js";
-import { ContrôleurNébuleuse, estContrôleurNébuleuse } from "./accès/index.js";
-import type { OptionsAppli } from "../../appli/appli.js";
+} from "../consts.ts";
+import { appelerLorsque } from "../utils.ts";
+import { estErreurAvortée } from "../../utils.ts";
+import { STATUTS } from "../../appli/consts.ts";
+import { ContrôleurNébuleuse, estContrôleurNébuleuse } from "./accès/index.ts";
+import type { OptionsAppli } from "../../appli/appli.ts";
 import type {
   Oublier,
   Suivi,
@@ -39,9 +39,9 @@ import type {
   BdsOrbite,
   ServiceOrbite,
   ServicesNécessairesOrbite,
-} from "../orbite/orbite.js";
-import type { ServicesLibp2pNébuleuse } from "../libp2p/libp2p.js";
-import type { OptionsContrôleurNébuleuse } from "./accès/index.js";
+} from "../orbite/orbite.ts";
+import type { ServicesLibp2pNébuleuse } from "../libp2p/libp2p.ts";
+import type { OptionsContrôleurNébuleuse } from "./accès/index.ts";
 import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";

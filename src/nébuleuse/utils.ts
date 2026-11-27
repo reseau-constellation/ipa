@@ -1,7 +1,7 @@
 import { toUnicode } from "punycode-esm";
 import { multiaddr } from "@multiformats/multiaddr";
 import deepEqual from "fast-deep-equal";
-import { lorsqueSignalAvorté } from "./services/utils.js";
+import { lorsqueSignalAvorté } from "./services/utils.ts";
 
 import type { Multiaddr } from "@multiformats/multiaddr";
 import type { Suivi } from "@constl/interface";

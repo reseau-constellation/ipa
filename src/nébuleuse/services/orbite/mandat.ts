@@ -1,8 +1,8 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 import { isValidAddress, type BaseDatabase, type OrbitDB } from "@orbitdb/core";
-import { estErreurAvortée, pSignal } from "../../utils.js";
-import { lorsqueSignalAvorté } from "../utils.js";
+import { estErreurAvortée, pSignal } from "../../utils.ts";
+import { lorsqueSignalAvorté } from "../utils.ts";
 import type { ServiceMap } from "@libp2p/interface";
 
 // Un mandataire pour orbite qui évite les conditions de concurrence pour `open`

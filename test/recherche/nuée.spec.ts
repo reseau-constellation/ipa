@@ -10,13 +10,13 @@ import {
   rechercherNuéesSelonVariable,
   rechercherNuéesSelonTexte,
   rechercherNuéesSelonDescription,
-} from "../../src/recherche/fonctions/nuées.js";
-import { enleverPréfixesEtOrbite } from "../../src/utils.js";
-import { créerConstellationsTest } from "../utils.js";
-import type { ServicesNécessairesRechercheNuées } from "../../src/recherche/fonctions/nuées.js";
+} from "../../src/recherche/fonctions/nuées.ts";
+import { enleverPréfixesEtOrbite } from "../../src/utils.ts";
+import { créerConstellationsTest } from "../utils.ts";
+import type { ServicesNécessairesRechercheNuées } from "../../src/recherche/fonctions/nuées.ts";
 import type { Oublier } from "@constl/interface";
-import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
-import type { Constellation } from "../../src/constellation.js";
+import type { SuivreObjectifRecherche } from "../../src/recherche/types.ts";
+import type { Constellation } from "../../src/constellation.ts";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,

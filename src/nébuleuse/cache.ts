@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import deepEqual from "fast-deep-equal";
 import { faisRien } from "@constl/utils-ipa";
-import { estUnePromesse } from "./services/utils.js";
-import { estErreurAvortée } from "./utils.js";
+import { estUnePromesse } from "./services/utils.ts";
+import { estErreurAvortée } from "./utils.ts";
 import type { Suivi, Oublier, RetourRecherche } from "@constl/interface";
 
 export class CacheSuivi {

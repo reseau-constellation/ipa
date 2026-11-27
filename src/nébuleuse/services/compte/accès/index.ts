@@ -4,7 +4,7 @@ export {
   ContrôleurNébuleuse,
   estContrôleurNébuleuse,
   type InstanceContrôleurNébuleuse,
-} from "./contrôleurNébuleuse.js";
+} from "./contrôleurNébuleuse.ts";
 
 export {
   ContrôleurAccès,

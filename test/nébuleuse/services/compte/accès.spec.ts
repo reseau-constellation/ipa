@@ -10,12 +10,12 @@ import {
 import {
   ContrôleurNébuleuse,
   type InstanceContrôleurNébuleuse,
-} from "../../../../src/nébuleuse/services/compte/accès/index.js";
-import { préparerOrbite } from "../../../../src/nébuleuse/services/orbite/orbite.js";
-import { mandatOrbite } from "../../../../src/nébuleuse/services/orbite/mandat.js";
-import { réessayer } from "../../../../src/nébuleuse/utils.js";
-import { attendreQue } from "../../../appli/utils/fonctions.js";
-import { attendreInvité, peutÉcrire } from "../../../utils.js";
+} from "../../../../src/nébuleuse/services/compte/accès/index.ts";
+import { préparerOrbite } from "../../../../src/nébuleuse/services/orbite/orbite.ts";
+import { mandatOrbite } from "../../../../src/nébuleuse/services/orbite/mandat.ts";
+import { réessayer } from "../../../../src/nébuleuse/utils.ts";
+import { attendreQue } from "../../../appli/utils/fonctions.ts";
+import { attendreInvité, peutÉcrire } from "../../../utils.ts";
 
 import type { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 import type { Oublier } from "@constl/interface";

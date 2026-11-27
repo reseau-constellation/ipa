@@ -13,10 +13,10 @@ import { v4 as uuidv4 } from "uuid";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
 import { MEMBRE, type Rôle } from "@constl/interface/accès";
-import { obtRessourceTest } from "./ressources/index.js";
-import { créerConstellationsTest } from "./utils.js";
+import { obtRessourceTest } from "./ressources/index.ts";
+import { créerConstellationsTest } from "./utils.ts";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { Constellation } from "../src/index.js";
+import type { Constellation } from "../src/index.ts";
 
 import type { CellObject, WorkBook } from "@e965/xlsx";
 import type { TraducsTexte } from "@constl/interface";

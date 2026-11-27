@@ -29,21 +29,21 @@ import { attendreStabilité, uneFois } from "@constl/utils-ipa";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
 import { writeFile as xlsxWriteFile, utils } from "@e965/xlsx";
-import { stabiliser } from "../src/nébuleuse/utils.js";
-import { MESSAGE_NON_DISPO_NAVIGATEUR } from "../src/automatisations/utils.js";
-import { enleverPréfixesEtOrbite } from "../src/utils.js";
+import { stabiliser } from "../src/nébuleuse/utils.ts";
+import { MESSAGE_NON_DISPO_NAVIGATEUR } from "../src/automatisations/utils.ts";
+import { enleverPréfixesEtOrbite } from "../src/utils.ts";
 import {
   créerConstellationsTest,
   utiliserFauxChronomètres,
   vérifierDonnéesBd,
   vérifierDonnéesProjet,
   vérifierDonnéesTableau,
-} from "./utils.js";
-import { obtRessourceTest } from "./ressources/index.js";
-import { attendreQue } from "./appli/utils/fonctions.js";
+} from "./utils.ts";
+import { obtRessourceTest } from "./ressources/index.ts";
+import { attendreQue } from "./appli/utils/fonctions.ts";
 import type { SinonFakeTimers } from "sinon";
 
-import type { Constellation } from "../src/index.js";
+import type { Constellation } from "../src/index.ts";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type { PartielRécursif } from "@constl/interface";
 import type {

@@ -10,30 +10,30 @@ import { peerIdFromString } from "@libp2p/peer-id";
 import { v4 as uuidv4 } from "uuid";
 import { obtenir } from "@constl/utils-tests";
 import { MODÉRATRICE } from "@constl/interface/accès";
-import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
+import { ServiceAppli } from "../../../src/nébuleuse/appli/services.ts";
 import {
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
   FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
-} from "../../../src/nébuleuse/services/consts.js";
+} from "../../../src/nébuleuse/services/consts.ts";
 import {
   ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
   type MessageAcceptationInvitationRejoindreCompte,
   type MessageRéseau,
   type MessageRéseauAvecExpéditeur,
-} from "../../../src/nébuleuse/services/réseau/messages.js";
-import { obtEmpreinteCode } from "../../../src/nébuleuse/services/utils.js";
-import { créerNébuleusesLocales, créerNébuleusesTest } from "../utils.js";
+} from "../../../src/nébuleuse/services/réseau/messages.ts";
+import { obtEmpreinteCode } from "../../../src/nébuleuse/services/utils.ts";
+import { créerNébuleusesLocales, créerNébuleusesTest } from "../utils.ts";
 import { RÉSOLVEUR_CONFIANCE } from "../../../src/nébuleuse/services/réseau/réseau.ts";
 import type {
   OptionsAppli,
   ServicesAppli,
-} from "../../../src/nébuleuse/appli/appli.js";
-import type { NébuleuseTest } from "../utils.js";
+} from "../../../src/nébuleuse/appli/appli.ts";
+import type { NébuleuseTest } from "../utils.ts";
 
 import type {
   Nébuleuse,
   ServicesNébuleuse,
-} from "../../../src/nébuleuse/nébuleuse.js";
+} from "../../../src/nébuleuse/nébuleuse.ts";
 import type { Oublier, Suivi } from "@constl/interface";
 import type {
   ConnexionLibp2p,

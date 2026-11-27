@@ -1,17 +1,17 @@
-import { rechercherVariablesSelonNom } from "../../../src/recherche/fonctions/variables.js";
+import { rechercherVariablesSelonNom } from "../../../src/recherche/fonctions/variables.ts";
 import {
   combinerRecherches,
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
   sousRecherche,
-} from "../../../src/recherche/fonctions/utils.js";
-import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
-import type { Variables } from "../../../src/variables.js";
-import type { Nuées } from "../../../src/nuées/nuées.js";
-import type { SuivreObjectifRecherche, AccesseurService } from "../types.js";
-import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
-import type { MotsClefs } from "../../../src/motsClefs.js";
+} from "../../../src/recherche/fonctions/utils.ts";
+import { rechercherMotsClefsSelonNom } from "./motsClefs.ts";
+import type { Variables } from "../../../src/variables.ts";
+import type { Nuées } from "../../../src/nuées/nuées.ts";
+import type { SuivreObjectifRecherche, AccesseurService } from "../types.ts";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
+import type { MotsClefs } from "../../../src/motsClefs.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,

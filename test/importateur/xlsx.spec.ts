@@ -1,8 +1,8 @@
 import { read as xlsxRead } from "@e965/xlsx";
 
 import { expect } from "aegir/chai";
-import { ImportateurFeuilleCalcul } from "../../src/importateur/feuille.js";
-import { obtRessourceTest } from "../ressources/index.js";
+import { ImportateurFeuilleCalcul } from "../../src/importateur/feuille.ts";
+import { obtRessourceTest } from "../ressources/index.ts";
 
 describe("xlsx", function () {
   describe("Importateur xlsx", function () {

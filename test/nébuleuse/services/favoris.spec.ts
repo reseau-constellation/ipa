@@ -11,15 +11,15 @@ import {
   AUCUN_DISPOSITIF,
   type Réplication,
 } from "@constl/interface/favoris";
-import { RÉSOLVEUR_FAVORIS } from "../../../src/nébuleuse/services/favoris.js";
-import { enleverPréfixes } from "../../../src/utils.js";
-import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
-import { créerNébuleusesTest } from "../utils.js";
-import type { NébuleuseTest } from "../utils.js";
+import { RÉSOLVEUR_FAVORIS } from "../../../src/nébuleuse/services/favoris.ts";
+import { enleverPréfixes } from "../../../src/utils.ts";
+import { ServiceAppli } from "../../../src/nébuleuse/appli/services.ts";
+import { créerNébuleusesTest } from "../utils.ts";
+import type { NébuleuseTest } from "../utils.ts";
 import type {
   OptionsAppli,
   ServicesAppli,
-} from "../../../src/nébuleuse/appli/appli.js";
+} from "../../../src/nébuleuse/appli/appli.ts";
 import type { Suivi, Oublier } from "@constl/interface";
 import type { ContenuÉpingleProfil } from "@constl/interface/profil";
 

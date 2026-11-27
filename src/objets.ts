@@ -16,22 +16,22 @@ import {
   TOUS_DISPOSITIFS,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "@constl/interface/favoris";
-import { ServiceDonnéesAppli } from "./nébuleuse/services/services.js";
-import { cacheSuivi } from "./nébuleuse/cache.js";
-import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
-import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
+import { ServiceDonnéesAppli } from "./nébuleuse/services/services.ts";
+import { cacheSuivi } from "./nébuleuse/cache.ts";
+import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.ts";
+import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.ts";
 import {
   RÉSOLVEUR_FAVORIS,
   résoudreDéfauts,
   type ServiceFavoris,
-} from "./nébuleuse/services/favoris.js";
+} from "./nébuleuse/services/favoris.ts";
 import {
   RÉSOLVEUR_CONFIANCE,
   type ServiceRéseau,
-} from "./nébuleuse/services/réseau/réseau.js";
-import type { ServiceAppli } from "./nébuleuse/appli/index.js";
-import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.js";
-import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
+} from "./nébuleuse/services/réseau/réseau.ts";
+import type { ServiceAppli } from "./nébuleuse/appli/index.ts";
+import type { ServicesNécessairesDonnées } from "./nébuleuse/services/services.ts";
+import type { OptionsAppli } from "./nébuleuse/appli/appli.ts";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { Oublier, Suivi, PartielRécursif } from "@constl/interface";

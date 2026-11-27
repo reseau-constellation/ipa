@@ -1,6 +1,6 @@
-export * from "./libp2p/index.js";
-export * from "./orbite/index.js";
-export * from "./compte/index.js";
+export * from "./libp2p/index.ts";
+export * from "./orbite/index.ts";
+export * from "./compte/index.ts";
 export { ServiceDispositifs, détecterTypeDispositif } from "./dispositifs.ts";
 export { type OptionsServiceDossier, ServiceDossier } from "./dossier.ts";
 export { ServiceÉpingles } from "./épingles.ts";
@@ -11,7 +11,7 @@ export {
   RÉSOLVEUR_FAVORIS,
   ServiceFavoris,
 } from "./favoris.ts";
-export { ServiceHélia, obtenirOptionsHélia } from "./hélia.js";
+export { ServiceHélia, obtenirOptionsHélia } from "./hélia.ts";
 export { ServiceJournal, type OptionsServiceJournal } from "./journal.ts";
 export { Profil } from "./profil.ts";
 export {
@@ -20,4 +20,4 @@ export {
   type ClefDeBranche,
   type OptionsServiceDonnées,
 } from "./services.ts";
-export { ServiceStockage } from "./stockage.js";
+export { ServiceStockage } from "./stockage.ts";

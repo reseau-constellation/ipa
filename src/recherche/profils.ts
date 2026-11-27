@@ -1,17 +1,17 @@
 import { faisRien, ignorerNonDéfinis } from "@constl/utils-ipa";
-import { cacheRechercheParN } from "../nébuleuse/cache.js";
+import { cacheRechercheParN } from "../nébuleuse/cache.ts";
 import {
   rechercherProfilsSelonNom,
   rechercherProfilsSelonImage,
   rechercherProfilsSelonCourriel,
   rechercherProfilsSelonTexte,
   rechercherProfilsSelonActivité,
-} from "./fonctions/profils.js";
-import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
-import { Recherche } from "./recherche.js";
-import type { ServicesNécessairesRechercheProfils } from "./fonctions/profils.js";
+} from "./fonctions/profils.ts";
+import { rechercherSelonId, rechercherTous } from "./fonctions/utils.ts";
+import { Recherche } from "./recherche.ts";
+import type { ServicesNécessairesRechercheProfils } from "./fonctions/profils.ts";
 import type { Oublier, RetourRecherche, Suivi } from "@constl/interface";
-import type { AccesseurService, SuivreObjectifRecherche } from "./types.js";
+import type { AccesseurService, SuivreObjectifRecherche } from "./types.ts";
 import type {
   RésultatRecherche,
   InfoRésultatTexte,

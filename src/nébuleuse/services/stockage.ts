@@ -3,11 +3,11 @@ import { Key, type Datastore } from "interface-datastore";
 import { NotFoundError } from "@libp2p/interface";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
-import { STATUTS } from "../appli/consts.js";
-import { obtStockageDonnées } from "./utils.js";
-import type { ServiceDossier } from "./dossier.js";
-import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
+import { ServiceAppli } from "../../../src/nébuleuse/appli/services.ts";
+import { STATUTS } from "../appli/consts.ts";
+import { obtStockageDonnées } from "./utils.ts";
+import type { ServiceDossier } from "./dossier.ts";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.ts";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
 

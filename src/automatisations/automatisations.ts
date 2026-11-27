@@ -3,19 +3,19 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { Ajv } from "ajv";
 import deepEqual from "fast-deep-equal";
 import { v4 as uuidv4 } from "uuid";
-import { ServiceDonnéesAppli } from "../nébuleuse/services/services.js";
-import { appelerLorsque } from "../nébuleuse/services/utils.js";
-import { STATUTS } from "../nébuleuse/appli/consts.js";
-import { schémaSpécificationAutomatisation } from "./types.js";
-import { chronomètre, générerFAuto } from "./utils.js";
-import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
-import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
-import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
+import { ServiceDonnéesAppli } from "../nébuleuse/services/services.ts";
+import { appelerLorsque } from "../nébuleuse/services/utils.ts";
+import { STATUTS } from "../nébuleuse/appli/consts.ts";
+import { schémaSpécificationAutomatisation } from "./types.ts";
+import { chronomètre, générerFAuto } from "./utils.ts";
+import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.ts";
+import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.ts";
+import type { OptionsAppli } from "../nébuleuse/appli/appli.ts";
 
-import type { StructureServiceAutomatisations } from "./types.js";
-import type { Bds } from "../bds/bds.js";
-import type { Projets } from "../projets.js";
-import type { Nuées } from "../nuées/nuées.js";
+import type { StructureServiceAutomatisations } from "./types.ts";
+import type { Bds } from "../bds/bds.ts";
+import type { Projets } from "../projets.ts";
+import type { Nuées } from "../nuées/nuées.ts";
 import type { Oublier, PartielRécursif, Suivi } from "@constl/interface";
 import type {
   SpécificationAutomatisation,

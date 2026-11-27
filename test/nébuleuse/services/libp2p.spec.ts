@@ -15,26 +15,26 @@ import {
 
 import { privateKeyFromRaw } from "@libp2p/crypto/keys";
 import { multiaddr } from "@multiformats/multiaddr";
-import { obtenirOptionsLibp2p } from "../../../src/nébuleuse/services/libp2p/config/config.js";
-import { serviceLibp2p } from "../../../src/nébuleuse/services/libp2p/libp2p.js";
-import { Appli } from "../../../src/nébuleuse/appli/appli.js";
-import { serviceDossier } from "../../../src/nébuleuse/services/dossier.js";
-import { serviceStockage } from "../../../src/nébuleuse/services/stockage.js";
-import { serviceHélia } from "../../../src/nébuleuse/services/hélia.js";
-import { serviceJournal } from "../../../src/nébuleuse/services/journal.js";
-import { créerHéliaÉphémère } from "../../utils.js";
+import { obtenirOptionsLibp2p } from "../../../src/nébuleuse/services/libp2p/config/config.ts";
+import { serviceLibp2p } from "../../../src/nébuleuse/services/libp2p/libp2p.ts";
+import { Appli } from "../../../src/nébuleuse/appli/appli.ts";
+import { serviceDossier } from "../../../src/nébuleuse/services/dossier.ts";
+import { serviceStockage } from "../../../src/nébuleuse/services/stockage.ts";
+import { serviceHélia } from "../../../src/nébuleuse/services/hélia.ts";
+import { serviceJournal } from "../../../src/nébuleuse/services/journal.ts";
+import { créerHéliaÉphémère } from "../../utils.ts";
 import {
   obtenirOptionsLibp2pLocal,
   obtenirOptionsLibp2pTest,
   serviceHéliaTest,
   type ServicesLibp2pNébuleuseLocale,
-} from "./utils.js";
+} from "./utils.ts";
 import type {
   ServiceLibp2p,
   ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,
-} from "../../../src/nébuleuse/services/libp2p/libp2p.js";
-import type { ServicesAppli } from "../../../src/nébuleuse/appli/appli.js";
+} from "../../../src/nébuleuse/services/libp2p/libp2p.ts";
+import type { ServicesAppli } from "../../../src/nébuleuse/appli/appli.ts";
 import type { Libp2p, PrivateKey } from "@libp2p/interface";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";

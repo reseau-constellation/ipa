@@ -4,16 +4,16 @@ import drain from "it-drain";
 import PQueue from "p-queue";
 import { isValidAddress, type BaseDatabase } from "@orbitdb/core";
 import { anySignal } from "any-signal";
-import { ServiceAppli } from "../appli/services.js";
-import { idcEtFichierValide } from "../../utils.js";
-import { estErreurAvortée } from "../utils.js";
-import { STATUTS } from "../appli/consts.js";
-import { filtreAsync } from "./utils.js";
-import type { OptionsAppli } from "../appli/appli.js";
+import { ServiceAppli } from "../appli/services.ts";
+import { idcEtFichierValide } from "../../utils.ts";
+import { estErreurAvortée } from "../utils.ts";
+import { STATUTS } from "../appli/consts.ts";
+import { filtreAsync } from "./utils.ts";
+import type { OptionsAppli } from "../appli/appli.ts";
 import type {
   ServiceOrbite,
   ServicesNécessairesOrbite,
-} from "./orbite/orbite.js";
+} from "./orbite/orbite.ts";
 import type { Oublier } from "@constl/interface";
 
 export type ServicesNécessairesÉpingles = ServicesNécessairesOrbite & {

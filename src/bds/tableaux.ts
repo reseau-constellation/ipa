@@ -17,22 +17,22 @@ import { typedNested, type TypedNested } from "@constl/bohr-db";
 import gjv from "geojson-validation";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { cholqij } from "../../src/dates.js";
-import { Tableaux } from "../tableaux.js";
-import { cacheSuivi } from "../nébuleuse/cache.js";
+import { cholqij } from "../../src/dates.ts";
+import { Tableaux } from "../tableaux.ts";
+import { cacheSuivi } from "../nébuleuse/cache.ts";
 import {
   enleverPréfixes,
   idcEtFichierValide,
   justeDéfinis,
   obtIdIndex,
   sauvegarderDonnéesExportées,
-} from "../utils.js";
-import { estContrôleurNébuleuse } from "../nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
-import { estErreurAvortée } from "../nébuleuse/utils.js";
+} from "../utils.ts";
+import { estContrôleurNébuleuse } from "../nébuleuse/services/compte/accès/contrôleurNébuleuse.ts";
+import { estErreurAvortée } from "../nébuleuse/utils.ts";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
 import type { BookType, WorkBook } from "@e965/xlsx";
-import type { FonctionValidation } from "../règles.js";
+import type { FonctionValidation } from "../règles.ts";
 import type {
   Oublier,
   Suivi,

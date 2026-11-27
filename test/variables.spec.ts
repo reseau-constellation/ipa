@@ -6,9 +6,9 @@ import {
   type ÉpingleFavorisAvecId,
   TOUS_DISPOSITIFS,
 } from "@constl/interface/favoris";
-import { enleverPréfixes } from "../src/utils.js";
-import { créerConstellationsTest } from "./utils.js";
-import type { Constellation } from "../src/index.js";
+import { enleverPréfixes } from "../src/utils.ts";
+import { créerConstellationsTest } from "./utils.ts";
+import type { Constellation } from "../src/index.ts";
 import type { TraducsTexte, PartielRécursif } from "@constl/interface";
 import type { StatutDonnées, InfoAuteur } from "@constl/interface/objets";
 import type {

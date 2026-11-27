@@ -11,13 +11,13 @@ import { webSockets } from "@libp2p/websockets";
 import { webTransport } from "@libp2p/webtransport";
 import { kadDHT } from "@libp2p/kad-dht";
 import { autoTLS } from "@ipshipyard/libp2p-auto-tls";
-import { obtStockageDonnées } from "../../utils.js";
-import { découvertePairs, servicesDéfaut } from "./utils.js";
+import { obtStockageDonnées } from "../../utils.ts";
+import { découvertePairs, servicesDéfaut } from "./utils.ts";
 import type { Libp2pOptions } from "libp2p";
 import type {
   ConfigOptionsLibp2p,
   ServicesLibp2pNébuleuseDéfaut,
-} from "./utils.js";
+} from "./utils.ts";
 import type { UPnPNAT } from "@libp2p/upnp-nat";
 import type { CircuitRelayService } from "@libp2p/circuit-relay-v2";
 

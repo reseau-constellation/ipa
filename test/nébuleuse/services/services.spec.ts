@@ -5,13 +5,13 @@ import { v4 as uuidv4 } from "uuid";
 import {
   ServiceDonnéesAppli,
   brancheBd,
-} from "../../../src/nébuleuse/services/services.js";
-import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
-import { créerNébuleusesTest } from "../utils.js";
-import type { NébuleuseTest } from "../utils.js";
+} from "../../../src/nébuleuse/services/services.ts";
+import { ServiceAppli } from "../../../src/nébuleuse/appli/services.ts";
+import { créerNébuleusesTest } from "../utils.ts";
+import type { NébuleuseTest } from "../utils.ts";
 import type { JSONSchemaType } from "ajv";
-import type { ServicesNécessairesDonnées } from "../../../src/nébuleuse/services/services.js";
-import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
+import type { ServicesNécessairesDonnées } from "../../../src/nébuleuse/services/services.ts";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.ts";
 import type { OrbitDB } from "@orbitdb/core";
 import type { TypedNested } from "@constl/bohr-db";
 import type { NestedDatabaseType } from "@orbitdb/nested-db";

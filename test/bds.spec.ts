@@ -12,22 +12,22 @@ import {
   type ÉpingleFavorisAvecId,
   TOUS_DISPOSITIFS,
 } from "@constl/interface/favoris";
-import { créerConstellation, type Constellation } from "../src/index.js";
+import { créerConstellation, type Constellation } from "../src/index.ts";
 import {
   enleverPréfixes,
   enleverPréfixesEtOrbite,
   moyenne,
-} from "../src/utils.js";
-import { obtRessourceTest } from "./ressources/index.js";
+} from "../src/utils.ts";
+import { obtRessourceTest } from "./ressources/index.ts";
 import {
   créerConstellationsTest,
   créerHéliaÉphémère,
   utiliserFauxChronomètres,
-} from "./utils.js";
-import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
+} from "./utils.ts";
+import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.ts";
 
 import type { SinonFakeTimers } from "sinon";
-import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.ts";
 import type { TraducsTexte, PartielRécursif } from "@constl/interface";
 import type {
   ÉpingleBd,

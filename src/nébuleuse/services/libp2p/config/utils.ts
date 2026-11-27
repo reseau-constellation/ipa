@@ -14,12 +14,12 @@ import {
   delegatedRoutingV1HttpApiClientPeerRouting,
 } from "@helia/delegated-routing-v1-http-api-client";
 import { delegatedHTTPRoutingDefaults } from "@helia/delegated-routing-client";
-import { reconnecteur } from "../services/reconnecteur.js";
+import { reconnecteur } from "../services/reconnecteur.ts";
 import type { Keychain } from "@libp2p/keychain";
-import type { Reconnecteur } from "../services/reconnecteur.js";
+import type { Reconnecteur } from "../services/reconnecteur.ts";
 import type { Libp2pOptions, ServiceFactoryMap } from "libp2p";
 import type { Multiaddr } from "@multiformats/multiaddr";
-import type { ServicesLibp2pNébuleuse } from "../libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../libp2p.ts";
 import type {
   ContentRouting,
   PeerRouting,

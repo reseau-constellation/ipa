@@ -12,32 +12,32 @@ import {
 } from "@orbitdb/core";
 import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
-import { Appli } from "../../../src/nébuleuse/appli/appli.js";
+import { Appli } from "../../../src/nébuleuse/appli/appli.ts";
 import {
   BD_ORIGINALE,
   mandatOrbite,
-} from "../../../src/nébuleuse/services/orbite/mandat.js";
-import { serviceJournal } from "../../../src/nébuleuse/services/journal.js";
-import { serviceDossier } from "../../../src/nébuleuse/services/dossier.js";
+} from "../../../src/nébuleuse/services/orbite/mandat.ts";
+import { serviceJournal } from "../../../src/nébuleuse/services/journal.ts";
+import { serviceDossier } from "../../../src/nébuleuse/services/dossier.ts";
 import {
   serviceOrbite,
   type ServicesNécessairesOrbite,
-} from "../../../src/nébuleuse/services/orbite/orbite.js";
-import { serviceHélia } from "../../../src/nébuleuse/services/hélia.js";
+} from "../../../src/nébuleuse/services/orbite/orbite.ts";
+import { serviceHélia } from "../../../src/nébuleuse/services/hélia.ts";
 import {
   serviceLibp2p,
   type ServicesLibp2pNébuleuse,
-} from "../../../src/nébuleuse/services/libp2p/libp2p.js";
-import { serviceStockage } from "../../../src/nébuleuse/services/stockage.js";
-import { créerHéliaÉphémère } from "../../utils.js";
+} from "../../../src/nébuleuse/services/libp2p/libp2p.ts";
+import { serviceStockage } from "../../../src/nébuleuse/services/stockage.ts";
+import { créerHéliaÉphémère } from "../../utils.ts";
 
-import { attendreQue } from "../../appli/utils/fonctions.js";
-import { serviceHéliaTest } from "./utils.js";
+import { attendreQue } from "../../appli/utils/fonctions.ts";
+import { serviceHéliaTest } from "./utils.ts";
 import type { Oublier, PartielRécursif } from "@constl/interface";
 
 import type { JSONSchemaType } from "ajv";
 import type { BaseDatabase, KeyValueDatabase, OrbitDB } from "@orbitdb/core";
-import type { ServiceOrbite } from "../../../src/nébuleuse/index.js";
+import type { ServiceOrbite } from "../../../src/nébuleuse/index.ts";
 
 describe("Mandataire OrbitDB", function () {
   let orbites: OrbitDB<ServicesLibp2pNébuleuse>[];

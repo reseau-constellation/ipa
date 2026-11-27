@@ -4,13 +4,13 @@ import { obtenir } from "@constl/utils-tests";
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
-} from "../../src/recherche/fonctions/motsClefs.js";
-import { enleverPréfixesEtOrbite } from "../../src/utils.js";
-import { créerConstellationsTest } from "../utils.js";
-import type { ServicesNécessairesRechercheMotsClefs } from "../../src/recherche/fonctions/motsClefs.js";
+} from "../../src/recherche/fonctions/motsClefs.ts";
+import { enleverPréfixesEtOrbite } from "../../src/utils.ts";
+import { créerConstellationsTest } from "../utils.ts";
+import type { ServicesNécessairesRechercheMotsClefs } from "../../src/recherche/fonctions/motsClefs.ts";
 
-import type { Constellation } from "../../src/constellation.js";
-import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
+import type { Constellation } from "../../src/constellation.ts";
+import type { SuivreObjectifRecherche } from "../../src/recherche/types.ts";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,

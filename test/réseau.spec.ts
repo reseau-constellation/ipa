@@ -1,8 +1,8 @@
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-tests";
 import { MEMBRE } from "@constl/interface/accès";
-import { créerConstellationsTest } from "./utils.js";
-import type { Constellation } from "../src/index.js";
+import { créerConstellationsTest } from "./utils.ts";
+import type { Constellation } from "../src/index.ts";
 import type { Oublier } from "@constl/interface";
 import type { RelationImmédiate } from "@constl/interface/réseau";
 

@@ -4,13 +4,13 @@ import {
   rechercherVariablesSelonDescription,
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
-} from "../../src/recherche/fonctions/variables.js";
-import { enleverPréfixesEtOrbite } from "../../src/utils.js";
-import { créerConstellationsTest } from "../utils.js";
-import type { ServicesNécessairesRechercheVariables } from "../../src/recherche/fonctions/variables.js";
+} from "../../src/recherche/fonctions/variables.ts";
+import { enleverPréfixesEtOrbite } from "../../src/utils.ts";
+import { créerConstellationsTest } from "../utils.ts";
+import type { ServicesNécessairesRechercheVariables } from "../../src/recherche/fonctions/variables.ts";
 
-import type { Constellation } from "../../src/constellation.js";
-import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
+import type { Constellation } from "../../src/constellation.ts";
+import type { SuivreObjectifRecherche } from "../../src/recherche/types.ts";
 import type { Oublier } from "@constl/interface";
 import type {
   InfoRésultatTexte,

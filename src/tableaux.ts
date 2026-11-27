@@ -2,17 +2,17 @@ import { v4 as uuidv4 } from "uuid";
 import { faisRien, suivreDeFonctionListe, traduire } from "@constl/utils-ipa";
 import { asSplitKey, joinKey } from "@orbitdb/nested-db";
 import { typedNested, type TypedNested } from "@constl/bohr-db";
-import { cacheSuivi } from "./nébuleuse/cache.js";
-import { brancheBd } from "./nébuleuse/services/services.js";
+import { cacheSuivi } from "./nébuleuse/cache.ts";
+import { brancheBd } from "./nébuleuse/services/services.ts";
 import {
   générerFonctionValidation,
   règleComplète,
   schémaSpécificationRègleColonne,
-} from "./règles.js";
-import { schémaTraducsTexte } from "./schémas.js";
-import { définis, enleverPréfixes, idcEtFichierValide } from "./utils.js";
-import type { ServiceJournal } from "./nébuleuse/services/journal.js";
-import type { AccesseurService } from "./recherche/types.js";
+} from "./règles.ts";
+import { schémaTraducsTexte } from "./schémas.ts";
+import { définis, enleverPréfixes, idcEtFichierValide } from "./utils.ts";
+import type { ServiceJournal } from "./nébuleuse/services/journal.ts";
+import type { AccesseurService } from "./recherche/types.ts";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
 import type { NestedValue } from "@orbitdb/nested-db";
@@ -22,13 +22,13 @@ import type {
   TraducsTexte,
   PartielRécursif,
 } from "@constl/interface";
-import type { FonctionValidation } from "./règles.js";
-import type { Variables } from "./variables.js";
+import type { FonctionValidation } from "./règles.ts";
+import type { Variables } from "./variables.ts";
 import type {
   ServiceCompte,
   ServiceHélia,
   ServiceOrbite,
-} from "./nébuleuse/index.js";
+} from "./nébuleuse/index.ts";
 import type {
   SpécificationRègleColonne,
   RègleVariable,

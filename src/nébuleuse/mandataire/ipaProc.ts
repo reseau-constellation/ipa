@@ -10,9 +10,9 @@ import type {
   MessageErreurDIpa,
   MessagePourIpa,
 } from "@constl/mandataire";
-import type { Nébuleuse } from "../index.js";
-import type { ServicesAppli } from "../appli/appli.js";
-import type { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
+import type { Nébuleuse } from "../index.ts";
+import type { ServicesAppli } from "../appli/appli.ts";
+import type { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.ts";
 
 export class MandataireProc<
   T extends { [clef: string]: NestedValue } = { [clef: string]: NestedValue },

@@ -1,7 +1,7 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
-import { cacheRechercheParN, cacheSuivi } from "../nébuleuse/cache.js";
-import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
-import { RechercheObjets } from "./recherche.js";
+import { cacheRechercheParN, cacheSuivi } from "../nébuleuse/cache.ts";
+import { rechercherSelonId, rechercherTous } from "./fonctions/utils.ts";
+import { RechercheObjets } from "./recherche.ts";
 import {
   rechercherNuéesSelonDescription,
   rechercherNuéesSelonIdMotClef,
@@ -12,11 +12,11 @@ import {
   rechercherNuéesSelonNomVariable,
   rechercherNuéesSelonTexte,
   rechercherNuéesSelonVariable,
-} from "./fonctions/nuées.js";
-import type { ServicesNécessairesRechercheNuées } from "./fonctions/nuées.js";
+} from "./fonctions/nuées.ts";
+import type { ServicesNécessairesRechercheNuées } from "./fonctions/nuées.ts";
 
 import type { Oublier, RetourRecherche, Suivi } from "@constl/interface";
-import type { SuivreObjectifRecherche, AccesseurService } from "./types.js";
+import type { SuivreObjectifRecherche, AccesseurService } from "./types.ts";
 import type { InfoAuteur } from "@constl/interface/objets";
 import type {
   RésultatRecherche,

@@ -16,20 +16,20 @@ import {
   type DispositifsÉpingle,
   type BooléenniserPropriétés,
 } from "@constl/interface/favoris";
-import { enleverPréfixes } from "../../../src/utils.js";
-import { cacheSuivi } from "../cache.js";
-import { STATUTS } from "../appli/consts.js";
-import { ServiceDonnéesAppli } from "./services.js";
-import { CONFIANCE_DE_FAVORIS } from "./consts.js";
-import { générerRésolveur } from "./utils.js";
-import { RÉSOLVEUR_CONFIANCE, type ServiceRéseau } from "./réseau/réseau.js";
-import type { ServiceDispositifs } from "./dispositifs.js";
-import type { ServicesNécessairesDonnées } from "./services.js";
-import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
+import { enleverPréfixes } from "../../../src/utils.ts";
+import { cacheSuivi } from "../cache.ts";
+import { STATUTS } from "../appli/consts.ts";
+import { ServiceDonnéesAppli } from "./services.ts";
+import { CONFIANCE_DE_FAVORIS } from "./consts.ts";
+import { générerRésolveur } from "./utils.ts";
+import { RÉSOLVEUR_CONFIANCE, type ServiceRéseau } from "./réseau/réseau.ts";
+import type { ServiceDispositifs } from "./dispositifs.ts";
+import type { ServicesNécessairesDonnées } from "./services.ts";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.ts";
 import type { JSONSchemaType } from "ajv";
 import type { Oublier, Suivi, PartielRécursif } from "@constl/interface";
-import type { ServiceÉpingles } from "./épingles.js";
-import type { ServiceAppli } from "../appli/services.js";
+import type { ServiceÉpingles } from "./épingles.ts";
+import type { ServiceAppli } from "../appli/services.ts";
 import type { AccèsUtilisateur } from "@constl/interface/accès";
 import type { ÉpingleProfil } from "@constl/interface/profil";
 import type { RelationImmédiate } from "@constl/interface/réseau";

@@ -4,19 +4,19 @@ import {
   suivreDeFonctionListe,
   traduire,
 } from "@constl/utils-ipa";
-import { Tableaux } from "../tableaux.js";
-import { cacheSuivi } from "../nébuleuse/cache.js";
-import type { AccesseurService } from "../recherche/types.js";
-import type { ServicesNécessairesTableaux } from "../tableaux.js";
+import { Tableaux } from "../tableaux.ts";
+import { cacheSuivi } from "../nébuleuse/cache.ts";
+import type { AccesseurService } from "../recherche/types.ts";
+import type { ServicesNécessairesTableaux } from "../tableaux.ts";
 import type {
   Suivi,
   Oublier,
   PartielRécursif,
   TraducsTexte,
 } from "@constl/interface";
-import type { Nuées } from "./nuées.js";
-import type { FonctionValidation } from "../règles.js";
-import type { Bds } from "../bds/bds.js";
+import type { Nuées } from "./nuées.ts";
+import type { FonctionValidation } from "../règles.ts";
+import type { Bds } from "../bds/bds.ts";
 import type {
   InfoColonne,
   InfoColonneAvecCatégorie,

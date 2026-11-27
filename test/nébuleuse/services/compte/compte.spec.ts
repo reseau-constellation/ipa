@@ -9,35 +9,35 @@ import {
 } from "@constl/utils-tests";
 import { merge } from "lodash-es";
 import { MODÉRATRICE, type Rôle } from "@constl/interface/accès";
-import { serviceCompte } from "../../../../src/nébuleuse/services/compte/compte.js";
-import { Appli } from "../../../../src/nébuleuse/appli/appli.js";
-import { ServiceDonnéesAppli } from "../../../../src/nébuleuse/services/services.js";
-import { serviceJournal } from "../../../../src/nébuleuse/services/journal.js";
-import { serviceDossier } from "../../../../src/nébuleuse/services/dossier.js";
-import { serviceLibp2p } from "../../../../src/nébuleuse/services/libp2p/libp2p.js";
-import { serviceOrbite } from "../../../../src/nébuleuse/services/orbite/orbite.js";
-import { serviceStockage } from "../../../../src/nébuleuse/services/stockage.js";
+import { serviceCompte } from "../../../../src/nébuleuse/services/compte/compte.ts";
+import { Appli } from "../../../../src/nébuleuse/appli/appli.ts";
+import { ServiceDonnéesAppli } from "../../../../src/nébuleuse/services/services.ts";
+import { serviceJournal } from "../../../../src/nébuleuse/services/journal.ts";
+import { serviceDossier } from "../../../../src/nébuleuse/services/dossier.ts";
+import { serviceLibp2p } from "../../../../src/nébuleuse/services/libp2p/libp2p.ts";
+import { serviceOrbite } from "../../../../src/nébuleuse/services/orbite/orbite.ts";
+import { serviceStockage } from "../../../../src/nébuleuse/services/stockage.ts";
 import {
   schémaNébuleuse,
   type OptionsNébuleuse,
   type StructureNébuleuse,
-} from "../../../../src/nébuleuse/nébuleuse.js";
-import { enleverPréfixes } from "../../../../src/utils.js";
-import { attendreInvité } from "../../../utils.js";
-import { serviceHéliaTest } from "../utils.js";
+} from "../../../../src/nébuleuse/nébuleuse.ts";
+import { enleverPréfixes } from "../../../../src/utils.ts";
+import { attendreInvité } from "../../../utils.ts";
+import { serviceHéliaTest } from "../utils.ts";
 import type { KeyValueDatabase } from "@orbitdb/core";
-import type { ServiceCompte } from "../../../../src/nébuleuse/index.js";
+import type { ServiceCompte } from "../../../../src/nébuleuse/index.ts";
 import type {
   ConstructeursServicesAppli,
   OptionsAppli,
   ServicesAppli,
-} from "../../../../src/nébuleuse/appli/appli.js";
+} from "../../../../src/nébuleuse/appli/appli.ts";
 import type { Oublier, PartielRécursif } from "@constl/interface";
-import type { ServicesNécessairesCompte } from "../../../../src/nébuleuse/services/compte/compte.js";
+import type { ServicesNécessairesCompte } from "../../../../src/nébuleuse/services/compte/compte.ts";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { Libp2p } from "@libp2p/interface";
-import type { ServicesLibp2pNébuleuse } from "../../../../src/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../../../../src/nébuleuse/services/libp2p/libp2p.ts";
 import type { NestedValue } from "@orbitdb/nested-db";
 
 const créerApplisTest = async <

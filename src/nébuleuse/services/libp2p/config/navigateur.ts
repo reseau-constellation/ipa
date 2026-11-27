@@ -8,12 +8,12 @@ import { detect } from "detect-browser";
 
 import { FaultTolerance } from "@libp2p/interface";
 import { kadDHT } from "@libp2p/kad-dht";
-import { obtStockageDonnées } from "../../utils.js";
-import { découvertePairs, servicesDéfaut } from "./utils.js";
+import { obtStockageDonnées } from "../../utils.ts";
+import { découvertePairs, servicesDéfaut } from "./utils.ts";
 import type {
   ConfigOptionsLibp2p,
   ServicesLibp2pNébuleuseDéfaut,
-} from "./utils.js";
+} from "./utils.ts";
 import type { Libp2pOptions } from "libp2p";
 
 // https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#recommendations-for-network-operators
