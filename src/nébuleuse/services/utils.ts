@@ -1,6 +1,6 @@
 import { IDBDatastore } from "datastore-idb";
 import { isBrowser, isElectronRenderer, isWebWorker } from "wherearewe";
-import { randomBytes } from "@noble/hashes/utils.ts";
+import { randomBytes } from "@noble/hashes/utils.js";
 import bs58 from "bs58";
 
 import { base64 } from "@hexagon/base64";
