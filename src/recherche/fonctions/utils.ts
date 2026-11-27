@@ -2,7 +2,7 @@ import correspTexte from "approx-string-match";
 import ssim from "ssim";
 
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
-import { enleverPréfixesEtOrbite } from "../../../src/utils.ts";
+import { enleverPréfixesEtOrbite } from "../../utils.ts";
 import type { ServicesNécessairesRecherche } from "../recherche.ts";
 import type { SuivreObjectifRecherche, AccesseurService } from "../types.ts";
 import type { TraducsTexte, Oublier } from "@constl/interface";

@@ -1,17 +1,17 @@
-import { rechercherVariablesSelonNom } from "../../../src/recherche/fonctions/variables.ts";
+import { rechercherVariablesSelonNom } from "./variables.ts";
 import {
   combinerRecherches,
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
   sousRecherche,
-} from "../../../src/recherche/fonctions/utils.ts";
+} from "./utils.ts";
 import { rechercherMotsClefsSelonNom } from "./motsClefs.ts";
-import type { Variables } from "../../../src/variables.ts";
-import type { Nuées } from "../../../src/nuées/nuées.ts";
+import type { Variables } from "../../variables.ts";
+import type { Nuées } from "../../nuées/nuées.ts";
 import type { SuivreObjectifRecherche, AccesseurService } from "../types.ts";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
-import type { MotsClefs } from "../../../src/motsClefs.ts";
+import type { MotsClefs } from "../../motsClefs.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,

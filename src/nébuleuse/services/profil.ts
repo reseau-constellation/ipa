@@ -6,27 +6,27 @@ import {
   type ÉpingleFavorisBooléenniséeAvecId,
   type ÉpingleFavorisAvecId,
 } from "@constl/interface/favoris";
-import { RechercheProfils } from "../../../src/recherche/profils.ts";
-import {
-  estÉpingleDeType,
-  RÉSOLVEUR_FAVORIS,
-  résoudreDéfauts,
-} from "../../../src/nébuleuse/services/favoris.ts";
+import { RechercheProfils } from "../../recherche/profils.ts";
 import {
   ajouterPréfixeOrbite,
   définis,
   enleverPréfixesEtOrbite,
   idcEtFichierValide,
-} from "../../../src/utils.ts";
+} from "../../utils.ts";
 import { cacheSuivi } from "../cache.ts";
+import {
+  estÉpingleDeType,
+  RÉSOLVEUR_FAVORIS,
+  résoudreDéfauts,
+} from "./favoris.ts";
 import { ServiceDonnéesAppli } from "./services.ts";
-import type { ServiceFavoris } from "../../../src/nébuleuse/services/favoris.ts";
+import type { ServiceFavoris } from "./favoris.ts";
 import type { ServiceRéseau } from "./réseau/réseau.ts";
-import type { AccesseurService } from "../../../src/recherche/types.ts";
-import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.ts";
+import type { AccesseurService } from "../../recherche/types.ts";
+import type { ServicesNécessairesRechercheProfils } from "../../recherche/fonctions/profils.ts";
 
 import type { JSONSchemaType } from "ajv";
-import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.ts";
+import type { OptionsAppli } from "../appli/appli.ts";
 import type {
   ServiceCompte,
   ServicesNécessairesCompte,

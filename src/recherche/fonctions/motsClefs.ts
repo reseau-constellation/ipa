@@ -9,7 +9,7 @@ import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
 
 import type { AccesseurService, SuivreObjectifRecherche } from "../types.ts";
 
-import type { MotsClefs } from "../../../src/motsClefs.ts";
+import type { MotsClefs } from "../../motsClefs.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,

@@ -8,7 +8,7 @@ import {
 import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
 import type { AccesseurService, SuivreObjectifRecherche } from "../types.ts";
 
-import type { Variables } from "../../../src/variables.ts";
+import type { Variables } from "../../variables.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,

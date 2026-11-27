@@ -15,8 +15,8 @@ import {
   type AccèsUtilisateur,
   type Rôle,
 } from "@constl/interface/accès";
-import { ServiceAppli } from "../../../../src/nébuleuse/appli/index.ts";
-import { ajouterPréfixes, enleverPréfixes } from "../../../../src/utils.ts";
+import { ServiceAppli } from "../../appli/index.ts";
+import { ajouterPréfixes, enleverPréfixes } from "../../../utils.ts";
 import { cacheSuivi } from "../../cache.ts";
 import {
   CLEF_ID_COMPTE,

@@ -4,7 +4,7 @@ import {
   joinKey,
   splitKey,
 } from "@orbitdb/nested-db";
-import { ServiceAppli } from "../../../src/nébuleuse/appli/index.ts";
+import { ServiceAppli } from "../appli/index.ts";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { NestedValue, NestedValueWithUndefined } from "@orbitdb/nested-db";
 import type {
@@ -17,10 +17,7 @@ import type {
   RecursivePartial,
 } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
-import type {
-  OptionsAppli,
-  ServicesAppli,
-} from "../../../src/nébuleuse/appli/appli.ts";
+import type { OptionsAppli, ServicesAppli } from "../appli/appli.ts";
 import type {
   ServiceCompte,
   ServicesNécessairesCompte,

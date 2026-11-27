@@ -15,7 +15,7 @@ import {
   ajouterPréfixes,
   enleverPréfixes,
   enleverPréfixesEtOrbite,
-} from "../../../../src/utils.ts";
+} from "../../../utils.ts";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.ts";
 import {
   PROTOCOLE_NÉBULEUSE,
@@ -53,10 +53,7 @@ import type {
 import type { ServicesNécessairesDonnées } from "../services.ts";
 import type { Libp2pEvents, Stream } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
-import type {
-  OptionsAppli,
-  ServicesAppli,
-} from "../../../../src/nébuleuse/appli/appli.ts";
+import type { OptionsAppli, ServicesAppli } from "../../appli/appli.ts";
 
 import type { ServiceAppli } from "../../appli/services.ts";
 import type {

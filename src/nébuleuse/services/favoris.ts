@@ -16,7 +16,7 @@ import {
   type DispositifsÉpingle,
   type BooléenniserPropriétés,
 } from "@constl/interface/favoris";
-import { enleverPréfixes } from "../../../src/utils.ts";
+import { enleverPréfixes } from "../../utils.ts";
 import { cacheSuivi } from "../cache.ts";
 import { STATUTS } from "../appli/consts.ts";
 import { ServiceDonnéesAppli } from "./services.ts";
@@ -25,7 +25,7 @@ import { générerRésolveur } from "./utils.ts";
 import { RÉSOLVEUR_CONFIANCE, type ServiceRéseau } from "./réseau/réseau.ts";
 import type { ServiceDispositifs } from "./dispositifs.ts";
 import type { ServicesNécessairesDonnées } from "./services.ts";
-import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.ts";
+import type { OptionsAppli } from "../appli/appli.ts";
 import type { JSONSchemaType } from "ajv";
 import type { Oublier, Suivi, PartielRécursif } from "@constl/interface";
 import type { ServiceÉpingles } from "./épingles.ts";

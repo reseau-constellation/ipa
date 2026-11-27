@@ -38,7 +38,7 @@ import {
   type AccèsUtilisateur,
   type AccèsDispositif,
 } from "@constl/interface/accès";
-import { estErreurAvortée } from "../../../../../src/nébuleuse/utils.ts";
+import { estErreurAvortée } from "../../../utils.ts";
 import { mandatOrbite } from "../../orbite/mandat.ts";
 import { appelerLorsque } from "../../utils.ts";
 import { ContrôleurAccès } from "./contrôleurAccès.ts";

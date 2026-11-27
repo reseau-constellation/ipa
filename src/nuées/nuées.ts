@@ -17,7 +17,7 @@ import {
   TOUS_DISPOSITIFS,
   type ÉpingleFavorisBooléenniséeAvecId,
 } from "@constl/interface/favoris";
-import { suivreSi } from "../../src/recherche/utils.ts";
+import { suivreSi } from "../recherche/utils.ts";
 import { schémaTableau } from "../tableaux.ts";
 import {
   ajouterPréfixes,

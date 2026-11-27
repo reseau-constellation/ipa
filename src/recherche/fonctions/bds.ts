@@ -1,22 +1,19 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
-import { rechercherVariablesSelonNom } from "../../../src/recherche/fonctions/variables.ts";
+import { rechercherVariablesSelonNom } from "./variables.ts";
 import {
   combinerRecherches,
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
   sousRecherche,
-} from "../../../src/recherche/fonctions/utils.ts";
+} from "./utils.ts";
 import { rechercherMotsClefsSelonNom } from "./motsClefs.ts";
-import type { Variables } from "../../../src/variables.ts";
+import type { Variables } from "../../variables.ts";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
 
-import type {
-  AccesseurService,
-  SuivreObjectifRecherche,
-} from "../../../src/recherche/types.ts";
-import type { Bds } from "../../../src/bds/bds.ts";
-import type { MotsClefs } from "../../../src/motsClefs.ts";
+import type { AccesseurService, SuivreObjectifRecherche } from "../types.ts";
+import type { Bds } from "../../bds/bds.ts";
+import type { MotsClefs } from "../../motsClefs.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,

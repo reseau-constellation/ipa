@@ -17,7 +17,7 @@ import { typedNested, type TypedNested } from "@constl/bohr-db";
 import gjv from "geojson-validation";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { cholqij } from "../../src/dates.ts";
+import { cholqij } from "../dates.ts";
 import { Tableaux } from "../tableaux.ts";
 import { cacheSuivi } from "../nébuleuse/cache.ts";
 import {

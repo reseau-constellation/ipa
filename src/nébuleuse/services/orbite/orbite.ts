@@ -16,7 +16,7 @@ import { CID } from "multiformats";
 import { faisRien } from "@constl/utils-ipa";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { STATUTS } from "../../../../src/nébuleuse/appli/consts.ts";
+import { STATUTS } from "../../appli/consts.ts";
 import { cacheSuivi } from "../../cache.ts";
 import { ServiceAppli } from "../../appli/index.ts";
 import { estErreurAvortée, réessayer } from "../../utils.ts";

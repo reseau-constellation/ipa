@@ -14,10 +14,10 @@ import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "./variables.ts";
-import type { Bds } from "../../../src/bds/bds.ts";
-import type { MotsClefs } from "../../../src/motsClefs.ts";
-import type { Variables } from "../../../src/variables.ts";
-import type { Projets } from "../../../src/projets.ts";
+import type { Bds } from "../../bds/bds.ts";
+import type { MotsClefs } from "../../motsClefs.ts";
+import type { Variables } from "../../variables.ts";
+import type { Projets } from "../../projets.ts";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
 import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
