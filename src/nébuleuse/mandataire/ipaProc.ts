@@ -1,4 +1,8 @@
-import { générerMandataire, Mandatairifiable , EnveloppeAppli } from "@constl/mandataire";
+import {
+  générerMandataire,
+  Mandatairifiable,
+  EnveloppeAppli,
+} from "@constl/mandataire";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type {
   MandataireConstellation,

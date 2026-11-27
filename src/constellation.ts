@@ -146,7 +146,8 @@ export const créerConstellation = <
     Record<string, never>,
     L
   >(
-    () => new Constellation<L>(opts) as unknown as Nébuleuse<
+    () =>
+      new Constellation<L>(opts) as unknown as Nébuleuse<
         StructureConstellation,
         Record<string, never>,
         L
