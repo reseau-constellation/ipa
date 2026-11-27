@@ -4,8 +4,8 @@ import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsAppli } from "@/nébuleuse/appli/appli.js";
-import type { PartielRécursif } from "@/types.js";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
+import type { PartielRécursif } from "../../../src/types.js";
 import type { Suivi } from "../types.js";
 
 export type StructureDispositifs = {

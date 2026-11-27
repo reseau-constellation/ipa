@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import { expect } from "aegir/chai";
 
-import { générerFonctionValidation } from "@/règles.js";
-import type { DonnéesRangéeTableau } from "@/tableaux.js";
+import { générerFonctionValidation } from "../src/règles.js";
+import type { DonnéesRangéeTableau } from "../src/tableaux.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type {
   ErreurDonnée,
@@ -17,8 +17,8 @@ import type {
   RègleIndexUnique,
   RègleValeurCatégorique,
   SourceRègle,
-} from "@/règles.js";
-import type { CatégorieBaseVariables } from "@/variables.js";
+} from "../src/règles.js";
+import type { CatégorieBaseVariables } from "../src/variables.js";
 
 const catégories: {
   [key in CatégorieBaseVariables]: {

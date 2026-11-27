@@ -4,13 +4,13 @@ import { dossierTempoPropre, obtenir, que } from "@constl/utils-tests";
 import {
   MEMBRE,
   MODÉRATRICE,
-} from "@/nébuleuse/services/compte/accès/consts.js";
-import { créerConstellation } from "@/index.js";
+} from "../src/nébuleuse/services/compte/accès/consts.js";
+import { créerConstellation } from "../src/index.js";
 import { créerConstellationsTest } from "./utils.js";
 import type { KeyValueDatabase } from "@orbitdb/core";
-import type { Constellation } from "@/index.js";
-import type { TraducsTexte } from "@/types.js";
-import type { Rôle } from "@/nébuleuse/services/compte/accès/types.js";
+import type { Constellation } from "../src/index.js";
+import type { TraducsTexte } from "../src/types.js";
+import type { Rôle } from "../src/nébuleuse/services/compte/accès/types.js";
 
 describe("Constellation", function () {
   describe("création", function () {

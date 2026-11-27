@@ -6,9 +6,9 @@ import {
   rechercherTousSiVide,
   similImages,
   similTexte,
-} from "@/recherche/fonctions/utils.js";
-import type { Profil } from "@/nébuleuse/services/profil.js";
-import type { TraducsTexte } from "@/types.js";
+} from "../../../src/recherche/fonctions/utils.js";
+import type { Profil } from "../../../src/nébuleuse/services/profil.js";
+import type { TraducsTexte } from "../../../src/types.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 import type {
   SuivreObjectifRecherche,
@@ -20,7 +20,7 @@ import type {
   InfoRésultatVide,
   RésultatObjectifRecherche,
 } from "@constl/interface";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
 
 export type ServicesNécessairesRechercheProfils =
   ServicesNécessairesRechercheObjets & {

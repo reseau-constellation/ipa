@@ -14,7 +14,7 @@ import {
   ajouterPréfixes,
   enleverPréfixes,
   enleverPréfixesEtOrbite,
-} from "@/utils.js";
+} from "../../../../src/utils.js";
 import { cacheRechercheParProfondeur, cacheSuivi } from "../../cache.js";
 import {
   PROTOCOLE_NÉBULEUSE,
@@ -54,8 +54,11 @@ import type {
 import type { ServicesNécessairesDonnées } from "../services.js";
 import type { Libp2pEvents, Stream } from "@libp2p/interface";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
-import type { PartielRécursif } from "@/types.js";
+import type {
+  OptionsAppli,
+  ServicesAppli,
+} from "../../../../src/nébuleuse/appli/appli.js";
+import type { PartielRécursif } from "../../../../src/types.js";
 import type { Oublier, RetourRechercheProfondeur, Suivi } from "../../types.js";
 import type { ServiceAppli } from "../../appli/services.js";
 import type { Signature } from "../orbite/orbite.js";
@@ -368,12 +371,15 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
                 expéditeur: idPair,
               });
             } catch (e) {
-              if (e.name === "UnexpectedEOFError" || estErreurAvortée(e)) {
+              if (
+                (e as Error).name === "UnexpectedEOFError" ||
+                estErreurAvortée(e as Error)
+              ) {
                 break;
               }
               // Circulez, rien à voir
               this.service("journal").écrire({
-                message: "Erreur réseautage " + e.toString(),
+                message: "Erreur réseautage " + (e as Error).toString(),
               });
             }
           }
@@ -549,7 +555,7 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
           }
           infos.push(infoPair);
         } catch (e) {
-          await journal.écrire(e);
+          await journal.écrire(e as Error);
         }
       }
       await f(infos);
@@ -1057,7 +1063,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
         // C'est pas si grave que ça
         journal.écrire({
           message:
-            "Erreur restauration comptes bloqués privés : " + e.toString(),
+            "Erreur restauration comptes bloqués privés : " +
+            (e as Error).toString(),
         });
       }
     }
@@ -1687,7 +1694,8 @@ export class ServiceRéseau extends ServiceDonnéesAppli<
       );
     } catch (e) {
       throw new Error(
-        `Impossible de se connecter au pair ${idPair}.` + e.toString(),
+        `Impossible de se connecter au pair ${idPair}.` +
+          (e as Error).toString(),
         { cause: e },
       );
     }

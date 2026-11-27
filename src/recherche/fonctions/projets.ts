@@ -14,10 +14,10 @@ import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "./variables.js";
-import type { Bds } from "@/bds/bds.js";
-import type { MotsClefs } from "@/motsClefs.js";
-import type { Variables } from "@/variables.js";
-import type { Projets } from "@/projets.js";
+import type { Bds } from "../../../src/bds/bds.js";
+import type { MotsClefs } from "../../../src/motsClefs.js";
+import type { Variables } from "../../../src/variables.js";
+import type { Projets } from "../../../src/projets.js";
 import type {
   SuivreObjectifRecherche,
   SuiviRecherche,
@@ -28,9 +28,9 @@ import type {
   InfoRésultatRecherche,
   InfoRésultatVide,
 } from "@constl/interface";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
-import type { TraducsTexte } from "@/types.js";
+import type { TraducsTexte } from "../../../src/types.js";
 
 export type ServicesNécessairesRechercheProjets =
   ServicesNécessairesRechercheObjets & {

@@ -1,6 +1,6 @@
 import type { ServicesNécessairesRecherche } from "./recherche.js";
 import type { ServicesAppli } from "../nébuleuse/appli/appli.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { Oublier } from "../../src/nébuleuse/types.js";
 import type {
   InfoRésultat,
   RésultatObjectifRecherche,

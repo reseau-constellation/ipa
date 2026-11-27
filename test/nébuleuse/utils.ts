@@ -6,7 +6,7 @@ import {
   toutesConnectées,
 } from "@constl/utils-tests";
 import { merge } from "ts-deepmerge";
-import { Nébuleuse } from "@/nébuleuse/nébuleuse.js";
+import { Nébuleuse } from "../../src/nébuleuse/nébuleuse.js";
 import {
   obtenirOptionsLibp2pLocal,
   serviceHéliaTest,
@@ -21,14 +21,14 @@ import type {
   OptionsNébuleuse,
   ServicesNébuleuse,
   StructureNébuleuse,
-} from "@/nébuleuse/nébuleuse.js";
+} from "../../src/nébuleuse/nébuleuse.js";
 import type {
   ConstructeursServicesAppli,
   ServicesAppli,
-} from "@/nébuleuse/appli/appli.js";
+} from "../../src/nébuleuse/appli/appli.js";
 
-import type { ServicesLibp2pNébuleuse } from "@/nébuleuse/services/libp2p/libp2p.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { ServicesLibp2pNébuleuse } from "../../src/nébuleuse/services/libp2p/libp2p.js";
+import type { Oublier } from "../../src/nébuleuse/types.js";
 
 export class NébuleuseTest<
   T extends { [clef: string]: NestedValue } = Record<string, never>,

@@ -27,22 +27,22 @@ import { sha512 } from "multiformats/hashes/sha2";
 import { expect } from "aegir/chai";
 import { readFile as xlsxReadFile, type WorkBook } from "@e965/xlsx";
 import JSZip from "jszip";
-import { créerConstellation } from "@/index.js";
-import { estContrôleurNébuleuse } from "@/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
-import { ImportateurFeuilleCalcul } from "@/importateur/feuille.js";
+import { créerConstellation } from "../src/index.js";
+import { estContrôleurNébuleuse } from "../src/nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
+import { ImportateurFeuilleCalcul } from "../src/importateur/feuille.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
 import {
   obtenirOptionsLibp2pLocal,
   type ServicesLibp2pNébuleuseLocale,
 } from "./nébuleuse/services/utils.js";
-import type { Constellation } from "@/index.js";
-import type { Constellation as ConstructeurConstellation } from "@/constellation.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { Constellation } from "../src/index.js";
+import type { Constellation as ConstructeurConstellation } from "../src/constellation.js";
+import type { Oublier } from "../src/nébuleuse/types.js";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
-import type { ServicesLibp2pNébuleuse } from "@/nébuleuse/services/libp2p/libp2p.js";
-import type { ÉlémentDonnéesTableau } from "@/bds/tableaux.js";
+import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
+import type { ÉlémentDonnéesTableau } from "../src/bds/tableaux.js";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,
@@ -114,7 +114,9 @@ export const peutÉcrire = async (
       throw new Error(`Type de BD ${bd.type} non supporté par ce test.`);
     }
   } catch (e) {
-    if (e.toString().includes("is not allowed to write to the log")) {
+    if (
+      (e as Error).toString().includes("is not allowed to write to the log")
+    ) {
       return false;
     }
     throw e;

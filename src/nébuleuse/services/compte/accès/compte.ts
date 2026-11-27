@@ -2,12 +2,12 @@ import { isValidAddress } from "@orbitdb/core";
 import PQueue from "p-queue";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { anySignal, type ClearableSignal } from "any-signal";
-import { estErreurAvortée } from "@/nébuleuse/utils.js";
+import { estErreurAvortée } from "../../../../../src/nébuleuse/utils.js";
 import { appelerLorsque } from "../../utils.js";
 import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
 import { MEMBRE, MODÉRATRICE } from "./consts.js";
 import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { Oublier } from "../../../../../src/nébuleuse/types.js";
 import type { OrbitDB } from "@orbitdb/core";
 
 export const rôlePlusPuissant = (rôles: Set<Rôle>): Rôle | undefined => {
@@ -152,7 +152,7 @@ export class AccèsParComptes {
           try {
             await accèsCompte.démarrer({ signal: this.signal });
           } catch (e) {
-            if (!estErreurAvortée(e)) throw e;
+            if (!estErreurAvortée(e as Error)) throw e;
             return;
           }
         }

@@ -1,37 +1,37 @@
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
-import { dossierTempo , obtenir } from "@constl/utils-tests";
+import { dossierTempo, obtenir } from "@constl/utils-tests";
 import JSZip from "jszip";
 import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   MEMBRE,
   MODÉRATRICE,
-} from "@/nébuleuse/services/compte/accès/index.js";
+} from "../src/nébuleuse/services/compte/accès/index.js";
 import {
   TOUS_DISPOSITIFS,
   DISPOSITIFS_INSTALLÉS,
   AUCUN_DISPOSITIF,
-} from "@/nébuleuse/services/favoris.js";
-import { enleverPréfixes, enleverPréfixesEtOrbite } from "@/utils.js";
+} from "../src/nébuleuse/services/favoris.js";
+import { enleverPréfixes, enleverPréfixesEtOrbite } from "../src/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { créerConstellationsTest, utiliserFauxChronomètres } from "./utils.js";
-import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
+import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
 import type {
   InfoAuteur,
   Métadonnées,
   StatutDonnées,
   TraducsTexte,
   PartielRécursif,
-} from "@/types.js";
-import type { Constellation } from "@/index.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+} from "../src/types.js";
+import type { Constellation } from "../src/index.js";
+import type { Oublier } from "../src/nébuleuse/types.js";
 import type {
   DonnéesFichierProjetExportées,
   DonnéesProjetExportées,
   MotClefProjet,
   ÉpingleProjet,
-} from "@/projets.js";
+} from "../src/projets.js";
 import type { SinonFakeTimers } from "sinon";
 
 describe("Projets", function () {

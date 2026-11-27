@@ -122,7 +122,7 @@ export class ServiceÉpingles extends ServiceAppli<
         }),
       );
     } catch (e) {
-      if (estErreurAvortée(e)) return;
+      if (estErreurAvortée(e as Error)) return;
     }
 
     const idcsÀDésépingler = [...this.idcsÉpinglés].filter(
@@ -140,7 +140,7 @@ export class ServiceÉpingles extends ServiceAppli<
         }),
       );
     } catch (e) {
-      if (estErreurAvortée(e)) return;
+      if (estErreurAvortée(e as Error)) return;
       throw e;
     }
     this.idcsÉpinglés = new Set(idcs);

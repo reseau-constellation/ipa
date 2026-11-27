@@ -167,7 +167,7 @@ export class CacheSuivi {
               return; // Ignorer si c'est la même valeur qu'avant
 
             suivi.val = x;
-            const fsSuivis = suivi.requêtes.values();
+            const fsSuivis = [...suivi.requêtes.values()];
 
             await Promise.allSettled(
               fsSuivis.map(({ f: f_, promesses }) => {
@@ -257,7 +257,7 @@ export class CacheSuivi {
       const recherche = this.recherches.get(codeCache);
       if (!recherche) return; // Si on a déjà annulé la requête
       recherche.val = val;
-      const infoRequêtes = recherche.requêtes.values();
+      const infoRequêtes = [...recherche.requêtes.values()];
       await Promise.allSettled(
         infoRequêtes.map((info) => {
           const p = info.f(sélection(info.taille, val));
@@ -273,7 +273,7 @@ export class CacheSuivi {
       if (!recherche) return; // Si on a déjà annulé la requête
 
       const maxTaille = Math.max(
-        ...recherche.requêtes.values().map((r) => r.taille),
+        ...[...recherche.requêtes.values()].map((r) => r.taille),
       );
 
       if (maxTaille !== recherche.taillePrésente) {

@@ -9,12 +9,12 @@ import {
   similImages,
   similTexte,
   sousRecherche,
-} from "@/recherche/fonctions/utils.js";
+} from "../../../src/recherche/fonctions/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
-import type { Oublier } from "@/nébuleuse/types.js";
-import type { SuivreObjectifRecherche } from "@/recherche/types.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
+import type { SuivreObjectifRecherche } from "../../../src/recherche/types.js";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,

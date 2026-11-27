@@ -3,15 +3,15 @@ import {
   cacheRechercheParN,
   cacheRechercheParProfondeur,
   cacheSuivi,
-} from "@/nébuleuse/cache.js";
+} from "../../src/nébuleuse/cache.js";
 import { attendreQue } from "../appli/utils/fonctions.js";
-import type { RésultatProfondeur } from "@/nébuleuse/cache.js";
+import type { RésultatProfondeur } from "../../src/nébuleuse/cache.js";
 import type {
   Suivi,
   Oublier,
   RetourRecherche,
   RetourRechercheProfondeur,
-} from "@/nébuleuse/types.js";
+} from "../../src/nébuleuse/types.js";
 
 describe("Cache", function () {
   describe("suivi", function () {

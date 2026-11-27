@@ -2,31 +2,34 @@ import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
-import { dossierTempo , obtenir } from "@constl/utils-tests";
+import { dossierTempo, obtenir } from "@constl/utils-tests";
 import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   MEMBRE,
   MODÉRATRICE,
-} from "@/nébuleuse/services/compte/accès/index.js";
+} from "../src/nébuleuse/services/compte/accès/index.js";
 import {
   AUCUN_DISPOSITIF,
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
-} from "@/nébuleuse/services/favoris.js";
-import { stabiliser } from "@/nébuleuse/utils.js";
+} from "../src/nébuleuse/services/favoris.js";
+import { stabiliser } from "../src/nébuleuse/utils.js";
 import {
   enleverPréfixes,
   enleverPréfixesEtOrbite,
   moyenne,
   type DonnéesFichierBdExportées,
-} from "@/utils.js";
-import { CONFIANCE_INVITÉ, PÉNALITÉ_CONFIANCE_BLOQUÉ } from "@/nuées/nuées.js";
-import { CONFIANCE_DE_COAUTEUR } from "@/nébuleuse/services/consts.js";
+} from "../src/utils.js";
+import {
+  CONFIANCE_INVITÉ,
+  PÉNALITÉ_CONFIANCE_BLOQUÉ,
+} from "../src/nuées/nuées.js";
+import { CONFIANCE_DE_COAUTEUR } from "../src/nébuleuse/services/consts.js";
 import {
   RÉSOLVEUR_CONFIANCE,
   type RelationImmédiate,
-} from "@/nébuleuse/services/réseau/réseau.js";
-import { créerConstellation, type Constellation } from "@/index.js";
+} from "../src/nébuleuse/services/réseau/réseau.js";
+import { créerConstellation, type Constellation } from "../src/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import {
   créerConstellationsTest,
@@ -42,21 +45,25 @@ import type {
   ScoreNuée,
   ValeurAscendance,
   ÉpingleNuée,
-} from "@/nuées/nuées.js";
-import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
-import type { ÉlémentDonnéesTableau } from "@/bds/tableaux.js";
-import type { DonnéesRangéeNuée } from "@/nuées/tableaux.js";
-import type { RègleBornes, RègleColonne } from "@/règles.js";
+} from "../src/nuées/nuées.js";
+import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
+import type { ÉlémentDonnéesTableau } from "../src/bds/tableaux.js";
+import type { DonnéesRangéeNuée } from "../src/nuées/tableaux.js";
+import type { RègleBornes, RègleColonne } from "../src/règles.js";
 import type {
   InfoAuteur,
   Métadonnées,
   StatutDonnées,
   TraducsTexte,
-} from "@/types.js";
-import type { Oublier } from "@/nébuleuse/types.js";
-import type { DifférenceBds, DonnéesBdExportées, SchémaBd } from "@/bds/bds.js";
-import type { DonnéesRangéeTableau, InfoColonne } from "@/tableaux.js";
-import type { ServicesLibp2pNébuleuse } from "@/nébuleuse/services/libp2p/libp2p.js";
+} from "../src/types.js";
+import type { Oublier } from "../src/nébuleuse/types.js";
+import type {
+  DifférenceBds,
+  DonnéesBdExportées,
+  SchémaBd,
+} from "../src/bds/bds.js";
+import type { DonnéesRangéeTableau, InfoColonne } from "../src/tableaux.js";
+import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
 import type { SinonFakeTimers } from "sinon";
 
 describe("Nuées", function () {

@@ -6,15 +6,15 @@ import {
   similTexte,
 } from "./utils.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
-import type { TraducsTexte } from "@/types.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { TraducsTexte } from "../../../src/types.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
 import type {
   AccesseurService,
   SuiviRecherche,
   SuivreObjectifRecherche,
 } from "../types.js";
 import type { InfoRésultatTexte, InfoRésultatVide } from "@constl/interface";
-import type { MotsClefs } from "@/motsClefs.js";
+import type { MotsClefs } from "../../../src/motsClefs.js";
 
 export type ServicesNécessairesRechercheMotsClefs =
   ServicesNécessairesRechercheObjets & {

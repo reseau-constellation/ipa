@@ -31,7 +31,7 @@ import { ComposedStorage, IPFSBlockStorage, LRUStorage } from "@orbitdb/core";
 
 import { v4 as uuidv4 } from "uuid";
 import PQueue from "p-queue";
-import { estErreurAvortée } from "@/nébuleuse/utils.js";
+import { estErreurAvortée } from "../../../../../src/nébuleuse/utils.js";
 import { mandatOrbite } from "../../orbite/mandat.js";
 import { appelerLorsque } from "../../utils.js";
 import { MODÉRATRICE, rôles } from "./consts.js";
@@ -47,7 +47,7 @@ import type {
   Identity,
 } from "@orbitdb/core";
 import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
-import type { Oublier, Suivi } from "@/nébuleuse/types.js";
+import type { Oublier, Suivi } from "../../../../../src/nébuleuse/types.js";
 
 export const nomType = "contrôleur-nébuleuse";
 
@@ -211,7 +211,7 @@ const ContrôleurNébuleuse =
       try {
         identitéÉcrivain = await identities.getIdentity(entry.identity, signal);
       } catch (e) {
-        if (estErreurAvortée(e)) return false;
+        if (estErreurAvortée(e as Error)) return false;
         throw e;
       }
       if (!identitéÉcrivain) {

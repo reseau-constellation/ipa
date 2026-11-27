@@ -17,7 +17,7 @@ import { typedNested, type TypedNested } from "@constl/bohr-db";
 import gjv from "geojson-validation";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { cholqij } from "@/dates.js";
+import { cholqij } from "../../src/dates.js";
 import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import {
@@ -955,8 +955,11 @@ export class TableauxBds extends Tableaux {
         return idc;
       } catch (e) {
         // Rien à faire
-        if (!estErreurAvortée(e) && !e.toString().includes("Invalid URL"))
-          erreurs.push(e);
+        if (
+          !estErreurAvortée(e as Error) &&
+          !(e as Error).toString().includes("Invalid URL")
+        )
+          erreurs.push((e as Error).toString());
       }
 
       if (isNode || isElectronMain) {

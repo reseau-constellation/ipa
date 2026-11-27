@@ -3,9 +3,9 @@ import {
   ImportateurDonnéesJSON,
   aplatirDonnées,
   extraireDonnées,
-} from "@/importateur/json.js";
+} from "../../src/importateur/json.js";
 import { obtRessourceTest } from "../ressources/index.js";
-import type { ÉlémentJSON } from "@/importateur/json.js";
+import type { ÉlémentJSON } from "../../src/importateur/json.js";
 
 describe("JSON", function () {
   describe("extraire données", function () {

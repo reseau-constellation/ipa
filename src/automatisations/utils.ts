@@ -3,7 +3,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "@e965/xlsx";
 import { faisRien, uneFois } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { ImportateurFeuilleCalcul } from "@/importateur/feuille.js";
+import { ImportateurFeuilleCalcul } from "../importateur/feuille.js";
 import { appelerLorsque } from "../nébuleuse/services/utils.js";
 import {
   enleverPréfixesEtOrbite,
@@ -76,9 +76,12 @@ export const générerFImportation = ({
     try {
       données = await obtDonnéesImportation(spéc);
     } catch (e) {
-      throw new Error("Erreur d'importation des données : \n" + e.message, {
-        cause: e,
-      });
+      throw new Error(
+        "Erreur d'importation des données : \n" + (e as Error).message,
+        {
+          cause: e,
+        },
+      );
     }
 
     const tableaux = service("bds").tableaux;
@@ -409,7 +412,7 @@ export const chronoManuel = async ({
       await f();
       suiviÉtat(étatAttente);
     } catch (e) {
-      suiviÉtat(étatErreur(e));
+      suiviÉtat(étatErreur(e as Error));
     }
   };
 
@@ -482,7 +485,7 @@ export const chronoFixe = async ({
       suiviÉtat(étatProgrammé);
     } catch (e) {
       const prochain = Date.now() + fréquenceEnMS;
-      suiviÉtat(étatErreur(e, prochain));
+      suiviÉtat(étatErreur(e as Error, prochain));
     }
   };
 
@@ -537,7 +540,7 @@ export const chronoDynamique = async ({
       await f();
       suiviÉtat(étatÉcoute);
     } catch (e) {
-      suiviÉtat(étatErreur(e));
+      suiviÉtat(étatErreur(e as Error));
     }
   };
 

@@ -3,11 +3,11 @@ import { Key, type Datastore } from "interface-datastore";
 import { NotFoundError } from "@libp2p/interface";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { ServiceAppli } from "@/nébuleuse/appli/services.js";
+import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
 import { STATUTS } from "../appli/consts.js";
 import { obtStockageDonnées } from "./utils.js";
 import type { ServiceDossier } from "./dossier.js";
-import type { OptionsAppli } from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";
 
@@ -73,7 +73,7 @@ export class ServiceStockage extends ServiceAppli<
     try {
       return new TextDecoder().decode(await stockageLocal.get(new Key(clef)));
     } catch (e) {
-      if (e.name === NotFoundError.name) return null;
+      if ((e as Error).name === NotFoundError.name) return null;
       throw e;
     }
   }

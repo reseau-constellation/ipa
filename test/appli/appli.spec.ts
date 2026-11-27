@@ -1,7 +1,10 @@
 import { expect } from "aegir/chai";
-import { Appli } from "@/nébuleuse/appli/appli.js";
-import { ServiceAppli } from "@/nébuleuse/appli/index.js";
-import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
+import { Appli } from "../../src/nébuleuse/appli/appli.js";
+import { ServiceAppli } from "../../src/nébuleuse/appli/index.js";
+import type {
+  OptionsAppli,
+  ServicesAppli,
+} from "../../src/nébuleuse/appli/appli.js";
 
 describe("Appli", function () {
   describe("démarrage", function () {

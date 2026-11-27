@@ -2,7 +2,11 @@ import fs from "fs";
 import { join } from "path";
 import { expect } from "aegir/chai";
 import { isLibp2p } from "libp2p";
-import { dossierTempoPropre, obtenirAdresseRelai , obtenir } from "@constl/utils-tests";
+import {
+  dossierTempoPropre,
+  obtenirAdresseRelai,
+  obtenir,
+} from "@constl/utils-tests";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import {
   fromString as uint8ArrayFromString,
@@ -11,13 +15,13 @@ import {
 
 import { privateKeyFromRaw } from "@libp2p/crypto/keys";
 import { multiaddr } from "@multiformats/multiaddr";
-import { obtenirOptionsLibp2p } from "@/nébuleuse/services/libp2p/config/config.js";
-import { serviceLibp2p } from "@/nébuleuse/services/libp2p/libp2p.js";
-import { Appli } from "@/nébuleuse/appli/appli.js";
-import { serviceDossier } from "@/nébuleuse/services/dossier.js";
-import { serviceStockage } from "@/nébuleuse/services/stockage.js";
-import { serviceHélia } from "@/nébuleuse/services/hélia.js";
-import { serviceJournal } from "@/nébuleuse/services/journal.js";
+import { obtenirOptionsLibp2p } from "../../../src/nébuleuse/services/libp2p/config/config.js";
+import { serviceLibp2p } from "../../../src/nébuleuse/services/libp2p/libp2p.js";
+import { Appli } from "../../../src/nébuleuse/appli/appli.js";
+import { serviceDossier } from "../../../src/nébuleuse/services/dossier.js";
+import { serviceStockage } from "../../../src/nébuleuse/services/stockage.js";
+import { serviceHélia } from "../../../src/nébuleuse/services/hélia.js";
+import { serviceJournal } from "../../../src/nébuleuse/services/journal.js";
 import { créerHéliaÉphémère } from "../../utils.js";
 import {
   obtenirOptionsLibp2pLocal,
@@ -29,8 +33,8 @@ import type {
   ServiceLibp2p,
   ServicesLibp2pNébuleuse,
   ServicesNécessairesLibp2p,
-} from "@/nébuleuse/services/libp2p/libp2p.js";
-import type { ServicesAppli } from "@/nébuleuse/appli/appli.js";
+} from "../../../src/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesAppli } from "../../../src/nébuleuse/appli/appli.js";
 import type { Libp2p, PrivateKey } from "@libp2p/interface";
 import type { FsDatastore } from "datastore-fs";
 import type { IDBDatastore } from "datastore-idb";

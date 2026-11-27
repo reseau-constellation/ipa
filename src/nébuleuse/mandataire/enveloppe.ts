@@ -98,18 +98,20 @@ export class EnveloppeNébuleuse<
       this.nébuleuse = await this.créerNébuleuse();
       await this.nébuleuse.démarrer();
     } catch (e) {
-      this.erreurInitialisation = e;
+      const erreur = e as Error;
+      this.erreurInitialisation = erreur;
       this.fErreur({
-        erreur: e.toString() + e.stack,
-        code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
+        erreur: erreur.toString() + erreur.stack,
+        code: erreur.name === "Error" ? ERREUR_INIT_IPA : erreur.name,
       });
 
       // Aussi renvoyer l'erreur à toutes les requêtes potentiellement en attente de l'initialisation.
       this._messagesEnAttente.forEach((m) =>
         this.fErreur({
-          erreur: e.toString() + e.stack,
+          erreur: (e as Error).toString() + (e as Error).stack,
           idRequête: m.idRequête,
-          code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
+          code:
+            (e as Error).name === "Error" ? ERREUR_INIT_IPA : (e as Error).name,
         }),
       );
       this._verrou.release("init");
@@ -245,7 +247,9 @@ export class EnveloppeNébuleuse<
             this.fMessage(messageRéponse);
           } catch (e) {
             this.fErreur({
-              erreur: (e as Error).toString() + e.stack.toString(),
+              erreur:
+                (e as Error).toString() +
+                ((e as Error).stack?.toString() || ""),
               idRequête: idRetour,
               code: ERREUR_EXÉCUTION_IPA,
             });

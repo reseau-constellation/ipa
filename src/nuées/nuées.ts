@@ -12,7 +12,7 @@ import { utils as xlsxUtils } from "@e965/xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { suivreSi } from "@/recherche/utils.js";
+import { suivreSi } from "../../src/recherche/utils.js";
 import { schémaTableau } from "../tableaux.js";
 import {
   ajouterPréfixes,

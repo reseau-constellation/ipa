@@ -4,26 +4,26 @@ import { obtenir } from "@constl/utils-tests";
 import {
   MEMBRE,
   MODÉRATRICE,
-} from "@/nébuleuse/services/compte/accès/index.js";
-import { ObjetConstellation, schémaServiceObjet } from "@/objets.js";
-import { CONFIANCE_DE_COAUTEUR } from "@/nébuleuse/services/consts.js";
-import { TOUS_DISPOSITIFS } from "@/nébuleuse/services/favoris.js";
+} from "../src/nébuleuse/services/compte/accès/index.js";
+import { ObjetConstellation, schémaServiceObjet } from "../src/objets.js";
+import { CONFIANCE_DE_COAUTEUR } from "../src/nébuleuse/services/consts.js";
+import { TOUS_DISPOSITIFS } from "../src/nébuleuse/services/favoris.js";
 import {
   RÉSOLVEUR_CONFIANCE,
   type RelationImmédiate,
-} from "@/nébuleuse/services/réseau/réseau.js";
+} from "../src/nébuleuse/services/réseau/réseau.js";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
-import type { Rôle } from "@/nébuleuse/services/compte/accès/index.js";
+import type { Rôle } from "../src/nébuleuse/services/compte/accès/index.js";
 import type {
   ServicesNécessairesObjet,
   StructureServiceObjet,
-} from "@/objets.js";
-import type { Nébuleuse } from "@/nébuleuse/index.js";
-import type { InfoAuteur, PartielRécursif } from "@/types.js";
+} from "../src/objets.js";
+import type { Nébuleuse } from "../src/nébuleuse/index.js";
+import type { InfoAuteur, PartielRécursif } from "../src/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
-import type { Oublier } from "@/nébuleuse/types.js";
-import type { OptionsAppli } from "@/nébuleuse/appli/appli.js";
+import type { Oublier } from "../src/nébuleuse/types.js";
+import type { OptionsAppli } from "../src/nébuleuse/appli/appli.js";
 
 describe("Objets", function () {
   let fermer: () => Promise<void>;

@@ -1,33 +1,33 @@
 import { v4 as uuidv4 } from "uuid";
 import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
-import { RechercheProfils } from "@/recherche/profils.js";
+import { RechercheProfils } from "../../../src/recherche/profils.js";
 import {
   AUCUN_DISPOSITIF,
   estÉpingleDeType,
   RÉSOLVEUR_FAVORIS,
   résoudreDéfauts,
   TOUS_DISPOSITIFS,
-} from "@/nébuleuse/services/favoris.js";
+} from "../../../src/nébuleuse/services/favoris.js";
 import {
   ajouterPréfixeOrbite,
   définis,
   enleverPréfixesEtOrbite,
   idcEtFichierValide,
-} from "@/utils.js";
+} from "../../../src/utils.js";
 import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import type { ServiceRéseau } from "./réseau/réseau.js";
-import type { AccesseurService } from "@/recherche/types.js";
-import type { ServicesNécessairesRechercheProfils } from "@/recherche/fonctions/profils.js";
+import type { AccesseurService } from "../../../src/recherche/types.js";
+import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.js";
 import type {
   BaseÉpingleFavoris,
   DispositifsÉpingle,
   ÉpingleFavorisBooléenniséeAvecId,
   ÉpingleFavorisAvecId,
   ServiceFavoris,
-} from "@/nébuleuse/services/favoris.js";
+} from "../../../src/nébuleuse/services/favoris.js";
 import type { JSONSchemaType } from "ajv";
-import type { OptionsAppli } from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
 import type { Suivi, Oublier } from "../types.js";
 import type { PartielRécursif, TraducsTexte } from "../../types.js";
 import type {

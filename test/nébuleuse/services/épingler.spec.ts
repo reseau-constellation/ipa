@@ -1,7 +1,7 @@
 import { expect } from "aegir/chai";
 import { CID } from "multiformats";
 import { que } from "@constl/utils-tests";
-import { diviserIdcEtFichier, idcEtFichierValide } from "@/utils.js";
+import { diviserIdcEtFichier, idcEtFichierValide } from "../../../src/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";

@@ -4,13 +4,13 @@ import { obtenir } from "@constl/utils-tests";
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
-} from "@/recherche/fonctions/motsClefs.js";
-import { enleverPréfixesEtOrbite } from "@/utils.js";
+} from "../../src/recherche/fonctions/motsClefs.js";
+import { enleverPréfixesEtOrbite } from "../../src/utils.js";
 import { créerConstellationsTest } from "../utils.js";
-import type { ServicesNécessairesRechercheMotsClefs } from "@/recherche/fonctions/motsClefs.js";
-import type { Oublier } from "@/nébuleuse/types.js";
-import type { Constellation } from "@/constellation.js";
-import type { SuivreObjectifRecherche } from "@/recherche/types.js";
+import type { ServicesNécessairesRechercheMotsClefs } from "../../src/recherche/fonctions/motsClefs.js";
+import type { Oublier } from "../../src/nébuleuse/types.js";
+import type { Constellation } from "../../src/constellation.js";
+import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,

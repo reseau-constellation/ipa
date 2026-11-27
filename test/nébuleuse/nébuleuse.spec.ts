@@ -12,27 +12,30 @@ import {
   isElectronRenderer,
   isNode,
 } from "wherearewe";
-import { ServiceDonnéesAppli } from "@/nébuleuse/services/services.js";
+import { ServiceDonnéesAppli } from "../../src/nébuleuse/services/services.js";
 import {
   ERREUR_DUPLIQUÉS,
   extraireOptionsHélia,
-} from "@/nébuleuse/nébuleuse.js";
+} from "../../src/nébuleuse/nébuleuse.js";
 import {
   FICHIER_VERROU,
   INTERVALE_VERROU,
-} from "@/nébuleuse/services/dossier.js";
-import { ServiceAppli } from "@/nébuleuse/appli/index.js";
+} from "../../src/nébuleuse/services/dossier.js";
+import { ServiceAppli } from "../../src/nébuleuse/appli/index.js";
 import { utiliserFauxChronomètres } from "../utils.js";
 import { créerNébuleusesTest, NébuleuseTest } from "./utils.js";
 import type sinon from "sinon";
-import type { ServicesNécessairesDonnées } from "@/nébuleuse/services/services.js";
-import type { OptionsAppli, ServicesAppli } from "@/nébuleuse/appli/appli.js";
-import type { ServicesLibp2pNébuleuse } from "@/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesNécessairesDonnées } from "../../src/nébuleuse/services/services.js";
+import type {
+  OptionsAppli,
+  ServicesAppli,
+} from "../../src/nébuleuse/appli/appli.js";
+import type { ServicesLibp2pNébuleuse } from "../../src/nébuleuse/services/libp2p/libp2p.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
-import type { PartielRécursif } from "@/types.js";
+import type { PartielRécursif } from "../../src/types.js";
 import type { HeliaWithLibp2p } from "@helia/libp2p";
-import type { GénérateurOptionsLibp2p } from "@/nébuleuse/services/libp2p/config/config.js";
+import type { GénérateurOptionsLibp2p } from "../../src/nébuleuse/services/libp2p/config/config.js";
 
 describe("Nébuleuse", function () {
   describe("options - extraire libp2p et Hélia", function () {
@@ -287,7 +290,7 @@ describe("Nébuleuse", function () {
         try {
           await nébuleuse2.fermer();
         } catch (e) {
-          if (!e.toString().includes("Erreur de démarrage")) throw e;
+          if (!(e as Error).toString().includes("Erreur de démarrage")) throw e;
         } finally {
           nébuleuse2 = undefined;
         }

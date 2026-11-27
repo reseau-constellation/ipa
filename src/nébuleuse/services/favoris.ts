@@ -3,7 +3,7 @@ import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { enleverPréfixes } from "@/utils.js";
+import { enleverPréfixes } from "../../../src/utils.js";
 import { cacheSuivi } from "../cache.js";
 import { STATUTS } from "../appli/consts.js";
 import { ServiceDonnéesAppli } from "./services.js";
@@ -21,7 +21,7 @@ import {
 import type { ÉpingleProfil } from "./profil.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
-import type { OptionsAppli } from "@/nébuleuse/appli/appli.js";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
 import type { JSONSchemaType } from "ajv";
 import type { PartielRécursif } from "../../types.js";
 import type { Oublier, Suivi } from "../types.js";

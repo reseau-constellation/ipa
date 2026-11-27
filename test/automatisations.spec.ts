@@ -29,9 +29,9 @@ import { attendreStabilité, uneFois } from "@constl/utils-ipa";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
 import { writeFile as xlsxWriteFile, utils } from "@e965/xlsx";
-import { stabiliser } from "@/nébuleuse/utils.js";
-import { MESSAGE_NON_DISPO_NAVIGATEUR } from "@/automatisations/utils.js";
-import { enleverPréfixesEtOrbite } from "@/utils.js";
+import { stabiliser } from "../src/nébuleuse/utils.js";
+import { MESSAGE_NON_DISPO_NAVIGATEUR } from "../src/automatisations/utils.js";
+import { enleverPréfixesEtOrbite } from "../src/utils.js";
 import {
   créerConstellationsTest,
   utiliserFauxChronomètres,
@@ -44,13 +44,13 @@ import { attendreQue } from "./appli/utils/fonctions.js";
 import type {
   ConversionColonne,
   ÉlémentDonnéesTableau,
-} from "@/bds/tableaux.js";
+} from "../src/bds/tableaux.js";
 import type { SinonFakeTimers } from "sinon";
 import type {
   DonnéesRangéeTableau,
   DonnéesRangéeTableauAvecId,
-} from "@/tableaux.js";
-import type { PartielRécursif } from "@/types.js";
+} from "../src/tableaux.js";
+import type { PartielRécursif } from "../src/types.js";
 import type {
   InfoImporterFeuilleCalcul,
   InfoImporterJSON,
@@ -63,10 +63,10 @@ import type {
   ÉtatAutomatisationEnSync,
   ÉtatAutomatisationErreur,
   ÉtatAutomatisationProgrammée,
-} from "@/automatisations/types.js";
-import type { Constellation } from "@/index.js";
+} from "../src/automatisations/types.js";
+import type { Constellation } from "../src/index.js";
 import type { NestedValue } from "@orbitdb/nested-db";
-import type { ClefsExtraction } from "@/importateur/json.js";
+import type { ClefsExtraction } from "../src/importateur/json.js";
 
 const MINUTES = 1000 * 60;
 

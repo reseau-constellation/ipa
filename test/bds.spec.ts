@@ -8,13 +8,17 @@ import { isBrowser, isElectronRenderer } from "wherearewe";
 import {
   DISPOSITIFS_INSTALLÉS,
   TOUS_DISPOSITIFS,
-} from "@/nébuleuse/services/favoris.js";
+} from "../src/nébuleuse/services/favoris.js";
 import {
   MEMBRE,
   MODÉRATRICE,
-} from "@/nébuleuse/services/compte/accès/consts.js";
-import { créerConstellation, type Constellation } from "@/index.js";
-import { enleverPréfixes, enleverPréfixesEtOrbite, moyenne } from "@/utils.js";
+} from "../src/nébuleuse/services/compte/accès/consts.js";
+import { créerConstellation, type Constellation } from "../src/index.js";
+import {
+  enleverPréfixes,
+  enleverPréfixesEtOrbite,
+  moyenne,
+} from "../src/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import {
   créerConstellationsTest,
@@ -22,30 +26,30 @@ import {
   utiliserFauxChronomètres,
 } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
-import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
+import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
 import type {
   InfoAuteur,
   Métadonnées,
   StatutDonnées,
   TraducsTexte,
   PartielRécursif,
-} from "@/types.js";
-import type { DonnéesFichierBdExportées } from "@/utils.js";
+} from "../src/types.js";
+import type { DonnéesFichierBdExportées } from "../src/utils.js";
 import type {
   DifférenceBds,
   DonnéesBdExportées,
   SchémaBd,
   ScoreBd,
   ÉpingleBd,
-} from "@/bds/bds.js";
+} from "../src/bds/bds.js";
 import type {
   DonnéesRangéeTableau,
   DonnéesRangéeTableauAvecId,
   InfoColonne,
-} from "@/tableaux.js";
-import type { RègleBornes } from "@/règles.js";
+} from "../src/tableaux.js";
+import type { RègleBornes } from "../src/règles.js";
 import type { SinonFakeTimers } from "sinon";
-import type { ServicesLibp2pNébuleuse } from "@/nébuleuse/services/libp2p/libp2p.js";
+import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
 
 describe("Bases de données", function () {
   let fermer: () => Promise<void>;

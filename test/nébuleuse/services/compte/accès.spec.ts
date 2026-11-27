@@ -5,18 +5,18 @@ import {
   ContrôleurNébuleuse,
   MEMBRE,
   MODÉRATRICE,
-} from "@/nébuleuse/services/compte/accès/index.js";
-import { préparerOrbite } from "@/nébuleuse/services/orbite/orbite.js";
-import { mandatOrbite } from "@/nébuleuse/services/orbite/mandat.js";
-import { réessayer } from "@/nébuleuse/utils.js";
+} from "../../../../src/nébuleuse/services/compte/accès/index.js";
+import { préparerOrbite } from "../../../../src/nébuleuse/services/orbite/orbite.js";
+import { mandatOrbite } from "../../../../src/nébuleuse/services/orbite/mandat.js";
+import { réessayer } from "../../../../src/nébuleuse/utils.js";
 import { attendreQue } from "../../../appli/utils/fonctions.js";
 import { attendreInvité, peutÉcrire } from "../../../utils.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { Oublier } from "../../../../src/nébuleuse/types.js";
 import type {
   AccèsDispositif,
   AccèsUtilisateur,
   InstanceContrôleurNébuleuse,
-} from "@/nébuleuse/services/compte/accès/index.js";
+} from "../../../../src/nébuleuse/services/compte/accès/index.js";
 import type { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 
 describe("Accès", function () {

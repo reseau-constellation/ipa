@@ -16,7 +16,7 @@ import { CID } from "multiformats";
 import { faisRien } from "@constl/utils-ipa";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
-import { STATUTS } from "@/nébuleuse/appli/consts.js";
+import { STATUTS } from "../../../../src/nébuleuse/appli/consts.js";
 import { cacheSuivi } from "../../cache.js";
 import { ServiceAppli } from "../../appli/index.js";
 import { estErreurAvortée, réessayer } from "../../utils.js";
@@ -39,7 +39,7 @@ import type {
 } from "@orbitdb/core";
 import type { ServiceJournal } from "../journal.js";
 import type { Oublier, Suivi } from "../../types.js";
-import type { PartielRécursif } from "@/types.js";
+import type { PartielRécursif } from "../../../../src/types.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";

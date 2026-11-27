@@ -8,8 +8,8 @@ import {
 } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 import { merge } from "ts-deepmerge";
-import { ServiceAppli } from "@/nébuleuse/appli/index.js";
-import { ajouterPréfixes, enleverPréfixes } from "@/utils.js";
+import { ServiceAppli } from "../../../../src/nébuleuse/appli/index.js";
+import { ajouterPréfixes, enleverPréfixes } from "../../../../src/utils.js";
 import { cacheSuivi } from "../../cache.js";
 import {
   CLEF_ID_COMPTE,
@@ -27,7 +27,7 @@ import {
   estContrôleurNébuleuse,
 } from "./accès/index.js";
 import type { OptionsAppli } from "../../appli/appli.js";
-import type { PartielRécursif, RequisRécursif } from "@/types.js";
+import type { PartielRécursif, RequisRécursif } from "../../../../src/types.js";
 import type { Oublier, Suivi } from "../../types.js";
 import type {
   BdsOrbite,

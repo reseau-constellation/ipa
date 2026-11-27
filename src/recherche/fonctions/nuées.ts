@@ -1,23 +1,23 @@
-import { rechercherVariablesSelonNom } from "@/recherche/fonctions/variables.js";
+import { rechercherVariablesSelonNom } from "../../../src/recherche/fonctions/variables.js";
 import {
   combinerRecherches,
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
   sousRecherche,
-} from "@/recherche/fonctions/utils.js";
+} from "../../../src/recherche/fonctions/utils.js";
 import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
-import type { Variables } from "@/variables.js";
-import type { Nuées } from "@/nuées/nuées.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { Variables } from "../../../src/variables.js";
+import type { Nuées } from "../../../src/nuées/nuées.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
 import type {
   SuivreObjectifRecherche,
   SuiviRecherche,
   AccesseurService,
 } from "../types.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
-import type { TraducsTexte } from "@/types.js";
-import type { MotsClefs } from "@/motsClefs.js";
+import type { TraducsTexte } from "../../../src/types.js";
+import type { MotsClefs } from "../../../src/motsClefs.js";
 import type {
   InfoRésultatTexte,
   InfoRésultatRecherche,

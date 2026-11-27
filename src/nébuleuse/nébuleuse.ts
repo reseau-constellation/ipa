@@ -1,6 +1,6 @@
 import { merge } from "ts-deepmerge";
 import { isBrowser, isElectronRenderer } from "wherearewe";
-import { Appli } from "@/nébuleuse/appli/appli.js";
+import { Appli } from "../../src/nébuleuse/appli/appli.js";
 import { serviceJournal } from "./services/journal.js";
 import { serviceDossier } from "./services/dossier.js";
 import {
@@ -53,7 +53,7 @@ import type {
   ConstructeursServicesAppli,
   OptionsAppli,
   ServicesAppli,
-} from "@/nébuleuse/appli/appli.js";
+} from "../../src/nébuleuse/appli/appli.js";
 import type { OptionsServiceHélia } from "./services/hélia.js";
 import type { PartielRécursif } from "../types.js";
 

@@ -3,14 +3,14 @@ import { join } from "path";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import { dossierTempoPropre } from "@constl/utils-tests";
-import { Appli } from "@/nébuleuse/appli/appli.js";
+import { Appli } from "../../../src/nébuleuse/appli/appli.js";
 
 import {
   FICHIER_VERROU,
   INTERVALE_VERROU,
   type ServiceDossier,
   serviceDossier,
-} from "@/nébuleuse/services/dossier.js";
+} from "../../../src/nébuleuse/services/dossier.js";
 import { utiliserFauxChronomètres } from "../../utils.js";
 import { Déno } from "./utils.js";
 import type { SinonFakeTimers } from "sinon";

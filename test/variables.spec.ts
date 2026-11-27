@@ -3,27 +3,27 @@ import { obtenir } from "@constl/utils-tests";
 import {
   MEMBRE,
   MODÉRATRICE,
-} from "@/nébuleuse/services/compte/accès/consts.js";
-import { TOUS_DISPOSITIFS } from "@/nébuleuse/services/favoris.js";
-import { enleverPréfixes } from "@/utils.js";
+} from "../src/nébuleuse/services/compte/accès/consts.js";
+import { TOUS_DISPOSITIFS } from "../src/nébuleuse/services/favoris.js";
+import { enleverPréfixes } from "../src/utils.js";
 import { créerConstellationsTest } from "./utils.js";
-import type { ÉpingleFavorisAvecId } from "@/nébuleuse/services/favoris.js";
-import type { Constellation } from "@/index.js";
+import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
+import type { Constellation } from "../src/index.js";
 import type {
   InfoAuteur,
   PartielRécursif,
   StatutDonnées,
   TraducsTexte,
-} from "@/types.js";
+} from "../src/types.js";
 import type {
   CatégorieVariable as CatégorieVariable,
   ÉpingleVariable,
-} from "@/variables.js";
+} from "../src/variables.js";
 import type {
   RègleBornes,
   RègleCatégorie,
   RègleVariableAvecId,
-} from "@/règles.js";
+} from "../src/règles.js";
 
 describe("Variables", function () {
   let fermer: () => Promise<void>;

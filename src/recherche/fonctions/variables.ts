@@ -12,9 +12,9 @@ import type {
   SuivreObjectifRecherche,
 } from "../types.js";
 import type { InfoRésultatTexte, InfoRésultatVide } from "@constl/interface";
-import type { Oublier } from "@/nébuleuse/types.js";
-import type { Variables } from "@/variables.js";
-import type { TraducsTexte } from "@/types.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
+import type { Variables } from "../../../src/variables.js";
+import type { TraducsTexte } from "../../../src/types.js";
 
 export type ServicesNécessairesRechercheVariables =
   ServicesNécessairesRechercheObjets & {

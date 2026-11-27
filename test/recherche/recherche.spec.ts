@@ -1,9 +1,9 @@
 import { expect } from "aegir/chai";
 import { rechercher, type ObtRecherche } from "@constl/utils-tests";
-import { enleverPréfixesEtOrbite } from "@/utils.js";
+import { enleverPréfixesEtOrbite } from "../../src/utils.js";
 import { créerConstellationsTest } from "../utils.js";
-import type { Oublier } from "@/nébuleuse/types.js";
-import type { Constellation } from "@/index.js";
+import type { Oublier } from "../../src/nébuleuse/types.js";
+import type { Constellation } from "../../src/index.js";
 import type {
   InfoRésultat,
   InfoRésultatRecherche,

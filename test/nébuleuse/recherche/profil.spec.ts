@@ -5,14 +5,14 @@ import {
   rechercherProfilsSelonNom,
   rechercherProfilsSelonCourriel,
   rechercherProfilsSelonTexte,
-} from "@/recherche/fonctions/profils.js";
-import { enleverPréfixesEtOrbite } from "@/utils.js";
+} from "../../../src/recherche/fonctions/profils.js";
+import { enleverPréfixesEtOrbite } from "../../../src/utils.js";
 import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
-import type { ServicesNécessairesRechercheProfils } from "@/recherche/fonctions/profils.js";
-import type { SuivreObjectifRecherche } from "@/recherche/types.js";
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.js";
+import type { SuivreObjectifRecherche } from "../../../src/recherche/types.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
 import type {
   InfoRésultatVide,
   RésultatObjectifRecherche,

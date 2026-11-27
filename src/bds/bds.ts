@@ -1595,7 +1595,7 @@ export class Bds extends ObjetConstellation<
             if ((await bd.get("clefUnique")) !== clefUnique) idBdLocale = null;
             await oublier();
           } catch (e) {
-            if (estErreurAvortée(e)) {
+            if (estErreurAvortée(e as Error)) {
               idBdLocale = null;
             } else {
               throw e;

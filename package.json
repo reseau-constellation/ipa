@@ -11,8 +11,8 @@
   },
   "scripts": {
     "nettoyer": "rimraf dist",
-    "compiler": "pnpm versioner && pnpm nettoyer && pnpm tspc -p tsconfig.json",
-    "compiler:prod": "pnpm versioner && pnpm formatter && pnpm nettoyer && pnpm tspc -p tsconfig.build.json",
+    "compiler": "pnpm versioner && pnpm nettoyer && pnpm tsc -p tsconfig.json",
+    "compiler:prod": "pnpm versioner && pnpm formatter && pnpm nettoyer && pnpm tsc -p tsconfig.build.json",
     "test:node": "pnpm compiler && pnpm test:node:sans-compiler",
     "test:node:sans-compiler": "pnpm aegir test -t node -f \"dist/test/**/*.spec.js\" --cov -- --exit",
     "test:déno": "pnpm compiler && pnpm test:déno:sans-compiler",
@@ -93,12 +93,8 @@
     "sinon": "^22.1.0",
     "source-map-support": "^0.5.21",
     "tmp": "^0.2.7",
-    "ts-patch": "^4.0.1",
-    "tsconfig-paths": "^4.2.0",
-    "tscpaths": "^0.0.9",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.74.0",
-    "typescript-transform-paths": "^4.0.0",
     "uint8arraylist": "^3.0.2"
   },
   "dependencies": {

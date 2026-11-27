@@ -1,22 +1,22 @@
 import { expect } from "aegir/chai";
-import { créerOrbitesTest , obtenir } from "@constl/utils-tests";
+import { créerOrbitesTest, obtenir } from "@constl/utils-tests";
 import { typedNested } from "@constl/bohr-db";
 import { v4 as uuidv4 } from "uuid";
 import {
   ServiceDonnéesAppli,
   brancheBd,
-} from "@/nébuleuse/services/services.js";
-import { ServiceAppli } from "@/nébuleuse/appli/services.js";
+} from "../../../src/nébuleuse/services/services.js";
+import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { JSONSchemaType } from "ajv";
-import type { ServicesNécessairesDonnées } from "@/nébuleuse/services/services.js";
-import type { OptionsAppli } from "@/nébuleuse/appli/appli.js";
+import type { ServicesNécessairesDonnées } from "../../../src/nébuleuse/services/services.js";
+import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { TypedNested } from "@constl/bohr-db";
 import type { NestedDatabaseType } from "@orbitdb/nested-db";
-import type { Oublier } from "@/nébuleuse/types.js";
-import type { PartielRécursif } from "@/types.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
+import type { PartielRécursif } from "../../../src/types.js";
 
 describe("Services Nébuleuse", function () {
   describe("services données", function () {

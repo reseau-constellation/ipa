@@ -2,7 +2,7 @@ import correspTexte from "approx-string-match";
 import ssim from "ssim";
 
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
-import { enleverPréfixesEtOrbite } from "@/utils.js";
+import { enleverPréfixesEtOrbite } from "../../../src/utils.js";
 import type { ServicesNécessairesRecherche } from "../recherche.js";
 import type {
   SuivreObjectifRecherche,
@@ -17,7 +17,7 @@ import type {
   RésultatObjectifRecherche,
 } from "@constl/interface";
 import type { Oublier } from "../../nébuleuse/types.js";
-import type { TraducsTexte } from "@/types.js";
+import type { TraducsTexte } from "../../../src/types.js";
 
 export const rechercherDansTexte = ({
   schéma,

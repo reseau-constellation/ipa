@@ -1,30 +1,30 @@
 import { ignorerNonDéfinis } from "@constl/utils-ipa";
-import { rechercherVariablesSelonNom } from "@/recherche/fonctions/variables.js";
+import { rechercherVariablesSelonNom } from "../../../src/recherche/fonctions/variables.js";
 import {
   combinerRecherches,
   rechercherSelonId,
   rechercherTousSiVide,
   similTexte,
   sousRecherche,
-} from "@/recherche/fonctions/utils.js";
+} from "../../../src/recherche/fonctions/utils.js";
 import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
-import type { Variables } from "@/variables.js";
+import type { Variables } from "../../../src/variables.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
 
-import type { Oublier } from "@/nébuleuse/types.js";
+import type { Oublier } from "../../../src/nébuleuse/types.js";
 import type {
   AccesseurService,
   SuiviRecherche,
   SuivreObjectifRecherche,
-} from "@/recherche/types.js";
+} from "../../../src/recherche/types.js";
 import type {
   InfoRésultatTexte,
   InfoRésultatRecherche,
   InfoRésultatVide,
 } from "@constl/interface";
-import type { TraducsTexte } from "@/types.js";
-import type { Bds } from "@/bds/bds.js";
-import type { MotsClefs } from "@/motsClefs.js";
+import type { TraducsTexte } from "../../../src/types.js";
+import type { Bds } from "../../../src/bds/bds.js";
+import type { MotsClefs } from "../../../src/motsClefs.js";
 
 export type ServicesNécessairesRechercheBds =
   ServicesNécessairesRechercheObjets & {
