@@ -10,14 +10,14 @@ import {
 import { rechercherSelonId, rechercherTous } from "./fonctions/utils.js";
 import { Recherche } from "./recherche.js";
 import type { ServicesNécessairesRechercheProfils } from "./fonctions/profils.js";
-import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "@constl/interface";
 import type { AccesseurService, SuivreObjectifRecherche } from "./types.js";
 import type {
   RésultatRecherche,
   InfoRésultatTexte,
   InfoRésultatVide,
   InfoRésultat,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
 
 export class RechercheProfils extends Recherche<ServicesNécessairesRechercheProfils> {
   constructor({

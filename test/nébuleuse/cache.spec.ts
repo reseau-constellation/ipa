@@ -7,11 +7,11 @@ import {
 import { attendreQue } from "../appli/utils/fonctions.js";
 import type { RésultatProfondeur } from "../../src/nébuleuse/cache.js";
 import type {
-  Suivi,
   Oublier,
+  Suivi,
   RetourRecherche,
   RetourRechercheProfondeur,
-} from "../../src/nébuleuse/types.js";
+} from "@constl/interface";
 
 describe("Cache", function () {
   describe("suivi", function () {

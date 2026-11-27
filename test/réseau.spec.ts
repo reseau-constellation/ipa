@@ -1,10 +1,10 @@
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-tests";
-import { MEMBRE } from "../src/nébuleuse/services/compte/accès/consts.js";
+import { MEMBRE } from "@constl/interface/accès";
 import { créerConstellationsTest } from "./utils.js";
 import type { Constellation } from "../src/index.js";
-import type { Oublier } from "../src/nébuleuse/types.js";
-import type { RelationImmédiate } from "../src/nébuleuse/services/réseau/réseau.js";
+import type { Oublier } from "@constl/interface";
+import type { RelationImmédiate } from "@constl/interface/réseau";
 
 describe("Réseau Constellation", async () => {
   let constls: Constellation[];

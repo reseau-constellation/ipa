@@ -37,12 +37,12 @@ import {
 } from "./nébuleuse/services/utils.js";
 import type { Constellation } from "../src/index.js";
 import type { Constellation as ConstructeurConstellation } from "../src/constellation.js";
-import type { Oublier } from "../src/nébuleuse/types.js";
+import type { Oublier } from "@constl/interface";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
-import type { ÉlémentDonnéesTableau } from "../src/bds/tableaux.js";
+import type { ÉlémentDonnéesTableau } from "@constl/interface/tableaux";
 
 export const journalifier = <T extends (...args: unknown[]) => unknown>(
   f: T,

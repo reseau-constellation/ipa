@@ -31,10 +31,16 @@ import { ComposedStorage, IPFSBlockStorage, LRUStorage } from "@orbitdb/core";
 
 import { v4 as uuidv4 } from "uuid";
 import PQueue from "p-queue";
+import {
+  type Rôle,
+  MODÉRATRICE,
+  rôles,
+  type AccèsUtilisateur,
+  type AccèsDispositif,
+} from "@constl/interface/accès";
 import { estErreurAvortée } from "../../../../../src/nébuleuse/utils.js";
 import { mandatOrbite } from "../../orbite/mandat.js";
 import { appelerLorsque } from "../../utils.js";
-import { MODÉRATRICE, rôles } from "./consts.js";
 import { ContrôleurAccès } from "./contrôleurModératrices.js";
 import { AccèsParComptes } from "./compte.js";
 import type {
@@ -46,8 +52,7 @@ import type {
   Storage,
   Identity,
 } from "@orbitdb/core";
-import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
-import type { Oublier, Suivi } from "../../../../../src/nébuleuse/types.js";
+import type { Suivi, Oublier } from "@constl/interface";
 
 export const nomType = "contrôleur-nébuleuse";
 

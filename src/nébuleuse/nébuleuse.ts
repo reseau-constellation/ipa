@@ -55,7 +55,7 @@ import type {
   ServicesAppli,
 } from "../../src/nébuleuse/appli/appli.js";
 import type { OptionsServiceHélia } from "./services/hélia.js";
-import type { PartielRécursif } from "../types.js";
+import type { PartielRécursif } from "@constl/interface";
 
 export type StructureNébuleuse = {
   dispositifs: StructureDispositifs;

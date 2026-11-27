@@ -11,18 +11,20 @@ import type { AccesseurService } from "./recherche/types.js";
 import type { ServicesNécessairesRechercheMotsClefs } from "./recherche/fonctions/motsClefs.js";
 import type { ServicesNécessairesObjet } from "./objets.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
-import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
-import type { BaseÉpingleFavoris } from "./nébuleuse/services/favoris.js";
 import type {
-  InfoAuteur,
-  PartielRécursif,
-  StatutDonnées,
+  Oublier,
+  Suivi,
   TraducsTexte,
-} from "./types.js";
-import type { Oublier, Suivi } from "./nébuleuse/types.js";
+  PartielRécursif,
+} from "@constl/interface";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
-
+import type { Rôle } from "@constl/interface/accès";
+import type { StatutDonnées, InfoAuteur } from "@constl/interface/objets";
+import type {
+  ContenuÉpingleMotClef,
+  ÉpingleMotClef,
+} from "@constl/interface/mots-clefs";
 // Types structure
 
 export type StructureMotClef = {
@@ -43,15 +45,6 @@ export const schémaMotClef: JSONSchemaType<PartielRécursif<StructureMotClef>> 
     },
     required: [],
   };
-
-// Types épingles
-
-export type ÉpingleMotClef = {
-  type: "motsClefs";
-  épingle: ContenuÉpingleMotClef;
-};
-
-export type ContenuÉpingleMotClef = BaseÉpingleFavoris;
 
 export type ServicesNécessairesMotsClefs =
   ServicesNécessairesObjet<"motsClefs">;

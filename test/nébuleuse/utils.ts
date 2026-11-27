@@ -28,7 +28,7 @@ import type {
 } from "../../src/nébuleuse/appli/appli.js";
 
 import type { ServicesLibp2pNébuleuse } from "../../src/nébuleuse/services/libp2p/libp2p.js";
-import type { Oublier } from "../../src/nébuleuse/types.js";
+import type { Oublier } from "@constl/interface";
 
 export class NébuleuseTest<
   T extends { [clef: string]: NestedValue } = Record<string, never>,

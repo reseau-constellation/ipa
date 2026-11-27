@@ -12,12 +12,13 @@ import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
 import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.js";
 import type { SuivreObjectifRecherche } from "../../../src/recherche/types.js";
-import type { Oublier } from "../../../src/nébuleuse/types.js";
+
 import type {
   InfoRésultatVide,
   RésultatObjectifRecherche,
   InfoRésultatTexte,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
+import type { Oublier } from "@constl/interface";
 
 describe("Rechercher profil", function () {
   describe("selon activité", function () {

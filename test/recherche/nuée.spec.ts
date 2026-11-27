@@ -14,7 +14,7 @@ import {
 import { enleverPréfixesEtOrbite } from "../../src/utils.js";
 import { créerConstellationsTest } from "../utils.js";
 import type { ServicesNécessairesRechercheNuées } from "../../src/recherche/fonctions/nuées.js";
-import type { Oublier } from "../../src/nébuleuse/types.js";
+import type { Oublier } from "@constl/interface";
 import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
 import type { Constellation } from "../../src/constellation.js";
 import type {
@@ -22,7 +22,7 @@ import type {
   RésultatObjectifRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
 
 describe("Rechercher nuées", function () {
   let fermer: Oublier;

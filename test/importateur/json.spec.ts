@@ -5,7 +5,7 @@ import {
   extraireDonnées,
 } from "../../src/importateur/json.js";
 import { obtRessourceTest } from "../ressources/index.js";
-import type { ÉlémentJSON } from "../../src/importateur/json.js";
+import type { ÉlémentJSON } from "@constl/interface/importateur";
 
 describe("JSON", function () {
   describe("extraire données", function () {

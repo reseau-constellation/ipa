@@ -5,8 +5,7 @@ import { ServiceDonnéesAppli } from "./services.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
 import type { JSONSchemaType } from "ajv";
 import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
-import type { PartielRécursif } from "../../../src/types.js";
-import type { Suivi } from "../types.js";
+import type { PartielRécursif, Suivi } from "@constl/interface";
 
 export type StructureDispositifs = {
   dispositifs: {

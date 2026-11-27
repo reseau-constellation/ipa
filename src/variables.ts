@@ -11,23 +11,30 @@ import { définis, enleverPréfixesEtOrbite } from "./utils.js";
 import type { ServicesNécessairesRechercheVariables } from "./recherche/fonctions/variables.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { ServicesNécessairesObjet } from "./objets.js";
-import type { Rôle } from "./nébuleuse/services/compte/accès/index.js";
+
 import type {
-  InfoAuteur,
-  PartielRécursif,
-  StatutDonnées,
+  Oublier,
+  Suivi,
   TraducsTexte,
-} from "./types.js";
-import type { Oublier, Suivi } from "./nébuleuse/types.js";
-import type { BaseÉpingleFavoris } from "./nébuleuse/services/favoris.js";
+  PartielRécursif,
+} from "@constl/interface";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
+
+import type { AccesseurService } from "./recherche/types.js";
+import type { Rôle } from "@constl/interface/accès";
+import type { StatutDonnées, InfoAuteur } from "@constl/interface/objets";
 import type {
-  RègleCatégorie,
   RègleVariable,
   RègleVariableAvecId,
-} from "./règles.js";
-import type { AccesseurService } from "./recherche/types.js";
+  RègleCatégorie,
+} from "@constl/interface/règles";
+import type {
+  CatégorieVariable,
+  CatégorieBaseVariables,
+  ContenuÉpingleVariable,
+  ÉpingleVariable,
+} from "@constl/interface/variables";
 
 // Types structure
 
@@ -82,29 +89,6 @@ export const schémaVariable: JSONSchemaType<
   required: [],
 };
 
-export type CatégorieBaseVariables =
-  | "numérique"
-  | "horoDatage"
-  | "intervaleTemps"
-  | "chaîne"
-  | "chaîneNonTraductible"
-  | "booléen"
-  | "géojson"
-  | "vidéo"
-  | "audio"
-  | "image"
-  | "fichier";
-
-export type CatégorieVariable =
-  | {
-      type: "simple";
-      catégorie: CatégorieBaseVariables;
-    }
-  | {
-      type: "liste";
-      catégorie: CatégorieBaseVariables;
-    };
-
 const catégorieComplète = (
   catégorie?: PartielRécursif<CatégorieVariable>,
 ): catégorie is CatégorieVariable => {
@@ -125,15 +109,6 @@ const règlesComplètes = (
     ),
   );
 };
-
-// Types épingles
-
-export type ÉpingleVariable = {
-  type: "variables";
-  épingle: ContenuÉpingleVariable;
-};
-
-export type ContenuÉpingleVariable = BaseÉpingleFavoris;
 
 const standardiserCatégorieVariable = (
   catégorie: CatégorieBaseVariables | CatégorieVariable,

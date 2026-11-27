@@ -33,8 +33,8 @@ import { créerHéliaÉphémère } from "../../utils.js";
 
 import { attendreQue } from "../../appli/utils/fonctions.js";
 import { serviceHéliaTest } from "./utils.js";
-import type { PartielRécursif } from "../../../src/types.js";
-import type { Oublier } from "../../../src/nébuleuse/types.js";
+import type { Oublier, PartielRécursif } from "@constl/interface";
+
 import type { JSONSchemaType } from "ajv";
 import type { BaseDatabase, KeyValueDatabase, OrbitDB } from "@orbitdb/core";
 import type { ServiceOrbite } from "../../../src/nébuleuse/index.js";

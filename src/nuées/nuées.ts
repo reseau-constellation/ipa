@@ -12,6 +12,11 @@ import { utils as xlsxUtils } from "@e965/xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
+import {
+  DISPOSITIFS_INSTALLÉS,
+  TOUS_DISPOSITIFS,
+  type ÉpingleFavorisBooléenniséeAvecId,
+} from "@constl/interface/favoris";
 import { suivreSi } from "../../src/recherche/utils.js";
 import { schémaTableau } from "../tableaux.js";
 import {
@@ -20,12 +25,11 @@ import {
   enleverPréfixesEtOrbite,
   moyenne,
   sauvegarderDonnéesExportées,
+  statutComplet,
 } from "../utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "../schémas.js";
 import {
-  DISPOSITIFS_INSTALLÉS,
   RÉSOLVEUR_FAVORIS,
-  TOUS_DISPOSITIFS,
   estÉpingleDeType,
   résoudreDéfauts,
 } from "../nébuleuse/services/favoris.js";
@@ -36,59 +40,27 @@ import {
   combinerConfiances,
 } from "../nébuleuse/services/utils.js";
 import { ObjetConstellation } from "../objets.js";
-import {
-  statutComplet,
-  type InfoAuteur,
-  type Métadonnées,
-  type PartielRécursif,
-  type StatutDonnées,
-  type TraducsTexte,
-} from "../types.js";
-import {
-  RÉSOLVEUR_CONFIANCE,
-  type RelationImmédiate,
-} from "../nébuleuse/services/réseau/réseau.js";
+import { RÉSOLVEUR_CONFIANCE } from "../nébuleuse/services/réseau/réseau.js";
 import { TableauxNuées } from "./tableaux.js";
 import type { Variables } from "../variables.js";
 import type { ServicesNécessairesObjet } from "../objets.js";
-import type {
-  DonnéesTableauNuéeExportées,
-  FiltresDonnées,
-  ServicesNécessairesTableauxNuées,
-} from "./tableaux.js";
-import type { DonnéesFichierBdExportées } from "../utils.js";
-import type { DonnéesTableauExportées } from "../bds/tableaux.js";
+import type { ServicesNécessairesTableauxNuées } from "./tableaux.js";
 import type {
   AccesseurService,
   SuivreObjectifRecherche,
 } from "../recherche/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type {
-  Rôle,
-  AccèsUtilisateur,
-} from "../nébuleuse/services/compte/accès/types.js";
+
 import type { TypedNested } from "@constl/bohr-db";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
-  DifférenceTableaux,
-  InfoColonne,
-  StructureTableau,
-} from "../tableaux.js";
-import type {
-  BaseÉpingleFavoris,
-  ÉpingleFavorisBooléenniséeAvecId,
-} from "../nébuleuse/services/favoris.js";
-import type {
-  Bds,
-  DifférenceBDTableauManquant,
-  DifférenceBDTableauSupplémentaire,
-  DifférenceBds,
-  DifférenceTableauxBds,
-  DonnéesBdExportées,
-  SchémaBd,
-  SchémaTableau,
-  ÉpingleBd,
-} from "../bds/bds.js";
+  Oublier,
+  Suivi,
+  TraducsTexte,
+  PartielRécursif,
+} from "@constl/interface";
+import type { StructureTableau } from "../tableaux.js";
+
+import type { Bds } from "../bds/bds.js";
 import type { JSONSchemaType } from "ajv";
 import type xlsx from "@e965/xlsx";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
@@ -98,64 +70,43 @@ import type {
   RésultatObjectifRecherche,
   InfoRésultatVide,
   RésultatRecherche,
-} from "@constl/interface";
-
-// Types épingles
-
-export type ÉpingleNuée = {
-  type: "nuées";
-  épingle: ContenuÉpingleNuée;
-};
-
-export type ContenuÉpingleNuée = BaseÉpingleFavoris & {
-  bds: ÉpingleBd["épingle"];
-};
-
-// Types filtres
-
-export type Héritage = { descendance?: boolean; ascendance?: boolean };
-
-export type FiltresBds = {
-  licences?: string[];
-  ignorerAutorisation?: boolean | "les miennes";
-};
-
-// Types tableaux
-
-export type InfoTableauNuée = {
-  id: string;
-  source: string;
-};
-
-export type ValeurAscendance<T> = {
-  val: T;
-  source: string;
-};
-
-// Types autorisation
-
-export type AutorisationNuée =
-  AutorisationNuéeOuverte | AutorisationNuéeParInvitation;
-
-export type AutorisationNuéeOuverte = {
-  type: "ouverte";
-  bloqués: string[];
-};
-
-export type AutorisationNuéeParInvitation = {
-  type: "par invitation";
-  invités: string[];
-};
-
-// Types score
-
-export type ScoreNuée = {
-  accès?: number;
-  infos?: number;
-  couverture?: number;
-  total: number;
-};
-
+} from "@constl/interface/recherche";
+import type { Rôle, AccèsUtilisateur } from "@constl/interface/accès";
+import type {
+  SchémaBd,
+  SchémaTableau,
+  DifférenceBds,
+  DifférenceBDTableauManquant,
+  DifférenceBDTableauSupplémentaire,
+  DifférenceTableauxBds,
+  DonnéesBdExportées,
+  DonnéesFichierBdExportées,
+} from "@constl/interface/bds";
+import type {
+  ContenuÉpingleNuée,
+  AutorisationNuée,
+  InfoTableauNuée,
+  ÉpingleNuée,
+  ValeurAscendance,
+  AutorisationNuéeOuverte,
+  AutorisationNuéeParInvitation,
+  Héritage,
+  FiltresBds,
+  ScoreNuée,
+  FiltresDonnées,
+  DonnéesTableauNuéeExportées,
+} from "@constl/interface/nuées";
+import type {
+  Métadonnées,
+  StatutDonnées,
+  InfoAuteur,
+} from "@constl/interface/objets";
+import type {
+  InfoColonne,
+  DifférenceTableaux,
+  DonnéesTableauExportées,
+} from "@constl/interface/tableaux";
+import type { RelationImmédiate } from "@constl/interface/réseau";
 // Confiance réseau
 
 export const CONFIANCE_INVITÉ = 0.5;

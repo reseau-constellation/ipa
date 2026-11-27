@@ -4,31 +4,25 @@ import { expect } from "aegir/chai";
 import JSZip from "jszip";
 import { dossierTempo, obtenir } from "@constl/utils-tests";
 import { isBrowser, isElectronRenderer } from "wherearewe";
-import {
-  MEMBRE,
-  MODÉRATRICE,
-} from "../src/nébuleuse/services/compte/accès/index.js";
+import { MEMBRE, MODÉRATRICE } from "@constl/interface/accès";
 import {
   AUCUN_DISPOSITIF,
   DISPOSITIFS_INSTALLÉS,
+  type ÉpingleFavorisAvecId,
   TOUS_DISPOSITIFS,
-} from "../src/nébuleuse/services/favoris.js";
+} from "@constl/interface/favoris";
 import { stabiliser } from "../src/nébuleuse/utils.js";
 import {
   enleverPréfixes,
   enleverPréfixesEtOrbite,
   moyenne,
-  type DonnéesFichierBdExportées,
 } from "../src/utils.js";
 import {
   CONFIANCE_INVITÉ,
   PÉNALITÉ_CONFIANCE_BLOQUÉ,
 } from "../src/nuées/nuées.js";
 import { CONFIANCE_DE_COAUTEUR } from "../src/nébuleuse/services/consts.js";
-import {
-  RÉSOLVEUR_CONFIANCE,
-  type RelationImmédiate,
-} from "../src/nébuleuse/services/réseau/réseau.js";
+import { RÉSOLVEUR_CONFIANCE } from "../src/nébuleuse/services/réseau/réseau.js";
 import { créerConstellation, type Constellation } from "../src/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import {
@@ -39,32 +33,36 @@ import {
 } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
 import { connecterNébuleuses } from "./nébuleuse/utils.js";
-import type {
-  AutorisationNuée,
-  InfoTableauNuée,
-  ScoreNuée,
-  ValeurAscendance,
-  ÉpingleNuée,
-} from "../src/nuées/nuées.js";
-import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
-import type { ÉlémentDonnéesTableau } from "../src/bds/tableaux.js";
-import type { DonnéesRangéeNuée } from "../src/nuées/tableaux.js";
-import type { RègleBornes, RègleColonne } from "../src/règles.js";
-import type {
-  InfoAuteur,
-  Métadonnées,
-  StatutDonnées,
-  TraducsTexte,
-} from "../src/types.js";
-import type { Oublier } from "../src/nébuleuse/types.js";
-import type {
-  DifférenceBds,
-  DonnéesBdExportées,
-  SchémaBd,
-} from "../src/bds/bds.js";
-import type { DonnéesRangéeTableau, InfoColonne } from "../src/tableaux.js";
+
 import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
 import type { SinonFakeTimers } from "sinon";
+import type { Oublier, TraducsTexte } from "@constl/interface";
+import type {
+  SchémaBd,
+  DifférenceBds,
+  DonnéesBdExportées,
+  DonnéesFichierBdExportées,
+} from "@constl/interface/bds";
+import type {
+  ValeurAscendance,
+  InfoTableauNuée,
+  ÉpingleNuée,
+  DonnéesRangéeNuée,
+  AutorisationNuée,
+  ScoreNuée,
+} from "@constl/interface/nuées";
+import type {
+  Métadonnées,
+  StatutDonnées,
+  InfoAuteur,
+} from "@constl/interface/objets";
+import type { RègleBornes, RègleColonne } from "@constl/interface/règles";
+import type {
+  InfoColonne,
+  DonnéesRangéeTableau,
+  ÉlémentDonnéesTableau,
+} from "@constl/interface/tableaux";
+import type { RelationImmédiate } from "@constl/interface/réseau";
 
 describe("Nuées", function () {
   let fermer: Oublier;

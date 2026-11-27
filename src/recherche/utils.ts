@@ -1,5 +1,5 @@
 import PQueue from "p-queue";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, Suivi } from "@constl/interface";
 
 const MIN_POINTS = 5;
 

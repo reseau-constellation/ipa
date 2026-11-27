@@ -4,20 +4,16 @@ import ssim from "ssim";
 import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { enleverPréfixesEtOrbite } from "../../../src/utils.js";
 import type { ServicesNécessairesRecherche } from "../recherche.js";
-import type {
-  SuivreObjectifRecherche,
-  SuiviRecherche,
-  AccesseurService,
-} from "../types.js";
+import type { SuivreObjectifRecherche, AccesseurService } from "../types.js";
+import type { TraducsTexte, Oublier } from "@constl/interface";
 import type {
   InfoRésultatTexte,
+  InfoRésultat,
+  SuiviRecherche,
+  RésultatObjectifRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-  InfoRésultat,
-  RésultatObjectifRecherche,
-} from "@constl/interface";
-import type { Oublier } from "../../nébuleuse/types.js";
-import type { TraducsTexte } from "../../../src/types.js";
+} from "@constl/interface/recherche";
 
 export const rechercherDansTexte = ({
   schéma,

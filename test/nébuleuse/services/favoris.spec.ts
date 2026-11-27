@@ -3,25 +3,25 @@ import { isNode, isElectronMain } from "wherearewe";
 import { faisRien } from "@constl/utils-ipa";
 import { obtenir } from "@constl/utils-tests";
 import {
-  AUCUN_DISPOSITIF,
-  RÉSOLVEUR_FAVORIS,
-  TOUS_DISPOSITIFS,
   type DispositifsÉpingle,
   type FonctionRésolveurFavoris,
-  type Réplication,
-  type ÉpingleFavorisAvecId,
   type ÉpingleFavorisBooléenniséeAvecId,
-} from "../../../src/nébuleuse/services/favoris.js";
+  type ÉpingleFavorisAvecId,
+  TOUS_DISPOSITIFS,
+  AUCUN_DISPOSITIF,
+  type Réplication,
+} from "@constl/interface/favoris";
+import { RÉSOLVEUR_FAVORIS } from "../../../src/nébuleuse/services/favoris.js";
 import { enleverPréfixes } from "../../../src/utils.js";
 import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
 import { créerNébuleusesTest } from "../utils.js";
-import type { ContenuÉpingleProfil } from "../../../src/nébuleuse/services/profil.js";
 import type { NébuleuseTest } from "../utils.js";
-import type { Oublier, Suivi } from "../../../src/nébuleuse/types.js";
 import type {
   OptionsAppli,
   ServicesAppli,
 } from "../../../src/nébuleuse/appli/appli.js";
+import type { Suivi, Oublier } from "@constl/interface";
+import type { ContenuÉpingleProfil } from "@constl/interface/profil";
 
 describe("Favoris", function () {
   let nébuleuses: NébuleuseTest[];

@@ -5,7 +5,11 @@
   "author": "Julien Jean Malard-Adam",
   "type": "module",
   "types": "./dist/index.d.ts",
-  "exports": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./nébuleuse": "./dist/nébuleuse/index.js",
+    "./nébuleuse/appli": "./dist/nébuleuse/appli/index.js"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -29,18 +33,8 @@
     "publier": "pnpm compiler:prod && (git commit -a -m 'version' || true) && pnpm stage publish",
     "versioner": "pnpm genversion  --es6 --semi src/version.ts"
   },
-  "watch": {
-    "build": {
-      "patterns": "./src/**/*",
-      "extensions": [
-        ".ts",
-        ".tsx"
-      ]
-    },
-    "postbuild": "./dist/**/*"
-  },
   "devDependencies": {
-    "@constl/interface": "1.0.1",
+    "@constl/interface": "1.0.5",
     "@constl/utils-tests": "^2.3.4",
     "@eslint/js": "^10.0.1",
     "@libp2p/interface": "^3.4.0",

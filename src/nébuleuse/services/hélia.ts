@@ -18,8 +18,8 @@ import type { ServiceDossier } from "./dossier.js";
 import type { ServiceStockage } from "./stockage.js";
 import type { ServiceMap } from "@libp2p/interface";
 import type { BitswapOptions } from "@helia/bitswap";
+import type { GénérateurOptionsLibp2p } from "@constl/interface/libp2p";
 import type { Datastore } from "interface-datastore";
-import type { GénérateurOptionsLibp2p } from "./libp2p/config/config.js";
 
 export type CréerHélia<L extends ServiceMap> = (
   init?: HeliaInit & {

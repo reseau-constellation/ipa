@@ -12,7 +12,6 @@ import { serviceCompte } from "../../../../src/nébuleuse/services/compte/compte
 import { Appli } from "../../../../src/nébuleuse/appli/appli.js";
 import { ServiceDonnéesAppli } from "../../../../src/nébuleuse/services/services.js";
 import { serviceJournal } from "../../../../src/nébuleuse/services/journal.js";
-import { MODÉRATRICE } from "../../../../src/nébuleuse/services/compte/accès/consts.js";
 import { serviceDossier } from "../../../../src/nébuleuse/services/dossier.js";
 import { serviceLibp2p } from "../../../../src/nébuleuse/services/libp2p/libp2p.js";
 import { serviceOrbite } from "../../../../src/nébuleuse/services/orbite/orbite.js";
@@ -32,15 +31,14 @@ import type {
   OptionsAppli,
   ServicesAppli,
 } from "../../../../src/nébuleuse/appli/appli.js";
-import type { Rôle } from "../../../../src/nébuleuse/services/compte/accès/types.js";
-import type { Oublier } from "../../../../src/nébuleuse/types.js";
-import type { PartielRécursif } from "../../../../src/types.js";
+import type { Oublier, PartielRécursif } from "@constl/interface";
 import type { ServicesNécessairesCompte } from "../../../../src/nébuleuse/services/compte/compte.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { Libp2p } from "@libp2p/interface";
 import type { ServicesLibp2pNébuleuse } from "../../../../src/nébuleuse/services/libp2p/libp2p.js";
 import type { NestedValue } from "@orbitdb/nested-db";
+import { MODÉRATRICE, type Rôle } from "@constl/interface/accès";
 
 const créerApplisTest = async <
   T extends { [clef: string]: NestedValue },

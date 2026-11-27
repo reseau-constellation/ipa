@@ -4,21 +4,21 @@ import { v4 as uuidv4 } from "uuid";
 import { expect } from "aegir/chai";
 
 import { générerFonctionValidation } from "../src/règles.js";
-import type { DonnéesRangéeTableau } from "../src/tableaux.js";
 import type { DagCborEncodable } from "@orbitdb/core";
+import type { FonctionValidation } from "../src/règles.js";
+import type { CatégorieBaseVariables } from "@constl/interface/variables";
 import type {
-  ErreurDonnée,
-  FonctionValidation,
-  Op,
-  RègleBornes,
-  RègleCatégorie,
   RègleColonne,
   RègleExiste,
+  ErreurDonnée,
+  RègleCatégorie,
   RègleIndexUnique,
-  RègleValeurCatégorique,
+  RègleBornes,
   SourceRègle,
-} from "../src/règles.js";
-import type { CatégorieBaseVariables } from "../src/variables.js";
+  Op,
+  RègleValeurCatégorique,
+} from "@constl/interface/règles";
+import type { DonnéesRangéeTableau } from "@constl/interface/tableaux";
 
 const catégories: {
   [key in CatégorieBaseVariables]: {

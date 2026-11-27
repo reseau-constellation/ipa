@@ -21,13 +21,11 @@ import type {
   OptionsAppli,
   ServicesAppli,
 } from "../../../src/nébuleuse/appli/appli.js";
-
-import type { PartielRécursif } from "../../../src/types.js";
-import type { Oublier, Suivi } from "../types.js";
 import type {
   ServiceCompte,
   ServicesNécessairesCompte,
 } from "./compte/compte.js";
+import type { Oublier, PartielRécursif, Suivi } from "@constl/interface";
 
 export type ClefDeBranche<T extends NestedValue> = keyof {
   [

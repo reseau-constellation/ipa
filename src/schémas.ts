@@ -1,5 +1,6 @@
+import type { PartielRécursif, TraducsTexte } from "@constl/interface";
+import type { StatutDonnées } from "@constl/interface/objets";
 import type { JSONSchemaType } from "ajv";
-import type { PartielRécursif, StatutDonnées, TraducsTexte } from "./types.js";
 
 export const schémaTraducsTexte: JSONSchemaType<
   PartielRécursif<TraducsTexte>

@@ -11,23 +11,23 @@ import { chronomètre, générerFAuto } from "./utils.js";
 import type { ServicesNécessairesDonnées } from "../nébuleuse/services/services.js";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/index.js";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
-import type { PartielRécursif } from "../types.js";
-import type {
-  InfoImporterFeuilleCalcul,
-  InfoImporterJSON,
-  SpécificationAutomatisation,
-  SpécificationExporter,
-  SpécificationImporter,
-  SpécificationAjoutImportation,
-  StructureServiceAutomatisations,
-  ÉtatAutomatisation,
-  SourceDonnéesImportationAdresseOptionelle,
-  SpécificationAjoutExportation,
-} from "./types.js";
+
+import type { StructureServiceAutomatisations } from "./types.js";
 import type { Bds } from "../bds/bds.js";
 import type { Projets } from "../projets.js";
 import type { Nuées } from "../nuées/nuées.js";
+import type { Oublier, PartielRécursif, Suivi } from "@constl/interface";
+import type {
+  SpécificationAutomatisation,
+  ÉtatAutomatisation,
+  SpécificationAjoutExportation,
+  SpécificationExporter,
+  InfoImporterJSON,
+  InfoImporterFeuilleCalcul,
+  SpécificationAjoutImportation,
+  SpécificationImporter,
+  SourceDonnéesImportationAdresseOptionelle,
+} from "@constl/interface/automatisations";
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   spéc: T,

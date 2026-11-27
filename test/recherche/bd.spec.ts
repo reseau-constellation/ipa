@@ -14,7 +14,6 @@ import {
 import { enleverPréfixesEtOrbite } from "../../src/utils.js";
 import { créerConstellationsTest } from "../utils.js";
 import type { ServicesNécessairesRechercheBds } from "../../src/recherche/fonctions/bds.js";
-import type { Oublier } from "../../src/nébuleuse/types.js";
 
 import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
 import type { Constellation as ConstructeurConstellation } from "../../src/constellation.js";
@@ -23,7 +22,8 @@ import type {
   RésultatObjectifRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
+import type { Oublier } from "@constl/interface";
 
 describe("Rechercher bds", function () {
   let fermer: Oublier;

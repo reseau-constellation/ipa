@@ -7,38 +7,29 @@ import {
 import { Tableaux } from "../tableaux.js";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import type { AccesseurService } from "../recherche/types.js";
+import type { ServicesNécessairesTableaux } from "../tableaux.js";
 import type {
-  DonnéesRangéeTableauAvecId,
-  DifférenceTableaux,
+  Suivi,
+  Oublier,
+  PartielRécursif,
+  TraducsTexte,
+} from "@constl/interface";
+import type { Nuées } from "./nuées.js";
+import type { FonctionValidation } from "../règles.js";
+import type { Bds } from "../bds/bds.js";
+import type {
   InfoColonne,
   InfoColonneAvecCatégorie,
-  ServicesNécessairesTableaux,
-} from "../tableaux.js";
-import type { PartielRécursif, TraducsTexte } from "../types.js";
-import type { Suivi, Oublier } from "../nébuleuse/types.js";
-import type { FiltresBds, Héritage, Nuées, ValeurAscendance } from "./nuées.js";
-import type { FonctionValidation, RègleColonne } from "../règles.js";
-import type { Bds } from "../bds/bds.js";
-
-// Types filtres
-
-export type FiltresDonnées = {
-  exclureAvecDifférencesTableaux?: DifférenceTableaux["type"][];
-  exclureAvecErreursDonnées?: boolean;
-};
-
-// Types données et exportation
-
-export type DonnéesRangéeNuée = {
-  idBd: string;
-  données: DonnéesRangéeTableauAvecId;
-};
-
-export type DonnéesTableauNuéeExportées = {
-  nomTableau: string;
-  données: DonnéesRangéeNuée[];
-  documentsMédias: Set<string>;
-};
+} from "@constl/interface/tableaux";
+import type { RègleColonne } from "@constl/interface/règles";
+import type {
+  ValeurAscendance,
+  DonnéesRangéeNuée,
+  Héritage,
+  FiltresBds,
+  FiltresDonnées,
+  DonnéesTableauNuéeExportées,
+} from "@constl/interface/nuées";
 
 export type ServicesNécessairesTableauxNuées = ServicesNécessairesTableaux & {
   bds: Bds;

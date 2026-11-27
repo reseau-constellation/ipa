@@ -5,7 +5,7 @@ import deepEqual from "fast-deep-equal";
 import { faisRien } from "@constl/utils-ipa";
 import { estUnePromesse } from "./services/utils.js";
 import { estErreurAvortée } from "./utils.js";
-import type { Oublier, RetourRecherche, Suivi } from "./types.js";
+import type { Suivi, Oublier, RetourRecherche } from "@constl/interface";
 
 export class CacheSuivi {
   verrou: Semaphore;
@@ -188,7 +188,7 @@ export class CacheSuivi {
           await this.oublierSuivi({ codeCache, idRequête });
       } catch (e) {
         if (estErreurAvortée(e as Error)) oublierSuivi = faisRien;
-        throw e;
+        else throw e;
       } finally {
         pVerrou.then(() => this.verrou.release(codeCache));
       }

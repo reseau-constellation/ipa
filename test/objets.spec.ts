@@ -1,29 +1,25 @@
 import { expect } from "aegir/chai";
 import { isValidAddress } from "@orbitdb/core";
 import { obtenir } from "@constl/utils-tests";
-import {
-  MEMBRE,
-  MODÉRATRICE,
-} from "../src/nébuleuse/services/compte/accès/index.js";
+
+import { MEMBRE, MODÉRATRICE, type Rôle } from "@constl/interface/accès";
+import { TOUS_DISPOSITIFS } from "@constl/interface/favoris";
 import { ObjetConstellation, schémaServiceObjet } from "../src/objets.js";
 import { CONFIANCE_DE_COAUTEUR } from "../src/nébuleuse/services/consts.js";
-import { TOUS_DISPOSITIFS } from "../src/nébuleuse/services/favoris.js";
-import {
-  RÉSOLVEUR_CONFIANCE,
-  type RelationImmédiate,
-} from "../src/nébuleuse/services/réseau/réseau.js";
+import { RÉSOLVEUR_CONFIANCE } from "../src/nébuleuse/services/réseau/réseau.js";
 import { créerNébuleusesTest } from "./nébuleuse/utils.js";
-import type { Rôle } from "../src/nébuleuse/services/compte/accès/index.js";
 import type {
   ServicesNécessairesObjet,
   StructureServiceObjet,
 } from "../src/objets.js";
 import type { Nébuleuse } from "../src/nébuleuse/index.js";
-import type { InfoAuteur, PartielRécursif } from "../src/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { TypedNested } from "@constl/bohr-db";
-import type { Oublier } from "../src/nébuleuse/types.js";
+import type { Oublier } from "@constl/interface";
 import type { OptionsAppli } from "../src/nébuleuse/appli/appli.js";
+import type { PartielRécursif } from "@constl/interface";
+import type { InfoAuteur } from "@constl/interface/objets";
+import type { RelationImmédiate } from "@constl/interface/réseau";
 
 describe("Objets", function () {
   let fermer: () => Promise<void>;

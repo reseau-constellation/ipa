@@ -13,7 +13,7 @@ import {
   POIDS_SCORE_RÉSULTAT,
   PROFONDEUR_MINIMALE_RECHERCHE,
 } from "./consts.js";
-import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "@constl/interface";
 import type { SuivreObjectifRecherche } from "./types.js";
 import type {
   RésultatRecherche,
@@ -21,11 +21,11 @@ import type {
   SuivreConfianceRecherche,
   SuivreQualitéRecherche,
   RésultatObjectifRecherche,
-} from "@constl/interface";
-import type { InfoAuteur } from "../types.js";
+} from "@constl/interface/recherche";
 import type { ServicesNécessairesCompte } from "../nébuleuse/services/compte/compte.js";
 import type { ServiceRéseau } from "../nébuleuse/services/réseau/réseau.js";
 import type { ServiceFavoris } from "../nébuleuse/services/favoris.js";
+import type { InfoAuteur } from "@constl/interface/objets";
 
 export type ServicesNécessairesRecherche = ServicesNécessairesCompte & {
   réseau: ServiceRéseau;

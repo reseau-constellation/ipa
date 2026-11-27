@@ -18,7 +18,7 @@ import type { NestedValue } from "@orbitdb/nested-db";
 import type { ServicesAppli } from "../appli/appli.js";
 import type { ServicesLibp2pNébuleuse } from "../services/libp2p/libp2p.js";
 import type { Nébuleuse } from "../nébuleuse.js";
-import type { Oublier } from "../types.js";
+import type { Oublier } from "@constl/interface";
 
 export class EnveloppeNébuleuse<
   T extends { [clef: string]: NestedValue } = { [clef: string]: NestedValue },

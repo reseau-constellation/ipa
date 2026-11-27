@@ -14,11 +14,14 @@ import PQueue from "p-queue";
 
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
+import {
+  TOUS_DISPOSITIFS,
+  DISPOSITIFS_INSTALLÉS,
+  type ÉpingleFavorisBooléenniséeAvecId,
+} from "@constl/interface/favoris";
 import { cacheSuivi } from "../nébuleuse/cache.js";
 import {
-  DISPOSITIFS_INSTALLÉS,
   RÉSOLVEUR_FAVORIS,
-  TOUS_DISPOSITIFS,
   estÉpingleDeType,
   résoudreDéfauts,
 } from "../nébuleuse/services/favoris.js";
@@ -33,130 +36,59 @@ import {
   idcEtFichierValide,
   moyenne,
   sauvegarderDonnéesExportées,
+  statutComplet,
 } from "../utils.js";
 import { RechercheBds } from "../recherche/bds.js";
 import { ObjetConstellation } from "../objets.js";
-import {
-  statutComplet,
-  type InfoAuteur,
-  type Métadonnées,
-  type PartielRécursif,
-  type StatutDonnées,
-  type TraducsTexte,
-} from "../types.js";
 import { TableauxBds } from "./tableaux.js";
 import type { ServicesNécessairesObjet } from "../objets.js";
 import type { Variables } from "../variables.js";
 import type { OptionsAppli } from "../nébuleuse/appli/appli.js";
-import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
 import type xlsx from "@e965/xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
 import type {
-  BaseÉpingleFavoris,
-  DispositifsÉpingle,
-  ÉpingleFavorisBooléenniséeAvecId,
-} from "../nébuleuse/services/favoris.js";
+  Oublier,
+  Suivi,
+  TraducsTexte,
+  PartielRécursif,
+} from "@constl/interface";
+
 import type {
   StructureTableau,
-  DifférenceTableaux,
-  InfoColonne,
-  InfoColonneAvecCatégorie,
-  ScoreCouvertureTableau,
   ServicesNécessairesTableaux,
-  DonnéesRangéeTableauAvecId,
 } from "../tableaux.js";
-import type { DonnéesFichierBdExportées } from "../utils.js";
-import type { ErreurDonnée, RègleColonne } from "../règles.js";
-import type { DonnéesTableauExportées } from "./tableaux.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { MotsClefs } from "../motsClefs.js";
 import type { AccesseurService } from "../recherche/types.js";
 import type { ServicesNécessairesRechercheBds } from "../recherche/fonctions/bds.js";
-
-// Types épingles
-
-export type ÉpingleBd = {
-  type: "bds";
-  épingle: ContenuÉpingleBd;
-};
-
-export type ContenuÉpingleBd = BaseÉpingleFavoris & {
-  données: {
-    tableaux: DispositifsÉpingle;
-    fichiers: DispositifsÉpingle;
-  };
-};
-
-// Types différences
-
-export type DifférenceBds =
-  | DifférenceBDTableauSupplémentaire
-  | DifférenceBDTableauManquant
-  | DifférenceTableauxBds;
-
-export type DifférenceBDTableauManquant = {
-  type: "tableauManquant";
-  sévère: true;
-  clefManquante: string;
-};
-
-export type DifférenceBDTableauSupplémentaire = {
-  type: "tableauSupplémentaire";
-  sévère: false;
-  clefExtra: string;
-};
-
-export type DifférenceTableauxBds<
-  T extends DifférenceTableaux = DifférenceTableaux,
-> = {
-  type: "tableau";
-  sévère: T["sévère"];
-  idTableau: string;
-  différence: T;
-};
-
-// Types données
-
-export type DonnéesBdExportées = {
-  nomBd: string;
-  tableaux: DonnéesTableauExportées[];
-};
-
-// Types spécification
-
-export type SchémaBd = {
-  licence: string;
-  licenceContenu?: string;
-  métadonnées?: Métadonnées;
-  clefUnique?: string;
-  motsClefs?: string[];
-  nuées?: string[];
-  statut?: StatutDonnées;
-  tableaux: {
-    [idTableau: string]: SchémaTableau;
-  };
-};
-
-export type SchémaTableau = {
-  cols: {
-    idColonne: string;
-    idVariable?: string;
-    index?: boolean;
-  }[];
-};
-
-// Types score
-
-export interface ScoreBd {
-  accès?: number;
-  couverture?: number;
-  valide?: number;
-  infos?: number;
-  licence?: number;
-  total: number;
-}
+import type { Rôle } from "@constl/interface/accès";
+import type {
+  ContenuÉpingleBd,
+  SchémaBd,
+  ÉpingleBd,
+  DifférenceBds,
+  DifférenceBDTableauManquant,
+  DifférenceBDTableauSupplémentaire,
+  DifférenceTableauxBds,
+  ScoreBd,
+  DonnéesBdExportées,
+  DonnéesFichierBdExportées,
+} from "@constl/interface/bds";
+import type {
+  Métadonnées,
+  StatutDonnées,
+  InfoAuteur,
+} from "@constl/interface/objets";
+import type { RègleColonne, ErreurDonnée } from "@constl/interface/règles";
+import type {
+  InfoColonne,
+  DonnéesRangéeTableauAvecId,
+  DifférenceTableaux,
+  ScoreCouvertureTableau,
+  InfoColonneAvecCatégorie,
+  DonnéesTableauExportées,
+} from "@constl/interface/tableaux";
 
 // Types structure
 

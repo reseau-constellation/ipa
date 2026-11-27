@@ -6,22 +6,27 @@ import {
 } from "@constl/utils-ipa";
 import { typedNested } from "@constl/bohr-db";
 import { isValidAddress } from "@orbitdb/core";
+import {
+  type AccèsUtilisateur,
+  MEMBRE,
+  type Rôle,
+} from "@constl/interface/accès";
+import {
+  type BaseÉpingleFavoris,
+  TOUS_DISPOSITIFS,
+  type ÉpingleFavorisBooléenniséeAvecId,
+} from "@constl/interface/favoris";
 import { ServiceDonnéesAppli } from "./nébuleuse/services/services.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import { ajouterPréfixeOrbite, enleverPréfixeOrbite } from "./utils.js";
 import { CONFIANCE_DE_COAUTEUR } from "./nébuleuse/services/consts.js";
-import { MEMBRE } from "./nébuleuse/services/compte/accès/consts.js";
 import {
   RÉSOLVEUR_FAVORIS,
   résoudreDéfauts,
-  TOUS_DISPOSITIFS,
-  type BaseÉpingleFavoris,
   type ServiceFavoris,
-  type ÉpingleFavorisBooléenniséeAvecId,
 } from "./nébuleuse/services/favoris.js";
 import {
   RÉSOLVEUR_CONFIANCE,
-  type RelationImmédiate,
   type ServiceRéseau,
 } from "./nébuleuse/services/réseau/réseau.js";
 import type { ServiceAppli } from "./nébuleuse/appli/index.js";
@@ -29,13 +34,10 @@ import type { ServicesNécessairesDonnées } from "./nébuleuse/services/service
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
-import type { Oublier, Suivi } from "./nébuleuse/types.js";
-import type { InfoAuteur, PartielRécursif } from "./types.js";
+import type { Oublier, Suivi, PartielRécursif } from "@constl/interface";
 import type { JSONSchemaType } from "ajv";
-import type {
-  AccèsUtilisateur,
-  Rôle,
-} from "./nébuleuse/services/compte/accès/types.js";
+import type { InfoAuteur } from "@constl/interface/objets";
+import type { RelationImmédiate } from "@constl/interface/réseau";
 
 export type StructureServiceObjet = {
   [idObjet: string]: null;

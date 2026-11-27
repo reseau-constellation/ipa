@@ -14,16 +14,17 @@ import {
   rechercherNuéesSelonVariable,
 } from "./fonctions/nuées.js";
 import type { ServicesNécessairesRechercheNuées } from "./fonctions/nuées.js";
-import type { InfoAuteur } from "../types.js";
-import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+
+import type { Oublier, RetourRecherche, Suivi } from "@constl/interface";
 import type { SuivreObjectifRecherche, AccesseurService } from "./types.js";
+import type { InfoAuteur } from "@constl/interface/objets";
 import type {
   RésultatRecherche,
+  InfoRésultatVide,
   InfoRésultatTexte,
   InfoRésultatRecherche,
-  InfoRésultatVide,
   InfoRésultat,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
 
 export class RechercheNuées extends RechercheObjets<ServicesNécessairesRechercheNuées> {
   constructor({

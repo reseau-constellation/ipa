@@ -9,11 +9,17 @@ import { faisRien } from "@constl/utils-ipa";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { IDBBlockstore } from "blockstore-idb";
 import type { ListenerSignature } from "tiny-typed-emitter";
-import type { Oublier, Suivi } from "../types.js";
+
 import type { Datastore } from "interface-datastore";
 import type { Blockstore } from "interface-blockstore";
 import type { FsDatastore } from "datastore-fs";
 import type { FsBlockstore } from "blockstore-fs";
+import type {
+  FonctionRésolveur,
+  Oublier,
+  Résolveur,
+  Suivi,
+} from "@constl/interface";
 
 export const obtStockageDonnées = async (
   dossier: string,
@@ -146,14 +152,6 @@ export const vérifierProfondeur = (p: number): void => {
 
   if (Math.round(p) !== p)
     throw new Error("La profondeur doit être un nombre entier");
-};
-
-export type FonctionRésolveur<T, S> = (
-  args: T & { f: Suivi<S> },
-) => Promise<Oublier>;
-
-export type Résolveur<T, S> = FonctionRésolveur<T, S> & {
-  fermer: () => Promise<void>;
 };
 
 export const générerRésolveur = <T, S>(

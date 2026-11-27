@@ -1,29 +1,25 @@
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-tests";
+
+import { MEMBRE, MODÉRATRICE } from "@constl/interface/accès";
 import {
-  MEMBRE,
-  MODÉRATRICE,
-} from "../src/nébuleuse/services/compte/accès/consts.js";
-import { TOUS_DISPOSITIFS } from "../src/nébuleuse/services/favoris.js";
+  type ÉpingleFavorisAvecId,
+  TOUS_DISPOSITIFS,
+} from "@constl/interface/favoris";
 import { enleverPréfixes } from "../src/utils.js";
 import { créerConstellationsTest } from "./utils.js";
-import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
 import type { Constellation } from "../src/index.js";
+import type { TraducsTexte, PartielRécursif } from "@constl/interface";
+import type { StatutDonnées, InfoAuteur } from "@constl/interface/objets";
 import type {
-  InfoAuteur,
-  PartielRécursif,
-  StatutDonnées,
-  TraducsTexte,
-} from "../src/types.js";
-import type {
-  CatégorieVariable as CatégorieVariable,
-  ÉpingleVariable,
-} from "../src/variables.js";
-import type {
-  RègleBornes,
   RègleCatégorie,
   RègleVariableAvecId,
-} from "../src/règles.js";
+  RègleBornes,
+} from "@constl/interface/règles";
+import type {
+  CatégorieVariable,
+  ÉpingleVariable,
+} from "@constl/interface/variables";
 
 describe("Variables", function () {
   let fermer: () => Promise<void>;

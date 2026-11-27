@@ -33,9 +33,9 @@ import type {
 import type { ServicesLibp2pNébuleuse } from "../../src/nébuleuse/services/libp2p/libp2p.js";
 import type { OrbitDB } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
-import type { PartielRécursif } from "../../src/types.js";
 import type { HeliaWithLibp2p } from "@helia/libp2p";
-import type { GénérateurOptionsLibp2p } from "../../src/nébuleuse/services/libp2p/config/config.js";
+import type { PartielRécursif } from "@constl/interface";
+import type { GénérateurOptionsLibp2p } from "@constl/interface/libp2p";
 
 describe("Nébuleuse", function () {
   describe("options - extraire libp2p et Hélia", function () {

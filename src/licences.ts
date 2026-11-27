@@ -1,53 +1,16 @@
 import { faisRien } from "@constl/utils-ipa";
+import {
+  catégories,
+  conditions,
+  droits,
+  limitations,
+  type InfoLicence,
+} from "@constl/interface/licences";
 import { ServiceAppli } from "./nébuleuse/appli/services.js";
 import { cacheSuivi } from "./nébuleuse/cache.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
-import type { Oublier, Suivi } from "./nébuleuse/types.js";
-
+import type { Oublier, Suivi } from "@constl/interface";
 // Données de https://github.com/github/choosealicense.com
-export const conditions = {
-  ATTR: "attribution",
-  ÉGAL: "partageÉgal",
-  INCL: "inclureDroitDauteur",
-  CHNG: "indiquerChangements",
-  SRCE: "partagerCodeSource",
-  USGR: "usagereseau",
-} as const;
-
-export const droits = {
-  PRTG: "partager",
-  ADPT: "adapter",
-  CMRC: "usageComercial",
-  PRV: "usagePrivé",
-  BREV: "usageBrevets",
-};
-
-export const limitations = {
-  RSP: "aucuneResponsabilité",
-  GRNT: "aucuneGarantie",
-  MRCM: "marqueCommerce",
-  BREV: "brevetExclu",
-  SOUS: "sousLicence",
-};
-
-export const catégories = {
-  BD: "basesDeDonnées",
-  ART: "artistique",
-  CODE: "codeInformatique",
-  AUTRE: "autre",
-} as const;
-
-export type InfoLicence = {
-  conditions: (typeof conditions)[keyof typeof conditions][];
-  droits: (typeof droits)[keyof typeof droits][];
-  limitations: (typeof limitations)[keyof typeof limitations][];
-  catégorie: (typeof catégories)[keyof typeof catégories];
-  spécialisée?: boolean;
-};
-
-export type InfoLicenceAvecCode = InfoLicence & {
-  code: string;
-};
 
 export const infoLicences: { [key: string]: InfoLicence } = {
   // Licences pour BD

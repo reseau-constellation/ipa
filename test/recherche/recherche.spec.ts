@@ -2,16 +2,16 @@ import { expect } from "aegir/chai";
 import { rechercher, type ObtRecherche } from "@constl/utils-tests";
 import { enleverPréfixesEtOrbite } from "../../src/utils.js";
 import { créerConstellationsTest } from "../utils.js";
-import type { Oublier } from "../../src/nébuleuse/types.js";
 import type { Constellation } from "../../src/index.js";
+import type { Oublier } from "@constl/interface";
 import type {
+  RésultatRecherche,
   InfoRésultat,
-  InfoRésultatRecherche,
+  RésultatObjectifRecherche,
   InfoRésultatTexte,
   InfoRésultatVide,
-  RésultatObjectifRecherche,
-  RésultatRecherche,
-} from "@constl/interface";
+  InfoRésultatRecherche,
+} from "@constl/interface/recherche";
 
 const vérifierRecherche = (
   résultats: RésultatRecherche<InfoRésultat>[],

@@ -2,8 +2,9 @@ import { toUnicode } from "punycode-esm";
 import { multiaddr } from "@multiformats/multiaddr";
 import deepEqual from "fast-deep-equal";
 import { lorsqueSignalAvorté } from "./services/utils.js";
-import type { Suivi } from "./types.js";
+
 import type { Multiaddr } from "@multiformats/multiaddr";
+import type { Suivi } from "@constl/interface";
 
 const attendre = (t: number, signal?: AbortSignal): Promise<void> => {
   return new Promise<void>((compléter) => {

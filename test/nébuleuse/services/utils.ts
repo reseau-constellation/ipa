@@ -10,15 +10,15 @@ import type {
 } from "../../../src/nébuleuse/services/libp2p/libp2p.js";
 import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
 import type {
-  ConfigLibp2p,
-  GénérateurOptionsLibp2p,
-} from "../../../src/nébuleuse/services/libp2p/config/config.js";
-import type {
   OptionsServiceHélia,
   ServicesNécessairesHélia,
 } from "../../../src/nébuleuse/services/hélia.js";
 import type { Reconnecteur } from "../../../src/nébuleuse/services/libp2p/services/reconnecteur.js";
 import type { Keychain } from "helia";
+import type {
+  ConfigLibp2p,
+  GénérateurOptionsLibp2p,
+} from "@constl/interface/libp2p";
 
 export type ServicesLibp2pNébuleuseLocale = ServicesLibp2pNébuleuse & {
   keychain: Keychain;

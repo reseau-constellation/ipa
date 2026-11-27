@@ -4,35 +4,32 @@ import { expect } from "aegir/chai";
 import { dossierTempo, obtenir } from "@constl/utils-tests";
 import JSZip from "jszip";
 import { isBrowser, isElectronRenderer } from "wherearewe";
+import { MEMBRE, MODÉRATRICE } from "@constl/interface/accès";
 import {
-  MEMBRE,
-  MODÉRATRICE,
-} from "../src/nébuleuse/services/compte/accès/index.js";
-import {
-  TOUS_DISPOSITIFS,
-  DISPOSITIFS_INSTALLÉS,
   AUCUN_DISPOSITIF,
-} from "../src/nébuleuse/services/favoris.js";
+  TOUS_DISPOSITIFS,
+  type ÉpingleFavorisAvecId,
+  DISPOSITIFS_INSTALLÉS,
+} from "@constl/interface/favoris";
 import { enleverPréfixes, enleverPréfixesEtOrbite } from "../src/utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { créerConstellationsTest, utiliserFauxChronomètres } from "./utils.js";
-import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
+
+import type { Constellation } from "../src/index.js";
+
+import type { SinonFakeTimers } from "sinon";
+import type { TraducsTexte, PartielRécursif, Oublier } from "@constl/interface";
 import type {
-  InfoAuteur,
   Métadonnées,
   StatutDonnées,
-  TraducsTexte,
-  PartielRécursif,
-} from "../src/types.js";
-import type { Constellation } from "../src/index.js";
-import type { Oublier } from "../src/nébuleuse/types.js";
+  InfoAuteur,
+} from "@constl/interface/objets";
 import type {
   DonnéesFichierProjetExportées,
   DonnéesProjetExportées,
   MotClefProjet,
   ÉpingleProjet,
-} from "../src/projets.js";
-import type { SinonFakeTimers } from "sinon";
+} from "@constl/interface/projets";
 
 describe("Projets", function () {
   let fermer: Oublier;

@@ -3,94 +3,36 @@ import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import { isElectronMain, isNode } from "wherearewe";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
+import {
+  type ÉpingleFavorisAvecId,
+  type BaseÉpingleFavoris,
+  type ÉpingleFavoris,
+  type RésolveurFavoris,
+  type FonctionRésolveurFavoris,
+  type BooléenniserÉpingle,
+  TOUS_DISPOSITIFS,
+  AUCUN_DISPOSITIF,
+  type Réplication,
+  type DispositifsÉpingle,
+  type BooléenniserPropriétés,
+} from "@constl/interface/favoris";
 import { enleverPréfixes } from "../../../src/utils.js";
 import { cacheSuivi } from "../cache.js";
 import { STATUTS } from "../appli/consts.js";
 import { ServiceDonnéesAppli } from "./services.js";
 import { CONFIANCE_DE_FAVORIS } from "./consts.js";
-import {
-  type FonctionRésolveur,
-  type Résolveur,
-  générerRésolveur,
-} from "./utils.js";
-import {
-  RÉSOLVEUR_CONFIANCE,
-  type RelationImmédiate,
-  type ServiceRéseau,
-} from "./réseau/réseau.js";
-import type { ÉpingleProfil } from "./profil.js";
+import { générerRésolveur } from "./utils.js";
+import { RÉSOLVEUR_CONFIANCE, type ServiceRéseau } from "./réseau/réseau.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
 import type { ServicesNécessairesDonnées } from "./services.js";
 import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
 import type { JSONSchemaType } from "ajv";
-import type { PartielRécursif } from "../../types.js";
-import type { Oublier, Suivi } from "../types.js";
-import type { AccèsUtilisateur } from "./compte/accès/types.js";
+import type { Oublier, Suivi, PartielRécursif } from "@constl/interface";
 import type { ServiceÉpingles } from "./épingles.js";
 import type { ServiceAppli } from "../appli/services.js";
-
-// Types réplications
-export type Réplication<T extends BaseÉpingleFavoris = BaseÉpingleFavoris> = {
-  idDispositif: string;
-  épingle: BooléenniserÉpingle<ÉpingleFavoris<T>>;
-};
-
-// Types épingles
-
-export const TOUS_DISPOSITIFS = "TOUS" as const;
-export const DISPOSITIFS_INSTALLÉS = "INSTALLÉS" as const;
-export const AUCUN_DISPOSITIF = "AUCUN" as const;
-
-export type DispositifsÉpingle =
-  | string
-  | string[]
-  | typeof TOUS_DISPOSITIFS
-  | typeof DISPOSITIFS_INSTALLÉS
-  | typeof AUCUN_DISPOSITIF;
-
-export type ÉpingleFavoris<
-  T extends BaseÉpingleFavoris = BaseÉpingleFavoris,
-  U extends string = string,
-> = {
-  type: U;
-  épingle: PartielRécursif<T>;
-};
-
-export type BaseÉpingleFavoris = {
-  base: DispositifsÉpingle;
-};
-
-export type ÉpingleFavorisAvecId<
-  T extends BaseÉpingleFavoris = BaseÉpingleFavoris,
-  U extends string = string,
-> = {
-  idObjet: string;
-  épingle: ÉpingleFavoris<T, U>;
-};
-
-export type BooléenniserÉpingle<T extends ÉpingleFavoris> = {
-  type: T["type"];
-  épingle: {
-    [clef in keyof T["épingle"]]?: T["épingle"][clef] extends ÉpingleFavoris
-      ? BooléenniserÉpingle<T["épingle"][clef]>
-      : T["épingle"][clef] extends object
-        ? PartielRécursif<BooléenniserPropriétés<T["épingle"][clef]>>
-        : boolean;
-  };
-};
-
-export type ÉpingleFavorisBooléenniséeAvecId<
-  T extends ÉpingleFavoris = ÉpingleFavoris,
-> = {
-  idObjet: string;
-  épingle: BooléenniserÉpingle<T>;
-};
-
-export type BooléenniserPropriétés<T extends object> = {
-  [clef in keyof T]?: T[clef] extends object
-    ? BooléenniserPropriétés<T[clef]>
-    : boolean;
-};
+import type { AccèsUtilisateur } from "@constl/interface/accès";
+import type { ÉpingleProfil } from "@constl/interface/profil";
+import type { RelationImmédiate } from "@constl/interface/réseau";
 
 export const estÉpingleDeType = <T extends string>(
   épingle: ÉpingleFavorisAvecId,
@@ -120,29 +62,6 @@ export const résoudreDéfauts = <T extends { [clef: string]: unknown }>(
   }
   return copieDéfauts;
 };
-
-// Type résolveur
-
-export type FonctionRésolveurFavoris<
-  T extends ÉpingleFavoris = ÉpingleFavoris,
-> = FonctionRésolveur<
-  {
-    épingle: ÉpingleFavorisBooléenniséeAvecId<T>;
-    signal: AbortSignal;
-    ignorer: Set<string>;
-  },
-  Set<string>
->;
-
-export type RésolveurFavoris<T extends ÉpingleFavoris = ÉpingleFavoris> =
-  Résolveur<
-    {
-      épingle: ÉpingleFavorisBooléenniséeAvecId<T>;
-      signal: AbortSignal;
-      ignorer: Set<string>;
-    },
-    Set<string>
-  >;
 
 export const idObjetÀClef = (idObjet: string): string => {
   return base64.fromString(sha256(idObjet), true);

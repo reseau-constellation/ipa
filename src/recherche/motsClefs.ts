@@ -8,15 +8,16 @@ import {
   rechercherMotsClefsSelonTexte,
 } from "./fonctions/motsClefs.js";
 import type { ServicesNécessairesRechercheMotsClefs } from "./fonctions/motsClefs.js";
-import type { InfoAuteur } from "../types.js";
-import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+
+import type { Oublier, RetourRecherche, Suivi } from "@constl/interface";
 import type { SuivreObjectifRecherche, AccesseurService } from "./types.js";
 import type {
   RésultatRecherche,
   InfoRésultatTexte,
   InfoRésultatVide,
   InfoRésultat,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
+import type { InfoAuteur } from "@constl/interface/objets";
 
 export class RechercheMotsClefs extends RechercheObjets<ServicesNécessairesRechercheMotsClefs> {
   constructor({

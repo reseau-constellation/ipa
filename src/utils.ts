@@ -7,22 +7,17 @@ import { idcValide, zipper } from "@constl/utils-ipa";
 import { TimeoutController } from "timeout-abort-controller";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
+import {
+  type DonnéesFichierBdExportées,
+  conversionsTypes,
+} from "@constl/interface/bds";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { NestedValueWithUndefined } from "@orbitdb/nested-db";
-import type { SansNonDéfinis } from "./types.js";
 import type xlsx from "@e965/xlsx";
+import type { PartielRécursif, SansNonDéfinis } from "@constl/interface";
+import type { StatutDonnées } from "@constl/interface/objets";
 
 const { saveAs } = fileSaver;
-
-export type DonnéesFichierBdExportées = {
-  docu: xlsx.WorkBook;
-  documentsMédias: Set<string>;
-  nomFichier: string;
-};
-
-export const conversionsTypes: { [key: string]: xlsx.BookType } = {
-  xls: "biff8",
-};
 
 export const obtIdIndex = (
   v: { [clef: string]: DagCborEncodable },
@@ -212,4 +207,10 @@ export const définis = <T extends NestedValueWithUndefined>(
   return Object.fromEntries(
     Object.entries(x).filter(([_, v]) => v !== undefined),
   ) as SansNonDéfinis<T>;
+};
+
+export const statutComplet = (
+  statut?: PartielRécursif<StatutDonnées>,
+): statut is StatutDonnées => {
+  return statut?.statut !== undefined;
 };

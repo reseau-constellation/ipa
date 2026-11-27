@@ -8,19 +8,16 @@ import {
   similTexte,
 } from "../../../src/recherche/fonctions/utils.js";
 import type { Profil } from "../../../src/nébuleuse/services/profil.js";
-import type { TraducsTexte } from "../../../src/types.js";
+
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
+import type { SuivreObjectifRecherche, AccesseurService } from "../types.js";
+import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
-  SuivreObjectifRecherche,
-  SuiviRecherche,
-  AccesseurService,
-} from "../types.js";
-import type {
-  InfoRésultatTexte,
   InfoRésultatVide,
+  SuiviRecherche,
   RésultatObjectifRecherche,
-} from "@constl/interface";
-import type { Oublier } from "../../../src/nébuleuse/types.js";
+  InfoRésultatTexte,
+} from "@constl/interface/recherche";
 
 export type ServicesNécessairesRechercheProfils =
   ServicesNécessairesRechercheObjets & {

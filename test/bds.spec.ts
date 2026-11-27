@@ -5,14 +5,13 @@ import { v4 as uuidv4 } from "uuid";
 import JSZip from "jszip";
 import { dossierTempo, obtenir } from "@constl/utils-tests";
 import { isBrowser, isElectronRenderer } from "wherearewe";
+
+import { MEMBRE, MODÉRATRICE } from "@constl/interface/accès";
 import {
   DISPOSITIFS_INSTALLÉS,
+  type ÉpingleFavorisAvecId,
   TOUS_DISPOSITIFS,
-} from "../src/nébuleuse/services/favoris.js";
-import {
-  MEMBRE,
-  MODÉRATRICE,
-} from "../src/nébuleuse/services/compte/accès/consts.js";
+} from "@constl/interface/favoris";
 import { créerConstellation, type Constellation } from "../src/index.js";
 import {
   enleverPréfixes,
@@ -26,30 +25,29 @@ import {
   utiliserFauxChronomètres,
 } from "./utils.js";
 import { obtenirOptionsLibp2pTest } from "./nébuleuse/services/utils.js";
-import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
-import type {
-  InfoAuteur,
-  Métadonnées,
-  StatutDonnées,
-  TraducsTexte,
-  PartielRécursif,
-} from "../src/types.js";
-import type { DonnéesFichierBdExportées } from "../src/utils.js";
-import type {
-  DifférenceBds,
-  DonnéesBdExportées,
-  SchémaBd,
-  ScoreBd,
-  ÉpingleBd,
-} from "../src/bds/bds.js";
-import type {
-  DonnéesRangéeTableau,
-  DonnéesRangéeTableauAvecId,
-  InfoColonne,
-} from "../src/tableaux.js";
-import type { RègleBornes } from "../src/règles.js";
+
 import type { SinonFakeTimers } from "sinon";
 import type { ServicesLibp2pNébuleuse } from "../src/nébuleuse/services/libp2p/libp2p.js";
+import type { TraducsTexte, PartielRécursif } from "@constl/interface";
+import type {
+  ÉpingleBd,
+  SchémaBd,
+  DifférenceBds,
+  ScoreBd,
+  DonnéesBdExportées,
+  DonnéesFichierBdExportées,
+} from "@constl/interface/bds";
+import type {
+  Métadonnées,
+  StatutDonnées,
+  InfoAuteur,
+} from "@constl/interface/objets";
+import type { RègleBornes } from "@constl/interface/règles";
+import type {
+  InfoColonne,
+  DonnéesRangéeTableau,
+  DonnéesRangéeTableauAvecId,
+} from "@constl/interface/tableaux";
 
 describe("Bases de données", function () {
   let fermer: () => Promise<void>;

@@ -16,8 +16,7 @@ import {
   rechercherProjetsSelonVariable,
 } from "./fonctions/projets.js";
 import type { ServicesNécessairesRechercheProjets } from "./fonctions/projets.js";
-import type { InfoAuteur } from "../types.js";
-import type { Oublier, RetourRecherche, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, RetourRecherche, Suivi } from "@constl/interface";
 import type { SuivreObjectifRecherche, AccesseurService } from "./types.js";
 import type {
   RésultatRecherche,
@@ -25,7 +24,8 @@ import type {
   InfoRésultatRecherche,
   InfoRésultatVide,
   InfoRésultat,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
+import type { InfoAuteur } from "@constl/interface/objets";
 
 export class RechercheProjets extends RechercheObjets<ServicesNécessairesRechercheProjets> {
   constructor({

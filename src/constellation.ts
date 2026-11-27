@@ -19,9 +19,9 @@ import type {
   ServicesNébuleuse,
   StructureNébuleuse,
 } from "./nébuleuse/nébuleuse.js";
-import type { PartielRécursif } from "./types.js";
 import type { StructureServiceAutomatisations } from "./automatisations/types.js";
 import type { JSONSchemaType } from "ajv";
+import type { PartielRécursif } from "@constl/interface";
 
 export type OptionsConstellation<
   L extends ServicesLibp2pNébuleuse = ServicesLibp2pNébuleuse,

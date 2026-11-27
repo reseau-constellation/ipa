@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ÉlémentDicJSON } from "./json.js";
+import type { ÉlémentDicJSON } from "@constl/interface/importateur";
 
 export const importerDonnéesEpiCollecte = async ({
   idProjet,

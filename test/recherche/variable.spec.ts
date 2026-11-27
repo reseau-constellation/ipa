@@ -8,14 +8,15 @@ import {
 import { enleverPréfixesEtOrbite } from "../../src/utils.js";
 import { créerConstellationsTest } from "../utils.js";
 import type { ServicesNécessairesRechercheVariables } from "../../src/recherche/fonctions/variables.js";
-import type { Oublier } from "../../src/nébuleuse/types.js";
+
 import type { Constellation } from "../../src/constellation.js";
 import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
+import type { Oublier } from "@constl/interface";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,
   InfoRésultatVide,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
 
 describe("Rechercher variables", function () {
   let fermer: Oublier;

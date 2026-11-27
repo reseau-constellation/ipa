@@ -41,32 +41,31 @@ import {
 } from "./utils.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import { attendreQue } from "./appli/utils/fonctions.js";
-import type {
-  ConversionColonne,
-  ÉlémentDonnéesTableau,
-} from "../src/bds/tableaux.js";
 import type { SinonFakeTimers } from "sinon";
+
+import type { Constellation } from "../src/index.js";
+import type { NestedValue } from "@orbitdb/nested-db";
+import type { PartielRécursif } from "@constl/interface";
 import type {
-  DonnéesRangéeTableau,
-  DonnéesRangéeTableauAvecId,
-} from "../src/tableaux.js";
-import type { PartielRécursif } from "../src/types.js";
-import type {
-  InfoImporterFeuilleCalcul,
-  InfoImporterJSON,
-  SourceDonnéesImportationFichier,
-  SourceDonnéesImportationURL,
+  ÉtatAutomatisation,
   SpécificationAutomatisation,
   SpécificationExporter,
   SpécificationImporter,
-  ÉtatAutomatisation,
-  ÉtatAutomatisationEnSync,
+  SourceDonnéesImportationFichier,
   ÉtatAutomatisationErreur,
+  ÉtatAutomatisationEnSync,
   ÉtatAutomatisationProgrammée,
-} from "../src/automatisations/types.js";
-import type { Constellation } from "../src/index.js";
-import type { NestedValue } from "@orbitdb/nested-db";
-import type { ClefsExtraction } from "../src/importateur/json.js";
+  InfoImporterFeuilleCalcul,
+  SourceDonnéesImportationURL,
+  InfoImporterJSON,
+} from "@constl/interface/automatisations";
+import type { ClefsExtraction } from "@constl/interface/importateur";
+import type {
+  DonnéesRangéeTableau,
+  DonnéesRangéeTableauAvecId,
+  ConversionColonne,
+  ÉlémentDonnéesTableau,
+} from "@constl/interface/tableaux";
 
 const MINUTES = 1000 * 60;
 

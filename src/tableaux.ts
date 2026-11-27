@@ -16,57 +16,50 @@ import type { AccesseurService } from "./recherche/types.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
 import type { NestedValue } from "@orbitdb/nested-db";
-import type { Oublier, Suivi } from "./nébuleuse/types.js";
-import type { PartielRécursif, TraducsTexte } from "./types.js";
 import type {
-  DétailsRègleBornesDynamiqueColonne,
-  DétailsRègleBornesDynamiqueVariable,
-  DétailsRègleValeurCatégoriqueDynamique,
-  ErreurRègle,
-  ErreurRègleBornesColonneInexistante,
-  ErreurRègleBornesVariableNonPrésente,
-  ErreurRègleCatégoriqueColonneInexistante,
-  RègleBornes,
-  RègleColonne,
-  RègleValeurCatégorique,
-  RègleVariable,
-  RègleVariableAvecId,
-  ErreurColonne,
-  ErreurColonneVariableDédoublée,
-  SpécificationRègleColonne,
-  FonctionValidation,
-  ErreurRègleCatégoriqueTableauInexistant,
-} from "./règles.js";
-import type {
-  CatégorieBaseVariables,
-  CatégorieVariable,
-  Variables,
-} from "./variables.js";
+  Oublier,
+  Suivi,
+  TraducsTexte,
+  PartielRécursif,
+} from "@constl/interface";
+import type { FonctionValidation } from "./règles.js";
+import type { Variables } from "./variables.js";
 import type {
   ServiceCompte,
   ServiceHélia,
   ServiceOrbite,
 } from "./nébuleuse/index.js";
-
-// Types éléments
-
-export type DonnéesRangéeTableau = {
-  [key: string]: DagCborEncodable;
-};
-
-export interface DonnéesRangéeTableauAvecId<
-  T extends DonnéesRangéeTableau = DonnéesRangéeTableau,
-> {
-  données: T;
-  id: string;
-}
-
-// Types scores
-
-export type ScoreCouvertureTableau = {
-  numérateur: number;
-  dénominateur: number;
-};
+import type {
+  SpécificationRègleColonne,
+  RègleVariable,
+  RègleColonne,
+  RègleVariableAvecId,
+  ErreurRègle,
+  RègleBornes,
+  DétailsRègleBornesDynamiqueColonne,
+  DétailsRègleBornesDynamiqueVariable,
+  RègleValeurCatégorique,
+  DétailsRègleValeurCatégoriqueDynamique,
+  ErreurRègleBornesColonneInexistante,
+  ErreurRègleBornesVariableNonPrésente,
+  ErreurRègleCatégoriqueTableauInexistant,
+  ErreurRègleCatégoriqueColonneInexistante,
+  ErreurColonne,
+  ErreurColonneVariableDédoublée,
+} from "@constl/interface/règles";
+import type {
+  InfoColonne,
+  InfoColonneAvecCatégorie,
+  DonnéesRangéeTableauAvecId,
+  DifférenceTableaux,
+  DifférenceVariableColonne,
+  DifférenceIndexColonne,
+  DifférenceColonneManquante,
+  DifférenceColonneSupplémentaire,
+  DonnéesRangéeTableau,
+  ScoreCouvertureTableau,
+} from "@constl/interface/tableaux";
+import type { CatégorieBaseVariables } from "@constl/interface/variables";
 
 // Types tableaux
 
@@ -140,50 +133,6 @@ const schémaStructureAvecTableau: JSONSchemaType<
     },
     nullable: true,
   },
-};
-
-// Types colonnes
-
-export type InfoColonne = {
-  id: string;
-  variable?: string;
-  index?: boolean;
-};
-
-export type InfoColonneAvecCatégorie = InfoColonne & {
-  catégorie?: CatégorieVariable;
-};
-
-// Types comparaisons tableaux
-
-export type DifférenceTableaux =
-  | DifférenceVariableColonne
-  | DifférenceIndexColonne
-  | DifférenceColonneManquante
-  | DifférenceColonneSupplémentaire;
-
-export type DifférenceVariableColonne = {
-  type: "variableColonne";
-  sévère: true;
-  idColonne: string;
-  varColTableau?: string;
-  varColTableauRéf?: string;
-};
-export type DifférenceIndexColonne = {
-  type: "indexColonne";
-  sévère: true;
-  idColonne: string;
-  colTableauIndexée: boolean;
-};
-export type DifférenceColonneManquante = {
-  type: "colonneManquante";
-  sévère: true;
-  idColonneManquante: string;
-};
-export type DifférenceColonneSupplémentaire = {
-  type: "colonneSupplémentaire";
-  sévère: false;
-  idColonneSupplémentaire: string;
 };
 
 // Tableaux

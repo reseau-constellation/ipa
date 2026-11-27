@@ -13,14 +13,15 @@ import {
 import { obtRessourceTest } from "../../ressources/index.js";
 import { créerNébuleusesTest } from "../utils.js";
 import type { NébuleuseTest } from "../utils.js";
-import type { Oublier } from "../../../src/nébuleuse/types.js";
+
 import type { SuivreObjectifRecherche } from "../../../src/recherche/types.js";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
+import type { Oublier } from "@constl/interface";
 
 describe("Utils recherche", function () {
   let fermer: Oublier;

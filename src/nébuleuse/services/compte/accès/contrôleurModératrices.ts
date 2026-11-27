@@ -12,10 +12,9 @@ import * as Block from "multiformats/block";
 import { base58btc } from "multiformats/bases/base58";
 import { sha256 } from "multiformats/hashes/sha2";
 import * as dagCbor from "@ipld/dag-cbor";
+import { MODÉRATRICE, type Rôle, rôles } from "@constl/interface/accès";
 import { mandatOrbite } from "../../orbite/mandat.js";
-import { MODÉRATRICE, rôles } from "./consts.js";
 import { AccèsParComptes } from "./compte.js";
-import type { Rôle } from "./types.js";
 
 const nomType = "contrôleur-accès-nébuleuse";
 

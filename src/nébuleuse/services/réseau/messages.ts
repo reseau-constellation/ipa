@@ -1,5 +1,5 @@
-import type { Signature } from "../orbite/orbite.js";
-import type { InfosComplètesPair } from "./réseau.js";
+import type { Signature } from "@constl/interface/orbite";
+import type { InfosComplètesPair } from "@constl/interface/réseau";
 
 export type MessageRéseauAvecExpéditeur = {
   message: MessageRéseau;

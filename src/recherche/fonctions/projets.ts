@@ -18,19 +18,15 @@ import type { Bds } from "../../../src/bds/bds.js";
 import type { MotsClefs } from "../../../src/motsClefs.js";
 import type { Variables } from "../../../src/variables.js";
 import type { Projets } from "../../../src/projets.js";
-import type {
-  SuivreObjectifRecherche,
-  SuiviRecherche,
-  AccesseurService,
-} from "../types.js";
+import type { ServicesNécessairesRechercheObjets } from "../recherche.ts";
+import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,
+  SuiviRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-} from "@constl/interface";
-import type { Oublier } from "../../../src/nébuleuse/types.js";
-import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
-import type { TraducsTexte } from "../../../src/types.js";
+} from "@constl/interface/recherche";
+import type { SuivreObjectifRecherche, AccesseurService } from "../types.ts";
 
 export type ServicesNécessairesRechercheProjets =
   ServicesNécessairesRechercheObjets & {

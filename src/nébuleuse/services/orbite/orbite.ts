@@ -38,8 +38,6 @@ import type {
   LogEntry,
 } from "@orbitdb/core";
 import type { ServiceJournal } from "../journal.js";
-import type { Oublier, Suivi } from "../../types.js";
-import type { PartielRécursif } from "../../../../src/types.js";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
@@ -52,6 +50,8 @@ import type {
   ServicesNécessairesLibp2p,
 } from "../libp2p/libp2p.js";
 import type { HeliaWithLibp2p } from "@helia/libp2p";
+import type { Oublier, PartielRécursif, Suivi } from "@constl/interface";
+import type { Signature } from "@constl/interface/orbite";
 
 export const préparerOrbite = () => {
   useDatabaseType(Feed);
@@ -74,12 +74,6 @@ export type BdsOrbite = {
 type KeysMatching<T extends object, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
-
-export type Signature = {
-  signature: string;
-  clefPublique: string;
-  empreinteIdentité: string;
-};
 
 // Types service
 

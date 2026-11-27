@@ -8,6 +8,13 @@ import {
 } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 import { merge } from "ts-deepmerge";
+import {
+  MODÉRATRICE,
+  type AccèsDispositif,
+  MEMBRE,
+  type AccèsUtilisateur,
+  type Rôle,
+} from "@constl/interface/accès";
 import { ServiceAppli } from "../../../../src/nébuleuse/appli/index.js";
 import { ajouterPréfixes, enleverPréfixes } from "../../../../src/utils.js";
 import { cacheSuivi } from "../../cache.js";
@@ -20,36 +27,25 @@ import {
 import { appelerLorsque } from "../utils.js";
 import { estErreurAvortée } from "../../utils.js";
 import { STATUTS } from "../../appli/consts.js";
-import {
-  ContrôleurNébuleuse,
-  MEMBRE,
-  MODÉRATRICE,
-  estContrôleurNébuleuse,
-} from "./accès/index.js";
+import { ContrôleurNébuleuse, estContrôleurNébuleuse } from "./accès/index.js";
 import type { OptionsAppli } from "../../appli/appli.js";
-import type { PartielRécursif, RequisRécursif } from "../../../../src/types.js";
-import type { Oublier, Suivi } from "../../types.js";
+import type {
+  Oublier,
+  Suivi,
+  PartielRécursif,
+  RequisRécursif,
+} from "@constl/interface";
 import type {
   BdsOrbite,
   ServiceOrbite,
   ServicesNécessairesOrbite,
 } from "../orbite/orbite.js";
 import type { ServicesLibp2pNébuleuse } from "../libp2p/libp2p.js";
-import type {
-  AccèsDispositif,
-  AccèsUtilisateur,
-  OptionsContrôleurNébuleuse,
-  Rôle,
-} from "./accès/index.js";
+import type { OptionsContrôleurNébuleuse } from "./accès/index.js";
 import type { NestedDatabaseType, NestedValue } from "@orbitdb/nested-db";
 import type { TypedNested } from "@constl/bohr-db";
 import type { JSONSchemaType } from "ajv";
-import type { InfosComplètesPair } from "../réseau/réseau.js";
-
-export type MesDispositifs = {
-  idDispositif: string;
-  statut: "invité" | "accepté";
-}[];
+import type { InfosComplètesPair } from "@constl/interface/réseau";
 
 export type ConstsCompte = {
   maxTailleImageSauvegarder: number;

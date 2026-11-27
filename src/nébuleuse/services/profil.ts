@@ -1,12 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 import { ignorerNonDéfinis, suivreDeFonctionListe } from "@constl/utils-ipa";
+import {
+  TOUS_DISPOSITIFS,
+  AUCUN_DISPOSITIF,
+  type ÉpingleFavorisBooléenniséeAvecId,
+  type ÉpingleFavorisAvecId,
+} from "@constl/interface/favoris";
 import { RechercheProfils } from "../../../src/recherche/profils.js";
 import {
-  AUCUN_DISPOSITIF,
   estÉpingleDeType,
   RÉSOLVEUR_FAVORIS,
   résoudreDéfauts,
-  TOUS_DISPOSITIFS,
 } from "../../../src/nébuleuse/services/favoris.js";
 import {
   ajouterPréfixeOrbite,
@@ -16,37 +20,28 @@ import {
 } from "../../../src/utils.js";
 import { cacheSuivi } from "../cache.js";
 import { ServiceDonnéesAppli } from "./services.js";
+import type { ServiceFavoris } from "../../../src/nébuleuse/services/favoris.js";
 import type { ServiceRéseau } from "./réseau/réseau.js";
 import type { AccesseurService } from "../../../src/recherche/types.js";
 import type { ServicesNécessairesRechercheProfils } from "../../../src/recherche/fonctions/profils.js";
-import type {
-  BaseÉpingleFavoris,
-  DispositifsÉpingle,
-  ÉpingleFavorisBooléenniséeAvecId,
-  ÉpingleFavorisAvecId,
-  ServiceFavoris,
-} from "../../../src/nébuleuse/services/favoris.js";
+
 import type { JSONSchemaType } from "ajv";
 import type { OptionsAppli } from "../../../src/nébuleuse/appli/appli.js";
-import type { Suivi, Oublier } from "../types.js";
-import type { PartielRécursif, TraducsTexte } from "../../types.js";
 import type {
   ServiceCompte,
   ServicesNécessairesCompte,
 } from "./compte/compte.js";
 import type { ServiceDispositifs } from "./dispositifs.js";
-
-// Types épingle
-
-export type ÉpingleProfil = {
-  type: "profil";
-  épingle: ContenuÉpingleProfil;
-};
-
-export type ContenuÉpingleProfil = BaseÉpingleFavoris & {
-  favoris: DispositifsÉpingle;
-};
-
+import type {
+  TraducsTexte,
+  PartielRécursif,
+  Oublier,
+  Suivi,
+} from "@constl/interface";
+import type {
+  ContenuÉpingleProfil,
+  ÉpingleProfil,
+} from "@constl/interface/profil";
 // Types structure
 
 export type StructureProfil = {

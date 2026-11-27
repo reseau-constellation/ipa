@@ -29,34 +29,39 @@ import {
 } from "../utils.js";
 import { estContrôleurNébuleuse } from "../nébuleuse/services/compte/accès/contrôleurNébuleuse.js";
 import { estErreurAvortée } from "../nébuleuse/utils.js";
-import type { Rôle } from "../nébuleuse/services/compte/accès/types.js";
-import type { CatégorieBaseVariables } from "../variables.js";
 import type { DagCborEncodable } from "@orbitdb/core";
 import type { JSONSchemaType } from "ajv";
 import type { BookType, WorkBook } from "@e965/xlsx";
-import type { ErreurDonnée, FonctionValidation } from "../règles.js";
+import type { FonctionValidation } from "../règles.js";
 import type {
+  Oublier,
+  Suivi,
+  PartielRécursif,
+  TraducsTexte,
+} from "@constl/interface";
+import type { Rôle } from "@constl/interface/accès";
+import type { ErreurDonnée } from "@constl/interface/règles";
+import type {
+  DonnéeImportation,
+  ÉlémentDonnéesTableau,
   DonnéesRangéeTableau,
   DonnéesRangéeTableauAvecId,
   InfoColonne,
+  DonnéesRangéeTableauÀImporter,
+  ConversionColonne,
+  OpérationConversionNumérique,
+  ConversionDonnéesFichiers,
+  ConversionDonnées,
+  DonnéesTableauExportées,
   InfoColonneAvecCatégorie,
-} from "../tableaux.js";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
-import type { PartielRécursif, TraducsTexte } from "../types.js";
-import type { DonnéesFichierBdExportées } from "../utils.js";
+} from "@constl/interface/tableaux";
+import type { CatégorieBaseVariables } from "@constl/interface/variables";
+import type { DonnéesFichierBdExportées } from "@constl/interface/bds";
 
 let எண்ணிக்கை: எண்ணிக்கை_வகை | undefined = undefined;
 const obtEnnikkai = () => {
   if (!எண்ணிக்கை) எண்ணிக்கை = new எண்ணிக்கை_வகை({});
   return எண்ணிக்கை;
-};
-
-// Types données tableaux
-
-export type DonnéesTableauExportées = {
-  nomTableau: string;
-  données: DonnéesRangéeTableau[];
-  documentsMédias: Set<string>;
 };
 
 const estEncodable = (val: DonnéeImportation): val is DagCborEncodable => {
@@ -73,109 +78,7 @@ const estEncodable = (val: DonnéeImportation): val is DagCborEncodable => {
   return false;
 };
 
-// Types conversions
-
-export type DonnéeImportation =
-  | string
-  | number
-  | null
-  | boolean
-  | DonnéeImportation[]
-  | { [key: string]: DonnéeImportation }
-  | Date
-  | Uint8Array
-  | undefined;
-
-export type DonnéesRangéeTableauÀImporter = {
-  [clef: string]: DonnéeImportation;
-};
-
-export type ConversionColonne<T extends ConversionDonnées = ConversionDonnées> =
-  {
-    colonne: string;
-    typeCatégorie?: "simple" | "liste";
-    conversion: T;
-  };
-
-export type ConversionDonnées =
-  | ConversionDonnéesNumérique
-  | ConversionDonnéesChaîne
-  | ConversionDonnéesFichier
-  | ConversionDonnéesAudio
-  | ConversionDonnéesVidéo
-  | ConversionDonnéesImage
-  | ConversionDonnéesBooléen
-  | ConversionDonnéesChaîneNonTraductible
-  | ConversionDonnéesHoroDatage
-  | ConversionDonnéesIntervaleTemps
-  | ConversionDonnéesGéojson;
-
-export type ConversionDonnéesNumérique = {
-  type: "numérique";
-  opération?: OpérationConversionNumérique | OpérationConversionNumérique[];
-  systèmeNumération?: string;
-};
-
-export type OpérationConversionNumérique = {
-  op: "+" | "-" | "/" | "*" | "^";
-  val: number;
-};
-
-export type ConversionDonnéesChaîne = {
-  type: "chaîne";
-  langue?: string;
-};
-
-export type ConversionDonnéesFichiers =
-  | ConversionDonnéesFichier
-  | ConversionDonnéesAudio
-  | ConversionDonnéesImage
-  | ConversionDonnéesVidéo;
-
-export type ConversionDonnéesFichier = {
-  type: "fichier";
-  baseChemin?: string;
-};
-
-export type ConversionDonnéesAudio = Omit<ConversionDonnéesFichier, "type"> & {
-  type: "audio";
-};
-
-export type ConversionDonnéesImage = Omit<ConversionDonnéesFichier, "type"> & {
-  type: "image";
-};
-
-export type ConversionDonnéesVidéo = Omit<ConversionDonnéesFichier, "type"> & {
-  type: "vidéo";
-};
-
-export type ConversionDonnéesBooléen = {
-  type: "booléen";
-};
-
-export type ConversionDonnéesChaîneNonTraductible = {
-  type: "chaîneNonTraductible";
-};
-
-export type ConversionDonnéesHoroDatage = {
-  type: "horoDatage";
-  détails?: {
-    système: string;
-    format?: string;
-  };
-};
-
-export type ConversionDonnéesIntervaleTemps = {
-  type: "intervaleTemps";
-};
-
-export type ConversionDonnéesGéojson = {
-  type: "géojson";
-};
-
 // Types structure
-
-export type ÉlémentDonnéesTableau = { [clef: string]: DagCborEncodable };
 
 export type StructureDonnéesTableau = {
   [id: string]: ÉlémentDonnéesTableau;

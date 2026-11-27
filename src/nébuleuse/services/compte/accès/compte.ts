@@ -2,13 +2,18 @@ import { isValidAddress } from "@orbitdb/core";
 import PQueue from "p-queue";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { anySignal, type ClearableSignal } from "any-signal";
-import { estErreurAvortée } from "../../../../../src/nébuleuse/utils.js";
+import {
+  MEMBRE,
+  type Rôle,
+  MODÉRATRICE,
+  type AccèsUtilisateur,
+  type AccèsDispositif,
+} from "@constl/interface/accès";
+import { estErreurAvortée } from "../../../utils.js";
 import { appelerLorsque } from "../../utils.js";
 import { estContrôleurNébuleuse } from "./contrôleurNébuleuse.js";
-import { MEMBRE, MODÉRATRICE } from "./consts.js";
-import type { AccèsDispositif, AccèsUtilisateur, Rôle } from "./types.js";
-import type { Oublier } from "../../../../../src/nébuleuse/types.js";
 import type { OrbitDB } from "@orbitdb/core";
+import type { Oublier } from "@constl/interface";
 
 export const rôlePlusPuissant = (rôles: Set<Rôle>): Rôle | undefined => {
   if (rôles.has(MODÉRATRICE)) return MODÉRATRICE;

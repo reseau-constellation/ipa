@@ -9,24 +9,12 @@ import {
 import { peerIdFromString } from "@libp2p/peer-id";
 import { v4 as uuidv4 } from "uuid";
 import { obtenir } from "@constl/utils-tests";
+import { MODÉRATRICE } from "@constl/interface/accès";
 import { ServiceAppli } from "../../../src/nébuleuse/appli/services.js";
 import {
   FACTEUR_ATÉNUATION_CONFIANCE_NÉGATIVE,
   FACTEUR_ATÉNUATION_CONFIANCE_POSITIVE,
 } from "../../../src/nébuleuse/services/consts.js";
-import {
-  RÉSOLVEUR_CONFIANCE,
-  type CompteBloqué,
-  type CompteRéseau,
-  type ConnexionCompte,
-  type ConnexionDispositif,
-  type ConnexionLibp2p,
-  type DispositifCompte,
-  type InfosPair,
-  type RelationImmédiate,
-  type RelationRéseau,
-} from "../../../src/nébuleuse/services/réseau/réseau.js";
-import { MODÉRATRICE } from "../../../src/nébuleuse/services/compte/accès/consts.js";
 import {
   ACCEPTATION_INVITATION_REJOINDRE_COMPTE,
   type MessageAcceptationInvitationRejoindreCompte,
@@ -35,16 +23,29 @@ import {
 } from "../../../src/nébuleuse/services/réseau/messages.js";
 import { obtEmpreinteCode } from "../../../src/nébuleuse/services/utils.js";
 import { créerNébuleusesLocales, créerNébuleusesTest } from "../utils.js";
+import { RÉSOLVEUR_CONFIANCE } from "../../../src/nébuleuse/services/réseau/réseau.ts";
 import type {
   OptionsAppli,
   ServicesAppli,
 } from "../../../src/nébuleuse/appli/appli.js";
 import type { NébuleuseTest } from "../utils.js";
-import type { Oublier, Suivi } from "../../../src/nébuleuse/types.js";
+
 import type {
   Nébuleuse,
   ServicesNébuleuse,
 } from "../../../src/nébuleuse/nébuleuse.js";
+import type { Oublier, Suivi } from "@constl/interface";
+import type {
+  ConnexionLibp2p,
+  ConnexionDispositif,
+  ConnexionCompte,
+  DispositifCompte,
+  CompteBloqué,
+  CompteRéseau,
+  RelationImmédiate,
+  RelationRéseau,
+  InfosPair,
+} from "@constl/interface/réseau";
 
 describe("Réseau", function () {
   describe("suivre connexions", function () {

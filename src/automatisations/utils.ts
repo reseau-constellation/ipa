@@ -15,25 +15,26 @@ import {
   importerJSONdURL,
 } from "../importateur/urls.js";
 import { stabiliser } from "../nébuleuse/utils.js";
-import type { ÉlémentDicJSON } from "../importateur/json.js";
 import type { ServicesNécessairesAutomatisations } from "./automatisations.js";
 import type { FSWatcherEventMap } from "chokidar";
-import type { Oublier, Suivi } from "../nébuleuse/types.js";
+import type { Oublier, Suivi } from "@constl/interface";
+
+import type { AccesseurService } from "../recherche/types.js";
 import type {
-  FréquenceFixe,
   SpécificationAutomatisation,
-  SpécificationExporter,
   SpécificationImporter,
-  ÉtatAutomatisationAttente,
+  SpécificationExporter,
+  FréquenceFixe,
   ÉtatAutomatisation,
-  ÉtatAutomatisationEnSync,
+  Fréquence,
   ÉtatAutomatisationErreur,
+  ÉtatAutomatisationAttente,
+  ÉtatAutomatisationEnSync,
   ÉtatAutomatisationProgrammée,
   ÉtatAutomatisationÉcoute,
   SourceDonnéesImportationAdresseOptionelle,
-  Fréquence,
-} from "./types.js";
-import type { AccesseurService } from "../recherche/types.js";
+} from "@constl/interface/automatisations";
+import type { ÉlémentDicJSON } from "@constl/interface/importateur";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));

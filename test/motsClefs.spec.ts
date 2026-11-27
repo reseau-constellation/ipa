@@ -1,20 +1,16 @@
 import { expect } from "aegir/chai";
 import { obtenir } from "@constl/utils-tests";
-import { TOUS_DISPOSITIFS } from "../src/nébuleuse/services/favoris.js";
+
+import { MEMBRE, MODÉRATRICE } from "@constl/interface/accès";
 import {
-  MEMBRE,
-  MODÉRATRICE,
-} from "../src/nébuleuse/services/compte/accès/index.js";
+  type ÉpingleFavorisAvecId,
+  TOUS_DISPOSITIFS,
+} from "@constl/interface/favoris";
 import { créerConstellationsTest } from "./utils.js";
-import type { ÉpingleFavorisAvecId } from "../src/nébuleuse/services/favoris.js";
-import type { ÉpingleMotClef } from "../src/motsClefs.js";
 import type { Constellation } from "../src/index.js";
-import type {
-  InfoAuteur,
-  PartielRécursif,
-  StatutDonnées,
-  TraducsTexte,
-} from "../src/types.js";
+import type { TraducsTexte, PartielRécursif } from "@constl/interface";
+import type { ÉpingleMotClef } from "@constl/interface/mots-clefs";
+import type { StatutDonnées, InfoAuteur } from "@constl/interface/objets";
 
 describe("Mots-clefs", function () {
   let fermer: () => Promise<void>;

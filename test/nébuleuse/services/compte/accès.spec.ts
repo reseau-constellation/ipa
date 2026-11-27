@@ -2,22 +2,23 @@ import { expect } from "aegir/chai";
 import { v4 as uuidv4 } from "uuid";
 import { créerOrbitesTest, obtenir } from "@constl/utils-tests";
 import {
-  ContrôleurNébuleuse,
   MEMBRE,
   MODÉRATRICE,
+  type AccèsUtilisateur,
+  type AccèsDispositif,
+} from "@constl/interface/accès";
+import {
+  ContrôleurNébuleuse,
+  type InstanceContrôleurNébuleuse,
 } from "../../../../src/nébuleuse/services/compte/accès/index.js";
 import { préparerOrbite } from "../../../../src/nébuleuse/services/orbite/orbite.js";
 import { mandatOrbite } from "../../../../src/nébuleuse/services/orbite/mandat.js";
 import { réessayer } from "../../../../src/nébuleuse/utils.js";
 import { attendreQue } from "../../../appli/utils/fonctions.js";
 import { attendreInvité, peutÉcrire } from "../../../utils.js";
-import type { Oublier } from "../../../../src/nébuleuse/types.js";
-import type {
-  AccèsDispositif,
-  AccèsUtilisateur,
-  InstanceContrôleurNébuleuse,
-} from "../../../../src/nébuleuse/services/compte/accès/index.js";
+
 import type { KeyValueDatabase, OrbitDB } from "@orbitdb/core";
+import type { Oublier } from "@constl/interface";
 
 describe("Accès", function () {
   before(async () => {

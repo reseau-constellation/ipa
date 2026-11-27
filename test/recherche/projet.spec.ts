@@ -17,14 +17,14 @@ import { enleverPréfixesEtOrbite } from "../../src/utils.js";
 import { créerConstellationsTest } from "../utils.js";
 import type { ServicesNécessairesRechercheProjets } from "../../src/recherche/fonctions/projets.js";
 import type { Constellation } from "../../src/constellation.js";
-import type { Oublier } from "../../src/nébuleuse/types.js";
+import type { Oublier } from "@constl/interface";
 import type { SuivreObjectifRecherche } from "../../src/recherche/types.js";
 import type {
   InfoRésultatTexte,
   RésultatObjectifRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
 
 describe("Rechercher projets", function () {
   let constls: Constellation[];

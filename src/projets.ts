@@ -13,14 +13,21 @@ import { isBrowser, isWebWorker } from "wherearewe";
 import { base64 } from "@hexagon/base64";
 import { sha256 } from "js-sha256";
 import { TimeoutController } from "timeout-abort-controller";
+import {
+  TOUS_DISPOSITIFS,
+  DISPOSITIFS_INSTALLÉS,
+  type ÉpingleFavorisBooléenniséeAvecId,
+} from "@constl/interface/favoris";
+import {
+  conversionsTypes,
+  type DonnéesBdExportées,
+} from "@constl/interface/bds";
 import { cacheSuivi } from "./nébuleuse/cache.js";
-import { conversionsTypes, définis } from "./utils.js";
+import { définis } from "./utils.js";
 import { schémaStatutDonnées, schémaTraducsTexte } from "./schémas.js";
 import { RechercheProjets } from "./recherche/projets.js";
 import {
-  DISPOSITIFS_INSTALLÉS,
   RÉSOLVEUR_FAVORIS,
-  TOUS_DISPOSITIFS,
   estÉpingleDeType,
   résoudreDéfauts,
 } from "./nébuleuse/services/favoris.js";
@@ -28,55 +35,35 @@ import { ObjetConstellation } from "./objets.js";
 import type { Variables } from "./variables.js";
 import type { MotsClefs } from "./motsClefs.js";
 import type { ServicesNécessairesObjet } from "./objets.js";
-import type { BookType, WorkBook } from "@e965/xlsx";
+import type { BookType } from "@e965/xlsx";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type {
-  BaseÉpingleFavoris,
-  ÉpingleFavorisBooléenniséeAvecId,
-} from "./nébuleuse/services/favoris.js";
+
 import type { TypedNested } from "@constl/bohr-db";
-import type { Rôle } from "./nébuleuse/services/compte/accès/types.js";
 import type { JSONSchemaType } from "ajv";
-import type {
-  InfoAuteur,
-  Métadonnées,
-  PartielRécursif,
-  StatutDonnées,
-  TraducsTexte,
-} from "./types.js";
-import type { Suivi, Oublier } from "./nébuleuse/types.js";
-import type { Bds, DonnéesBdExportées, ÉpingleBd } from "./bds/bds.js";
+
+import type { Bds } from "./bds/bds.js";
 import type { OptionsAppli } from "./nébuleuse/appli/appli.js";
 import type { ServicesNécessairesRechercheProjets } from "./recherche/fonctions/projets.js";
 import type { AccesseurService } from "./recherche/types.js";
-
-// Types mots-clefs
-
-export type MotClefProjet = { idMotClef: string; source: "projet" | "bds" };
-
-// Types épingles
-
-export type ÉpingleProjet = {
-  type: "projets";
-  épingle: ContenuÉpingleProjet;
-};
-
-export type ContenuÉpingleProjet = BaseÉpingleFavoris & {
-  bds: ÉpingleBd["épingle"];
-};
-
-// Types données
-
-export type DonnéesProjetExportées = {
-  nomProjet: string;
-  bds: DonnéesBdExportées[];
-};
-
-export type DonnéesFichierProjetExportées = {
-  docus: { docu: WorkBook; nom: string }[];
-  documentsMédias: Set<string>;
-  nomFichier: string;
-};
+import type {
+  TraducsTexte,
+  PartielRécursif,
+  Oublier,
+  Suivi,
+} from "@constl/interface";
+import type { Rôle } from "@constl/interface/accès";
+import type {
+  Métadonnées,
+  StatutDonnées,
+  InfoAuteur,
+} from "@constl/interface/objets";
+import type {
+  ContenuÉpingleProjet,
+  ÉpingleProjet,
+  MotClefProjet,
+  DonnéesProjetExportées,
+  DonnéesFichierProjetExportées,
+} from "@constl/interface/projets";
 
 // Types structure
 

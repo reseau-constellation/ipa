@@ -12,41 +12,41 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import AxiosMockAdapter from "axios-mock-adapter";
 import axios from "axios";
-import { MEMBRE } from "../src/nébuleuse/services/compte/accès/consts.js";
+import { MEMBRE, type Rôle } from "@constl/interface/accès";
 import { obtRessourceTest } from "./ressources/index.js";
 import { créerConstellationsTest } from "./utils.js";
 import type { DagCborEncodable } from "@orbitdb/core";
-import type { Rôle } from "../src/nébuleuse/services/compte/accès/types.js";
 import type { Constellation } from "../src/index.js";
-import type { TraducsTexte } from "../src/types.js";
+
+import type { CellObject, WorkBook } from "@e965/xlsx";
+import type { TraducsTexte } from "@constl/interface";
 import type {
-  DifférenceColonneManquante,
-  DifférenceColonneSupplémentaire,
-  DifférenceIndexColonne,
-  DifférenceTableaux,
-  DifférenceVariableColonne,
-  DonnéesRangéeTableau,
-  DonnéesRangéeTableauAvecId,
-  InfoColonne,
-  InfoColonneAvecCatégorie,
-} from "../src/tableaux.js";
-import type {
-  DétailsRègleBornesDynamiqueColonne,
-  DétailsRègleBornesDynamiqueVariable,
-  DétailsRègleValeurCatégoriqueDynamique,
   ErreurColonne,
   ErreurDonnée,
-  ErreurRègle,
-  RègleBornes,
-  RègleCatégorie,
   RègleColonne,
   RègleIndexUnique,
+  RègleBornes,
+  RègleCatégorie,
+  DétailsRègleBornesDynamiqueColonne,
+  ErreurRègle,
+  DétailsRègleBornesDynamiqueVariable,
   RègleValeurCatégorique,
-} from "../src/règles.js";
-import type { DonnéesTableauExportées } from "../src/bds/tableaux.js";
-import type { DonnéesFichierBdExportées } from "../src/utils.js";
-import type { CatégorieBaseVariables } from "../src/variables.js";
-import type { CellObject, WorkBook } from "@e965/xlsx";
+  DétailsRègleValeurCatégoriqueDynamique,
+} from "@constl/interface/règles";
+import type {
+  InfoColonne,
+  DonnéesRangéeTableauAvecId,
+  DonnéesRangéeTableau,
+  DonnéesTableauExportées,
+  InfoColonneAvecCatégorie,
+  DifférenceTableaux,
+  DifférenceVariableColonne,
+  DifférenceIndexColonne,
+  DifférenceColonneManquante,
+  DifférenceColonneSupplémentaire,
+} from "@constl/interface/tableaux";
+import type { CatégorieBaseVariables } from "@constl/interface/variables";
+import type { DonnéesFichierBdExportées } from "@constl/interface/bds";
 
 describe("tableaux", function () {
   let fermer: () => Promise<void>;

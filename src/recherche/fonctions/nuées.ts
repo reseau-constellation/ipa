@@ -9,20 +9,16 @@ import {
 import { rechercherMotsClefsSelonNom } from "./motsClefs.js";
 import type { Variables } from "../../../src/variables.js";
 import type { Nuées } from "../../../src/nuées/nuées.js";
-import type { Oublier } from "../../../src/nébuleuse/types.js";
-import type {
-  SuivreObjectifRecherche,
-  SuiviRecherche,
-  AccesseurService,
-} from "../types.js";
+import type { SuivreObjectifRecherche, AccesseurService } from "../types.js";
 import type { ServicesNécessairesRechercheObjets } from "../recherche.js";
-import type { TraducsTexte } from "../../../src/types.js";
 import type { MotsClefs } from "../../../src/motsClefs.js";
+import type { Oublier, TraducsTexte } from "@constl/interface";
 import type {
   InfoRésultatTexte,
+  SuiviRecherche,
   InfoRésultatRecherche,
   InfoRésultatVide,
-} from "@constl/interface";
+} from "@constl/interface/recherche";
 
 export type ServicesNécessairesRechercheNuées =
   ServicesNécessairesRechercheObjets & {
