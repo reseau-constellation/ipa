@@ -182,7 +182,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  p-queue: ^8.1.1
+  p-queue: ^10.0.0
   playwright-core: 1.65.0
 
 patchedDependencies:
@@ -447,8 +447,8 @@ importers:
         specifier: ^14.0.7
         version: 14.0.8
       p-queue:
-        specifier: ^8.1.1
-        version: 8.1.1
+        specifier: ^10.0.0
+        version: 10.0.0
       p-retry:
         specifier: ^8.0.1
         version: 8.0.1
@@ -4336,9 +4336,6 @@ packages:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
 
-  eventemitter3@5.0.4:
-    resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
-
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
@@ -6611,9 +6608,9 @@ packages:
     resolution: {integrity: sha512-6Lh3jQPLthYujSrlw6ccWXBGZTkoTCz27Hd92g79LH/kjAbgoEu0t442cCCNbegPSJsA0lwDX8z0bcKtkpA32g==}
     engines: {node: '>=18'}
 
-  p-queue@8.1.1:
-    resolution: {integrity: sha512-aNZ+VfjobsWryoiPnEApGGmf5WmNsCo9xu8dfaYamG5qaLP7ClhLN6NgsFe6SwJ2UbLEBK5dv9x8Mn5+RVhMWQ==}
-    engines: {node: '>=18'}
+  p-queue@10.0.0:
+    resolution: {integrity: sha512-P2wrCri3bhGLPo3kX7qYVXbo/5GvaVATU0DpO24CbeT53Y4z35t8JUWku04ERpXHUYB5rPMi3TkWE3fmJgx5rA==}
+    engines: {node: '>=22'}
 
   p-reduce@2.1.0:
     resolution: {integrity: sha512-2USApvnsutq8uoxZBGbbWM0JIYLiEMJ9RlaN7fAzVNb9OZN0SHjjTTfIcb667XynS5Y1VhwDJVDa72TnPzAYWw==}
@@ -9055,7 +9052,7 @@ snapshots:
       geojson-validation: 1.0.2
       jszip: 3.10.2
       multiformats: 14.0.5
-      p-queue: 8.1.1
+      p-queue: 10.0.0
       p-retry: 8.0.1
       rimraf: 6.1.4
       tiny-typed-emitter: 2.1.0
@@ -10465,7 +10462,7 @@ snapshots:
       '@dnsquery/dns-packet': 6.1.1
       '@libp2p/interface': 3.4.0
       hashlru: 2.3.0
-      p-queue: 8.1.1
+      p-queue: 10.0.0
       progress-events: 1.1.0
       uint8arrays: 6.1.1
 
@@ -10641,7 +10638,7 @@ snapshots:
       level: 10.0.0
       lru: 3.1.0
       multiformats: 13.4.2
-      p-queue: 8.1.1
+      p-queue: 10.0.0
       timeout-abort-controller: 3.0.0
       uint8arrays: 5.1.1
 
@@ -11537,7 +11534,7 @@ snapshots:
       npm-package-json-lint: 10.5.1(supports-color@10.2.2)
       nyc: 18.0.0(supports-color@10.2.2)
       p-map: 7.1.1
-      p-queue: 8.1.1
+      p-queue: 10.0.0
       p-retry: 8.0.1
       pascalcase: 2.0.0
       path: 0.12.7
@@ -13407,8 +13404,6 @@ snapshots:
 
   event-target-shim@5.0.1: {}
 
-  eventemitter3@5.0.4: {}
-
   events@3.3.0: {}
 
   evp_bytestokey@1.0.3:
@@ -14251,7 +14246,7 @@ snapshots:
       it-pushable: 3.2.4
       it-to-buffer: 5.0.0
       multiformats: 14.0.8
-      p-queue: 8.1.1
+      p-queue: 10.0.0
       progress-events: 1.1.0
 
   ipfs-unixfs-importer@17.1.1(supports-color@10.2.2):
@@ -16258,10 +16253,7 @@ snapshots:
 
   p-map@7.1.1: {}
 
-  p-queue@8.1.1:
-    dependencies:
-      eventemitter3: 5.0.4
-      p-timeout: 6.1.4
+  p-queue@10.0.0: {}
 
   p-reduce@2.1.0: {}
 
