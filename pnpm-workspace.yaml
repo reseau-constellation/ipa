@@ -19,7 +19,7 @@ minimumReleaseAgeExclude:
   - "@constl/mandataire@3.3.0"
 
 overrides:
-  p-queue: "^8.1.1"
+  p-queue: "^10.0.0"
   playwright-core: "1.65.0"
 
 patchedDependencies:
