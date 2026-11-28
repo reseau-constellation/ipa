@@ -20,7 +20,7 @@ minimumReleaseAgeExclude:
 
 overrides:
   p-queue: "^8.1.1"
-  playwright-core: "1.65.0"
+  playwright-core: "1.65.1"
 
 patchedDependencies:
   '@chriscdn/promise-semaphore': patches/@chriscdn__promise-semaphore.patch

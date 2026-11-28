@@ -183,7 +183,7 @@ settings:
 
 overrides:
   p-queue: ^8.1.1
-  playwright-core: 1.65.0
+  playwright-core: 1.65.1
 
 patchedDependencies:
   '@chriscdn/promise-semaphore': 56485bc386c17e3fae3c8aaf1873f0bc0a508314079e3eb955fe37f8747068d8
@@ -6835,8 +6835,8 @@ packages:
   platform@1.3.6:
     resolution: {integrity: sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==}
 
-  playwright-core@1.65.0:
-    resolution: {integrity: sha512-vNSKgH6YqtN7cdT/L334zo0a+YwkrpicyrHJlWWPIm/Q+Nn2SWInil01oT0mbu96U4GgoRtCYQD9CzJQgju+lA==}
+  playwright-core@1.65.1:
+    resolution: {integrity: sha512-hqPpz7blSMPxWVdoeE1yiBSzXsKiVOd2k+kjCvmUywD2GPO2Dd9HfcWnq9NN0GHbNZDFgZ9JfBFr+X5/BLo0qw==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -16465,7 +16465,7 @@ snapshots:
 
   platform@1.3.6: {}
 
-  playwright-core@1.65.0: {}
+  playwright-core@1.65.1: {}
 
   playwright-test@15.0.1:
     dependencies:
@@ -16488,7 +16488,7 @@ snapshots:
       ora: 9.4.1
       p-timeout: 7.0.2
       path-browserify: 1.0.1
-      playwright-core: 1.65.0
+      playwright-core: 1.65.1
       polka: 0.5.2
       premove: 4.0.0
       process: 0.11.10
@@ -16507,7 +16507,7 @@ snapshots:
 
   playwright@1.65.1:
     dependencies:
-      playwright-core: 1.65.0
+      playwright-core: 1.65.1
 
   please-upgrade-node@3.2.0:
     dependencies:
