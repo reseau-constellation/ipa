@@ -52,7 +52,7 @@ jobs:
         run: pnpm test:node
 
       - name: Envoyer couverture à Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
   
@@ -87,7 +87,7 @@ jobs:
         run: pnpm test:navig
 
       - name: Envoyer couverture à Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -127,7 +127,7 @@ jobs:
         if: matrix.os != 'ubuntu-latest'
 
       - name: Envoyer couverture à Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
   
@@ -162,6 +162,6 @@ jobs:
         run: pnpm run test:déno
 
       - name: Envoyer couverture à Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
