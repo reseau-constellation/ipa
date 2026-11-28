@@ -87,7 +87,7 @@
     "sinon": "^22.1.0",
     "source-map-support": "^0.5.21",
     "tmp": "^0.2.7",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.0",
     "typescript-eslint": "^8.74.0",
     "uint8arraylist": "^3.0.2"
   },
