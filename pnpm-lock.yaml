@@ -450,8 +450,8 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1
       p-retry:
-        specifier: ^8.0.1
-        version: 8.0.1
+        specifier: ^9.0.0
+        version: 9.0.0
       platform:
         specifier: ^1.3.6
         version: 1.3.6
@@ -6629,6 +6629,10 @@ packages:
 
   p-retry@8.0.1:
     resolution: {integrity: sha512-NAigyu8hfvJe7MsS18mnc4is0MZtau3QMdBklaJKK23oBQb6occO3UPM3vHmTckW8KhfyjMZaUOqdTFEYliHgg==}
+    engines: {node: '>=22'}
+
+  p-retry@9.0.0:
+    resolution: {integrity: sha512-HuEats8gYn/UUYa5uyveyQGv75mQmwdFtuMgnZlS12dj/7bdnJSO6keaTjgcZUhvkANTj5EO3lACUmV3xmgj0Q==}
     engines: {node: '>=22'}
 
   p-tap@3.1.0:
@@ -16273,6 +16277,10 @@ snapshots:
       retry: 0.13.1
 
   p-retry@8.0.1:
+    dependencies:
+      is-network-error: 1.3.2
+
+  p-retry@9.0.0:
     dependencies:
       is-network-error: 1.3.2
 
